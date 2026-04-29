@@ -8,7 +8,7 @@ This workspace is a **hybrid repo**:
 | Area                 | Path                                       | Role                                                                                                                                    |
 | -------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
 | **Unity (2D / URP)** | `Assets/`, `ProjectSettings/`, `Packages/` | Game client — scenes, input actions, render pipeline settings (Unity 6, editor `6000.4.2f1` per `ProjectSettings/ProjectVersion.txt`).  |
-| **Next.js app**      | `LLM Test Integration/`                    | Web stack for LLM-related integration — React 19, Next.js 16, TypeScript; entry under `app/` (`layout.tsx`, `page.tsx`, `globals.css`). |
+| **Next.js app**      | `LLM Test Integration/`                    | LLM integration web stack — React 19, Next.js 16, TypeScript. Includes streaming NPC chat + structured KPI analysis (`app/api/chat`, `app/api/analyze`); shared request shapes in `lib/types/`, level/NPC presets in `lib/config/`. |
 | **Repo meta**        | `.gitignore`, `.gitattributes`             | Version control conventions.                                                                                                            |
 
 
@@ -30,13 +30,19 @@ Anything outside these folders in your clone may appear as new worktrees or loca
 - **Framework:** Next.js **16.x** (App Router)
 - **UI:** React **19**, **TypeScript**
 - **Tooling:** ESLint with `eslint-config-next`
-- **Styling:** Plain CSS via `app/globals.css`
+- **Styling:** Plain CSS via `app/globals.css` (design tokens in CSS variables; **no** Tailwind framework — UI helpers use Radix + `cn()` only)
+- **LLM / observability / validation:** `langchain`, `@langchain/openai`, `@langchain/core`, `langsmith`, `zod` — pinned versions in `package.json`
+- **UI primitives (shadcn-style):** `@radix-ui/react-select`, `@radix-ui/react-separator`, `class-variance-authority`, `clsx`, `tailwind-merge`, `lucide-react`
 
 ---
 
 ## Architecture principles
 
 - **Clean separation:** Unity game client vs. Next.js integration app; avoid coupling unless there is an explicit integration contract (API, build step, shared types).
+- **LLM boundary:** Provider API keys, LangChain/LangSmith usage, and prompt orchestration live **only** on the Next.js server (`LLM Test Integration/lib/llm/`, `lib/prompts/`, `app/api/*`). Do not embed secrets in Unity or ship them to the browser client.
+- **Model + prompts:** NVIDIA OpenAI-compatible chat endpoint and model names come from env (see `lib/llm/client.ts`). Prompts may be pulled from LangSmith Hub when configured, with local fallbacks in `lib/prompts/`. Services must treat prompt output as chat messages before calling the model.
+- **Chat prototype contract:** Preserve the typed integration shape for future game use: `sessionId`, `levelId`, `npcId`, `scenarioId`, and conversation messages in `lib/types/*`; level/NPC presets in `lib/config/npcLevels.ts`. Streaming chat vs. post-hoc analysis stay split across `app/api/chat` and `app/api/analyze`.
+- **Conversation memory:** NPC chat uses LangChain agent + `summarizationMiddleware` for long threads (`lib/llm/chatService.ts`).
 - **Composition:** Prefer small, focused React components and Unity scripts with a single clear responsibility.
 - **Type safety:** Strict TypeScript for the web app; consistent C# patterns in Unity scripts.
 - **State:** Prefer React’s built-in `useState` / `useReducer` and context where shared UI state is needed; keep state as local as is practical.
@@ -51,6 +57,7 @@ Repository layout today (high level):
 ```text
 LLM-Supported-LanguageGame/
 ├── AGENTS.md                 # Agent guidance (this file)
+├── LEARNINGS.md              # Scratchpad for /save-learning → /apply-learnings (may be empty)
 ├── Assets/                   # Unity project content
 │   ├── Scenes/               # e.g. SampleScene
 │   ├── Settings/             # URP, renderer, scene templates
@@ -62,9 +69,20 @@ LLM-Supported-LanguageGame/
 ├── ProjectSettings/          # Unity editor and build settings
 ├── LLM Test Integration/     # Next.js app (LLM-related integration)
 │   ├── app/
+│   │   ├── api/
+│   │   │   ├── chat/         # streaming NPC chat
+│   │   │   └── analyze/      # structured KPI evaluation
 │   │   ├── layout.tsx
 │   │   ├── page.tsx
 │   │   └── globals.css
+│   ├── components/           # UI (chat, KPI, shadcn-style primitives)
+│   ├── lib/
+│   │   ├── config/           # env, level/NPC presets
+│   │   ├── llm/              # clients, chat + evaluation services
+│   │   ├── prompts/        # local + Hub-ready loaders
+│   │   └── types/            # shared Zod/TS contracts
+│   ├── docs/                 # vendor doc snapshots (LangChain, LangSmith, NVIDIA)
+│   ├── .env.example
 │   ├── eslint.config.mjs
 │   ├── next.config.ts
 │   ├── next-env.d.ts
