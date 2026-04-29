@@ -51,6 +51,7 @@ ExportedObj/
 *.csproj
 *.unityproj
 *.sln
+*.slnx
 *.suo
 *.tmp
 *.user
@@ -105,3 +106,31 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# Auto-generated cache in Assets folder (upstream Unity.gitignore)
+/[Aa]ssets/[Ss]ceneDependencyCache*
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- Node / npm / pnpm (anywhere in repo) ---
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+
+# --- Next.js (build & deploy artifacts, any path) ---
+**/.next/
+**/out/
+**/.vercel/
+**/.turbo/
+
+# Local env files with secrets (keep .env.example etc. committed)
+**/.env*.local
+
+# TypeScript incremental cache
+*.tsbuildinfo
