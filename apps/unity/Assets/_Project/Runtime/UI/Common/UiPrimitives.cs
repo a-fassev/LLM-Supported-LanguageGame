@@ -32,7 +32,7 @@ namespace ITBL.LanguageGame.Runtime.UI.Common
             label.fontSize = fontSize;
             label.color = Color.black;
             label.alignment = alignment;
-            label.enableWordWrapping = true;
+            label.textWrappingMode = TextWrappingModes.Normal;
             RectTransform rect = label.GetComponent<RectTransform>();
             rect.sizeDelta = new Vector2(0f, fontSize + 12f);
             return label;
@@ -78,7 +78,7 @@ namespace ITBL.LanguageGame.Runtime.UI.Common
             inputRect.sizeDelta = new Vector2(680f, 34f);
 
             TextMeshProUGUI text = CreateLabel("Text", inputObject.transform, initialValue ?? string.Empty, 18, TextAlignmentOptions.Left);
-            text.enableWordWrapping = false;
+            text.textWrappingMode = TextWrappingModes.NoWrap;
             text.margin = new Vector4(8f, 6f, 8f, 6f);
             RectTransform textRect = text.GetComponent<RectTransform>();
             textRect.anchorMin = Vector2.zero;

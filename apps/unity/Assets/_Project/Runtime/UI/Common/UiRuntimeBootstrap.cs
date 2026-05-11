@@ -14,7 +14,7 @@ namespace ITBL.LanguageGame.Runtime.UI.Common
 
         public static EventSystem EnsureEventSystem()
         {
-            EventSystem existing = UnityEngine.Object.FindFirstObjectByType<EventSystem>();
+            EventSystem existing = UnityEngine.Object.FindAnyObjectByType<EventSystem>();
             if (existing != null)
             {
                 return existing;

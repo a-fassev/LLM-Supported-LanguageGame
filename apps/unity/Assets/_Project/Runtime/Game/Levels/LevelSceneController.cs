@@ -148,7 +148,7 @@ namespace ITBL.LanguageGame.Runtime.Game.Levels
             {
                 outcome = await _orchestrator.SubmitAsync(submission, _submitCts.Token);
             }
-            catch (OperationCanceledException)
+            catch (System.OperationCanceledException)
             {
                 _statusMessage = "Bewertung wurde abgebrochen.";
                 _isSubmitting = false;
