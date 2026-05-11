@@ -2,7 +2,7 @@
   "name": "ITBL.LanguageGame.EditModeTests",
   "rootNamespace": "ITBL.LanguageGame.Tests.EditMode",
   "references": [
-    "Assembly-CSharp"
+    "ITBL.LanguageGame.Runtime"
   ],
   "includePlatforms": [
     "Editor"

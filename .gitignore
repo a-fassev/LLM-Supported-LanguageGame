@@ -41,6 +41,7 @@
 
 # Visual Studio cache directory
 .vs/
+/apps/unity/.vscode/
 
 # Gradle cache directory
 .gradle/
@@ -68,6 +69,10 @@ ExportedObj/
 *.pidb.meta
 *.pdb.meta
 *.mdb.meta
+
+# Local Unity reimport noise under _Project (kept untracked)
+/apps/unity/Assets/_Project.meta
+/apps/unity/Assets/_Project/**/*.meta
 
 # Unity3D generated file on crash reports
 sysinfo.txt
