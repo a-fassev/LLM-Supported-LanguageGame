@@ -9,6 +9,6 @@
     "lint:web": "npm run lint --workspace apps/web",
     "test:web": "npm run test --workspace apps/web",
     "unity:open": "open -a \"Unity Hub\" \"apps/unity\"",
-    "unity:test:editmode": "sh -c 'if [ -z \"$UNITY_CLI\" ]; then echo \"UNITY_CLI is not set. Example: export UNITY_CLI=\\\"/Applications/Unity/Hub/Editor/6000.4.2f1/Unity.app/Contents/MacOS/Unity\\\"\"; exit 1; fi; \"$UNITY_CLI\" -projectPath \"apps/unity\" -runTests -testPlatform EditMode -batchmode -nographics -quit -logFile -'"
+    "unity:test:editmode": "sh -c 'if [ -z \"$UNITY_CLI\" ]; then echo \"UNITY_CLI is not set. Example: export UNITY_CLI=\\\"/Applications/Unity/Hub/Editor/6000.4.6f1/Unity.app/Contents/MacOS/Unity\\\"\"; exit 1; fi; \"$UNITY_CLI\" -projectPath \"apps/unity\" -runTests -testPlatform EditMode -batchmode -nographics -quit -logFile -'"
   }
 }

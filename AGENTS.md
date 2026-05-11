@@ -7,7 +7,7 @@ This workspace is a **hybrid repo**:
 
 | Area                 | Path                                       | Role                                                                                                                                    |
 | -------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
-| **Unity (2D / URP)** | `apps/unity/Assets/`, `apps/unity/ProjectSettings/`, `apps/unity/Packages/` | Game client — scenes, input actions, render pipeline settings (Unity 6, editor `6000.4.2f1` per `apps/unity/ProjectSettings/ProjectVersion.txt`). |
+| **Unity (2D / URP)** | `apps/unity/Assets/`, `apps/unity/ProjectSettings/`, `apps/unity/Packages/` | Game client — scenes, input actions, render pipeline settings (Unity 6.4, editor `6000.4.6f1` per `apps/unity/ProjectSettings/ProjectVersion.txt`). |
 | **Next.js app**      | `apps/web/`                                | LLM integration web stack — React 19, Next.js 16, TypeScript. Task evaluation (`app/api/tasks/evaluate`) plus a minimal local **WebGL play shell** (`app/game/page.tsx` → iframe `/unity-webgl/index.html`). |
 | **Repo meta**        | `.gitignore`, `.gitattributes`             | Version control conventions.                                                                                                            |
 
@@ -20,7 +20,7 @@ Anything outside these folders in your clone may appear as new worktrees or loca
 
 ### Game client (Unity)
 
-- **Engine:** Unity 6 (`6000.4.2f1` per `apps/unity/ProjectSettings/ProjectVersion.txt`)
+- **Engine:** Unity 6.4 (`6000.4.6f1` per `apps/unity/ProjectSettings/ProjectVersion.txt`)
 - **Rendering:** 2D **Universal Render Pipeline (URP)** — assets and pipeline settings under `apps/unity/Assets/Settings/` and `apps/unity/ProjectSettings/`
 - **Input:** New Input System (`apps/unity/Assets/InputSystem_Actions.inputactions`)
 - **Language:** C# — Unity scripts and gameplay code live under `apps/unity/Assets/`

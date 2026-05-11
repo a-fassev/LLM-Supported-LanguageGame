@@ -13,7 +13,7 @@ Hybrid repository: a **Unity 6** 2D learning game and a **Next.js** backend for 
 ## Requirements
 
 - **Node.js** (LTS) and **npm** — for `apps/web`
-- **Unity Hub** + **Unity Editor** matching `apps/unity/ProjectSettings/ProjectVersion.txt` (e.g. `6000.4.2f1`) with **WebGL Build Support** if you ship browser builds
+- **Unity Hub** + **Unity Editor** matching `apps/unity/ProjectSettings/ProjectVersion.txt` (Unity **6.4** / `6000.4.6f1`) with **WebGL Build Support** if you ship browser builds
 
 ## Web app (Next.js)
 
