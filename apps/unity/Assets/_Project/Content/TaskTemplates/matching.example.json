@@ -1,0 +1,19 @@
+{
+  "taskId": "task-match-01",
+  "taskType": "matching",
+  "prompt": "Ordne die italienischen Verben der passenden Bedeutung zu.",
+  "leftItems": ["capire", "scegliere", "ricordare"],
+  "rightItems": ["to remember", "to choose", "to understand"],
+  "correctPairs": [
+    { "left": "capire", "right": "to understand" },
+    { "left": "scegliere", "right": "to choose" },
+    { "left": "ricordare", "right": "to remember" }
+  ],
+  "unlockNextTaskWhen": "pass",
+  "requiredToPassLevel": true,
+  "scoring": {
+    "policy": "partial_points",
+    "maxPoints": 3,
+    "passThreshold": 0.67
+  }
+}

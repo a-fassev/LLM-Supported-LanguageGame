@@ -1,0 +1,25 @@
+{
+  "taskId": "task-cloze-01",
+  "taskType": "cloze_text",
+  "prompt": "Fuelle die Luecken passend aus.",
+  "templateText": "Quando ___ a casa, ___ i compiti.",
+  "gaps": [
+    {
+      "gapId": "gap-1",
+      "acceptedAnswers": ["arrivo"],
+      "options": ["arrivo", "arrivi", "arriviamo"]
+    },
+    {
+      "gapId": "gap-2",
+      "acceptedAnswers": ["faccio"],
+      "options": ["faccio", "fai", "facciamo"]
+    }
+  ],
+  "unlockNextTaskWhen": "pass",
+  "requiredToPassLevel": true,
+  "scoring": {
+    "policy": "partial_points",
+    "maxPoints": 2,
+    "passThreshold": 0.5
+  }
+}

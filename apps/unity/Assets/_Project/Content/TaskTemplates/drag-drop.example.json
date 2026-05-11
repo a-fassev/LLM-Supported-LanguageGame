@@ -1,0 +1,13 @@
+{
+  "taskId": "task-drag-01",
+  "taskType": "drag_drop",
+  "prompt": "Ordne die Satzteile in die richtige Reihenfolge.",
+  "tokens": ["a", "scuola", "vado", "io", "domani"],
+  "correctOrder": ["domani", "io", "vado", "a", "scuola"],
+  "unlockNextTaskWhen": "pass",
+  "requiredToPassLevel": true,
+  "scoring": {
+    "policy": "partial_points",
+    "maxPoints": 5
+  }
+}

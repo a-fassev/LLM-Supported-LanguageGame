@@ -1,0 +1,16 @@
+{
+  "taskId": "task-error-01",
+  "taskType": "error_hunt",
+  "prompt": "Finde den Fehler und schreibe den Satz korrekt.",
+  "textWithError": "Ieri io vado al mercato con mia madre.",
+  "acceptedCorrections": [
+    "Ieri io sono andato al mercato con mia madre.",
+    "Ieri sono andato al mercato con mia madre."
+  ],
+  "unlockNextTaskWhen": "pass",
+  "requiredToPassLevel": true,
+  "scoring": {
+    "policy": "strict_binary",
+    "maxPoints": 1
+  }
+}

@@ -1,0 +1,324 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://itbl-languagegame/schemas/level-content.schema.json",
+  "title": "LevelContentV1",
+  "type": "object",
+  "required": [
+    "levelId",
+    "version",
+    "displayName",
+    "difficulty",
+    "taskOrder",
+    "tasks",
+    "levelCompletionRule"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "levelId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "difficulty": {
+      "type": "string",
+      "enum": ["easy", "medium", "hard"]
+    },
+    "theme": {
+      "type": "string"
+    },
+    "taskOrder": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "levelCompletionRule": {
+      "type": "object",
+      "required": ["mode"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["all_required", "min_score"]
+        },
+        "minScorePercent": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/task"
+      }
+    }
+  },
+  "$defs": {
+    "scoringConfig": {
+      "type": "object",
+      "required": ["policy"],
+      "additionalProperties": false,
+      "properties": {
+        "policy": {
+          "type": "string",
+          "enum": ["strict_binary", "partial_points", "threshold_pass"]
+        },
+        "maxPoints": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "passThreshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "taskBase": {
+      "type": "object",
+      "required": ["taskId", "taskType", "prompt", "scoring"],
+      "additionalProperties": false,
+      "properties": {
+        "taskId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "taskType": {
+          "type": "string",
+          "enum": [
+            "error_hunt",
+            "drag_drop",
+            "cloze_text",
+            "matching",
+            "multiple_choice",
+            "llm_free_text",
+            "llm_word_guess"
+          ]
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requiredToPassLevel": {
+          "type": "boolean",
+          "default": true
+        },
+        "unlockNextTaskWhen": {
+          "type": "string",
+          "enum": ["always", "pass", "perfect_score"],
+          "default": "pass"
+        },
+        "maxAttempts": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "scoring": {
+          "$ref": "#/$defs/scoringConfig"
+        }
+      }
+    },
+    "taskErrorHunt": {
+      "allOf": [
+        { "$ref": "#/$defs/taskBase" },
+        {
+          "type": "object",
+          "required": ["textWithError", "acceptedCorrections"],
+          "properties": {
+            "taskType": { "const": "error_hunt" },
+            "textWithError": { "type": "string", "minLength": 1 },
+            "acceptedCorrections": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string" }
+            }
+          }
+        }
+      ]
+    },
+    "taskDragDrop": {
+      "allOf": [
+        { "$ref": "#/$defs/taskBase" },
+        {
+          "type": "object",
+          "required": ["tokens", "correctOrder"],
+          "properties": {
+            "taskType": { "const": "drag_drop" },
+            "tokens": {
+              "type": "array",
+              "minItems": 2,
+              "items": { "type": "string" }
+            },
+            "correctOrder": {
+              "type": "array",
+              "minItems": 2,
+              "items": { "type": "string" }
+            }
+          }
+        }
+      ]
+    },
+    "taskClozeText": {
+      "allOf": [
+        { "$ref": "#/$defs/taskBase" },
+        {
+          "type": "object",
+          "required": ["templateText", "gaps"],
+          "properties": {
+            "taskType": { "const": "cloze_text" },
+            "templateText": { "type": "string", "minLength": 1 },
+            "gaps": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["gapId", "acceptedAnswers"],
+                "additionalProperties": false,
+                "properties": {
+                  "gapId": { "type": "string", "minLength": 1 },
+                  "acceptedAnswers": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": { "type": "string" }
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "taskMatching": {
+      "allOf": [
+        { "$ref": "#/$defs/taskBase" },
+        {
+          "type": "object",
+          "required": ["leftItems", "rightItems", "correctPairs"],
+          "properties": {
+            "taskType": { "const": "matching" },
+            "leftItems": {
+              "type": "array",
+              "minItems": 2,
+              "items": { "type": "string" }
+            },
+            "rightItems": {
+              "type": "array",
+              "minItems": 2,
+              "items": { "type": "string" }
+            },
+            "correctPairs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["left", "right"],
+                "additionalProperties": false,
+                "properties": {
+                  "left": { "type": "string" },
+                  "right": { "type": "string" }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "taskMultipleChoice": {
+      "allOf": [
+        { "$ref": "#/$defs/taskBase" },
+        {
+          "type": "object",
+          "required": ["question", "choices", "correctChoiceId"],
+          "properties": {
+            "taskType": { "const": "multiple_choice" },
+            "question": { "type": "string", "minLength": 1 },
+            "choices": {
+              "type": "array",
+              "minItems": 2,
+              "items": {
+                "type": "object",
+                "required": ["id", "label"],
+                "additionalProperties": false,
+                "properties": {
+                  "id": { "type": "string" },
+                  "label": { "type": "string" }
+                }
+              }
+            },
+            "correctChoiceId": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    },
+    "taskLlmFreeText": {
+      "allOf": [
+        { "$ref": "#/$defs/taskBase" },
+        {
+          "type": "object",
+          "required": ["evaluationCriteria", "targetStructures"],
+          "properties": {
+            "taskType": { "const": "llm_free_text" },
+            "evaluationCriteria": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string" }
+            },
+            "targetStructures": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          }
+        }
+      ]
+    },
+    "taskLlmWordGuess": {
+      "allOf": [
+        { "$ref": "#/$defs/taskBase" },
+        {
+          "type": "object",
+          "required": ["targetWord", "maxGuessAttempts"],
+          "properties": {
+            "taskType": { "const": "llm_word_guess" },
+            "targetWord": { "type": "string", "minLength": 1 },
+            "maxGuessAttempts": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            }
+          }
+        }
+      ]
+    },
+    "task": {
+      "oneOf": [
+        { "$ref": "#/$defs/taskErrorHunt" },
+        { "$ref": "#/$defs/taskDragDrop" },
+        { "$ref": "#/$defs/taskClozeText" },
+        { "$ref": "#/$defs/taskMatching" },
+        { "$ref": "#/$defs/taskMultipleChoice" },
+        { "$ref": "#/$defs/taskLlmFreeText" },
+        { "$ref": "#/$defs/taskLlmWordGuess" }
+      ]
+    }
+  }
+}

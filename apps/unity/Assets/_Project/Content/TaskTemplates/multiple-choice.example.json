@@ -1,0 +1,18 @@
+{
+  "taskId": "task-mc-01",
+  "taskType": "multiple_choice",
+  "prompt": "Waehle die passende Verbform.",
+  "question": "Noi ___ italiano ogni giorno.",
+  "choices": [
+    { "id": "a", "label": "parlo" },
+    { "id": "b", "label": "parliamo" },
+    { "id": "c", "label": "parlano" }
+  ],
+  "correctChoiceId": "b",
+  "unlockNextTaskWhen": "pass",
+  "requiredToPassLevel": true,
+  "scoring": {
+    "policy": "strict_binary",
+    "maxPoints": 1
+  }
+}

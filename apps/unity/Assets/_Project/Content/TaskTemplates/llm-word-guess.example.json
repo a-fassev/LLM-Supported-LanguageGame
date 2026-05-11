@@ -1,0 +1,14 @@
+{
+  "taskId": "task-llm-wordguess-01",
+  "taskType": "llm_word_guess",
+  "prompt": "Beschreibe das Zielwort mit Relativsaetzen, ohne es direkt zu nennen.",
+  "targetWord": "biblioteca",
+  "maxGuessAttempts": 3,
+  "unlockNextTaskWhen": "always",
+  "requiredToPassLevel": false,
+  "scoring": {
+    "policy": "threshold_pass",
+    "maxPoints": 3,
+    "passThreshold": 0.34
+  }
+}

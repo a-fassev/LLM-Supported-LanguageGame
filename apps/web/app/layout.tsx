@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "LLM Test Integration",
+  title: "Task Evaluation API",
 };
 
 export default function RootLayout({

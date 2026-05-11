@@ -1,0 +1,115 @@
+{
+  "levelId": "a2-school-sequence-01",
+  "version": 1,
+  "displayName": "A2 School Mission",
+  "difficulty": "medium",
+  "theme": "school_life",
+  "taskOrder": [
+    "task-mc-01",
+    "task-match-01",
+    "task-cloze-01",
+    "task-error-01",
+    "task-llm-freetext-01"
+  ],
+  "levelCompletionRule": {
+    "mode": "all_required"
+  },
+  "tasks": [
+    {
+      "taskId": "task-mc-01",
+      "taskType": "multiple_choice",
+      "prompt": "Waehle die passende Verbform.",
+      "question": "Noi ___ italiano ogni giorno.",
+      "choices": [
+        { "id": "a", "label": "parlo" },
+        { "id": "b", "label": "parliamo" },
+        { "id": "c", "label": "parlano" }
+      ],
+      "correctChoiceId": "b",
+      "unlockNextTaskWhen": "pass",
+      "requiredToPassLevel": true,
+      "scoring": {
+        "policy": "strict_binary",
+        "maxPoints": 1
+      }
+    },
+    {
+      "taskId": "task-match-01",
+      "taskType": "matching",
+      "prompt": "Ordne die italienischen Verben der passenden Bedeutung zu.",
+      "leftItems": ["capire", "scegliere", "ricordare"],
+      "rightItems": ["to remember", "to choose", "to understand"],
+      "correctPairs": [
+        { "left": "capire", "right": "to understand" },
+        { "left": "scegliere", "right": "to choose" },
+        { "left": "ricordare", "right": "to remember" }
+      ],
+      "unlockNextTaskWhen": "pass",
+      "requiredToPassLevel": true,
+      "scoring": {
+        "policy": "partial_points",
+        "maxPoints": 3,
+        "passThreshold": 0.67
+      }
+    },
+    {
+      "taskId": "task-cloze-01",
+      "taskType": "cloze_text",
+      "prompt": "Fuelle die Luecken passend aus.",
+      "templateText": "Quando ___ a casa, ___ i compiti.",
+      "gaps": [
+        {
+          "gapId": "gap-1",
+          "acceptedAnswers": ["arrivo"],
+          "options": ["arrivo", "arrivi", "arriviamo"]
+        },
+        {
+          "gapId": "gap-2",
+          "acceptedAnswers": ["faccio"],
+          "options": ["faccio", "fai", "facciamo"]
+        }
+      ],
+      "unlockNextTaskWhen": "pass",
+      "requiredToPassLevel": true,
+      "scoring": {
+        "policy": "partial_points",
+        "maxPoints": 2,
+        "passThreshold": 0.5
+      }
+    },
+    {
+      "taskId": "task-error-01",
+      "taskType": "error_hunt",
+      "prompt": "Finde den Fehler und schreibe den Satz korrekt.",
+      "textWithError": "Ieri io vado al mercato con mia madre.",
+      "acceptedCorrections": [
+        "Ieri io sono andato al mercato con mia madre.",
+        "Ieri sono andato al mercato con mia madre."
+      ],
+      "unlockNextTaskWhen": "pass",
+      "requiredToPassLevel": true,
+      "scoring": {
+        "policy": "strict_binary",
+        "maxPoints": 1
+      }
+    },
+    {
+      "taskId": "task-llm-freetext-01",
+      "taskType": "llm_free_text",
+      "prompt": "Schreibe 3-4 Saetze ueber deinen Schultag auf Italienisch.",
+      "evaluationCriteria": [
+        "Antwort ist zusammenhaengend und verstaendlich",
+        "Mindestens eine Vergangenheitsform wird genutzt",
+        "Mindestens zwei Schulthemen-Woerter werden genutzt"
+      ],
+      "targetStructures": ["passato prossimo", "lessico scuola"],
+      "unlockNextTaskWhen": "always",
+      "requiredToPassLevel": false,
+      "scoring": {
+        "policy": "threshold_pass",
+        "maxPoints": 5,
+        "passThreshold": 0.6
+      }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "taskId": "task-llm-freetext-01",
+  "taskType": "llm_free_text",
+  "prompt": "Schreibe 3-4 Saetze ueber deinen Schultag auf Italienisch.",
+  "evaluationCriteria": [
+    "Antwort ist zusammenhaengend und verstaendlich",
+    "Mindestens eine Vergangenheitsform wird genutzt",
+    "Mindestens zwei Schulthemen-Woerter werden genutzt"
+  ],
+  "targetStructures": ["passato prossimo", "lessico scuola"],
+  "unlockNextTaskWhen": "pass",
+  "requiredToPassLevel": false,
+  "scoring": {
+    "policy": "threshold_pass",
+    "maxPoints": 5,
+    "passThreshold": 0.6
+  }
+}
