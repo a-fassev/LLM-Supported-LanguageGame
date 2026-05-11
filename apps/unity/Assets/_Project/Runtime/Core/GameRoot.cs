@@ -3,6 +3,8 @@ using ITBL.LanguageGame.Runtime.Game.Levels;
 using ITBL.LanguageGame.Runtime.Infrastructure.Networking;
 using ITBL.LanguageGame.Runtime.Infrastructure.Persistence;
 using System;
+using ITBL.LanguageGame.Runtime.UI.Common;
+using ITBL.LanguageGame.Runtime.UI.Screens;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,6 +13,7 @@ namespace ITBL.LanguageGame.Runtime.Core
     public sealed class GameRoot : MonoBehaviour
     {
         private static GameRoot _instance;
+        private GlobalOverlayView _overlayView;
 
         public static bool IsReady => _instance != null && Services != null;
         public static GameServices Services { get; private set; }
@@ -39,6 +42,9 @@ namespace ITBL.LanguageGame.Runtime.Core
             _instance = this;
             DontDestroyOnLoad(gameObject);
             InitializeServices();
+            UiRuntimeBootstrap.EnsureEventSystem();
+            _overlayView = GlobalOverlayView.Create(transform);
+            _overlayView.Bind(Services);
         }
 
         private void OnEnable()
@@ -141,33 +147,14 @@ namespace ITBL.LanguageGame.Runtime.Core
             };
         }
 
-        private void OnGUI()
+        private void Update()
         {
             if (Services == null)
             {
                 return;
             }
 
-            if (Services.SceneRouter.IsLoading)
-            {
-                GUI.Box(new Rect(15, 15, 260, 40), "Lade Szene ...");
-            }
-
-            if (Services.ErrorState.HasError)
-            {
-                GUI.Box(new Rect(15, 65, 500, 130), Services.ErrorState.CurrentMessage);
-                if (GUI.Button(new Rect(25, 115, 170, 30), "Zum Hub zurueck"))
-                {
-                    Services.ErrorState.Clear();
-                    Services.SceneRouter.LoadScene(GameSceneId.MainHub);
-                }
-
-                if (GUI.Button(new Rect(205, 115, 170, 30), "Zum Menue"))
-                {
-                    Services.ErrorState.Clear();
-                    Services.SceneRouter.LoadScene(GameSceneId.MainMenu);
-                }
-            }
+            _overlayView?.Refresh();
         }
     }
 }

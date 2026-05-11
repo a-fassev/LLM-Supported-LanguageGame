@@ -1,30 +1,29 @@
 using ITBL.LanguageGame.Runtime.Core;
+using ITBL.LanguageGame.Runtime.UI.Screens;
 using UnityEngine;
 
 namespace ITBL.LanguageGame.Runtime.Game.Levels
 {
     public sealed class MainMenuSceneController : MonoBehaviour
     {
+        private MainMenuView _view;
+
         private void Start()
         {
             Debug.Log("[WP1][MainMenu] Ready");
+            _view = MainMenuView.Create(transform);
+            _view.Bind(OnStartClicked);
         }
 
-        private void OnGUI()
+        private void OnStartClicked()
         {
             if (!GameRoot.IsReady)
             {
                 return;
             }
 
-            GUI.Box(new Rect(20, 20, 360, 150), "Italian Lernspiel");
-            GUI.Label(new Rect(35, 50, 330, 25), "Workpackage 1 - Core Foundation");
-
-            if (GUI.Button(new Rect(35, 85, 150, 35), "Start"))
-            {
-                GameRoot.Services.ErrorState.Clear();
-                GameRoot.Services.SceneRouter.LoadScene(GameSceneId.MainHub);
-            }
+            GameRoot.Services.ErrorState.Clear();
+            GameRoot.Services.SceneRouter.LoadScene(GameSceneId.MainHub);
         }
     }
 }

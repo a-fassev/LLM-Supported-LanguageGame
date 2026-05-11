@@ -5,6 +5,7 @@ using ITBL.LanguageGame.Runtime.Game.Modes;
 using ITBL.LanguageGame.Runtime.Infrastructure.Persistence;
 using System.Threading;
 using System.Threading.Tasks;
+using ITBL.LanguageGame.Runtime.UI.Screens;
 using UnityEngine;
 
 namespace ITBL.LanguageGame.Runtime.Game.Levels
@@ -37,10 +38,12 @@ namespace ITBL.LanguageGame.Runtime.Game.Levels
         private readonly System.Collections.Generic.Dictionary<string, string> _matchingInputs = new();
         private readonly System.Collections.Generic.Dictionary<string, string> _clozeInputs = new();
         private CancellationTokenSource _submitCts;
+        private LevelHudView _hudView;
 
         private void Start()
         {
             EnsureSceneVisuals();
+            _hudView = LevelHudView.Create(transform);
             _statusMessage = "Level wird geladen ...";
 
             if (!GameRoot.IsReady)
@@ -97,16 +100,25 @@ namespace ITBL.LanguageGame.Runtime.Game.Levels
 
         private void Update()
         {
-            if (!GameRoot.IsReady || _orchestrator == null)
+            if (!GameRoot.IsReady)
             {
+                _hudView?.Refresh(BuildHudData());
                 return;
             }
 
-            if (_orchestrator.IsFinished && !_didPersistCompletion)
+            if (_orchestrator != null && _orchestrator.IsFinished && !_didPersistCompletion)
             {
                 PersistAttempt(isCompleted: true, isPassed: _levelPassed);
                 _didPersistCompletion = true;
             }
+
+            LevelTaskDefinition currentTask = _orchestrator?.CurrentTask;
+            if (currentTask != null && currentTask.taskId != _activeTaskId)
+            {
+                ResetInputsForTask(currentTask);
+            }
+
+            _hudView?.Refresh(BuildHudData());
         }
 
         private void SubmitCurrentTask(TaskSubmission submission)
@@ -304,9 +316,97 @@ namespace ITBL.LanguageGame.Runtime.Game.Levels
             camera.orthographicSize = 6f;
         }
 
-        private void OnGUI()
+        private LevelHudView.Data BuildHudData()
         {
-            LevelTaskHudPresenter.Draw(this);
+            LevelTaskDefinition task = _orchestrator?.CurrentTask;
+            return new LevelHudView.Data
+            {
+                ActiveLevelId = _activeLevelId,
+                StatusMessage = _statusMessage,
+                UxStateText = _uxState.ToString(),
+                IsSubmitting = _isSubmitting,
+                IsRuntimeReady = GameRoot.IsReady && _orchestrator != null,
+                IsFinished = _orchestrator?.IsFinished ?? false,
+                TotalScoreEarned = _orchestrator?.GetTotalScoreEarned() ?? 0,
+                TotalScoreMax = _orchestrator?.GetTotalScoreMax() ?? 0,
+                CurrentTaskIndex = _orchestrator?.CurrentTaskIndex ?? 0,
+                Task = task,
+                ShowRetry = !_isSubmitting && _uxState == LevelUxState.RetryAvailable && _lastSubmission != null,
+                OnBackToHub = () =>
+                {
+                    if (GameRoot.IsReady)
+                    {
+                        GameRoot.Services.SceneRouter.LoadScene(GameSceneId.MainHub);
+                    }
+                },
+                OnRetry = () => _ = RetryLastSubmissionAsync(),
+                OnSubmitMultipleChoice = SubmitMultipleChoice,
+                GetMatchingInput = key => _matchingInputs.TryGetValue(key, out string value) ? value : string.Empty,
+                SetMatchingInput = (key, value) => _matchingInputs[key] = value ?? string.Empty,
+                OnSubmitMatching = SubmitMatching,
+                GetClozeInput = key => _clozeInputs.TryGetValue(key, out string value) ? value : string.Empty,
+                SetClozeInput = (key, value) => _clozeInputs[key] = value ?? string.Empty,
+                OnSubmitCloze = SubmitCloze,
+                FreeTextInput = _freeTextInput,
+                SetFreeTextInput = value => _freeTextInput = value ?? string.Empty,
+                OnSubmitFreeText = SubmitFreeText,
+                DragDropInput = _dragDropInput,
+                SetDragDropInput = value => _dragDropInput = value ?? string.Empty,
+                OnSubmitDragDrop = SubmitDragDrop,
+                OnSubmitUnsupported = SubmitFreeText,
+            };
+        }
+
+        private void SubmitMultipleChoice(string optionId)
+        {
+            TaskSubmission submission = CreateSubmission();
+            submission.Values.Add(optionId);
+            SubmitCurrentTask(submission);
+        }
+
+        private void SubmitMatching()
+        {
+            TaskSubmission submission = CreateSubmission();
+            foreach (System.Collections.Generic.KeyValuePair<string, string> pair in _matchingInputs)
+            {
+                submission.Values.Add($"{pair.Key}=>{pair.Value}");
+            }
+
+            SubmitCurrentTask(submission);
+        }
+
+        private void SubmitCloze()
+        {
+            LevelTaskDefinition task = _orchestrator?.CurrentTask;
+            if (task == null)
+            {
+                return;
+            }
+
+            TaskSubmission submission = CreateSubmission();
+            foreach (ClozeGapDefinition gap in task.gaps)
+            {
+                _clozeInputs.TryGetValue(gap.gapId, out string value);
+                submission.Values.Add(value ?? string.Empty);
+            }
+
+            SubmitCurrentTask(submission);
+        }
+
+        private void SubmitFreeText()
+        {
+            SubmitCurrentTask(CreateSubmission(_freeTextInput));
+        }
+
+        private void SubmitDragDrop()
+        {
+            TaskSubmission submission = CreateSubmission();
+            foreach (string token in _dragDropInput.Split(',', System.StringSplitOptions.RemoveEmptyEntries))
+            {
+                submission.Values.Add(token.Trim());
+            }
+
+            SubmitCurrentTask(submission);
         }
     }
 }

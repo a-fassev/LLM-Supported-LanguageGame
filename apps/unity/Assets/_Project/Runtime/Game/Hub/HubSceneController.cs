@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ITBL.LanguageGame.Runtime.Core;
 using ITBL.LanguageGame.Runtime.Game.Levels;
 using ITBL.LanguageGame.Runtime.Infrastructure.Persistence;
+using ITBL.LanguageGame.Runtime.UI.Screens;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -18,6 +19,7 @@ namespace ITBL.LanguageGame.Runtime.Game.Hub
         private InputAction _interactAction;
         private bool _interactPressed;
         private string _statusMessage = "Erkunde den Hub und waehle ein Level.";
+        private HubOverlayView _overlayView;
 
         private void Start()
         {
@@ -25,6 +27,8 @@ namespace ITBL.LanguageGame.Runtime.Game.Hub
             BuildHubObjects();
             BindInput();
             RefreshGateStates();
+            _overlayView = HubOverlayView.Create(transform);
+            _overlayView.Bind(() => GameRoot.Services.SceneRouter.LoadScene(GameSceneId.MainMenu));
         }
 
         private void OnEnable()
@@ -56,6 +60,9 @@ namespace ITBL.LanguageGame.Runtime.Game.Hub
                 _interactPressed = false;
                 TryInteract();
             }
+
+            PlayerProfile profile = GameRoot.Services.ProgressionService.GetPlayerProfile();
+            _overlayView?.Refresh(_statusMessage, profile, _gates);
         }
 
         private void BuildHubObjects()
@@ -193,32 +200,5 @@ namespace ITBL.LanguageGame.Runtime.Game.Hub
             camera.orthographicSize = 6f;
         }
 
-        private void OnGUI()
-        {
-            if (!GameRoot.IsReady)
-            {
-                return;
-            }
-
-            PlayerProfile profile = GameRoot.Services.ProgressionService.GetPlayerProfile();
-            GUI.Box(new Rect(15, 15, 500, 190), "Main Hub");
-            GUI.Label(new Rect(30, 45, 470, 25), "Bewegung: WASD / Pfeiltasten / Gamepad-Stick");
-            GUI.Label(new Rect(30, 65, 470, 25), "Interaktion: E / Gamepad (North)");
-            GUI.Label(new Rect(30, 85, 470, 25), $"Status: {_statusMessage}");
-            GUI.Label(new Rect(30, 105, 470, 25), $"Score: {profile.score.totalPoints} | Abgeschlossene Tasks: {profile.score.tasksCompleted}");
-            GUI.Label(new Rect(30, 125, 470, 25), $"Abgeschlossene Level: {profile.stats.levelsCompleted}");
-
-            int startY = 155;
-            foreach (HubLevelGate gate in _gates)
-            {
-                GUI.Label(new Rect(30, startY, 460, 20), $"{gate.DisplayName} ({gate.LevelId}): {gate.State}");
-                startY += 20;
-            }
-
-            if (GUI.Button(new Rect(340, 155, 160, 30), "Zurueck zum Menue"))
-            {
-                GameRoot.Services.SceneRouter.LoadScene(GameSceneId.MainMenu);
-            }
-        }
     }
 }
