@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using LanguageGame.Application;
 
@@ -6,20 +7,21 @@ namespace LanguageGame.Presentation
 {
     public class MainMenuView : MonoBehaviour
     {
-        [SerializeField] private Button spielenButton;
+        [FormerlySerializedAs("spielenButton")]
+        [SerializeField] private Button playButton;
 
         private void Awake()
         {
-            if (spielenButton == null)
-                Debug.LogWarning("[MainMenuView] spielenButton is not assigned.");
+            if (playButton == null)
+                Debug.LogWarning("[MainMenuView] playButton is not assigned.");
         }
 
         private void Start()
         {
-            spielenButton?.onClick.AddListener(OnSpielen);
+            playButton?.onClick.AddListener(OnPlayClicked);
         }
 
-        private void OnSpielen()
+        private void OnPlayClicked()
         {
             if (GameFlowController.Instance == null)
             {
@@ -31,7 +33,7 @@ namespace LanguageGame.Presentation
 
         private void OnDestroy()
         {
-            spielenButton?.onClick.RemoveListener(OnSpielen);
+            playButton?.onClick.RemoveListener(OnPlayClicked);
         }
     }
 }

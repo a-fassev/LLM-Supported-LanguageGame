@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using LanguageGame.Application;
 
@@ -6,21 +7,22 @@ namespace LanguageGame.Presentation
 {
     public class LevelShellView : MonoBehaviour
     {
-        [SerializeField] private Button zurStadtkarteButton;
+        [FormerlySerializedAs("zurStadtkarteButton")]
+        [SerializeField] private Button cityMapButton;
         [SerializeField] private Text   levelTitleText;
 
         private void Awake()
         {
-            if (zurStadtkarteButton == null)
-                Debug.LogWarning("[LevelShellView] zurStadtkarteButton is not assigned.");
+            if (cityMapButton == null)
+                Debug.LogWarning("[LevelShellView] cityMapButton is not assigned.");
         }
 
         private void Start()
         {
-            zurStadtkarteButton?.onClick.AddListener(OnZurStadtkarte);
+            cityMapButton?.onClick.AddListener(OnCityMapClicked);
         }
 
-        private void OnZurStadtkarte()
+        private void OnCityMapClicked()
         {
             if (GameFlowController.Instance == null)
             {
@@ -32,7 +34,7 @@ namespace LanguageGame.Presentation
 
         private void OnDestroy()
         {
-            zurStadtkarteButton?.onClick.RemoveListener(OnZurStadtkarte);
+            cityMapButton?.onClick.RemoveListener(OnCityMapClicked);
         }
     }
 }

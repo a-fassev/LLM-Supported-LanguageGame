@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using LanguageGame.Application;
 using LanguageGame.Domain;
@@ -7,7 +8,8 @@ namespace LanguageGame.Presentation
 {
     public class CityMapView : MonoBehaviour
     {
-        [SerializeField] private Button hauptmenueButton;
+        [FormerlySerializedAs("hauptmenueButton")]
+        [SerializeField] private Button mainMenuButton;
 
         [Header("Level Pins")]
         [SerializeField] private Button pinErrorSpotting;
@@ -20,12 +22,12 @@ namespace LanguageGame.Presentation
 
         private void Awake()
         {
-            if (hauptmenueButton == null) Debug.LogWarning("[CityMapView] hauptmenueButton is not assigned.");
+            if (mainMenuButton == null) Debug.LogWarning("[CityMapView] mainMenuButton is not assigned.");
         }
 
         private void Start()
         {
-            hauptmenueButton?.onClick.AddListener(OnHauptmenue);
+            mainMenuButton?.onClick.AddListener(OnMainMenuClicked);
             pinErrorSpotting?.onClick.AddListener(()  => OnPin(TaskType.ErrorSpotting));
             pinDragDrop?.onClick.AddListener(()       => OnPin(TaskType.DragDrop));
             pinClozeText?.onClick.AddListener(()      => OnPin(TaskType.ClozeText));
@@ -35,7 +37,7 @@ namespace LanguageGame.Presentation
             pinRelativeClause?.onClick.AddListener(() => OnPin(TaskType.RelativeClause));
         }
 
-        private void OnHauptmenue()
+        private void OnMainMenuClicked()
         {
             if (GameFlowController.Instance == null) { Debug.LogError("[CityMapView] GameFlowController not found."); return; }
             GameFlowController.Instance.LoadMainMenu();
@@ -49,7 +51,7 @@ namespace LanguageGame.Presentation
 
         private void OnDestroy()
         {
-            hauptmenueButton?.onClick.RemoveAllListeners();
+            mainMenuButton?.onClick.RemoveAllListeners();
             pinErrorSpotting?.onClick.RemoveAllListeners();
             pinDragDrop?.onClick.RemoveAllListeners();
             pinClozeText?.onClick.RemoveAllListeners();
