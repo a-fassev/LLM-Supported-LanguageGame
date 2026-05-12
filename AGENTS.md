@@ -1,6 +1,6 @@
 # Agent guidance
 
-**Git branch for agent work:** Implement and commit on a **feature branch** created from `main` (for example `git checkout main && git pull && git checkout -b feature/<short-description>`). Do **not** commit agent work directly to `main` unless the team explicitly allows it. At the start of every session, confirm you are on the intended branch.
+**Git branch for agent work:** Implement and commit **only** on `unity-implementation`. Do **not** do agent work on `main` or any other branch. Create this branch from `main` when needed (`git checkout main && git pull && git checkout -b unity-implementation`). At the start of every session, confirm you are on it: `git checkout unity-implementation`.
 
 ## Repository overview
 
