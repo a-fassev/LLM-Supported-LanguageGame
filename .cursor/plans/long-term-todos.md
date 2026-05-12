@@ -1,30 +1,41 @@
 # Long-term TODOs
 
-> **Zweck:** Themen, die bewusst aus dem Unity-2D-Grundgerüst-Milestone ausgelagert sind und später iterativ umgesetzt werden sollen.  
-> **Bezug:** Abschnitt *Out of Scope* in [unity-2d-grundgeruest-foundation.md](unity-2d-grundgeruest-foundation.md).
+> **Purpose:** Work intentionally deferred from the Unity 2D foundation milestone; tackle iteratively in later phases.  
+> **Reference:** *Out of Scope* in [unity-2d-grundgeruest-foundation.md](unity-2d-grundgeruest-foundation.md).
 
 ---
 
-## Aufgaben & Didaktik
+## Gameplay and task design
 
-- [ ] **Konkrete Aufgabenlogik pro Aufgabentyp** — Inhalte, Regeln und UI-Flows für alle geplanten Level-Typen (Fehlersuche, Drag & Drop, Lückentext, Zuordnen, Multiple Choice, Freitext, Relativsatz o. Ä. je nach finalem Design).
+- [ ] **Per-task-type mechanics** — Rules, interaction patterns, and win/lose conditions for each level type (e.g. error spotting, drag-and-drop, cloze, matching, multiple choice, free text, relative clauses — final list per product spec).
+- [ ] **Content pipeline** — Authoring format, loading, localization (Italian learning goals), and validation so designers can add tasks without code churn.
 
-## Bewertung & Feedback
+## Assessment and feedback
 
-- [ ] **Bewertungssystem** — Entscheidung und Implementierung: deterministische Korrektur vs. LLM-gestützte Bewertung (inkl. API-Vertrag, Fehlerbehandlung, Konsistenz für Kinderkontext).
+- [ ] **Scoring model** — Decide and document deterministic checks vs. LLM-assisted evaluation per task type.
+- [ ] **LLM integration (if used)** — Server-side API only; prompt/contract, timeouts, fallbacks, and child-appropriate tone for hints and feedback.
+- [ ] **Player-facing feedback** — Clear correctness signals, retries, and optional explanations without overwhelming young learners.
 
-## Progression & Meta-Spiel
+## Progression and the city map
 
-- [ ] **Progression / Unlocking auf der Stadtkarte** — Welche Pins/Level wann sichtbar oder spielbar sind; Speicherung des Fortschritts; optional Kapitel oder Themengebiete.
+- [ ] **Unlock rules** — Which pins or levels appear when; optional chapter or topic grouping.
+- [ ] **Progress storage** — What to persist locally vs. server-side; conflict handling if multi-device.
+- [ ] **Map UX** — Visual state for locked/unlocked/completed; optional star ratings or replay affordances.
 
-## Backend, Identität, Daten
+## Identity, backend, and data
 
-- [ ] **Login, Backend-Anbindung, Datenspeicherung, Telemetrie** — Authentifizierung falls nötig, serverseitige APIs, Persistenz (Fortschritt, ggf. Klassenkontext), datenschutzkonforme Telemetrie/Analytics nach Bedarf.
+- [ ] **Authentication** — Whether login is required; roles (learner, teacher) if applicable.
+- [ ] **Backend and APIs** — Progress sync, assignments, or class context as needed.
+- [ ] **Data and compliance** — Privacy (school context), retention, and consent flows.
+- [ ] **Telemetry and analytics** — Event schema, dashboards, opt-out; no secrets in the client.
 
-## Polish & Motivation
+## Audio, animation, and polish
 
-- [ ] **Audio, Animationen, Feinschliff, Skin-Freischaltungen** — Sounddesign, UI- und Charakter-Animationen, UX-Polish, optionale Kosmetik/Belohnungen.
+- [ ] **Audio** — Music, UI SFX, and feedback sounds; mixing and accessibility (levels, mute).
+- [ ] **Animation** — Character and UI motion for clarity and delight without distraction.
+- [ ] **UX polish** — Typography, spacing, loading/empty/error states, and input accessibility.
+- [ ] **Cosmetics** — Optional skins or unlockables tied to progression or achievements.
 
 ---
 
-*Diese Liste kann bei Meilenstein-Planung ergänzt oder priorisiert werden.*
+*Reorder or group by milestone when planning releases.*
