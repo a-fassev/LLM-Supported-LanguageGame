@@ -26,6 +26,7 @@
 
 - [ ] **Authentication** — Whether login is required; roles (learner, teacher) if applicable.
 - [ ] **Backend and APIs** — Progress sync, assignments, or class context as needed.
+- [ ] **Database** — Engine and hosting (managed vs. self-hosted), schema (profiles, progress, optional classes/assignments, catalog metadata if server-authoritative), migrations, indexing, backups/restore, and access patterns from the API layer (no direct client DB access).
 - [ ] **Data and compliance** — Privacy (school context), retention, and consent flows.
 - [ ] **Telemetry and analytics** — Event schema, dashboards, opt-out; no secrets in the client.
 
