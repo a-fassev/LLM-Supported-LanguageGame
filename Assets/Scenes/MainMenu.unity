@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 234763357}
   - component: {fileID: 234763356}
   m_Layer: 0
-  m_Name: SpielerButton
+  m_Name: PlayButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -395,7 +395,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd06361d5c726438fb1fc1a05de9c98f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LanguageGame.Presentation.MainMenuView
-  spielenButton: {fileID: 234763356}
+  playButton: {fileID: 234763356}
 --- !u!114 &880416314
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -552,7 +552,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Spielen
+  m_Text: Play
 --- !u!222 &908373338
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -631,7 +631,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Italienisch Lernen
+  m_Text: Learn Italian
 --- !u!222 &952235824
 CanvasRenderer:
   m_ObjectHideFlags: 0

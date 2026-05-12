@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using LanguageGame.Application;
 using LanguageGame.Domain;
@@ -8,7 +7,6 @@ namespace LanguageGame.Presentation
 {
     public class CityMapView : MonoBehaviour
     {
-        [FormerlySerializedAs("hauptmenueButton")]
         [SerializeField] private Button mainMenuButton;
 
         [Header("Level Pins")]

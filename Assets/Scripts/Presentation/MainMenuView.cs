@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using LanguageGame.Application;
 
@@ -7,7 +6,6 @@ namespace LanguageGame.Presentation
 {
     public class MainMenuView : MonoBehaviour
     {
-        [FormerlySerializedAs("spielenButton")]
         [SerializeField] private Button playButton;
 
         private void Awake()

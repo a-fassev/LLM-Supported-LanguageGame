@@ -1,52 +1,52 @@
-# Unity 2D Grundgeruest — Requirements Foundation
+# Unity 2D shell — requirements foundation
 
-> **Purpose**: Ein klickbares Unity-2D-Spielgrundgeruest bereitstellen, damit das Team Navigation, Levelstruktur und Aufgabentyp-Shells stabil testen und spaeter mit echter Aufgabenlogik fuellen kann.
+> **Purpose:** Provide a clickable Unity 2D shell so the team can reliably test navigation, level structure, and task-type stubs, then fill them with real task logic later.
 
-## Problem Statement
-Aktuell gibt es noch kein spielbares Grundgeruest mit klarer Nutzerfuehrung. Spieler:innen brauchen einen einfachen Einstieg ueber ein Hauptmenue, eine klare Uebersicht ueber Aufgaben ueber eine Stadtkarte und einen konsistenten Rueckweg aus jedem Level. Ohne diese Basis kann das Team Aufgabentypen nicht effizient iterieren, testen oder inhaltlich befuellen.
+## Problem statement
+There was no playable shell with clear user guidance yet. Players need a simple entry through a main menu, a clear overview of tasks via a city map, and a consistent way back out of every level. Without this base, the team cannot efficiently iterate, test, or author content per task type.
 
 ---
 
-## Confirmed Decisions
+## Confirmed decisions
 | Question | Decision |
 |----------|----------|
-| Main Hub: frei begehbar oder UI-basiert? | UI-basierte Stadtkarte mit Pins; keine bewegbaren Figuren auf der Karte. |
-| Einstiegsszene? | `MainMenu` ist immer die erste Szene und fester Startpunkt. |
-| Levelabschluss-Flow? | `Level beenden` fuehrt immer zurueck auf `CityMap`. |
-| Beenden-Button im ersten Milestone? | Nein, komplett entfernt. |
-| Levellayout? | Links kleine statische User-Figur (gleiches Sprite in allen Levels), rechts Aufgabenflaeche. |
-| Szenenaufteilung? | Eine Szene pro Aufgabentyp (7 Typen), jeweils als durchklickbarer Stub. |
-| Szenenwechsel-Architektur? | Zentraler `GameFlowController` (Singleton + `DontDestroyOnLoad`) mit duennen View-Skripten pro Szene. |
+| Main hub: free roam or UI-based? | UI-based city map with pins; no movable figures on the map. |
+| Entry scene? | `MainMenu` is always the first scene and fixed starting point. |
+| Level completion flow? | Leaving a level always returns to `CityMap`. |
+| Exit button in the first milestone? | No — removed entirely. |
+| Level layout? | Small static player figure on the left (same sprite in all levels), task area on the right. |
+| Scene split? | One scene per task type (seven types), each a clickable stub. |
+| Scene-switch architecture? | Central `GameFlowController` (singleton + `DontDestroyOnLoad`) with thin view scripts per scene. |
 
 ---
 
-## User Experience
+## User experience
 
-### User Flows
-1. Spieler:in startet das Spiel in `MainMenu`.
-2. Klick auf `Spielen` laedt `CityMap`.
-3. In `CityMap` sind alle Aufgabentyp-Pins sichtbar und klickbar.
-4. Klick auf einen Pin oeffnet die zugehoerige `Level*`-Szene.
-5. In jedem Level sieht der/die Nutzer:in links die kleine User-Figur und rechts den Aufgabenbereich (zunaechst Stub-Inhalt).
-6. Klick auf `Zur Stadtkarte` beendet das Level und fuehrt zurueck zu `CityMap`.
-7. In `CityMap` kann jederzeit ueber `Hauptmenue` zurueck zu `MainMenu` navigiert werden.
+### User flows
+1. Player launches into `MainMenu`.
+2. **Play** loads `CityMap`.
+3. In `CityMap`, all task-type pins are visible and clickable.
+4. Clicking a pin opens the matching `Level*` scene.
+5. In each level, the player sees the small figure on the left and the task area on the right (stub content for now).
+6. **City map** (button) exits the level and returns to `CityMap`.
+7. From `CityMap`, **Main menu** always navigates back to `MainMenu`.
 
-### Empty / Loading / Error States
-- **Empty (Level-Stub):** Rechts wird ein klarer Platzhaltertext gezeigt (`Aufgabenlogik folgt`), damit der Status eindeutig ist.
-- **Loading:** Kein separater Ladebildschirm im ersten Milestone; direkter Szenenwechsel.
-- **Error (Szene fehlt / Name falsch):** Defensive Guard im Flow-Controller mit Debug-Log und Rueckfall zu `MainMenu` statt Hard-Fail.
+### Empty / loading / error states
+- **Empty (level stub):** Show a clear placeholder on the right (`Task logic to follow`) so status is obvious.
+- **Loading:** No separate loading screen in the first milestone; direct scene load.
+- **Error (missing scene / wrong name):** Defensive guard in the flow controller with a debug log and fallback to `MainMenu` instead of a hard crash.
 
-### User Expectations
-- Navigation ist in jedem Schritt eindeutig und reversibel.
-- Keine Sackgassen: Immer ein klarer Weg zurueck zur Karte oder ins Hauptmenue.
-- UI reagiert direkt und konsistent, auch wenn Aufgabenlogik noch nicht final ist.
+### User expectations
+- Navigation is reversible and unambiguous at every step.
+- No dead ends: always a clear path back to the map or main menu.
+- UI reacts immediately and consistently even when task logic is not final.
 
 ---
 
 ## Scope
 
-### In Scope
-- Unity-2D-Shell mit folgenden Szenen:
+### In scope
+- Unity 2D shell with these scenes:
   - `MainMenu`
   - `CityMap`
   - `LevelErrorSpotting`
@@ -56,112 +56,112 @@ Aktuell gibt es noch kein spielbares Grundgeruest mit klarer Nutzerfuehrung. Spi
   - `LevelMultipleChoice`
   - `LevelFreeText`
   - `LevelRelativeClause`
-- Fester Flow: `MainMenu -> CityMap -> Level* -> CityMap`, plus `CityMap -> MainMenu`.
-- Stadtkarte mit klickbaren Pins fuer alle Aufgabentypen.
-- Level-Shell-Layout links/rechts (Figur links, Aufgabenflaeche rechts).
-- Zentrale Szenenwechsel-Logik ueber `GameFlowController`.
-- View-Skripte pro Szene fuer UI-Bindings.
+- Fixed flow: `MainMenu → CityMap → Level* → CityMap`, plus `CityMap → MainMenu`.
+- City map with clickable pins for every task type.
+- Level shell layout left/right (figure left, task area right).
+- Central scene switching via `GameFlowController`.
+- View scripts per scene for UI bindings.
 
-### Out of Scope
-- Konkrete Aufgabenlogik pro Aufgabentyp.
-- Bewertungssystem (deterministisch oder LLM).
-- Progression/Unlocking-Logik auf der Karte.
-- Login, Backend-Anbindung, Datenspeicherung, Telemetrie.
-- Audio, Animationen, Feinschliff, Skin-Freischaltungen.
+### Out of scope
+- Concrete task logic per type.
+- Scoring system (deterministic or LLM).
+- Progression/unlock rules on the map.
+- Login, backend, persistence, telemetry.
+- Audio, animations, polish, skin unlocks.
 
 ---
 
-## Engineering Design
+## Engineering design
 
 ### Unity
-- Projekt bleibt 2D/URP-basiert.
-- Build Settings: `MainMenu` als erste Szene; restliche Szenen per Name ladbar.
-- Jede Szene enthaelt nur die fuer ihren Zweck noetigen UI-Objekte.
-- Keine Gameplay-Physik fuer Hub/Navigation erforderlich (`Rigidbody2D` fuer Hub explizit nicht noetig).
+- Project stays 2D / URP.
+- Build Settings: `MainMenu` as first scene; other scenes loaded by name.
+- Each scene only contains UI objects needed for its role.
+- No gameplay physics required for hub/navigation (`Rigidbody2D` for hub explicitly not needed).
 
 ### Next.js app
-N/A fuer dieses Grundgeruest.
+N/A for this shell milestone.
 
 ### Integration
-N/A fuer dieses Grundgeruest (noch keine Unity-Web/Backend-Integration im Scope).
+N/A for this shell milestone (no Unity–web/backend integration yet).
 
 ### Data & persistence
-N/A fuer den ersten Milestone (kein Persistieren von Nutzerfortschritt).
+N/A for the first milestone (no persisted player progress).
 
-### Error Handling
-- `GameFlowController` validiert Ziel-Szenennamen vor/waehrend Load.
-- Bei ungueltiger Zielszene: Fehler loggen, Rueckfall auf `MainMenu`.
-- Null-Checks in View-Skripten fuer fehlende Button-Referenzen.
+### Error handling
+- `GameFlowController` validates destination scene names before/during load.
+- On invalid target: log error, fall back to `MainMenu`.
+- Null checks in view scripts when button references are missing.
 
 ### Security
-N/A fuer dieses Grundgeruest (keine externe Eingabe, keine Tokens, keine personenbezogenen Daten in Scope).
+N/A for this shell (no external input, tokens, or personal data in scope).
 
 ### Performance
-- Ziel: sofortige, ruckelfreie Szenenwechsel fuer kleine Stub-Szenen.
-- Leichtgewichtige UI-Layouts, keine schweren Runtime-Systeme im ersten Schritt.
+- Goal: immediate, jitter-free loads for small stub scenes.
+- Lightweight UI layouts; no heavy runtime systems in step one.
 
 ---
 
-## Clean Architecture (fuer das Grundgeruest)
+## Clean architecture (for this shell)
 
 ### Layering
-- **Presentation Layer (Unity UI + Scene Views):**
+- **Presentation layer (Unity UI + scene views):**
   - `MainMenuView`, `CityMapView`, `LevelShellView`
-  - Verantwortlich fuer Button-Events und Darstellung.
-- **Application Layer (Flow-Orchestrierung):**
+  - Responsible for button events and presentation.
+- **Application layer (flow orchestration):**
   - `GameFlowController`
-  - Verantwortlich fuer Navigation, Routing und globale App-Zustaende auf hohem Niveau.
-- **Domain Layer (Aufgabenmodell, spaeter):**
-  - `TaskType` als zentrales Enum/Modell fuer Aufgabentypen.
-  - Noch keine Bewertungsregeln im ersten Milestone.
-- **Infrastructure Layer (Unity SceneManagement):**
-  - Kapselt `SceneManager.LoadScene`-Aufrufe hinter klaren Methoden.
+  - Responsible for navigation, routing, and high-level global app state.
+- **Domain layer (task model, later):**
+  - `TaskType` as central enum/model for task types.
+  - No grading rules yet in milestone one.
+- **Infrastructure layer (Unity `SceneManagement`):**
+  - Wraps `SceneManager.LoadScene` behind clear methods.
 
-### Abhaengigkeitsregel
-- Views kennen nur den Application-Einstiegspunkt (`GameFlowController.Instance`) und keine direkte Szenen- oder Task-Logik.
-- Application kennt Domain-Typen (`TaskType`) und Infrastruktur (SceneLoader).
-- Domain bleibt Unity-UI-unabhaengig.
+### Dependency rule
+- Views only know the application entry (`GameFlowController.Instance`), not direct scene or task logic.
+- Application knows domain types (`TaskType`) and infrastructure (scene loading).
+- Domain stays independent of Unity UI.
 
-### Vorteile fuer dieses Projekt
-- Klare Trennung zwischen UI-Klicklogik und Navigationslogik.
-- Aufgabentyp-Logik kann spaeter pro Level rechts eingefuegt werden, ohne den globalen Flow umzubauen.
-- Gute Testbarkeit der Navigationsentscheidungen (zu pruefen ueber klar benannte Methoden).
+### Benefits for this project
+- Clear split between UI click logic and navigation logic.
+- Task-type logic can be plugged into each level on the right later without redoing global flow.
+- Navigation decisions remain testable through well-named methods.
 
 ---
 
-## Validated Assumptions
+## Validated assumptions
 | Assumption | Status | Fallback |
 |-----------|--------|----------|
-| Alle 7 Aufgabentypen sollen direkt als eigene Stub-Level vorhanden sein. | ✅ Validated | Falls Umfang zu hoch wird: voruebergehend Level zusammenfassen und Pins deaktivieren. |
-| Main Hub ist rein die Stadtkarten-UI ohne freie Bewegung. | ✅ Validated | Bei spaeterem Wunsch: separaten explorativen Hub als neuer Scope-Punkt einfuehren. |
-| Eine einheitliche kleine Figur links in allen Levels reicht fuer Milestone 1. | ✅ Validated | Spaeter auf skin-/zustandsabhaengige Varianten erweitern. |
-| Kein `Beenden`-Button ist fuer den Zielkontext okay. | ✅ Validated | Bei Bedarf plattformabhaengig spaeter ergaenzen (Standalone only). |
+| All seven task types should exist as separate stub levels. | ✅ Validated | If scope is too high: temporarily merge levels and disable pins. |
+| Main hub is only the city-map UI without free movement. | ✅ Validated | If desired later: add explorative hub as separate scope. |
+| One unified small figure on the left suffices for milestone 1. | ✅ Validated | Extend later to skin/state variants. |
+| No global **Quit** button is acceptable for the target context. | ✅ Validated | Add platform-specific later if needed (standalone only). |
 
 ---
 
-## Identified Risks
+## Identified risks
 | Risk | Mitigation |
 |------|------------|
-| Szenennamen driften zwischen Build Settings und Code. | Zentrale Konstanten/Mapping-Tabelle und einmalige Namenskonvention festlegen. |
-| Duplicate `GameFlowController` Instanzen durch Szenen-Setup. | Singleton-Guard in `Awake` + Duplikat sofort `Destroy`. |
-| UI-Referenzen in Views fehlen nach Prefab-/Scene-Aenderungen. | `SerializeField` + Validierung in `OnValidate`/`Awake` mit klaren Fehlermeldungen. |
+| Scene names drift vs. Build Settings and code | Central constants/mapping table and one naming convention. |
+| Duplicate `GameFlowController` instances from scene setup | Singleton guard in `Awake` + immediate `Destroy` on duplicates. |
+| UI references missing after prefab/scene edits | `[SerializeField]` + validation in `OnValidate`/`Awake` with clear errors. |
 
 ---
 
-## Success Criteria
-- [ ] Spiel startet immer in `MainMenu`.
-- [ ] `Spielen` fuehrt zu `CityMap`.
-- [ ] Jeder Pin in `CityMap` laedt die korrekte `Level*`-Szene.
-- [ ] Jeder `Level*`-Stub hat links die gleiche kleine Figur und rechts den Aufgaben-Placeholder.
-- [ ] `Zur Stadtkarte` funktioniert in allen Levels konsistent.
-- [ ] `Hauptmenue` auf der Karte funktioniert jederzeit.
-- [ ] Kein `Beenden`-Button ist im Grundgeruest vorhanden.
+## Success criteria
+- [ ] Game always starts in `MainMenu`.
+- [ ] **Play** navigates to `CityMap`.
+- [ ] Each pin in `CityMap` loads the correct `Level*` scene.
+- [ ] Each `Level*` stub has the same small figure left and task placeholder right.
+- [ ] **City map** works consistently from all levels.
+- [ ] **Main menu** from the map always works.
+- [ ] No **Quit** button in the shell.
 
 ---
 
-## Implementation Areas (for planning mode)
-1. Szenen anlegen und Build-Settings-Reihenfolge finalisieren.
-2. UI-Shells fuer `MainMenu`, `CityMap` und `Level*`-Stubs aufbauen.
-3. `TaskType`-Mapping und `GameFlowController` implementieren.
-4. View-Skripte pro Szene umsetzen und Buttons verdrahten.
-5. Minimales Fehlerhandling und Referenz-Validierung ergaenzen.
+## Implementation areas (planning mode)
+1. Create scenes and finalize Build Settings order.
+2. Build UI shells for `MainMenu`, `CityMap`, and `Level*` stubs.
+3. Implement `TaskType` mapping and `GameFlowController`.
+4. Implement view scripts per scene and wire buttons.
+5. Add minimal error handling and reference checks.

@@ -9,7 +9,8 @@ The **committed** repository is a **Unity 6.4** project at the **repository root
 
 | Area | Path | Role |
 | -------------------- | -------------------------------------------------------------------- | ---- |
-| **Unity (2D / URP)** | `Assets/`, `Packages/`, `ProjectSettings/` | Game client — template URP 2D setup, sample scene, New Input System assets. Editor version: `6000.4.6f1` per `ProjectSettings/ProjectVersion.txt`. |
+| **Unity (2D / URP)** | `Assets/`, `Packages/`, `ProjectSettings/` | Game client — URP 2D, New Input System, multi-scene **navigation skeleton** (main menu → city map → task-type level shells via `GameFlowController`). Editor: `6000.4.6f1` per `ProjectSettings/ProjectVersion.txt`. |
+| **Planning / deferred work** | `.cursor/plans/` | Long-term backlog and milestones; **deferred scope** is consolidated in `long-term-todos.md` (anchor: foundation plan *Out of Scope*). Prefer extending that file over duplicating roadmaps here. |
 | **Repo meta** | `.gitignore`, `.gitattributes`, `AGENTS.md` | Version control and agent conventions. |
 
 **Deprecated layout (do not document as current):** An older monorepo placed Unity under `apps/unity/` and a Next.js app under `apps/web/`. **Open the Unity editor from this repository root** (folder containing `Assets` + `ProjectSettings`). Do not assume `apps/unity/` exists or is the project to open.
@@ -25,7 +26,13 @@ When you reintroduce a web stack (e.g. Next.js) or shared packages, update this 
 - **Engine:** Unity 6.4 (`6000.4.6f1` per `ProjectSettings/ProjectVersion.txt`).
 - **Rendering:** 2D **Universal Render Pipeline (URP)** — settings under `Assets/Settings/` and `ProjectSettings/` (e.g. `URPProjectSettings.asset`).
 - **Input:** New Input System — `Assets/InputSystem_Actions.inputactions`.
-- **Language:** C# — gameplay and editor scripts go under `Assets/` (no project-specific `_Project` namespace in the committed skeleton yet).
+- **Language:** C# — gameplay and editor scripts under `Assets/Scripts/` (`LanguageGame.Application`, `LanguageGame.Domain`, `LanguageGame.Presentation` for the navigation skeleton).
+- **Navigation (skeleton):** `Assets/Scripts/Application/GameFlowController.cs` loads `MainMenu`, `CityMap`, and `Level*` scenes keyed by `TaskType`. Presentation hooks: `MainMenuView`, `CityMapView`, `LevelShellView` under `Assets/Scripts/Presentation/`. Keep new `TaskType` values, scene assets, `GameFlowController.TaskSceneMap`, and `ProjectSettings/EditorBuildSettings.asset` in sync.
+
+**Unity UI / scene conventions (navigation flow):**
+
+- **EventSystem:** With the New Input System, use the **Input System UI Input Module** on `EventSystem` in UI scenes — not the legacy standalone input module — so Canvas interactions work.
+- **Camera:** Menu, map, and level-shell scenes include an active **Main Camera**; mirror that when adding scenes to the same flow unless you intentionally use a different rendering setup.
 
 ### Web / LLM (optional, not in current `git` tree)
 
@@ -43,10 +50,15 @@ Repository layout **as committed today**:
 ```text
 LLM-Supported-LanguageGame/
 ├── AGENTS.md
+├── GAME_REQUIREMENTS.md      # Functional requirements summary (meetings)
+├── TASK_TYPES.md             # Task category overview (deterministic vs LLM)
+├── LEARNINGS.md              # pending notes for /apply-learnings (may be empty)
 ├── Assets/
 │ ├── InputSystem_Actions.inputactions
-│ ├── Scenes/ # e.g. SampleScene
-│ └── Settings/ # URP 2D render assets and template scenes
+│ ├── Scenes/                 # MainMenu, CityMap, Level* (+ SampleScene if retained)
+│ ├── Scripts/                # Application, Domain, Presentation
+│ └── Settings/               # URP 2D render assets and template scenes
+├── .cursor/                  # commands, skills, plans (not all tracked — use git status)
 ├── Packages/
 │ ├── manifest.json
 │ └── packages-lock.json
@@ -96,6 +108,7 @@ Update this tree when the repository layout changes.
 
 ## Key rules
 
+- **Language:** Write **code** (identifiers, comments), **repository documentation** (`AGENTS.md`, `.cursor/` guidance, committed plan markdown), and **technical docs** in **English**. Conversation with the user may be in **German** when they prefer — that does not change the English-only rule for code and committed docs.
 - Do not jump straight to code; ground changes in the current codebase
 - Questions and suggestions should fit **this** project, not generic lectures
 - Wait for confirmation; do not assume unstated requirements

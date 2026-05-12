@@ -1,103 +1,103 @@
-# Spiel-Anforderungen (Stand aus Team-JF 12.05.2026)
+# Game requirements (from team joint session, 12 May 2026)
 
-Kurzfassung der besprochenen **funktionalen und organisatorischen Anforderungen** für das Sprachlern-Spiel (Italienisch, Schulprojekt). Quelle: Meeting-Transkript; bei Abweichungen zur späteren Lehrkräfte-Abstimmung gilt der aktualisierte Stand mit Frau Bernhofer.
-
----
-
-## 1. Zielbild und Kontext
-
-- **Fachlicher Kontext:** Italienisch-Unterricht / Schulbuchbezug; Inhalte werden vom Inhaltsteam aufbereitet und nach Absprache mit der Lehrkraft geliefert (u. a. Aufgaben aus dem Buch, teils angepasst, inkl. „Fehlersuche“-Texte o. Ä.).
-- **Wissenschaftlicher Rahmen:** Es gibt eine **Research Question**, die durch **Spieldurchführung** beantwortet werden soll, ergänzt um **Tests vorher und nachher**. Zusätzlich sollen **Begründungen** für gewählte **Aufgabentypen** und **Inhalte** methodisch sauber ausgearbeitet werden (Einbindung in Paper; Konzepte aus Literatur möglichst früh, damit sie ins Spiel fließen können).
-- **Technologie-Mix:** Client-seitig **Unity**; **Backend/Hosting** (besprochen: **Azure**, z. B. Container-Umgebung mit vorhandenen Credits). **LLM** zunächst **stark eingeschränkt**: viele Aufgabentypen als **feste, deterministische Logik** im Backend; LLM nur **punktuell** bei **ein oder zwei** Aufgabentypen, später schrittweise erweiterbar.
+Summary of the discussed **functional and organizational requirements** for the language-learning game (Italian, school project). Source: meeting transcript; if this diverges from a later alignment with teaching staff, the updated agreement with Frau Bernhofer takes precedence.
 
 ---
 
-## 2. Spielkonzept und UX (High Level)
+## 1. Vision and context
 
-### 2.1 Navigation und Welt
-
-- **Kein komplexer „Hub“,** in dem eine Figur frei herumläuft (Referenz: externer Vorschlag wurde verworfen).
-- Stattdessen: **Stadtkarte** als übergeordnete Ansicht.
-- **Pins auf der Karte**, deren Sichtbarkeit vom **Level** abhängt.
-- **Klick auf Pin** → Einstieg in eine **Quest**; Quests sind **verkettet** (eine abschließen → nächste wird relevant).
-
-### 2.2 Maskottchen / Figur
-
-- Maskottchen **nicht** als steuerbare Spielfigur zwingend nötig; Variante: Figur **statisch in einer Ecke** („wie ein Bildschirm“), ohne aufwendige Bewegungssteuerung.
-- **Belohnungssystem (Referenzprojekt Essen):** je nach Aufgabenleistung **0–3 „Pizzastücke“**; damit lassen sich **Skins** für das Maskottchen freischalten.
-- Optional: **unterschiedliche Gesichtsausdrücke** je nach Spielsituation (nice-to-have).
-- **Visuelle Idee:** z. B. **Löwe** (Stadtwappen Bologna) oder neutral **Junge/Mädchen** (Schulausfluss-Kontext)—noch nicht final.
-
-### 2.3 Aufgaben und Modularität
-
-- Aufgabentypen **modular** halten (Beispiel: **Drag-and-Drop**), sodass vor allem **Texte/Inhalte** getauscht werden können, ohne Kernlogik neu zu bauen.
-- Aufgabentypenliste ist ein **Team-Vorschlag** aus Buch-tauglichen Formaten; **LLM-lastige** oder aufwendige Typen können **gestrichen oder ersetzt** werden, wenn die Umsetzung zu teuer ist.
-- **Wenig Freitext** (aus didaktischer / Bewertungssicht gewünscht).
-
-### 2.4 Plattform und Zugang
-
-- Referenz aus anderer Schulgruppe: Spiel **browserbasiert** gehostet; Teilnehmer **einloggen** mit **generiertem Nutzernamen** und Passwort (nicht Tablet-native App zwingend).
-- implication für Umsetzung: **Klick-/UI-lastiges** Konzept passt gut zur **Karte** und reduziert Steuerungs-Risiken.
+- **Subject context:** Italian class / textbook tie-in; content is prepared by the content team and delivered in coordination with the teacher (including tasks from the book, partly adapted, and similar “error-spotting” texts).
+- **Research setup:** There is a **research question** to be answered through **running the game**, supplemented by **pre- and post-tests**. Methodologically sound **rationale** is also needed for chosen **task types** and **content** (integration into the paper; bring in literature concepts early so they can inform the game).
+- **Technology mix:** **Unity** on the client; **backend/hosting** (discussed: **Azure**, e.g. containers with existing credits). **LLM** is initially **highly constrained**: many task types as **fixed deterministic logic** on the backend; LLM only **sparingly** for **one or two** task types, expandable later step by step.
 
 ---
 
-## 3. Technische Anforderungen
+## 2. Game concept and UX (high level)
 
-| Bereich | Anforderung |
-|--------|--------------|
-| Client | Unity; Grundlogik so, dass **pro Aufgabentyp mindestens ein durchspielbarer Level** existiert (erste Ausbaustufe). |
-| Backend | Feste Validierung/Aufgabenlogik wo möglich; LLM nur begrenzt einsetzen. |
-| Hosting | Azure (o. Ä.) für API/Hosting; Kostenrahmen mit Hochschul-Credits abgestimmt. |
-| Daten | **Keine personenbezogenen Daten** der Schülerinnen und Schüler speichern; **Spielernamen zufällig generiert** (Zahlen/Buchstaben o. Ä.). |
-| Metriken | Spielmetriken möglich, aber **nicht personenrückführbar**; Schulen sensibilisieren, dass Profilbildung ohne Namen trotzdem Theorie sein kann—transparent kommunizieren. |
+### 2.1 Navigation and world
 
----
+- **No complex “hub”** where a character walks freely (external proposal was rejected).
+- Instead: a **city map** as the top-level view.
+- **Pins on the map**, whose visibility depends on **progress/level**.
+- **Click pin** → start a **quest**; quests are **chained** (finish one → the next becomes relevant).
 
-## 4. Datenschutz und Organisation an der Schule
+### 2.2 Mascot / character
 
-- **Elterninformation/-einwilligung** vorsehen; mit Schule **schriftlich** klären, was erhoben wird und wie der Ablauf ist.
-- **Zufallsnamen + Passwort:** organisatorisch **Zettel** zum Aufschreiben für SuS vorsehen (Referenz aus Gespräch mit anderer Schule).
-- **EU-Hosting** allein ersetzt keine Kommunikation mit Schule/Eltern; bei Bedarf **Datenschutz-Review** durch Expert:in (wie bei Referenzprojekt empfohlen).
-- Bei Ausfall von Schlüsselpersonal technisch: **früh** und **nachvollziehbar** mit Betreuung (Matthias) und Schule kommunizieren.
+- Mascot **does not** have to be a fully controllable avatar; option: character **static in a corner** (“like a screen”), without heavy movement controls.
+- **Reward system (reference project Essen):** depending on performance **0–3 “pizza slices”**; used to **unlock skins** for the mascot.
+- Optional: **different facial expressions** by situation (nice-to-have).
+- **Visual idea:** e.g. **lion** (Bologna coat of arms) or neutral **boy/girl** (school-trip context)—not final.
 
----
+### 2.3 Tasks and modularity
 
-## 5. Inhaltlicher Lieferprozess
+- Keep task types **modular** (example: **drag-and-drop**) so mainly **texts/content** swap without rebuilding core logic.
+- The task-type list is a **team proposal** based on textbook-friendly formats; **LLM-heavy** or expensive types can be **cut or replaced** if implementation cost is too high.
+- **Little free text** (desired from pedagogy/scoring angle).
 
-1. **Grundgerüst** (Storyline, Spielname, Kapitel-/Quest-Struktur, Aufgabenkategorien) **finalisieren** und an **Frau Bernhofer** schicken.
-2. Nach Freigabe: **Aufgabenpakete** aus Buch/Inhaltsteam so aufbereiten, dass sie **als Default-Inhalte** ins Spiel übernommen werden können.
-3. Technik kann parallel **Skeleton** bauen; fehlende Einzelaufgaben sind weniger kritisch als fehlende **Aufgabentyp-Mechaniken**.
+### 2.4 Platform and access
 
----
-
-## 6. Zeitplan und Schulbesuch (aus Gespräch)
-
-- **Schulwoche** für Durchführung zuletzt genannt: **29.06.–03.07.** (Kalender mit Ferien/Semesterende abstimmen).
-- Frühere Kohorte: mehrere kurze Einheiten über Semester; **jetzt:** stärker **komprimiert** (z. B. **ein-zwei Blöcke**/Recap statt sechs verteilter Besuche)—**konkret mit Lehrkraft abstimmen**.
-- **Zielmarke Mitte Juni:** erste Version des Spiels **feature-complete / „ready for tests“**; danach **1–2 Wochen** Puffer für Tests, Fixes und Organisation vor Schultermin.
-- Paper/Ausarbeitung kann **nach** der Feldphase weiterlaufen (z. B. bis September—vereinbarte Rahmen flexibel halten).
+- Reference from another school group: game **hosted for the browser**; participants **log in** with a **generated username** and password (not necessarily a native tablet app).
+- Implementation implication: a **click/UI-heavy** design fits the **map** well and lowers control-risk.
 
 ---
 
-## 7. Abgestimmte Sprint-/Team-Ziele (Auszug)
+## 3. Technical requirements
 
-| Team / Thema | Ziel (aus Meeting) |
-|--------------|-------------------|
-| Inhalt | Grundgerüst bis **Freitag** Richtung Lehrkraft; Abstimmung **Mitte Folgewoche** (~**Mittwoch**); danach Aufgabenpakete rollierend vorbereiten. |
-| Technik (Unity) | Bis **Dienstag Folgewoche:** Grundlogik, **ein Level pro Aufgabentyp**, durchklickbar (noch ohne Feinschliff/Story-Zusammenhalt). |
-| Backend/Hosting | Grundgerüst Hosting (z. B. Azure) parallel aufsetzen. |
-| Research | Bis **Dienstag Folgewoche:** **Research Question(s)**—optional **zwei Varianten** zur Auswahl; **1–2 Literaturkonzepte**; Orientierung an Paper/Vorgehen der Referenzgruppe möglich. |
-
----
-
-## 8. Offene Punkte / zu klären
-
-- Exakte **finalen Aufgabentypen** nach Machbarkeit und Lehrkraft-Feedback.
-- **Deployment-Pfad:** WebGL vs. reines Web-Frontend + API—mit Referenz „browser login“ und Unity-Stack im Team abstimmen.
-- **Umfang LLM** pro Aufgabentyp nach erstem Review mit Betreuung.
-- Endgültiges **Maskottchen** und Asset-Umfang (Skins, Ausdrücke).
-- **Teststrategie** (intern, mit Lehrkraft, ggf. kurzes Review durch erfahrene Externe für Didaktik/Italienisch).
+| Area    | Requirement |
+|---------|--------------|
+| Client  | Unity; core logic such that **at least one playable level per task type** exists (first expansion stage). |
+| Backend | Fixed validation/task logic wherever possible; use LLM only in a bounded way. |
+| Hosting | Azure (or similar) for API/hosting; cost frame aligned with university credits. |
+| Data    | **No personal data** on students stored; **player names randomly generated** (numbers/letters etc.). |
+| Metrics | Game metrics OK but **not personally identifiable**; sensitize schools that profiling without names can still be a topic in theory—communicate transparently. |
 
 ---
 
-*Dokument dient der gemeinsamen Orientierung; Detailentscheidungen erfolgen mit Lehrkraft und Betreuung.*
+## 4. Privacy and school-side organization
+
+- Plan **parent information/consent**; clarify **in writing** with the school what is collected and how the flow works.
+- **Random names + password:** organizationally prepare **paper slips** for students to write them down (reference from conversation with another school).
+- **EU hosting** alone does not replace communication with school/parents; if needed **privacy review** by an expert (as recommended for the reference project).
+- If key people drop out technically: communicate **early** and **traceably** with support (Matthias) and the school.
+
+---
+
+## 5. Content delivery process
+
+1. **Finalize the skeleton** (storyline, game name, chapter/quest structure, task categories) and send it to **Frau Bernhofer**.
+2. After approval: prepare **task packs** from book/content team so they can ship as **default content** into the game.
+3. Tech can build the **skeleton** in parallel; missing individual tasks matters less than missing **task-type mechanics**.
+
+---
+
+## 6. Timeline and school visit (from discussion)
+
+- **School week** last mentioned for the run: **29 June–3 July** (align with breaks/end of term).
+- Earlier cohort: several short slots across the semester; **now:** more **compressed** (e.g. **one–two blocks**/recap instead of six spread visits)—**align concretely with the teacher**.
+- **Target mid-June:** first game version **feature-complete / “ready for tests”**; then **1–2 weeks** buffer for tests, fixes, and organization before the school date.
+- Paper/write-up may continue **after** the field phase (e.g. until September—keep agreed frames flexible).
+
+---
+
+## 7. Aligned sprint/team goals (excerpt)
+
+| Team / topic      | Goal (from meeting) |
+|-------------------|------------------------|
+| Content           | Send skeleton toward teacher by **Friday**; alignment **mid following week** (~**Wednesday**); then roll task packs. |
+| Tech (Unity)      | By **Tuesday following week:** core logic, **one level per task type**, fully clickable (no polish/story cohesion yet). |
+| Backend/hosting   | Stand up hosting skeleton (e.g. Azure) in parallel. |
+| Research          | By **Tuesday following week:** **research question(s)**—optional **two variants** to choose from; **1–2 literature concepts**; optionally orient on paper/process of reference group. |
+
+---
+
+## 8. Open points / to clarify
+
+- Exact **final task types** by feasibility and teacher feedback.
+- **Deployment path:** WebGL vs. pure web frontend + API—align with “browser login” reference and Unity stack in the team.
+- **LLM scope** per task type after first review with advisors.
+- Final **mascot** and asset scope (skins, expressions).
+- **Test strategy** (internal, with teacher, optional short external review for pedagogy/Italian).
+
+---
+
+*This document orients the team; detailed decisions belong with teacher and supervisors.*

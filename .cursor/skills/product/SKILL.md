@@ -2,7 +2,7 @@
 name: product
 description: |
   Use when work should stay aligned with the product’s purpose: an LLM-supported game that teaches
-  and checks Italian for children in a gifted-education (Hochbegabten) school context, as part of the
+  and checks Italian for children in a gifted-education school context, as part of the
   TUM IT-based learning course. Triggers: product intent, UX, learning goals, tone for kids, what we
   are building for users (not implementation).
 ---
@@ -15,7 +15,7 @@ The project comes from the **IT-based learning course at TUM (Technical Universi
 
 ## Who it is for
 
-- **Primary users:** **Children** in a **gifted-education school** (*Hochbegabten-Schule*) setting.
+- **Primary users:** **Children** in a **gifted-education school** setting.
 - **Subject:** **Italian** — the experience should help them **learn** the language and/or **check what they already know** (practice and assessment woven into play).
 
 ## What we are building (in plain language)

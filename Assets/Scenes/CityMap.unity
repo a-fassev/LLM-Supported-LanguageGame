@@ -189,7 +189,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "L\xFCckentext"
+  m_Text: Cloze text
 --- !u!222 &17901356
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -343,7 +343,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Hauptmenu\xFC"
+  m_Text: Main menu
 --- !u!222 &264082000
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -422,7 +422,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Freitext
+  m_Text: Free text
 --- !u!222 &518536487
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -565,7 +565,7 @@ GameObject:
   - component: {fileID: 643513346}
   - component: {fileID: 643513345}
   m_Layer: 0
-  m_Name: HauptmenueButton
+  m_Name: MainMenuButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -863,7 +863,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac9d44f7c8246411d839b3579994415f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LanguageGame.Presentation.CityMapView
-  hauptmenueButton: {fileID: 643513345}
+  mainMenuButton: {fileID: 643513345}
   pinErrorSpotting: {fileID: 1511518615}
   pinDragDrop: {fileID: 1631759176}
   pinClozeText: {fileID: 1414791916}
@@ -1155,7 +1155,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Fehlersuche
+  m_Text: Error spotting
 --- !u!222 &1379380629
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1718,7 +1718,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Stadtkarte
+  m_Text: City map
 --- !u!222 &1782798704
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1876,7 +1876,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "Relativsatz-R\xE4tsel"
+  m_Text: Relative clause puzzle
 --- !u!222 &1956667611
 CanvasRenderer:
   m_ObjectHideFlags: 0

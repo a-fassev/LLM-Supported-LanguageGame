@@ -285,7 +285,7 @@ GameObject:
   - component: {fileID: 516741307}
   - component: {fileID: 516741309}
   m_Layer: 0
-  m_Name: ZurStadtkarteButton
+  m_Name: CityMapButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -425,7 +425,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8f535c6422bd4196ab68f80d39541d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LanguageGame.Presentation.LevelShellView
-  zurStadtkarteButton: {fileID: 516741309}
+  cityMapButton: {fileID: 516741309}
   levelTitleText: {fileID: 1376895581}
 --- !u!114 &816727468
 MonoBehaviour:
@@ -659,7 +659,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Zur Stadtkarte
+  m_Text: City map
 --- !u!222 &1073287378
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -896,7 +896,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Aufgabenlogik folgt.
+  m_Text: Task logic to follow.
 --- !u!222 &1552764386
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -975,7 +975,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Du
+  m_Text: You
 --- !u!222 &2010800288
 CanvasRenderer:
   m_ObjectHideFlags: 0

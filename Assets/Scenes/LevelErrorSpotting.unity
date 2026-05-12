@@ -189,7 +189,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Du
+  m_Text: You
 --- !u!222 &56871910
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -520,7 +520,7 @@ GameObject:
   - component: {fileID: 677787008}
   - component: {fileID: 677787010}
   m_Layer: 0
-  m_Name: ZurStadtkarteButton
+  m_Name: CityMapButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -698,7 +698,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Zur Stadtkarte
+  m_Text: City map
 --- !u!222 &1020620574
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -777,7 +777,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Aufgabenlogik folgt.
+  m_Text: Task logic to follow.
 --- !u!222 &1139523292
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -837,7 +837,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Fehlersuche
+  m_Text: Error spotting
 --- !u!222 &1676054642
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -897,7 +897,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8f535c6422bd4196ab68f80d39541d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LanguageGame.Presentation.LevelShellView
-  zurStadtkarteButton: {fileID: 677787010}
+  cityMapButton: {fileID: 677787010}
   levelTitleText: {fileID: 1676054641}
 --- !u!114 &1826676949
 MonoBehaviour:
