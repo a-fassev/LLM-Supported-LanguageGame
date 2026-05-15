@@ -10,7 +10,7 @@ The **committed** repository is a **Unity 6.4** project at the **repository root
 | Area | Path | Role |
 | -------------------- | -------------------------------------------------------------------- | ---- |
 | **Unity (2D / URP)** | `Assets/`, `Packages/`, `ProjectSettings/` | Game client — URP 2D, New Input System, multi-scene **navigation** (`Auth` login → `MainMenu` → `CityMap` → reusable `Level` with `LevelConfig` task sequences). Editor: `6000.4.6f1` per `ProjectSettings/ProjectVersion.txt`. |
-| **Next.js (local API)** | `apps/web/` | Auth API for Unity (`/api/auth/*`), backed by Supabase Postgres; run with `npm run dev` (secrets via `.env.local` only). |
+| **Next.js (local API)** | `apps/web/` | Auth + game/progress API for Unity (`/api/auth/*`, `/api/game/*`), backed by Supabase Postgres; run with `npm run dev` (secrets via `.env.local` only). |
 | **Planning / deferred work** | `.cursor/plans/` | Long-term backlog and milestones; **deferred scope** is consolidated in `long-term-todos.md` (anchor: foundation plan *Out of Scope*). Prefer extending that file over duplicating roadmaps here. |
 | **Repo meta** | `.gitignore`, `.gitattributes`, `AGENTS.md` | Version control and agent conventions. |
 
@@ -26,7 +26,7 @@ The **committed** repository is a **Unity 6.4** project at the **repository root
 - **Rendering:** 2D **Universal Render Pipeline (URP)** — settings under `Assets/Settings/` and `ProjectSettings/` (e.g. `URPProjectSettings.asset`).
 - **Input:** New Input System — `Assets/InputSystem_Actions.inputactions`.
 - **Language:** C# — gameplay and editor scripts under `Assets/Scripts/` (`LanguageGame.Application`, `LanguageGame.Domain`, `LanguageGame.Presentation` for the navigation skeleton).
-- **Navigation:** `Assets/Scripts/Application/GameFlowController.cs` loads `Auth`, `MainMenu`, `CityMap`, and a single reusable `Level` scene; `LanguageGame.Domain.LevelConfig` assets define ordered tasks (mixed `TaskType`). Presentation: `AuthView`, `MainMenuView`, `CityMapView`, `LevelShellView` under `Assets/Scripts/Presentation/`. Keep `ProjectSettings/EditorBuildSettings.asset` aligned with scene names; preserve `GameFlowController` + `AuthApiClient` on the `GameFlow` object in `Auth` as `DontDestroyOnLoad` carries them into later scenes.
+- **Navigation:** `Assets/Scripts/Application/GameFlowController.cs` loads `Auth`, `MainMenu`, `CityMap`, and a single reusable `Level` scene; levels on the city map are backed by the server (`/api/game/*`). Legacy `LanguageGame.Domain.LevelConfig` assets remain for tooling/local definitions; live task order and content come from Supabase. Presentation: `AuthView`, `MainMenuView`, `CityMapView`, `LevelShellView` under `Assets/Scripts/Presentation/`. Keep `ProjectSettings/EditorBuildSettings.asset` aligned with scene names; preserve `GameFlowController` + `AuthApiClient` + `GameProgressApiClient` on the `GameFlow` object in `Auth` as `DontDestroyOnLoad` carries them into later scenes.
 
 **Unity UI / scene conventions (navigation flow):**
 
@@ -36,9 +36,9 @@ The **committed** repository is a **Unity 6.4** project at the **repository root
 
 ### Web / auth API (`apps/web`)
 
-- **Next.js** App Router API routes under `apps/web/app/api/auth/*` (register, login, logout, session, suggest-username).
-- **Supabase:** database tables `student_accounts` / `student_sessions`; **Secret API key** (`SUPABASE_SECRET_KEY`, server-only) and URL only in `apps/web/.env.local` (never ship to Unity). See `apps/web/.env.example`.
-- Unity talks to the backend over HTTP only (`AuthApiClient` default `http://127.0.0.1:3000`).
+- **Next.js** App Router API routes under `apps/web/app/api/auth/*` and `apps/web/app/api/game/*` (session-auth game bootstrap, level start, task completion, run finish).
+- **Supabase:** database tables `student_accounts` / `student_sessions` plus game tables (`game_levels`, `game_tasks`, `player_level_runs`, …) defined in [`supabase/migrations/`](supabase/migrations/); apply migrations to your Supabase project. **Secret API key** (`SUPABASE_SECRET_KEY`, server-only) and URL only in `apps/web/.env.local` (never ship to Unity). See `apps/web/.env.example`.
+- Unity talks to the backend over HTTP only (`AuthApiClient` + `GameProgressApiClient` default `http://127.0.0.1:3000`).
 
 If you extend the web stack (e.g. LLM task evaluation), keep **API keys server-side** and prefer a clear HTTP contract to the game client.
 
@@ -54,12 +54,13 @@ LLM-Supported-LanguageGame/
 ├── GAME_REQUIREMENTS.md      # Functional requirements summary (meetings)
 ├── TASK_TYPES.md             # Task category overview (deterministic vs LLM)
 ├── LEARNINGS.md              # pending notes for /apply-learnings (may be empty)
+├── supabase/migrations/      # Postgres schema for game progress (apply via Supabase CLI or SQL editor)
 ├── Assets/
 │ ├── InputSystem_Actions.inputactions
 │ ├── Data/                   # e.g. `Levels/*.asset` LevelConfig definitions
 │ ├── Scenes/                 # Auth, MainMenu, CityMap, Level (+ SampleScene if retained)
 ├── apps/
-│ └── web/                    # Next.js auth API (`npm run dev`); see `.env.example`
+│ └── web/                    # Next.js API (`npm run dev`: auth + game); see `.env.example`
 │ ├── Scripts/                # Application, Domain, Presentation
 │ └── Settings/               # URP 2D render assets and template scenes
 ├── .cursor/                  # commands, skills, plans (not all tracked — use git status)

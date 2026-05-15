@@ -1,6 +1,8 @@
+using System.Collections;
+using LanguageGame.Application;
+using LanguageGame.Domain;
 using UnityEngine;
 using UnityEngine.UI;
-using LanguageGame.Application;
 
 namespace LanguageGame.Presentation
 {
@@ -14,9 +16,13 @@ namespace LanguageGame.Presentation
         [SerializeField] private Button nextTaskButton;
         [SerializeField] private Text levelTitleText;
         [SerializeField] private Text taskDetailText;
+        [SerializeField] private Text pizzaSlicesText;
 
         private GameObject _backConfirmRoot;
         private Font _uiFont;
+        private Text _runtimePizzaHud;
+        private bool _completingTask;
+        private GameProgressApiClient _gameApi;
 
         private void Awake()
         {
@@ -26,6 +32,9 @@ namespace LanguageGame.Presentation
                 Debug.LogWarning("[LevelShellView] nextTaskButton is not assigned.");
 
             _uiFont = levelTitleText != null ? levelTitleText.font : taskDetailText?.font;
+            _gameApi = FindAnyObjectByType<GameProgressApiClient>();
+            if (_gameApi == null)
+                Debug.LogWarning("[LevelShellView] GameProgressApiClient missing; online progression unavailable.");
         }
 
         private void Start()
@@ -33,11 +42,14 @@ namespace LanguageGame.Presentation
             cityMapButton?.onClick.AddListener(OnCityMapClicked);
             nextTaskButton?.onClick.AddListener(OnNextTaskClicked);
             EnsureBackConfirmOverlay();
+            EnsurePizzaHud();
             RefreshTaskUi();
         }
 
         private void RefreshTaskUi()
         {
+            UpdatePizzaLabel();
+
             var flow = GameFlowController.Instance;
             if (flow == null)
             {
@@ -47,6 +59,12 @@ namespace LanguageGame.Presentation
 
             SetButtonLabel(cityMapButton, BackToMapLabel);
 
+            if (flow.IsServerLevelActive)
+            {
+                RefreshServerTaskUi(flow);
+                return;
+            }
+
             if (!flow.TryGetCurrentTask(out var slot))
             {
                 if (levelTitleText != null)
@@ -54,6 +72,7 @@ namespace LanguageGame.Presentation
                 if (taskDetailText != null)
                     taskDetailText.text = string.Empty;
                 SetButtonLabel(nextTaskButton, NextTaskLabel);
+                nextTaskButton.interactable = true;
                 return;
             }
 
@@ -74,6 +93,52 @@ namespace LanguageGame.Presentation
                     : slot.placeholderLabel;
                 taskDetailText.text = $"Type: {slot.taskType}\n{label}";
             }
+
+            nextTaskButton.interactable = !_completingTask;
+        }
+
+        private void RefreshServerTaskUi(GameFlowController flow)
+        {
+            if (!flow.TryGetCurrentServerTask(out var task))
+            {
+                if (levelTitleText != null)
+                    levelTitleText.text = string.IsNullOrEmpty(flow.ServerLevelDisplayName)
+                        ? "Level complete"
+                        : flow.ServerLevelDisplayName;
+                if (taskDetailText != null)
+                    taskDetailText.text = string.Empty;
+                SetButtonLabel(nextTaskButton, FinishLevelLabel);
+                nextTaskButton.interactable = false;
+                return;
+            }
+
+            bool isLast = flow.ServerTaskCount > 0 &&
+                          flow.ServerCurrentTaskNumberOneBased == flow.ServerTaskCount;
+            SetButtonLabel(nextTaskButton, isLast ? FinishLevelLabel : NextTaskLabel);
+
+            if (levelTitleText != null)
+            {
+                levelTitleText.text =
+                    $"{flow.ServerLevelDisplayName} — Task {flow.ServerCurrentTaskNumberOneBased}/{flow.ServerTaskCount}";
+            }
+
+            if (taskDetailText != null)
+            {
+                var typeLabel = FormatTaskType(task.taskType);
+                var label = string.IsNullOrEmpty(task.placeholderLabel)
+                    ? "(placeholder)"
+                    : task.placeholderLabel;
+                taskDetailText.text = $"Type: {typeLabel}\n{label}";
+            }
+
+            nextTaskButton.interactable = !_completingTask && _gameApi != null;
+        }
+
+        private static string FormatTaskType(string serverType)
+        {
+            if (string.IsNullOrEmpty(serverType))
+                return "?";
+            return System.Enum.TryParse<TaskType>(serverType, out var t) ? t.ToString() : serverType;
         }
 
         private void OnNextTaskClicked()
@@ -84,10 +149,56 @@ namespace LanguageGame.Presentation
                 return;
             }
 
+            if (GameFlowController.Instance.IsServerLevelActive)
+            {
+                if (_gameApi == null || _completingTask)
+                    return;
+                StartCoroutine(CompleteServerTaskRoutine());
+                return;
+            }
+
             if (GameFlowController.Instance.AdvanceTask())
                 GameFlowController.Instance.LoadCityMap();
             else
                 RefreshTaskUi();
+        }
+
+        private IEnumerator CompleteServerTaskRoutine()
+        {
+            var flow = GameFlowController.Instance;
+            if (flow == null || _gameApi == null || !flow.TryGetCurrentServerTask(out var task))
+                yield break;
+
+            _completingTask = true;
+            RefreshTaskUi();
+
+            var runId = flow.ServerRunId;
+            var useCase = new CompleteTaskUseCase(_gameApi);
+            GameCompleteTaskEnvelope done = null;
+            var err = string.Empty;
+            yield return useCase.Run(runId, task.id, d => done = d, m => err = m);
+
+            _completingTask = false;
+
+            if (done == null || !done.ok)
+            {
+                Debug.LogWarning($"[LevelShellView] Complete task failed: {err}");
+                RefreshTaskUi();
+                yield break;
+            }
+
+            flow.SetTotalPizzaSlices(done.totalSlices);
+            flow.ApplyServerTaskProgress(done.currentTaskOrderIndex, done.totalSlices, done.levelComplete);
+
+            if (done.levelComplete)
+            {
+                var finish = new FinishLevelRunUseCase(_gameApi);
+                yield return finish.Run(runId, _ => { }, _ => { });
+                flow.LoadCityMap();
+                yield break;
+            }
+
+            RefreshTaskUi();
         }
 
         private void OnCityMapClicked()
@@ -98,7 +209,19 @@ namespace LanguageGame.Presentation
                 return;
             }
 
-            if (!GameFlowController.Instance.TryGetCurrentTask(out _))
+            var flow = GameFlowController.Instance;
+            if (flow.IsServerLevelActive)
+            {
+                if (flow.TryGetCurrentServerTask(out _))
+                {
+                    SetBackConfirmVisible(true);
+                    return;
+                }
+                flow.LoadCityMap();
+                return;
+            }
+
+            if (!flow.TryGetCurrentTask(out _))
             {
                 GameFlowController.Instance.LoadCityMap();
                 return;
@@ -156,11 +279,16 @@ namespace LanguageGame.Presentation
             panelRt.anchorMax = new Vector2(0.5f, 0.5f);
             panelRt.pivot = new Vector2(0.5f, 0.5f);
             panelRt.anchoredPosition = Vector2.zero;
-            panelRt.sizeDelta = new Vector2(520f, 220f);
+            panelRt.sizeDelta = new Vector2(520f, 240f);
 
             var panelImg = panel.AddComponent<Image>();
             panelImg.color = new Color(0.12f, 0.12f, 0.14f, 1f);
             panelImg.raycastTarget = true;
+
+            var flow = GameFlowController.Instance;
+            var message = flow != null && flow.IsServerLevelActive
+                ? "Progress is saved after each task. You can resume this level later from the map. Leave now?"
+                : "Leaving now will discard your progress on this level. Do you want to go back to the map?";
 
             var messageGo = new GameObject("Message", typeof(RectTransform));
             messageGo.transform.SetParent(panel.transform, false);
@@ -176,8 +304,7 @@ namespace LanguageGame.Presentation
             msgText.alignment = TextAnchor.MiddleCenter;
             msgText.horizontalOverflow = HorizontalWrapMode.Wrap;
             msgText.verticalOverflow = VerticalWrapMode.Truncate;
-            msgText.text =
-                "Leaving now will discard your progress on this level. Do you want to go back to the map?";
+            msgText.text = message;
 
             var cancel = CreateDialogButton(panel.transform, "Stay", new Vector2(-120f, -70f), OnBackConfirmCancel);
             var ok = CreateDialogButton(panel.transform, "Back to map", new Vector2(120f, -70f), OnBackConfirmLeave);
@@ -188,7 +315,45 @@ namespace LanguageGame.Presentation
             _backConfirmRoot.SetActive(false);
         }
 
-        private Button CreateDialogButton(Transform parent, string label, Vector2 anchoredPos, UnityEngine.Events.UnityAction onClick)
+        private void EnsurePizzaHud()
+        {
+            if (pizzaSlicesText != null || _runtimePizzaHud != null)
+                return;
+
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas == null)
+                return;
+
+            var go = new GameObject("PizzaSlicesHud", typeof(RectTransform));
+            go.transform.SetParent(canvas.transform, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(1f, 1f);
+            rt.anchorMax = new Vector2(1f, 1f);
+            rt.pivot = new Vector2(1f, 1f);
+            rt.anchoredPosition = new Vector2(-24f, -24f);
+            rt.sizeDelta = new Vector2(420f, 40f);
+
+            var t = go.AddComponent<Text>();
+            t.font = _uiFont;
+            t.fontSize = 24;
+            t.color = Color.white;
+            t.alignment = TextAnchor.UpperRight;
+            _runtimePizzaHud = t;
+        }
+
+        private void UpdatePizzaLabel()
+        {
+            var flow = GameFlowController.Instance;
+            var slices = flow != null ? flow.TotalPizzaSlices : 0;
+            var line = $"Pizza slices: {slices}";
+            if (pizzaSlicesText != null)
+                pizzaSlicesText.text = line;
+            if (_runtimePizzaHud != null)
+                _runtimePizzaHud.text = line;
+        }
+
+        private Button CreateDialogButton(Transform parent, string label, Vector2 anchoredPos,
+            UnityEngine.Events.UnityAction onClick)
         {
             var go = new GameObject(label + "Button", typeof(RectTransform));
             go.transform.SetParent(parent, false);

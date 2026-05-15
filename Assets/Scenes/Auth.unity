@@ -1087,6 +1087,7 @@ GameObject:
   - component: {fileID: 542004963}
   - component: {fileID: 542004962}
   - component: {fileID: 542004964}
+  - component: {fileID: 542004965}
   m_Layer: 0
   m_Name: GameFlow
   m_TagString: Untagged
@@ -1134,6 +1135,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LanguageGame.Application.AuthApiClient
   apiBaseUrl: http://127.0.0.1:3000
+--- !u!114 &542004965
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 542004961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4e5f67890123456789abcdeff00112, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LanguageGame.Application.GameProgressApiClient
+  authApiClient: {fileID: 542004964}
 --- !u!1 &546370357
 GameObject:
   m_ObjectHideFlags: 0

@@ -554,6 +554,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LanguageGame.Presentation.MainMenuView
   playButton: {fileID: 234763356}
   logoutButton: {fileID: 1876543202}
+  pizzaSlicesText: {fileID: 0}
 --- !u!114 &880416314
 MonoBehaviour:
   m_ObjectHideFlags: 0
