@@ -32,11 +32,12 @@ The **committed** repository is a **Unity 6.4** project at the **repository root
 
 - **EventSystem:** With the New Input System, use the **Input System UI Input Module** on `EventSystem` in UI scenes — not the legacy standalone input module — so Canvas interactions work.
 - **Camera:** Menu, map, and level-shell scenes include an active **Main Camera**; mirror that when adding scenes to the same flow unless you intentionally use a different rendering setup.
+- **Scene-authored UI + runtime fallback (same Canvas):** If a view resolves refs from the hierarchy but may rebuild UI when incomplete (pattern used by `AuthView`), gate fallback on **all required controls** being present—not only “Canvas has no children”—otherwise partially drifted hierarchies fail silently. Before rebuilding under `Awake`, remove existing Canvas children with **`DestroyImmediate`**, not `Destroy`, so deferred teardown does not leave old widgets alive alongside new UI.
 
 ### Web / auth API (`apps/web`)
 
 - **Next.js** App Router API routes under `apps/web/app/api/auth/*` (register, login, logout, session, suggest-username).
-- **Supabase:** database tables `student_accounts` / `student_sessions`; **service role key** and URL only in `apps/web/.env.local` (never ship to Unity). See `apps/web/.env.example`.
+- **Supabase:** database tables `student_accounts` / `student_sessions`; **Secret API key** (`SUPABASE_SECRET_KEY`, server-only) and URL only in `apps/web/.env.local` (never ship to Unity). See `apps/web/.env.example`.
 - Unity talks to the backend over HTTP only (`AuthApiClient` default `http://127.0.0.1:3000`).
 
 If you extend the web stack (e.g. LLM task evaluation), keep **API keys server-side** and prefer a clear HTTP contract to the game client.

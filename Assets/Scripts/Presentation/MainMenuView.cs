@@ -42,7 +42,7 @@ namespace LanguageGame.Presentation
                 return;
             }
 
-            var api = FindFirstObjectByType<AuthApiClient>();
+            var api = FindAnyObjectByType<AuthApiClient>();
             if (api != null)
                 StartCoroutine(LogoutRoutine(api));
             else
