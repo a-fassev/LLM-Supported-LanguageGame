@@ -10,7 +10,6 @@ namespace LanguageGame.Presentation
         [SerializeField] private Button playButton;
         [SerializeField] private Button avatarShopButton;
         [SerializeField] private Button logoutButton;
-        [SerializeField] private Text pizzaSlicesText;
 
         private GameProgressApiClient _gameApi;
 
@@ -46,10 +45,8 @@ namespace LanguageGame.Presentation
                 return;
             }
 
-            var refFont = playButton != null
-                ? playButton.GetComponentInChildren<Text>()?.font
-                : null;
-            _loadErrorBanner.Ensure(canvas, refFont, 100f, 0.72f, 0.74f, 0.97f, 20f);
+            UiThemeProvider.TryGet(out var tokens);
+            _loadErrorBanner.Ensure(canvas, tokens);
         }
 
         private IEnumerator LoadPizzaRoutine(GameProgressApiClient api)
@@ -88,21 +85,12 @@ namespace LanguageGame.Presentation
 
                 _loadErrorBanner.Hide();
                 GameFlowController.Instance?.SetTotalPizzaSlices(env.totalSlices);
-                RefreshPizzaLabel();
             }
             finally
             {
                 _pizzaBootstrapInFlight = false;
                 _loadErrorBanner.SetRetryInteractable(true);
             }
-        }
-
-        private void RefreshPizzaLabel()
-        {
-            var slices = GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
-            var line = $"Pizza slices: {slices}";
-            if (pizzaSlicesText != null)
-                pizzaSlicesText.text = line;
         }
 
         private void OnPlayClicked()

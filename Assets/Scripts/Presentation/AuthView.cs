@@ -8,6 +8,8 @@ namespace LanguageGame.Presentation
 {
     /// <summary>
     /// Privacy-safe auth: generated username + password. UI is authored in the Auth scene (like MainMenu).
+    /// When the scene hierarchy is incomplete the view rebuilds the minimal required controls at runtime
+    /// using <see cref="UiDesignTokens"/> from <see cref="UiThemeProvider"/> (or safe inline fallbacks).
     /// </summary>
     public class AuthView : MonoBehaviour
     {
@@ -89,7 +91,8 @@ namespace LanguageGame.Presentation
         }
 
         /// <summary>
-        /// Removes existing Canvas children so we can rebuild without duplicate controls (Destroy is end-of-frame and would stack new UI on old).
+        /// Removes existing Canvas children so we can rebuild without duplicate controls
+        /// (Destroy is end-of-frame; DestroyImmediate ensures old widgets are gone before new ones are added).
         /// </summary>
         private void ClearCanvasContentChildren()
         {
@@ -149,7 +152,8 @@ namespace LanguageGame.Presentation
         }
 
         /// <summary>
-        /// Runtime fallback when the Auth scene Canvas has no children (matches editor hierarchy names/paths).
+        /// Runtime fallback when the Auth scene Canvas hierarchy is incomplete.
+        /// All style values come from <see cref="UiDesignTokens"/> — or safe inline fallbacks when no provider is present.
         /// </summary>
         private void BuildDefaultUiUnderCanvas()
         {
@@ -164,19 +168,22 @@ namespace LanguageGame.Presentation
             if (rootRt != null)
                 rootRt.localScale = Vector3.one;
 
-            var font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            UiThemeProvider.TryGet(out var t);
+            var font = UiTokenApplier.ResolveFont(t?.typography.body);
 
+            // ── Background ──────────────────────────────────────────────────────────
             var bg = new GameObject("Background");
             bg.transform.SetParent(transform, false);
             var bgRt = bg.AddComponent<RectTransform>();
-            StretchFull(bgRt);
+            UiTokenApplier.StretchFull(bgRt);
             bg.AddComponent<CanvasRenderer>();
             var bgImg = bg.AddComponent<Image>();
-            bgImg.color = new Color(0.13f, 0.13f, 0.2f);
+            bgImg.color = t?.palette.background ?? new Color(0.13f, 0.13f, 0.2f, 1f);
 
-            CreateTitleText(transform, font);
-            CreateStatusText(transform, font);
+            CreateTitleText(transform, font, t);
+            CreateStatusText(transform, font, t);
 
+            // ── Login panel ─────────────────────────────────────────────────────────
             loginPanel = new GameObject("LoginPanel");
             loginPanel.transform.SetParent(transform, false);
             var lpRt = loginPanel.AddComponent<RectTransform>();
@@ -190,15 +197,18 @@ namespace LanguageGame.Presentation
             lpImg.raycastTarget = false;
 
             loginUsername = CreateInput(loginPanel.transform, "LoginUsername", "Username", font, false,
-                new Vector2(0.05f, 0.62f), new Vector2(0.95f, 0.92f));
+                new Vector2(0.05f, 0.62f), new Vector2(0.95f, 0.92f), t);
             loginPassword = CreateInput(loginPanel.transform, "LoginPassword", "Password", font, true,
-                new Vector2(0.05f, 0.32f), new Vector2(0.95f, 0.58f));
+                new Vector2(0.05f, 0.32f), new Vector2(0.95f, 0.58f), t);
             loginButton = CreateMenuButton(loginPanel.transform, "LoginButton", "Log in", font,
-                new Vector2(0.25f, 0.14f), new Vector2(0.75f, 0.3f), new Color(0.2f, 0.55f, 0.85f));
+                new Vector2(0.25f, 0.14f), new Vector2(0.75f, 0.3f),
+                t?.palette.primary ?? new Color(0.2f, 0.55f, 0.85f), t);
             goToRegisterButton = CreateMenuButton(loginPanel.transform, "GoToRegisterButton", "New here? Register", font,
-                new Vector2(0.1f, 0.02f), new Vector2(0.9f, 0.11f), new Color(0.25f, 0.35f, 0.5f, 0.9f));
-            SetButtonLabelStyle(goToRegisterButton, 22);
+                new Vector2(0.1f, 0.02f), new Vector2(0.9f, 0.11f),
+                t?.palette.primaryMuted ?? new Color(0.25f, 0.35f, 0.5f, 0.9f), t);
+            SetButtonLabelStyle(goToRegisterButton, t?.typography.caption.fontSize ?? 22);
 
+            // ── Register panel ──────────────────────────────────────────────────────
             registerPanel = new GameObject("RegisterPanel");
             registerPanel.transform.SetParent(transform, false);
             var rpRt = registerPanel.AddComponent<RectTransform>();
@@ -232,31 +242,34 @@ namespace LanguageGame.Presentation
             guRt.offsetMax = Vector2.zero;
             guGo.AddComponent<CanvasRenderer>();
             generatedUsernameText = guGo.AddComponent<Text>();
-            generatedUsernameText.font = font;
-            generatedUsernameText.fontSize = 28;
+            generatedUsernameText.font      = font;
+            generatedUsernameText.fontSize  = t?.typography.title.fontSize ?? 28;
             generatedUsernameText.alignment = TextAnchor.MiddleLeft;
-            generatedUsernameText.color = Color.white;
-            generatedUsernameText.text = "(generating...)";
+            generatedUsernameText.color     = t?.palette.textPrimary ?? Color.white;
+            generatedUsernameText.text      = "(generating...)";
 
             newUsernameButton = CreateMenuButton(userRow.transform, "NewUsernameButton", "New name", font,
-                new Vector2(0.7f, 0.05f), new Vector2(0.98f, 0.95f), new Color(0.2f, 0.55f, 0.85f));
-            SetButtonLabelStyle(newUsernameButton, 22);
+                new Vector2(0.7f, 0.05f), new Vector2(0.98f, 0.95f),
+                t?.palette.primary ?? new Color(0.2f, 0.55f, 0.85f), t);
+            SetButtonLabelStyle(newUsernameButton, t?.typography.caption.fontSize ?? 22);
 
             registerPassword = CreateInput(registerPanel.transform, "RegisterPassword", "Password", font, true,
-                new Vector2(0.05f, 0.48f), new Vector2(0.95f, 0.68f));
+                new Vector2(0.05f, 0.48f), new Vector2(0.95f, 0.68f), t);
             registerPasswordConfirm = CreateInput(registerPanel.transform, "RegisterPasswordConfirm", "Repeat password", font,
-                true, new Vector2(0.05f, 0.26f), new Vector2(0.95f, 0.46f));
+                true, new Vector2(0.05f, 0.26f), new Vector2(0.95f, 0.46f), t);
             registerButton = CreateMenuButton(registerPanel.transform, "RegisterButton", "Create account", font,
-                new Vector2(0.25f, 0.08f), new Vector2(0.75f, 0.22f), new Color(0.2f, 0.55f, 0.85f));
+                new Vector2(0.25f, 0.08f), new Vector2(0.75f, 0.22f),
+                t?.palette.primary ?? new Color(0.2f, 0.55f, 0.85f), t);
             goToLoginButton = CreateMenuButton(registerPanel.transform, "GoToLoginButton", "Have an account? Log in", font,
-                new Vector2(0.1f, 0f), new Vector2(0.9f, 0.06f), new Color(0.25f, 0.35f, 0.5f, 0.9f));
-            SetButtonLabelStyle(goToLoginButton, 22);
+                new Vector2(0.1f, 0f), new Vector2(0.9f, 0.06f),
+                t?.palette.primaryMuted ?? new Color(0.25f, 0.35f, 0.5f, 0.9f), t);
+            SetButtonLabelStyle(goToLoginButton, t?.typography.caption.fontSize ?? 22);
 
             registerPanel.SetActive(false);
             Canvas.ForceUpdateCanvases();
         }
 
-        private static void CreateTitleText(Transform parent, Font font)
+        private static void CreateTitleText(Transform parent, Font font, UiDesignTokens t)
         {
             var titleGo = new GameObject("TitleText");
             titleGo.transform.SetParent(parent, false);
@@ -267,15 +280,15 @@ namespace LanguageGame.Presentation
             titleRt.offsetMax = Vector2.zero;
             titleGo.AddComponent<CanvasRenderer>();
             var title = titleGo.AddComponent<Text>();
-            title.font = font;
-            title.fontSize = 48;
+            title.font      = font;
+            title.fontSize  = t?.typography.display.fontSize ?? 48;
             title.fontStyle = FontStyle.Bold;
             title.alignment = TextAnchor.MiddleCenter;
-            title.color = Color.white;
-            title.text = "Sign in";
+            title.color     = t?.palette.textPrimary ?? Color.white;
+            title.text      = "Sign in";
         }
 
-        private static void CreateStatusText(Transform parent, Font font)
+        private static void CreateStatusText(Transform parent, Font font, UiDesignTokens t)
         {
             var stGo = new GameObject("StatusText");
             stGo.transform.SetParent(parent, false);
@@ -286,15 +299,15 @@ namespace LanguageGame.Presentation
             stRt.offsetMax = Vector2.zero;
             stGo.AddComponent<CanvasRenderer>();
             var st = stGo.AddComponent<Text>();
-            st.font = font;
-            st.fontSize = 22;
+            st.font      = font;
+            st.fontSize  = t?.typography.caption.fontSize ?? 22;
             st.alignment = TextAnchor.MiddleCenter;
-            st.color = new Color(1f, 0.85f, 0.3f);
-            st.text = string.Empty;
+            st.color     = t?.palette.textSecondary ?? new Color(1f, 0.85f, 0.3f, 1f);
+            st.text      = string.Empty;
         }
 
-        private static Button CreateMenuButton(Transform parent, string name, string label, Font font, Vector2 aMin,
-            Vector2 aMax, Color imageColor)
+        private static Button CreateMenuButton(Transform parent, string name, string label, Font font,
+            Vector2 aMin, Vector2 aMax, Color imageColor, UiDesignTokens t)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
@@ -312,15 +325,15 @@ namespace LanguageGame.Presentation
             var txtGo = new GameObject("Label");
             txtGo.transform.SetParent(go.transform, false);
             var trt = txtGo.AddComponent<RectTransform>();
-            StretchFull(trt);
+            UiTokenApplier.StretchFull(trt);
             txtGo.AddComponent<CanvasRenderer>();
-            var t = txtGo.AddComponent<Text>();
-            t.font = font;
-            t.fontSize = 26;
-            t.fontStyle = FontStyle.Bold;
-            t.alignment = TextAnchor.MiddleCenter;
-            t.color = Color.white;
-            t.text = label;
+            var txt = txtGo.AddComponent<Text>();
+            txt.font      = font;
+            txt.fontSize  = t?.typography.body.fontSize ?? 26;
+            txt.fontStyle = FontStyle.Bold;
+            txt.alignment = TextAnchor.MiddleCenter;
+            txt.color     = t?.palette.onPrimary ?? Color.white;
+            txt.text      = label;
             return btn;
         }
 
@@ -334,37 +347,29 @@ namespace LanguageGame.Presentation
             var labelTr = btn.transform.Find("Label");
             if (labelTr != null)
             {
-                var t = labelTr.GetComponent<Text>();
-                if (t != null)
-                    return t;
+                var text = labelTr.GetComponent<Text>();
+                if (text != null)
+                    return text;
             }
             var textTr = btn.transform.Find("Text");
             if (textTr != null)
             {
-                var t = textTr.GetComponent<Text>();
-                if (t != null)
-                    return t;
+                var text = textTr.GetComponent<Text>();
+                if (text != null)
+                    return text;
             }
             return btn.GetComponentInChildren<Text>(true);
         }
 
         private static void SetButtonLabelStyle(Button btn, int fontSize)
         {
-            var t = GetButtonCaptionText(btn);
-            if (t != null)
-                t.fontSize = fontSize;
+            var text = GetButtonCaptionText(btn);
+            if (text != null)
+                text.fontSize = fontSize;
         }
 
-        private static void StretchFull(RectTransform rt)
-        {
-            rt.anchorMin = Vector2.zero;
-            rt.anchorMax = Vector2.one;
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
-        }
-
-        private static InputField CreateInput(Transform parent, string name, string placeholder, Font font, bool isPassword,
-            Vector2 aMin, Vector2 aMax)
+        private static InputField CreateInput(Transform parent, string name, string placeholder, Font font,
+            bool isPassword, Vector2 aMin, Vector2 aMax, UiDesignTokens t)
         {
             var root = new GameObject(name);
             root.transform.SetParent(parent, false);
@@ -376,7 +381,7 @@ namespace LanguageGame.Presentation
             root.AddComponent<CanvasRenderer>();
 
             var bg = root.AddComponent<Image>();
-            bg.color = new Color(1f, 1f, 1f, 0.12f);
+            bg.color = t?.palette.inputBackground ?? new Color(1f, 1f, 1f, 0.12f);
 
             var inp = root.AddComponent<InputField>();
             inp.contentType = isPassword ? InputField.ContentType.Password : InputField.ContentType.Standard;
@@ -389,28 +394,28 @@ namespace LanguageGame.Presentation
             tRt.offsetMin = Vector2.zero;
             tRt.offsetMax = Vector2.zero;
             textGo.AddComponent<CanvasRenderer>();
-            var t = textGo.AddComponent<Text>();
-            t.font = font;
-            t.fontSize = 26;
-            t.color = Color.white;
-            t.supportRichText = false;
-            t.raycastTarget = true;
-            t.alignment = TextAnchor.MiddleLeft;
-            inp.textComponent = t;
+            var inputText = textGo.AddComponent<Text>();
+            inputText.font          = font;
+            inputText.fontSize      = t?.typography.body.fontSize ?? 26;
+            inputText.color         = t?.palette.textPrimary ?? Color.white;
+            inputText.supportRichText = false;
+            inputText.raycastTarget = true;
+            inputText.alignment     = TextAnchor.MiddleLeft;
+            inp.textComponent       = inputText;
 
             var phGo = new GameObject("Placeholder");
             phGo.transform.SetParent(root.transform, false);
             var pRt = phGo.AddComponent<RectTransform>();
-            StretchFull(pRt);
+            UiTokenApplier.StretchFull(pRt);
             phGo.AddComponent<CanvasRenderer>();
             var pt = phGo.AddComponent<Text>();
-            pt.font = font;
-            pt.fontSize = 24;
-            pt.fontStyle = FontStyle.Italic;
-            pt.color = new Color(1f, 1f, 1f, 0.45f);
-            pt.text = placeholder;
+            pt.font          = font;
+            pt.fontSize      = t?.typography.body.fontSize ?? 26;
+            pt.fontStyle     = FontStyle.Italic;
+            pt.color         = t?.palette.inputPlaceholder ?? new Color(1f, 1f, 1f, 0.45f);
+            pt.text          = placeholder;
             pt.raycastTarget = false;
-            inp.placeholder = pt;
+            inp.placeholder  = pt;
 
             return inp;
         }
@@ -450,8 +455,7 @@ namespace LanguageGame.Presentation
         }
 
         private void OnGoToRegisterClicked() => ShowRegister(true);
-
-        private void OnGoToLoginClicked() => ShowRegister(false);
+        private void OnGoToLoginClicked()    => ShowRegister(false);
 
         private IEnumerator TryResumeSession()
         {

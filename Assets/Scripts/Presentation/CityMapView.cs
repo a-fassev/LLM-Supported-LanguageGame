@@ -65,10 +65,8 @@ namespace LanguageGame.Presentation
                 return;
             }
 
-            var refFont = mainMenuButton != null
-                ? mainMenuButton.GetComponentInChildren<Text>()?.font
-                : null;
-            _loadErrorBanner.Ensure(canvas, refFont, 120f, 0.75f, 0.78f, 0.97f, 22f);
+            UiThemeProvider.TryGet(out var tokens);
+            _loadErrorBanner.Ensure(canvas, tokens);
         }
 
         private IEnumerator LoadBootstrapRoutine(GameProgressApiClient api)
@@ -156,7 +154,10 @@ namespace LanguageGame.Presentation
             button.interactable = unlocked && !_startingLevel;
             var g = button.targetGraphic as Graphic;
             if (g != null)
-                g.color = unlocked ? Color.white : new Color(0.55f, 0.55f, 0.55f, 0.95f);
+            {
+                UiThemeProvider.TryGet(out var t);
+                g.color = unlocked ? Color.white : (t?.palette.disabled ?? new Color(0.55f, 0.55f, 0.55f, 0.95f));
+            }
 
             if (lockVisual != null)
                 lockVisual.SetActive(!unlocked);

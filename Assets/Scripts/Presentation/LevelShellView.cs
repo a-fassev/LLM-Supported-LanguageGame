@@ -8,19 +8,19 @@ namespace LanguageGame.Presentation
 {
     public class LevelShellView : MonoBehaviour
     {
-        private const string NextTaskLabel = "Next task";
+        private const string NextTaskLabel    = "Next task";
         private const string FinishLevelLabel = "Finish level";
-        private const string BackToMapLabel = "Back to map";
+        private const string BackToMapLabel   = "Back to map";
 
         [SerializeField] private Button cityMapButton;
         [SerializeField] private Button nextTaskButton;
-        [SerializeField] private Text levelTitleText;
-        [SerializeField] private Text taskDetailText;
-        [SerializeField] private Text pizzaSlicesText;
+        [SerializeField] private Text   levelTitleText;
+        [SerializeField] private Text   taskDetailText;
+        [SerializeField] private Text   pizzaSlicesText;
 
-        private GameObject _backConfirmRoot;
-        private Font _uiFont;
-        private bool _completingTask;
+        private GameObject           _backConfirmRoot;
+        private Font                 _uiFont;
+        private bool                 _completingTask;
         private GameProgressApiClient _gameApi;
 
         private void Awake()
@@ -30,7 +30,7 @@ namespace LanguageGame.Presentation
             if (nextTaskButton == null)
                 Debug.LogWarning("[LevelShellView] nextTaskButton is not assigned.");
 
-            _uiFont = levelTitleText != null ? levelTitleText.font : taskDetailText?.font;
+            _uiFont  = levelTitleText != null ? levelTitleText.font : taskDetailText?.font;
             _gameApi = FindAnyObjectByType<GameProgressApiClient>();
             if (_gameApi == null)
                 Debug.LogWarning("[LevelShellView] GameProgressApiClient missing; online progression unavailable.");
@@ -79,16 +79,12 @@ namespace LanguageGame.Presentation
             SetButtonLabel(nextTaskButton, isLastTask ? FinishLevelLabel : NextTaskLabel);
 
             if (levelTitleText != null)
-            {
                 levelTitleText.text =
                     $"{flow.ActiveLevelDisplayName} — Task {flow.CurrentTaskNumberOneBased}/{flow.ActiveLevelTaskCount}";
-            }
 
             if (taskDetailText != null)
             {
-                var label = string.IsNullOrEmpty(slot.placeholderLabel)
-                    ? "(placeholder)"
-                    : slot.placeholderLabel;
+                var label = string.IsNullOrEmpty(slot.placeholderLabel) ? "(placeholder)" : slot.placeholderLabel;
                 taskDetailText.text = $"Type: {slot.taskType}\n{label}";
             }
 
@@ -115,17 +111,13 @@ namespace LanguageGame.Presentation
             SetButtonLabel(nextTaskButton, isLast ? FinishLevelLabel : NextTaskLabel);
 
             if (levelTitleText != null)
-            {
                 levelTitleText.text =
                     $"{flow.ServerLevelDisplayName} — Task {flow.ServerCurrentTaskNumberOneBased}/{flow.ServerTaskCount}";
-            }
 
             if (taskDetailText != null)
             {
                 var typeLabel = FormatTaskType(task.taskType);
-                var label = string.IsNullOrEmpty(task.placeholderLabel)
-                    ? "(placeholder)"
-                    : task.placeholderLabel;
+                var label     = string.IsNullOrEmpty(task.placeholderLabel) ? "(placeholder)" : task.placeholderLabel;
                 taskDetailText.text = $"Type: {typeLabel}\n{label}";
             }
 
@@ -134,8 +126,7 @@ namespace LanguageGame.Presentation
 
         private static string FormatTaskType(string serverType)
         {
-            if (string.IsNullOrEmpty(serverType))
-                return "?";
+            if (string.IsNullOrEmpty(serverType)) return "?";
             return System.Enum.TryParse<TaskType>(serverType, out var t) ? t.ToString() : serverType;
         }
 
@@ -170,8 +161,8 @@ namespace LanguageGame.Presentation
             _completingTask = true;
             RefreshTaskUi();
 
-            var runId = flow.ServerRunId;
-            var useCase = new CompleteTaskUseCase(_gameApi);
+            var runId    = flow.ServerRunId;
+            var useCase  = new CompleteTaskUseCase(_gameApi);
             GameCompleteTaskEnvelope done = null;
             var err = string.Empty;
             yield return useCase.Run(runId, task.id, d => done = d, m => err = m);
@@ -228,10 +219,7 @@ namespace LanguageGame.Presentation
             SetBackConfirmVisible(true);
         }
 
-        private void OnBackConfirmCancel()
-        {
-            SetBackConfirmVisible(false);
-        }
+        private void OnBackConfirmCancel() => SetBackConfirmVisible(false);
 
         private void OnBackConfirmLeave()
         {
@@ -257,6 +245,25 @@ namespace LanguageGame.Presentation
                 return;
             }
 
+            UiThemeProvider.TryGet(out var t);
+
+            // Colors
+            var overlayColor  = t?.palette.overlay       ?? new Color(0f, 0f, 0f, 0.55f);
+            var surfaceColor  = t?.palette.surface        ?? new Color(0.12f, 0.12f, 0.14f, 1f);
+            var primaryColor  = t?.palette.primary        ?? new Color(0.2f, 0.55f, 0.85f, 1f);
+            var textColor     = t?.palette.textPrimary    ?? Color.white;
+
+            // Typography
+            var font          = _uiFont != null ? _uiFont : UiTokenApplier.ResolveFont(t?.typography.body);
+            var msgFontSize   = t?.typography.caption.fontSize ?? 22;
+            var btnFontSize   = t?.typography.small.fontSize   ?? 18;
+
+            // Layout
+            var dlgW          = t?.layout.dialogWidth        ?? 520f;
+            var dlgH          = t?.layout.dialogHeight       ?? 240f;
+            var btnW          = t?.layout.dialogButtonWidth  ?? 160f;
+            var btnH          = t?.layout.dialogButtonHeight ?? 44f;
+
             _backConfirmRoot = new GameObject("BackConfirmOverlay", typeof(RectTransform));
             _backConfirmRoot.transform.SetParent(canvas.transform, false);
             var rootRt = _backConfirmRoot.GetComponent<RectTransform>();
@@ -267,23 +274,23 @@ namespace LanguageGame.Presentation
             rootRt.SetAsLastSibling();
 
             var dim = _backConfirmRoot.AddComponent<Image>();
-            dim.color = new Color(0f, 0f, 0f, 0.55f);
+            dim.color = overlayColor;
             dim.raycastTarget = true;
 
             var panel = new GameObject("Panel", typeof(RectTransform));
             panel.transform.SetParent(_backConfirmRoot.transform, false);
             var panelRt = panel.GetComponent<RectTransform>();
-            panelRt.anchorMin = new Vector2(0.5f, 0.5f);
-            panelRt.anchorMax = new Vector2(0.5f, 0.5f);
-            panelRt.pivot = new Vector2(0.5f, 0.5f);
+            panelRt.anchorMin        = new Vector2(0.5f, 0.5f);
+            panelRt.anchorMax        = new Vector2(0.5f, 0.5f);
+            panelRt.pivot            = new Vector2(0.5f, 0.5f);
             panelRt.anchoredPosition = Vector2.zero;
-            panelRt.sizeDelta = new Vector2(520f, 240f);
+            panelRt.sizeDelta        = new Vector2(dlgW, dlgH);
 
             var panelImg = panel.AddComponent<Image>();
-            panelImg.color = new Color(0.12f, 0.12f, 0.14f, 1f);
+            panelImg.color        = surfaceColor;
             panelImg.raycastTarget = true;
 
-            var flow = GameFlowController.Instance;
+            var flow    = GameFlowController.Instance;
             var message = flow != null && flow.IsServerLevelActive
                 ? "Progress is saved after each task. You can resume this level later from the map. Leave now?"
                 : "Leaving now will discard your progress on this level. Do you want to go back to the map?";
@@ -296,63 +303,66 @@ namespace LanguageGame.Presentation
             msgRt.offsetMin = Vector2.zero;
             msgRt.offsetMax = Vector2.zero;
             var msgText = messageGo.AddComponent<Text>();
-            msgText.font = _uiFont;
-            msgText.fontSize = 22;
-            msgText.color = Color.white;
-            msgText.alignment = TextAnchor.MiddleCenter;
+            msgText.font              = font;
+            msgText.fontSize          = msgFontSize;
+            msgText.color             = textColor;
+            msgText.alignment         = TextAnchor.MiddleCenter;
             msgText.horizontalOverflow = HorizontalWrapMode.Wrap;
-            msgText.verticalOverflow = VerticalWrapMode.Truncate;
-            msgText.text = message;
+            msgText.verticalOverflow  = VerticalWrapMode.Truncate;
+            msgText.text              = message;
 
-            var cancel = CreateDialogButton(panel.transform, "Stay", new Vector2(-120f, -70f), OnBackConfirmCancel);
-            var ok = CreateDialogButton(panel.transform, "Back to map", new Vector2(120f, -70f), OnBackConfirmLeave);
+            // Button positions are expressed as ±half-gap from the centre (relative to panel centre).
+            var halfGap = dlgW * 0.23f;
+            var btnY    = -(dlgH * 0.5f - btnH * 0.5f - (t?.spacing.m ?? 16f));
 
-            cancel.GetComponent<RectTransform>().sizeDelta = new Vector2(160f, 44f);
-            ok.GetComponent<RectTransform>().sizeDelta = new Vector2(160f, 44f);
+            var cancel = CreateDialogButton(panel.transform, "Stay",        new Vector2(-halfGap, btnY),
+                primaryColor, textColor, font, btnFontSize);
+            var ok     = CreateDialogButton(panel.transform, "Back to map", new Vector2(halfGap,  btnY),
+                primaryColor, textColor, font, btnFontSize);
+
+            cancel.GetComponent<RectTransform>().sizeDelta = new Vector2(btnW, btnH);
+            ok.GetComponent<RectTransform>().sizeDelta     = new Vector2(btnW, btnH);
+
+            cancel.onClick.AddListener(OnBackConfirmCancel);
+            ok.onClick.AddListener(OnBackConfirmLeave);
 
             _backConfirmRoot.SetActive(false);
         }
 
         private void UpdatePizzaLabel()
         {
-            var flow = GameFlowController.Instance;
+            var flow   = GameFlowController.Instance;
             var slices = flow != null ? flow.TotalPizzaSlices : 0;
-            var line = $"Pizza slices: {slices}";
             if (pizzaSlicesText != null)
-                pizzaSlicesText.text = line;
+                pizzaSlicesText.text = $"Pizza slices: {slices}";
         }
 
-        private Button CreateDialogButton(Transform parent, string label, Vector2 anchoredPos,
-            UnityEngine.Events.UnityAction onClick)
+        private static Button CreateDialogButton(Transform parent, string label, Vector2 anchoredPos,
+            Color bgColor, Color textColor, Font font, int fontSize)
         {
             var go = new GameObject(label + "Button", typeof(RectTransform));
             go.transform.SetParent(parent, false);
             var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.5f, 0.5f);
-            rt.anchorMax = new Vector2(0.5f, 0.5f);
-            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchorMin        = new Vector2(0.5f, 0.5f);
+            rt.anchorMax        = new Vector2(0.5f, 0.5f);
+            rt.pivot            = new Vector2(0.5f, 0.5f);
             rt.anchoredPosition = anchoredPos;
-            rt.sizeDelta = new Vector2(140f, 40f);
 
             var img = go.AddComponent<Image>();
-            img.color = new Color(0.25f, 0.45f, 0.7f, 1f);
+            img.color = bgColor;
             var btn = go.AddComponent<Button>();
             btn.targetGraphic = img;
-            btn.onClick.AddListener(onClick);
 
             var textGo = new GameObject("Label", typeof(RectTransform));
             textGo.transform.SetParent(go.transform, false);
             var trt = textGo.GetComponent<RectTransform>();
-            trt.anchorMin = Vector2.zero;
-            trt.anchorMax = Vector2.one;
-            trt.offsetMin = Vector2.zero;
-            trt.offsetMax = Vector2.zero;
+            UiTokenApplier.StretchFull(trt);
             var t = textGo.AddComponent<Text>();
-            t.font = _uiFont;
-            t.fontSize = 18;
+            t.font      = font;
+            t.fontSize  = fontSize;
             t.alignment = TextAnchor.MiddleCenter;
-            t.color = Color.white;
-            t.text = label;
+            t.color     = textColor;
+            t.text      = label;
             return btn;
         }
 
