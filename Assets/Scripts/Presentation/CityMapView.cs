@@ -26,6 +26,12 @@ namespace LanguageGame.Presentation
         private GameBootstrapEnvelope _bootstrap;
         private Text _runtimePizzaLabel;
         private bool _startingLevel;
+        private GameProgressApiClient _gameApi;
+
+        private readonly LoadErrorBanner _loadErrorBanner = new LoadErrorBanner();
+        private bool _bootstrapLoadInFlight;
+        private bool _startLevelLoadInFlight;
+        private GameLevelBootstrapDto _pendingStartLevelRetry;
 
         private void Start()
         {
@@ -34,11 +40,11 @@ namespace LanguageGame.Presentation
             levelButtonB?.onClick.AddListener(() => OnLevelClicked(levelSlugB, levelButtonB));
             levelButtonC?.onClick.AddListener(() => OnLevelClicked(levelSlugC, levelButtonC));
 
-            var api = FindGameApiOrLog();
-            if (api == null)
+            _gameApi = FindGameApiOrLog();
+            if (_gameApi == null)
                 return;
 
-            StartCoroutine(LoadBootstrapRoutine(api));
+            StartCoroutine(LoadBootstrapRoutine(_gameApi));
         }
 
         private GameProgressApiClient FindGameApiOrLog()
@@ -49,24 +55,77 @@ namespace LanguageGame.Presentation
             return api;
         }
 
-        private IEnumerator LoadBootstrapRoutine(GameProgressApiClient api)
+        private void EnsureMapErrorBanner()
         {
-            var useCase = new LoadGameBootstrapUseCase(api);
-            GameBootstrapEnvelope env = null;
-            var err = string.Empty;
-            yield return useCase.Run(e => env = e, m => err = m);
-
-            if (env == null || !env.ok)
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas == null)
             {
-                Debug.LogWarning($"[CityMapView] Bootstrap failed: {err}");
-                yield break;
+                Debug.LogError("[CityMapView] No Canvas in parent hierarchy; load error banner cannot be created.");
+                return;
             }
 
-            _bootstrap = env;
-            GameFlowController.Instance?.SetTotalPizzaSlices(env.totalSlices);
-            EnsureHubPizzaLabel();
-            RefreshPizzaLabel();
-            RefreshLevelButtons();
+            var refFont = mainMenuButton != null
+                ? mainMenuButton.GetComponentInChildren<Text>()?.font
+                : null;
+            _loadErrorBanner.Ensure(canvas, refFont, 120f, 0.75f, 0.78f, 0.97f, 22f);
+        }
+
+        private IEnumerator LoadBootstrapRoutine(GameProgressApiClient api)
+        {
+            if (_bootstrapLoadInFlight)
+                yield break;
+
+            _bootstrapLoadInFlight = true;
+            EnsureMapErrorBanner();
+            _loadErrorBanner.SetRetryInteractable(false);
+            try
+            {
+                _loadErrorBanner.Hide();
+                var useCase = new LoadGameBootstrapUseCase(api);
+                GameBootstrapEnvelope env = null;
+                var err = string.Empty;
+                yield return useCase.Run(e => env = e, m => err = m);
+
+                if (env == null || !env.ok)
+                {
+                    Debug.LogWarning($"[CityMapView] Bootstrap failed: {err}");
+                    _bootstrap = null;
+                    _pendingStartLevelRetry = null;
+                    _loadErrorBanner.Show(
+                        string.IsNullOrEmpty(err)
+                            ? "Could not load game data. Is the web API running?"
+                            : err,
+                        () =>
+                        {
+                            if (_gameApi == null)
+                                _gameApi = FindGameApiOrLog();
+                            if (_gameApi != null)
+                                StartCoroutine(LoadBootstrapRoutine(_gameApi));
+                        });
+                    SetLevelSlotsDisabledVisual();
+                    yield break;
+                }
+
+                _loadErrorBanner.Hide();
+                _bootstrap = env;
+                _pendingStartLevelRetry = null;
+                GameFlowController.Instance?.SetTotalPizzaSlices(env.totalSlices);
+                EnsureHubPizzaLabel();
+                RefreshPizzaLabel();
+                RefreshLevelButtons();
+            }
+            finally
+            {
+                _bootstrapLoadInFlight = false;
+                _loadErrorBanner.SetRetryInteractable(true);
+            }
+        }
+
+        private void SetLevelSlotsDisabledVisual()
+        {
+            ApplySlot(levelButtonA, lockVisualA, levelSlugA, forceLocked: true);
+            ApplySlot(levelButtonB, lockVisualB, levelSlugB, forceLocked: true);
+            ApplySlot(levelButtonC, lockVisualC, levelSlugC, forceLocked: true);
         }
 
         private void EnsureHubPizzaLabel()
@@ -118,13 +177,13 @@ namespace LanguageGame.Presentation
             ApplySlot(levelButtonC, lockVisualC, levelSlugC);
         }
 
-        private void ApplySlot(Button button, GameObject lockVisual, string slug)
+        private void ApplySlot(Button button, GameObject lockVisual, string slug, bool forceLocked = false)
         {
             if (button == null || string.IsNullOrEmpty(slug))
                 return;
 
             var level = FindLevel(slug);
-            var unlocked = level != null && level.isUnlocked;
+            var unlocked = !forceLocked && level != null && level.isUnlocked;
             button.interactable = unlocked && !_startingLevel;
             var g = button.targetGraphic as Graphic;
             if (g != null)
@@ -158,7 +217,7 @@ namespace LanguageGame.Presentation
 
         private void OnLevelClicked(string slug, Button button)
         {
-            if (GameFlowController.Instance == null || button == null || _startingLevel)
+            if (GameFlowController.Instance == null || button == null || _startingLevel || _startLevelLoadInFlight)
                 return;
 
             var level = FindLevel(slug);
@@ -181,33 +240,64 @@ namespace LanguageGame.Presentation
             StartCoroutine(StartLevelRoutine(api, level));
         }
 
+        private void OnRetryStartLevelClicked()
+        {
+            if (_gameApi == null)
+                _gameApi = FindGameApiOrLog();
+            if (_gameApi == null || _pendingStartLevelRetry == null)
+                return;
+            StartCoroutine(StartLevelRoutine(_gameApi, _pendingStartLevelRetry));
+        }
+
         private IEnumerator StartLevelRoutine(GameProgressApiClient api, GameLevelBootstrapDto level)
         {
+            if (_startLevelLoadInFlight)
+                yield break;
+
+            _startLevelLoadInFlight = true;
+            _pendingStartLevelRetry = level;
+            EnsureMapErrorBanner();
+            _loadErrorBanner.SetRetryInteractable(false);
             _startingLevel = true;
             RefreshLevelButtons();
 
-            var useCase = new StartLevelRunUseCase(api);
-            GameStartLevelEnvelope started = null;
-            var err = string.Empty;
-            yield return useCase.Run(level.id, s => started = s, m => err = m);
-
-            _startingLevel = false;
-            RefreshLevelButtons();
-
-            if (started == null || !started.ok)
+            try
             {
-                Debug.LogWarning($"[CityMapView] Start level failed: {err}");
-                yield break;
-            }
+                var useCase = new StartLevelRunUseCase(api);
+                GameStartLevelEnvelope started = null;
+                var err = string.Empty;
+                yield return useCase.Run(level.id, s => started = s, m => err = m);
 
-            GameFlowController.Instance.SetTotalPizzaSlices(started.totalSlices);
-            GameFlowController.Instance.BeginServerLevel(
-                started.runId,
-                started.levelId,
-                started.displayName,
-                started.tasks,
-                started.currentTaskOrderIndex,
-                started.totalSlices);
+                if (started == null || !started.ok)
+                {
+                    Debug.LogWarning($"[CityMapView] Start level failed: {err}");
+                    _loadErrorBanner.Show(
+                        string.IsNullOrEmpty(err)
+                            ? "Could not start this level. Is the web API running?"
+                            : err,
+                        OnRetryStartLevelClicked);
+                    yield break;
+                }
+
+                _loadErrorBanner.Hide();
+                _pendingStartLevelRetry = null;
+
+                GameFlowController.Instance.SetTotalPizzaSlices(started.totalSlices);
+                GameFlowController.Instance.BeginServerLevel(
+                    started.runId,
+                    started.levelId,
+                    started.displayName,
+                    started.tasks,
+                    started.currentTaskOrderIndex,
+                    started.totalSlices);
+            }
+            finally
+            {
+                _startingLevel = false;
+                _startLevelLoadInFlight = false;
+                _loadErrorBanner.SetRetryInteractable(true);
+                RefreshLevelButtons();
+            }
         }
 
         private void OnDestroy()
@@ -216,6 +306,7 @@ namespace LanguageGame.Presentation
             levelButtonA?.onClick.RemoveAllListeners();
             levelButtonB?.onClick.RemoveAllListeners();
             levelButtonC?.onClick.RemoveAllListeners();
+            _loadErrorBanner.Destroy();
         }
     }
 }

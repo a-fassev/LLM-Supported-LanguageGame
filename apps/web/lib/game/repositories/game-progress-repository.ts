@@ -29,8 +29,29 @@ export type PlayerRunRow = {
   completed_at: string | null;
 };
 
+export type RpcCompleteTaskResult =
+  | {
+      ok: true;
+      totalSlices: number;
+      levelComplete: boolean;
+      currentTaskOrderIndex: number;
+      currentTaskId: string | null;
+    }
+  | { ok: false; code: string; error: string };
+
 function admin(): SupabaseClient {
   return getSupabaseAdmin();
+}
+
+/** Group rows returned from listTasksForLevels (sorted by level_id, order_index). */
+export function bucketTasksByLevelId(rows: GameTaskRow[]): Map<string, GameTaskRow[]> {
+  const map = new Map<string, GameTaskRow[]>();
+  for (const r of rows) {
+    const list = map.get(r.level_id);
+    if (list) list.push(r);
+    else map.set(r.level_id, [r]);
+  }
+  return map;
 }
 
 export async function listActiveLevelsOrdered(): Promise<GameLevelRow[] | null> {
@@ -57,6 +78,24 @@ export async function listTasksForLevel(levelId: string): Promise<GameTaskRow[] 
 
   if (error) {
     console.error("[game-repo] listTasksForLevel", error);
+    return null;
+  }
+  return (data ?? []) as GameTaskRow[];
+}
+
+/** Single query for bootstrap / multi-level views (avoids N+1). */
+export async function listTasksForLevels(levelIds: string[]): Promise<GameTaskRow[] | null> {
+  if (levelIds.length === 0) return [];
+  const { data, error } = await admin()
+    .from("game_tasks")
+    .select("id, level_id, order_index, task_type, prompt_payload, is_active")
+    .in("level_id", levelIds)
+    .eq("is_active", true)
+    .order("level_id", { ascending: true })
+    .order("order_index", { ascending: true });
+
+  if (error) {
+    console.error("[game-repo] listTasksForLevels", error);
     return null;
   }
   return (data ?? []) as GameTaskRow[];
@@ -104,28 +143,65 @@ export async function ensureWalletRow(accountId: string): Promise<boolean> {
   return true;
 }
 
-export async function incrementWalletSlices(accountId: string, delta: number): Promise<number | null> {
-  const total = await getWalletTotal(accountId);
-  if (total === null) return null;
-  const next = Math.max(0, total + delta);
-  const { data, error } = await admin()
-    .from("player_wallets")
-    .upsert(
-      {
-        account_id: accountId,
-        total_slices: next,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "account_id" },
-    )
-    .select("total_slices")
-    .single();
+/**
+ * Atomically records attempt, increments wallet, advances run (Postgres function + row lock).
+ */
+export async function rpcCompleteGameTask(
+  accountId: string,
+  runId: string,
+  taskId: string,
+  awardedSlices: number,
+): Promise<RpcCompleteTaskResult> {
+  const { data, error } = await admin().rpc("complete_game_task", {
+    p_account_id: accountId,
+    p_run_id: runId,
+    p_task_id: taskId,
+    p_awarded_slices: awardedSlices,
+  });
 
   if (error) {
-    console.error("[game-repo] incrementWalletSlices", error);
-    return null;
+    console.error("[game-repo] rpcCompleteGameTask", error);
+    return {
+      ok: false,
+      code: "rpc_transport_error",
+      error: error.message || "RPC request failed",
+    };
   }
-  return data.total_slices as number;
+
+  const row = data as Record<string, unknown> | null;
+  if (!row || typeof row.ok !== "boolean") {
+    console.error("[game-repo] rpcCompleteGameTask unexpected payload", data);
+    return {
+      ok: false,
+      code: "rpc_payload_error",
+      error: "Unexpected RPC response",
+    };
+  }
+
+  if (!row.ok) {
+    return {
+      ok: false,
+      code: typeof row.code === "string" ? row.code : "rpc_error",
+      error: typeof row.error === "string" ? row.error : "Task completion failed",
+    };
+  }
+
+  const coerceInt = (v: unknown, fallback = 0): number =>
+    typeof v === "number" && Number.isFinite(v) ? v : fallback;
+
+  let nextId: string | null = null;
+  if (row.current_task_id !== null && row.current_task_id !== undefined) {
+    if (typeof row.current_task_id === "string") nextId = row.current_task_id;
+    else if (typeof row.current_task_id === "number") nextId = String(row.current_task_id);
+  }
+
+  return {
+    ok: true,
+    totalSlices: coerceInt(row.total_slices, 0),
+    levelComplete: Boolean(row.level_complete),
+    currentTaskOrderIndex: coerceInt(row.current_task_order_index, 0),
+    currentTaskId: nextId,
+  };
 }
 
 /** Returns level ids that have at least one completed run for the account. */
@@ -202,22 +278,6 @@ export async function getRunById(runId: string): Promise<PlayerRunRow | null> {
   return data as PlayerRunRow;
 }
 
-export async function abandonInProgressRuns(accountId: string, levelId: string): Promise<boolean> {
-  const now = new Date().toISOString();
-  const { error } = await admin()
-    .from("player_level_runs")
-    .update({ status: "abandoned", completed_at: now })
-    .eq("account_id", accountId)
-    .eq("level_id", levelId)
-    .eq("status", "in_progress");
-
-  if (error) {
-    console.error("[game-repo] abandonInProgressRuns", error);
-    return false;
-  }
-  return true;
-}
-
 /** Abandon any in-progress runs for this account (e.g. starting a different level). */
 export async function abandonAllInProgressRunsForAccount(accountId: string): Promise<boolean> {
   const now = new Date().toISOString();
@@ -262,32 +322,13 @@ export async function updateRunProgress(
   const patch: Record<string, unknown> = {
     current_task_order_index: nextTaskOrderIndex,
     status,
+    completed_at: completedAtIso,
   };
-  if (completedAtIso !== undefined) {
-    patch.completed_at = completedAtIso;
-  }
 
   const { error } = await admin().from("player_level_runs").update(patch).eq("id", runId);
 
   if (error) {
     console.error("[game-repo] updateRunProgress", error);
-    return false;
-  }
-  return true;
-}
-
-export async function insertTaskAttempt(
-  runId: string,
-  taskId: string,
-  awardedSlices: number,
-): Promise<boolean> {
-  const { error } = await admin().from("player_task_attempts").insert({
-    run_id: runId,
-    task_id: taskId,
-    awarded_slices: awardedSlices,
-  });
-  if (error) {
-    console.error("[game-repo] insertTaskAttempt", error);
     return false;
   }
   return true;

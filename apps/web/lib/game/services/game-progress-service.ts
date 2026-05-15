@@ -2,19 +2,20 @@ import { randomPizzaSliceAward } from "@/lib/game/mock-scoring";
 import type { GameLevelRow, GameTaskRow } from "@/lib/game/repositories/game-progress-repository";
 import {
   abandonAllInProgressRunsForAccount,
+  bucketTasksByLevelId,
   ensureWalletRow,
   findInProgressRun,
   findLatestInProgressRunForAccount,
   getLevelById,
   getRunById,
   getWalletTotal,
-  incrementWalletSlices,
   insertRun,
-  insertTaskAttempt,
   listActiveLevelsOrdered,
   listCompletedLevelIds,
   listTasksForLevel,
+  listTasksForLevels,
   placeholderFromPayload,
+  rpcCompleteGameTask,
   updateRunProgress,
 } from "@/lib/game/repositories/game-progress-repository";
 
@@ -118,6 +119,24 @@ function isUnlockedForPlayer(
   return prevDone && walletSlices >= level.required_total_slices;
 }
 
+function rpcFailureStatus(code: string): number {
+  if (code === "run_not_found") return 404;
+  if (code === "rpc_transport_error") return 503;
+  if (code === "rpc_payload_error" || code === "no_tasks") return 500;
+  return 400;
+}
+
+/** Safe copy for API responses; internal RPC/DB detail is logged server-side only. */
+function clientMessageForTaskRpcFailure(code: string, internalMessage: string): string {
+  if (code === "rpc_transport_error") {
+    return "The game server is temporarily unavailable. Please try again.";
+  }
+  if (code === "rpc_payload_error") {
+    return "Could not update your progress. Please try again.";
+  }
+  return internalMessage;
+}
+
 export async function bootstrapGameState(accountId: string): Promise<BootstrapResult> {
   const okEnsure = await ensureWalletRow(accountId);
   if (!okEnsure) return { ok: false, status: 500, error: "Could not load wallet" };
@@ -134,10 +153,14 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
   const completedSet = new Set(completedList);
   const sorted = [...levels].sort((a, b) => a.order_index - b.order_index);
 
+  const allTasks = await listTasksForLevels(sorted.map((l) => l.id));
+  if (!allTasks) return { ok: false, status: 500, error: "Could not load tasks" };
+
+  const tasksByLevel = bucketTasksByLevelId(allTasks);
+
   const levelDtos: GameLevelClientDto[] = [];
   for (const L of sorted) {
-    const tasksRows = await listTasksForLevel(L.id);
-    if (!tasksRows) return { ok: false, status: 500, error: "Could not load tasks" };
+    const tasksRows = tasksByLevel.get(L.id) ?? [];
 
     levelDtos.push({
       id: L.id,
@@ -155,8 +178,15 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
   const runRow = await findLatestInProgressRunForAccount(accountId);
   if (runRow) {
     const levelMeta = sorted.find((l) => l.id === runRow.level_id);
-    const tasks = await listTasksForLevel(runRow.level_id);
-    if (levelMeta && tasks) {
+    if (levelMeta) {
+      const tasks = tasksByLevel.get(runRow.level_id) ?? [];
+      if (tasks.length === 0) {
+        console.warn(
+          "[game-progress] in-progress run references level with no active tasks",
+          runRow.id,
+          runRow.level_id,
+        );
+      }
       activeRun = {
         runId: runRow.id,
         levelId: runRow.level_id,
@@ -223,64 +253,26 @@ export async function completeGameTask(
   runId: string,
   taskId: string,
 ): Promise<CompleteTaskResult> {
-  const run = await getRunById(runId);
-  if (!run || run.account_id !== accountId) {
-    return { ok: false, status: 404, error: "Run not found", code: "run_not_found" };
-  }
-  if (run.status !== "in_progress") {
-    return { ok: false, status: 400, error: "Run is not active", code: "run_not_active" };
-  }
-
-  const tasksRows = await listTasksForLevel(run.level_id);
-  if (!tasksRows || tasksRows.length === 0) {
-    return { ok: false, status: 500, error: "Could not load tasks" };
-  }
-
-  const idx = run.current_task_order_index;
-  if (idx < 0 || idx >= tasksRows.length) {
-    return { ok: false, status: 400, error: "No pending task", code: "no_pending_task" };
-  }
-
-  const expected = tasksRows[idx];
-  if (expected.id !== taskId) {
-    return { ok: false, status: 400, error: "Task mismatch", code: "task_mismatch" };
-  }
-
   const awarded = randomPizzaSliceAward();
-  const okAttempt = await insertTaskAttempt(runId, taskId, awarded);
-  if (!okAttempt) return { ok: false, status: 500, error: "Could not save attempt" };
-
-  const newTotal = await incrementWalletSlices(accountId, awarded);
-  if (newTotal === null) return { ok: false, status: 500, error: "Could not update wallet" };
-
-  const nextIdx = idx + 1;
-  const levelComplete = nextIdx >= tasksRows.length;
-  const nowIso = new Date().toISOString();
-
-  if (levelComplete) {
-    const ok = await updateRunProgress(runId, nextIdx, "completed", nowIso);
-    if (!ok) return { ok: false, status: 500, error: "Could not update run" };
+  const rpc = await rpcCompleteGameTask(accountId, runId, taskId, awarded);
+  if (!rpc.ok) {
+    if (rpc.code === "rpc_transport_error" || rpc.code === "rpc_payload_error") {
+      console.error("[game-progress] completeGameTask RPC failure", rpc.code, rpc.error);
+    }
     return {
-      ok: true,
-      awardedSlices: awarded,
-      totalSlices: newTotal,
-      levelComplete: true,
-      currentTaskOrderIndex: nextIdx,
-      currentTaskId: null,
+      ok: false,
+      status: rpcFailureStatus(rpc.code),
+      error: clientMessageForTaskRpcFailure(rpc.code, rpc.error),
+      code: rpc.code,
     };
   }
-
-  const ok = await updateRunProgress(runId, nextIdx, "in_progress", null);
-  if (!ok) return { ok: false, status: 500, error: "Could not update run" };
-
-  const nextTask = tasksRows[nextIdx];
   return {
     ok: true,
     awardedSlices: awarded,
-    totalSlices: newTotal,
-    levelComplete: false,
-    currentTaskOrderIndex: nextIdx,
-    currentTaskId: nextTask?.id ?? null,
+    totalSlices: rpc.totalSlices,
+    levelComplete: rpc.levelComplete,
+    currentTaskOrderIndex: rpc.currentTaskOrderIndex,
+    currentTaskId: rpc.currentTaskId,
   };
 }
 
