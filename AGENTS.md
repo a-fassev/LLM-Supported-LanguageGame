@@ -9,7 +9,7 @@ The **committed** repository is a **Unity 6.4** project at the **repository root
 
 | Area | Path | Role |
 | -------------------- | -------------------------------------------------------------------- | ---- |
-| **Unity (2D / URP)** | `Assets/`, `Packages/`, `ProjectSettings/` | Game client — URP 2D, New Input System, multi-scene **navigation** (`Auth` login → `MainMenu` → `CityMap` → reusable `Level` with `LevelConfig` task sequences). Editor: `6000.4.6f1` per `ProjectSettings/ProjectVersion.txt`. |
+| **Unity (2D / URP)** | `Assets/`, `Packages/`, `ProjectSettings/` | Game client — URP 2D, New Input System, multi-scene **navigation** (`Auth` → `MainMenu` → `CityMap` → reusable `Level`; `AvatarShop` from MainMenu or CityMap via `GameFlowController`, returns to caller). Editor: `6000.4.6f1` per `ProjectSettings/ProjectVersion.txt`. |
 | **Next.js (local API)** | `apps/web/` | Auth + game/progress API for Unity (`/api/auth/*`, `/api/game/*`), backed by Supabase Postgres; run with `npm run dev` (secrets via `.env.local` only). |
 | **Planning / deferred work** | `.cursor/plans/` | Long-term backlog and milestones; **deferred scope** is consolidated in `long-term-todos.md` (anchor: foundation plan *Out of Scope*). Prefer extending that file over duplicating roadmaps here. |
 | **Repo meta** | `.gitignore`, `.gitattributes`, `AGENTS.md` | Version control and agent conventions. |
@@ -26,18 +26,21 @@ The **committed** repository is a **Unity 6.4** project at the **repository root
 - **Rendering:** 2D **Universal Render Pipeline (URP)** — settings under `Assets/Settings/` and `ProjectSettings/` (e.g. `URPProjectSettings.asset`).
 - **Input:** New Input System — `Assets/InputSystem_Actions.inputactions`.
 - **Language:** C# — gameplay and editor scripts under `Assets/Scripts/` (`LanguageGame.Application`, `LanguageGame.Domain`, `LanguageGame.Presentation` for the navigation skeleton).
-- **Navigation:** `Assets/Scripts/Application/GameFlowController.cs` loads `Auth`, `MainMenu`, `CityMap`, and a single reusable `Level` scene; levels on the city map are backed by the server (`/api/game/*`). Legacy `LanguageGame.Domain.LevelConfig` assets remain for tooling/local definitions; live task order and content come from Supabase. Presentation: `AuthView`, `MainMenuView`, `CityMapView`, `LevelShellView` under `Assets/Scripts/Presentation/`. Keep `ProjectSettings/EditorBuildSettings.asset` aligned with scene names; preserve `GameFlowController` + `AuthApiClient` + `GameProgressApiClient` on the `GameFlow` object in `Auth` as `DontDestroyOnLoad` carries them into later scenes.
+- **Navigation:** `Assets/Scripts/Application/GameFlowController.cs` loads `Auth`, `MainMenu`, `CityMap`, `AvatarShop`, and a single reusable `Level` scene; levels on the city map are backed by the server (`/api/game/*`). Legacy `LanguageGame.Domain.LevelConfig` assets remain for tooling/local definitions; live task order and content come from Supabase. Presentation: `AuthView`, `MainMenuView`, `CityMapView`, `AvatarShopView`, `LevelShellView` under `Assets/Scripts/Presentation/`. Keep `ProjectSettings/EditorBuildSettings.asset` aligned with scene names; preserve `GameFlowController` + `AuthApiClient` + `GameProgressApiClient` on the `GameFlow` object in `Auth` as `DontDestroyOnLoad` carries them into later scenes.
 
 **Unity UI / scene conventions (navigation flow):**
 
 - **EventSystem:** With the New Input System, use the **Input System UI Input Module** on `EventSystem` in UI scenes — not the legacy standalone input module — so Canvas interactions work.
 - **Camera:** Menu, map, and level-shell scenes include an active **Main Camera**; mirror that when adding scenes to the same flow unless you intentionally use a different rendering setup.
 - **Scene-authored UI + runtime fallback (same Canvas):** If a view resolves refs from the hierarchy but may rebuild UI when incomplete (pattern used by `AuthView`), gate fallback on **all required controls** being present—not only “Canvas has no children”—otherwise partially drifted hierarchies fail silently. Before rebuilding under `Awake`, remove existing Canvas children with **`DestroyImmediate`**, not `Destroy`, so deferred teardown does not leave old widgets alive alongside new UI.
+- **UI design tokens:** Shared uGUI styling lives in `UiDesignTokens` (`Assets/Scripts/Presentation/UiDesignTokens.cs`, ScriptableObject). `UiThemeProvider` exposes tokens for runtime builders; optional default asset at `Resources/UI/UiDesignTokens_Default`. Use `UiTokenApplier` helpers for typography and related properties—avoid scattering duplicate literals in new Presentation code.
+- **Pizza slice HUD:** Implemented as **scene-authored** Canvas widgets (layering/z-order with shops and other chrome). Prefer adjusting scenes and hierarchy anchors over spawning separate runtime HUD objects that fight layout.
 
 ### Web / auth API (`apps/web`)
 
 - **Next.js** App Router API routes under `apps/web/app/api/auth/*` and `apps/web/app/api/game/*` (session-auth game bootstrap, level start, task completion, run finish).
 - **Supabase:** database tables `student_accounts` / `student_sessions` plus game tables (`game_levels`, `game_tasks`, `player_level_runs`, …) defined in [`supabase/migrations/`](supabase/migrations/); apply migrations to your Supabase project. **Secret API key** (`SUPABASE_SECRET_KEY`, server-only) and URL only in `apps/web/.env.local` (never ship to Unity). See `apps/web/.env.example`.
+- **Progression integrity:** Multi-step game transitions (rewards, map locks, task/run completion) are enforced with **Postgres RPC** and **RLS** where migrations define them—atomic server-side updates, not client-only state. When extending schema or progression flows, keep trusted transitions in Supabase/Route Handlers; pair API changes with resilient loading/error UI on the Unity side.
 - Unity talks to the backend over HTTP only (`AuthApiClient` + `GameProgressApiClient` default `http://127.0.0.1:3000`).
 
 If you extend the web stack (e.g. LLM task evaluation), keep **API keys server-side** and prefer a clear HTTP contract to the game client.
@@ -58,7 +61,7 @@ LLM-Supported-LanguageGame/
 ├── Assets/
 │ ├── InputSystem_Actions.inputactions
 │ ├── Data/                   # e.g. `Levels/*.asset` LevelConfig definitions
-│ ├── Scenes/                 # Auth, MainMenu, CityMap, Level (+ SampleScene if retained)
+│ ├── Scenes/                 # Auth, MainMenu, CityMap, AvatarShop, Level (+ SampleScene if retained)
 ├── apps/
 │ └── web/                    # Next.js API (`npm run dev`: auth + game); see `.env.example`
 │ ├── Scripts/                # Application, Domain, Presentation
