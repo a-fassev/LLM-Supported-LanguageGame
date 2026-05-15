@@ -9,13 +9,12 @@ The **committed** repository is a **Unity 6.4** project at the **repository root
 
 | Area | Path | Role |
 | -------------------- | -------------------------------------------------------------------- | ---- |
-| **Unity (2D / URP)** | `Assets/`, `Packages/`, `ProjectSettings/` | Game client — URP 2D, New Input System, multi-scene **navigation skeleton** (main menu → city map → reusable `Level` scene with `LevelConfig` task sequences). Editor: `6000.4.6f1` per `ProjectSettings/ProjectVersion.txt`. |
+| **Unity (2D / URP)** | `Assets/`, `Packages/`, `ProjectSettings/` | Game client — URP 2D, New Input System, multi-scene **navigation** (`Auth` login → `MainMenu` → `CityMap` → reusable `Level` with `LevelConfig` task sequences). Editor: `6000.4.6f1` per `ProjectSettings/ProjectVersion.txt`. |
+| **Next.js (local API)** | `apps/web/` | Auth API for Unity (`/api/auth/*`), backed by Supabase Postgres; run with `npm run dev` (secrets via `.env.local` only). |
 | **Planning / deferred work** | `.cursor/plans/` | Long-term backlog and milestones; **deferred scope** is consolidated in `long-term-todos.md` (anchor: foundation plan *Out of Scope*). Prefer extending that file over duplicating roadmaps here. |
 | **Repo meta** | `.gitignore`, `.gitattributes`, `AGENTS.md` | Version control and agent conventions. |
 
-**Deprecated layout (do not document as current):** An older monorepo placed Unity under `apps/unity/` and a Next.js app under `apps/web/`. **Open the Unity editor from this repository root** (folder containing `Assets` + `ProjectSettings`). Do not assume `apps/unity/` exists or is the project to open.
-
-When you reintroduce a web stack (e.g. Next.js) or shared packages, update this file and the directory tree below so paths stay accurate.
+**Deprecated layout note:** An older monorepo placed Unity under `apps/unity/`. **Open the Unity editor from this repository root** (folder containing `Assets` + `ProjectSettings`). The Next.js app lives at `apps/web/` (not `apps/unity/`).
 
 ---
 
@@ -27,19 +26,20 @@ When you reintroduce a web stack (e.g. Next.js) or shared packages, update this 
 - **Rendering:** 2D **Universal Render Pipeline (URP)** — settings under `Assets/Settings/` and `ProjectSettings/` (e.g. `URPProjectSettings.asset`).
 - **Input:** New Input System — `Assets/InputSystem_Actions.inputactions`.
 - **Language:** C# — gameplay and editor scripts under `Assets/Scripts/` (`LanguageGame.Application`, `LanguageGame.Domain`, `LanguageGame.Presentation` for the navigation skeleton).
-- **Navigation (skeleton):** `Assets/Scripts/Application/GameFlowController.cs` loads `MainMenu`, `CityMap`, and a single reusable `Level` scene; `LanguageGame.Domain.LevelConfig` assets define ordered tasks (mixed `TaskType`). Presentation hooks: `MainMenuView`, `CityMapView`, `LevelShellView` under `Assets/Scripts/Presentation/`. Keep `ProjectSettings/EditorBuildSettings.asset` aligned with scene names; add new `TaskType` values consistently in configs and task UI.
+- **Navigation:** `Assets/Scripts/Application/GameFlowController.cs` loads `Auth`, `MainMenu`, `CityMap`, and a single reusable `Level` scene; `LanguageGame.Domain.LevelConfig` assets define ordered tasks (mixed `TaskType`). Presentation: `AuthView`, `MainMenuView`, `CityMapView`, `LevelShellView` under `Assets/Scripts/Presentation/`. Keep `ProjectSettings/EditorBuildSettings.asset` aligned with scene names; preserve `GameFlowController` + `AuthApiClient` on the `GameFlow` object in `Auth` as `DontDestroyOnLoad` carries them into later scenes.
 
 **Unity UI / scene conventions (navigation flow):**
 
 - **EventSystem:** With the New Input System, use the **Input System UI Input Module** on `EventSystem` in UI scenes — not the legacy standalone input module — so Canvas interactions work.
 - **Camera:** Menu, map, and level-shell scenes include an active **Main Camera**; mirror that when adding scenes to the same flow unless you intentionally use a different rendering setup.
 
-### Web / LLM (optional, not in current `git` tree)
+### Web / auth API (`apps/web`)
 
-If you add a Next.js (or similar) server again for LLM task evaluation or tooling:
+- **Next.js** App Router API routes under `apps/web/app/api/auth/*` (register, login, logout, session, suggest-username).
+- **Supabase:** database tables `student_accounts` / `student_sessions`; **service role key** and URL only in `apps/web/.env.local` (never ship to Unity). See `apps/web/.env.example`.
+- Unity talks to the backend over HTTP only (`AuthApiClient` default `http://127.0.0.1:3000`).
 
-- Keep **API keys and provider SDK usage on the server** only; do not embed secrets in Unity or ship them to the browser client.
-- Prefer a clear integration contract (HTTP API, env vars) rather than tight coupling between Unity and the web project.
+If you extend the web stack (e.g. LLM task evaluation), keep **API keys server-side** and prefer a clear HTTP contract to the game client.
 
 ---
 
@@ -56,7 +56,9 @@ LLM-Supported-LanguageGame/
 ├── Assets/
 │ ├── InputSystem_Actions.inputactions
 │ ├── Data/                   # e.g. `Levels/*.asset` LevelConfig definitions
-│ ├── Scenes/                 # MainMenu, CityMap, Level (+ SampleScene if retained)
+│ ├── Scenes/                 # Auth, MainMenu, CityMap, Level (+ SampleScene if retained)
+├── apps/
+│ └── web/                    # Next.js auth API (`npm run dev`); see `.env.example`
 │ ├── Scripts/                # Application, Domain, Presentation
 │ └── Settings/               # URP 2D render assets and template scenes
 ├── .cursor/                  # commands, skills, plans (not all tracked — use git status)

@@ -8,6 +8,7 @@ namespace LanguageGame.Application
     {
         public static GameFlowController Instance { get; private set; }
 
+        private const string SceneAuth = "Auth";
         private const string SceneMainMenu = "MainMenu";
         private const string SceneCityMap = "CityMap";
         private const string SceneLevel = "Level";
@@ -25,6 +26,15 @@ namespace LanguageGame.Application
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
+        }
+
+        /// <summary>
+        /// Shows the login / registration scene (build index 0).
+        /// </summary>
+        public void LoadAuth()
+        {
+            ClearActiveLevel();
+            LoadScene(SceneAuth);
         }
 
         public void LoadMainMenu()
@@ -96,8 +106,8 @@ namespace LanguageGame.Application
         {
             if (string.IsNullOrEmpty(sceneName))
             {
-                Debug.LogError("[GameFlowController] Scene name empty. Falling back to MainMenu.");
-                SceneManager.LoadScene(SceneMainMenu, LoadSceneMode.Single);
+                Debug.LogError("[GameFlowController] Scene name empty. Falling back to Auth.");
+                SceneManager.LoadScene(SceneAuth, LoadSceneMode.Single);
                 return;
             }
 
