@@ -461,7 +461,11 @@ namespace LanguageGame.Presentation
         {
             yield return apiClient.ValidateSession(
                 onValid: () => { GameFlowController.Instance?.LoadMainMenu(); },
-                onInvalid: _ => { /* stay on auth */ });
+                onInvalid: _ =>
+                {
+                    GameSessionStateStore.Clear();
+                    /* stay on auth */
+                });
         }
 
         private void ShowRegister(bool register)
@@ -548,6 +552,7 @@ namespace LanguageGame.Presentation
                 () =>
                 {
                     SetStatus(string.Empty);
+                    GameSessionStateStore.Clear();
                     GameFlowController.Instance?.LoadMainMenu();
                 },
                 err => SetStatus(err)));

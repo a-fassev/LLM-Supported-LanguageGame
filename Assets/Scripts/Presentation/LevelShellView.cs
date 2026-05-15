@@ -12,6 +12,13 @@ namespace LanguageGame.Presentation
         private const string FinishLevelLabel = "Finish level";
         private const string BackToMapLabel   = "Back to map";
 
+        private enum TaskSubmitState
+        {
+            Idle,
+            Submitting,
+            Error
+        }
+
         [SerializeField] private Button cityMapButton;
         [SerializeField] private Button nextTaskButton;
         [SerializeField] private Text   levelTitleText;
@@ -20,8 +27,10 @@ namespace LanguageGame.Presentation
 
         private GameObject           _backConfirmRoot;
         private Font                 _uiFont;
-        private bool                 _completingTask;
+        private TaskSubmitState      _taskSubmitState = TaskSubmitState.Idle;
         private GameProgressApiClient _gameApi;
+        private readonly LoadingOverlayPresenter _loadingOverlay = new LoadingOverlayPresenter();
+        private string _pendingFinishRunId;
 
         private void Awake()
         {
@@ -88,11 +97,24 @@ namespace LanguageGame.Presentation
                 taskDetailText.text = $"Type: {slot.taskType}\n{label}";
             }
 
-            nextTaskButton.interactable = !_completingTask;
+            nextTaskButton.interactable = _taskSubmitState != TaskSubmitState.Submitting;
         }
 
         private void RefreshServerTaskUi(GameFlowController flow)
         {
+            if (!string.IsNullOrEmpty(_pendingFinishRunId))
+            {
+                if (levelTitleText != null)
+                    levelTitleText.text = string.IsNullOrEmpty(flow.ServerLevelDisplayName)
+                        ? "Finishing level"
+                        : flow.ServerLevelDisplayName;
+                if (taskDetailText != null)
+                    taskDetailText.text = "Level complete. Tap Finish level to retry saving your completion.";
+                SetButtonLabel(nextTaskButton, FinishLevelLabel);
+                nextTaskButton.interactable = _taskSubmitState != TaskSubmitState.Submitting && _gameApi != null;
+                return;
+            }
+
             if (!flow.TryGetCurrentServerTask(out var task))
             {
                 if (levelTitleText != null)
@@ -121,7 +143,7 @@ namespace LanguageGame.Presentation
                 taskDetailText.text = $"Type: {typeLabel}\n{label}";
             }
 
-            nextTaskButton.interactable = !_completingTask && _gameApi != null;
+            nextTaskButton.interactable = _taskSubmitState != TaskSubmitState.Submitting && _gameApi != null;
         }
 
         private static string FormatTaskType(string serverType)
@@ -140,8 +162,15 @@ namespace LanguageGame.Presentation
 
             if (GameFlowController.Instance.IsServerLevelActive)
             {
-                if (_gameApi == null || _completingTask)
+                if (_gameApi == null || _taskSubmitState == TaskSubmitState.Submitting)
                     return;
+
+                if (!string.IsNullOrEmpty(_pendingFinishRunId))
+                {
+                    StartCoroutine(FinishPendingRunRoutine(_pendingFinishRunId));
+                    return;
+                }
+
                 StartCoroutine(CompleteServerTaskRoutine());
                 return;
             }
@@ -158,7 +187,7 @@ namespace LanguageGame.Presentation
             if (flow == null || _gameApi == null || !flow.TryGetCurrentServerTask(out var task))
                 yield break;
 
-            _completingTask = true;
+            _taskSubmitState = TaskSubmitState.Submitting;
             RefreshTaskUi();
 
             var runId    = flow.ServerRunId;
@@ -167,27 +196,65 @@ namespace LanguageGame.Presentation
             var err = string.Empty;
             yield return useCase.Run(runId, task.id, d => done = d, m => err = m);
 
-            _completingTask = false;
-
             if (done == null || !done.ok)
             {
+                _taskSubmitState = TaskSubmitState.Error;
                 Debug.LogWarning($"[LevelShellView] Complete task failed: {err}");
                 RefreshTaskUi();
                 yield break;
             }
 
+            _taskSubmitState = TaskSubmitState.Idle;
             flow.SetTotalPizzaSlices(done.totalSlices);
-            flow.ApplyServerTaskProgress(done.currentTaskOrderIndex, done.totalSlices, done.levelComplete);
+            flow.ApplyServerTaskProgress(done.currentTaskOrderIndex, done.totalSlices, levelComplete: false);
 
             if (done.levelComplete)
             {
-                var finish = new FinishLevelRunUseCase(_gameApi);
-                yield return finish.Run(runId, _ => { }, _ => { });
-                flow.LoadCityMap();
+                _pendingFinishRunId = runId;
+                yield return FinishPendingRunRoutine(runId);
                 yield break;
             }
 
             RefreshTaskUi();
+        }
+
+        private IEnumerator FinishPendingRunRoutine(string runId)
+        {
+            if (string.IsNullOrEmpty(runId) || _gameApi == null)
+                yield break;
+
+            _taskSubmitState = TaskSubmitState.Submitting;
+            RefreshTaskUi();
+
+            var overlayReady = EnsureLoadingOverlay();
+            if (!_loadingOverlay.Show("Returning to map...") && !overlayReady)
+                Debug.LogWarning("[LevelShellView] Level-exit overlay unavailable; using inline loading state.");
+
+            var finish = new FinishLevelRunUseCase(_gameApi);
+            GameFinishEnvelope finishResult = null;
+            var finishErr = string.Empty;
+            yield return finish.Run(runId, r => finishResult = r, e => finishErr = e);
+
+            _loadingOverlay.Hide();
+
+            if (finishResult == null || !finishResult.ok)
+            {
+                _taskSubmitState = TaskSubmitState.Error;
+                var message = string.IsNullOrEmpty(finishErr)
+                    ? "Could not save level completion. Tap Finish level to retry."
+                    : $"Could not save level completion: {finishErr}";
+                Debug.LogWarning("[LevelShellView] " + message);
+                if (taskDetailText != null)
+                    taskDetailText.text = message;
+                SetButtonLabel(nextTaskButton, FinishLevelLabel);
+                nextTaskButton.interactable = true;
+                yield break;
+            }
+
+            _pendingFinishRunId = null;
+            _taskSubmitState = TaskSubmitState.Idle;
+            GameFlowController.Instance?.ClearServerLevelState();
+            GameFlowController.Instance?.LoadCityMap();
         }
 
         private void OnCityMapClicked()
@@ -329,6 +396,19 @@ namespace LanguageGame.Presentation
             _backConfirmRoot.SetActive(false);
         }
 
+        private bool EnsureLoadingOverlay()
+        {
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas == null)
+            {
+                Debug.LogError("[LevelShellView] No parent Canvas; cannot create loading overlay.");
+                return false;
+            }
+
+            UiThemeProvider.TryGet(out var t);
+            return _loadingOverlay.Ensure(canvas, t);
+        }
+
         private void UpdatePizzaLabel()
         {
             var flow   = GameFlowController.Instance;
@@ -378,6 +458,7 @@ namespace LanguageGame.Presentation
         {
             cityMapButton?.onClick.RemoveListener(OnCityMapClicked);
             nextTaskButton?.onClick.RemoveListener(OnNextTaskClicked);
+            _loadingOverlay.Destroy();
         }
     }
 }

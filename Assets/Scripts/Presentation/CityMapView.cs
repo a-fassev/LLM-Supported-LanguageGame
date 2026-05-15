@@ -8,6 +8,21 @@ namespace LanguageGame.Presentation
 {
     public class CityMapView : MonoBehaviour
     {
+        private enum BootstrapLoadState
+        {
+            Idle,
+            Loading,
+            Ready,
+            Error
+        }
+
+        private enum StartLevelState
+        {
+            Idle,
+            Starting,
+            Error
+        }
+
         [SerializeField] private Button mainMenuButton;
         [SerializeField] private Button avatarShopButton;
 
@@ -25,13 +40,14 @@ namespace LanguageGame.Presentation
         [SerializeField] private Text pizzaSlicesText;
 
         private GameBootstrapEnvelope _bootstrap;
-        private bool _startingLevel;
         private GameProgressApiClient _gameApi;
 
         private readonly LoadErrorBanner _loadErrorBanner = new LoadErrorBanner();
-        private bool _bootstrapLoadInFlight;
-        private bool _startLevelLoadInFlight;
+        private readonly LoadingOverlayPresenter _loadingOverlay = new LoadingOverlayPresenter();
         private GameLevelBootstrapDto _pendingStartLevelRetry;
+        private bool _bootstrapReloadRequested;
+        private BootstrapLoadState _bootstrapState = BootstrapLoadState.Idle;
+        private StartLevelState _startLevelState = StartLevelState.Idle;
 
         private void Start()
         {
@@ -42,10 +58,28 @@ namespace LanguageGame.Presentation
             levelButtonC?.onClick.AddListener(() => OnLevelClicked(levelSlugC, levelButtonC));
 
             _gameApi = FindGameApiOrLog();
+            if (GameSessionStateStore.TryGetLatestTotalSlices(out var cachedSlices))
+                GameFlowController.Instance?.SetTotalPizzaSlices(cachedSlices);
+            RefreshPizzaLabel();
+
+            if (GameSessionStateStore.TryGetBootstrapSnapshot(out var cachedBootstrap))
+            {
+                _bootstrap = cachedBootstrap;
+                _bootstrapState = BootstrapLoadState.Ready;
+                _pendingStartLevelRetry = null;
+                RefreshPizzaLabel();
+                RefreshLevelButtons();
+            }
+            else
+            {
+                SetLevelSlotsDisabledVisual();
+            }
+
             if (_gameApi == null)
                 return;
 
-            StartCoroutine(LoadBootstrapRoutine(_gameApi));
+            if (_bootstrap == null || !GameSessionStateStore.IsBootstrapFresh(GameSessionStateStore.DefaultBootstrapFreshSeconds))
+                StartCoroutine(LoadBootstrapRoutine(_gameApi, showBlockingOverlay: _bootstrap == null));
         }
 
         private GameProgressApiClient FindGameApiOrLog()
@@ -69,14 +103,34 @@ namespace LanguageGame.Presentation
             _loadErrorBanner.Ensure(canvas, tokens);
         }
 
-        private IEnumerator LoadBootstrapRoutine(GameProgressApiClient api)
+        private bool EnsureLoadingOverlay()
         {
-            if (_bootstrapLoadInFlight)
-                yield break;
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas == null)
+            {
+                Debug.LogError("[CityMapView] No Canvas in parent hierarchy; loading overlay cannot be created.");
+                return false;
+            }
 
-            _bootstrapLoadInFlight = true;
+            UiThemeProvider.TryGet(out var tokens);
+            return _loadingOverlay.Ensure(canvas, tokens);
+        }
+
+        private IEnumerator LoadBootstrapRoutine(GameProgressApiClient api, bool showBlockingOverlay)
+        {
+            if (_bootstrapState == BootstrapLoadState.Loading)
+            {
+                _bootstrapReloadRequested = true;
+                yield break;
+            }
+
+            _bootstrapState = BootstrapLoadState.Loading;
+            _bootstrapReloadRequested = false;
             EnsureMapErrorBanner();
+            var overlayReady = EnsureLoadingOverlay();
             _loadErrorBanner.SetRetryInteractable(false);
+            if (showBlockingOverlay && !_loadingOverlay.Show("Loading map...") && !overlayReady)
+                Debug.LogWarning("[CityMapView] Blocking loading overlay unavailable; using inline loading state.");
             try
             {
                 _loadErrorBanner.Hide();
@@ -87,8 +141,8 @@ namespace LanguageGame.Presentation
 
                 if (env == null || !env.ok)
                 {
+                    _bootstrapState = BootstrapLoadState.Error;
                     Debug.LogWarning($"[CityMapView] Bootstrap failed: {err}");
-                    _bootstrap = null;
                     _pendingStartLevelRetry = null;
                     _loadErrorBanner.Show(
                         string.IsNullOrEmpty(err)
@@ -99,12 +153,14 @@ namespace LanguageGame.Presentation
                             if (_gameApi == null)
                                 _gameApi = FindGameApiOrLog();
                             if (_gameApi != null)
-                                StartCoroutine(LoadBootstrapRoutine(_gameApi));
+                                StartCoroutine(LoadBootstrapRoutine(_gameApi, showBlockingOverlay: _bootstrap == null));
                         });
-                    SetLevelSlotsDisabledVisual();
+                    if (_bootstrap == null)
+                        SetLevelSlotsDisabledVisual();
                     yield break;
                 }
 
+                _bootstrapState = BootstrapLoadState.Ready;
                 _loadErrorBanner.Hide();
                 _bootstrap = env;
                 _pendingStartLevelRetry = null;
@@ -114,8 +170,10 @@ namespace LanguageGame.Presentation
             }
             finally
             {
-                _bootstrapLoadInFlight = false;
+                _loadingOverlay.Hide();
                 _loadErrorBanner.SetRetryInteractable(true);
+                if (_bootstrapReloadRequested && _gameApi != null)
+                    StartCoroutine(LoadBootstrapRoutine(_gameApi, showBlockingOverlay: false));
             }
         }
 
@@ -137,7 +195,10 @@ namespace LanguageGame.Presentation
         private void RefreshLevelButtons()
         {
             if (_bootstrap?.levels == null)
+            {
+                SetLevelSlotsDisabledVisual();
                 return;
+            }
 
             ApplySlot(levelButtonA, lockVisualA, levelSlugA);
             ApplySlot(levelButtonB, lockVisualB, levelSlugB);
@@ -151,7 +212,7 @@ namespace LanguageGame.Presentation
 
             var level = FindLevel(slug);
             var unlocked = !forceLocked && level != null && level.isUnlocked;
-            button.interactable = unlocked && !_startingLevel;
+            button.interactable = unlocked && _startLevelState != StartLevelState.Starting;
             var g = button.targetGraphic as Graphic;
             if (g != null)
             {
@@ -197,7 +258,7 @@ namespace LanguageGame.Presentation
 
         private void OnLevelClicked(string slug, Button button)
         {
-            if (GameFlowController.Instance == null || button == null || _startingLevel || _startLevelLoadInFlight)
+            if (GameFlowController.Instance == null || button == null || _startLevelState == StartLevelState.Starting)
                 return;
 
             var level = FindLevel(slug);
@@ -231,14 +292,16 @@ namespace LanguageGame.Presentation
 
         private IEnumerator StartLevelRoutine(GameProgressApiClient api, GameLevelBootstrapDto level)
         {
-            if (_startLevelLoadInFlight)
+            if (_startLevelState == StartLevelState.Starting)
                 yield break;
 
-            _startLevelLoadInFlight = true;
+            _startLevelState = StartLevelState.Starting;
             _pendingStartLevelRetry = level;
             EnsureMapErrorBanner();
+            var overlayReady = EnsureLoadingOverlay();
             _loadErrorBanner.SetRetryInteractable(false);
-            _startingLevel = true;
+            if (!_loadingOverlay.Show("Entering level...") && !overlayReady)
+                Debug.LogWarning("[CityMapView] Level-entry overlay unavailable; level buttons remain disabled while loading.");
             RefreshLevelButtons();
 
             try
@@ -250,6 +313,7 @@ namespace LanguageGame.Presentation
 
                 if (started == null || !started.ok)
                 {
+                    _startLevelState = StartLevelState.Error;
                     Debug.LogWarning($"[CityMapView] Start level failed: {err}");
                     _loadErrorBanner.Show(
                         string.IsNullOrEmpty(err)
@@ -261,6 +325,7 @@ namespace LanguageGame.Presentation
 
                 _loadErrorBanner.Hide();
                 _pendingStartLevelRetry = null;
+                _startLevelState = StartLevelState.Idle;
 
                 GameFlowController.Instance.SetTotalPizzaSlices(started.totalSlices);
                 GameFlowController.Instance.BeginServerLevel(
@@ -273,8 +338,9 @@ namespace LanguageGame.Presentation
             }
             finally
             {
-                _startingLevel = false;
-                _startLevelLoadInFlight = false;
+                _loadingOverlay.Hide();
+                if (_startLevelState == StartLevelState.Starting)
+                    _startLevelState = StartLevelState.Idle;
                 _loadErrorBanner.SetRetryInteractable(true);
                 RefreshLevelButtons();
             }
@@ -288,6 +354,7 @@ namespace LanguageGame.Presentation
             levelButtonB?.onClick.RemoveAllListeners();
             levelButtonC?.onClick.RemoveAllListeners();
             _loadErrorBanner.Destroy();
+            _loadingOverlay.Destroy();
         }
     }
 }

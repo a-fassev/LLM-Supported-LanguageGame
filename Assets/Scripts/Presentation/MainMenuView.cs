@@ -7,14 +7,25 @@ namespace LanguageGame.Presentation
 {
     public class MainMenuView : MonoBehaviour
     {
+        private enum BootstrapLoadState
+        {
+            Idle,
+            Loading,
+            Ready,
+            Error
+        }
+
         [SerializeField] private Button playButton;
         [SerializeField] private Button avatarShopButton;
         [SerializeField] private Button logoutButton;
+        [SerializeField] private Text pizzaSlicesText;
 
         private GameProgressApiClient _gameApi;
 
         private readonly LoadErrorBanner _loadErrorBanner = new LoadErrorBanner();
-        private bool _pizzaBootstrapInFlight;
+        private readonly LoadingOverlayPresenter _loadingOverlay = new LoadingOverlayPresenter();
+        private bool _bootstrapReloadRequested;
+        private BootstrapLoadState _bootstrapState = BootstrapLoadState.Idle;
 
         private void Awake()
         {
@@ -32,8 +43,22 @@ namespace LanguageGame.Presentation
             avatarShopButton?.onClick.AddListener(OnAvatarShopClicked);
             logoutButton?.onClick.AddListener(OnLogoutClicked);
             _gameApi = FindAnyObjectByType<GameProgressApiClient>();
-            if (_gameApi != null)
-                StartCoroutine(LoadPizzaRoutine(_gameApi));
+
+            if (GameSessionStateStore.TryGetLatestTotalSlices(out var cachedSlices))
+                GameFlowController.Instance?.SetTotalPizzaSlices(cachedSlices);
+            RefreshPizzaLabel();
+
+            if (_gameApi == null)
+                return;
+
+            var hasSnapshot = GameSessionStateStore.TryGetBootstrapSnapshot(out _);
+            if (hasSnapshot && GameSessionStateStore.IsBootstrapFresh(GameSessionStateStore.DefaultBootstrapFreshSeconds))
+            {
+                _bootstrapState = BootstrapLoadState.Ready;
+                return;
+            }
+
+            StartCoroutine(LoadPizzaRoutine(_gameApi, showBlockingOverlay: !hasSnapshot));
         }
 
         private void EnsureMenuErrorBanner()
@@ -49,14 +74,35 @@ namespace LanguageGame.Presentation
             _loadErrorBanner.Ensure(canvas, tokens);
         }
 
-        private IEnumerator LoadPizzaRoutine(GameProgressApiClient api)
+        private bool EnsureLoadingOverlay()
         {
-            if (_pizzaBootstrapInFlight)
-                yield break;
+            var canvas = GetComponentInParent<Canvas>();
+            if (canvas == null)
+            {
+                Debug.LogError("[MainMenuView] No Canvas in parent hierarchy; loading overlay cannot be created.");
+                return false;
+            }
 
-            _pizzaBootstrapInFlight = true;
+            UiThemeProvider.TryGet(out var tokens);
+            return _loadingOverlay.Ensure(canvas, tokens);
+        }
+
+        private IEnumerator LoadPizzaRoutine(GameProgressApiClient api, bool showBlockingOverlay)
+        {
+            if (_bootstrapState == BootstrapLoadState.Loading)
+            {
+                _bootstrapReloadRequested = true;
+                yield break;
+            }
+
+            _bootstrapState = BootstrapLoadState.Loading;
+            _bootstrapReloadRequested = false;
             EnsureMenuErrorBanner();
+            var overlayReady = EnsureLoadingOverlay();
             _loadErrorBanner.SetRetryInteractable(false);
+            if (showBlockingOverlay && !_loadingOverlay.Show("Loading game data...") && !overlayReady)
+                Debug.LogWarning("[MainMenuView] Blocking loading overlay unavailable; continuing with inline loading state.");
+
             try
             {
                 _loadErrorBanner.Hide();
@@ -67,6 +113,7 @@ namespace LanguageGame.Presentation
 
                 if (env == null || !env.ok)
                 {
+                    _bootstrapState = BootstrapLoadState.Error;
                     if (!string.IsNullOrEmpty(err))
                         Debug.LogWarning($"[MainMenuView] Bootstrap (pizza) failed: {err}");
                     _loadErrorBanner.Show(
@@ -78,19 +125,31 @@ namespace LanguageGame.Presentation
                             if (_gameApi == null)
                                 _gameApi = FindAnyObjectByType<GameProgressApiClient>();
                             if (_gameApi != null)
-                                StartCoroutine(LoadPizzaRoutine(_gameApi));
+                                StartCoroutine(LoadPizzaRoutine(_gameApi, showBlockingOverlay: true));
                         });
                     yield break;
                 }
 
+                _bootstrapState = BootstrapLoadState.Ready;
                 _loadErrorBanner.Hide();
                 GameFlowController.Instance?.SetTotalPizzaSlices(env.totalSlices);
+                RefreshPizzaLabel();
             }
             finally
             {
-                _pizzaBootstrapInFlight = false;
+                _loadingOverlay.Hide();
                 _loadErrorBanner.SetRetryInteractable(true);
+                if (_bootstrapReloadRequested && _gameApi != null)
+                    StartCoroutine(LoadPizzaRoutine(_gameApi, showBlockingOverlay: false));
             }
+        }
+
+        private void RefreshPizzaLabel()
+        {
+            if (pizzaSlicesText == null)
+                return;
+            var slices = GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
+            pizzaSlicesText.text = $"Pizza slices: {slices}";
         }
 
         private void OnPlayClicked()
@@ -138,6 +197,7 @@ namespace LanguageGame.Presentation
         private void FinishLogoutLocalOnly()
         {
             AuthSessionStore.Clear();
+            GameSessionStateStore.Clear();
             GameFlowController.Instance?.LoadAuth();
         }
 
@@ -147,6 +207,7 @@ namespace LanguageGame.Presentation
             avatarShopButton?.onClick.RemoveListener(OnAvatarShopClicked);
             logoutButton?.onClick.RemoveListener(OnLogoutClicked);
             _loadErrorBanner.Destroy();
+            _loadingOverlay.Destroy();
         }
     }
 }

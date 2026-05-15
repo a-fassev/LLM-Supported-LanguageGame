@@ -48,6 +48,7 @@ namespace LanguageGame.Application
 
         public void LoadAuth()
         {
+            GameSessionStateStore.Clear();
             ClearAllLevelState();
             LoadScene(SceneAuth);
         }

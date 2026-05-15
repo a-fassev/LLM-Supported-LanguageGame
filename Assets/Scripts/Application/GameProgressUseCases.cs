@@ -17,7 +17,14 @@ namespace LanguageGame.Application
 
         public IEnumerator Run(Action<GameBootstrapEnvelope> onOk, Action<string> onError)
         {
-            var e = _api.GetBootstrap(onOk, onError);
+            var e = _api.GetBootstrap(
+                env =>
+                {
+                    if (env != null && env.ok)
+                        GameSessionStateStore.SetBootstrapSnapshot(env);
+                    onOk?.Invoke(env);
+                },
+                onError);
             while (e.MoveNext())
                 yield return e.Current;
         }
@@ -34,7 +41,14 @@ namespace LanguageGame.Application
 
         public IEnumerator Run(string levelId, Action<GameStartLevelEnvelope> onOk, Action<string> onError)
         {
-            var e = _api.StartLevel(levelId, onOk, onError);
+            var e = _api.StartLevel(
+                levelId,
+                started =>
+                {
+                    GameSessionStateStore.ApplyStartLevelResult(started);
+                    onOk?.Invoke(started);
+                },
+                onError);
             while (e.MoveNext())
                 yield return e.Current;
         }
@@ -52,7 +66,15 @@ namespace LanguageGame.Application
         public IEnumerator Run(string runId, string taskId, Action<GameCompleteTaskEnvelope> onOk,
             Action<string> onError)
         {
-            var e = _api.CompleteTask(runId, taskId, onOk, onError);
+            var e = _api.CompleteTask(
+                runId,
+                taskId,
+                done =>
+                {
+                    GameSessionStateStore.ApplyTaskCompletion(done);
+                    onOk?.Invoke(done);
+                },
+                onError);
             while (e.MoveNext())
                 yield return e.Current;
         }
@@ -69,7 +91,14 @@ namespace LanguageGame.Application
 
         public IEnumerator Run(string runId, Action<GameFinishEnvelope> onOk, Action<string> onError)
         {
-            var e = _api.FinishRun(runId, onOk, onError);
+            var e = _api.FinishRun(
+                runId,
+                done =>
+                {
+                    GameSessionStateStore.ApplyRunFinished(done);
+                    onOk?.Invoke(done);
+                },
+                onError);
             while (e.MoveNext())
                 yield return e.Current;
         }
