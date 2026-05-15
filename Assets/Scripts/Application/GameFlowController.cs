@@ -56,8 +56,11 @@ namespace LanguageGame.Application
             LoadScene(SceneLevel);
         }
 
-        public bool TryGetCurrentTask(out TaskSlot slot) =>
-            _activeLevel != null && _activeLevel.TryGetTask(_taskIndex, out slot);
+        public bool TryGetCurrentTask(out TaskSlot slot)
+        {
+            slot = default;
+            return _activeLevel != null && _activeLevel.TryGetTask(_taskIndex, out slot);
+        }
 
         /// <summary>
         /// Moves to the next task. Returns true when the level is finished (caller should leave the level scene).
