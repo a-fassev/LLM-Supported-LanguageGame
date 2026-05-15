@@ -1,43 +1,91 @@
 ---
 name: product
 description: |
-  Use when work should stay aligned with the product’s purpose: an LLM-supported game that teaches
-  and checks Italian for children in a gifted-education school context, as part of the
-  TUM IT-based learning course. Triggers: product intent, UX, learning goals, tone for kids, what we
-  are building for users (not implementation).
+  Domain knowledge for the language-learning game from the learner and product perspective:
+  Italian for children (gifted-education school), city-map quests, task variety, mascot rewards,
+  research study context, privacy posture. Use when deciding UX, copy, pacing, difficulty, task
+  design, or explaining what players experience—not for implementation details (see AGENTS.md).
 ---
 
-# Product context (user perspective)
+# Product knowledge (user perspective)
 
-## Who is behind this
+## Overview
 
-The project comes from the **IT-based learning course at TUM (Technical University of Munich)**. The team is building a **learning game**, not a generic chat app or admin dashboard.
+An **LLM-supported Italian learning game** for **children** in a **gifted-education school**, built as part of the **TUM IT-based learning** course. Unity delivers a **playable, map-based** experience; **large language models** support **a small subset** of interactions so teaching and checking Italian feel **varied and responsive**, while most tasks stay **predictably checkable**.
+
+Canonical detail for requirements and task taxonomy: `GAME_REQUIREMENTS.md` and `TASK_TYPES.md` in the repo root.
 
 ## Who it is for
 
-- **Primary users:** **Children** in a **gifted-education school** setting.
-- **Subject:** **Italian** — the experience should help them **learn** the language and/or **check what they already know** (practice and assessment woven into play).
+- **Players:** School-age children learning **Italian** in class (content ties to textbook and teacher-prepared material).
+- **Stakeholders:** Teacher and content team align structure and tasks; the product must support **research** (game run plus pre/post measures) with a sound rationale for **task types** and **content**.
 
-## What we are building (in plain language)
+## What players experience
 
-A **game** that uses **large language models** as part of the experience so that Italian teaching and quizzing feel **interactive, varied, and responsive**—like something you play, not a dry vocabulary sheet.
+### World and flow
 
-From the **learner’s point of view**, success means:
+- **City map** as the main hub—not a free-roam character hub.
+- **Pins** on the map; **visibility** follows **progress / level**.
+- **Tap a pin** to start a **quest**; quests **chain** (finishing one unlocks the next).
 
-- They **play** and **stay motivated**.
-- They **encounter Italian** in situations that make sense for children (clear, respectful, age-appropriate).
-- They get **feedback** that helps them understand whether they are right or wrong and what to try next.
-- The experience supports both **building new knowledge** and **showing what they know** (not only one or the other).
+### Mascot and motivation
 
-## What this skill is for (for agents)
+- Mascot can be **lightweight** (e.g. **static in a corner**), not a full controllable avatar.
+- **Rewards (reference: Essen project):** performance yields **0–3 “pizza slices”** used to **unlock mascot skins**; optional **expressions** by situation are nice-to-have.
+- **Visual direction** (not final): e.g. **lion** (Bologna) or neutral **boy/girl** school-trip style.
 
-When you plan features, copy, difficulty, or flows:
+### Tasks (modularity)
 
-1. **Anchor on children and Italian learning** — not on the tech stack.
-2. **Prefer clarity and encouragement** over complexity; gifted learners still deserve accessible UX.
-3. **Treat the LLM as invisible support** for pedagogy and interaction unless the product explicitly surfaces it to the child.
-4. If a decision would only make sense for a **generic enterprise app**, it is probably **wrong for this product** unless the user says otherwise.
+- Task types are **modular** (e.g. drag-and-drop): swap **texts and content** without rebuilding core mechanics.
+- **Pedagogical preference:** **little free-text** input where possible, for clearer scoring and control.
+- **LLM use** is **intentionally narrow** at first—expand only where justified; many types are **fixed, deterministic** checks on the backend.
+
+## Task categories (what kids do)
+
+**Mostly deterministic (no LLM):**
+
+| Category        | Player action (short) |
+|----------------|------------------------|
+| Error spotting | Find/fix a deliberate mistake in a sentence or short text. |
+| Drag & drop    | Order fragments, fill gaps, match pronouns/referents, sort into categories. |
+| Cloze          | Fill gaps; often **multiple choice** or **closed answers** against accepted solutions. |
+| Matching       | Pair columns (words/meanings, clauses, pictures/terms, etc.). |
+| Multiple choice | Choose correct option (reading, listening, grammar, culture). |
+
+**LLM-assisted (use sparingly, higher evaluation risk):**
+
+| Category              | Player action (short) |
+|-----------------------|------------------------|
+| Free text (scored)    | Short open answer; model scores vs **predefined criteria** (e.g. target structure present). |
+| Relative-clause puzzle | Describe a target **without naming it**, using relative clauses; model guesses within **1–3 tries**. |
+
+The **final menu** of task types may still change with **feasibility** and **teacher sign-off**.
+
+## Access and platform
+
+- Target: **browser-playable** build; students **log in** with **generated username + password** (see organizational flows in `GAME_REQUIREMENTS.md`).
+- UI should be **click/tap-friendly** for map navigation and tasks.
+
+## Privacy and school context (product framing)
+
+- **No personal student data** stored; **random/generated** player names.
+- Metrics may exist for research but must stay **non-identifying**; schools and parents need **clear information** and consent—**EU hosting** does not replace that communication.
+
+## Research and timeline (orientation only)
+
+- Field run and milestones (e.g. school week, “feature-complete” target) live in `GAME_REQUIREMENTS.md`; treat dates as **planning signals**, not agent-implemented schedules.
+- Content process: agree **skeleton** (story, structure, categories) with teacher, then ship **task packs** aligned to the book.
+
+## Principles for agents
+
+When you design flows, wording, difficulty, or task presentation:
+
+1. **Child-first, Italian-first**—clarity, encouragement, age-appropriate tone; gifted learners still need **accessible** UI.
+2. **Game feel over admin feel**—motivation, progression, and feedback matter as much as correctness.
+3. **Prefer deterministic UX** where the product promises a **fair, repeatable** outcome; surface LLM-based tasks only when the design **owns** the softer scoring tradeoffs.
+4. **LLM as backstage support** unless the experience intentionally exposes it to the child.
+5. If an idea only fits a **generic enterprise app**, it is likely **wrong** here unless the user says otherwise.
 
 ## Out of scope for this skill
 
-This file does **not** prescribe Unity vs. Next.js, APIs, or hosting. Use `AGENTS.md` and codebase conventions for that. Here we only hold **who we serve** and **why the product exists**.
+Implementation stack (Unity scenes, Next.js auth API, Azure, etc.)—use `AGENTS.md` and the codebase.
