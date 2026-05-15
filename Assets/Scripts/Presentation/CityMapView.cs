@@ -25,7 +25,6 @@ namespace LanguageGame.Presentation
         [SerializeField] private Text pizzaSlicesText;
 
         private GameBootstrapEnvelope _bootstrap;
-        private Text _runtimePizzaLabel;
         private bool _startingLevel;
         private GameProgressApiClient _gameApi;
 
@@ -112,7 +111,6 @@ namespace LanguageGame.Presentation
                 _bootstrap = env;
                 _pendingStartLevelRetry = null;
                 GameFlowController.Instance?.SetTotalPizzaSlices(env.totalSlices);
-                EnsureHubPizzaLabel();
                 RefreshPizzaLabel();
                 RefreshLevelButtons();
             }
@@ -130,43 +128,12 @@ namespace LanguageGame.Presentation
             ApplySlot(levelButtonC, lockVisualC, levelSlugC, forceLocked: true);
         }
 
-        private void EnsureHubPizzaLabel()
-        {
-            if (pizzaSlicesText != null)
-                return;
-
-            var canvas = GetComponentInParent<Canvas>();
-            if (canvas == null)
-                return;
-
-            var go = new GameObject("PizzaSlicesHud", typeof(RectTransform));
-            go.transform.SetParent(canvas.transform, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0f, 1f);
-            rt.anchorMax = new Vector2(0f, 1f);
-            rt.pivot = new Vector2(0f, 1f);
-            rt.anchoredPosition = new Vector2(24f, -24f);
-            rt.sizeDelta = new Vector2(520f, 40f);
-
-            var t = go.AddComponent<Text>();
-            var refFont = mainMenuButton != null
-                ? mainMenuButton.GetComponentInChildren<Text>()?.font
-                : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            t.font = refFont;
-            t.fontSize = 26;
-            t.color = Color.white;
-            t.alignment = TextAnchor.UpperLeft;
-            _runtimePizzaLabel = t;
-        }
-
         private void RefreshPizzaLabel()
         {
             var slices = GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
             var line = $"Pizza slices: {slices}";
             if (pizzaSlicesText != null)
                 pizzaSlicesText.text = line;
-            if (_runtimePizzaLabel != null)
-                _runtimePizzaLabel.text = line;
         }
 
         private void RefreshLevelButtons()

@@ -12,7 +12,6 @@ namespace LanguageGame.Presentation
         [SerializeField] private Button logoutButton;
         [SerializeField] private Text pizzaSlicesText;
 
-        private Text _runtimePizzaHud;
         private GameProgressApiClient _gameApi;
 
         private readonly LoadErrorBanner _loadErrorBanner = new LoadErrorBanner();
@@ -33,7 +32,6 @@ namespace LanguageGame.Presentation
             playButton?.onClick.AddListener(OnPlayClicked);
             avatarShopButton?.onClick.AddListener(OnAvatarShopClicked);
             logoutButton?.onClick.AddListener(OnLogoutClicked);
-            EnsurePizzaHud();
             _gameApi = FindAnyObjectByType<GameProgressApiClient>();
             if (_gameApi != null)
                 StartCoroutine(LoadPizzaRoutine(_gameApi));
@@ -99,43 +97,12 @@ namespace LanguageGame.Presentation
             }
         }
 
-        private void EnsurePizzaHud()
-        {
-            if (pizzaSlicesText != null || _runtimePizzaHud != null)
-                return;
-
-            var canvas = GetComponentInParent<Canvas>();
-            if (canvas == null)
-                return;
-
-            var go = new GameObject("PizzaSlicesHud", typeof(RectTransform));
-            go.transform.SetParent(canvas.transform, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0f, 1f);
-            rt.anchorMax = new Vector2(0f, 1f);
-            rt.pivot = new Vector2(0f, 1f);
-            rt.anchoredPosition = new Vector2(24f, -24f);
-            rt.sizeDelta = new Vector2(520f, 40f);
-
-            var t = go.AddComponent<Text>();
-            var refFont = playButton != null
-                ? playButton.GetComponentInChildren<Text>()?.font
-                : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            t.font = refFont;
-            t.fontSize = 26;
-            t.color = Color.white;
-            t.alignment = TextAnchor.UpperLeft;
-            _runtimePizzaHud = t;
-        }
-
         private void RefreshPizzaLabel()
         {
             var slices = GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
             var line = $"Pizza slices: {slices}";
             if (pizzaSlicesText != null)
                 pizzaSlicesText.text = line;
-            if (_runtimePizzaHud != null)
-                _runtimePizzaHud.text = line;
         }
 
         private void OnPlayClicked()

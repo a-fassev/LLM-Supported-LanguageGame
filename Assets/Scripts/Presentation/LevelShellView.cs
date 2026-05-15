@@ -20,7 +20,6 @@ namespace LanguageGame.Presentation
 
         private GameObject _backConfirmRoot;
         private Font _uiFont;
-        private Text _runtimePizzaHud;
         private bool _completingTask;
         private GameProgressApiClient _gameApi;
 
@@ -42,7 +41,6 @@ namespace LanguageGame.Presentation
             cityMapButton?.onClick.AddListener(OnCityMapClicked);
             nextTaskButton?.onClick.AddListener(OnNextTaskClicked);
             EnsureBackConfirmOverlay();
-            EnsurePizzaHud();
             RefreshTaskUi();
         }
 
@@ -315,32 +313,6 @@ namespace LanguageGame.Presentation
             _backConfirmRoot.SetActive(false);
         }
 
-        private void EnsurePizzaHud()
-        {
-            if (pizzaSlicesText != null || _runtimePizzaHud != null)
-                return;
-
-            var canvas = GetComponentInParent<Canvas>();
-            if (canvas == null)
-                return;
-
-            var go = new GameObject("PizzaSlicesHud", typeof(RectTransform));
-            go.transform.SetParent(canvas.transform, false);
-            var rt = go.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(1f, 1f);
-            rt.anchorMax = new Vector2(1f, 1f);
-            rt.pivot = new Vector2(1f, 1f);
-            rt.anchoredPosition = new Vector2(-24f, -24f);
-            rt.sizeDelta = new Vector2(420f, 40f);
-
-            var t = go.AddComponent<Text>();
-            t.font = _uiFont;
-            t.fontSize = 24;
-            t.color = Color.white;
-            t.alignment = TextAnchor.UpperRight;
-            _runtimePizzaHud = t;
-        }
-
         private void UpdatePizzaLabel()
         {
             var flow = GameFlowController.Instance;
@@ -348,8 +320,6 @@ namespace LanguageGame.Presentation
             var line = $"Pizza slices: {slices}";
             if (pizzaSlicesText != null)
                 pizzaSlicesText.text = line;
-            if (_runtimePizzaHud != null)
-                _runtimePizzaHud.text = line;
         }
 
         private Button CreateDialogButton(Transform parent, string label, Vector2 anchoredPos,
