@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4a8f91e3d2b4c5a9e8f7d6c5b4a3012, type: 3}
+  m_Name: LevelTest1
+  m_EditorClassIdentifier: Assembly-CSharp::LanguageGame.Domain.LevelConfig
+  displayName: Test Level A (all task types)
+  tasks:
+  - taskType: 0
+    placeholderLabel: Placeholder — ErrorSpotting
+  - taskType: 1
+    placeholderLabel: Placeholder — DragDrop
+  - taskType: 2
+    placeholderLabel: Placeholder — ClozeText
+  - taskType: 3
+    placeholderLabel: Placeholder — Matching
+  - taskType: 4
+    placeholderLabel: Placeholder — MultipleChoice
+  - taskType: 5
+    placeholderLabel: Placeholder — FreeText
+  - taskType: 6
+    placeholderLabel: Placeholder — RelativeClause
+  - taskType: 0
+    placeholderLabel: Placeholder — ErrorSpotting (repeat)

@@ -9,14 +9,13 @@ namespace LanguageGame.Presentation
     {
         [SerializeField] private Button mainMenuButton;
 
-        [Header("Level Pins")]
-        [SerializeField] private Button pinErrorSpotting;
-        [SerializeField] private Button pinDragDrop;
-        [SerializeField] private Button pinClozeText;
-        [SerializeField] private Button pinMatching;
-        [SerializeField] private Button pinMultipleChoice;
-        [SerializeField] private Button pinFreeText;
-        [SerializeField] private Button pinRelativeClause;
+        [Header("Test level entries (assign LevelConfig assets and buttons)")]
+        [SerializeField] private LevelConfig testLevelA;
+        [SerializeField] private Button levelButtonA;
+        [SerializeField] private LevelConfig testLevelB;
+        [SerializeField] private Button levelButtonB;
+        [SerializeField] private LevelConfig testLevelC;
+        [SerializeField] private Button levelButtonC;
 
         private void Awake()
         {
@@ -26,13 +25,9 @@ namespace LanguageGame.Presentation
         private void Start()
         {
             mainMenuButton?.onClick.AddListener(OnMainMenuClicked);
-            pinErrorSpotting?.onClick.AddListener(()  => OnPin(TaskType.ErrorSpotting));
-            pinDragDrop?.onClick.AddListener(()       => OnPin(TaskType.DragDrop));
-            pinClozeText?.onClick.AddListener(()      => OnPin(TaskType.ClozeText));
-            pinMatching?.onClick.AddListener(()       => OnPin(TaskType.Matching));
-            pinMultipleChoice?.onClick.AddListener(() => OnPin(TaskType.MultipleChoice));
-            pinFreeText?.onClick.AddListener(()       => OnPin(TaskType.FreeText));
-            pinRelativeClause?.onClick.AddListener(() => OnPin(TaskType.RelativeClause));
+            levelButtonA?.onClick.AddListener(() => OnLevelEntry(testLevelA));
+            levelButtonB?.onClick.AddListener(() => OnLevelEntry(testLevelB));
+            levelButtonC?.onClick.AddListener(() => OnLevelEntry(testLevelC));
         }
 
         private void OnMainMenuClicked()
@@ -41,22 +36,24 @@ namespace LanguageGame.Presentation
             GameFlowController.Instance.LoadMainMenu();
         }
 
-        private void OnPin(TaskType taskType)
+        private void OnLevelEntry(LevelConfig config)
         {
             if (GameFlowController.Instance == null) { Debug.LogError("[CityMapView] GameFlowController not found."); return; }
-            GameFlowController.Instance.LoadLevel(taskType);
+            if (config == null)
+            {
+                Debug.LogWarning("[CityMapView] LevelConfig is not assigned for this button.");
+                return;
+            }
+
+            GameFlowController.Instance.LoadLevel(config);
         }
 
         private void OnDestroy()
         {
             mainMenuButton?.onClick.RemoveAllListeners();
-            pinErrorSpotting?.onClick.RemoveAllListeners();
-            pinDragDrop?.onClick.RemoveAllListeners();
-            pinClozeText?.onClick.RemoveAllListeners();
-            pinMatching?.onClick.RemoveAllListeners();
-            pinMultipleChoice?.onClick.RemoveAllListeners();
-            pinFreeText?.onClick.RemoveAllListeners();
-            pinRelativeClause?.onClick.RemoveAllListeners();
+            levelButtonA?.onClick.RemoveAllListeners();
+            levelButtonB?.onClick.RemoveAllListeners();
+            levelButtonC?.onClick.RemoveAllListeners();
         }
     }
 }

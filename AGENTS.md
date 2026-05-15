@@ -9,7 +9,7 @@ The **committed** repository is a **Unity 6.4** project at the **repository root
 
 | Area | Path | Role |
 | -------------------- | -------------------------------------------------------------------- | ---- |
-| **Unity (2D / URP)** | `Assets/`, `Packages/`, `ProjectSettings/` | Game client — URP 2D, New Input System, multi-scene **navigation skeleton** (main menu → city map → task-type level shells via `GameFlowController`). Editor: `6000.4.6f1` per `ProjectSettings/ProjectVersion.txt`. |
+| **Unity (2D / URP)** | `Assets/`, `Packages/`, `ProjectSettings/` | Game client — URP 2D, New Input System, multi-scene **navigation skeleton** (main menu → city map → reusable `Level` scene with `LevelConfig` task sequences). Editor: `6000.4.6f1` per `ProjectSettings/ProjectVersion.txt`. |
 | **Planning / deferred work** | `.cursor/plans/` | Long-term backlog and milestones; **deferred scope** is consolidated in `long-term-todos.md` (anchor: foundation plan *Out of Scope*). Prefer extending that file over duplicating roadmaps here. |
 | **Repo meta** | `.gitignore`, `.gitattributes`, `AGENTS.md` | Version control and agent conventions. |
 
@@ -27,7 +27,7 @@ When you reintroduce a web stack (e.g. Next.js) or shared packages, update this 
 - **Rendering:** 2D **Universal Render Pipeline (URP)** — settings under `Assets/Settings/` and `ProjectSettings/` (e.g. `URPProjectSettings.asset`).
 - **Input:** New Input System — `Assets/InputSystem_Actions.inputactions`.
 - **Language:** C# — gameplay and editor scripts under `Assets/Scripts/` (`LanguageGame.Application`, `LanguageGame.Domain`, `LanguageGame.Presentation` for the navigation skeleton).
-- **Navigation (skeleton):** `Assets/Scripts/Application/GameFlowController.cs` loads `MainMenu`, `CityMap`, and `Level*` scenes keyed by `TaskType`. Presentation hooks: `MainMenuView`, `CityMapView`, `LevelShellView` under `Assets/Scripts/Presentation/`. Keep new `TaskType` values, scene assets, `GameFlowController.TaskSceneMap`, and `ProjectSettings/EditorBuildSettings.asset` in sync.
+- **Navigation (skeleton):** `Assets/Scripts/Application/GameFlowController.cs` loads `MainMenu`, `CityMap`, and a single reusable `Level` scene; `LanguageGame.Domain.LevelConfig` assets define ordered tasks (mixed `TaskType`). Presentation hooks: `MainMenuView`, `CityMapView`, `LevelShellView` under `Assets/Scripts/Presentation/`. Keep `ProjectSettings/EditorBuildSettings.asset` aligned with scene names; add new `TaskType` values consistently in configs and task UI.
 
 **Unity UI / scene conventions (navigation flow):**
 
@@ -55,7 +55,8 @@ LLM-Supported-LanguageGame/
 ├── LEARNINGS.md              # pending notes for /apply-learnings (may be empty)
 ├── Assets/
 │ ├── InputSystem_Actions.inputactions
-│ ├── Scenes/                 # MainMenu, CityMap, Level* (+ SampleScene if retained)
+│ ├── Data/                   # e.g. `Levels/*.asset` LevelConfig definitions
+│ ├── Scenes/                 # MainMenu, CityMap, Level (+ SampleScene if retained)
 │ ├── Scripts/                # Application, Domain, Presentation
 │ └── Settings/               # URP 2D render assets and template scenes
 ├── .cursor/                  # commands, skills, plans (not all tracked — use git status)

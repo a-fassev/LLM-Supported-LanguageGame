@@ -9,19 +9,11 @@ namespace LanguageGame.Application
         public static GameFlowController Instance { get; private set; }
 
         private const string SceneMainMenu = "MainMenu";
-        private const string SceneCityMap  = "CityMap";
+        private const string SceneCityMap = "CityMap";
+        private const string SceneLevel = "Level";
 
-        private static readonly System.Collections.Generic.Dictionary<TaskType, string> TaskSceneMap =
-            new System.Collections.Generic.Dictionary<TaskType, string>
-            {
-                { TaskType.ErrorSpotting,  "LevelErrorSpotting"  },
-                { TaskType.DragDrop,       "LevelDragDrop"       },
-                { TaskType.ClozeText,      "LevelClozeText"      },
-                { TaskType.Matching,       "LevelMatching"       },
-                { TaskType.MultipleChoice, "LevelMultipleChoice" },
-                { TaskType.FreeText,       "LevelFreeText"       },
-                { TaskType.RelativeClause, "LevelRelativeClause" },
-            };
+        private LevelConfig _activeLevel;
+        private int _taskIndex;
 
         private void Awake()
         {
@@ -30,22 +22,71 @@ namespace LanguageGame.Application
                 Destroy(gameObject);
                 return;
             }
+
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
 
-        public void LoadMainMenu() => LoadScene(SceneMainMenu);
-        public void LoadCityMap()  => LoadScene(SceneCityMap);
-
-        public void LoadLevel(TaskType taskType)
+        public void LoadMainMenu()
         {
-            if (TaskSceneMap.TryGetValue(taskType, out string sceneName))
-                LoadScene(sceneName);
-            else
+            ClearActiveLevel();
+            LoadScene(SceneMainMenu);
+        }
+
+        public void LoadCityMap()
+        {
+            ClearActiveLevel();
+            LoadScene(SceneCityMap);
+        }
+
+        /// <summary>
+        /// Opens the reusable level scene with the given configuration (task sequence).
+        /// </summary>
+        public void LoadLevel(LevelConfig levelConfig)
+        {
+            if (levelConfig == null || levelConfig.TaskCount == 0)
             {
-                Debug.LogError($"[GameFlowController] No scene for TaskType '{taskType}'. Falling back to MainMenu.");
+                Debug.LogError("[GameFlowController] LevelConfig missing or has no tasks. Falling back to MainMenu.");
                 LoadMainMenu();
+                return;
             }
+
+            _activeLevel = levelConfig;
+            _taskIndex = 0;
+            LoadScene(SceneLevel);
+        }
+
+        public bool TryGetCurrentTask(out TaskSlot slot) =>
+            _activeLevel != null && _activeLevel.TryGetTask(_taskIndex, out slot);
+
+        /// <summary>
+        /// Moves to the next task. Returns true when the level is finished (caller should leave the level scene).
+        /// </summary>
+        public bool AdvanceTask()
+        {
+            if (_activeLevel == null)
+                return true;
+
+            _taskIndex++;
+            if (_taskIndex >= _activeLevel.TaskCount)
+            {
+                ClearActiveLevel();
+                return true;
+            }
+
+            return false;
+        }
+
+        public int CurrentTaskNumberOneBased => _activeLevel == null ? 0 : Mathf.Clamp(_taskIndex + 1, 1, _activeLevel.TaskCount);
+
+        public int ActiveLevelTaskCount => _activeLevel?.TaskCount ?? 0;
+
+        public string ActiveLevelDisplayName => _activeLevel != null ? _activeLevel.DisplayName : string.Empty;
+
+        private void ClearActiveLevel()
+        {
+            _activeLevel = null;
+            _taskIndex = 0;
         }
 
         private void LoadScene(string sceneName)
@@ -56,6 +97,7 @@ namespace LanguageGame.Application
                 SceneManager.LoadScene(SceneMainMenu, LoadSceneMode.Single);
                 return;
             }
+
             SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
         }
     }

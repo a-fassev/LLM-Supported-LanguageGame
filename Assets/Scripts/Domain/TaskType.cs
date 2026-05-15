@@ -1,7 +1,7 @@
 namespace LanguageGame.Domain
 {
     /// <summary>
-    /// Identifies each task type in the game. Maps 1:1 to a Level scene.
+    /// Identifies each task kind in the game. Levels may contain multiple tasks of any mix of types.
     /// </summary>
     public enum TaskType
     {

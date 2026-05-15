@@ -189,7 +189,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Cloze text
+  m_Text: Test level C
 --- !u!222 &17901356
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -449,7 +449,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &554186596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -822,7 +822,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Drag & Drop
+  m_Text: Test level B
 --- !u!222 &782298614
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -864,13 +864,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LanguageGame.Presentation.CityMapView
   mainMenuButton: {fileID: 643513345}
-  pinErrorSpotting: {fileID: 1511518615}
-  pinDragDrop: {fileID: 1631759176}
-  pinClozeText: {fileID: 1414791916}
-  pinMatching: {fileID: 554186596}
-  pinMultipleChoice: {fileID: 1526598353}
-  pinFreeText: {fileID: 2065626800}
-  pinRelativeClause: {fileID: 1151344208}
+  testLevelA: {fileID: 11400000, guid: 11aa22bb33cc44dd55ee66ff77889900, type: 2}
+  levelButtonA: {fileID: 1511518615}
+  testLevelB: {fileID: 11400000, guid: 22bb33cc44dd55ee66ff7788990011aa, type: 2}
+  levelButtonB: {fileID: 1631759176}
+  testLevelC: {fileID: 11400000, guid: 33cc44dd55ee66ff7788990011aa22bb, type: 2}
+  levelButtonC: {fileID: 1414791916}
 --- !u!114 &820690737
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -982,7 +981,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1151344208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1155,7 +1154,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Error spotting
+  m_Text: Test level A
 --- !u!222 &1379380629
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1424,7 +1423,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1526598353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1903,7 +1902,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2065626800
 MonoBehaviour:
   m_ObjectHideFlags: 0

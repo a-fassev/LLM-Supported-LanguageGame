@@ -12,25 +12,7 @@ EditorBuildSettings:
     path: Assets/Scenes/CityMap.unity
     guid: d60dc80ae2aca46419e9795ddb492fbf
   - enabled: 1
-    path: Assets/Scenes/LevelErrorSpotting.unity
-    guid: fa94b0787a2fb4c44b09e01f1523bec7
-  - enabled: 1
-    path: Assets/Scenes/LevelDragDrop.unity
-    guid: 4887eae85d20e4798904c491835d2d1a
-  - enabled: 1
-    path: Assets/Scenes/LevelClozeText.unity
-    guid: fc3fbe58b259f4a2ca9999aa5d0c9c5d
-  - enabled: 1
-    path: Assets/Scenes/LevelMatching.unity
-    guid: 2baa08f9ecc7b4e329b6091582aeeefa
-  - enabled: 1
-    path: Assets/Scenes/LevelMultipleChoice.unity
-    guid: 01e145a887ef14e479232904f1e4fbe5
-  - enabled: 1
-    path: Assets/Scenes/LevelFreeText.unity
-    guid: d3f17168183cb48ae90e3beb592ed47f
-  - enabled: 1
-    path: Assets/Scenes/LevelRelativeClause.unity
-    guid: aa4bd5ea718c94c9f9ce684dc073fa6a
+    path: Assets/Scenes/Level.unity
+    guid: d0e1f2a3b4c55677889900aabbccddee
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
