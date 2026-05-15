@@ -13,7 +13,7 @@ description: |
 
 An **LLM-supported Italian learning game** for **children** in a **gifted-education school**, built as part of the **TUM IT-based learning** course. Unity delivers a **playable, map-based** experience; **large language models** support **a small subset** of interactions so teaching and checking Italian feel **varied and responsive**, while most tasks stay **predictably checkable**.
 
-Canonical detail for requirements and task taxonomy: `GAME_REQUIREMENTS.md` and `TASK_TYPES.md` in the repo root.
+Canonical **technical** contracts live in `AGENTS.md`; **task-type orientation** is summarized in this skill. Deferred milestones and backlog anchors: `.cursor/plans/long-term-todos.md`. Older root-level requirement markdown files were removed—confirm specifics with the team or meeting notes when needed.
 
 ## Who it is for
 
@@ -63,7 +63,7 @@ The **final menu** of task types may still change with **feasibility** and **tea
 
 ## Access and platform
 
-- Target: **browser-playable** build; students **log in** with **generated username + password** (see organizational flows in `GAME_REQUIREMENTS.md`).
+- Target: **browser-playable** build; students **log in** with **generated username + password**—align login UX with teacher/org provisioning flows agreed outside the codebase.
 - UI should be **click/tap-friendly** for map navigation and tasks.
 
 ## Privacy and school context (product framing)
@@ -73,7 +73,7 @@ The **final menu** of task types may still change with **feasibility** and **tea
 
 ## Research and timeline (orientation only)
 
-- Field run and milestones (e.g. school week, “feature-complete” target) live in `GAME_REQUIREMENTS.md`; treat dates as **planning signals**, not agent-implemented schedules.
+- Field run and milestones (e.g. school week, “feature-complete” target) may appear in `.cursor/plans/long-term-todos.md` or meeting notes; treat dates as **planning signals**, not agent-implemented schedules.
 - Content process: agree **skeleton** (story, structure, categories) with teacher, then ship **task packs** aligned to the book.
 
 ## Principles for agents

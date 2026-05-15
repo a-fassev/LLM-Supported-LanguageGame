@@ -54,8 +54,6 @@ Repository layout **as committed today**:
 ```text
 LLM-Supported-LanguageGame/
 ├── AGENTS.md
-├── GAME_REQUIREMENTS.md      # Functional requirements summary (meetings)
-├── TASK_TYPES.md             # Task category overview (deterministic vs LLM)
 ├── LEARNINGS.md              # pending notes for /apply-learnings (may be empty)
 ├── supabase/migrations/      # Postgres schema for game progress (apply via Supabase CLI or SQL editor)
 ├── Assets/
