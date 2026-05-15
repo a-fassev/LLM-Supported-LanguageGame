@@ -9,6 +9,7 @@ namespace LanguageGame.Presentation
     public class CityMapView : MonoBehaviour
     {
         [SerializeField] private Button mainMenuButton;
+        [SerializeField] private Button avatarShopButton;
 
         [Header("Map levels (slug must match server / Supabase seed)")]
         [SerializeField] private Button levelButtonA;
@@ -36,6 +37,7 @@ namespace LanguageGame.Presentation
         private void Start()
         {
             mainMenuButton?.onClick.AddListener(OnMainMenuClicked);
+            avatarShopButton?.onClick.AddListener(OnAvatarShopClicked);
             levelButtonA?.onClick.AddListener(() => OnLevelClicked(levelSlugA, levelButtonA));
             levelButtonB?.onClick.AddListener(() => OnLevelClicked(levelSlugB, levelButtonB));
             levelButtonC?.onClick.AddListener(() => OnLevelClicked(levelSlugC, levelButtonC));
@@ -215,6 +217,16 @@ namespace LanguageGame.Presentation
             GameFlowController.Instance.LoadMainMenu();
         }
 
+        private void OnAvatarShopClicked()
+        {
+            if (GameFlowController.Instance == null)
+            {
+                Debug.LogError("[CityMapView] GameFlowController not found.");
+                return;
+            }
+            GameFlowController.Instance.LoadAvatarShopFromCityMap();
+        }
+
         private void OnLevelClicked(string slug, Button button)
         {
             if (GameFlowController.Instance == null || button == null || _startingLevel || _startLevelLoadInFlight)
@@ -303,6 +315,7 @@ namespace LanguageGame.Presentation
         private void OnDestroy()
         {
             mainMenuButton?.onClick.RemoveAllListeners();
+            avatarShopButton?.onClick.RemoveAllListeners();
             levelButtonA?.onClick.RemoveAllListeners();
             levelButtonB?.onClick.RemoveAllListeners();
             levelButtonC?.onClick.RemoveAllListeners();

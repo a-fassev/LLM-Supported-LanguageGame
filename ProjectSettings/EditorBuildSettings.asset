@@ -15,6 +15,9 @@ EditorBuildSettings:
     path: Assets/Scenes/CityMap.unity
     guid: d60dc80ae2aca46419e9795ddb492fbf
   - enabled: 1
+    path: Assets/Scenes/AvatarShop.unity
+    guid: e1f2a3b4c5d64758697a8b9c0d1e2f3a
+  - enabled: 1
     path: Assets/Scenes/Level.unity
     guid: d0e1f2a3b4c55677889900aabbccddee
   m_configObjects:

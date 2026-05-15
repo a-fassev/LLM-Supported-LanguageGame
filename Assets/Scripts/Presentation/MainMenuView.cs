@@ -8,6 +8,7 @@ namespace LanguageGame.Presentation
     public class MainMenuView : MonoBehaviour
     {
         [SerializeField] private Button playButton;
+        [SerializeField] private Button avatarShopButton;
         [SerializeField] private Button logoutButton;
         [SerializeField] private Text pizzaSlicesText;
 
@@ -21,6 +22,8 @@ namespace LanguageGame.Presentation
         {
             if (playButton == null)
                 Debug.LogWarning("[MainMenuView] playButton is not assigned.");
+            if (avatarShopButton == null)
+                Debug.LogWarning("[MainMenuView] avatarShopButton is not assigned.");
             if (logoutButton == null)
                 Debug.LogWarning("[MainMenuView] logoutButton is not assigned.");
         }
@@ -28,6 +31,7 @@ namespace LanguageGame.Presentation
         private void Start()
         {
             playButton?.onClick.AddListener(OnPlayClicked);
+            avatarShopButton?.onClick.AddListener(OnAvatarShopClicked);
             logoutButton?.onClick.AddListener(OnLogoutClicked);
             EnsurePizzaHud();
             _gameApi = FindAnyObjectByType<GameProgressApiClient>();
@@ -144,6 +148,16 @@ namespace LanguageGame.Presentation
             GameFlowController.Instance.LoadCityMap();
         }
 
+        private void OnAvatarShopClicked()
+        {
+            if (GameFlowController.Instance == null)
+            {
+                Debug.LogError("[MainMenuView] GameFlowController not found.");
+                return;
+            }
+            GameFlowController.Instance.LoadAvatarShopFromMainMenu();
+        }
+
         private void OnLogoutClicked()
         {
             if (GameFlowController.Instance == null)
@@ -175,6 +189,7 @@ namespace LanguageGame.Presentation
         private void OnDestroy()
         {
             playButton?.onClick.RemoveListener(OnPlayClicked);
+            avatarShopButton?.onClick.RemoveListener(OnAvatarShopClicked);
             logoutButton?.onClick.RemoveListener(OnLogoutClicked);
             _loadErrorBanner.Destroy();
         }

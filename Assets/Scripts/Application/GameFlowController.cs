@@ -12,6 +12,7 @@ namespace LanguageGame.Application
         private const string SceneMainMenu = "MainMenu";
         private const string SceneCityMap = "CityMap";
         private const string SceneLevel = "Level";
+        private const string SceneAvatarShop = "AvatarShop";
 
         /// <summary>Legacy ScriptableObject level (optional; city map uses server levels).</summary>
         private LevelConfig _activeLevel;
@@ -24,6 +25,14 @@ namespace LanguageGame.Application
         private GameTaskBootstrapDto[] _serverTasks;
         private int _serverTaskOrderIndex;
         private int _totalPizzaSlices;
+
+        private enum AvatarShopReturnTarget
+        {
+            MainMenu,
+            CityMap
+        }
+
+        private AvatarShopReturnTarget _avatarShopReturnTarget = AvatarShopReturnTarget.MainMenu;
 
         private void Awake()
         {
@@ -53,6 +62,28 @@ namespace LanguageGame.Application
         {
             ClearAllLevelState();
             LoadScene(SceneCityMap);
+        }
+
+        public void LoadAvatarShopFromMainMenu()
+        {
+            _avatarShopReturnTarget = AvatarShopReturnTarget.MainMenu;
+            ClearAllLevelState();
+            LoadScene(SceneAvatarShop);
+        }
+
+        public void LoadAvatarShopFromCityMap()
+        {
+            _avatarShopReturnTarget = AvatarShopReturnTarget.CityMap;
+            ClearAllLevelState();
+            LoadScene(SceneAvatarShop);
+        }
+
+        public void ReturnFromAvatarShop()
+        {
+            if (_avatarShopReturnTarget == AvatarShopReturnTarget.CityMap)
+                LoadCityMap();
+            else
+                LoadMainMenu();
         }
 
         /// <summary>Opens the reusable level scene with a local <see cref="LevelConfig"/> (legacy / tools).</summary>
