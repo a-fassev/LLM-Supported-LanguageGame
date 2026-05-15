@@ -109,3 +109,8 @@ InitTestScene*.unity*
 # Next.js app (apps/web)
 apps/web/node_modules/
 apps/web/.next/
+
+# macOS folder metadata (never commit)
+.DS_Store
+.AppleDouble
+.LSOverride
