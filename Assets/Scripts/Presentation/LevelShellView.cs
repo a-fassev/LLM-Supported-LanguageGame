@@ -206,8 +206,6 @@ namespace LanguageGame.Presentation
             }
 
             _taskSubmitState = TaskSubmitState.Idle;
-            flow.SetTotalPizzaSlices(done.totalSlices);
-            flow.SetTotalBackpackPieces(done.totalBackpackPieces);
             flow.ApplyServerTaskProgress(done.currentTaskOrderIndex, done.totalSlices,
                 done.totalBackpackPieces, levelComplete: false);
 

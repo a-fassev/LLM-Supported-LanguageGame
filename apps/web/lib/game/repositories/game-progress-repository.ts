@@ -142,12 +142,6 @@ export async function getWalletTotals(accountId: string): Promise<WalletTotals |
   };
 }
 
-/** @deprecated Prefer getWalletTotals for combined wallet projection. */
-export async function getWalletTotal(accountId: string): Promise<number | null> {
-  const w = await getWalletTotals(accountId);
-  return w?.totalSlices ?? null;
-}
-
 function coerceNumber(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }

@@ -1,18 +1,36 @@
 -- Backpack pieces per player (distinct tasks completed) + RPC updates.
+-- Note: Hosted projects may register this revision under a Supabase MCP-generated timestamp;
+-- ordering in this repo must stay after game_atomic_complete_and_rls.
 
 alter table public.player_wallets
   add column if not exists total_backpack_pieces int not null default 0;
 
-alter table public.player_wallets
-  add constraint player_wallets_backpack_nonneg check (total_backpack_pieces >= 0);
-
 alter table public.player_task_attempts
   add column if not exists awarded_backpack_pieces int not null default 0;
 
-alter table public.player_task_attempts
-  add constraint player_task_attempts_backpack_nonneg check (
-    awarded_backpack_pieces >= 0 and awarded_backpack_pieces <= 1
-  );
+do $$
+begin
+  if not exists (
+    select 1 from pg_catalog.pg_constraint
+    where conname = 'player_wallets_backpack_nonneg'
+  ) then
+    alter table public.player_wallets
+      add constraint player_wallets_backpack_nonneg check (total_backpack_pieces >= 0);
+  end if;
+end $$;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_catalog.pg_constraint
+    where conname = 'player_task_attempts_backpack_nonneg'
+  ) then
+    alter table public.player_task_attempts
+      add constraint player_task_attempts_backpack_nonneg check (
+        awarded_backpack_pieces >= 0 and awarded_backpack_pieces <= 1
+      );
+  end if;
+end $$;
 
 -- Backfill: one backpack piece per distinct task ever completed (matches first-time-global rule historically).
 update public.player_wallets w

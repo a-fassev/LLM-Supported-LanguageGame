@@ -18,8 +18,6 @@ namespace LanguageGame.Presentation
         [SerializeField] private Button playButton;
         [SerializeField] private Button avatarShopButton;
         [SerializeField] private Button logoutButton;
-        [SerializeField] private Text pizzaSlicesText;
-        [SerializeField] private Text backpackPiecesText;
 
         private GameProgressApiClient _gameApi;
 
@@ -49,7 +47,6 @@ namespace LanguageGame.Presentation
                 GameFlowController.Instance?.SetTotalPizzaSlices(cachedSlices);
             if (GameSessionStateStore.TryGetLatestTotalBackpackPieces(out var cachedBackpack))
                 GameFlowController.Instance?.SetTotalBackpackPieces(cachedBackpack);
-            RefreshWalletLabels();
 
             if (_gameApi == null)
                 return;
@@ -137,7 +134,6 @@ namespace LanguageGame.Presentation
                 _loadErrorBanner.Hide();
                 GameFlowController.Instance?.SetTotalPizzaSlices(env.totalSlices);
                 GameFlowController.Instance?.SetTotalBackpackPieces(env.totalBackpackPieces);
-                RefreshWalletLabels();
             }
             finally
             {
@@ -146,16 +142,6 @@ namespace LanguageGame.Presentation
                 if (_bootstrapReloadRequested && _gameApi != null)
                     StartCoroutine(LoadPizzaRoutine(_gameApi, showBlockingOverlay: false));
             }
-        }
-
-        private void RefreshWalletLabels()
-        {
-            var slices   = GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
-            var backpack = GameFlowController.Instance != null ? GameFlowController.Instance.TotalBackpackPieces : 0;
-            if (pizzaSlicesText != null)
-                pizzaSlicesText.text = $"Pizza slices: {slices}";
-            if (backpackPiecesText != null)
-                backpackPiecesText.text = $"Backpack pieces: {backpack}";
         }
 
         private void OnPlayClicked()

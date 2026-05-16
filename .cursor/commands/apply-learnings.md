@@ -3,6 +3,8 @@
 ## Overview
 Reads accumulated learnings from `LEARNINGS.md` at the repository root and applies them to update skills, commands, and project documentation. Run this periodically (for example when several learnings have accumulated) so guidance stays aligned with what the team has learned.
 
+**Dual documentation rule (this repo):** When applying a learning that touches **motivation, visible progression, rewards, or HUD/entry-screen behavior from the learner’s perspective**, update **`AGENTS.md`** with **contracts, stacks, scenes, and authoritative technical behavior**, and **`/.cursor/skills/product/SKILL.md`** with **short, learner-facing framing** (what players should understand and why). Keep product copy high-level—no dumping API routes or RPC names into the product skill unless a learning explicitly asks for it.
+
 ---
 
 ## Target Files Reference
@@ -11,11 +13,11 @@ Before applying, know where each category lands in **this** repo:
 
 | Category | Primary Target | Secondary Target |
 |----------|----------------|------------------|
-| Product Feature | `AGENTS.md` (Repository overview / Tech stack — short, scannable notes) | — |
+| Product Feature | `AGENTS.md` (Repository overview / Tech stack — short, scannable notes) | `.cursor/skills/product/SKILL.md` whenever the capability changes UX, motivation, or player-visible rewards |
 | Skills | `.cursor/skills/{skill}/SKILL.md` | `.cursor/skills/{skill}/references/` (if present) |
 | Commands | `.cursor/commands/{command}.md` | — |
-| Architecture | `AGENTS.md` (Architecture principles) | Relevant skill `SKILL.md` if domain-specific |
-| Patterns | `AGENTS.md` (Development philosophy / key rules — only if such a section exists or you add a concise bullet there) | Relevant skill `SKILL.md` if domain-specific |
+| Architecture | `AGENTS.md` (Architecture principles) | Relevant skill `SKILL.md` if domain-specific; **also** `.cursor/skills/product/SKILL.md` when the architectural choice shapes what children experience (e.g. reward rules visibility) |
+| Patterns | `AGENTS.md` (Development philosophy / key rules — only if such a section exists or you add a concise bullet there) | Relevant skill `SKILL.md` if domain-specific; **same product-skill caveat** when the pattern is surfaced in UX |
 | Agent Behavior | `AGENTS.md` (Key rules, protocol sections) | — |
 
 If `.cursor/skills/` does not exist yet, **Skills** learnings still inform you: create the skill folder only when the learning explicitly asks for a skill file, or apply the insight to `AGENTS.md` instead.
@@ -39,13 +41,13 @@ If `.cursor/skills/` does not exist yet, **Skills** learnings still inform you: 
 Found X pending learnings:
 
 Product Features (N):
-- [title] → AGENTS.md
+- [title] → AGENTS.md + `.cursor/skills/product/SKILL.md` (when UX/motivation/rewards)
 
 Architecture (N):
-- [title] → AGENTS.md [+ skill if applicable]
+- [title] → AGENTS.md [+ `.cursor/skills/product/SKILL.md` when player-facing]
 
 Patterns (N):
-- [title] → AGENTS.md [+ skill if applicable]
+- [title] → AGENTS.md [+ `.cursor/skills/product/SKILL.md` when player-facing UX]
 
 Skills (N):
 - [title] → .cursor/skills/[skill]/SKILL.md
@@ -64,9 +66,10 @@ Agent Behavior (N):
 
 #### Product Feature
 1. Read `AGENTS.md`
-2. Add a short, scannable note under **Repository overview** or **Tech stack** — what exists, where it lives (`Assets/...`, `LLM Test Integration/...`), and non-obvious behavior
+2. Add a short, scannable note under **Repository overview** or **Tech stack** — what exists, where it lives (`Assets/...`, `apps/web/`), and non-obvious behavior
 3. Avoid long prose; this is an index for agents, not a user manual unless the user asks for one
-4. Show what was added
+4. Update **`.cursor/skills/product/SKILL.md`** when the feature changes learner motivation, visible progression, or how rewards/screens are communicated (dual-doc rule above)
+5. Show what was added
 
 #### Skills
 1. Read the learning's **Action** field to identify which skill
@@ -84,12 +87,14 @@ Agent Behavior (N):
 1. Read `AGENTS.md` — update **Architecture principles** (or the closest matching section)
 2. Capture the decision and rationale briefly
 3. If the learning is domain-specific and a skill exists, also update `.cursor/skills/{skill}/SKILL.md`
-4. Show what was changed
+4. If it changes **experienced progression or rewards**, also update **`.cursor/skills/product/SKILL.md`**
+5. Show what was changed
 
 #### Patterns
 1. Read `AGENTS.md` — add or refine a concrete, actionable convention (keep it short)
 2. If a domain skill exists (e.g. Unity-specific), mirror there when helpful
-3. Show what was changed
+3. When the convention affects **HUD placement, onboarding, or learner-facing wording expectations**, mirror a brief note in **`.cursor/skills/product/SKILL.md`**
+4. Show what was changed
 
 #### Agent Behavior
 1. Read `AGENTS.md` — **Key rules** or **3-phase response protocol** as appropriate
@@ -133,6 +138,7 @@ Removed X entries from LEARNINGS.md.
 
 ## Notes
 - Some learnings span multiple categories — update every relevant target
+- Prefer **paired updates** (`AGENTS.md` + `.cursor/skills/product/SKILL.md`) whenever the lesson is partly **technical implementation** and partly **what learners should perceive** — one file should not silently become the sole source if both audiences matter
 - If **Action** points to a path that does not exist yet, create it only when clearly warranted
 - If a learning is ambiguous, ask the user for clarification before applying
 - An empty `LEARNINGS.md` after applying is fine — it means pending items were absorbed

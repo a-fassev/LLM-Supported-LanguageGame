@@ -31,7 +31,11 @@ Canonical **technical** contracts live in `AGENTS.md`; **task-type orientation**
 ### Mascot and motivation
 
 - Mascot can be **lightweight** (e.g. **static in a corner**), not a full controllable avatar.
-- **Rewards (reference: Essen project):** performance yields **0–3 “pizza slices”** used to **unlock mascot skins**; optional **expressions** by situation are nice-to-have.
+- **Rewards (reference: Essen project)** — distinct roles for children and copy:
+  - **Pizza slices (~0–3 per task outcome):** **Practice / encouragement** loot—shows performance in the moment, supports unlocking **mascot skins** in the avatar shop, and can recur when learners **replay** the same tasks so repetition still feels supported.
+  - **Backpack pieces:** **Milestone / mastery** loot—conceptually tied to **first-time success on a distinct task**, not infinite grinding on repeats. Messaging and tutorials must not imply endless backpack gains from redoing one activity forever.
+  - **Where totals appear:** show balances on **CityMap**, inside **quests (level shell)**, and in **AvatarShop**; keep the **main menu** visually light (players land there to continue—full wallet HUD belongs with exploration/customization flows).
+  - Optional **expressions** by situation remain nice-to-have.
 - **Visual direction** (not final): e.g. **lion** (Bologna) or neutral **boy/girl** school-trip style.
 
 ### Tasks (modularity)
