@@ -9,6 +9,7 @@ namespace LanguageGame.Presentation
     {
         [SerializeField] private Button backButton;
         [SerializeField] private Text pizzaSlicesText;
+        [SerializeField] private Text backpackPiecesText;
         [SerializeField] private Text placeholderHintText;
 
         private void Awake()
@@ -19,7 +20,7 @@ namespace LanguageGame.Presentation
 
         private void OnEnable()
         {
-            RefreshPizzaLabel();
+            RefreshWalletLabels();
         }
 
         private void Start()
@@ -27,12 +28,15 @@ namespace LanguageGame.Presentation
             backButton?.onClick.AddListener(OnBackClicked);
         }
 
-        private void RefreshPizzaLabel()
+        private void RefreshWalletLabels()
         {
-            var slices = GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
+            var slices   = GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
+            var backpack = GameFlowController.Instance != null ? GameFlowController.Instance.TotalBackpackPieces : 0;
             var line = $"Pizza slices: {slices}";
             if (pizzaSlicesText != null)
                 pizzaSlicesText.text = line;
+            if (backpackPiecesText != null)
+                backpackPiecesText.text = $"Backpack pieces: {backpack}";
         }
 
         private void OnBackClicked()

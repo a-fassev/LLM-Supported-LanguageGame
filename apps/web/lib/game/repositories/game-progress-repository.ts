@@ -33,6 +33,8 @@ export type RpcCompleteTaskResult =
   | {
       ok: true;
       totalSlices: number;
+      totalBackpackPieces: number;
+      awardedBackpackPieces: number;
       levelComplete: boolean;
       currentTaskOrderIndex: number;
       currentTaskId: string | null;
@@ -116,24 +118,48 @@ export async function getLevelById(levelId: string): Promise<GameLevelRow | null
   return data as GameLevelRow;
 }
 
-export async function getWalletTotal(accountId: string): Promise<number | null> {
+export type WalletTotals = {
+  totalSlices: number;
+  totalBackpackPieces: number;
+};
+
+export async function getWalletTotals(accountId: string): Promise<WalletTotals | null> {
   const { data, error } = await admin()
     .from("player_wallets")
-    .select("total_slices")
+    .select("total_slices,total_backpack_pieces")
     .eq("account_id", accountId)
     .maybeSingle();
 
   if (error) {
-    console.error("[game-repo] getWalletTotal", error);
+    console.error("[game-repo] getWalletTotals", error);
     return null;
   }
-  if (!data) return 0;
-  return data.total_slices as number;
+  if (!data)
+    return { totalSlices: 0, totalBackpackPieces: 0 };
+  return {
+    totalSlices: coerceNumber(data.total_slices, 0),
+    totalBackpackPieces: coerceNumber((data as { total_backpack_pieces?: unknown }).total_backpack_pieces, 0),
+  };
+}
+
+/** @deprecated Prefer getWalletTotals for combined wallet projection. */
+export async function getWalletTotal(accountId: string): Promise<number | null> {
+  const w = await getWalletTotals(accountId);
+  return w?.totalSlices ?? null;
+}
+
+function coerceNumber(value: unknown, fallback: number): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
 export async function ensureWalletRow(accountId: string): Promise<boolean> {
   const { error } = await admin().from("player_wallets").upsert(
-    { account_id: accountId, total_slices: 0, updated_at: new Date().toISOString() },
+    {
+      account_id: accountId,
+      total_slices: 0,
+      total_backpack_pieces: 0,
+      updated_at: new Date().toISOString(),
+    },
     { onConflict: "account_id", ignoreDuplicates: true },
   );
   if (error) {
@@ -195,9 +221,14 @@ export async function rpcCompleteGameTask(
     else if (typeof row.current_task_id === "number") nextId = String(row.current_task_id);
   }
 
+  const coerceIntStrict = (v: unknown, fallback = 0): number =>
+    typeof v === "number" && Number.isFinite(v) ? Math.trunc(v) : fallback;
+
   return {
     ok: true,
     totalSlices: coerceInt(row.total_slices, 0),
+    totalBackpackPieces: coerceIntStrict(row.total_backpack_pieces, 0),
+    awardedBackpackPieces: coerceIntStrict(row.awarded_backpack_pieces, 0),
     levelComplete: Boolean(row.level_complete),
     currentTaskOrderIndex: coerceInt(row.current_task_order_index, 0),
     currentTaskId: nextId,

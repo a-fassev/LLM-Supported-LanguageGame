@@ -39,6 +39,7 @@ export async function GET(request: Request, context: RouteContext) {
     displayName: result.displayName,
     status: result.status,
     totalSlices: result.totalSlices,
+    totalBackpackPieces: result.totalBackpackPieces,
     tasks: result.tasks,
     currentTaskOrderIndex: result.currentTaskOrderIndex,
   });

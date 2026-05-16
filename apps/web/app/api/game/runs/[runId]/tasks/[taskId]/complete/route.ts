@@ -39,7 +39,9 @@ export async function POST(request: Request, context: RouteContext) {
 
   return jsonOk({
     awardedSlices: result.awardedSlices,
+    awardedBackpackPieces: result.awardedBackpackPieces,
     totalSlices: result.totalSlices,
+    totalBackpackPieces: result.totalBackpackPieces,
     levelComplete: result.levelComplete,
     currentTaskOrderIndex: result.currentTaskOrderIndex,
     currentTaskId: result.currentTaskId ?? "",

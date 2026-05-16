@@ -25,6 +25,7 @@ namespace LanguageGame.Application
         private GameTaskBootstrapDto[] _serverTasks;
         private int _serverTaskOrderIndex;
         private int _totalPizzaSlices;
+        private int _totalBackpackPieces;
 
         private enum AvatarShopReturnTarget
         {
@@ -105,7 +106,8 @@ namespace LanguageGame.Application
 
         /// <summary>Opens the level scene for a server-backed run (tasks + progression from API).</summary>
         public void BeginServerLevel(string runId, string levelId, string displayName,
-            GameTaskBootstrapDto[] tasks, int currentTaskOrderIndex, int totalPizzaSlices)
+            GameTaskBootstrapDto[] tasks, int currentTaskOrderIndex, int totalPizzaSlices,
+            int totalBackpackPieces)
         {
             if (string.IsNullOrEmpty(runId) || tasks == null || tasks.Length == 0)
             {
@@ -121,6 +123,7 @@ namespace LanguageGame.Application
             _serverTasks = tasks;
             _serverTaskOrderIndex = Mathf.Clamp(currentTaskOrderIndex, 0, tasks.Length - 1);
             _totalPizzaSlices = totalPizzaSlices;
+            _totalBackpackPieces = Mathf.Max(0, totalBackpackPieces);
             LoadScene(SceneLevel);
         }
 
@@ -133,12 +136,21 @@ namespace LanguageGame.Application
             _totalPizzaSlices = Mathf.Max(0, value);
         }
 
+        public int TotalBackpackPieces => _totalBackpackPieces;
+
+        public void SetTotalBackpackPieces(int value)
+        {
+            _totalBackpackPieces = Mathf.Max(0, value);
+        }
+
         public string ServerRunId => _serverRunId;
 
-        public void ApplyServerTaskProgress(int newTaskOrderIndex, int totalSlices, bool levelComplete)
+        public void ApplyServerTaskProgress(int newTaskOrderIndex, int totalSlices,
+            int totalBackpackPieces, bool levelComplete)
         {
             _serverTaskOrderIndex = newTaskOrderIndex;
             _totalPizzaSlices = Mathf.Max(0, totalSlices);
+            _totalBackpackPieces = Mathf.Max(0, totalBackpackPieces);
             if (levelComplete)
                 ClearServerLevelState();
         }

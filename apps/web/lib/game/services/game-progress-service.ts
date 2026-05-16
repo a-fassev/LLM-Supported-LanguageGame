@@ -8,7 +8,7 @@ import {
   findLatestInProgressRunForAccount,
   getLevelById,
   getRunById,
-  getWalletTotal,
+  getWalletTotals,
   insertRun,
   listActiveLevelsOrdered,
   listCompletedLevelIds,
@@ -49,6 +49,7 @@ export type BootstrapResult =
   | {
       ok: true;
       totalSlices: number;
+      totalBackpackPieces: number;
       levels: GameLevelClientDto[];
       activeRun: ActiveRunClientDto | null;
     }
@@ -62,6 +63,7 @@ export type StartLevelResult =
       levelSlug: string;
       displayName: string;
       totalSlices: number;
+      totalBackpackPieces: number;
       tasks: GameTaskDto[];
       currentTaskOrderIndex: number;
     }
@@ -71,7 +73,9 @@ export type CompleteTaskResult =
   | {
       ok: true;
       awardedSlices: number;
+      awardedBackpackPieces: number;
       totalSlices: number;
+      totalBackpackPieces: number;
       levelComplete: boolean;
       currentTaskOrderIndex: number;
       currentTaskId: string | null;
@@ -79,7 +83,7 @@ export type CompleteTaskResult =
   | { ok: false; status: number; error: string; code?: string };
 
 export type FinishRunResult =
-  | { ok: true; totalSlices: number }
+  | { ok: true; totalSlices: number; totalBackpackPieces: number }
   | { ok: false; status: number; error: string; code?: string };
 
 export type GetRunResult =
@@ -91,6 +95,7 @@ export type GetRunResult =
       displayName: string;
       status: string;
       totalSlices: number;
+      totalBackpackPieces: number;
       tasks: GameTaskDto[];
       currentTaskOrderIndex: number;
     }
@@ -144,7 +149,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
   const levels = await listActiveLevelsOrdered();
   if (!levels) return { ok: false, status: 500, error: "Could not load levels" };
 
-  const wallet = await getWalletTotal(accountId);
+  const wallet = await getWalletTotals(accountId);
   if (wallet === null) return { ok: false, status: 500, error: "Could not load wallet" };
 
   const completedList = await listCompletedLevelIds(accountId);
@@ -168,7 +173,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
       displayName: L.display_name,
       orderIndex: L.order_index,
       requiredTotalSlices: L.required_total_slices,
-      isUnlocked: isUnlockedForPlayer(L, sorted, completedSet, wallet),
+      isUnlocked: isUnlockedForPlayer(L, sorted, completedSet, wallet.totalSlices),
       hasCompletedAnyRun: completedSet.has(L.id),
       tasks: tasksRows.map(mapTaskRow),
     });
@@ -197,7 +202,13 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
     }
   }
 
-  return { ok: true, totalSlices: wallet, levels: levelDtos, activeRun };
+  return {
+    ok: true,
+    totalSlices: wallet.totalSlices,
+    totalBackpackPieces: wallet.totalBackpackPieces,
+    levels: levelDtos,
+    activeRun,
+  };
 }
 
 export async function startOrResumeLevel(accountId: string, levelId: string): Promise<StartLevelResult> {
@@ -210,7 +221,7 @@ export async function startOrResumeLevel(accountId: string, levelId: string): Pr
   const levels = await listActiveLevelsOrdered();
   if (!levels) return { ok: false, status: 500, error: "Could not load levels" };
 
-  const wallet = await getWalletTotal(accountId);
+  const wallet = await getWalletTotals(accountId);
   if (wallet === null) return { ok: false, status: 500, error: "Could not load wallet" };
 
   const completedList = await listCompletedLevelIds(accountId);
@@ -218,7 +229,7 @@ export async function startOrResumeLevel(accountId: string, levelId: string): Pr
 
   const sorted = [...levels].sort((a, b) => a.order_index - b.order_index);
   const completedSet = new Set(completedList);
-  if (!isUnlockedForPlayer(level, sorted, completedSet, wallet)) {
+  if (!isUnlockedForPlayer(level, sorted, completedSet, wallet.totalSlices)) {
     return { ok: false, status: 403, error: "Level is locked", code: "level_locked" };
   }
 
@@ -234,15 +245,14 @@ export async function startOrResumeLevel(accountId: string, levelId: string): Pr
   if (!tasksRows || tasksRows.length === 0)
     return { ok: false, status: 500, error: "Level has no tasks" };
 
-  const totalSlices = wallet;
-
   return {
     ok: true,
     runId: run.id,
     levelId: level.id,
     levelSlug: level.slug,
     displayName: level.display_name,
-    totalSlices,
+    totalSlices: wallet.totalSlices,
+    totalBackpackPieces: wallet.totalBackpackPieces,
     tasks: tasksRows.map(mapTaskRow),
     currentTaskOrderIndex: run.current_task_order_index,
   };
@@ -269,7 +279,9 @@ export async function completeGameTask(
   return {
     ok: true,
     awardedSlices: awarded,
+    awardedBackpackPieces: rpc.awardedBackpackPieces,
     totalSlices: rpc.totalSlices,
+    totalBackpackPieces: rpc.totalBackpackPieces,
     levelComplete: rpc.levelComplete,
     currentTaskOrderIndex: rpc.currentTaskOrderIndex,
     currentTaskId: rpc.currentTaskId,
@@ -282,11 +294,15 @@ export async function finishGameRun(accountId: string, runId: string): Promise<F
     return { ok: false, status: 404, error: "Run not found", code: "run_not_found" };
   }
 
-  const wallet = await getWalletTotal(accountId);
+  const wallet = await getWalletTotals(accountId);
   if (wallet === null) return { ok: false, status: 500, error: "Could not load wallet" };
 
   if (run.status === "completed") {
-    return { ok: true, totalSlices: wallet };
+    return {
+      ok: true,
+      totalSlices: wallet.totalSlices,
+      totalBackpackPieces: wallet.totalBackpackPieces,
+    };
   }
 
   const tasksRows = await listTasksForLevel(run.level_id);
@@ -296,7 +312,11 @@ export async function finishGameRun(accountId: string, runId: string): Promise<F
     const nowIso = new Date().toISOString();
     const ok = await updateRunProgress(runId, run.current_task_order_index, "completed", nowIso);
     if (!ok) return { ok: false, status: 500, error: "Could not update run" };
-    return { ok: true, totalSlices: wallet };
+    return {
+      ok: true,
+      totalSlices: wallet.totalSlices,
+      totalBackpackPieces: wallet.totalBackpackPieces,
+    };
   }
 
   return { ok: false, status: 400, error: "Level not finished yet", code: "run_incomplete" };
@@ -314,7 +334,7 @@ export async function getGameRun(accountId: string, runId: string): Promise<GetR
   const tasksRows = await listTasksForLevel(run.level_id);
   if (!tasksRows) return { ok: false, status: 500, error: "Could not load tasks" };
 
-  const wallet = await getWalletTotal(accountId);
+  const wallet = await getWalletTotals(accountId);
   if (wallet === null) return { ok: false, status: 500, error: "Could not load wallet" };
 
   return {
@@ -324,7 +344,8 @@ export async function getGameRun(accountId: string, runId: string): Promise<GetR
     levelSlug: level.slug,
     displayName: level.display_name,
     status: run.status,
-    totalSlices: wallet,
+    totalSlices: wallet.totalSlices,
+    totalBackpackPieces: wallet.totalBackpackPieces,
     tasks: tasksRows.map(mapTaskRow),
     currentTaskOrderIndex: run.current_task_order_index,
   };

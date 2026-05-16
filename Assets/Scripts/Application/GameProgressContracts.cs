@@ -42,6 +42,7 @@ namespace LanguageGame.Application
     {
         public bool ok;
         public int totalSlices;
+        public int totalBackpackPieces;
         public GameLevelBootstrapDto[] levels;
         public GameActiveRunDto activeRun;
     }
@@ -55,6 +56,7 @@ namespace LanguageGame.Application
         public string levelSlug;
         public string displayName;
         public int totalSlices;
+        public int totalBackpackPieces;
         public GameTaskBootstrapDto[] tasks;
         public int currentTaskOrderIndex;
         public string error;
@@ -65,7 +67,9 @@ namespace LanguageGame.Application
     {
         public bool ok;
         public int awardedSlices;
+        public int awardedBackpackPieces;
         public int totalSlices;
+        public int totalBackpackPieces;
         public bool levelComplete;
         public int currentTaskOrderIndex;
         public string currentTaskId;
@@ -77,6 +81,7 @@ namespace LanguageGame.Application
     {
         public bool ok;
         public int totalSlices;
+        public int totalBackpackPieces;
         public string error;
     }
 

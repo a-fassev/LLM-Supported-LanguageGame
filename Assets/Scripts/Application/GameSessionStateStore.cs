@@ -15,7 +15,8 @@ namespace LanguageGame.Application
         private static DateTime _bootstrapUpdatedUtc;
         private static bool _bootstrapInvalidated;
         private static int _latestTotalSlices;
-        private static bool _hasLatestTotalSlices;
+        private static int _latestTotalBackpackPieces;
+        private static bool _hasLatestWalletTotals;
         private static string _lastInvalidationReason;
 
         public static bool HasBootstrapSnapshot => _bootstrap != null;
@@ -38,7 +39,7 @@ namespace LanguageGame.Application
             _bootstrapInvalidated = false;
             _lastInvalidationReason = null;
 
-            SetLatestTotalSlices(_bootstrap.totalSlices);
+            SetLatestWalletTotals(_bootstrap.totalSlices, _bootstrap.totalBackpackPieces);
         }
 
         public static bool IsBootstrapFresh(float maxAgeSeconds)
@@ -56,19 +57,29 @@ namespace LanguageGame.Application
             _lastInvalidationReason = reason;
         }
 
-        public static void SetLatestTotalSlices(int value)
+        public static void SetLatestWalletTotals(int totalSlices, int totalBackpackPieces)
         {
-            _latestTotalSlices = Mathf.Max(0, value);
-            _hasLatestTotalSlices = true;
+            _latestTotalSlices = Mathf.Max(0, totalSlices);
+            _latestTotalBackpackPieces = Mathf.Max(0, totalBackpackPieces);
+            _hasLatestWalletTotals = true;
 
             if (_bootstrap != null)
+            {
                 _bootstrap.totalSlices = _latestTotalSlices;
+                _bootstrap.totalBackpackPieces = _latestTotalBackpackPieces;
+            }
         }
 
         public static bool TryGetLatestTotalSlices(out int totalSlices)
         {
             totalSlices = _latestTotalSlices;
-            return _hasLatestTotalSlices;
+            return _hasLatestWalletTotals;
+        }
+
+        public static bool TryGetLatestTotalBackpackPieces(out int totalBackpackPieces)
+        {
+            totalBackpackPieces = _latestTotalBackpackPieces;
+            return _hasLatestWalletTotals;
         }
 
         public static void ApplyStartLevelResult(GameStartLevelEnvelope started)
@@ -76,7 +87,7 @@ namespace LanguageGame.Application
             if (started == null || !started.ok)
                 return;
 
-            SetLatestTotalSlices(started.totalSlices);
+            SetLatestWalletTotals(started.totalSlices, started.totalBackpackPieces);
 
             if (_bootstrap != null)
             {
@@ -96,7 +107,7 @@ namespace LanguageGame.Application
             if (completed == null || !completed.ok)
                 return;
 
-            SetLatestTotalSlices(completed.totalSlices);
+            SetLatestWalletTotals(completed.totalSlices, completed.totalBackpackPieces);
             InvalidateBootstrap("task-completed");
         }
 
@@ -105,7 +116,7 @@ namespace LanguageGame.Application
             if (finished == null || !finished.ok)
                 return;
 
-            SetLatestTotalSlices(finished.totalSlices);
+            SetLatestWalletTotals(finished.totalSlices, finished.totalBackpackPieces);
             InvalidateBootstrap("run-finished");
         }
 
@@ -115,7 +126,8 @@ namespace LanguageGame.Application
             _bootstrapUpdatedUtc = default;
             _bootstrapInvalidated = false;
             _latestTotalSlices = 0;
-            _hasLatestTotalSlices = false;
+            _latestTotalBackpackPieces = 0;
+            _hasLatestWalletTotals = false;
             _lastInvalidationReason = null;
         }
 
@@ -128,6 +140,7 @@ namespace LanguageGame.Application
             {
                 ok = source.ok,
                 totalSlices = source.totalSlices,
+                totalBackpackPieces = source.totalBackpackPieces,
                 levels = CloneLevels(source.levels),
                 activeRun = CloneActiveRun(source.activeRun),
             };

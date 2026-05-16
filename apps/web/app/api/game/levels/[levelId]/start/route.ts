@@ -38,6 +38,7 @@ export async function POST(request: Request, context: RouteContext) {
     levelSlug: result.levelSlug,
     displayName: result.displayName,
     totalSlices: result.totalSlices,
+    totalBackpackPieces: result.totalBackpackPieces,
     tasks: result.tasks,
     currentTaskOrderIndex: result.currentTaskOrderIndex,
   });

@@ -24,6 +24,7 @@ namespace LanguageGame.Presentation
         [SerializeField] private Text   levelTitleText;
         [SerializeField] private Text   taskDetailText;
         [SerializeField] private Text   pizzaSlicesText;
+        [SerializeField] private Text   backpackPiecesText;
 
         private GameObject           _backConfirmRoot;
         private Font                 _uiFont;
@@ -55,7 +56,7 @@ namespace LanguageGame.Presentation
 
         private void RefreshTaskUi()
         {
-            UpdatePizzaLabel();
+            UpdateWalletLabels();
 
             var flow = GameFlowController.Instance;
             if (flow == null)
@@ -206,7 +207,9 @@ namespace LanguageGame.Presentation
 
             _taskSubmitState = TaskSubmitState.Idle;
             flow.SetTotalPizzaSlices(done.totalSlices);
-            flow.ApplyServerTaskProgress(done.currentTaskOrderIndex, done.totalSlices, levelComplete: false);
+            flow.SetTotalBackpackPieces(done.totalBackpackPieces);
+            flow.ApplyServerTaskProgress(done.currentTaskOrderIndex, done.totalSlices,
+                done.totalBackpackPieces, levelComplete: false);
 
             if (done.levelComplete)
             {
@@ -253,6 +256,8 @@ namespace LanguageGame.Presentation
 
             _pendingFinishRunId = null;
             _taskSubmitState = TaskSubmitState.Idle;
+            GameFlowController.Instance?.SetTotalPizzaSlices(finishResult.totalSlices);
+            GameFlowController.Instance?.SetTotalBackpackPieces(finishResult.totalBackpackPieces);
             GameFlowController.Instance?.ClearServerLevelState();
             GameFlowController.Instance?.LoadCityMap();
         }
@@ -409,12 +414,15 @@ namespace LanguageGame.Presentation
             return _loadingOverlay.Ensure(canvas, t);
         }
 
-        private void UpdatePizzaLabel()
+        private void UpdateWalletLabels()
         {
-            var flow   = GameFlowController.Instance;
-            var slices = flow != null ? flow.TotalPizzaSlices : 0;
+            var flow     = GameFlowController.Instance;
+            var slices   = flow != null ? flow.TotalPizzaSlices : 0;
+            var backpack = flow != null ? flow.TotalBackpackPieces : 0;
             if (pizzaSlicesText != null)
                 pizzaSlicesText.text = $"Pizza slices: {slices}";
+            if (backpackPiecesText != null)
+                backpackPiecesText.text = $"Backpack pieces: {backpack}";
         }
 
         private static Button CreateDialogButton(Transform parent, string label, Vector2 anchoredPos,

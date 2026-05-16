@@ -38,6 +38,7 @@ namespace LanguageGame.Presentation
         [SerializeField] private GameObject lockVisualC;
 
         [SerializeField] private Text pizzaSlicesText;
+        [SerializeField] private Text backpackPiecesText;
 
         private GameBootstrapEnvelope _bootstrap;
         private GameProgressApiClient _gameApi;
@@ -60,14 +61,16 @@ namespace LanguageGame.Presentation
             _gameApi = FindGameApiOrLog();
             if (GameSessionStateStore.TryGetLatestTotalSlices(out var cachedSlices))
                 GameFlowController.Instance?.SetTotalPizzaSlices(cachedSlices);
-            RefreshPizzaLabel();
+            if (GameSessionStateStore.TryGetLatestTotalBackpackPieces(out var cachedBackpack))
+                GameFlowController.Instance?.SetTotalBackpackPieces(cachedBackpack);
+            RefreshWalletLabels();
 
             if (GameSessionStateStore.TryGetBootstrapSnapshot(out var cachedBootstrap))
             {
                 _bootstrap = cachedBootstrap;
                 _bootstrapState = BootstrapLoadState.Ready;
                 _pendingStartLevelRetry = null;
-                RefreshPizzaLabel();
+                RefreshWalletLabels();
                 RefreshLevelButtons();
             }
             else
@@ -165,7 +168,8 @@ namespace LanguageGame.Presentation
                 _bootstrap = env;
                 _pendingStartLevelRetry = null;
                 GameFlowController.Instance?.SetTotalPizzaSlices(env.totalSlices);
-                RefreshPizzaLabel();
+                GameFlowController.Instance?.SetTotalBackpackPieces(env.totalBackpackPieces);
+                RefreshWalletLabels();
                 RefreshLevelButtons();
             }
             finally
@@ -184,12 +188,16 @@ namespace LanguageGame.Presentation
             ApplySlot(levelButtonC, lockVisualC, levelSlugC, forceLocked: true);
         }
 
-        private void RefreshPizzaLabel()
+        private void RefreshWalletLabels()
         {
-            var slices = GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
-            var line = $"Pizza slices: {slices}";
+            var flow       = GameFlowController.Instance;
+            var slices     = flow != null ? flow.TotalPizzaSlices : 0;
+            var backpack   = flow != null ? flow.TotalBackpackPieces : 0;
+
             if (pizzaSlicesText != null)
-                pizzaSlicesText.text = line;
+                pizzaSlicesText.text = $"Pizza slices: {slices}";
+            if (backpackPiecesText != null)
+                backpackPiecesText.text = $"Backpack pieces: {backpack}";
         }
 
         private void RefreshLevelButtons()
@@ -328,13 +336,15 @@ namespace LanguageGame.Presentation
                 _startLevelState = StartLevelState.Idle;
 
                 GameFlowController.Instance.SetTotalPizzaSlices(started.totalSlices);
+                GameFlowController.Instance.SetTotalBackpackPieces(started.totalBackpackPieces);
                 GameFlowController.Instance.BeginServerLevel(
                     started.runId,
                     started.levelId,
                     started.displayName,
                     started.tasks,
                     started.currentTaskOrderIndex,
-                    started.totalSlices);
+                    started.totalSlices,
+                    started.totalBackpackPieces);
             }
             finally
             {

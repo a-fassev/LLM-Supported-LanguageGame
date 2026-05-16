@@ -19,6 +19,7 @@ namespace LanguageGame.Presentation
         [SerializeField] private Button avatarShopButton;
         [SerializeField] private Button logoutButton;
         [SerializeField] private Text pizzaSlicesText;
+        [SerializeField] private Text backpackPiecesText;
 
         private GameProgressApiClient _gameApi;
 
@@ -46,7 +47,9 @@ namespace LanguageGame.Presentation
 
             if (GameSessionStateStore.TryGetLatestTotalSlices(out var cachedSlices))
                 GameFlowController.Instance?.SetTotalPizzaSlices(cachedSlices);
-            RefreshPizzaLabel();
+            if (GameSessionStateStore.TryGetLatestTotalBackpackPieces(out var cachedBackpack))
+                GameFlowController.Instance?.SetTotalBackpackPieces(cachedBackpack);
+            RefreshWalletLabels();
 
             if (_gameApi == null)
                 return;
@@ -133,7 +136,8 @@ namespace LanguageGame.Presentation
                 _bootstrapState = BootstrapLoadState.Ready;
                 _loadErrorBanner.Hide();
                 GameFlowController.Instance?.SetTotalPizzaSlices(env.totalSlices);
-                RefreshPizzaLabel();
+                GameFlowController.Instance?.SetTotalBackpackPieces(env.totalBackpackPieces);
+                RefreshWalletLabels();
             }
             finally
             {
@@ -144,12 +148,14 @@ namespace LanguageGame.Presentation
             }
         }
 
-        private void RefreshPizzaLabel()
+        private void RefreshWalletLabels()
         {
-            if (pizzaSlicesText == null)
-                return;
-            var slices = GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
-            pizzaSlicesText.text = $"Pizza slices: {slices}";
+            var slices   = GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
+            var backpack = GameFlowController.Instance != null ? GameFlowController.Instance.TotalBackpackPieces : 0;
+            if (pizzaSlicesText != null)
+                pizzaSlicesText.text = $"Pizza slices: {slices}";
+            if (backpackPiecesText != null)
+                backpackPiecesText.text = $"Backpack pieces: {backpack}";
         }
 
         private void OnPlayClicked()

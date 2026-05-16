@@ -32,5 +32,8 @@ export async function POST(request: Request, context: RouteContext) {
     return jsonError(result.status, result.error, result.code);
   }
 
-  return jsonOk({ totalSlices: result.totalSlices });
+  return jsonOk({
+    totalSlices: result.totalSlices,
+    totalBackpackPieces: result.totalBackpackPieces,
+  });
 }
