@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f64788ab1234567890abcd, type: 3}
+  m_Name: chapter1
+  m_EditorClassIdentifier: Assembly-CSharp::LanguageGame.Presentation.UiDesignTokens
+  spacing:
+    xs: 4
+    s: 8
+    m: 16
+    l: 24
+    xl: 48
+  typography:
+    display:
+      font: {fileID: 0}
+      fontSize: 48
+    title:
+      font: {fileID: 0}
+      fontSize: 28
+    body:
+      font: {fileID: 0}
+      fontSize: 26
+    caption:
+      font: {fileID: 0}
+      fontSize: 22
+    small:
+      font: {fileID: 0}
+      fontSize: 18
+  palette:
+    background: {r: 0.2, g: 0.1, b: 0.08, a: 1}
+    surface: {r: 0.22, g: 0.14, b: 0.12, a: 1}
+    primary: {r: 0.92, g: 0.42, b: 0.18, a: 1}
+    primaryMuted: {r: 0.6, g: 0.32, b: 0.22, a: 0.9}
+    onPrimary: {r: 1, g: 1, b: 1, a: 1}
+    textPrimary: {r: 1, g: 0.96, b: 0.9, a: 1}
+    textSecondary: {r: 1, g: 0.85, b: 0.35, a: 1}
+    errorBackground: {r: 0.12, g: 0.02, b: 0.02, a: 0.94}
+    errorText: {r: 1, g: 0.85, b: 0.85, a: 1}
+    success: {r: 0.35, g: 0.72, b: 0.38, a: 1}
+    disabled: {r: 0.55, g: 0.55, b: 0.55, a: 0.95}
+    overlay: {r: 0, g: 0, b: 0, a: 0.55}
+    inputBackground: {r: 1, g: 1, b: 1, a: 0.12}
+    inputPlaceholder: {r: 1, g: 1, b: 1, a: 0.45}
+  interaction:
+    buttonNormal: {r: 0.92, g: 0.42, b: 0.18, a: 1}
+    buttonHighlighted: {r: 0.98, g: 0.52, b: 0.28, a: 1}
+    buttonPressed: {r: 0.72, g: 0.28, b: 0.1, a: 1}
+    buttonDisabled: {r: 0.55, g: 0.55, b: 0.55, a: 0.95}
+  layout:
+    bannerHeight: 120
+    dialogWidth: 520
+    dialogHeight: 240
+    dialogButtonWidth: 160
+    dialogButtonHeight: 44

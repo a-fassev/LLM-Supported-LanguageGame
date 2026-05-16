@@ -2,6 +2,7 @@ using System.Collections;
 using LanguageGame.Application;
 using LanguageGame.Presentation.Steps;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace LanguageGame.Presentation
@@ -9,9 +10,10 @@ namespace LanguageGame.Presentation
     public class QuestShellView : MonoBehaviour
     {
         private const string FinishQuestLabel = "Finish quest";
+        private const string ShellCutsceneNextLabel = "Next";
         private const string BackToChaptersLabel = "Back to chapters";
 
-        [SerializeField] private Button cityMapButton;
+        [FormerlySerializedAs("cityMapButton")] [SerializeField] private Button backToChaptersButton;
         [SerializeField] private Button nextTaskButton;
         [SerializeField] private Text   questTitleText;
         [SerializeField] private Text   taskDetailText;
@@ -40,8 +42,8 @@ namespace LanguageGame.Presentation
 
         private void Awake()
         {
-            if (cityMapButton == null)
-                Debug.LogWarning("[QuestShellView] cityMapButton is not assigned.");
+            if (backToChaptersButton == null)
+                Debug.LogWarning("[QuestShellView] backToChaptersButton is not assigned.");
             if (nextTaskButton == null)
                 Debug.LogWarning("[QuestShellView] nextTaskButton is not assigned.");
 
@@ -61,8 +63,8 @@ namespace LanguageGame.Presentation
             if (flow != null)
                 ChapterThemeRuntime.Apply(flow.SelectedChapterThemeJson);
 
-            cityMapButton?.onClick.AddListener(OnBackToChaptersClicked);
-            nextTaskButton?.onClick.AddListener(OnFinishQuestClicked);
+            backToChaptersButton?.onClick.AddListener(OnBackToChaptersClicked);
+            nextTaskButton?.onClick.AddListener(OnPrimaryChromeClicked);
             EnsureBackConfirmOverlay();
             EnsureRewardOverlay();
             RefreshStepUi();
@@ -79,7 +81,7 @@ namespace LanguageGame.Presentation
                 return;
             }
 
-            SetButtonLabel(cityMapButton, BackToChaptersLabel);
+            SetButtonLabel(backToChaptersButton, BackToChaptersLabel);
 
             if (!flow.IsServerQuestActive)
                 return;
@@ -90,6 +92,8 @@ namespace LanguageGame.Presentation
                     questTitleText.text = string.IsNullOrEmpty(flow.ServerQuestDisplayName) ? "Finishing quest" : flow.ServerQuestDisplayName;
                 if (taskDetailText != null)
                     taskDetailText.text = "Quest complete. Tap Finish quest to retry saving your completion.";
+                if (nextTaskButton != null)
+                    nextTaskButton.gameObject.SetActive(true);
                 SetButtonLabel(nextTaskButton, FinishQuestLabel);
                 if (nextTaskButton != null)
                     nextTaskButton.interactable = !_submitting && _gameApi != null;
@@ -102,6 +106,8 @@ namespace LanguageGame.Presentation
                     questTitleText.text = string.IsNullOrEmpty(flow.ServerQuestDisplayName) ? "Quest complete" : flow.ServerQuestDisplayName;
                 if (taskDetailText != null)
                     taskDetailText.text = string.Empty;
+                if (nextTaskButton != null)
+                    nextTaskButton.gameObject.SetActive(true);
                 SetButtonLabel(nextTaskButton, FinishQuestLabel);
                 if (nextTaskButton != null)
                     nextTaskButton.interactable = false;
@@ -120,8 +126,7 @@ namespace LanguageGame.Presentation
             }
 
             BindStep(step, flow);
-            if (nextTaskButton != null)
-                nextTaskButton.gameObject.SetActive(false);
+            ConfigureShellPrimaryChrome(step);
         }
 
         private void BindStep(GameQuestStepDto step, GameFlowController flow)
@@ -180,6 +185,7 @@ namespace LanguageGame.Presentation
                 totalSlices = flow.TotalPizzaSlices,
                 totalBackpackPieces = flow.TotalBackpackPieces,
                 suppressHostedBackChapterNavigation = true,
+                suppressHostedContinueNavigation = !step.isTask,
             }, OnStepRequest);
             _activeStepView.SetInteractable(!_submitting);
             SetRewardOverlayVisible(false);
@@ -245,10 +251,36 @@ namespace LanguageGame.Presentation
             StartCoroutine(AdvanceCutsceneRoutine(_boundStep.id));
         }
 
-        private void OnFinishQuestClicked()
+        private void OnPrimaryChromeClicked()
         {
-            if (!string.IsNullOrEmpty(_pendingFinishRunId) && !_submitting && _gameApi != null)
-                StartCoroutine(FinishPendingRunRoutine(_pendingFinishRunId));
+            if (!string.IsNullOrEmpty(_pendingFinishRunId))
+            {
+                if (!_submitting && _gameApi != null)
+                    StartCoroutine(FinishPendingRunRoutine(_pendingFinishRunId));
+                return;
+            }
+
+            if (_boundStep != null && _boundStep.isTask)
+                return;
+
+            OnStepRequest(new StepCompletionRequest { requestComplete = true });
+        }
+
+        /// <summary>Shell Next is only visible for cutscenes; tasks keep their Check button inside the step.</summary>
+        private void ConfigureShellPrimaryChrome(GameQuestStepDto step)
+        {
+            if (nextTaskButton == null || step == null)
+                return;
+
+            if (step.isTask)
+            {
+                nextTaskButton.gameObject.SetActive(false);
+                return;
+            }
+
+            nextTaskButton.gameObject.SetActive(true);
+            SetButtonLabel(nextTaskButton, ShellCutsceneNextLabel);
+            nextTaskButton.interactable = !_submitting && _gameApi != null;
         }
 
         private IEnumerator CompleteServerTaskRoutine(string taskStepId)
@@ -499,7 +531,7 @@ namespace LanguageGame.Presentation
 
             var flow    = GameFlowController.Instance;
             var message = flow != null && flow.IsServerQuestActive
-                ? "Progress is saved after each task. You can resume this quest later from chapters. Leave now?"
+                ? "Progress is saved on the server after each step. You can resume this quest later from chapters. Leave now?"
                 : "Leaving now will discard your progress on this quest. Do you want to go back to chapters?";
 
             var messageGo = new GameObject("Message", typeof(RectTransform));
@@ -601,8 +633,8 @@ namespace LanguageGame.Presentation
 
         private void OnDestroy()
         {
-            cityMapButton?.onClick.RemoveListener(OnBackToChaptersClicked);
-            nextTaskButton?.onClick.RemoveListener(OnFinishQuestClicked);
+            backToChaptersButton?.onClick.RemoveListener(OnBackToChaptersClicked);
+            nextTaskButton?.onClick.RemoveListener(OnPrimaryChromeClicked);
             TeardownBoundStep();
             _loadingOverlay.Destroy();
         }

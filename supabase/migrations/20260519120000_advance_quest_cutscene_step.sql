@@ -106,6 +106,7 @@ begin
 
   return jsonb_build_object(
     'ok', true,
+    'awarded_slices', 0,
     'total_slices', v_slices,
     'total_backpack_pieces', v_backpack,
     'awarded_backpack_pieces', 0,

@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   return jsonOk({
     totalSlices: result.totalSlices,
     totalBackpackPieces: result.totalBackpackPieces,
-    levels: result.levels,
+    chapters: result.chapters,
     ...(result.activeRun ? { activeRun: result.activeRun } : {}),
   });
 }

@@ -53,6 +53,7 @@ export type WalletTotals = {
 export type RpcCompleteQuestStepTaskResult =
   | {
       ok: true;
+      awardedSlices: number;
       totalSlices: number;
       totalBackpackPieces: number;
       awardedBackpackPieces: number;
@@ -376,13 +377,13 @@ export async function rpcCompleteQuestStepTask(
   accountId: string,
   runId: string,
   stepId: string,
-  awardedSlices: number,
 ): Promise<RpcCompleteQuestStepTaskResult> {
   const { data, error } = await admin().rpc("complete_quest_step_task", {
     p_account_id: accountId,
     p_run_id: runId,
     p_step_id: stepId,
-    p_awarded_slices: awardedSlices,
+    // Fourth arg matches PostgREST-exposed overload; Postgres ignores this and derives pizza from reward_rules.
+    p_awarded_slices: 0,
   });
 
   if (error) {
@@ -423,6 +424,7 @@ export async function rpcCompleteQuestStepTask(
 
   return {
     ok: true,
+    awardedSlices: coerceInt(row.awarded_slices, 0),
     totalSlices: coerceInt(row.total_slices, 0),
     totalBackpackPieces: coerceInt(row.total_backpack_pieces, 0),
     awardedBackpackPieces: coerceInt(row.awarded_backpack_pieces, 0),
@@ -483,6 +485,7 @@ export async function rpcAdvanceQuestCutsceneStep(
 
   return {
     ok: true,
+    awardedSlices: coerceInt(row.awarded_slices, 0),
     totalSlices: coerceInt(row.total_slices, 0),
     totalBackpackPieces: coerceInt(row.total_backpack_pieces, 0),
     awardedBackpackPieces: coerceInt(row.awarded_backpack_pieces, 0),

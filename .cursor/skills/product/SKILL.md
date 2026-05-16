@@ -24,9 +24,9 @@ Canonical **technical** contracts live in `AGENTS.md`; **task-type orientation**
 
 ### World and flow
 
-- **City map** as the main hub—not a free-roam character hub.
-- **Pins** on the map; **visibility** follows **progress / level**.
-- **Tap a pin** to start a **quest**; quests **chain** (finishing one unlocks the next).
+- **Chapter overview** as the main hub—not a free-roam character hub.
+- **Chapter cards/buttons** drive progression visibility via unlock rules.
+- **Tap a chapter** to open quest overview, then start a **quest**; quests **chain** (finishing one unlocks the next).
 
 ### Mascot and motivation
 
@@ -34,7 +34,7 @@ Canonical **technical** contracts live in `AGENTS.md`; **task-type orientation**
 - **Rewards (reference: Essen project)** — distinct roles for children and copy:
   - **Pizza slices (~0–3 per task outcome):** **Practice / encouragement** loot—shows performance in the moment, supports unlocking **mascot skins** in the avatar shop, and can recur when learners **replay** the same tasks so repetition still feels supported.
   - **Backpack pieces:** **Milestone / mastery** loot—conceptually tied to **first-time success on a distinct task**, not infinite grinding on repeats. Messaging and tutorials must not imply endless backpack gains from redoing one activity forever.
-  - **Where totals appear:** show balances on **CityMap**, inside **quests (level shell)**, and in **AvatarShop**; keep the **main menu** visually light (players land there to continue—full wallet HUD belongs with exploration/customization flows).
+  - **Where totals appear:** show balances on **ChapterOverview**, inside **quests (quest shell)**, and in **AvatarShop**; keep the **main menu** visually light (players land there to continue—full wallet HUD belongs with exploration/customization flows).
   - Optional **expressions** by situation remain nice-to-have.
 - **Visual direction** (not final): e.g. **lion** (Bologna) or neutral **boy/girl** school-trip style.
 

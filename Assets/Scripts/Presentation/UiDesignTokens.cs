@@ -42,7 +42,7 @@ namespace LanguageGame.Presentation
         [Serializable]
         public class TypographyStyle
         {
-            [Tooltip("Leave null to fall back to LegacyRuntime.ttf at runtime.")]
+            [Tooltip("Leave null to use runtime fallback font resolution.")]
             public Font font;
             public int fontSize = 26;
         }

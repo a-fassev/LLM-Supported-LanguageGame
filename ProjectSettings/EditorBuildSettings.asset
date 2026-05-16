@@ -6,19 +6,25 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Boot.unity
+    guid: c16c2f0db16f4999a8c351959cd782b3
+  - enabled: 1
     path: Assets/Scenes/Auth.unity
     guid: 8a9b0c1d2e3f4051a2b3c4d5e6f70819
   - enabled: 1
     path: Assets/Scenes/MainMenu.unity
     guid: 72861c7be79244643bf8498b81d7eeb8
   - enabled: 1
-    path: Assets/Scenes/CityMap.unity
-    guid: d60dc80ae2aca46419e9795ddb492fbf
+    path: Assets/Scenes/ChapterOverview.unity
+    guid: a93ec9b3c3284dbebb90d6f24f91a9cc
+  - enabled: 1
+    path: Assets/Scenes/QuestOverview.unity
+    guid: 6b7ea09eb7184700b13f73df9fdf7385
   - enabled: 1
     path: Assets/Scenes/AvatarShop.unity
     guid: e1f2a3b4c5d64758697a8b9c0d1e2f3a
   - enabled: 1
-    path: Assets/Scenes/Level.unity
+    path: Assets/Scenes/Quest.unity
     guid: d0e1f2a3b4c55677889900aabbccddee
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

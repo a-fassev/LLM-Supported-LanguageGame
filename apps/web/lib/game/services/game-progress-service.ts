@@ -1,4 +1,3 @@
-import { randomPizzaSliceAward } from "@/lib/game/mock-scoring";
 import {
   abandonAllInProgressRunsForAccount,
   bucketQuestsByChapterId,
@@ -60,6 +59,10 @@ export type GameChapterClientDto = {
   quests: GameQuestClientDto[];
 };
 
+/**
+ * Mirrors `player_quest_runs`: `currentStepOrderIndex` is the pending step ordinal;
+ * `currentTaskOrderIndex` counts finished task steps (cutscene advances do not bump it).
+ */
 export type ActiveQuestRunClientDto = {
   runId: string;
   chapterId: string;
@@ -91,7 +94,9 @@ export type StartQuestResult =
       totalSlices: number;
       totalBackpackPieces: number;
       steps: GameQuestStepDto[];
+      /** Ordinal of upcoming step among active ordered steps (cutscenes + tasks). */
       currentStepOrderIndex: number;
+      /** Count of successfully completed tasks in this run (not incremented by cutscene advance). */
       currentTaskOrderIndex: number;
     }
   | { ok: false; status: number; error: string; code?: string };
@@ -117,6 +122,7 @@ export type FinishRunResult =
   | { ok: true; totalSlices: number; totalBackpackPieces: number }
   | { ok: false; status: number; error: string; code?: string };
 
+/** Run snapshot for resume; step/task index semantics match ActiveQuestRunClientDto. */
 export type GetRunResult =
   | {
       ok: true;
@@ -461,8 +467,7 @@ export async function completeQuestStepTask(
   runId: string,
   stepId: string,
 ): Promise<CompleteStepTaskResult> {
-  const awarded = randomPizzaSliceAward();
-  const rpc = await rpcCompleteQuestStepTask(accountId, runId, stepId, awarded);
+  const rpc = await rpcCompleteQuestStepTask(accountId, runId, stepId);
   if (!rpc.ok) {
     if (rpc.code === "rpc_transport_error" || rpc.code === "rpc_payload_error") {
       console.error("[game-progress] completeQuestStepTask RPC failure", rpc.code, rpc.error);
@@ -476,7 +481,7 @@ export async function completeQuestStepTask(
   }
   return {
     ok: true,
-    awardedSlices: awarded,
+    awardedSlices: rpc.awardedSlices,
     awardedBackpackPieces: rpc.awardedBackpackPieces,
     totalSlices: rpc.totalSlices,
     totalBackpackPieces: rpc.totalBackpackPieces,

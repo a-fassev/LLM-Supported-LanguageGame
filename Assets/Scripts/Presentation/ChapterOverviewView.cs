@@ -11,6 +11,7 @@ namespace LanguageGame.Presentation
     public sealed class ChapterOverviewView : MonoBehaviour
     {
         [SerializeField] private Button backToMenuButton;
+        [SerializeField] private Button avatarShopButton;
         [SerializeField] private Button chapterButtonA;
         [SerializeField] private Text chapterLabelA;
         [SerializeField] private Button chapterButtonB;
@@ -32,6 +33,7 @@ namespace LanguageGame.Presentation
         private void Start()
         {
             backToMenuButton?.onClick.AddListener(OnBackToMenuClicked);
+            avatarShopButton?.onClick.AddListener(OnAvatarShopClicked);
             chapterButtonA?.onClick.AddListener(() => OnChapterClicked(0));
             chapterButtonB?.onClick.AddListener(() => OnChapterClicked(1));
             chapterButtonC?.onClick.AddListener(() => OnChapterClicked(2));
@@ -63,6 +65,8 @@ namespace LanguageGame.Presentation
             RefreshUi();
             EnsureUnlockModal();
         }
+
+        private void RefreshUi()
         {
             if (titleText != null)
                 titleText.text = "Choose chapter";
@@ -133,9 +137,21 @@ namespace LanguageGame.Presentation
             GameFlowController.Instance?.LoadMainMenu();
         }
 
+        private void OnAvatarShopClicked()
+        {
+            var flow = GameFlowController.Instance;
+            if (flow == null)
+            {
+                Debug.LogError("[ChapterOverviewView] GameFlowController not found.");
+                return;
+            }
+            flow.LoadAvatarShopFromChapterOverview();
+        }
+
         private void OnDestroy()
         {
             backToMenuButton?.onClick.RemoveListener(OnBackToMenuClicked);
+            avatarShopButton?.onClick.RemoveListener(OnAvatarShopClicked);
             chapterButtonA?.onClick.RemoveAllListeners();
             chapterButtonB?.onClick.RemoveAllListeners();
             chapterButtonC?.onClick.RemoveAllListeners();
@@ -197,6 +213,9 @@ namespace LanguageGame.Presentation
 
             if (backToMenuButton == null)
                 backToMenuButton = CreateButton("BackToMenuButton", canvas.transform, "Back to menu", new Vector2(0.04f, 0.04f), new Vector2(0.22f, 0.11f));
+
+            if (avatarShopButton == null)
+                avatarShopButton = CreateButton("AvatarShopButton", canvas.transform, "Avatar shop", new Vector2(0.78f, 0.84f), new Vector2(0.96f, 0.92f));
 
             if (chapterButtonA == null || chapterLabelA == null)
                 chapterButtonA = CreateButtonWithLabel("ChapterButtonA", canvas.transform, out chapterLabelA, new Vector2(0.2f, 0.56f), new Vector2(0.8f, 0.68f));

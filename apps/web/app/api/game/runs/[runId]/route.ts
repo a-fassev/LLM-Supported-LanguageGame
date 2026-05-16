@@ -34,13 +34,15 @@ export async function GET(request: Request, context: RouteContext) {
 
   return jsonOk({
     runId: result.runId,
-    levelId: result.levelId,
-    levelSlug: result.levelSlug,
+    chapterId: result.chapterId,
+    questId: result.questId,
+    questSlug: result.questSlug,
     displayName: result.displayName,
     status: result.status,
     totalSlices: result.totalSlices,
     totalBackpackPieces: result.totalBackpackPieces,
-    tasks: result.tasks,
+    steps: result.steps,
+    currentStepOrderIndex: result.currentStepOrderIndex,
     currentTaskOrderIndex: result.currentTaskOrderIndex,
   });
 }

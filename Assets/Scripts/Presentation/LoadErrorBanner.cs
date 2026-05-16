@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace LanguageGame.Presentation
 {
     /// <summary>
-    /// Runtime-built bottom banner (message + Retry). Used for bootstrap, start-level, and other load failures.
+    /// Runtime-built bottom banner (message + Retry). Used for bootstrap, start-quest, and other load failures.
     /// Call <see cref="Ensure"/> once to build the widget, then <see cref="Show"/>/<see cref="Hide"/> as needed.
     /// </summary>
     public sealed class LoadErrorBanner
@@ -37,11 +37,11 @@ namespace LanguageGame.Presentation
 
             var font = tokens != null
                 ? UiTokenApplier.ResolveFont(tokens.typography.caption)
-                : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                : UiTokenApplier.ResolveFallbackFont();
 
             if (font == null)
             {
-                Debug.LogError("[LoadErrorBanner] No font available (LegacyRuntime.ttf missing).");
+                Debug.LogError("[LoadErrorBanner] No fallback font available.");
                 return;
             }
 

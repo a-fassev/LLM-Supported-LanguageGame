@@ -24,6 +24,9 @@ namespace LanguageGame.Presentation.Steps
         /// <summary>Hides in-step navigation when QuestShell chrome already exposes it.</summary>
         public bool suppressHostedBackChapterNavigation;
 
+        /// <summary>Hides Continue/Next on the cutscene canvas when QuestShell exposes the shell Next button.</summary>
+        public bool suppressHostedContinueNavigation;
+
         public bool IsTask => string.Equals(stepKind, "task", StringComparison.OrdinalIgnoreCase);
         public int StepNumberOneBased => stepIndexZeroBased + 1;
     }

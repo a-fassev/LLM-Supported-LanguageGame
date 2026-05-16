@@ -28,14 +28,6 @@ namespace LanguageGame.Application
         private string _selectedChapterThemeJson;
         private GameQuestBootstrapDto[] _selectedChapterQuests;
 
-        private enum AvatarShopReturnTarget
-        {
-            MainMenu,
-            ChapterOverview
-        }
-
-        private AvatarShopReturnTarget _avatarShopReturnTarget = AvatarShopReturnTarget.MainMenu;
-
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -90,26 +82,15 @@ namespace LanguageGame.Application
         public string SelectedChapterThemeJson => _selectedChapterThemeJson ?? string.Empty;
         public GameQuestBootstrapDto[] SelectedChapterQuests => _selectedChapterQuests;
 
-        public void LoadAvatarShopFromMainMenu()
-        {
-            _avatarShopReturnTarget = AvatarShopReturnTarget.MainMenu;
-            ClearAllQuestState();
-            LoadScene(SceneAvatarShop);
-        }
-
         public void LoadAvatarShopFromChapterOverview()
         {
-            _avatarShopReturnTarget = AvatarShopReturnTarget.ChapterOverview;
             ClearAllQuestState();
             LoadScene(SceneAvatarShop);
         }
 
         public void ReturnFromAvatarShop()
         {
-            if (_avatarShopReturnTarget == AvatarShopReturnTarget.ChapterOverview)
-                LoadChapterOverview();
-            else
-                LoadMainMenu();
+            LoadChapterOverview();
         }
 
         /// <summary>Opens the game scene for a server-backed quest run (steps + progression from API).</summary>
@@ -165,6 +146,7 @@ namespace LanguageGame.Application
                 ClearServerQuestState();
         }
 
+        public bool TryGetCurrentServerStep(out GameQuestStepDto step)
         {
             step = null;
             if (_serverSteps == null || _serverStepOrderIndex < 0 || _serverStepOrderIndex >= _serverSteps.Length)
@@ -184,17 +166,32 @@ namespace LanguageGame.Application
             return true;
         }
 
+        /// <summary>1-based ordinal of current step among all steps (tasks + cutscenes).</summary>
         public int ServerCurrentStepNumberOneBased =>
             _serverSteps == null ? 0 : Mathf.Clamp(_serverStepOrderIndex + 1, 1, _serverSteps.Length);
 
+        /// <summary>Total ordered steps loaded for this quest run (tasks and cutscenes).</summary>
         public int ServerStepCount => _serverSteps?.Length ?? 0;
 
-        public int ServerCurrentTaskNumberOneBased =>
-            Mathf.Max(0, _serverTaskOrderIndex + 1);
-
-        public int ServerTaskCount => _serverSteps == null ? 0 : _serverSteps.Length;
+        /// <summary>Number of playable task steps in this quest payload (excludes cutscene steps).</summary>
+        public int ServerQualifiedTaskStepCount => CountTaskOnlySteps(_serverSteps);
 
         public string ServerQuestDisplayName => _serverQuestDisplayName ?? string.Empty;
+
+        private static int CountTaskOnlySteps(GameQuestStepDto[] steps)
+        {
+            if (steps == null || steps.Length == 0)
+                return 0;
+
+            var n = 0;
+            foreach (var s in steps)
+            {
+                if (s != null && s.isTask)
+                    n++;
+            }
+
+            return n;
+        }
 
         private void ClearAllQuestState()
         {

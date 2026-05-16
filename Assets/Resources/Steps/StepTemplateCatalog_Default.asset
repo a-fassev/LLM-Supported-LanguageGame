@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a59ea56b635d4c329177ec8b3d411001, type: 3}
+  m_Name: StepTemplateCatalog_Default
+  m_EditorClassIdentifier: Assembly-CSharp::LanguageGame.Presentation.Steps.StepTemplateCatalog
+  entries:
+  - templateKey: cutscene.default
+    taskType: 
+    prefab: {fileID: 100000, guid: 34cfa74572bb47efb5137c7f8f812111, type: 3}
+  - templateKey: task.error-spotting
+    taskType: ErrorSpotting
+    prefab: {fileID: 101000, guid: 6dc38bb4f33445f8b6b2cf73431f3001, type: 3}
+  - templateKey: task.drag-drop
+    taskType: DragDrop
+    prefab: {fileID: 103000, guid: 6dc38bb4f33445f8b6b2cf73431f3003, type: 3}
+  - templateKey: task.cloze-text
+    taskType: ClozeText
+    prefab: {fileID: 102000, guid: 6dc38bb4f33445f8b6b2cf73431f3002, type: 3}
+  - templateKey: task.matching
+    taskType: Matching
+    prefab: {fileID: 104000, guid: 6dc38bb4f33445f8b6b2cf73431f3004, type: 3}
+  - templateKey: task.multiple-choice
+    taskType: MultipleChoice
+    prefab: {fileID: 105000, guid: 6dc38bb4f33445f8b6b2cf73431f3005, type: 3}
+  - templateKey: task.free-text
+    taskType: FreeText
+    prefab: {fileID: 106000, guid: 6dc38bb4f33445f8b6b2cf73431f3006, type: 3}
+  - templateKey: task.relative-clause
+    taskType: RelativeClause
+    prefab: {fileID: 107000, guid: 6dc38bb4f33445f8b6b2cf73431f3007, type: 3}

@@ -16,7 +16,6 @@ namespace LanguageGame.Presentation
         }
 
         [SerializeField] private Button playButton;
-        [SerializeField] private Button avatarShopButton;
         [SerializeField] private Button logoutButton;
 
         private GameProgressApiClient _gameApi;
@@ -30,8 +29,6 @@ namespace LanguageGame.Presentation
         {
             if (playButton == null)
                 Debug.LogWarning("[MainMenuView] playButton is not assigned.");
-            if (avatarShopButton == null)
-                Debug.LogWarning("[MainMenuView] avatarShopButton is not assigned.");
             if (logoutButton == null)
                 Debug.LogWarning("[MainMenuView] logoutButton is not assigned.");
         }
@@ -39,7 +36,6 @@ namespace LanguageGame.Presentation
         private void Start()
         {
             playButton?.onClick.AddListener(OnPlayClicked);
-            avatarShopButton?.onClick.AddListener(OnAvatarShopClicked);
             logoutButton?.onClick.AddListener(OnLogoutClicked);
             _gameApi = FindAnyObjectByType<GameProgressApiClient>();
 
@@ -65,6 +61,8 @@ namespace LanguageGame.Presentation
         {
             var canvas = GetComponentInParent<Canvas>();
             if (canvas == null)
+                canvas = FindAnyObjectByType<Canvas>();
+            if (canvas == null)
             {
                 Debug.LogError("[MainMenuView] No Canvas in parent hierarchy; load error banner cannot be created.");
                 return;
@@ -77,6 +75,8 @@ namespace LanguageGame.Presentation
         private bool EnsureLoadingOverlay()
         {
             var canvas = GetComponentInParent<Canvas>();
+            if (canvas == null)
+                canvas = FindAnyObjectByType<Canvas>();
             if (canvas == null)
             {
                 Debug.LogError("[MainMenuView] No Canvas in parent hierarchy; loading overlay cannot be created.");
@@ -100,8 +100,13 @@ namespace LanguageGame.Presentation
             EnsureMenuErrorBanner();
             var overlayReady = EnsureLoadingOverlay();
             _loadErrorBanner.SetRetryInteractable(false);
-            if (showBlockingOverlay && !_loadingOverlay.Show("Loading game data...") && !overlayReady)
-                Debug.LogWarning("[MainMenuView] Blocking loading overlay unavailable; continuing with inline loading state.");
+            if (showBlockingOverlay)
+            {
+                if (overlayReady)
+                    _loadingOverlay.Show("Loading game data...");
+                else
+                    Debug.LogWarning("[MainMenuView] Blocking loading overlay unavailable; continuing with inline loading state.");
+            }
 
             try
             {
@@ -151,17 +156,7 @@ namespace LanguageGame.Presentation
                 Debug.LogError("[MainMenuView] GameFlowController not found.");
                 return;
             }
-            GameFlowController.Instance.LoadCityMap();
-        }
-
-        private void OnAvatarShopClicked()
-        {
-            if (GameFlowController.Instance == null)
-            {
-                Debug.LogError("[MainMenuView] GameFlowController not found.");
-                return;
-            }
-            GameFlowController.Instance.LoadAvatarShopFromMainMenu();
+            GameFlowController.Instance.LoadChapterOverview();
         }
 
         private void OnLogoutClicked()
@@ -196,7 +191,6 @@ namespace LanguageGame.Presentation
         private void OnDestroy()
         {
             playButton?.onClick.RemoveListener(OnPlayClicked);
-            avatarShopButton?.onClick.RemoveListener(OnAvatarShopClicked);
             logoutButton?.onClick.RemoveListener(OnLogoutClicked);
             _loadErrorBanner.Destroy();
             _loadingOverlay.Destroy();

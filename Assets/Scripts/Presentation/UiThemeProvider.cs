@@ -49,5 +49,12 @@ namespace LanguageGame.Presentation
             tokens = Instance != null ? Instance._tokens : null;
             return tokens != null;
         }
+
+        public static void SetTokens(UiDesignTokens tokens)
+        {
+            if (Instance == null || tokens == null)
+                return;
+            Instance._tokens = tokens;
+        }
     }
 }

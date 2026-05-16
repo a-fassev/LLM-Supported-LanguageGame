@@ -55,7 +55,9 @@ namespace LanguageGame.Application
         public string chapterId;
         public string questId;
         public string questSlug;
+        /// <summary>0-based ordinal of pending step among active ordered quest steps.</summary>
         public int currentStepOrderIndex;
+        /// <summary>Completed task-step count this run (cutscene advance does not increase this).</summary>
         public int currentTaskOrderIndex;
         public int stepCount;
     }
@@ -82,7 +84,9 @@ namespace LanguageGame.Application
         public int totalSlices;
         public int totalBackpackPieces;
         public GameQuestStepDto[] steps;
+        /// <summary>0-based ordinal of upcoming step (cutscenes + tasks).</summary>
         public int currentStepOrderIndex;
+        /// <summary>Count of fully completed task steps; not bumped by cutscene advance.</summary>
         public int currentTaskOrderIndex;
         public string error;
     }

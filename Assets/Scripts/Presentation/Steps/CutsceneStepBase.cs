@@ -11,17 +11,16 @@ namespace LanguageGame.Presentation.Steps
         [SerializeField] private Button continueButton;
 
         private Action<StepCompletionRequest> _onRequest;
-
-        private void Awake()
-        {
-            EnsureRuntimeFallback();
-            if (continueButton != null)
-                continueButton.onClick.AddListener(OnContinueClicked);
-        }
+        private bool _suppressHostedContinue;
 
         public void Bind(StepContext context, Action<StepCompletionRequest> onRequest)
         {
+            _suppressHostedContinue = context?.suppressHostedContinueNavigation ?? false;
             _onRequest = onRequest;
+
+            EnsureRuntimeFallback();
+            ApplyContinueChrome();
+
             if (titleText != null)
                 titleText.text = "Cutscene";
 
@@ -33,7 +32,9 @@ namespace LanguageGame.Presentation.Steps
 
         public void SetInteractable(bool interactable)
         {
-            if (continueButton != null)
+            if (continueButton != null &&
+                !_suppressHostedContinue &&
+                continueButton.gameObject.activeSelf)
                 continueButton.interactable = interactable;
         }
 
@@ -55,9 +56,6 @@ namespace LanguageGame.Presentation.Steps
 
         private void EnsureRuntimeFallback()
         {
-            if (titleText != null && bodyText != null && continueButton != null)
-                return;
-
             var root = GetComponent<RectTransform>();
             if (root == null)
                 root = gameObject.AddComponent<RectTransform>();
@@ -65,9 +63,8 @@ namespace LanguageGame.Presentation.Steps
             titleText ??= CreateText("Title", root, new Vector2(0.05f, 0.8f), new Vector2(0.95f, 0.95f), 34, FontStyle.Bold);
             bodyText ??= CreateText("Body", root, new Vector2(0.08f, 0.25f), new Vector2(0.92f, 0.75f), 24, FontStyle.Normal);
 
-            if (continueButton == null)
+            if (continueButton == null && !_suppressHostedContinue)
             {
-                // Match Quest scene primary left-strip CTA sizing (avoid overlap with shell back button)
                 var buttonGo = CreateButton("ContinueButton", root, new Vector2(0.05f, 0.06f), new Vector2(0.32f, 0.16f), "Next",
                     out var label);
                 continueButton = buttonGo.GetComponent<Button>();
@@ -77,6 +74,19 @@ namespace LanguageGame.Presentation.Steps
                     label.fontSize = 24;
                 }
             }
+        }
+
+        private void ApplyContinueChrome()
+        {
+            if (continueButton == null)
+                return;
+
+            continueButton.gameObject.SetActive(!_suppressHostedContinue);
+            continueButton.interactable = !_suppressHostedContinue;
+
+            continueButton.onClick.RemoveListener(OnContinueClicked);
+            if (!_suppressHostedContinue)
+                continueButton.onClick.AddListener(OnContinueClicked);
         }
 
         private static Text CreateText(string name, RectTransform parent, Vector2 anchorMin, Vector2 anchorMax,
