@@ -6,35 +6,58 @@ namespace LanguageGame.Application
     /// JSON DTOs for the /api/game/* contract (JsonUtility-friendly field names).
     /// </summary>
     [Serializable]
-    public class GameTaskBootstrapDto
+    public class GameQuestStepDto
     {
         public string id;
         public int orderIndex;
+        public string stepKind;
         public string taskType;
-        public string placeholderLabel;
+        public string templateKey;
+        public string logicalTaskKey;
+        public string contentJson;
+        public string rewardRulesJson;
+        public bool isTask;
     }
 
     [Serializable]
-    public class GameLevelBootstrapDto
+    public class GameQuestBootstrapDto
+    {
+        public string id;
+        public string chapterId;
+        public string slug;
+        public string displayName;
+        public int orderIndex;
+        public bool isUnlocked;
+        public bool hasCompletedAnyRun;
+        /// <summary>Non-empty when locked; UX overlay text.</summary>
+        public string unlockHint;
+        public GameQuestStepDto[] steps;
+    }
+
+    [Serializable]
+    public class GameChapterBootstrapDto
     {
         public string id;
         public string slug;
         public string displayName;
         public int orderIndex;
-        public int requiredTotalSlices;
+        public string themeJson;
+        /// <summary>Sequential unlock: gated until every quest in previous chapter finished.</summary>
         public bool isUnlocked;
-        public bool hasCompletedAnyRun;
-        public GameTaskBootstrapDto[] tasks;
+        public string unlockHint;
+        public GameQuestBootstrapDto[] quests;
     }
 
     [Serializable]
-    public class GameActiveRunDto
+    public class GameActiveQuestRunDto
     {
         public string runId;
-        public string levelId;
-        public string levelSlug;
+        public string chapterId;
+        public string questId;
+        public string questSlug;
+        public int currentStepOrderIndex;
         public int currentTaskOrderIndex;
-        public int taskCount;
+        public int stepCount;
     }
 
     [Serializable]
@@ -43,21 +66,23 @@ namespace LanguageGame.Application
         public bool ok;
         public int totalSlices;
         public int totalBackpackPieces;
-        public GameLevelBootstrapDto[] levels;
-        public GameActiveRunDto activeRun;
+        public GameChapterBootstrapDto[] chapters;
+        public GameActiveQuestRunDto activeRun;
     }
 
     [Serializable]
-    public class GameStartLevelEnvelope
+    public class GameStartQuestEnvelope
     {
         public bool ok;
         public string runId;
-        public string levelId;
-        public string levelSlug;
+        public string chapterId;
+        public string questId;
+        public string questSlug;
         public string displayName;
         public int totalSlices;
         public int totalBackpackPieces;
-        public GameTaskBootstrapDto[] tasks;
+        public GameQuestStepDto[] steps;
+        public int currentStepOrderIndex;
         public int currentTaskOrderIndex;
         public string error;
     }
@@ -70,9 +95,10 @@ namespace LanguageGame.Application
         public int awardedBackpackPieces;
         public int totalSlices;
         public int totalBackpackPieces;
-        public bool levelComplete;
+        public bool questComplete;
+        public int currentStepOrderIndex;
         public int currentTaskOrderIndex;
-        public string currentTaskId;
+        public string nextTaskStepId;
         public string error;
     }
 

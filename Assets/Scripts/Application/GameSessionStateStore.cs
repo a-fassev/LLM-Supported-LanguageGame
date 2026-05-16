@@ -82,7 +82,7 @@ namespace LanguageGame.Application
             return _hasLatestWalletTotals;
         }
 
-        public static void ApplyStartLevelResult(GameStartLevelEnvelope started)
+        public static void ApplyStartQuestResult(GameStartQuestEnvelope started)
         {
             if (started == null || !started.ok)
                 return;
@@ -91,13 +91,15 @@ namespace LanguageGame.Application
 
             if (_bootstrap != null)
             {
-                _bootstrap.activeRun = new GameActiveRunDto
+                _bootstrap.activeRun = new GameActiveQuestRunDto
                 {
                     runId = started.runId,
-                    levelId = started.levelId,
-                    levelSlug = started.levelSlug,
+                    chapterId = started.chapterId,
+                    questId = started.questId,
+                    questSlug = started.questSlug,
+                    currentStepOrderIndex = started.currentStepOrderIndex,
                     currentTaskOrderIndex = started.currentTaskOrderIndex,
-                    taskCount = started.tasks != null ? started.tasks.Length : 0,
+                    stepCount = started.steps != null ? started.steps.Length : 0,
                 };
             }
         }
@@ -141,73 +143,108 @@ namespace LanguageGame.Application
                 ok = source.ok,
                 totalSlices = source.totalSlices,
                 totalBackpackPieces = source.totalBackpackPieces,
-                levels = CloneLevels(source.levels),
+                chapters = CloneChapters(source.chapters),
                 activeRun = CloneActiveRun(source.activeRun),
             };
         }
 
-        private static GameLevelBootstrapDto[] CloneLevels(GameLevelBootstrapDto[] source)
+        private static GameChapterBootstrapDto[] CloneChapters(GameChapterBootstrapDto[] source)
         {
             if (source == null)
                 return null;
 
-            var copy = new GameLevelBootstrapDto[source.Length];
+            var copy = new GameChapterBootstrapDto[source.Length];
             for (var i = 0; i < source.Length; i++)
             {
-                var level = source[i];
-                if (level == null)
+                var chapter = source[i];
+                if (chapter == null)
                     continue;
-                copy[i] = new GameLevelBootstrapDto
+                copy[i] = new GameChapterBootstrapDto
                 {
-                    id = level.id,
-                    slug = level.slug,
-                    displayName = level.displayName,
-                    orderIndex = level.orderIndex,
-                    requiredTotalSlices = level.requiredTotalSlices,
-                    isUnlocked = level.isUnlocked,
-                    hasCompletedAnyRun = level.hasCompletedAnyRun,
-                    tasks = CloneTasks(level.tasks),
+                    id = chapter.id,
+                    slug = chapter.slug,
+                    displayName = chapter.displayName,
+                    orderIndex = chapter.orderIndex,
+                    themeJson = chapter.themeJson,
+                    isUnlocked = chapter.isUnlocked,
+                    unlockHint = chapter.unlockHint,
+                    quests = CloneQuests(chapter.quests),
                 };
             }
 
             return copy;
         }
 
-        private static GameTaskBootstrapDto[] CloneTasks(GameTaskBootstrapDto[] source)
+        private static GameQuestBootstrapDto[] CloneQuests(GameQuestBootstrapDto[] source)
         {
             if (source == null)
                 return null;
 
-            var copy = new GameTaskBootstrapDto[source.Length];
+            var copy = new GameQuestBootstrapDto[source.Length];
             for (var i = 0; i < source.Length; i++)
             {
-                var task = source[i];
-                if (task == null)
+                var quest = source[i];
+                if (quest == null)
                     continue;
-                copy[i] = new GameTaskBootstrapDto
+                copy[i] = new GameQuestBootstrapDto
                 {
-                    id = task.id,
-                    orderIndex = task.orderIndex,
-                    taskType = task.taskType,
-                    placeholderLabel = task.placeholderLabel,
+                    id = quest.id,
+                    chapterId = quest.chapterId,
+                    slug = quest.slug,
+                    displayName = quest.displayName,
+                    orderIndex = quest.orderIndex,
+                    isUnlocked = quest.isUnlocked,
+                    hasCompletedAnyRun = quest.hasCompletedAnyRun,
+                    unlockHint = quest.unlockHint,
+                    steps = CloneSteps(quest.steps),
                 };
             }
 
             return copy;
         }
 
-        private static GameActiveRunDto CloneActiveRun(GameActiveRunDto source)
+        private static GameQuestStepDto[] CloneSteps(GameQuestStepDto[] source)
         {
             if (source == null)
                 return null;
 
-            return new GameActiveRunDto
+            var copy = new GameQuestStepDto[source.Length];
+            for (var i = 0; i < source.Length; i++)
+            {
+                var step = source[i];
+                if (step == null)
+                    continue;
+                copy[i] = new GameQuestStepDto
+                {
+                    id = step.id,
+                    orderIndex = step.orderIndex,
+                    stepKind = step.stepKind,
+                    taskType = step.taskType,
+                    templateKey = step.templateKey,
+                    logicalTaskKey = step.logicalTaskKey,
+                    contentJson = step.contentJson,
+                    rewardRulesJson = step.rewardRulesJson,
+                    isTask = step.isTask,
+                };
+            }
+
+            return copy;
+        }
+
+        private static GameActiveQuestRunDto CloneActiveRun(GameActiveQuestRunDto source)
+        {
+            if (source == null)
+                return null;
+
+            return new GameActiveQuestRunDto
             {
                 runId = source.runId,
-                levelId = source.levelId,
-                levelSlug = source.levelSlug,
+                chapterId = source.chapterId,
+                questId = source.questId,
+                questSlug = source.questSlug,
+                currentStepOrderIndex = source.currentStepOrderIndex,
                 currentTaskOrderIndex = source.currentTaskOrderIndex,
-                taskCount = source.taskCount,
+                stepCount = source.stepCount,
             };
         }
     }

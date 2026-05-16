@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using LanguageGame.Domain;
 
 namespace LanguageGame.Application
 {
@@ -10,27 +9,29 @@ namespace LanguageGame.Application
 
         private const string SceneAuth = "Auth";
         private const string SceneMainMenu = "MainMenu";
-        private const string SceneCityMap = "CityMap";
-        private const string SceneLevel = "Level";
+        private const string SceneChapterOverview = "ChapterOverview";
+        private const string SceneQuestOverview = "QuestOverview";
+        private const string SceneQuest = "Quest";
         private const string SceneAvatarShop = "AvatarShop";
 
-        /// <summary>Legacy ScriptableObject level (optional; city map uses server levels).</summary>
-        private LevelConfig _activeLevel;
-
-        private int _taskIndex;
-
         private string _serverRunId;
-        private string _serverLevelId;
-        private string _serverLevelDisplayName;
-        private GameTaskBootstrapDto[] _serverTasks;
+        private string _serverQuestId;
+        private string _serverQuestDisplayName;
+        private GameQuestStepDto[] _serverSteps;
+        private int _serverStepOrderIndex;
         private int _serverTaskOrderIndex;
         private int _totalPizzaSlices;
         private int _totalBackpackPieces;
+        private string _selectedChapterId;
+        private string _selectedChapterSlug;
+        private string _selectedChapterDisplayName;
+        private string _selectedChapterThemeJson;
+        private GameQuestBootstrapDto[] _selectedChapterQuests;
 
         private enum AvatarShopReturnTarget
         {
             MainMenu,
-            CityMap
+            ChapterOverview
         }
 
         private AvatarShopReturnTarget _avatarShopReturnTarget = AvatarShopReturnTarget.MainMenu;
@@ -50,84 +51,91 @@ namespace LanguageGame.Application
         public void LoadAuth()
         {
             GameSessionStateStore.Clear();
-            ClearAllLevelState();
+            ClearAllQuestState();
             LoadScene(SceneAuth);
         }
 
         public void LoadMainMenu()
         {
-            ClearAllLevelState();
+            ClearAllQuestState();
             LoadScene(SceneMainMenu);
         }
 
-        public void LoadCityMap()
+        public void LoadChapterOverview()
         {
-            ClearAllLevelState();
-            LoadScene(SceneCityMap);
+            ClearAllQuestState();
+            LoadScene(SceneChapterOverview);
         }
+
+        public void LoadQuestOverview()
+        {
+            LoadScene(SceneQuestOverview);
+        }
+
+        public void SetSelectedChapter(GameChapterBootstrapDto chapter)
+        {
+            if (chapter == null)
+                return;
+
+            _selectedChapterId = chapter.id;
+            _selectedChapterSlug = chapter.slug;
+            _selectedChapterDisplayName = chapter.displayName;
+            _selectedChapterThemeJson = chapter.themeJson;
+            _selectedChapterQuests = chapter.quests;
+        }
+
+        public string SelectedChapterId => _selectedChapterId ?? string.Empty;
+        public string SelectedChapterSlug => _selectedChapterSlug ?? string.Empty;
+        public string SelectedChapterDisplayName => _selectedChapterDisplayName ?? string.Empty;
+        public string SelectedChapterThemeJson => _selectedChapterThemeJson ?? string.Empty;
+        public GameQuestBootstrapDto[] SelectedChapterQuests => _selectedChapterQuests;
 
         public void LoadAvatarShopFromMainMenu()
         {
             _avatarShopReturnTarget = AvatarShopReturnTarget.MainMenu;
-            ClearAllLevelState();
+            ClearAllQuestState();
             LoadScene(SceneAvatarShop);
         }
 
-        public void LoadAvatarShopFromCityMap()
+        public void LoadAvatarShopFromChapterOverview()
         {
-            _avatarShopReturnTarget = AvatarShopReturnTarget.CityMap;
-            ClearAllLevelState();
+            _avatarShopReturnTarget = AvatarShopReturnTarget.ChapterOverview;
+            ClearAllQuestState();
             LoadScene(SceneAvatarShop);
         }
 
         public void ReturnFromAvatarShop()
         {
-            if (_avatarShopReturnTarget == AvatarShopReturnTarget.CityMap)
-                LoadCityMap();
+            if (_avatarShopReturnTarget == AvatarShopReturnTarget.ChapterOverview)
+                LoadChapterOverview();
             else
                 LoadMainMenu();
         }
 
-        /// <summary>Opens the reusable level scene with a local <see cref="LevelConfig"/> (legacy / tools).</summary>
-        public void LoadLevel(LevelConfig levelConfig)
+        /// <summary>Opens the game scene for a server-backed quest run (steps + progression from API).</summary>
+        public void BeginServerQuest(string runId, string questId, string displayName,
+            GameQuestStepDto[] steps, int currentStepOrderIndex, int currentTaskOrderIndex,
+            int totalPizzaSlices, int totalBackpackPieces)
         {
-            if (levelConfig == null || levelConfig.TaskCount == 0)
+            if (string.IsNullOrEmpty(runId) || steps == null || steps.Length == 0)
             {
-                Debug.LogError("[GameFlowController] LevelConfig missing or has no tasks. Falling back to MainMenu.");
-                LoadMainMenu();
+                Debug.LogError("[GameFlowController] Invalid server quest start payload.");
+                LoadChapterOverview();
                 return;
             }
 
-            ClearServerLevelState();
-            _activeLevel = levelConfig;
-            _taskIndex = 0;
-            LoadScene(SceneLevel);
-        }
-
-        /// <summary>Opens the level scene for a server-backed run (tasks + progression from API).</summary>
-        public void BeginServerLevel(string runId, string levelId, string displayName,
-            GameTaskBootstrapDto[] tasks, int currentTaskOrderIndex, int totalPizzaSlices,
-            int totalBackpackPieces)
-        {
-            if (string.IsNullOrEmpty(runId) || tasks == null || tasks.Length == 0)
-            {
-                Debug.LogError("[GameFlowController] Invalid server level start payload.");
-                LoadCityMap();
-                return;
-            }
-
-            ClearLegacyLevelState();
             _serverRunId = runId;
-            _serverLevelId = levelId;
-            _serverLevelDisplayName = displayName;
-            _serverTasks = tasks;
-            _serverTaskOrderIndex = Mathf.Clamp(currentTaskOrderIndex, 0, tasks.Length - 1);
+            _serverQuestId = questId;
+            _serverQuestDisplayName = displayName;
+            _serverSteps = steps;
+            _serverStepOrderIndex = Mathf.Clamp(currentStepOrderIndex, 0, steps.Length - 1);
+            _serverTaskOrderIndex = Mathf.Max(0, currentTaskOrderIndex);
             _totalPizzaSlices = totalPizzaSlices;
             _totalBackpackPieces = Mathf.Max(0, totalBackpackPieces);
-            LoadScene(SceneLevel);
+            LoadScene(SceneQuest);
         }
 
-        public bool IsServerLevelActive => !string.IsNullOrEmpty(_serverRunId);
+        public bool IsServerQuestActive => !string.IsNullOrEmpty(_serverRunId);
 
         public int TotalPizzaSlices => _totalPizzaSlices;
 
@@ -144,81 +152,73 @@ namespace LanguageGame.Application
         }
 
         public string ServerRunId => _serverRunId;
+        public string ServerQuestId => _serverQuestId;
 
-        public void ApplyServerTaskProgress(int newTaskOrderIndex, int totalSlices,
-            int totalBackpackPieces, bool levelComplete)
+        public void ApplyServerTaskProgress(int newStepOrderIndex, int newTaskOrderIndex,
+            int totalSlices, int totalBackpackPieces, bool questComplete)
         {
+            _serverStepOrderIndex = Mathf.Max(0, newStepOrderIndex);
             _serverTaskOrderIndex = newTaskOrderIndex;
             _totalPizzaSlices = Mathf.Max(0, totalSlices);
             _totalBackpackPieces = Mathf.Max(0, totalBackpackPieces);
-            if (levelComplete)
-                ClearServerLevelState();
+            if (questComplete)
+                ClearServerQuestState();
         }
 
-        public bool TryGetCurrentTask(out TaskSlot slot)
         {
-            slot = default;
-            return _activeLevel != null && _activeLevel.TryGetTask(_taskIndex, out slot);
-        }
-
-        public bool TryGetCurrentServerTask(out GameTaskBootstrapDto task)
-        {
-            task = null;
-            if (_serverTasks == null || _serverTaskOrderIndex < 0 || _serverTaskOrderIndex >= _serverTasks.Length)
+            step = null;
+            if (_serverSteps == null || _serverStepOrderIndex < 0 || _serverStepOrderIndex >= _serverSteps.Length)
                 return false;
-            task = _serverTasks[_serverTaskOrderIndex];
+            step = _serverSteps[_serverStepOrderIndex];
             return true;
         }
 
-        /// <summary>Moves to the next legacy task. Returns true when the level is finished.</summary>
-        public bool AdvanceTask()
+        public bool TryGetCurrentServerTask(out GameQuestStepDto taskStep)
         {
-            if (_activeLevel == null)
-                return true;
-
-            _taskIndex++;
-            if (_taskIndex >= _activeLevel.TaskCount)
-            {
-                ClearLegacyLevelState();
-                return true;
-            }
-
-            return false;
+            taskStep = null;
+            if (!TryGetCurrentServerStep(out var step))
+                return false;
+            if (step == null || !step.isTask || string.IsNullOrEmpty(step.id))
+                return false;
+            taskStep = step;
+            return true;
         }
 
-        public int CurrentTaskNumberOneBased =>
-            _activeLevel == null ? 0 : Mathf.Clamp(_taskIndex + 1, 1, _activeLevel.TaskCount);
+        public int ServerCurrentStepNumberOneBased =>
+            _serverSteps == null ? 0 : Mathf.Clamp(_serverStepOrderIndex + 1, 1, _serverSteps.Length);
 
-        public int ActiveLevelTaskCount => _activeLevel?.TaskCount ?? 0;
-
-        public string ActiveLevelDisplayName => _activeLevel != null ? _activeLevel.DisplayName : string.Empty;
+        public int ServerStepCount => _serverSteps?.Length ?? 0;
 
         public int ServerCurrentTaskNumberOneBased =>
-            _serverTasks == null ? 0 : Mathf.Clamp(_serverTaskOrderIndex + 1, 1, _serverTasks.Length);
+            Mathf.Max(0, _serverTaskOrderIndex + 1);
 
-        public int ServerTaskCount => _serverTasks?.Length ?? 0;
+        public int ServerTaskCount => _serverSteps == null ? 0 : _serverSteps.Length;
 
-        public string ServerLevelDisplayName => _serverLevelDisplayName ?? string.Empty;
+        public string ServerQuestDisplayName => _serverQuestDisplayName ?? string.Empty;
 
-        private void ClearAllLevelState()
+        private void ClearAllQuestState()
         {
-            ClearLegacyLevelState();
-            ClearServerLevelState();
+            ClearServerQuestState();
+            ClearChapterSelection();
         }
 
-        private void ClearLegacyLevelState()
-        {
-            _activeLevel = null;
-            _taskIndex = 0;
-        }
-
-        public void ClearServerLevelState()
+        public void ClearServerQuestState()
         {
             _serverRunId = null;
-            _serverLevelId = null;
-            _serverLevelDisplayName = null;
-            _serverTasks = null;
+            _serverQuestId = null;
+            _serverQuestDisplayName = null;
+            _serverSteps = null;
+            _serverStepOrderIndex = 0;
             _serverTaskOrderIndex = 0;
+        }
+
+        public void ClearChapterSelection()
+        {
+            _selectedChapterId = null;
+            _selectedChapterSlug = null;
+            _selectedChapterDisplayName = null;
+            _selectedChapterThemeJson = null;
+            _selectedChapterQuests = null;
         }
 
         private void LoadScene(string sceneName)

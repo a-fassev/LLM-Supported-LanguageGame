@@ -30,22 +30,22 @@ namespace LanguageGame.Application
         }
     }
 
-    public sealed class StartLevelRunUseCase
+    public sealed class StartQuestRunUseCase
     {
         private readonly GameProgressApiClient _api;
 
-        public StartLevelRunUseCase(GameProgressApiClient api)
+        public StartQuestRunUseCase(GameProgressApiClient api)
         {
             _api = api;
         }
 
-        public IEnumerator Run(string levelId, Action<GameStartLevelEnvelope> onOk, Action<string> onError)
+        public IEnumerator Run(string questId, Action<GameStartQuestEnvelope> onOk, Action<string> onError)
         {
-            var e = _api.StartLevel(
-                levelId,
+            var e = _api.StartQuest(
+                questId,
                 started =>
                 {
-                    GameSessionStateStore.ApplyStartLevelResult(started);
+                    GameSessionStateStore.ApplyStartQuestResult(started);
                     onOk?.Invoke(started);
                 },
                 onError);
@@ -63,12 +63,12 @@ namespace LanguageGame.Application
             _api = api;
         }
 
-        public IEnumerator Run(string runId, string taskId, Action<GameCompleteTaskEnvelope> onOk,
+        public IEnumerator Run(string runId, string stepId, Action<GameCompleteTaskEnvelope> onOk,
             Action<string> onError)
         {
-            var e = _api.CompleteTask(
+            var e = _api.CompleteStepTask(
                 runId,
-                taskId,
+                stepId,
                 done =>
                 {
                     GameSessionStateStore.ApplyTaskCompletion(done);
@@ -80,11 +80,40 @@ namespace LanguageGame.Application
         }
     }
 
-    public sealed class FinishLevelRunUseCase
+    public sealed class AdvanceCutsceneUseCase
     {
         private readonly GameProgressApiClient _api;
 
-        public FinishLevelRunUseCase(GameProgressApiClient api)
+        public AdvanceCutsceneUseCase(GameProgressApiClient api)
+        {
+            _api = api;
+        }
+
+        public IEnumerator Run(string runId, string stepId, Action<GameCompleteTaskEnvelope> onOk,
+            Action<string> onError)
+        {
+            var e = _api.AdvanceCutsceneStep(
+                runId,
+                stepId,
+                done =>
+                {
+                    if (done != null && done.ok)
+                    {
+                        GameSessionStateStore.SetLatestWalletTotals(done.totalSlices, done.totalBackpackPieces);
+                    }
+                    onOk?.Invoke(done);
+                },
+                onError);
+            while (e.MoveNext())
+                yield return e.Current;
+        }
+    }
+
+    public sealed class FinishQuestRunUseCase
+    {
+        private readonly GameProgressApiClient _api;
+
+        public FinishQuestRunUseCase(GameProgressApiClient api)
         {
             _api = api;
         }

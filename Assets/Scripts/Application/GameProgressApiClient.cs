@@ -38,12 +38,12 @@ namespace LanguageGame.Application
                 onError);
         }
 
-        public IEnumerator StartLevel(string levelId, Action<GameStartLevelEnvelope> onOk, Action<string> onError)
+        public IEnumerator StartQuest(string questId, Action<GameStartQuestEnvelope> onOk, Action<string> onError)
         {
-            var path = $"/api/game/levels/{Uri.EscapeDataString(levelId)}/start";
+            var path = $"/api/game/quests/{Uri.EscapeDataString(questId)}/start";
             yield return AuthorizedPostEmpty(path, text =>
             {
-                var env = JsonUtility.FromJson<GameStartLevelEnvelope>(text);
+                var env = JsonUtility.FromJson<GameStartQuestEnvelope>(text);
                 if (env != null && env.ok)
                 {
                     onOk?.Invoke(env);
@@ -51,15 +51,15 @@ namespace LanguageGame.Application
                 }
                 onError?.Invoke(!string.IsNullOrEmpty(env?.error)
                     ? env.error
-                    : ParseErrorMessage(text, "Could not start level"));
+                    : ParseErrorMessage(text, "Could not start quest"));
             }, onError);
         }
 
-        public IEnumerator CompleteTask(string runId, string taskId,
+        public IEnumerator CompleteStepTask(string runId, string stepId,
             Action<GameCompleteTaskEnvelope> onOk, Action<string> onError)
         {
             var path =
-                $"/api/game/runs/{Uri.EscapeDataString(runId)}/tasks/{Uri.EscapeDataString(taskId)}/complete";
+                $"/api/game/runs/{Uri.EscapeDataString(runId)}/steps/{Uri.EscapeDataString(stepId)}/complete";
             yield return AuthorizedPostEmpty(path, text =>
             {
                 var env = JsonUtility.FromJson<GameCompleteTaskEnvelope>(text);
@@ -71,6 +71,25 @@ namespace LanguageGame.Application
                 onError?.Invoke(!string.IsNullOrEmpty(env?.error)
                     ? env.error
                     : ParseErrorMessage(text, "Could not complete task"));
+            }, onError);
+        }
+
+        public IEnumerator AdvanceCutsceneStep(string runId, string stepId,
+            Action<GameCompleteTaskEnvelope> onOk, Action<string> onError)
+        {
+            var path =
+                $"/api/game/runs/{Uri.EscapeDataString(runId)}/steps/{Uri.EscapeDataString(stepId)}/advance";
+            yield return AuthorizedPostEmpty(path, text =>
+            {
+                var env = JsonUtility.FromJson<GameCompleteTaskEnvelope>(text);
+                if (env != null && env.ok)
+                {
+                    onOk?.Invoke(env);
+                    return;
+                }
+                onError?.Invoke(!string.IsNullOrEmpty(env?.error)
+                    ? env.error
+                    : ParseErrorMessage(text, "Could not advance scene"));
             }, onError);
         }
 
