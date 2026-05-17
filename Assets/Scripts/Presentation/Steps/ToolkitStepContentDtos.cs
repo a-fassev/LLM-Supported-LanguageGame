@@ -162,4 +162,37 @@ namespace LanguageGame.Presentation.Steps
 
         public string[] targetStructures;
     }
+
+    /// <summary>Error-spotting task: learner selects incorrect tokens and types corrections (authoritative check client-side).</summary>
+    [Serializable]
+    public sealed class ErrorSpottingContentDto
+    {
+        public string prompt;
+        public string instruction;
+        public ErrorSpottingExpectedRangeDto expectedErrorRange;
+        public ErrorSpottingSegmentDto[] segments;
+    }
+
+    [Serializable]
+    public sealed class ErrorSpottingExpectedRangeDto
+    {
+        public int min;
+
+        /// <summary>Inclusive upper bound for how many mistakes exist in this exercise.</summary>
+        public int max;
+    }
+
+    [Serializable]
+    public sealed class ErrorSpottingSegmentDto
+    {
+        public string id;
+        public string text;
+        public bool isError;
+
+        /// <summary>Case-insensitive, whitespace-normalised match versus learner typed correction.</summary>
+        public string[] acceptedCorrections;
+
+        /// <summary>Optional authoring hint/tooltip shown when the segment is selected.</summary>
+        public string hint;
+    }
 }

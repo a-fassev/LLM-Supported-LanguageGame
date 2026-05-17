@@ -68,3 +68,41 @@ Label {
     background-color: var(--lg-bg-muted);
     border-radius: var(--lg-radius-md);
 }
+
+/* Clickable phrase chips for ErrorSpotting (`ErrorSpottingToolkitStep`). */
+.lg-error-spotting-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    white-space: normal;
+    margin-top: var(--lg-space-8);
+}
+
+.lg-error-spotting-chip {
+    flex-grow: 0;
+    border-width: 0;
+    padding-left: var(--lg-space-4);
+    padding-right: var(--lg-space-4);
+    padding-top: 6px;
+    padding-bottom: 6px;
+    margin-right: 4px;
+    margin-bottom: 6px;
+    border-radius: var(--lg-radius-sm);
+    background-color: transparent;
+    font-size: var(--lg-font-body);
+    color: var(--lg-text-main);
+}
+
+.lg-error-spotting-chip:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.lg-error-spotting-chip.lg-error-spotting-chip--marked {
+    background-color: rgba(255, 200, 100, 0.18);
+    border-radius: var(--lg-radius-sm);
+}
+
+.lg-error-spotting-corrections {
+    margin-top: var(--lg-space-16);
+    flex-direction: column;
+}

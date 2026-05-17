@@ -179,7 +179,39 @@ Minimal `contentJson` / **`content_payload`** template:
 
 ---
 
-### Stub types (`FreeText`, `RelativeClause`, `ErrorSpotting`, unknown)
+### ErrorSpotting (`taskType`: ErrorSpotting)
+
+**Implementation:** **`ErrorSpottingToolkitStep`**.
+
+Interactive “Fehlersuche”: learner taps erroneous word/phrase spans, fills corrections, validates on shell **Check** (client compares against authoring).
+
+| Field | Notes |
+| ----- | ------ |
+| **`prompt`** | Title / headline |
+| **`instruction`** | Hint under headline (optional) |
+| **`expectedErrorRange`** | **`min`**, **`max`** — authoring must match counted `true` error segments (`isError`), e.g. 4 mistakes with `{ "min": 4, "max": 5 }` works only if **`min ≤ 4 ≤ max`**. Unity shows a learner-facing hint line and validates selection + corrections |
+| **`segments`** | Ordered list of **`id`**, **`text`**, **`isError`**, **`acceptedCorrections`** (required when `isError`; case-insensitive, whitespace-collapsed matching), optional **`hint`**
+
+Learner must select **exactly all** erroneous segments (and **no** non-errors) and supply a typed correction matching one of **`acceptedCorrections`** before completion.
+
+Example (minimal):
+
+```json
+{
+  "prompt": "Trova e correggi",
+  "instruction": "Tocca le parti sbagliate e scrivi la forma corretta.",
+  "expectedErrorRange": { "min": 1, "max": 1 },
+  "segments": [
+    { "id": "t1", "text": "Maria ", "isError": false },
+    { "id": "t2", "text": "vai ", "isError": true, "acceptedCorrections": ["va"] },
+    { "id": "t3", "text": "a scuola ogni giorno.", "isError": false }
+  ]
+}
+```
+
+---
+
+### Stub types (`FreeText`, `RelativeClause`, unknown)
 
 **Implementation:** **`StubToolkitTaskStep`** — placeholder UX until a dedicated toolkit step exists.
 
