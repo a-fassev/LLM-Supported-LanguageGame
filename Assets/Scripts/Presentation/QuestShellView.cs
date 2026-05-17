@@ -116,7 +116,7 @@ namespace LanguageGame.Presentation
                 return;
 
             _tkBackToChapters.text = BackToChaptersLabel;
-            var enabled = flow != null && !_submitting;
+            var enabled = flow != null && !_submitting && !flow.IsSceneTransitionInProgress;
             _tkBackToChapters.SetEnabled(enabled);
         }
 
@@ -485,6 +485,9 @@ namespace LanguageGame.Presentation
 
             var flow = GameFlowController.Instance;
             if (_submitting)
+                return;
+
+            if (flow.IsSceneTransitionInProgress)
                 return;
 
             if (flow.IsServerQuestActive)

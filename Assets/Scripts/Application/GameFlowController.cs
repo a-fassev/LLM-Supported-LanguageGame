@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -6,6 +8,9 @@ namespace LanguageGame.Application
     public class GameFlowController : MonoBehaviour
     {
         public static GameFlowController Instance { get; private set; }
+
+        /// <summary>Fired when a navigation method was called while a scene transition was already in progress.</summary>
+        public static event Action SceneTransitionSuppressed;
 
         private bool _sceneTransitionInProgress;
 
@@ -29,6 +34,8 @@ namespace LanguageGame.Application
         private string _selectedChapterDisplayName;
         private string _selectedChapterThemeJson;
         private GameQuestBootstrapDto[] _selectedChapterQuests;
+
+        public bool IsSceneTransitionInProgress => _sceneTransitionInProgress;
 
         private void Awake()
         {
@@ -56,26 +63,38 @@ namespace LanguageGame.Application
 
         public void LoadAuth()
         {
+            if (!TryBeginTransitionOrNotify())
+                return;
+
             GameSessionStateStore.Clear();
             ClearAllQuestState();
-            LoadScene(SceneAuth);
+            BeginSceneTransition(SceneAuth);
         }
 
         public void LoadMainMenu()
         {
+            if (!TryBeginTransitionOrNotify())
+                return;
+
             ClearAllQuestState();
-            LoadScene(SceneMainMenu);
+            BeginSceneTransition(SceneMainMenu);
         }
 
         public void LoadChapterOverview()
         {
+            if (!TryBeginTransitionOrNotify())
+                return;
+
             ClearAllQuestState();
-            LoadScene(SceneChapterOverview);
+            BeginSceneTransition(SceneChapterOverview);
         }
 
         public void LoadQuestOverview()
         {
-            LoadScene(SceneQuestOverview);
+            if (!TryBeginTransitionOrNotify())
+                return;
+
+            BeginSceneTransition(SceneQuestOverview);
         }
 
         public void SetSelectedChapter(GameChapterBootstrapDto chapter)
@@ -98,8 +117,11 @@ namespace LanguageGame.Application
 
         public void LoadAvatarShopFromChapterOverview()
         {
+            if (!TryBeginTransitionOrNotify())
+                return;
+
             ClearAllQuestState();
-            LoadScene(SceneAvatarShop);
+            BeginSceneTransition(SceneAvatarShop);
         }
 
         public void ReturnFromAvatarShop()
@@ -119,6 +141,9 @@ namespace LanguageGame.Application
                 return;
             }
 
+            if (!TryBeginTransitionOrNotify())
+                return;
+
             _serverRunId = runId;
             _serverQuestId = questId;
             _serverQuestDisplayName = displayName;
@@ -127,7 +152,7 @@ namespace LanguageGame.Application
             _serverTaskOrderIndex = Mathf.Max(0, currentTaskOrderIndex);
             _totalPizzaSlices = totalPizzaSlices;
             _totalBackpackPieces = Mathf.Max(0, totalBackpackPieces);
-            LoadScene(SceneQuest);
+            BeginSceneTransition(SceneQuest);
         }
 
         public bool IsServerQuestActive => !string.IsNullOrEmpty(_serverRunId);
@@ -232,24 +257,48 @@ namespace LanguageGame.Application
             _selectedChapterQuests = null;
         }
 
-        private void LoadScene(string sceneName)
+        private bool TryBeginTransitionOrNotify()
         {
             if (_sceneTransitionInProgress)
             {
                 Debug.LogWarning("[GameFlowController] Scene load ignored — transition already in progress.");
-                return;
+                SceneTransitionSuppressed?.Invoke();
+                return false;
             }
+
+            return true;
+        }
+
+        private void BeginSceneTransition(string sceneName)
+        {
+            var target = string.IsNullOrEmpty(sceneName) ? SceneAuth : sceneName;
+            if (string.IsNullOrEmpty(sceneName))
+                Debug.LogError("[GameFlowController] Scene name empty. Falling back to Auth.");
 
             _sceneTransitionInProgress = true;
+            StartCoroutine(SceneTransitionWatchdogCoroutine(target));
+            SceneManager.LoadScene(target, LoadSceneMode.Single);
+        }
 
-            if (string.IsNullOrEmpty(sceneName))
+        private IEnumerator SceneTransitionWatchdogCoroutine(string expectedSceneName)
+        {
+            const float timeoutSeconds = 10f;
+            var elapsed = 0f;
+            while (elapsed < timeoutSeconds)
             {
-                Debug.LogError("[GameFlowController] Scene name empty. Falling back to Auth.");
-                SceneManager.LoadScene(SceneAuth, LoadSceneMode.Single);
-                return;
+                if (!_sceneTransitionInProgress)
+                    yield break;
+                elapsed += Time.unscaledDeltaTime;
+                yield return null;
             }
 
-            SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+            if (!_sceneTransitionInProgress)
+                yield break;
+
+            Debug.LogError(
+                "[GameFlowController] Scene transition watchdog timed out while loading '" + expectedSceneName +
+                "'. Resetting navigation lock.");
+            _sceneTransitionInProgress = false;
         }
     }
 }

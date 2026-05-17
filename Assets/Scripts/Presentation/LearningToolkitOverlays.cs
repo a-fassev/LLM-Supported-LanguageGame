@@ -335,13 +335,13 @@ namespace LanguageGame.Presentation
                 }
 
                 var target = evt.target as VisualElement;
-                if (target == null)
-                    return;
-
-                for (var p = target; p != null; p = p.parent)
+                if (target != null)
                 {
-                    if (p == _card)
-                        return;
+                    for (var p = target; p != null; p = p.parent)
+                    {
+                        if (p == _card)
+                            return;
+                    }
                 }
 
                 // Backdrop tap matches "cancel / stay" (secondary action).
@@ -497,10 +497,13 @@ namespace LanguageGame.Presentation
                     return;
 
                 var target = evt.target as VisualElement;
-                for (var p = target; p != null; p = p.parent)
+                if (target != null)
                 {
-                    if (p == _card)
-                        return;
+                    for (var p = target; p != null; p = p.parent)
+                    {
+                        if (p == _card)
+                            return;
+                    }
                 }
 
                 if (_validationMode)
@@ -508,6 +511,12 @@ namespace LanguageGame.Presentation
                     var dismiss = _onBack;
                     Hide();
                     dismiss?.Invoke();
+                }
+                else
+                {
+                    var back = _onBack;
+                    Hide();
+                    back?.Invoke();
                 }
             });
 

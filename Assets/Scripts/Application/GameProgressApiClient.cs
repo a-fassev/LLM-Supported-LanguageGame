@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Globalization;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -16,15 +15,55 @@ namespace LanguageGame.Application
         [SerializeField] private AuthApiClient authApiClient;
 
         /// <summary>
-        /// Shared heuristic for routing the player back to Auth after <see cref="AuthSessionStore"/> was cleared.
+        /// Whether this response indicates the bearer session is no longer valid.
+        /// Prefer <paramref name="httpStatusCode"/> when available; <paramref name="message"/> is fallback/JSON body text.
         /// </summary>
-        public static bool LooksLikeSessionAuthFailure(string message)
+        public static bool LooksLikeSessionAuthFailure(string message, long httpStatusCode = 0)
         {
+            if (httpStatusCode == 401 || httpStatusCode == 403)
+                return true;
+
             if (string.IsNullOrWhiteSpace(message))
                 return false;
-            return message.IndexOf("not logged in", StringComparison.OrdinalIgnoreCase) >= 0
-                   || message.IndexOf("session expired", StringComparison.OrdinalIgnoreCase) >= 0
-                   || message.IndexOf("unauthorized", StringComparison.OrdinalIgnoreCase) >= 0;
+
+            var trimmed = message.Trim();
+            if (trimmed.Length > 0 && trimmed[0] == '{')
+            {
+                var env = JsonUtility.FromJson<GameApiErrorEnvelope>(trimmed);
+                if (!string.IsNullOrEmpty(env?.error))
+                    return LooksLikeSessionAuthFailure(env.error, 0);
+            }
+
+            if (trimmed.Equals("Unauthorized", StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (trimmed.Equals("Forbidden", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            var lower = trimmed.ToLowerInvariant();
+            string[] phrases =
+            {
+                "not logged in",
+                "session expired",
+                "please sign in",
+                "invalid token",
+                "jwt expired",
+                "jwt malformed",
+                "token expired",
+                "missing authorization",
+                "authorization required",
+                "invalid session",
+                "auth required",
+                "\"code\":401",
+                "\"code\":403",
+            };
+
+            foreach (var phrase in phrases)
+            {
+                if (lower.Contains(phrase))
+                    return true;
+            }
+
+            return false;
         }
 
         private void Awake()
