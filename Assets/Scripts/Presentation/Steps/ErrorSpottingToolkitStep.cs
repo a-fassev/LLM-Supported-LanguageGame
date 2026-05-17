@@ -9,7 +9,7 @@ namespace LanguageGame.Presentation.Steps
     /// <summary>Error-spotting / Fehlersuche: tap incorrect segments, correct them, validate on shell Check.</summary>
     public sealed class ErrorSpottingToolkitStep : IStepView, ISubmitFromShell
     {
-        private static readonly Regex WhitespaceCollapse = new(@"\s+", RegexOptions.Compiled);
+        private static readonly Regex WhitespaceCollapse = new(@"\s+");
 
         private readonly VisualElement _root;
         private readonly VisualElement _chipsRow;
@@ -108,9 +108,6 @@ namespace LanguageGame.Presentation.Steps
 
             foreach (var seg in dto.segments)
             {
-                if (seg == null || string.IsNullOrWhiteSpace(seg.id))
-                    continue;
-
                 var id = seg.id.Trim();
 
                 var chipText = seg.text ?? string.Empty;
@@ -234,7 +231,14 @@ namespace LanguageGame.Presentation.Steps
 
         private void OnChipClicked(string id)
         {
-            if (!_interactable || !_contentReady)
+            if (!_interactable)
+            {
+                if (_contentReady)
+                    _context?.presentValidationMessage?.Invoke("Attendi un attimo…");
+                return;
+            }
+
+            if (!_contentReady)
                 return;
 
             if (_selectedSegmentIds.Contains(id))
