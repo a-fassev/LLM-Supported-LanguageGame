@@ -1,554 +1,262 @@
 using System.Collections;
-using System.Collections.Generic;
 using LanguageGame.Application;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace LanguageGame.Presentation
 {
     /// <summary>
-    /// Privacy-safe auth: generated username + password. UI is authored in the Auth scene (like MainMenu).
-    /// When the scene hierarchy is incomplete the view rebuilds the minimal required controls at runtime
-    /// using <see cref="UiDesignTokens"/> from <see cref="UiThemeProvider"/> (or safe inline fallbacks).
+    /// Auth screen using Unity UI Toolkit (menus theme).
     /// </summary>
-    public class AuthView : MonoBehaviour
+    public sealed class AuthView : MonoBehaviour
     {
         [SerializeField] private AuthApiClient apiClient;
 
-        [Header("Panels")]
-        [SerializeField] private GameObject loginPanel;
-        [SerializeField] private GameObject registerPanel;
+        private UIDocument _doc;
 
-        [Header("Fields")]
-        [SerializeField] private InputField loginUsername;
-        [SerializeField] private InputField loginPassword;
-        [SerializeField] private InputField registerPassword;
-        [SerializeField] private InputField registerPasswordConfirm;
-        [SerializeField] private Text generatedUsernameText;
-        [SerializeField] private Text statusText;
+        private VisualElement _loginPanel;
 
-        [Header("Actions")]
-        [SerializeField] private Button loginButton;
-        [SerializeField] private Button registerButton;
-        [SerializeField] private Button goToRegisterButton;
-        [SerializeField] private Button goToLoginButton;
-        [SerializeField] private Button newUsernameButton;
+        private VisualElement _registerPanel;
+
+        private TextField _loginUsername;
+
+        private TextField _loginPassword;
+
+        private TextField _registerPassword;
+
+        private TextField _registerPasswordConfirm;
+
+        private Button _loginButton;
+
+        private Button _registerButton;
+
+        private Button _goToRegister;
+
+        private Button _goToLogin;
+
+        private Button _newUsernameButton;
+
+        private Label _statusLabel;
+
+        private Label _generatedUsernameLabel;
 
         private string _suggestedUsername = string.Empty;
+
+        private readonly LearningToolkitLoadingOverlay _loading = new LearningToolkitLoadingOverlay();
+
+        private int _authBusyRequests;
 
         private void Awake()
         {
             if (apiClient == null)
                 apiClient = FindAnyObjectByType<AuthApiClient>();
 
-            ResolveRefsIfNeeded();
-            if (!IsAuthUiComplete())
+            _doc = LearningToolkitBootstrap.SpawnUiDocument(this, "AuthScreen");
+            if (_doc == null)
             {
-                LogMissingAuthUiDiagnostics();
-                ClearCanvasContentChildren();
-                BuildDefaultUiUnderCanvas();
-            }
-            ResolveRefsIfNeeded();
-            WireInputField(loginUsername);
-            WireInputField(loginPassword);
-            WireInputField(registerPassword);
-            WireInputField(registerPasswordConfirm);
-        }
-
-        /// <summary>
-        /// Returns true when scene wiring (inspector or expected paths under this Canvas) provides everything Auth needs.
-        /// </summary>
-        private bool IsAuthUiComplete()
-        {
-            return loginPanel != null && registerPanel != null && statusText != null
-                && loginUsername != null && loginPassword != null
-                && loginButton != null && goToRegisterButton != null
-                && generatedUsernameText != null && newUsernameButton != null
-                && registerPassword != null && registerPasswordConfirm != null
-                && registerButton != null && goToLoginButton != null;
-        }
-
-        private void LogMissingAuthUiDiagnostics()
-        {
-            var missing = new List<string>(16);
-            if (loginPanel == null) missing.Add(nameof(loginPanel));
-            if (registerPanel == null) missing.Add(nameof(registerPanel));
-            if (statusText == null) missing.Add(nameof(statusText));
-            if (loginUsername == null) missing.Add(nameof(loginUsername));
-            if (loginPassword == null) missing.Add(nameof(loginPassword));
-            if (loginButton == null) missing.Add(nameof(loginButton));
-            if (goToRegisterButton == null) missing.Add(nameof(goToRegisterButton));
-            if (generatedUsernameText == null) missing.Add(nameof(generatedUsernameText));
-            if (newUsernameButton == null) missing.Add(nameof(newUsernameButton));
-            if (registerPassword == null) missing.Add(nameof(registerPassword));
-            if (registerPasswordConfirm == null) missing.Add(nameof(registerPasswordConfirm));
-            if (registerButton == null) missing.Add(nameof(registerButton));
-            if (goToLoginButton == null) missing.Add(nameof(goToLoginButton));
-
-            Debug.LogWarning(
-                "[AuthView] Auth UI incomplete under \"" + gameObject.name + "\" (missing: " + string.Join(", ", missing) +
-                "). Expected paths like LoginPanel/LoginUsername under this Canvas, or assign references in the Inspector. Rebuilding default UI.");
-        }
-
-        /// <summary>
-        /// Removes existing Canvas children so we can rebuild without duplicate controls
-        /// (Destroy is end-of-frame; DestroyImmediate ensures old widgets are gone before new ones are added).
-        /// </summary>
-        private void ClearCanvasContentChildren()
-        {
-            if (GetComponent<Canvas>() == null)
+                Debug.LogError("[AuthView] UI Toolkit bootstrap failed — check Resources paths and PanelSettings.");
+                enabled = false;
                 return;
-            for (var i = transform.childCount - 1; i >= 0; i--)
-                DestroyImmediate(transform.GetChild(i).gameObject);
+            }
+            BindUi();
+            AttachLoadingChrome();
         }
 
-        private void ResolveRefsIfNeeded()
+        private void BindUi()
         {
-            var root = transform;
-            if (loginPanel == null)
-                loginPanel = root.Find("LoginPanel")?.gameObject;
-            if (registerPanel == null)
-                registerPanel = root.Find("RegisterPanel")?.gameObject;
-            if (statusText == null)
-                statusText = root.Find("StatusText")?.GetComponent<Text>();
-            if (loginUsername == null)
-                loginUsername = root.Find("LoginPanel/LoginUsername")?.GetComponent<InputField>();
-            if (loginPassword == null)
-                loginPassword = root.Find("LoginPanel/LoginPassword")?.GetComponent<InputField>();
-            if (loginButton == null)
-                loginButton = root.Find("LoginPanel/LoginButton")?.GetComponent<Button>();
-            if (goToRegisterButton == null)
-                goToRegisterButton = root.Find("LoginPanel/GoToRegisterButton")?.GetComponent<Button>();
-            if (generatedUsernameText == null)
-                generatedUsernameText = root.Find("RegisterPanel/UsernameRow/GeneratedUsernameText")?.GetComponent<Text>();
-            if (newUsernameButton == null)
-                newUsernameButton = root.Find("RegisterPanel/UsernameRow/NewUsernameButton")?.GetComponent<Button>();
-            if (registerPassword == null)
-                registerPassword = root.Find("RegisterPanel/RegisterPassword")?.GetComponent<InputField>();
-            if (registerPasswordConfirm == null)
-                registerPasswordConfirm = root.Find("RegisterPanel/RegisterPasswordConfirm")?.GetComponent<InputField>();
-            if (registerButton == null)
-                registerButton = root.Find("RegisterPanel/RegisterButton")?.GetComponent<Button>();
-            if (goToLoginButton == null)
-                goToLoginButton = root.Find("RegisterPanel/GoToLoginButton")?.GetComponent<Button>();
+            VisualElement root = _doc.rootVisualElement;
+
+            _statusLabel = root.Q<Label>("status-label");
+
+            _loginPanel = root.Q<VisualElement>("login-panel");
+            _registerPanel = root.Q<VisualElement>("register-panel");
+
+            _loginUsername = root.Q<TextField>("login-username");
+            _loginPassword = root.Q<TextField>("login-password");
+
+            ConfigurePassword(_loginPassword);
+
+            _registerPassword = root.Q<TextField>("register-password");
+            _registerPasswordConfirm = root.Q<TextField>("register-password-confirm");
+
+            ConfigurePassword(_registerPassword);
+            ConfigurePassword(_registerPasswordConfirm);
+
+            _generatedUsernameLabel = root.Q<Label>("generated-username-label");
+
+            _loginButton = root.Q<Button>("login-button");
+            _registerButton = root.Q<Button>("register-button");
+            _goToRegister = root.Q<Button>("goto-register-button");
+            _goToLogin = root.Q<Button>("goto-login-button");
+            _newUsernameButton = root.Q<Button>("new-username-button");
         }
 
-        private static void WireInputField(InputField field)
+        private static void ConfigurePassword(TextField field)
         {
             if (field == null)
                 return;
-            if (field.textComponent == null)
-            {
-                var t = field.transform.Find("Text");
-                if (t != null)
-                    field.textComponent = t.GetComponent<Text>();
-            }
-            if (field.placeholder == null)
-            {
-                var p = field.transform.Find("Placeholder");
-                if (p != null)
-                    field.placeholder = p.GetComponent<Text>();
-            }
-        }
-
-        /// <summary>
-        /// Runtime fallback when the Auth scene Canvas hierarchy is incomplete.
-        /// All style values come from <see cref="UiDesignTokens"/> — or safe inline fallbacks when no provider is present.
-        /// </summary>
-        private void BuildDefaultUiUnderCanvas()
-        {
-            var canvas = GetComponent<Canvas>();
-            if (canvas == null)
-            {
-                Debug.LogError("[AuthView] Canvas is required on the same GameObject.");
-                return;
-            }
-
-            var rootRt = transform as RectTransform;
-            if (rootRt != null)
-                rootRt.localScale = Vector3.one;
-
-            UiThemeProvider.TryGet(out var t);
-            var font = UiTokenApplier.ResolveFont(t?.typography.body);
-
-            // ── Background ──────────────────────────────────────────────────────────
-            var bg = new GameObject("Background");
-            bg.transform.SetParent(transform, false);
-            var bgRt = bg.AddComponent<RectTransform>();
-            UiTokenApplier.StretchFull(bgRt);
-            bg.AddComponent<CanvasRenderer>();
-            var bgImg = bg.AddComponent<Image>();
-            bgImg.color = t?.palette.background ?? new Color(0.13f, 0.13f, 0.2f, 1f);
-
-            CreateTitleText(transform, font, t);
-            CreateStatusText(transform, font, t);
-
-            // ── Login panel ─────────────────────────────────────────────────────────
-            loginPanel = new GameObject("LoginPanel");
-            loginPanel.transform.SetParent(transform, false);
-            var lpRt = loginPanel.AddComponent<RectTransform>();
-            lpRt.anchorMin = new Vector2(0.2f, 0.32f);
-            lpRt.anchorMax = new Vector2(0.8f, 0.64f);
-            lpRt.offsetMin = Vector2.zero;
-            lpRt.offsetMax = Vector2.zero;
-            loginPanel.AddComponent<CanvasRenderer>();
-            var lpImg = loginPanel.AddComponent<Image>();
-            lpImg.color = new Color(1f, 1f, 1f, 0f);
-            lpImg.raycastTarget = false;
-
-            loginUsername = CreateInput(loginPanel.transform, "LoginUsername", "Username", font, false,
-                new Vector2(0.05f, 0.62f), new Vector2(0.95f, 0.92f), t);
-            loginPassword = CreateInput(loginPanel.transform, "LoginPassword", "Password", font, true,
-                new Vector2(0.05f, 0.32f), new Vector2(0.95f, 0.58f), t);
-            loginButton = CreateMenuButton(loginPanel.transform, "LoginButton", "Log in", font,
-                new Vector2(0.25f, 0.14f), new Vector2(0.75f, 0.3f),
-                t?.palette.primary ?? new Color(0.2f, 0.55f, 0.85f), t);
-            goToRegisterButton = CreateMenuButton(loginPanel.transform, "GoToRegisterButton", "New here? Register", font,
-                new Vector2(0.1f, 0.02f), new Vector2(0.9f, 0.11f),
-                t?.palette.primaryMuted ?? new Color(0.25f, 0.35f, 0.5f, 0.9f), t);
-            SetButtonLabelStyle(goToRegisterButton, t?.typography.caption.fontSize ?? 22);
-
-            // ── Register panel ──────────────────────────────────────────────────────
-            registerPanel = new GameObject("RegisterPanel");
-            registerPanel.transform.SetParent(transform, false);
-            var rpRt = registerPanel.AddComponent<RectTransform>();
-            rpRt.anchorMin = new Vector2(0.15f, 0.22f);
-            rpRt.anchorMax = new Vector2(0.85f, 0.72f);
-            rpRt.offsetMin = Vector2.zero;
-            rpRt.offsetMax = Vector2.zero;
-            registerPanel.AddComponent<CanvasRenderer>();
-            var rpImg = registerPanel.AddComponent<Image>();
-            rpImg.color = new Color(1f, 1f, 1f, 0f);
-            rpImg.raycastTarget = false;
-
-            var userRow = new GameObject("UsernameRow");
-            userRow.transform.SetParent(registerPanel.transform, false);
-            var urRt = userRow.AddComponent<RectTransform>();
-            urRt.anchorMin = new Vector2(0.05f, 0.72f);
-            urRt.anchorMax = new Vector2(0.95f, 0.95f);
-            urRt.offsetMin = Vector2.zero;
-            urRt.offsetMax = Vector2.zero;
-            userRow.AddComponent<CanvasRenderer>();
-            var urImg = userRow.AddComponent<Image>();
-            urImg.color = new Color(1f, 1f, 1f, 0f);
-            urImg.raycastTarget = false;
-
-            var guGo = new GameObject("GeneratedUsernameText");
-            guGo.transform.SetParent(userRow.transform, false);
-            var guRt = guGo.AddComponent<RectTransform>();
-            guRt.anchorMin = new Vector2(0f, 0f);
-            guRt.anchorMax = new Vector2(0.68f, 1f);
-            guRt.offsetMin = Vector2.zero;
-            guRt.offsetMax = Vector2.zero;
-            guGo.AddComponent<CanvasRenderer>();
-            generatedUsernameText = guGo.AddComponent<Text>();
-            generatedUsernameText.font      = font;
-            generatedUsernameText.fontSize  = t?.typography.title.fontSize ?? 28;
-            generatedUsernameText.alignment = TextAnchor.MiddleLeft;
-            generatedUsernameText.color     = t?.palette.textPrimary ?? Color.white;
-            generatedUsernameText.text      = "(generating...)";
-
-            newUsernameButton = CreateMenuButton(userRow.transform, "NewUsernameButton", "New name", font,
-                new Vector2(0.7f, 0.05f), new Vector2(0.98f, 0.95f),
-                t?.palette.primary ?? new Color(0.2f, 0.55f, 0.85f), t);
-            SetButtonLabelStyle(newUsernameButton, t?.typography.caption.fontSize ?? 22);
-
-            registerPassword = CreateInput(registerPanel.transform, "RegisterPassword", "Password", font, true,
-                new Vector2(0.05f, 0.48f), new Vector2(0.95f, 0.68f), t);
-            registerPasswordConfirm = CreateInput(registerPanel.transform, "RegisterPasswordConfirm", "Repeat password", font,
-                true, new Vector2(0.05f, 0.26f), new Vector2(0.95f, 0.46f), t);
-            registerButton = CreateMenuButton(registerPanel.transform, "RegisterButton", "Create account", font,
-                new Vector2(0.25f, 0.08f), new Vector2(0.75f, 0.22f),
-                t?.palette.primary ?? new Color(0.2f, 0.55f, 0.85f), t);
-            goToLoginButton = CreateMenuButton(registerPanel.transform, "GoToLoginButton", "Have an account? Log in", font,
-                new Vector2(0.1f, 0f), new Vector2(0.9f, 0.06f),
-                t?.palette.primaryMuted ?? new Color(0.25f, 0.35f, 0.5f, 0.9f), t);
-            SetButtonLabelStyle(goToLoginButton, t?.typography.caption.fontSize ?? 22);
-
-            registerPanel.SetActive(false);
-            Canvas.ForceUpdateCanvases();
-        }
-
-        private static void CreateTitleText(Transform parent, Font font, UiDesignTokens t)
-        {
-            var titleGo = new GameObject("TitleText");
-            titleGo.transform.SetParent(parent, false);
-            var titleRt = titleGo.AddComponent<RectTransform>();
-            titleRt.anchorMin = new Vector2(0.1f, 0.78f);
-            titleRt.anchorMax = new Vector2(0.9f, 0.92f);
-            titleRt.offsetMin = Vector2.zero;
-            titleRt.offsetMax = Vector2.zero;
-            titleGo.AddComponent<CanvasRenderer>();
-            var title = titleGo.AddComponent<Text>();
-            title.font      = font;
-            title.fontSize  = t?.typography.display.fontSize ?? 48;
-            title.fontStyle = FontStyle.Bold;
-            title.alignment = TextAnchor.MiddleCenter;
-            title.color     = t?.palette.textPrimary ?? Color.white;
-            title.text      = "Sign in";
-        }
-
-        private static void CreateStatusText(Transform parent, Font font, UiDesignTokens t)
-        {
-            var stGo = new GameObject("StatusText");
-            stGo.transform.SetParent(parent, false);
-            var stRt = stGo.AddComponent<RectTransform>();
-            stRt.anchorMin = new Vector2(0.1f, 0.66f);
-            stRt.anchorMax = new Vector2(0.9f, 0.76f);
-            stRt.offsetMin = Vector2.zero;
-            stRt.offsetMax = Vector2.zero;
-            stGo.AddComponent<CanvasRenderer>();
-            var st = stGo.AddComponent<Text>();
-            st.font      = font;
-            st.fontSize  = t?.typography.caption.fontSize ?? 22;
-            st.alignment = TextAnchor.MiddleCenter;
-            st.color     = t?.palette.textSecondary ?? new Color(1f, 0.85f, 0.3f, 1f);
-            st.text      = string.Empty;
-        }
-
-        private static Button CreateMenuButton(Transform parent, string name, string label, Font font,
-            Vector2 aMin, Vector2 aMax, Color imageColor, UiDesignTokens t)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(parent, false);
-            var rt = go.AddComponent<RectTransform>();
-            rt.anchorMin = aMin;
-            rt.anchorMax = aMax;
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
-            go.AddComponent<CanvasRenderer>();
-            var img = go.AddComponent<Image>();
-            img.color = imageColor;
-            var btn = go.AddComponent<Button>();
-            btn.targetGraphic = img;
-
-            var txtGo = new GameObject("Label");
-            txtGo.transform.SetParent(go.transform, false);
-            var trt = txtGo.AddComponent<RectTransform>();
-            UiTokenApplier.StretchFull(trt);
-            txtGo.AddComponent<CanvasRenderer>();
-            var txt = txtGo.AddComponent<Text>();
-            txt.font      = font;
-            txt.fontSize  = t?.typography.body.fontSize ?? 26;
-            txt.fontStyle = FontStyle.Bold;
-            txt.alignment = TextAnchor.MiddleCenter;
-            txt.color     = t?.palette.onPrimary ?? Color.white;
-            txt.text      = label;
-            return btn;
-        }
-
-        /// <summary>
-        /// Caption text for buttons we create ("Label") or Unity UI defaults ("Text").
-        /// </summary>
-        private static Text GetButtonCaptionText(Button btn)
-        {
-            if (btn == null)
-                return null;
-            var labelTr = btn.transform.Find("Label");
-            if (labelTr != null)
-            {
-                var text = labelTr.GetComponent<Text>();
-                if (text != null)
-                    return text;
-            }
-            var textTr = btn.transform.Find("Text");
-            if (textTr != null)
-            {
-                var text = textTr.GetComponent<Text>();
-                if (text != null)
-                    return text;
-            }
-            return btn.GetComponentInChildren<Text>(true);
-        }
-
-        private static void SetButtonLabelStyle(Button btn, int fontSize)
-        {
-            var text = GetButtonCaptionText(btn);
-            if (text != null)
-                text.fontSize = fontSize;
-        }
-
-        private static InputField CreateInput(Transform parent, string name, string placeholder, Font font,
-            bool isPassword, Vector2 aMin, Vector2 aMax, UiDesignTokens t)
-        {
-            var root = new GameObject(name);
-            root.transform.SetParent(parent, false);
-            var rt = root.AddComponent<RectTransform>();
-            rt.anchorMin = aMin;
-            rt.anchorMax = aMax;
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
-            root.AddComponent<CanvasRenderer>();
-
-            var bg = root.AddComponent<Image>();
-            bg.color = t?.palette.inputBackground ?? new Color(1f, 1f, 1f, 0.12f);
-
-            var inp = root.AddComponent<InputField>();
-            inp.contentType = isPassword ? InputField.ContentType.Password : InputField.ContentType.Standard;
-
-            var textGo = new GameObject("Text");
-            textGo.transform.SetParent(root.transform, false);
-            var tRt = textGo.AddComponent<RectTransform>();
-            tRt.anchorMin = new Vector2(0.02f, 0.1f);
-            tRt.anchorMax = new Vector2(0.98f, 0.9f);
-            tRt.offsetMin = Vector2.zero;
-            tRt.offsetMax = Vector2.zero;
-            textGo.AddComponent<CanvasRenderer>();
-            var inputText = textGo.AddComponent<Text>();
-            inputText.font          = font;
-            inputText.fontSize      = t?.typography.body.fontSize ?? 26;
-            inputText.color         = t?.palette.textPrimary ?? Color.white;
-            inputText.supportRichText = false;
-            inputText.raycastTarget = true;
-            inputText.alignment     = TextAnchor.MiddleLeft;
-            inp.textComponent       = inputText;
-
-            var phGo = new GameObject("Placeholder");
-            phGo.transform.SetParent(root.transform, false);
-            var pRt = phGo.AddComponent<RectTransform>();
-            UiTokenApplier.StretchFull(pRt);
-            phGo.AddComponent<CanvasRenderer>();
-            var pt = phGo.AddComponent<Text>();
-            pt.font          = font;
-            pt.fontSize      = t?.typography.body.fontSize ?? 26;
-            pt.fontStyle     = FontStyle.Italic;
-            pt.color         = t?.palette.inputPlaceholder ?? new Color(1f, 1f, 1f, 0.45f);
-            pt.text          = placeholder;
-            pt.raycastTarget = false;
-            inp.placeholder  = pt;
-
-            return inp;
+            field.isPasswordField = true;
+            field.maskChar = '*';
         }
 
         private void Start()
         {
             if (apiClient == null)
             {
-                SetStatus("Auth API client missing. Add AuthApiClient to the GameFlow object.");
+                SetStatus("AuthApiClient is missing. Wire it on the GameFlow GameObject.");
                 return;
             }
 
             if (GameFlowController.Instance == null)
             {
-                SetStatus("GameFlowController missing.");
+                SetStatus("GameFlowController is missing.");
                 return;
             }
 
-            loginButton?.onClick.AddListener(OnLoginClicked);
-            registerButton?.onClick.AddListener(OnRegisterClicked);
-            goToRegisterButton?.onClick.AddListener(OnGoToRegisterClicked);
-            goToLoginButton?.onClick.AddListener(OnGoToLoginClicked);
-            newUsernameButton?.onClick.AddListener(RefreshSuggestedUsername);
+            _loginButton?.RegisterCallback<ClickEvent>(_ => OnLoginClicked());
+            _registerButton?.RegisterCallback<ClickEvent>(_ => OnRegisterClicked());
+            _goToRegister?.RegisterCallback<ClickEvent>(_ => ShowRegisterFlow(true));
+            _goToLogin?.RegisterCallback<ClickEvent>(_ => ShowRegisterFlow(false));
+            _newUsernameButton?.RegisterCallback<ClickEvent>(_ => RefreshSuggestedUsername());
 
             StartCoroutine(TryResumeSession());
             RefreshSuggestedUsername();
-            ShowRegister(false);
+            ShowRegisterFlow(false);
         }
-
-        private void OnDestroy()
-        {
-            loginButton?.onClick.RemoveListener(OnLoginClicked);
-            registerButton?.onClick.RemoveListener(OnRegisterClicked);
-            goToRegisterButton?.onClick.RemoveListener(OnGoToRegisterClicked);
-            goToLoginButton?.onClick.RemoveListener(OnGoToLoginClicked);
-            newUsernameButton?.onClick.RemoveListener(RefreshSuggestedUsername);
-        }
-
-        private void OnGoToRegisterClicked() => ShowRegister(true);
-        private void OnGoToLoginClicked()    => ShowRegister(false);
 
         private IEnumerator TryResumeSession()
         {
-            yield return apiClient.ValidateSession(
+            PushAuthBusyScope();
+            _loading.Show("Checking session…");
+
+            yield return StartCoroutine(apiClient.ValidateSession(
                 onValid: () => { GameFlowController.Instance?.LoadMainMenu(); },
-                onInvalid: _ =>
-                {
-                    GameSessionStateStore.Clear();
-                    /* stay on auth */
-                });
+                onInvalid: _ => { GameSessionStateStore.Clear(); }));
+
+            _loading.Hide();
+            PopAuthBusyScope();
         }
 
-        private void ShowRegister(bool register)
+        private void ShowRegisterFlow(bool register)
         {
-            if (loginPanel != null)
-                loginPanel.SetActive(!register);
-            if (registerPanel != null)
-                registerPanel.SetActive(register);
+            if (_loginPanel != null)
+                _loginPanel.style.display = register ? DisplayStyle.None : DisplayStyle.Flex;
+
+            if (_registerPanel != null)
+                _registerPanel.style.display = register ? DisplayStyle.Flex : DisplayStyle.None;
+
             SetStatus(string.Empty);
         }
 
-        private void SetStatus(string msg)
+        private void SetStatus(string message)
         {
-            if (statusText != null)
-                statusText.text = msg ?? string.Empty;
-            else if (!string.IsNullOrEmpty(msg))
-                Debug.LogWarning("[AuthView] " + msg);
+            if (_statusLabel != null)
+                _statusLabel.text = message ?? string.Empty;
+            else if (!string.IsNullOrEmpty(message))
+                Debug.LogWarning("[AuthView] " + message);
         }
 
         private void RefreshSuggestedUsername()
         {
             if (apiClient == null)
                 return;
-            StartCoroutine(apiClient.SuggestUsername(
+
+            StartCoroutine(SuggestUsernameCoroutine());
+        }
+
+        private IEnumerator SuggestUsernameCoroutine()
+        {
+            PushAuthBusyScope();
+
+            yield return StartCoroutine(apiClient.SuggestUsername(
                 u =>
                 {
                     _suggestedUsername = u;
-                    if (generatedUsernameText != null)
-                        generatedUsernameText.text = u;
+                    if (_generatedUsernameLabel != null)
+                        _generatedUsernameLabel.text = u;
                 },
-                err => SetStatus("Could not get username: " + err)));
+                err => SetStatus("Could not get a learner name suggestion: " + err)));
+
+            PopAuthBusyScope();
         }
 
         private void OnRegisterClicked()
         {
             if (apiClient == null)
                 return;
+
+            if (IsAuthBusy())
+                return;
+
             if (string.IsNullOrEmpty(_suggestedUsername))
             {
-                SetStatus("Please wait for a username.");
+                SetStatus("Wait until a learner name is suggested.");
                 return;
             }
 
-            var a = registerPassword != null ? registerPassword.text : string.Empty;
-            var b = registerPasswordConfirm != null ? registerPasswordConfirm.text : string.Empty;
+            string a = _registerPassword != null ? _registerPassword.value : string.Empty;
+            string b = _registerPasswordConfirm != null ? _registerPasswordConfirm.value : string.Empty;
+
             if (a != b)
             {
-                SetStatus("Passwords do not match.");
+                SetStatus("The passwords don't match.");
                 return;
             }
 
             if (a.Length < 8)
             {
-                SetStatus("Password must be at least 8 characters.");
+                SetStatus("Choose a password of at least 8 characters.");
                 return;
             }
 
-            SetStatus("Creating account...");
-            StartCoroutine(apiClient.Register(_suggestedUsername, a, b,
-                username =>
+            SetStatus("Creating your account…");
+            StartCoroutine(RegisterCoroutine(_suggestedUsername, a, b));
+        }
+
+        private IEnumerator RegisterCoroutine(string username, string pwd, string pwdConfirm)
+        {
+            PushAuthBusyScope();
+
+            yield return StartCoroutine(apiClient.Register(username, pwd, pwdConfirm,
+                u =>
                 {
-                    SetStatus("Account ready. Username: " + username + " — you can log in now.");
-                    ShowRegister(false);
-                    if (loginUsername != null)
-                        loginUsername.text = username;
+                    SetStatus($"Account ready: {u} — you can sign in now!");
+                    ShowRegisterFlow(false);
+
+                    if (_loginUsername != null)
+                        _loginUsername.value = u;
                 },
                 err => SetStatus(err)));
+
+            PopAuthBusyScope();
         }
 
         private void OnLoginClicked()
         {
             if (apiClient == null)
                 return;
-            var u = loginUsername != null ? loginUsername.text.Trim() : string.Empty;
-            var p = loginPassword != null ? loginPassword.text : string.Empty;
-            if (string.IsNullOrEmpty(u) || string.IsNullOrEmpty(p))
+
+            if (IsAuthBusy())
+                return;
+
+            string username = _loginUsername != null ? _loginUsername.value.Trim() : string.Empty;
+            string pwd = _loginPassword != null ? _loginPassword.value : string.Empty;
+
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(pwd))
             {
-                SetStatus("Enter username and password.");
+                SetStatus("Enter both username and password.");
                 return;
             }
 
-            SetStatus("Signing in...");
-            StartCoroutine(apiClient.Login(u, p,
+            SetStatus("Signing you in…");
+            StartCoroutine(LoginCoroutine(username, pwd));
+        }
+
+        private IEnumerator LoginCoroutine(string username, string password)
+        {
+            PushAuthBusyScope();
+
+            yield return StartCoroutine(apiClient.Login(username, password,
                 () =>
                 {
                     SetStatus(string.Empty);
@@ -556,6 +264,61 @@ namespace LanguageGame.Presentation
                     GameFlowController.Instance?.LoadMainMenu();
                 },
                 err => SetStatus(err)));
+
+            PopAuthBusyScope();
+        }
+
+        private void AttachLoadingChrome()
+        {
+            VisualElement overlay = LearningToolkitBootstrap.ResolveOverlayPlane(_doc);
+            if (overlay == null)
+            {
+                Debug.LogError("[AuthView] overlay-plane missing in Auth UI definition; loading chrome disabled.");
+                return;
+            }
+
+            if (!_loading.IsAttached)
+                _loading.Attach(overlay);
+        }
+
+        private bool IsAuthBusy() => _authBusyRequests > 0;
+
+        private void PushAuthBusyScope()
+        {
+            _authBusyRequests++;
+            RefreshAuthInteractableAfterBusyChange();
+        }
+
+        private void PopAuthBusyScope()
+        {
+            if (_authBusyRequests > 0)
+                _authBusyRequests--;
+
+            RefreshAuthInteractableAfterBusyChange();
+        }
+
+        private void RefreshAuthInteractableAfterBusyChange()
+        {
+            bool idle = !IsAuthBusy();
+
+            _loginButton?.SetEnabled(idle);
+            _registerButton?.SetEnabled(idle);
+            _goToRegister?.SetEnabled(idle);
+            _goToLogin?.SetEnabled(idle);
+            _newUsernameButton?.SetEnabled(idle);
+
+            bool fieldsIdle = idle;
+            _loginUsername?.SetEnabled(fieldsIdle);
+            _loginPassword?.SetEnabled(fieldsIdle);
+            _registerPassword?.SetEnabled(fieldsIdle);
+            _registerPasswordConfirm?.SetEnabled(fieldsIdle);
+        }
+
+        private void OnDestroy()
+        {
+            _loading.Destroy();
+            if (_doc != null)
+                Destroy(_doc.gameObject);
         }
     }
 }

@@ -394,12 +394,11 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5cb2c34fcb2e4d219354d72f31d9b2a2, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
-  backToChapterButton: {fileID: 0}
-  questButtonA: {fileID: 0}
-  questLabelA: {fileID: 0}
-  questButtonB: {fileID: 0}
-  questLabelB: {fileID: 0}
-  questButtonC: {fileID: 0}
-  questLabelC: {fileID: 0}
-  chapterTitleText: {fileID: 0}
+  m_EditorClassIdentifier:
+--- !u!1660057539 &9223372036854775807
+SceneRoots:
+  m_ObjectHideFlags: 0
+  m_Roots:
+  - {fileID: 519420032}
+  - {fileID: 619394802}
+  - {fileID: 2200000002}

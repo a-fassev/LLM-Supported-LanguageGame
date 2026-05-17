@@ -3,7 +3,7 @@ using UnityEngine.UIElements;
 
 namespace LanguageGame.Presentation.Steps
 {
-    /// <summary>Unimplemented task types — same behavior as <see cref="ErrorSpottingStepView"/>.</summary>
+    /// <summary>Placeholder UI Toolkit step for task types without a dedicated implementation yet.</summary>
     public sealed class StubToolkitTaskStep : IStepView, ISubmitFromShell
     {
         private const string UnimplementedMessage = "This task type is not implemented yet.";
@@ -11,8 +11,6 @@ namespace LanguageGame.Presentation.Steps
         private readonly VisualElement _root;
 
         private StepContext _context;
-
-        private Action<StepCompletionRequest> _onRequest;
 
         public StubToolkitTaskStep(VisualElement host, string taskTypeLabel)
         {
@@ -38,10 +36,9 @@ namespace LanguageGame.Presentation.Steps
             host.Add(_root);
         }
 
-        public void Bind(StepContext context, Action<StepCompletionRequest> onRequest)
+        public void Bind(StepContext context, Action<StepCompletionRequest> _)
         {
             _context = context;
-            _onRequest = onRequest;
         }
 
         public void SetInteractable(bool interactable)
@@ -56,7 +53,6 @@ namespace LanguageGame.Presentation.Steps
         public void Teardown()
         {
             _context = null;
-            _onRequest = null;
             _root?.RemoveFromHierarchy();
         }
     }

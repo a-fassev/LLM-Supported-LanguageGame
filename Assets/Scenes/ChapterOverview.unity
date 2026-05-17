@@ -395,12 +395,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f96e9ba5fd34d27a7ac53f1bfcf2b27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  backToMenuButton: {fileID: 0}
-  avatarShopButton: {fileID: 0}
-  chapterButtonA: {fileID: 0}
-  chapterLabelA: {fileID: 0}
-  chapterButtonB: {fileID: 0}
-  chapterLabelB: {fileID: 0}
-  chapterButtonC: {fileID: 0}
-  chapterLabelC: {fileID: 0}
-  titleText: {fileID: 0}
+--- !u!1660057539 &9223372036854775807
+SceneRoots:
+  m_ObjectHideFlags: 0
+  m_Roots:
+  - {fileID: 519420032}
+  - {fileID: 619394802}
+  - {fileID: 2100000002}

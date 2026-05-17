@@ -24,6 +24,7 @@ namespace LanguageGame.Presentation.Steps
         private readonly Label _progressLabel;
         private readonly MonoBehaviour _coroutineHost;
         private readonly List<Coroutine> _mediaLoads = new();
+        private readonly List<Texture2D> _remoteImageTextures = new();
         private readonly List<Toggle> _activeToggles = new();
         private readonly Dictionary<int, HashSet<string>> _selections = new();
 
@@ -108,7 +109,7 @@ namespace LanguageGame.Presentation.Steps
             if (!TryDeserialize(context?.contentJson, out var dto, out var error))
             {
                 Debug.LogWarning($"[MultipleChoiceToolkitStep] Invalid contentJson: {error ?? "unknown"}");
-                context?.presentValidationFeedback?.Invoke(string.IsNullOrEmpty(error) ? "Invalid multiple-choice content." : error);
+                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? "Invalid multiple-choice content." : error);
                 return;
             }
 
@@ -117,7 +118,7 @@ namespace LanguageGame.Presentation.Steps
             if (!string.IsNullOrEmpty(error) || !ValidateQuestions(_questions, out error))
             {
                 Debug.LogWarning($"[MultipleChoiceToolkitStep] Invalid contentJson: {error ?? "unknown"}");
-                context?.presentValidationFeedback?.Invoke(string.IsNullOrEmpty(error) ? "Invalid multiple-choice content." : error);
+                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? "Invalid multiple-choice content." : error);
                 _questions = null;
                 return;
             }
@@ -164,7 +165,7 @@ namespace LanguageGame.Presentation.Steps
         {
             if (!_contentReady || _questions == null)
             {
-                _context?.presentValidationFeedback?.Invoke("Invalid multiple-choice content.");
+                _context?.presentValidationMessage?.Invoke("Invalid multiple-choice content.");
                 return;
             }
 
@@ -172,7 +173,7 @@ namespace LanguageGame.Presentation.Steps
             {
                 if (!_selections.TryGetValue(i, out var sel) || sel == null || sel.Count == 0)
                 {
-                    _context?.presentValidationFeedback?.Invoke("Please answer every question before checking.");
+                    _context?.presentValidationMessage?.Invoke("Please answer every question before checking.");
                     JumpToQuestion(i);
                     return;
                 }
@@ -183,14 +184,14 @@ namespace LanguageGame.Presentation.Steps
                 {
                     if (sel.Count != 1 || !correct.SetEquals(sel))
                     {
-                        _context?.presentValidationFeedback?.Invoke("Not quite — check your answers.");
+                        _context?.presentValidationMessage?.Invoke("Not quite — check your answers.");
                         JumpToQuestion(i);
                         return;
                     }
                 }
                 else if (!correct.SetEquals(sel))
                 {
-                    _context?.presentValidationFeedback?.Invoke("Not quite — check your answers.");
+                    _context?.presentValidationMessage?.Invoke("Not quite — check your answers.");
                     JumpToQuestion(i);
                     return;
                 }
@@ -236,7 +237,7 @@ namespace LanguageGame.Presentation.Steps
             var q = _questions[_currentIndex];
             if (q == null)
             {
-                _context?.presentValidationFeedback?.Invoke("Invalid multiple-choice question.");
+                _context?.presentValidationMessage?.Invoke("Invalid multiple-choice question.");
                 return;
             }
 
@@ -322,7 +323,7 @@ namespace LanguageGame.Presentation.Steps
         {
             if (q?.options == null)
             {
-                _context?.presentValidationFeedback?.Invoke("Invalid multiple-choice content.");
+                _context?.presentValidationMessage?.Invoke("Invalid multiple-choice content.");
                 return;
             }
 
@@ -335,7 +336,7 @@ namespace LanguageGame.Presentation.Steps
 
             if (_optionsDisplayOrder.Count == 0)
             {
-                _context?.presentValidationFeedback?.Invoke("This question has no valid answer choices.");
+                _context?.presentValidationMessage?.Invoke("This question has no valid answer choices.");
                 return;
             }
 
@@ -444,6 +445,14 @@ namespace LanguageGame.Presentation.Steps
             if (_coroutineHost == null)
             {
                 _mediaLoads.Clear();
+                foreach (var tex in _remoteImageTextures)
+                {
+                    if (tex != null)
+                        UnityEngine.Object.Destroy(tex);
+                }
+
+                _remoteImageTextures.Clear();
+                StopAndDestroyLoadedAudioClip();
                 return;
             }
 
@@ -454,14 +463,28 @@ namespace LanguageGame.Presentation.Steps
             }
 
             _mediaLoads.Clear();
-            if (_audioSource != null)
+            foreach (var tex in _remoteImageTextures)
             {
-                _audioSource.Stop();
-                _audioSource.clip = null;
+                if (tex != null)
+                    UnityEngine.Object.Destroy(tex);
             }
+
+            _remoteImageTextures.Clear();
+            StopAndDestroyLoadedAudioClip();
         }
 
-        private static IEnumerator LoadRemoteTextureBg(string url, VisualElement target)
+        private void StopAndDestroyLoadedAudioClip()
+        {
+            if (_audioSource == null)
+                return;
+            _audioSource.Stop();
+            var clip = _audioSource.clip;
+            _audioSource.clip = null;
+            if (clip != null)
+                UnityEngine.Object.Destroy(clip);
+        }
+
+        private IEnumerator LoadRemoteTextureBg(string url, VisualElement target)
         {
             using var req = UnityWebRequestTexture.GetTexture(url);
             yield return req.SendWebRequest();
@@ -469,7 +492,10 @@ namespace LanguageGame.Presentation.Steps
                 yield break;
             var tex = DownloadHandlerTexture.GetContent(req);
             if (tex != null)
+            {
+                _remoteImageTextures.Add(tex);
                 target.style.backgroundImage = new StyleBackground(tex);
+            }
         }
 
         private void EnsureAudioSource()
@@ -494,7 +520,10 @@ namespace LanguageGame.Presentation.Steps
             if (clip == null)
                 yield break;
             _audioSource.Stop();
+            var previous = _audioSource.clip;
             _audioSource.clip = clip;
+            if (previous != null)
+                UnityEngine.Object.Destroy(previous);
             _audioSource.Play();
         }
 

@@ -30,11 +30,10 @@ The **committed** repository is a **Unity 6.4** project at the **repository root
 
 **Unity UI / scene conventions (navigation flow):**
 
-- **EventSystem:** With the New Input System, use the **Input System UI Input Module** on `EventSystem` in UI scenes — not the legacy standalone input module — so Canvas interactions work.
+- **UI Toolkit:** Menus and quest shell use **UI Toolkit** (`UIDocument`, UXML/USS under `Assets/Resources/UI/LearningToolkit/`). `LearningToolkitBootstrap` wires shared `PanelSettings` / theme. Do not add **Canvas** / **uGUI** for these navigation screens.
 - **Camera:** Menu, map, chapter/quest overview, and quest-shell scenes include an active **Main Camera**; mirror that when adding scenes to the same flow unless you intentionally use a different rendering setup.
-- **Scene-authored UI + runtime fallback (same Canvas):** If a view resolves refs from the hierarchy but may rebuild UI when incomplete (pattern used by `AuthView`), gate fallback on **all required controls** being present—not only “Canvas has no children”—otherwise partially drifted hierarchies fail silently. Before rebuilding under `Awake`, remove existing Canvas children with **`DestroyImmediate`**, not `Destroy`, so deferred teardown does not leave old widgets alive alongside new UI.
-- **UI design tokens:** Shared uGUI styling lives in `UiDesignTokens` (`Assets/Scripts/Presentation/UiDesignTokens.cs`, ScriptableObject). `UiThemeProvider` exposes tokens for runtime builders; optional default asset at `Resources/UI/UiDesignTokens_Default`. Use `UiTokenApplier` helpers for typography and related properties—avoid scattering duplicate literals in new Presentation code.
-- **Wallet HUD (pizza + backpack pieces):** **Scene-authored** Canvas widgets — **ChapterOverview**, **Quest**, **AvatarShop** mirror the pizza layout pattern for backpack totals (anchors/layering with shops and chrome). Prefer hierarchy tweaks over spawning separate runtime HUD objects. **`MainMenu` deliberately omits wallet labels** (`PizzaSlicesText` / `BackpackPiecesText`): bootstrap still refreshes session/flow for later scenes that show totals.
+- **UI design tokens:** Shared styling data lives in `UiDesignTokens` (`Assets/Scripts/Presentation/UiDesignTokens.cs`, ScriptableObject). `UiThemeProvider` exposes tokens at runtime; optional default asset at `Resources/UI/UiDesignTokens_Default`. Optional stack-agnostic helpers: `UiTokenApplier` (typography/contrast without uGUI types).
+- **Wallet HUD (pizza + backpack pieces):** Displayed via UI Toolkit where the screen defines wallet chips (**ChapterOverview**, **Quest**, **AvatarShop**). **`MainMenu` may omit wallet labels** while bootstrap still refreshes session totals for later scenes.
 
 ### Web / auth API (`apps/web`)
 

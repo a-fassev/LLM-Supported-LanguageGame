@@ -1,15 +1,10 @@
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 using UnityEngine.UIElements;
-#if ENABLE_INPUT_SYSTEM
-using UnityEngine.InputSystem.UI;
-#endif
 
 namespace LanguageGame.Presentation
 {
     /// <summary>
-    /// Spawns <see cref="UIDocument"/> instances for migrated menu/overview screens without keeping dual Canvas stacks alive.
+    /// Spawns <see cref="UIDocument"/> instances for screens using shared menus panel settings and theme.
     /// </summary>
     internal static class LearningToolkitBootstrap
     {
@@ -83,24 +78,11 @@ namespace LanguageGame.Presentation
         public static VisualTreeAsset LoadLayout(string nameWithoutExtension) =>
             Resources.Load<VisualTreeAsset>($"UI/LearningToolkit/{nameWithoutExtension}");
 
-        /// <summary>Disables an authored Canvas (if present) without deactivating the hosting GameObject (scripts stay alive).</summary>
-        public static void DisableHostedCanvas(Component owner)
-        {
-            var canvas = owner.GetComponent<Canvas>();
-            if (canvas != null)
-                canvas.enabled = false;
-
-            foreach (var raycaster in owner.GetComponents<GraphicRaycaster>())
-                raycaster.enabled = false;
-        }
-
         /// <summary>
-        /// Creates a hierarchical <see cref="UIDocument"/>. Returns <c>null</c> if required assets fail to load; callers must disable behaviour or degrade gracefully.
+        /// Creates a hierarchical <see cref="UIDocument"/>. Returns <c>null</c> if required assets fail to load.
         /// </summary>
         public static UIDocument SpawnUiDocument(MonoBehaviour owner, string layoutNameWithoutExtension)
         {
-            DisableHostedCanvas(owner);
-
             PanelSettings panel = ResolveMenusRuntimePanelSettings();
             if (panel == null)
                 return null;
@@ -112,8 +94,6 @@ namespace LanguageGame.Presentation
                     $"[LearningToolkitBootstrap] Missing UXML/VTree at Resources/UI/LearningToolkit/{layoutNameWithoutExtension}.");
                 return null;
             }
-
-            EnsureEventSystem();
 
             var rootTransform = owner.transform.root;
             var go = new GameObject($"LearningToolkit_{layoutNameWithoutExtension}");
@@ -133,19 +113,6 @@ namespace LanguageGame.Presentation
                 return null;
 
             return doc.rootVisualElement.Q<VisualElement>("overlay-plane");
-        }
-
-        public static void EnsureEventSystem()
-        {
-            if (Object.FindAnyObjectByType<EventSystem>() != null)
-                return;
-
-            var es = new GameObject("EventSystem", typeof(EventSystem));
-#if ENABLE_INPUT_SYSTEM
-            es.AddComponent<InputSystemUIInputModule>();
-#else
-            es.AddComponent<StandaloneInputModule>();
-#endif
         }
     }
 }

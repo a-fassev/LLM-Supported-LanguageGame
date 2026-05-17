@@ -41,7 +41,7 @@ namespace LanguageGame.Presentation.Steps
             if (!TryDeserialize(context?.contentJson, out var dto, out var error))
             {
                 Debug.LogWarning($"[ClozeTextToolkitStep] Invalid contentJson: {error ?? "unknown"}");
-                context?.presentValidationFeedback?.Invoke(string.IsNullOrEmpty(error) ? "Invalid cloze content." : error);
+                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? "Invalid cloze content." : error);
                 return;
             }
 
@@ -115,7 +115,7 @@ namespace LanguageGame.Presentation.Steps
             if (_gaps.Count == 0)
             {
                 Debug.LogWarning("[ClozeTextToolkitStep] Parsed payload but found no gap slots.");
-                context?.presentValidationFeedback?.Invoke("Cloze task has no gaps.");
+                context?.presentValidationMessage?.Invoke("Cloze task has no gaps.");
                 return;
             }
 
@@ -135,7 +135,7 @@ namespace LanguageGame.Presentation.Steps
         {
             if (!_contentReady)
             {
-                _context?.presentValidationFeedback?.Invoke("This task is not ready yet. Check the lesson content.");
+                _context?.presentValidationMessage?.Invoke("This task is not ready yet. Check the lesson content.");
                 return;
             }
 
@@ -146,13 +146,13 @@ namespace LanguageGame.Presentation.Steps
                 var typed = (slot.field.value ?? string.Empty).Trim();
                 if (typed.Length == 0)
                 {
-                    _context?.presentValidationFeedback?.Invoke("Fill in every gap.");
+                    _context?.presentValidationMessage?.Invoke("Fill in every gap.");
                     return;
                 }
 
                 if (!MatchesAnyAnswer(typed, slot.answers, slot.caseInsensitive))
                 {
-                    _context?.presentValidationFeedback?.Invoke("Not quite — check your answers.");
+                    _context?.presentValidationMessage?.Invoke("Not quite — check your answers.");
                     return;
                 }
             }

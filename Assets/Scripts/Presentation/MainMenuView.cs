@@ -1,11 +1,12 @@
 using System.Collections;
-using UnityEngine;
-using UnityEngine.UI;
 using LanguageGame.Application;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace LanguageGame.Presentation
 {
-    public class MainMenuView : MonoBehaviour
+    /// <summary>Main menu using UI Toolkit menus theme.</summary>
+    public sealed class MainMenuView : MonoBehaviour
     {
         private enum BootstrapLoadState
         {
@@ -15,39 +16,65 @@ namespace LanguageGame.Presentation
             Error
         }
 
-        [SerializeField] private Button playButton;
-        [SerializeField] private Button logoutButton;
+        private UIDocument _doc;
 
         private GameProgressApiClient _gameApi;
 
-        private readonly LoadErrorBanner _loadErrorBanner = new LoadErrorBanner();
-        private readonly LoadingOverlayPresenter _loadingOverlay = new LoadingOverlayPresenter();
+        private readonly LearningToolkitLoadingOverlay _loadingOverlay = new LearningToolkitLoadingOverlay();
+
+        private readonly LearningToolkitLoadErrorBanner _loadErrorBanner = new LearningToolkitLoadErrorBanner();
+
         private bool _bootstrapReloadRequested;
+
         private BootstrapLoadState _bootstrapState = BootstrapLoadState.Idle;
 
         private void Awake()
         {
-            if (playButton == null)
-                Debug.LogWarning("[MainMenuView] playButton is not assigned.");
-            if (logoutButton == null)
-                Debug.LogWarning("[MainMenuView] logoutButton is not assigned.");
-        }
+            _doc = LearningToolkitBootstrap.SpawnUiDocument(this, "MainMenuScreen");
+            if (_doc == null)
+            {
+                Debug.LogError("[MainMenuView] UI Toolkit bootstrap failed — check Resources paths and PanelSettings.");
+                enabled = false;
+                return;
+            }
 
-        private void Start()
-        {
-            playButton?.onClick.AddListener(OnPlayClicked);
-            logoutButton?.onClick.AddListener(OnLogoutClicked);
-            _gameApi = FindAnyObjectByType<GameProgressApiClient>();
+            AttachOverlays();
+
+            VisualElement root = _doc.rootVisualElement;
+
+            root.Q<Button>("play-button")?.RegisterCallback<ClickEvent>(_ => OnPlayClicked());
+            root.Q<Button>("logout-button")?.RegisterCallback<ClickEvent>(_ => OnLogoutClicked());
 
             if (GameSessionStateStore.TryGetLatestTotalSlices(out var cachedSlices))
                 GameFlowController.Instance?.SetTotalPizzaSlices(cachedSlices);
+
             if (GameSessionStateStore.TryGetLatestTotalBackpackPieces(out var cachedBackpack))
                 GameFlowController.Instance?.SetTotalBackpackPieces(cachedBackpack);
 
-            if (_gameApi == null)
-                return;
+            AttemptResolveGameApiAndMaybeBootstrap();
+        }
 
-            var hasSnapshot = GameSessionStateStore.TryGetBootstrapSnapshot(out _);
+        /// <summary>Re-fetch <see cref="GameProgressApiClient"/> and continue bootstrap flow; invoked from banners and retries.</summary>
+        private void AttemptResolveGameApiAndMaybeBootstrap()
+        {
+            _gameApi = FindAnyObjectByType<GameProgressApiClient>();
+
+            if (_gameApi == null)
+            {
+                Debug.LogWarning("[MainMenuView] GameProgressApiClient not found.");
+
+                _bootstrapState = BootstrapLoadState.Idle;
+
+                _loadErrorBanner.Show(
+                    "GameProgressApiClient was not found on the GameFlow object — add it here or Retry.",
+                    AttemptResolveGameApiAndMaybeBootstrap);
+
+                return;
+            }
+
+            _loadErrorBanner.Hide();
+
+            bool hasSnapshot = GameSessionStateStore.TryGetBootstrapSnapshot(out _);
             if (hasSnapshot && GameSessionStateStore.IsBootstrapFresh(GameSessionStateStore.DefaultBootstrapFreshSeconds))
             {
                 _bootstrapState = BootstrapLoadState.Ready;
@@ -57,34 +84,17 @@ namespace LanguageGame.Presentation
             StartCoroutine(LoadPizzaRoutine(_gameApi, showBlockingOverlay: !hasSnapshot));
         }
 
-        private void EnsureMenuErrorBanner()
+        private void AttachOverlays()
         {
-            var canvas = GetComponentInParent<Canvas>();
-            if (canvas == null)
-                canvas = FindAnyObjectByType<Canvas>();
-            if (canvas == null)
+            VisualElement overlayPlane = LearningToolkitBootstrap.ResolveOverlayPlane(_doc);
+            if (overlayPlane == null)
             {
-                Debug.LogError("[MainMenuView] No Canvas in parent hierarchy; load error banner cannot be created.");
+                Debug.LogError("[MainMenuView] overlay-plane missing in MainMenu UI definition.");
                 return;
             }
 
-            UiThemeProvider.TryGet(out var tokens);
-            _loadErrorBanner.Ensure(canvas, tokens);
-        }
-
-        private bool EnsureLoadingOverlay()
-        {
-            var canvas = GetComponentInParent<Canvas>();
-            if (canvas == null)
-                canvas = FindAnyObjectByType<Canvas>();
-            if (canvas == null)
-            {
-                Debug.LogError("[MainMenuView] No Canvas in parent hierarchy; loading overlay cannot be created.");
-                return false;
-            }
-
-            UiThemeProvider.TryGet(out var tokens);
-            return _loadingOverlay.Ensure(canvas, tokens);
+            _loadingOverlay.Attach(overlayPlane);
+            _loadErrorBanner.Attach(overlayPlane);
         }
 
         private IEnumerator LoadPizzaRoutine(GameProgressApiClient api, bool showBlockingOverlay)
@@ -97,38 +107,39 @@ namespace LanguageGame.Presentation
 
             _bootstrapState = BootstrapLoadState.Loading;
             _bootstrapReloadRequested = false;
-            EnsureMenuErrorBanner();
-            var overlayReady = EnsureLoadingOverlay();
             _loadErrorBanner.SetRetryInteractable(false);
+
             if (showBlockingOverlay)
-            {
-                if (overlayReady)
-                    _loadingOverlay.Show("Loading game data...");
-                else
-                    Debug.LogWarning("[MainMenuView] Blocking loading overlay unavailable; continuing with inline loading state.");
-            }
+                _loadingOverlay.Show("Loading game data…");
+            else
+                _loadingOverlay.Hide();
 
             try
             {
                 _loadErrorBanner.Hide();
                 var useCase = new LoadGameBootstrapUseCase(api);
                 GameBootstrapEnvelope env = null;
-                var err = string.Empty;
+                string err = string.Empty;
                 yield return useCase.Run(e => env = e, m => err = m);
 
                 if (env == null || !env.ok)
                 {
                     _bootstrapState = BootstrapLoadState.Error;
+
+                    string message = string.IsNullOrEmpty(err)
+                        ? "Couldn't load game bootstrap. Did you run the classroom server (npm run dev) next door?"
+                        : err;
+
                     if (!string.IsNullOrEmpty(err))
-                        Debug.LogWarning($"[MainMenuView] Bootstrap (pizza) failed: {err}");
+                        Debug.LogWarning($"[MainMenuView] Bootstrap failed: {err}");
+
                     _loadErrorBanner.Show(
-                        string.IsNullOrEmpty(err)
-                            ? "Could not load pizza total. Is the web API running?"
-                            : err,
+                        message,
                         () =>
                         {
                             if (_gameApi == null)
                                 _gameApi = FindAnyObjectByType<GameProgressApiClient>();
+
                             if (_gameApi != null)
                                 StartCoroutine(LoadPizzaRoutine(_gameApi, showBlockingOverlay: true));
                         });
@@ -144,6 +155,7 @@ namespace LanguageGame.Presentation
             {
                 _loadingOverlay.Hide();
                 _loadErrorBanner.SetRetryInteractable(true);
+
                 if (_bootstrapReloadRequested && _gameApi != null)
                     StartCoroutine(LoadPizzaRoutine(_gameApi, showBlockingOverlay: false));
             }
@@ -151,12 +163,34 @@ namespace LanguageGame.Presentation
 
         private void OnPlayClicked()
         {
-            if (GameFlowController.Instance == null)
+            GameFlowController flow = GameFlowController.Instance;
+            if (flow == null)
             {
                 Debug.LogError("[MainMenuView] GameFlowController not found.");
+
+                _loadErrorBanner.Show(
+                    "Navigation is not wired correctly. Check GameFlowController on the bootstrap object.",
+                    RetryAfterFlowNavigationMissing);
+
                 return;
             }
-            GameFlowController.Instance.LoadChapterOverview();
+
+            flow.LoadChapterOverview();
+        }
+
+        private void RetryAfterFlowNavigationMissing()
+        {
+            if (GameFlowController.Instance != null)
+            {
+                _loadErrorBanner.Hide();
+                return;
+            }
+
+            Debug.LogWarning("[MainMenuView] Retry: GameFlowController still unavailable.");
+
+            _loadErrorBanner.Show(
+                    "Navigation is not wired correctly. Check GameFlowController on the bootstrap object.",
+                    RetryAfterFlowNavigationMissing);
         }
 
         private void OnLogoutClicked()
@@ -164,10 +198,15 @@ namespace LanguageGame.Presentation
             if (GameFlowController.Instance == null)
             {
                 Debug.LogError("[MainMenuView] GameFlowController not found.");
+
+                _loadErrorBanner.Show(
+                    "Navigation is not wired correctly. Check GameFlowController on the bootstrap object.",
+                    RetryAfterFlowNavigationMissing);
+
                 return;
             }
 
-            var api = FindAnyObjectByType<AuthApiClient>();
+            AuthApiClient api = FindAnyObjectByType<AuthApiClient>();
             if (api != null)
                 StartCoroutine(LogoutRoutine(api));
             else
@@ -181,7 +220,7 @@ namespace LanguageGame.Presentation
                 onError: _ => FinishLogoutLocalOnly());
         }
 
-        private void FinishLogoutLocalOnly()
+        private static void FinishLogoutLocalOnly()
         {
             AuthSessionStore.Clear();
             GameSessionStateStore.Clear();
@@ -190,10 +229,11 @@ namespace LanguageGame.Presentation
 
         private void OnDestroy()
         {
-            playButton?.onClick.RemoveListener(OnPlayClicked);
-            logoutButton?.onClick.RemoveListener(OnLogoutClicked);
             _loadErrorBanner.Destroy();
             _loadingOverlay.Destroy();
+
+            if (_doc != null)
+                Destroy(_doc.gameObject);
         }
     }
 }

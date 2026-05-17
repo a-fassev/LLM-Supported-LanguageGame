@@ -21,6 +21,8 @@ namespace LanguageGame.Presentation
 
         private readonly LearningToolkitInfoBanner _infoBanner = new();
 
+        private IVisualElementScheduledItem _toastHideSchedule;
+
         private void Awake()
         {
             _doc = LearningToolkitBootstrap.SpawnUiDocument(this, "AvatarShopScreen");
@@ -59,8 +61,18 @@ namespace LanguageGame.Presentation
 
         private void ShowPlaceHolderToast(string message)
         {
+            _toastHideSchedule?.Pause();
             _infoBanner.ShowInfo(message);
-            _doc?.rootVisualElement.schedule.Execute(() => _infoBanner.Hide()).StartingIn(2200);
+            var root = _doc?.rootVisualElement;
+            if (root == null)
+                return;
+            _toastHideSchedule = root.schedule
+                .Execute(() =>
+                {
+                    if (_doc != null && _doc.rootVisualElement != null)
+                        _infoBanner.Hide();
+                })
+                .StartingIn(2200);
         }
 
         private void RefreshWalletLabels()
@@ -86,6 +98,7 @@ namespace LanguageGame.Presentation
 
         private void OnDestroy()
         {
+            _toastHideSchedule?.Pause();
             _infoBanner.Destroy();
             if (_doc != null)
                 Destroy(_doc.gameObject);

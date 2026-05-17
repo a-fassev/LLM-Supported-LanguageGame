@@ -21,6 +21,7 @@ namespace LanguageGame.Presentation.Steps
         private readonly VisualElement _targetsHost;
         private readonly MonoBehaviour _coroutineHost;
         private readonly List<Coroutine> _imageLoads = new();
+        private readonly List<Texture2D> _remoteTileTextures = new();
         private readonly Dictionary<string, VisualElement> _itemTiles = new(StringComparer.Ordinal);
         private readonly Dictionary<string, VisualElement> _targetInnerHosts = new(StringComparer.Ordinal);
         private readonly Dictionary<string, HashSet<string>> _occupant = new(StringComparer.Ordinal);
@@ -77,7 +78,7 @@ namespace LanguageGame.Presentation.Steps
             if (!TryDeserialize(context?.contentJson, out var dto, out var error))
             {
                 Debug.LogWarning($"[DragDropToolkitStep] Invalid contentJson: {error ?? "unknown"}");
-                context?.presentValidationFeedback?.Invoke(string.IsNullOrEmpty(error) ? "Invalid drag-and-drop content." : error);
+                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? "Invalid drag-and-drop content." : error);
                 return;
             }
 
@@ -163,7 +164,7 @@ namespace LanguageGame.Presentation.Steps
 
             _contentReady = _itemTiles.Count > 0 && _targetInnerHosts.Count > 0;
             if (!_contentReady)
-                context?.presentValidationFeedback?.Invoke("Drag-and-drop task is incomplete.");
+                context?.presentValidationMessage?.Invoke("Drag-and-drop task is incomplete.");
         }
 
         public void SetInteractable(bool interactable)
@@ -195,7 +196,7 @@ namespace LanguageGame.Presentation.Steps
         {
             if (!_contentReady || _dto == null)
             {
-                _context?.presentValidationFeedback?.Invoke("This task is not ready yet. Check the lesson content.");
+                _context?.presentValidationMessage?.Invoke("This task is not ready yet. Check the lesson content.");
                 return false;
             }
 
@@ -206,7 +207,7 @@ namespace LanguageGame.Presentation.Steps
                 var tid = t.id.Trim();
                 if (!_occupant.TryGetValue(tid, out var placed) || placed == null)
                 {
-                    _context?.presentValidationFeedback?.Invoke("Fill every drop zone.");
+                    _context?.presentValidationMessage?.Invoke("Fill every drop zone.");
                     return false;
                 }
 
@@ -215,13 +216,13 @@ namespace LanguageGame.Presentation.Steps
                     var expected = BuildExpectedItemSet(t.correctItemIds);
                     if (expected.Count > 0 && placed.Count == 0)
                     {
-                        _context?.presentValidationFeedback?.Invoke("Fill every drop zone.");
+                        _context?.presentValidationMessage?.Invoke("Fill every drop zone.");
                         return false;
                     }
 
                     if (!placed.SetEquals(expected))
                     {
-                        _context?.presentValidationFeedback?.Invoke("Not quite — check your matches.");
+                        _context?.presentValidationMessage?.Invoke("Not quite — check your matches.");
                         return false;
                     }
                 }
@@ -229,20 +230,20 @@ namespace LanguageGame.Presentation.Steps
                 {
                     if (placed.Count == 0)
                     {
-                        _context?.presentValidationFeedback?.Invoke("Fill every drop zone.");
+                        _context?.presentValidationMessage?.Invoke("Fill every drop zone.");
                         return false;
                     }
 
                     if (placed.Count != 1)
                     {
-                        _context?.presentValidationFeedback?.Invoke("Not quite — check your matches.");
+                        _context?.presentValidationMessage?.Invoke("Not quite — check your matches.");
                         return false;
                     }
 
                     var only = FirstOf(placed);
                     if (string.IsNullOrEmpty(only) || !MatchesCorrect(only, t.correctItemIds))
                     {
-                        _context?.presentValidationFeedback?.Invoke("Not quite — check your matches.");
+                        _context?.presentValidationMessage?.Invoke("Not quite — check your matches.");
                         return false;
                     }
                 }
@@ -264,7 +265,7 @@ namespace LanguageGame.Presentation.Steps
 
                     if (!placedAnywhere)
                     {
-                        _context?.presentValidationFeedback?.Invoke("Place every card.");
+                        _context?.presentValidationMessage?.Invoke("Place every card.");
                         return false;
                     }
                 }
@@ -436,19 +437,28 @@ namespace LanguageGame.Presentation.Steps
             if (_coroutineHost == null)
             {
                 _imageLoads.Clear();
-                return;
             }
-
-            foreach (var c in _imageLoads)
+            else
             {
-                if (c != null)
-                    _coroutineHost.StopCoroutine(c);
+                foreach (var c in _imageLoads)
+                {
+                    if (c != null)
+                        _coroutineHost.StopCoroutine(c);
+                }
+
+                _imageLoads.Clear();
             }
 
-            _imageLoads.Clear();
+            foreach (var tex in _remoteTileTextures)
+            {
+                if (tex != null)
+                    UnityEngine.Object.Destroy(tex);
+            }
+
+            _remoteTileTextures.Clear();
         }
 
-        private static IEnumerator LoadImg(string url, VisualElement ve)
+        private IEnumerator LoadImg(string url, VisualElement ve)
         {
             using var req = UnityWebRequestTexture.GetTexture(url);
             yield return req.SendWebRequest();
@@ -456,7 +466,10 @@ namespace LanguageGame.Presentation.Steps
                 yield break;
             var tex = DownloadHandlerTexture.GetContent(req);
             if (tex != null)
+            {
+                _remoteTileTextures.Add(tex);
                 ve.style.backgroundImage = new StyleBackground(tex);
+            }
         }
 
         private static DragDropItemDto FindItem(DragDropContentDto dto, string id)
@@ -492,7 +505,7 @@ namespace LanguageGame.Presentation.Steps
             return order;
         }
 
-        internal void FinalizeDrag(VisualElement tile, Vector3 panelPosition)
+        internal void FinalizeDrag(VisualElement tile, Vector2 panelPosition)
         {
             if (!_dragsEnabled || tile == null)
                 return;
@@ -501,15 +514,26 @@ namespace LanguageGame.Presentation.Steps
             if (string.IsNullOrEmpty(item_id))
                 return;
 
-            var hitZone = FindZoneUnder(panelPosition);
+            var hitZone = FindZoneUnder(panelPosition, tile);
             if (hitZone != null && hitZone.userData is string tid && !string.IsNullOrEmpty(tid))
                 MoveItemToTarget(item_id, tid);
             else
                 MoveItemToBank(item_id);
         }
 
-        private VisualElement FindZoneUnder(Vector3 panelPosition)
+        private VisualElement FindZoneUnder(Vector2 panelPosition, VisualElement reference)
         {
+            var panel = reference?.panel;
+            if (panel != null)
+            {
+                var picked = panel.Pick(panelPosition);
+                for (var cur = picked; cur != null; cur = cur.parent)
+                {
+                    if (_pickupZones.Contains(cur) && cur.userData is string tid && !string.IsNullOrEmpty(tid))
+                        return cur;
+                }
+            }
+
             VisualElement best = null;
             float bestArea = float.MaxValue;
             foreach (var z in _pickupZones)
@@ -877,7 +901,7 @@ namespace LanguageGame.Presentation.Steps
                 if (target.HasPointerCapture(evt.pointerId))
                     target.ReleasePointer(evt.pointerId);
 
-                _owner.FinalizeDrag(_tile, evt.position);
+                _owner.FinalizeDrag(_tile, new Vector2(evt.position.x, evt.position.y));
                 evt.StopPropagation();
             }
 
