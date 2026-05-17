@@ -1,348 +1,121 @@
-# Building task-specific UI (Unity)
+# Building task-specific UI (Unity, UI Toolkit)
 
-This guide describes how to add or extend **per-task-type** screens (Multiple Choice, Drag & Drop, etc.) so layouts and styling are authored in the **Unity Editor**, while **content** can be driven by **`contentJson`** from the backend.
+Per-task screens run **inside the quest shell**: `QuestShellView` clears the **`step-host`** region of **`QuestShellScreen`** (`Assets/Resources/UI/LearningToolkit/QuestShellScreen.uxml`) and **`ToolkitStepFactory`** builds an **`IStepView`** implementation for the active server step.
 
-Related code:
+Legacy **uGUI**, **`StepTemplateCatalog`**, and step **prefabs** were removed; do not follow older prefab/catalog workflows.
 
-- Shell: `Assets/Scripts/Presentation/QuestShellView.cs`
-- Catalog: `Assets/Scripts/Presentation/Steps/StepTemplateCatalog.cs`, default asset `Assets/Resources/Steps/StepTemplateCatalog_Default.asset`
-- Contract: `Assets/Scripts/Presentation/Steps/IStepView.cs`, `ISubmitFromShell.cs`, `StepContext.cs`
-- Shared task baseline: `Assets/Scripts/Presentation/Steps/TaskStepBase.cs`
-- Multiple Choice: `Assets/Scripts/Presentation/Steps/MultipleChoiceStepView.cs`, prefab `Assets/Prefabs/Steps/TaskStep_T05_MultipleChoice.prefab`
-- Layered prefab root shim: `Assets/Scripts/Presentation/Steps/ComposableStepRootView.cs`
-- Task type identifiers (domain): `Assets/Scripts/Domain/TaskType.cs`
-- Tokens: `Assets/Scripts/Presentation/UiDesignTokens.cs`, `UiThemeProvider.cs`, `UiTokenApplier.cs`
+## Related code
+
+| Role | Path |
+|------|------|
+| Shell | `Assets/Scripts/Presentation/QuestShellView.cs` |
+| Factory | `Assets/Scripts/Presentation/Steps/ToolkitStepFactory.cs` |
+| Contracts | `Assets/Scripts/Presentation/Steps/IStepView.cs`, `ISubmitFromShell.cs`, `StepContext.cs` |
+| Implemented steps | `DragDropToolkitStep.cs`, `ClozeTextToolkitStep.cs`, `MultipleChoiceToolkitStep.cs`, `CutsceneToolkitStep.cs`, `StubToolkitTaskStep.cs` |
+| Tokens | `UiDesignTokens.cs`, `UiThemeProvider.cs`; USS under `Assets/Resources/UI/LearningToolkit/` |
 
 ---
 
-## Architecture (short)
+## Architecture
 
-1. `QuestShellView` resolves the active server step and instantiates UI under **`stepHost`**.
-2. It asks **`StepTemplateCatalog.TryResolve(templateKey, taskType)`** for a prefab.
-3. If a prefab exists, Unity **`Instantiates`** it; otherwise it creates a minimal runtime **`RectTransform`** and attaches a view component chosen by **`taskType`** (see `AddTaskViewComponent`).
-4. The instantiated object must implement **`IStepView`**. **`Bind(StepContext, onRequest)`** receives **`contentJson`** and other metadata; **`onRequest`** is used to complete the step or navigate back.
+1. **`GameFlowController`** loads **`Quest`**; **`QuestShellView`** mirrors server progression.
+2. **`BindStep`** calls **`ToolkitStepFactory.Create(step, _toolkitStepHost, this)`**.
+3. If the factory returns **`null`** (only when **`stepHost`** is **`null`**), the shell installs **`MissingToolkitStepView`** — visible message + **`SubmitFromShell`** routes validation feedback so the learner is not stuck silently.
+4. **Shell chrome**: Back, primary (**Next** / **Check** / **Finish quest**), loading, validation, reward overlays (`LearningToolkitOverlays`).
+5. **Tasks**: shell **Check** → **`ISubmitFromShell.SubmitFromShell()`**. **Cutscenes**: **Next** → **`StepCompletionRequest`** / advance RPC flow.
 
-**Completion:** when the learner has finished the interaction, invoke:
+Complete a step from code:
 
 ```csharp
 onRequest(new StepCompletionRequest { requestComplete = true });
 ```
 
-(**`TaskStepBase`** implements **`ISubmitFromShell`**: the quest shell’s **Check** button calls **`SubmitFromShell()`**, which runs validation and then invokes **`requestComplete`** when valid. Use **`StepContext.presentValidationMessage`** for client-side errors—the shell shows a shared validation overlay.)
-
-**Shell resolution:** `QuestShellView` calls `GetComponent<IStepView>()` **only on the instantiated Catalog root**. Place `IStepView` on that root (either a mechanic/cutscene class directly or **`ComposableStepRootView`** below).
-
-**Shell chrome:** `QuestShellView` owns **Back**, the **primary** action (**Next** for cutscenes, **Check** for tasks, **Finish quest** when applicable), and **`TaskRewardOverlay`** (server rewards + client validation). Step prefabs are **mechanics only**—do not add Back/Check/Continue or per-step result overlays.
+Use **`StepContext.presentValidationMessage`** for client-side validation errors (shell-owned overlay).
 
 ---
 
-## Composable layered prefabs (`ComposableStepRootView`)
+## Workflow for a new `taskType`
 
-Use when you want **reusable mechanic/cutscene UI** nested under editor-authored **story or backdrop** hierarchies—the same **`MultipleChoice`/`DragDrop`/`CutsceneStepBase`** prefab can appear inside many visually different compositions.
+1. Agree **`contentJson`** shape with whoever owns **`game_quest_steps`** / API.
+2. Add **`YourSomethingToolkitStep : IStepView`** (+ **`ISubmitFromShell`** if the shell submits it).
+3. Build UI with **`UnityEngine.UIElements`** under **`stepHost`** in **`Bind`**; **`Teardown`** removes what you added.
+4. Add **`case "YourTaskType":`** to **`ToolkitStepFactory`**.
+5. Prefer **`lg-*`** USS classes; avoid duplicating shell overlays inside the step.
 
-### How it works
-
-1. **`StepTemplateCatalog` prefab root** has **`ComposableStepRootView`** + children:
-   - **Story/decoration**: plain `RectTransform` / `Image` / layout nodes (drag-and-drop in Prefab Mode).
-   - **Mechanic module**: a **nested prefab** whose root exposes a component implementing **`IStepView`** (`TaskStepBase` subclass or `CutsceneStepBase`).
-2. On the shim, assign **`Inner Step View`** (`_innerStepView`) by dragging **that mechanic `MonoBehaviour`** from the Hierarchy (typically the nested prefab’s step script).
-3. The shim **forwards** `Bind`, `SetInteractable`, **`SubmitFromShell`**, and `Teardown` to the inner view. Exactly **one** inner `IStepView` keeps behaviour unambiguous (`QuestShellView` does **not** search children automatically).
-
-Optional **`ComposableStepRootView`** fields for missing/invalid **`Inner Step View`** (Play Mode diagnostic):
-
-- Assigned **`Misconfiguration Banner`** prefab subtree is shown whenever the leaf cannot bind (ensure ancestor Transforms stay **active**; inactive parents hide the banner regardless of **`SetActive(true)`** here).
-
-- If no banner is set, **`Create Runtime Misconfiguration Fallback`** (**on** by default) spawns an on-screen message so authoring mistakes are visible without staring at the console—it uses **`UiDesignTokens.palette.errorBackground`**, **`errorText`**, and **caption typography** when **`UiThemeProvider`** resolves; otherwise literal defaults aligned with **`LoadErrorBanner`**.
+Optional: extend **`Assets/Scripts/Domain/TaskType.cs`** only if tooling still mirrors enums.
 
 ---
 
-## Recommended workflow per task type
+## `contentJson` reference (implemented types)
 
-Follow **contract → foundational mechanic (C#) → prefabs → catalog → verify strings**. Implement behaviour before branching many visual variants (`templateKey` layering).
+Implementation classes contain DTOs / parsers (names may differ slightly from legacy **`\*StepView`** files):
 
-### 1. Define a stable `contentJson` contract
+### DragDrop (`taskType`: DragDrop)
 
-Align with **`game_quest_steps.content_json`** (or equivalent) **per logical task shape**:
+**Implementation:** **`DragDropToolkitStep`**.
 
-- Decide fields (prompt text, choices, pairs, slots, asset keys, correctness rules).
-- Version or extend carefully: changing shapes requires coordinated API + Unity parsing.
+Behaviour summary: drag items into targets; validation on **Check** (including optional **`requireBankEmpty`**). **`imageUrl`** / remote assets must be **`http`** / **`https`**.
 
-Prefer **templates + data**: the prefab defines structure; JSON supplies counts, strings, IDs, ordering.
+Top-level fields (see **`DragDropToolkitStep`** for full DTO):
 
----
+| Field | Notes |
+|-------|--------|
+| **`prompt`** / **`subtitle`** | Title / instructions |
+| **`shuffleItemOrder`** | Shuffle source tiles |
+| **`requireBankEmpty`** | All items must be placed |
+| **`items`** | **`id`**, **`label`**, optional **`imageUrl`** |
+| **`targets`** | **`id`**, **`title`**, **`correctItemIds`**, **`targetMode`** semantics |
+| **`presentation`** | **`targetMode`**: **`blocks`** or **`lines`**; section labels |
+| **`lines`** | Sentence segments when **`lines`** mode |
 
-### 2. Implement foundational mechanics (`IStepView` / `TaskStepBase`)
-
-This is **gameplay and wiring**, independent of decorative story layers.
-
-1. **Add a C# view class** for the **`task_type`** string the server emits (typically a **`TaskStepBase`** subclass beside the stubs under `Assets/Scripts/Presentation/Steps/`, or a `MonoBehaviour` that implements **`IStepView`** directly if you deliberately skip that base).
-
-2. **`Bind(StepContext context, Action<StepCompletionRequest> onRequest)`** — load lesson data:
-   - Parse **`context.contentJson`** (and other fields when needed) with **`JsonUtility`** or a serializer aligned with your API payloads.
-   - Wire buttons, drag sources/targets, option lists—watch for repeated **`Bind`** and attach listeners safely (e.g. guard with a flag).
-
-3. **`requestComplete`** — call **`onRequest(new StepCompletionRequest { requestComplete = true })`** when the learner solves the activity (**`requestBackToChapters`** when leaving to the overview). For **`TaskStepBase`** subclasses, the shell **Check** button invokes **`ISubmitFromShell.SubmitFromShell()`**, which performs **`ValidateBeforeComplete`** and then raises **`requestComplete`** on success. Use **`PresentValidationFeedback`** / **`StepContext.presentValidationMessage`** for inline validation copy (shell overlay).
-
-4. **`SetInteractable(bool)`** — disable inputs during server round-trips (**`CompleteTask`** / **`AdvanceCutscene`** disable the hosted view).
-
-5. **`Teardown`** — remove listeners / clear caches so pooled or re-bound instances do not duplicate handlers.
-
-6. **`QuestShellView.AddTaskViewComponent`** — add a **`case "YourTaskType":`** alongside the **`case`**-sensitive string set (required when the catalog misses and the shell spawns the empty **`RectTransform` fallback`). Extend **`Assets/Scripts/Domain/TaskType.cs`** only if you keep an enum/tooling parity with content authors.
-
-For **cutscenes**, use **`CutsceneStepBase`** (or parallel **`IStepView`**) the same way; progression uses the shell **Next** button only (no in-prefab Continue).
-
-**Reuse tip:** Implement the mechanic as a **self-contained prefab** (everything the exercise needs underneath one root that carries **`IStepView`**). Nested instances of that prefab plug into **`ComposableStepRootView`** when you wrap story/backdrop visuals without rewriting mechanics.
+Examples (blocks vs lines) match the shapes previously documented for DragDrop; validate against **`DragDropToolkitStep`** when extending.
 
 ---
 
-### 3. Author prefabs in the Editor
+### MultipleChoice (`taskType`: MultipleChoice)
 
-The shell only resolves **`GetComponent<IStepView>()` on the Catalog prefab root** (`QuestShellView.BindStep`). The mechanic **`IStepView`** must satisfy that constraint:
+**Implementation:** **`MultipleChoiceToolkitStep`**.
 
-| Pattern | Layout | Catalog root |
-|---------|--------|--------------|
-| **Direct** | Single hierarchy—the step script sits on the instantiated root **`GameObject`**. | `YourStepView : TaskStepBase` (etc.) implementing **`IStepView`**. |
-| **Layered** | Root siblings for story/decoration + **nested mechanic prefab**. | **`ComposableStepRootView`** with **`Inner Step View`** dragged to the nested mechanic component. |
-
-- Build **`RectTransform` / LayoutGroup / buttons / draggable areas`; assign **`[SerializeField]`** targets on the mechanic script.
-- **`UiThemeProvider.TryGet`** + **`UiTokenApplier`** pull colors and typography from **`UiDesignTokens`**.
-
-Do **not** leave **`IStepView`** only on a deep child—the shell performs **no** `GetComponentInChildren` crawl unless you deliberately add **`ComposableStepRootView`** wiring.
+Root / per-question fields include **`stem`** blocks (**text** / **image** / **audio**), **`options`**, **`correctOptionIds`**, **`selectionMode`** (**single** / **multiple**), **`preserveOptionOrder`**. See **`MultipleChoiceToolkitStep`** / nested DTO types for exact tables.
 
 ---
 
-### 4. Register the prefab in `StepTemplateCatalog`
+### ClozeText (`taskType`: ClozeText)
 
-Open or duplicate the **`StepTemplateCatalog`** asset (default: `Assets/Resources/Steps/StepTemplateCatalog_Default.asset`).
-
-Add an **entry**:
-
-| Field           | Purpose |
-|----------------|---------|
-| **`taskType`** | Matches **`GameQuestStepDto.taskType`** from the API (resolver is **case-insensitive**; surrounding **whitespace** ignored). Example: `DragDrop`, `MultipleChoice`. |
-| **`templateKey`** | Optional: if set and the step carries the same **`templateKey`**, this entry wins over `taskType` (**case-insensitive** match; leading/trailing **whitespace** ignored on lookup). Use for variants (e.g. image vs text multiple choice). |
-| **`prefab`**   | Drag your UI prefab here. |
-
-Ensure the **`Quest` scene’s** `QuestShellView` uses this catalog (`stepTemplateCatalog` field or Resources fallback loads `StepTemplateCatalog_Default`).
+**Implementation:** **`ClozeTextToolkitStep`**. Parse and behaviour live in that file.
 
 ---
 
-### 5. Match server `taskType` strings
+### Cutscenes (`isTask`: false)
 
-The shell switch uses **case-sensitive** C# **`case`** labels (e.g. `"DragDrop"`). **`StepTemplateCatalog`** matching is **case-insensitive**. Keep API **`task_type`** values consistent.
-
----
-
-## DragDrop (`taskType`: DragDrop)
-
-Implementation: **`DragDropStepView`** + prefab **`Assets/Prefabs/Steps/TaskStep_T03_DragDrop.prefab`**. DTOs live in **`DragDropStepView.cs`** (`DragDropContentDto` and nested types). Validation and matching run **client-side** on **Check** (empty zones, wrong item in zone); optional **`requireBankEmpty`** forces every card into a target (no leftovers in the source strip).
-
-### `contentJson` fields
-
-| Field | Type | Notes |
-|-------|------|--------|
-| **`prompt`** | string | Main title (`titleText`). |
-| **`subtitle`** | string | Optional (`bodyText`, hidden when empty). |
-| **`shuffleItemOrder`** | bool | Randomize order of tiles in the source row. |
-| **`requireBankEmpty`** | bool | If true, every item must sit in some target before submit. |
-| **`items`** | array | Each **`id`** (unique), **`label`** and/or **`imageUrl`**. If **`imageUrl`** is set, it must be an **absolute `http://` or `https://`** URL. |
-| **`targets`** | array | Each **`id`** (unique), optional **`title`**, **`correctItemIds`** (non-empty item ids). Meaning depends on **`targetMode`**: see below. |
-| **`presentation`** | object | **`targetMode`**: `"blocks"` (default) or `"lines"`; optional **`sourceLabel`**, **`targetLabel`** for small section captions. |
-| **`lines`** | array | Required when **`presentation.targetMode`** is **`"lines"`**: rows of segments (see below). Exactly **one slot per target id** across all lines. |
-
-**`correctItemIds` by `targetMode`**
-
-- **`blocks`**: **Set equality** — the player must place **every** listed item id in that category at once (order does not matter). Several ids = **all required tiles**, not synonyms.
-- **`lines`**: **One** tile per slot. Multiple ids in **`correctItemIds`** mean **alternative correct answers** (synonyms), not several words in one gap.
-
-**Segment (`lines[].segments[]`)** — `kind` is case-insensitive:
-
-- **`text`**: literal run; **`text`** string.
-- **`slot`**: drop zone; **`targetId`** must match a **`targets[].id`**.
-
-### Example: category blocks (`targetMode` omitted or `"blocks"`)
-
-```json
-{
-  "prompt": "Trascina le parole.",
-  "subtitle": "",
-  "shuffleItemOrder": true,
-  "requireBankEmpty": false,
-  "items": [
-    { "id": "a", "label": "il gatto", "imageUrl": "" },
-    { "id": "b", "label": "la mela", "imageUrl": "" }
-  ],
-  "targets": [
-    { "id": "t1", "title": "Animali", "correctItemIds": ["a"] },
-    { "id": "t2", "title": "Cibo", "correctItemIds": ["b"] }
-  ],
-  "presentation": {
-    "targetMode": "blocks",
-    "sourceLabel": "Parole",
-    "targetLabel": "Categorie"
-  }
-}
-```
-
-### Example: sentence + inline slots (`"targetMode": "lines"`)
-
-```json
-{
-  "prompt": "Completa la frase.",
-  "shuffleItemOrder": true,
-  "items": [
-    { "id": "w1", "label": "mangia", "imageUrl": "" },
-    { "id": "w2", "label": "dorme", "imageUrl": "" }
-  ],
-  "targets": [
-    { "id": "s1", "title": "", "correctItemIds": ["w1"] },
-    { "id": "s2", "title": "", "correctItemIds": ["w2"] }
-  ],
-  "presentation": { "targetMode": "lines" },
-  "lines": [
-    {
-      "segments": [
-        { "kind": "text", "text": "Il gatto " },
-        { "kind": "slot", "targetId": "s1" },
-        { "kind": "text", "text": " e il cane " },
-        { "kind": "slot", "targetId": "s2" },
-        { "kind": "text", "text": "." }
-      ]
-    }
-  ]
-}
-```
+**Implementation:** **`CutsceneToolkitStep`**.
 
 ---
 
-## MultipleChoice (`taskType`: MultipleChoice)
+### Stub types (`Matching`, `FreeText`, `RelativeClause`, `ErrorSpotting`, unknown)
 
-Implementation: **`MultipleChoiceStepView`** + **`MultipleChoiceContentDto`** in [`MultipleChoiceStepView.cs`](Assets/Scripts/Presentation/Steps/MultipleChoiceStepView.cs), prefab **`TaskStep_T05_MultipleChoice.prefab`**. Validation and scoring run **client-side** on **Check**; the shell reward overlay still reflects **server** `reward_rules` from the complete-step response.
-
-### `contentJson` fields
-
-**Top-level: `MultipleChoiceContentDto`**
-
-| Field | Type | Notes |
-|-------|------|--------|
-| **`prompt`** | string | Optional quiz / step title (shell title area). |
-| **`subtitle`** | string | Optional subtitle / instructions (`bodyText`); hidden when empty. |
-| **`questions`** | array | List of questions. If **missing or empty**, a **single** question is built from the root-level shorthand (`stem`, `options`, `correctOptionIds`, `selectionMode`, `preserveOptionOrder`). |
-| **`selectionMode`** | string | Root shorthand only: `"single"` (default) or `"multiple"`. |
-| **`preserveOptionOrder`** | bool | Root shorthand only: default **`false`** → options are **shuffled**. Set **`true`** to keep JSON order. Same field exists per question when using **`questions`**. |
-| **`stem`** | array | Root shorthand: stem blocks (see below). |
-| **`options`** | array | Root shorthand: option entries. |
-| **`correctOptionIds`** | string[] | Root shorthand: correct option ids. |
-
-**`questions[]` → `MultipleChoiceQuestionDto`**
-
-| Field | Type | Notes |
-|-------|------|--------|
-| **`id`** | string | Optional author id / debug. |
-| **`selectionMode`** | string | `"single"` (default) or `"multiple"`. |
-| **`preserveOptionOrder`** | bool | `false`/omit → shuffle **options** for this question. |
-| **`stem`** | `McStemBlockDto[]` | Ordered blocks for the question prompt (may be empty). |
-| **`options`** | `McOptionDto[]` | **2–8** entries; unique **`id`** per option; each needs **`label` and/or `imageUrl`**. |
-| **`correctOptionIds`** | string[] | **Single**: exactly one id. **Multiple**: at least **two** ids; player's selection must match the **set** exactly. |
-
-**`McStemBlockDto`** — **`kind`** is case-insensitive:
-
-| `kind` | Fields |
-|--------|--------|
-| **`text`** | **`text`** |
-| **`image`** | **`imageUrl`** — absolute **`http`/`https`** (same policy as DragDrop). |
-| **`audio`** | **`audioUrl`** — absolute `http`/`https`; **Play audio** button (no autoplay). |
-
-**`McOptionDto`**
-
-| Field | Type |
-|-------|------|
-| **`id`** | string (unique) |
-| **`label`** | string (optional if `imageUrl` set) |
-| **`imageUrl`** | string (optional; absolute `http`/`https`) |
-
-### Examples
-
-**Single question (root shorthand)**
-
-```json
-{
-  "prompt": "Capitolo 2",
-  "subtitle": "Scegli la risposta giusta, poi premi Check.",
-  "stem": [{ "kind": "text", "text": "Cosa mangia il gatto?" }],
-  "options": [
-    { "id": "a", "label": "Il pesce" },
-    { "id": "b", "label": "La pizza" },
-    { "id": "c", "label": "L'erba" }
-  ],
-  "correctOptionIds": ["a"]
-}
-```
-
-**Multi-question quiz (`questions` + multi-select)**
-
-```json
-{
-  "prompt": "Ripasso",
-  "questions": [
-    {
-      "selectionMode": "single",
-      "stem": [{ "kind": "text", "text": "Quanto fa 3 + 4?" }],
-      "options": [
-        { "id": "x", "label": "5" },
-        { "id": "y", "label": "7" },
-        { "id": "z", "label": "12" }
-      ],
-      "correctOptionIds": ["y"]
-    },
-    {
-      "selectionMode": "multiple",
-      "preserveOptionOrder": true,
-      "stem": [{ "kind": "text", "text": "Quali sono numeri pari?" }],
-      "options": [
-        { "id": "n2", "label": "2" },
-        { "id": "n3", "label": "3" },
-        { "id": "n4", "label": "4" }
-      ],
-      "correctOptionIds": ["n2", "n4"]
-    }
-  ]
-}
-```
-
----
-
-## Editor-driven vs runtime-built UI
-
-| Approach | When to use |
-|----------|--------------|
-| **Fixed layout + JSON fills content** | Fixed max slots / layout; JSON turns elements on/off and sets text. Simplest authoring. |
-| **Container + small child prefabs** | JSON declares N items; **`Bind`** **instantiates** card/slot prefabs under a **`LayoutGroup`**. Fits the foundational mechanic workflow (widgets still live in-editor as prefabs). |
-
-Fully generic “compose unknown widget types only from JSON” is out of scope here; prefer a **known widget set** + data.
+**Implementation:** **`StubToolkitTaskStep`** — placeholder UX until a dedicated toolkit step exists.
 
 ---
 
 ## Cutscenes vs tasks
 
-- Shell **Back** + **primary** (**Next** vs **Check**) are configured in **`QuestShellView.ConfigureShellPrimaryChrome`**.
-- **`StepContext.presentValidationMessage`** passes client validation strings to the shell overlay (optional).
-- Tasks complete through the game API (“complete step” flow); **`requestComplete`** from the step view triggers **`QuestShellView.OnStepRequest`**.
+- **`QuestShellView.ConfigureShellPrimaryChrome`** sets **Next** vs **Check**.
+- **`presentValidationMessage`** feeds the shell validation overlay.
+- Server authoritative rewards still come from complete-step / advance-step API responses.
 
 ---
 
-## Checklist for a new task type
+## Checklist (new task type)
 
-1. [ ] Stable **`contentJson`** schema agreed with backend.
-2. [ ] Foundational **`IStepView`** logic: **`Bind` / `Teardown` / `SetInteractable`**, **`AddTaskViewComponent`** case for new **`task_type`** (required for catalog-off fallback paths).
-3. [ ] Prefab authored for the mechanic (**Direct** root `IStepView` **or** **Layered** root **`ComposableStepRootView`** referencing nested mechanic).
-4. [ ] **`StepTemplateCatalog`** entry (**`taskType`** and/or **`templateKey`** + prefab).
-5. [ ] Tokens applied for typography/colors (**`UiThemeProvider`** / **`UiTokenApplier`**).
-6. [ ] (**Layered only**) Play Mode smoke: inner view binds, shell **Check** / **`SubmitFromShell`** / **`requestComplete`** still reaches **`QuestShellView.OnStepRequest`**.
-7. [ ] Extend **`Assets/Scripts/Domain/TaskType.cs`** only when you maintain an enum mirrored to authoring tooling.
+1. [ ] Stable **`contentJson`** with backend.
+2. [ ] **`IStepView`** (+ **`ISubmitFromShell`** when shell submits).
+3. [ ] **`ToolkitStepFactory`** **`case`** for **`taskType`**.
+4. [ ] USS / tokens consistent with menus theme.
+5. [ ] Play Mode: **Check** / **Next**, validation overlay, reward overlay after success.
 
 ---
 
 ## See also
 
-- Repository agent and layout overview: **`AGENTS.md`** (Unity navigation, Quest shell, Wallet HUD conventions).
+- **`AGENTS.md`** — navigation, UI Toolkit conventions, wallet HUD.

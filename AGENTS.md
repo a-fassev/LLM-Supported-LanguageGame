@@ -32,7 +32,7 @@ The **committed** repository is a **Unity 6.4** project at the **repository root
 
 - **UI Toolkit:** Menus and quest shell use **UI Toolkit** (`UIDocument`, UXML/USS under `Assets/Resources/UI/LearningToolkit/`). `LearningToolkitBootstrap` wires shared `PanelSettings` / theme. Do not add **Canvas** / **uGUI** for these navigation screens.
 - **Camera:** Menu, map, chapter/quest overview, and quest-shell scenes include an active **Main Camera**; mirror that when adding scenes to the same flow unless you intentionally use a different rendering setup.
-- **UI design tokens:** Shared styling data lives in `UiDesignTokens` (`Assets/Scripts/Presentation/UiDesignTokens.cs`, ScriptableObject). `UiThemeProvider` exposes tokens at runtime; optional default asset at `Resources/UI/UiDesignTokens_Default`. Optional stack-agnostic helpers: `UiTokenApplier` (typography/contrast without uGUI types).
+- **UI design tokens:** Shared styling data lives in `UiDesignTokens` (`Assets/Scripts/Presentation/UiDesignTokens.cs`, ScriptableObject). `UiThemeProvider` exposes tokens at runtime; optional default asset at `Resources/UI/UiDesignTokens_Default`. Prefer USS theme classes under `Assets/Resources/UI/LearningToolkit/` for menus and quest shell instead of scattering literals in C#.
 - **Wallet HUD (pizza + backpack pieces):** Displayed via UI Toolkit where the screen defines wallet chips (**ChapterOverview**, **Quest**, **AvatarShop**). **`MainMenu` may omit wallet labels** while bootstrap still refreshes session totals for later scenes.
 
 ### Web / auth API (`apps/web`)

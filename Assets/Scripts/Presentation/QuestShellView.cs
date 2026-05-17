@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using LanguageGame.Application;
 using LanguageGame.Presentation.Steps;
@@ -182,31 +183,35 @@ namespace LanguageGame.Presentation
 
             _toolkitStepHost.Clear();
             _activeStepView = ToolkitStepFactory.Create(step, _toolkitStepHost, this);
+            if (_activeStepView == null)
+            {
+                Debug.LogError(
+                    $"[QuestShellView] ToolkitStepFactory returned null — step-host missing?. stepId={step.id} taskType={step.taskType}");
+                _activeStepView = new MissingToolkitStepView(_toolkitStepHost, step);
+            }
+
             _boundStep = step;
 
-            if (_activeStepView != null)
+            _activeStepView.Bind(new StepContext
             {
-                _activeStepView.Bind(new StepContext
-                {
-                    runId = flow.ServerRunId,
-                    stepId = step.id,
-                    taskId = step.id,
-                    questId = flow.ServerQuestId,
-                    questDisplayName = flow.ServerQuestDisplayName,
-                    stepKind = step.stepKind,
-                    taskType = step.taskType,
-                    templateKey = step.templateKey,
-                    contentJson = step.contentJson,
-                    rewardRulesJson = step.rewardRulesJson,
-                    stepIndexZeroBased = Mathf.Max(0, flow.ServerCurrentStepNumberOneBased - 1),
-                    totalSteps = flow.ServerStepCount,
-                    isLastStep = flow.ServerCurrentStepNumberOneBased == flow.ServerStepCount,
-                    totalSlices = flow.TotalPizzaSlices,
-                    totalBackpackPieces = flow.TotalBackpackPieces,
-                    presentValidationMessage = PresentValidationMessage,
-                }, OnStepRequest);
-                _activeStepView.SetInteractable(!_submitting);
-            }
+                runId = flow.ServerRunId,
+                stepId = step.id,
+                taskId = step.id,
+                questId = flow.ServerQuestId,
+                questDisplayName = flow.ServerQuestDisplayName,
+                stepKind = step.stepKind,
+                taskType = step.taskType,
+                templateKey = step.templateKey,
+                contentJson = step.contentJson,
+                rewardRulesJson = step.rewardRulesJson,
+                stepIndexZeroBased = Mathf.Max(0, flow.ServerCurrentStepNumberOneBased - 1),
+                totalSteps = flow.ServerStepCount,
+                isLastStep = flow.ServerCurrentStepNumberOneBased == flow.ServerStepCount,
+                totalSlices = flow.TotalPizzaSlices,
+                totalBackpackPieces = flow.TotalBackpackPieces,
+                presentValidationMessage = PresentValidationMessage,
+            }, OnStepRequest);
+            _activeStepView.SetInteractable(!_submitting);
 
             ResetRewardOverlayToRewardLayout();
             SetRewardOverlayVisible(false);
@@ -260,6 +265,8 @@ namespace LanguageGame.Presentation
                     Debug.LogWarning(
                         "[QuestShellView] Task step does not implement ISubmitFromShell; Check did nothing. " +
                         $"Step type: {_activeStepView.GetType().Name}");
+                else
+                    Debug.LogWarning("[QuestShellView] Task step Check pressed but no active step view.");
                 return;
             }
 
@@ -602,6 +609,58 @@ namespace LanguageGame.Presentation
             _boundStep = null;
             if (_shellReady && _toolkitStepHost != null)
                 _toolkitStepHost.Clear();
+        }
+
+        /// <summary>Fallback when no toolkit implementation could be created for the step.</summary>
+        private sealed class MissingToolkitStepView : IStepView, ISubmitFromShell
+        {
+            private readonly VisualElement _panel;
+
+            private StepContext _context;
+
+            public MissingToolkitStepView(VisualElement host, GameQuestStepDto step)
+            {
+                _panel = new VisualElement();
+                _panel.style.flexGrow = 1;
+                _panel.AddToClassList("lg-muted-panel");
+                _panel.style.paddingTop = 16;
+                _panel.style.paddingBottom = 16;
+                _panel.style.paddingLeft = 16;
+                _panel.style.paddingRight = 16;
+
+                var title = new Label(step != null && !string.IsNullOrEmpty(step.taskType)
+                    ? $"Unavailable ({step.taskType})"
+                    : "Step unavailable");
+                title.AddToClassList("lg-heading-screen");
+                title.style.marginBottom = 10;
+
+                var body = new Label(
+                    "This step could not be loaded. Leave the quest from the menu and try again.");
+                body.AddToClassList("lg-text-body");
+                body.AddToClassList("lg-text-muted");
+                body.style.whiteSpace = WhiteSpace.Normal;
+
+                _panel.Add(title);
+                _panel.Add(body);
+                host.Add(_panel);
+            }
+
+            public void Bind(StepContext context, Action<StepCompletionRequest> _) =>
+                _context = context;
+
+            public void SetInteractable(bool _)
+            {
+            }
+
+            public void SubmitFromShell() =>
+                _context?.presentValidationMessage?.Invoke(
+                    "This step could not be loaded. Leave the quest and try again.");
+
+            public void Teardown()
+            {
+                _context = null;
+                _panel?.RemoveFromHierarchy();
+            }
         }
     }
 }

@@ -59,7 +59,10 @@ namespace LanguageGame.Presentation
                     "[LearningToolkitBootstrap] Missing Theme Style Sheet at Resources/" + MenusThemeResourcePath +
                     " (LearningMenusTheme.tss importing unity-theme default + theme-learn).");
 
-            return _cachedMenusThemeStyle = theme;
+            if (theme != null)
+                _cachedMenusThemeStyle = theme;
+
+            return theme;
         }
 
         private static void ApplyMenusThemeStyleSheet(PanelSettings panel)
