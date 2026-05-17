@@ -474,6 +474,12 @@ namespace LanguageGame.Presentation.Steps
 
         private IEnumerator LoadImg(string url, VisualElement ve)
         {
+            if (!ToolkitStepHttpResourceUrl.TryVerifyForClientFetch(url, out var verr))
+            {
+                Debug.LogWarning($"[DragDropToolkitStep] Blocked remote image URL: {verr}");
+                yield break;
+            }
+
             using var req = UnityWebRequestTexture.GetTexture(url);
             yield return req.SendWebRequest();
             if (req.result != UnityWebRequest.Result.Success || ve == null)

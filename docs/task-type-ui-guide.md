@@ -32,6 +32,10 @@ onRequest(new StepCompletionRequest { requestComplete = true });
 
 Use **`StepContext.presentValidationMessage`** for client-side validation errors (shell-owned overlay).
 
+### Remote media URLs (`http` / `https`)
+
+Steps that load remote images or audio (`imageUrl`, MultipleChoice `audioUrl`, etc.) use **`ToolkitStepHttpResourceUrl`**: **string-level checks** when parsing `contentJson`, and **`TryVerifyForClientFetch`** immediately before `UnityWebRequest` so **hostnames** are **resolved** and blocked when any address is loopback, private (RFC1918), link-local, or IPv6 ULA (with a small per-host session cache). If **`Dns.GetHostAddresses`** throws (offline, some runtimes), verification may **fail open** with a logged warning — prefer trusted CDNs and author-controlled URLs.
+
 ---
 
 ## Workflow for a new `taskType`

@@ -47,6 +47,7 @@ namespace LanguageGame.Presentation.Steps
         private int _activePointerId = -1;
 
         private readonly EventCallback<GeometryChangedEvent> _onPairingGeometryChanged;
+        private uint _geometryRefreshVersion;
 
         public MatchingToolkitStep(VisualElement host, MonoBehaviour coroutineHost)
         {
@@ -240,9 +241,15 @@ namespace LanguageGame.Presentation.Steps
 
         private void OnPairingGeometryChanged(GeometryChangedEvent _)
         {
-            RefreshCommittedLines();
-            if (_draggingLine && !string.IsNullOrEmpty(_dragLeftId))
-                UpdateRubberBand();
+            var v = ++_geometryRefreshVersion;
+            _pairingArea.schedule.Execute(() =>
+            {
+                if (v != _geometryRefreshVersion)
+                    return;
+                RefreshCommittedLines();
+                if (_draggingLine && !string.IsNullOrEmpty(_dragLeftId))
+                    UpdateRubberBand();
+            }).ExecuteLater(0);
         }
 
         private void RegisterUiEvents()
@@ -597,6 +604,7 @@ namespace LanguageGame.Presentation.Steps
             card.style.paddingBottom = 10;
             card.style.flexDirection = FlexDirection.Column;
             card.style.alignItems = Align.FlexStart;
+            card.focusable = true;
 
             var text = string.IsNullOrWhiteSpace(def.label) ? itemId : def.label.Trim();
             var lbl = new Label(text);
@@ -625,6 +633,7 @@ namespace LanguageGame.Presentation.Steps
             unlink.style.unityTextAlign = TextAnchor.MiddleCenter;
             unlink.style.color = new Color(0.42f, 0.45f, 0.52f, 1f);
             unlink.style.display = DisplayStyle.None;
+            unlink.focusable = true;
             unlink.RegisterCallback<PointerDownEvent>(evt =>
             {
                 if (!_interactable)
@@ -663,6 +672,7 @@ namespace LanguageGame.Presentation.Steps
             card.style.paddingBottom = 10;
             card.style.flexDirection = FlexDirection.Column;
             card.style.alignItems = Align.FlexStart;
+            card.focusable = true;
 
             var text = string.IsNullOrWhiteSpace(def.label) ? itemId : def.label.Trim();
             var lbl = new Label(text);
@@ -688,6 +698,12 @@ namespace LanguageGame.Presentation.Steps
 
         private IEnumerator LoadImg(string url, VisualElement ve)
         {
+            if (!ToolkitStepHttpResourceUrl.TryVerifyForClientFetch(url, out var verr))
+            {
+                Debug.LogWarning($"[MatchingToolkitStep] Blocked remote image URL: {verr}");
+                yield break;
+            }
+
             using var req = UnityWebRequestTexture.GetTexture(url);
             yield return req.SendWebRequest();
             if (req.result != UnityWebRequest.Result.Success || ve == null)

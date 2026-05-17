@@ -496,6 +496,12 @@ namespace LanguageGame.Presentation.Steps
 
         private IEnumerator LoadRemoteTextureBg(string url, VisualElement target)
         {
+            if (!ToolkitStepHttpResourceUrl.TryVerifyForClientFetch(url, out var verr))
+            {
+                Debug.LogWarning($"[MultipleChoiceToolkitStep] Blocked remote image URL: {verr}");
+                yield break;
+            }
+
             using var req = UnityWebRequestTexture.GetTexture(url);
             yield return req.SendWebRequest();
             if (req.result != UnityWebRequest.Result.Success || target == null)
@@ -520,6 +526,12 @@ namespace LanguageGame.Presentation.Steps
 
         private IEnumerator LoadAndPlayClip(string url)
         {
+            if (!ToolkitStepHttpResourceUrl.TryVerifyForClientFetch(url, out var verr))
+            {
+                Debug.LogWarning($"[MultipleChoiceToolkitStep] Blocked remote audio URL: {verr}");
+                yield break;
+            }
+
             EnsureAudioSource();
             var type = GuessAudioType(url);
             using var req = UnityWebRequestMultimedia.GetAudioClip(url, type);
