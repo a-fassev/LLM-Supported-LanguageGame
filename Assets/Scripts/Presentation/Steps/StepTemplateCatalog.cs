@@ -20,16 +20,21 @@ namespace LanguageGame.Presentation.Steps
         public bool TryResolve(string templateKey, string taskType, out GameObject prefab)
         {
             prefab = null;
+            var trimmedTemplateKey = (templateKey ?? string.Empty).Trim();
+            var trimmedTaskType = (taskType ?? string.Empty).Trim();
 
-            if (!string.IsNullOrEmpty(templateKey))
+            if (trimmedTemplateKey.Length > 0)
             {
                 for (var i = 0; i < entries.Count; i++)
                 {
                     var entry = entries[i];
-                    if (entry == null || entry.prefab == null || string.IsNullOrEmpty(entry.templateKey))
+                    if (entry == null || entry.prefab == null)
+                        continue;
+                    var entryKey = (entry.templateKey ?? string.Empty).Trim();
+                    if (entryKey.Length == 0)
                         continue;
 
-                    if (string.Equals(entry.templateKey, templateKey, StringComparison.Ordinal))
+                    if (string.Equals(entryKey, trimmedTemplateKey, StringComparison.OrdinalIgnoreCase))
                     {
                         prefab = entry.prefab;
                         return true;
@@ -37,15 +42,18 @@ namespace LanguageGame.Presentation.Steps
                 }
             }
 
-            if (!string.IsNullOrEmpty(taskType))
+            if (trimmedTaskType.Length > 0)
             {
                 for (var i = 0; i < entries.Count; i++)
                 {
                     var entry = entries[i];
-                    if (entry == null || entry.prefab == null || string.IsNullOrEmpty(entry.taskType))
+                    if (entry == null || entry.prefab == null)
+                        continue;
+                    var entryTask = (entry.taskType ?? string.Empty).Trim();
+                    if (entryTask.Length == 0)
                         continue;
 
-                    if (string.Equals(entry.taskType, taskType, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(entryTask, trimmedTaskType, StringComparison.OrdinalIgnoreCase))
                     {
                         prefab = entry.prefab;
                         return true;

@@ -8,6 +8,7 @@ Related code:
 - Catalog: `Assets/Scripts/Presentation/Steps/StepTemplateCatalog.cs`, default asset `Assets/Resources/Steps/StepTemplateCatalog_Default.asset`
 - Contract: `Assets/Scripts/Presentation/Steps/IStepView.cs`, `ISubmitFromShell.cs`, `StepContext.cs`
 - Shared task baseline: `Assets/Scripts/Presentation/Steps/TaskStepBase.cs`
+- Multiple Choice: `Assets/Scripts/Presentation/Steps/MultipleChoiceStepView.cs`, prefab `Assets/Prefabs/Steps/TaskStep_T05_MultipleChoice.prefab`
 - Layered prefab root shim: `Assets/Scripts/Presentation/Steps/ComposableStepRootView.cs`
 - Task type identifiers (domain): `Assets/Scripts/Domain/TaskType.cs`
 - Tokens: `Assets/Scripts/Presentation/UiDesignTokens.cs`, `UiThemeProvider.cs`, `UiTokenApplier.cs`
@@ -118,8 +119,8 @@ Add an **entry**:
 
 | Field           | Purpose |
 |----------------|---------|
-| **`taskType`** | Matches **`GameQuestStepDto.taskType`** from the API (resolver is **case-insensitive**). Example: `DragDrop`, `MultipleChoice`. |
-| **`templateKey`** | Optional: if set and the step carries the same **`templateKey`**, this entry wins over `taskType` (exact match). Use for variants (e.g. image vs text multiple choice). |
+| **`taskType`** | Matches **`GameQuestStepDto.taskType`** from the API (resolver is **case-insensitive**; surrounding **whitespace** ignored). Example: `DragDrop`, `MultipleChoice`. |
+| **`templateKey`** | Optional: if set and the step carries the same **`templateKey`**, this entry wins over `taskType` (**case-insensitive** match; leading/trailing **whitespace** ignored on lookup). Use for variants (e.g. image vs text multiple choice). |
 | **`prefab`**   | Drag your UI prefab here. |
 
 Ensure the **`Quest` scene’s** `QuestShellView` uses this catalog (`stepTemplateCatalog` field or Resources fallback loads `StepTemplateCatalog_Default`).
@@ -207,6 +208,103 @@ Implementation: **`DragDropStepView`** + prefab **`Assets/Prefabs/Steps/TaskStep
         { "kind": "slot", "targetId": "s2" },
         { "kind": "text", "text": "." }
       ]
+    }
+  ]
+}
+```
+
+---
+
+## MultipleChoice (`taskType`: MultipleChoice)
+
+Implementation: **`MultipleChoiceStepView`** + **`MultipleChoiceContentDto`** in [`MultipleChoiceStepView.cs`](Assets/Scripts/Presentation/Steps/MultipleChoiceStepView.cs), prefab **`TaskStep_T05_MultipleChoice.prefab`**. Validation and scoring run **client-side** on **Check**; the shell reward overlay still reflects **server** `reward_rules` from the complete-step response.
+
+### `contentJson` fields
+
+**Top-level: `MultipleChoiceContentDto`**
+
+| Field | Type | Notes |
+|-------|------|--------|
+| **`prompt`** | string | Optional quiz / step title (shell title area). |
+| **`subtitle`** | string | Optional subtitle / instructions (`bodyText`); hidden when empty. |
+| **`questions`** | array | List of questions. If **missing or empty**, a **single** question is built from the root-level shorthand (`stem`, `options`, `correctOptionIds`, `selectionMode`, `preserveOptionOrder`). |
+| **`selectionMode`** | string | Root shorthand only: `"single"` (default) or `"multiple"`. |
+| **`preserveOptionOrder`** | bool | Root shorthand only: default **`false`** → options are **shuffled**. Set **`true`** to keep JSON order. Same field exists per question when using **`questions`**. |
+| **`stem`** | array | Root shorthand: stem blocks (see below). |
+| **`options`** | array | Root shorthand: option entries. |
+| **`correctOptionIds`** | string[] | Root shorthand: correct option ids. |
+
+**`questions[]` → `MultipleChoiceQuestionDto`**
+
+| Field | Type | Notes |
+|-------|------|--------|
+| **`id`** | string | Optional author id / debug. |
+| **`selectionMode`** | string | `"single"` (default) or `"multiple"`. |
+| **`preserveOptionOrder`** | bool | `false`/omit → shuffle **options** for this question. |
+| **`stem`** | `McStemBlockDto[]` | Ordered blocks for the question prompt (may be empty). |
+| **`options`** | `McOptionDto[]` | **2–8** entries; unique **`id`** per option; each needs **`label` and/or `imageUrl`**. |
+| **`correctOptionIds`** | string[] | **Single**: exactly one id. **Multiple**: at least **two** ids; player's selection must match the **set** exactly. |
+
+**`McStemBlockDto`** — **`kind`** is case-insensitive:
+
+| `kind` | Fields |
+|--------|--------|
+| **`text`** | **`text`** |
+| **`image`** | **`imageUrl`** — absolute **`http`/`https`** (same policy as DragDrop). |
+| **`audio`** | **`audioUrl`** — absolute `http`/`https`; **Play audio** button (no autoplay). |
+
+**`McOptionDto`**
+
+| Field | Type |
+|-------|------|
+| **`id`** | string (unique) |
+| **`label`** | string (optional if `imageUrl` set) |
+| **`imageUrl`** | string (optional; absolute `http`/`https`) |
+
+### Examples
+
+**Single question (root shorthand)**
+
+```json
+{
+  "prompt": "Capitolo 2",
+  "subtitle": "Scegli la risposta giusta, poi premi Check.",
+  "stem": [{ "kind": "text", "text": "Cosa mangia il gatto?" }],
+  "options": [
+    { "id": "a", "label": "Il pesce" },
+    { "id": "b", "label": "La pizza" },
+    { "id": "c", "label": "L'erba" }
+  ],
+  "correctOptionIds": ["a"]
+}
+```
+
+**Multi-question quiz (`questions` + multi-select)**
+
+```json
+{
+  "prompt": "Ripasso",
+  "questions": [
+    {
+      "selectionMode": "single",
+      "stem": [{ "kind": "text", "text": "Quanto fa 3 + 4?" }],
+      "options": [
+        { "id": "x", "label": "5" },
+        { "id": "y", "label": "7" },
+        { "id": "z", "label": "12" }
+      ],
+      "correctOptionIds": ["y"]
+    },
+    {
+      "selectionMode": "multiple",
+      "preserveOptionOrder": true,
+      "stem": [{ "kind": "text", "text": "Quali sono numeri pari?" }],
+      "options": [
+        { "id": "n2", "label": "2" },
+        { "id": "n3", "label": "3" },
+        { "id": "n4", "label": "4" }
+      ],
+      "correctOptionIds": ["n2", "n4"]
     }
   ]
 }

@@ -29,13 +29,22 @@ namespace LanguageGame.Presentation
             if (_fallbackFont != null)
                 return _fallbackFont;
 
-            _fallbackFont = TryGetBuiltinFont("LegacyRuntime.ttf");
-            if (_fallbackFont == null)
-                _fallbackFont = TryGetBuiltinFont("Arial.ttf");
+            foreach (var path in new[] { "LegacyRuntime.ttf", "Arial.ttf" })
+            {
+                _fallbackFont = TryGetBuiltinFont(path);
+                if (_fallbackFont != null)
+                    return _fallbackFont;
+            }
+
+            _fallbackFont = Font.CreateDynamicFontFromOSFont(
+                new[] { "Arial", "Helvetica", "Liberation Sans", "DejaVu Sans", "Noto Sans" }, 16);
 
             if (_fallbackFont == null)
-                _fallbackFont = Font.CreateDynamicFontFromOSFont(
-                    new[] { "Arial", "Helvetica", "Liberation Sans", "DejaVu Sans", "Noto Sans" }, 16);
+            {
+                var arial = Resources.GetBuiltinResource<Font>("Arial.ttf");
+                if (arial != null)
+                    _fallbackFont = arial;
+            }
 
             if (_fallbackFont == null)
                 Debug.LogError("[UiTokenApplier] No fallback font available.");

@@ -200,7 +200,7 @@ seed_steps as (
       ('quest-02', 0, 'cutscene', null::text, 'cutscene.intro', null::text, '{"title":"Mercato","body":"Andiamo al mercato."}', '{}'),
       ('quest-02', 1, 'task', 'DragDrop', 'task.drag-drop', 'quest-02-task-01', '{"prompt":"Ordina gli elementi."}', '{"pizza":{"mode":"flat","value":2},"backpack":{"mode":"first_completion","value":1}}'),
       ('quest-02', 2, 'task', 'Matching', 'task.matching', 'quest-02-task-02', '{"prompt":"Abbina le coppie."}', '{"pizza":{"mode":"flat","value":2},"backpack":{"mode":"first_completion","value":1}}'),
-      ('quest-02', 3, 'task', 'MultipleChoice', 'task.multiple-choice', 'quest-02-task-03', '{"prompt":"Scegli la risposta corretta."}', '{"pizza":{"mode":"flat","value":3},"backpack":{"mode":"first_completion","value":1}}'),
+      ('quest-02', 3, 'task', 'MultipleChoice', 'task.multiple-choice', 'quest-02-task-03', '{"prompt":"Scegli la risposta corretta.","stem":[{"kind":"text","text":"Quanto fa 2 + 2?"}],"options":[{"id":"a","label":"3"},{"id":"b","label":"4"},{"id":"c","label":"5"}],"correctOptionIds":["b"]}', '{"pizza":{"mode":"flat","value":3},"backpack":{"mode":"first_completion","value":1}}'),
 
       ('quest-03', 0, 'cutscene', null::text, 'cutscene.intro', null::text, '{"title":"Scuola","body":"Entriamo in classe."}', '{}'),
       ('quest-03', 1, 'task', 'FreeText', 'task.free-text', 'quest-03-task-01', '{"prompt":"Scrivi una frase."}', '{"pizza":{"mode":"flat","value":3},"backpack":{"mode":"first_completion","value":1}}'),
@@ -210,7 +210,7 @@ seed_steps as (
 
       ('quest-04', 0, 'cutscene', null::text, 'cutscene.intro', null::text, '{"title":"Esame","body":"Ultima prova."}', '{}'),
       ('quest-04', 1, 'task', 'ClozeText', 'task.cloze-text', 'quest-04-task-01', '{"prompt":"Riempi gli spazi."}', '{"pizza":{"mode":"flat","value":4},"backpack":{"mode":"first_completion","value":1}}'),
-      ('quest-04', 2, 'task', 'MultipleChoice', 'task.multiple-choice', 'quest-04-task-02', '{"prompt":"Scegli bene."}', '{"pizza":{"mode":"flat","value":4},"backpack":{"mode":"first_completion","value":1}}'),
+      ('quest-04', 2, 'task', 'MultipleChoice', 'task.multiple-choice', 'quest-04-task-02', '{"prompt":"Scegli bene.","subtitle":"Solo una risposta è corretta.","stem":[{"kind":"text","text":"Quale parola è un sostantivo?"}],"options":[{"id":"x","label":"corre"},{"id":"y","label":"casa"},{"id":"z","label":"velocemente"}],"correctOptionIds":["y"]}', '{"pizza":{"mode":"flat","value":4},"backpack":{"mode":"first_completion","value":1}}'),
       ('quest-04', 3, 'cutscene', null::text, 'cutscene.outro', null::text, '{"title":"Complimenti","body":"Hai completato il chapter!"}', '{}')
   ) as s(quest_slug, order_index, step_kind, task_type, template_key, logical_task_key, content_payload, reward_rules)
     on s.quest_slug = qr.slug

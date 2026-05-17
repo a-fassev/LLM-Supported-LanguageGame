@@ -20,19 +20,19 @@ MonoBehaviour:
     xl: 48
   typography:
     display:
-      font: {fileID: 0}
+      font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
       fontSize: 48
     title:
-      font: {fileID: 0}
+      font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
       fontSize: 28
     body:
-      font: {fileID: 0}
+      font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
       fontSize: 26
     caption:
-      font: {fileID: 0}
+      font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
       fontSize: 22
     small:
-      font: {fileID: 0}
+      font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
       fontSize: 18
   palette:
     background: {r: 0.13, g: 0.13, b: 0.2, a: 1}

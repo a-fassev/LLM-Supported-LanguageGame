@@ -30,7 +30,7 @@ MonoBehaviour:
     prefab: {fileID: 104000, guid: 6dc38bb4f33445f8b6b2cf73431f3004, type: 3}
   - templateKey: task.multiple-choice
     taskType: MultipleChoice
-    prefab: {fileID: 105000, guid: 6dc38bb4f33445f8b6b2cf73431f3005, type: 3}
+    prefab: {fileID: 110000, guid: 6dc38bb4f33445f8b6b2cf73431f3005, type: 3}
   - templateKey: task.free-text
     taskType: FreeText
     prefab: {fileID: 106000, guid: 6dc38bb4f33445f8b6b2cf73431f3006, type: 3}
