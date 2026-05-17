@@ -23,7 +23,7 @@ namespace LanguageGame.Presentation.Steps
                 "DragDrop" => new DragDropToolkitStep(stepHost, coroutineHost),
                 "ClozeText" => new ClozeTextToolkitStep(stepHost),
                 "MultipleChoice" => new MultipleChoiceToolkitStep(stepHost, coroutineHost),
-                "Matching" => new StubToolkitTaskStep(stepHost, step.taskType),
+                "Matching" => new MatchingToolkitStep(stepHost, coroutineHost),
                 "FreeText" => new StubToolkitTaskStep(stepHost, step.taskType),
                 "RelativeClause" => new StubToolkitTaskStep(stepHost, step.taskType),
                 "ErrorSpotting" => new StubToolkitTaskStep(stepHost, step.taskType),

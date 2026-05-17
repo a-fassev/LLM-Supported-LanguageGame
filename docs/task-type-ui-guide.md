@@ -11,7 +11,7 @@ Legacy **uGUI**, **`StepTemplateCatalog`**, and step **prefabs** were removed; d
 | Shell | `Assets/Scripts/Presentation/QuestShellView.cs` |
 | Factory | `Assets/Scripts/Presentation/Steps/ToolkitStepFactory.cs` |
 | Contracts | `Assets/Scripts/Presentation/Steps/IStepView.cs`, `ISubmitFromShell.cs`, `StepContext.cs` |
-| Implemented steps | `DragDropToolkitStep.cs`, `ClozeTextToolkitStep.cs`, `MultipleChoiceToolkitStep.cs`, `CutsceneToolkitStep.cs`, `StubToolkitTaskStep.cs` |
+| Implemented steps | `DragDropToolkitStep.cs`, `ClozeTextToolkitStep.cs`, `MultipleChoiceToolkitStep.cs`, `MatchingToolkitStep.cs`, `CutsceneToolkitStep.cs`, `StubToolkitTaskStep.cs` |
 | Tokens | `UiDesignTokens.cs`, `UiThemeProvider.cs`; USS under `Assets/Resources/UI/LearningToolkit/` |
 
 ---
@@ -86,13 +86,53 @@ Root / per-question fields include **`stem`** blocks (**text** / **image** / **a
 
 ---
 
+### Matching (`taskType`: Matching)
+
+**Implementation:** **`MatchingToolkitStep`**.
+
+Learners connect **left** and **right** items. **Drag** from a left card and release on the correct right card (rubber-band line while dragging), **or** **tap** a left item then a right item. **`imageUrl`** values must be absolute **`http`/`https`** when present.
+
+| Field | Notes |
+|-------|--------|
+| **`prompt`**, **`subtitle`** | Title / instructions |
+| **`leftItems`**, **`rightItems`** | Each: **`id`**, **`label`**, optional **`imageUrl`** |
+| **`correctPairs`** | Each pair: **`leftItemId`**, **`rightItemId`** — each left id appears **exactly once**; each right id at most **once** (one-to-one matching). |
+| **`presentation`** | Optional **`leftLabel`**, **`rightLabel`**, **`shuffleRightOrder`** (shuffle the right column for display) |
+
+Example (minimal):
+
+```json
+{
+  "prompt": "Abbina le coppie",
+  "leftItems": [
+    { "id": "l1", "label": "Buongiorno" },
+    { "id": "l2", "label": "Grazie" }
+  ],
+  "rightItems": [
+    { "id": "r1", "label": "Mattina" },
+    { "id": "r2", "label": "Ringraziamento" }
+  ],
+  "correctPairs": [
+    { "leftItemId": "l1", "rightItemId": "r1" },
+    { "leftItemId": "l2", "rightItemId": "r2" }
+  ],
+  "presentation": {
+    "leftLabel": "Italiano",
+    "rightLabel": "Significato",
+    "shuffleRightOrder": true
+  }
+}
+```
+
+---
+
 ### Cutscenes (`isTask`: false)
 
 **Implementation:** **`CutsceneToolkitStep`**.
 
 ---
 
-### Stub types (`Matching`, `FreeText`, `RelativeClause`, `ErrorSpotting`, unknown)
+### Stub types (`FreeText`, `RelativeClause`, `ErrorSpotting`, unknown)
 
 **Implementation:** **`StubToolkitTaskStep`** — placeholder UX until a dedicated toolkit step exists.
 
