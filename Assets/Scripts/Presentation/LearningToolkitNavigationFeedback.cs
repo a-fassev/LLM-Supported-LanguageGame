@@ -12,12 +12,26 @@ namespace LanguageGame.Presentation
         private const string DefaultMessage = "Please wait…";
         private static readonly LearningToolkitInfoBanner Banner = new();
 
+        private static UIDocument _registeredPresentationDocument;
+
         private static VisualElement _attachedOverlay;
         private static IVisualElementScheduledItem _hideSchedule;
 
+        /// <summary>Each full-screen UITK view should register on spawn so suppressed navigation toasts target a known panel (not an arbitrary <see cref="UIDocument"/>).</summary>
+        public static void RegisterPresentationDocument(UIDocument doc)
+        {
+            _registeredPresentationDocument = doc;
+        }
+
+        public static void UnregisterPresentationDocument(UIDocument doc)
+        {
+            if (_registeredPresentationDocument == doc)
+                _registeredPresentationDocument = null;
+        }
+
         public static void ShowForSuppressedTransition()
         {
-            var doc = Object.FindAnyObjectByType<UIDocument>();
+            var doc = ResolveTargetDocument();
             if (doc == null)
                 return;
 
@@ -40,6 +54,14 @@ namespace LanguageGame.Presentation
             _hideSchedule = doc.rootVisualElement.schedule
                 .Execute(() => Banner.Hide())
                 .StartingIn(1600);
+        }
+
+        private static UIDocument ResolveTargetDocument()
+        {
+            if (_registeredPresentationDocument != null && _registeredPresentationDocument.rootVisualElement != null)
+                return _registeredPresentationDocument;
+
+            return Object.FindAnyObjectByType<UIDocument>();
         }
     }
 

@@ -119,6 +119,10 @@ namespace LanguageGame.Application
     public class GameApiErrorEnvelope
     {
         public bool ok;
+
+        /// <summary>Optional stable code from the API (e.g. UNAUTHORIZED); preferred over substring matching on <see cref="error"/>.</summary>
+        public string code;
+
         public string error;
     }
 }

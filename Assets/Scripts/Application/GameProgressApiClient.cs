@@ -30,6 +30,8 @@ namespace LanguageGame.Application
             if (trimmed.Length > 0 && trimmed[0] == '{')
             {
                 var env = JsonUtility.FromJson<GameApiErrorEnvelope>(trimmed);
+                if (env != null && ErrorCodeIndicatesSessionFailure(env.code))
+                    return true;
                 if (!string.IsNullOrEmpty(env?.error))
                     return LooksLikeSessionAuthFailure(env.error, 0);
             }
@@ -64,6 +66,20 @@ namespace LanguageGame.Application
             }
 
             return false;
+        }
+
+        /// <summary>Optional API <see cref="GameApiErrorEnvelope.code"/> field (future-proof; substring list remains fallback).</summary>
+        private static bool ErrorCodeIndicatesSessionFailure(string code)
+        {
+            if (string.IsNullOrWhiteSpace(code))
+                return false;
+            var c = code.Trim();
+            if (c.Equals("401", StringComparison.Ordinal) || c.Equals("403", StringComparison.Ordinal))
+                return true;
+            return c.Equals("UNAUTHORIZED", StringComparison.OrdinalIgnoreCase)
+                   || c.Equals("FORBIDDEN", StringComparison.OrdinalIgnoreCase)
+                   || c.Equals("SESSION_EXPIRED", StringComparison.OrdinalIgnoreCase)
+                   || c.Equals("INVALID_TOKEN", StringComparison.OrdinalIgnoreCase);
         }
 
         private void Awake()

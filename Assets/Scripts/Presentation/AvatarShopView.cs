@@ -44,6 +44,8 @@ namespace LanguageGame.Presentation
             if (overlay != null)
                 _infoBanner.Attach(overlay);
 
+            LearningToolkitNavigationFeedback.RegisterPresentationDocument(_doc);
+
             _backButton?.RegisterCallback<ClickEvent>(_ => OnBackClicked());
             _equipButton?.RegisterCallback<ClickEvent>(_ => ShowPlaceHolderToast("Nothing to equip yet."));
             _purchaseButton?.RegisterCallback<ClickEvent>(_ => ShowPlaceHolderToast("Purchasing will arrive with catalog content."));
@@ -99,6 +101,8 @@ namespace LanguageGame.Presentation
         private void OnDestroy()
         {
             _toastHideSchedule?.Pause();
+            if (_doc != null)
+                LearningToolkitNavigationFeedback.UnregisterPresentationDocument(_doc);
             _infoBanner.Destroy();
             if (_doc != null)
                 Destroy(_doc.gameObject);

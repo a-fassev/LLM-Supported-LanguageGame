@@ -53,6 +53,8 @@ namespace LanguageGame.Presentation
                 _unlockModal.Attach(overlayPlane);
             }
 
+            LearningToolkitNavigationFeedback.RegisterPresentationDocument(_doc);
+
             VisualElement root = _doc.rootVisualElement;
             _chapterTitleText = root.Q<Label>("chapter-title-label");
             _backButton = root.Q<Button>("back-button");
@@ -285,6 +287,8 @@ namespace LanguageGame.Presentation
 
         private void OnDestroy()
         {
+            if (_doc != null)
+                LearningToolkitNavigationFeedback.UnregisterPresentationDocument(_doc);
             _unlockModal.Destroy();
             _loadingOverlay.Destroy();
             _loadErrorBanner.Destroy();

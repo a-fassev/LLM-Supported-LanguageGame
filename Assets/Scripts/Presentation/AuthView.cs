@@ -60,6 +60,7 @@ namespace LanguageGame.Presentation
             }
             BindUi();
             AttachLoadingChrome();
+            LearningToolkitNavigationFeedback.RegisterPresentationDocument(_doc);
         }
 
         private void BindUi()
@@ -321,6 +322,8 @@ namespace LanguageGame.Presentation
 
         private void OnDestroy()
         {
+            if (_doc != null)
+                LearningToolkitNavigationFeedback.UnregisterPresentationDocument(_doc);
             _loading.Destroy();
             if (_doc != null)
                 Destroy(_doc.gameObject);

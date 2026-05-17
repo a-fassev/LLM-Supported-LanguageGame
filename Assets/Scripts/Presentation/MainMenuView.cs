@@ -40,6 +40,8 @@ namespace LanguageGame.Presentation
 
             AttachOverlays();
 
+            LearningToolkitNavigationFeedback.RegisterPresentationDocument(_doc);
+
             VisualElement root = _doc.rootVisualElement;
 
             root.Q<Button>("play-button")?.RegisterCallback<ClickEvent>(_ => OnPlayClicked());
@@ -238,6 +240,8 @@ namespace LanguageGame.Presentation
 
         private void OnDestroy()
         {
+            if (_doc != null)
+                LearningToolkitNavigationFeedback.UnregisterPresentationDocument(_doc);
             _loadErrorBanner.Destroy();
             _loadingOverlay.Destroy();
 

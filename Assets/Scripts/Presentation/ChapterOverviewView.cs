@@ -47,6 +47,8 @@ namespace LanguageGame.Presentation
 
             AttachOverlays();
 
+            LearningToolkitNavigationFeedback.RegisterPresentationDocument(_doc);
+
             VisualElement root = _doc.rootVisualElement;
             _titleText = root.Q<Label>("title-label");
             _walletPizza = root.Q<Label>("wallet-pizza");
@@ -301,6 +303,8 @@ namespace LanguageGame.Presentation
 
         private void OnDestroy()
         {
+            if (_doc != null)
+                LearningToolkitNavigationFeedback.UnregisterPresentationDocument(_doc);
             _unlockModal.Destroy();
             _loadingOverlay.Destroy();
             _loadErrorBanner.Destroy();

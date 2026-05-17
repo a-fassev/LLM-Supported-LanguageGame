@@ -98,6 +98,8 @@ namespace LanguageGame.Presentation
             _tkReward.Attach(overlay);
             _tkFinishError.Attach(overlay);
 
+            LearningToolkitNavigationFeedback.RegisterPresentationDocument(_toolkitDoc);
+
             _shellReady = true;
         }
 
@@ -546,6 +548,8 @@ namespace LanguageGame.Presentation
 
         private void OnDestroy()
         {
+            if (_toolkitDoc != null)
+                LearningToolkitNavigationFeedback.UnregisterPresentationDocument(_toolkitDoc);
             TeardownBoundStep();
             _tkLoading.Destroy();
             _tkBackConfirm.Destroy();

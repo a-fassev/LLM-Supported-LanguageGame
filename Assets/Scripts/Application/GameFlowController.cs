@@ -56,8 +56,13 @@ namespace LanguageGame.Application
                 SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 
+        /// <summary>Clears the navigation lock when our <see cref="SceneManager.LoadScene(string, LoadSceneMode)"/> Single load completes.</summary>
+        /// <remarks>Do not clear on <see cref="LoadSceneMode.Additive"/> loads or unrelated tooling loads.</remarks>
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
+            if (mode != LoadSceneMode.Single)
+                return;
+
             _sceneTransitionInProgress = false;
         }
 

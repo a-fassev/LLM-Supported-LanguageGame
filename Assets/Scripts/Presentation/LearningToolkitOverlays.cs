@@ -330,7 +330,9 @@ namespace LanguageGame.Presentation
             {
                 if (_card == null)
                 {
+                    var orphanedSecondary = _onSecondary;
                     Hide();
+                    orphanedSecondary?.Invoke();
                     return;
                 }
 
