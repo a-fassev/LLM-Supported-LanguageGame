@@ -4,6 +4,7 @@ using LanguageGame.Presentation.Steps;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 
 namespace LanguageGame.Presentation
 {
@@ -49,6 +50,19 @@ namespace LanguageGame.Presentation
         private bool _pendingQuestComplete;
         private string _pendingRunId;
 
+        private UIDocument _toolkitDoc;
+        private bool _toolkitShellReady;
+        private VisualElement _toolkitStepHost;
+        private UnityEngine.UIElements.Button _tkBackToChapters;
+        private UnityEngine.UIElements.Button _tkPrimary;
+        private UnityEngine.UIElements.Label _tkQuestTitle;
+        private UnityEngine.UIElements.Label _tkWalletPizza;
+        private UnityEngine.UIElements.Label _tkWalletBackpack;
+        private readonly LearningToolkitLoadingOverlay _tkLoading = new();
+        private readonly LearningToolkitConfirmModal _tkBackConfirm = new();
+        private readonly LearningToolkitRewardModal _tkReward = new();
+        private readonly LearningToolkitLoadErrorBanner _tkFinishError = new();
+
         private void Awake()
         {
             if (backToChaptersButton == null)
@@ -67,6 +81,50 @@ namespace LanguageGame.Presentation
             if (taskDetailText != null)
                 taskDetailText.raycastTarget = false;
             ResolveStepMountParent();
+            TrySpawnToolkitShell();
+        }
+
+        private void TrySpawnToolkitShell()
+        {
+            _toolkitDoc = LearningToolkitBootstrap.SpawnUiDocument(this, "QuestShellScreen");
+            if (_toolkitDoc == null)
+            {
+                Debug.LogError("[QuestShellView] QuestShellScreen UI Toolkit bootstrap failed.");
+                return;
+            }
+
+            var root = _toolkitDoc.rootVisualElement;
+            _tkBackToChapters = root.Q<Button>("back-to-chapters-button");
+            _tkPrimary = root.Q<Button>("primary-action-button");
+            _tkQuestTitle = root.Q<Label>("quest-title-label");
+            _tkWalletPizza = root.Q<Label>("wallet-pizza");
+            _tkWalletBackpack = root.Q<Label>("wallet-backpack");
+            _toolkitStepHost = root.Q<VisualElement>("step-host");
+
+            _tkBackToChapters?.RegisterCallback<ClickEvent>(_ => OnBackToChaptersClicked());
+            _tkPrimary?.RegisterCallback<ClickEvent>(_ => OnPrimaryChromeClicked());
+
+            var overlay = LearningToolkitBootstrap.ResolveOverlayPlane(_toolkitDoc);
+            if (overlay != null)
+            {
+                _tkLoading.Attach(overlay);
+                _tkBackConfirm.Attach(overlay);
+                _tkReward.Attach(overlay);
+                _tkFinishError.Attach(overlay);
+            }
+
+            _toolkitShellReady = true;
+            DisableLegacyQuestChrome();
+        }
+
+        private void DisableLegacyQuestChrome()
+        {
+            backToChaptersButton?.gameObject.SetActive(false);
+            nextTaskButton?.gameObject.SetActive(false);
+            questTitleText?.gameObject.SetActive(false);
+            pizzaSlicesText?.gameObject.SetActive(false);
+            backpackPiecesText?.gameObject.SetActive(false);
+            taskDetailText?.gameObject.SetActive(false);
         }
 
         private void Start()
@@ -75,10 +133,14 @@ namespace LanguageGame.Presentation
             if (flow != null)
                 ChapterThemeRuntime.Apply(flow.SelectedChapterThemeJson);
 
-            backToChaptersButton?.onClick.AddListener(OnBackToChaptersClicked);
-            nextTaskButton?.onClick.AddListener(OnPrimaryChromeClicked);
-            EnsureBackConfirmOverlay();
-            EnsureRewardOverlay();
+            if (!_toolkitShellReady)
+            {
+                backToChaptersButton?.onClick.AddListener(OnBackToChaptersClicked);
+                nextTaskButton?.onClick.AddListener(OnPrimaryChromeClicked);
+                EnsureBackConfirmOverlay();
+                EnsureRewardOverlay();
+            }
+
             RefreshStepUi();
         }
 
@@ -114,6 +176,21 @@ namespace LanguageGame.Presentation
                 SetButtonLabel(nextTaskButton, FinishQuestLabel);
                 if (nextTaskButton != null)
                     nextTaskButton.interactable = !_submitting && _gameApi != null;
+                if (_toolkitShellReady)
+                {
+                    var titleFinishing = string.IsNullOrEmpty(flow.ServerQuestDisplayName)
+                        ? "Finishing quest"
+                        : flow.ServerQuestDisplayName;
+                    if (_tkQuestTitle != null)
+                        _tkQuestTitle.text = titleFinishing;
+                    if (_tkPrimary != null)
+                    {
+                        _tkPrimary.text = FinishQuestLabel;
+                        _tkPrimary.SetEnabled(!_submitting && _gameApi != null);
+                        _tkPrimary.style.display = DisplayStyle.Flex;
+                    }
+                }
+
                 return;
             }
 
@@ -133,12 +210,31 @@ namespace LanguageGame.Presentation
                 SetButtonLabel(nextTaskButton, FinishQuestLabel);
                 if (nextTaskButton != null)
                     nextTaskButton.interactable = false;
+                if (_toolkitShellReady)
+                {
+                    var titleDone = string.IsNullOrEmpty(flow.ServerQuestDisplayName)
+                        ? "Quest complete"
+                        : flow.ServerQuestDisplayName;
+                    if (_tkQuestTitle != null)
+                        _tkQuestTitle.text = titleDone;
+                    if (_tkPrimary != null)
+                    {
+                        _tkPrimary.text = FinishQuestLabel;
+                        _tkPrimary.SetEnabled(false);
+                        _tkPrimary.style.display = DisplayStyle.Flex;
+                    }
+                }
+
                 TeardownBoundStep();
                 return;
             }
 
             if (questTitleText != null)
                 questTitleText.text =
+                    $"{flow.ServerQuestDisplayName} — Step {flow.ServerCurrentStepNumberOneBased}/{flow.ServerStepCount}";
+
+            if (_toolkitShellReady && _tkQuestTitle != null)
+                _tkQuestTitle.text =
                     $"{flow.ServerQuestDisplayName} — Step {flow.ServerCurrentStepNumberOneBased}/{flow.ServerStepCount}";
 
             if (taskDetailText != null)
@@ -157,6 +253,41 @@ namespace LanguageGame.Presentation
                 return;
 
             TeardownBoundStep();
+
+            if (_toolkitShellReady && _toolkitStepHost != null)
+            {
+                _toolkitStepHost.Clear();
+                _activeStepView = ToolkitStepFactory.Create(step, _toolkitStepHost, this);
+                _activeStepObject = null;
+                _boundStep = step;
+                if (_activeStepView != null)
+                {
+                    _activeStepView.Bind(new StepContext
+                    {
+                        runId = flow.ServerRunId,
+                        stepId = step.id,
+                        taskId = step.id,
+                        questId = flow.ServerQuestId,
+                        questDisplayName = flow.ServerQuestDisplayName,
+                        stepKind = step.stepKind,
+                        taskType = step.taskType,
+                        templateKey = step.templateKey,
+                        contentJson = step.contentJson,
+                        rewardRulesJson = step.rewardRulesJson,
+                        stepIndexZeroBased = Mathf.Max(0, flow.ServerCurrentStepNumberOneBased - 1),
+                        totalSteps = flow.ServerStepCount,
+                        isLastStep = flow.ServerCurrentStepNumberOneBased == flow.ServerStepCount,
+                        totalSlices = flow.TotalPizzaSlices,
+                        totalBackpackPieces = flow.TotalBackpackPieces,
+                        presentValidationMessage = PresentValidationMessage,
+                    }, OnStepRequest);
+                    _activeStepView.SetInteractable(!_submitting);
+                }
+
+                ResetRewardOverlayToRewardLayout();
+                SetRewardOverlayVisible(false);
+                return;
+            }
 
             var host = stepHost != null ? stepHost : transform;
             GameObject instance = null;
@@ -337,6 +468,13 @@ namespace LanguageGame.Presentation
                     nextTaskButton.interactable = !_submitting && _gameApi != null;
                 }
 
+                if (_toolkitShellReady && _tkPrimary != null)
+                {
+                    _tkPrimary.text = ShellTaskCheckLabel;
+                    _tkPrimary.SetEnabled(!_submitting && _gameApi != null);
+                    _tkPrimary.style.display = DisplayStyle.Flex;
+                }
+
                 return;
             }
 
@@ -348,6 +486,13 @@ namespace LanguageGame.Presentation
                 nextTaskButton.gameObject.SetActive(true);
                 SetButtonLabel(nextTaskButton, ShellCutsceneNextLabel);
                 nextTaskButton.interactable = !_submitting && _gameApi != null;
+            }
+
+            if (_toolkitShellReady && _tkPrimary != null)
+            {
+                _tkPrimary.text = ShellCutsceneNextLabel;
+                _tkPrimary.SetEnabled(!_submitting && _gameApi != null);
+                _tkPrimary.style.display = DisplayStyle.Flex;
             }
         }
 
@@ -371,9 +516,14 @@ namespace LanguageGame.Presentation
             _activeStepView?.SetInteractable(false);
             RefreshStepUi();
 
-            var overlayReady = EnsureLoadingOverlay();
+            var overlayReady = _toolkitShellReady || EnsureLoadingOverlay();
             if (overlayReady)
-                _loadingOverlay.Show("Checking...");
+            {
+                if (_toolkitShellReady)
+                    _tkLoading.Show("Checking...");
+                else
+                    _loadingOverlay.Show("Checking...");
+            }
 
             var runId = flow.ServerRunId;
             var useCase = new CompleteTaskUseCase(_gameApi);
@@ -382,7 +532,12 @@ namespace LanguageGame.Presentation
             yield return useCase.Run(runId, taskStepId, d => done = d, m => err = m);
 
             if (overlayReady)
-                _loadingOverlay.Hide();
+            {
+                if (_toolkitShellReady)
+                    _tkLoading.Hide();
+                else
+                    _loadingOverlay.Hide();
+            }
 
             if (done == null || !done.ok)
             {
@@ -428,9 +583,14 @@ namespace LanguageGame.Presentation
             _activeStepView?.SetInteractable(false);
             RefreshStepUi();
 
-            var overlayReady = EnsureLoadingOverlay();
+            var overlayReady = _toolkitShellReady || EnsureLoadingOverlay();
             if (overlayReady)
-                _loadingOverlay.Show("Saving...");
+            {
+                if (_toolkitShellReady)
+                    _tkLoading.Show("Saving...");
+                else
+                    _loadingOverlay.Show("Saving...");
+            }
 
             var runId = flow.ServerRunId;
             var useCase = new AdvanceCutsceneUseCase(_gameApi);
@@ -439,7 +599,12 @@ namespace LanguageGame.Presentation
             yield return useCase.Run(runId, cutsceneStepId, d => done = d, m => err = m);
 
             if (overlayReady)
-                _loadingOverlay.Hide();
+            {
+                if (_toolkitShellReady)
+                    _tkLoading.Hide();
+                else
+                    _loadingOverlay.Hide();
+            }
 
             _submitting = false;
 
@@ -473,9 +638,14 @@ namespace LanguageGame.Presentation
             _activeStepView?.SetInteractable(false);
             RefreshStepUi();
 
-            var overlayReady = EnsureLoadingOverlay();
+            var overlayReady = _toolkitShellReady || EnsureLoadingOverlay();
             if (overlayReady)
-                _loadingOverlay.Show("Returning to chapters...");
+            {
+                if (_toolkitShellReady)
+                    _tkLoading.Show("Returning to chapters...");
+                else
+                    _loadingOverlay.Show("Returning to chapters...");
+            }
             else
                 Debug.LogWarning("[QuestShellView] Quest-exit overlay unavailable; using inline loading state.");
 
@@ -484,7 +654,10 @@ namespace LanguageGame.Presentation
             var finishErr = string.Empty;
             yield return finish.Run(runId, r => finishResult = r, e => finishErr = e);
 
-            _loadingOverlay.Hide();
+            if (_toolkitShellReady)
+                _tkLoading.Hide();
+            else
+                _loadingOverlay.Hide();
 
             if (finishResult == null || !finishResult.ok)
             {
@@ -493,11 +666,28 @@ namespace LanguageGame.Presentation
                     ? "Could not save quest completion. Tap Finish quest to retry."
                     : $"Could not save quest completion: {finishErr}";
                 Debug.LogWarning("[QuestShellView] " + message);
-                if (taskDetailText != null)
-                    taskDetailText.text = message;
-                SetButtonLabel(nextTaskButton, FinishQuestLabel);
-                if (nextTaskButton != null)
-                    nextTaskButton.interactable = true;
+                if (_toolkitShellReady)
+                {
+                    _tkFinishError.Show(message, () =>
+                    {
+                        _tkFinishError.Hide();
+                        StartCoroutine(FinishPendingRunRoutine(runId));
+                    });
+                    if (_tkPrimary != null)
+                    {
+                        _tkPrimary.text = FinishQuestLabel;
+                        _tkPrimary.SetEnabled(true);
+                        _tkPrimary.style.display = DisplayStyle.Flex;
+                    }
+                }
+                else
+                {
+                    if (taskDetailText != null)
+                        taskDetailText.text = message;
+                    SetButtonLabel(nextTaskButton, FinishQuestLabel);
+                    if (nextTaskButton != null)
+                        nextTaskButton.interactable = true;
+                }
                 yield break;
             }
 
@@ -540,12 +730,32 @@ namespace LanguageGame.Presentation
 
         private void SetBackConfirmVisible(bool visible)
         {
+            if (_toolkitShellReady)
+            {
+                if (visible)
+                {
+                    var flow = GameFlowController.Instance;
+                    var message = flow != null && flow.IsServerQuestActive
+                        ? "Progress is saved on the server after each step. You can resume this quest later from chapters. Leave now?"
+                        : "Leaving now will discard your progress on this quest. Do you want to go back to chapters?";
+                    _tkBackConfirm.Show("Leave quest?", message, "Stay", "Back to chapters", OnBackConfirmCancel,
+                        OnBackConfirmLeave);
+                }
+                else
+                    _tkBackConfirm.Hide();
+
+                return;
+            }
+
             if (_backConfirmRoot != null)
                 _backConfirmRoot.SetActive(visible);
         }
 
         private void EnsureBackConfirmOverlay()
         {
+            if (_toolkitShellReady)
+                return;
+
             if (_backConfirmRoot != null)
                 return;
 
@@ -642,6 +852,9 @@ namespace LanguageGame.Presentation
 
         private bool EnsureLoadingOverlay()
         {
+            if (_toolkitShellReady)
+                return true;
+
             var canvas = GetComponentInParent<Canvas>();
             if (canvas == null)
                 canvas = FindAnyObjectByType<Canvas>();
@@ -664,6 +877,13 @@ namespace LanguageGame.Presentation
                 pizzaSlicesText.text = $"Pizza slices: {slices}";
             if (backpackPiecesText != null)
                 backpackPiecesText.text = $"Backpack pieces: {backpack}";
+            if (_toolkitShellReady)
+            {
+                if (_tkWalletPizza != null)
+                    _tkWalletPizza.text = slices.ToString();
+                if (_tkWalletBackpack != null)
+                    _tkWalletBackpack.text = backpack.ToString();
+            }
         }
 
         private static Button CreateDialogButton(Transform parent, string label, Vector2 anchoredPos,
@@ -709,10 +929,19 @@ namespace LanguageGame.Presentation
             nextTaskButton?.onClick.RemoveListener(OnPrimaryChromeClicked);
             TeardownBoundStep();
             _loadingOverlay.Destroy();
+            _tkLoading.Destroy();
+            _tkBackConfirm.Destroy();
+            _tkReward.Destroy();
+            _tkFinishError.Destroy();
+            if (_toolkitDoc != null)
+                Destroy(_toolkitDoc.gameObject);
         }
 
         private void EnsureRewardOverlay()
         {
+            if (_toolkitShellReady)
+                return;
+
             if (_rewardOverlayRoot != null)
                 return;
 
@@ -787,6 +1016,20 @@ namespace LanguageGame.Presentation
 
         private void ShowRewardOverlay(int awardedSlices, int awardedBackpackPieces)
         {
+            if (_toolkitShellReady)
+            {
+                _rewardOverlayValidationMode = false;
+                _tkReward.ConfigureSuccessChrome();
+                _tkReward.ShowSuccess(
+                    "Success!",
+                    $"Pizza slices gained: {Mathf.Max(0, awardedSlices)}",
+                    $"Backpack pieces gained: {Mathf.Max(0, awardedBackpackPieces)}",
+                    OnToolkitRewardBackDismiss,
+                    OnToolkitRewardNextDismiss);
+                _activeStepView?.SetInteractable(false);
+                return;
+            }
+
             EnsureRewardOverlay();
             if (_rewardOverlayRoot == null)
                 return;
@@ -805,10 +1048,44 @@ namespace LanguageGame.Presentation
             SetRewardOverlayVisible(true);
         }
 
+        private void OnToolkitRewardBackDismiss()
+        {
+            if (_rewardOverlayValidationMode)
+            {
+                _tkReward.Hide();
+                _rewardOverlayValidationMode = false;
+                _tkReward.ConfigureSuccessChrome();
+                return;
+            }
+
+            _tkReward.Hide();
+        }
+
+        private void OnToolkitRewardNextDismiss()
+        {
+            if (_rewardOverlayValidationMode)
+                return;
+            _tkReward.Hide();
+            ApplyPendingAdvanceAndContinue();
+        }
+
         private void PresentValidationMessage(string message)
         {
             if (string.IsNullOrEmpty(message))
                 return;
+
+            if (_toolkitShellReady)
+            {
+                _rewardOverlayValidationMode = true;
+                _tkReward.ShowValidation(message, ValidationDismissLabel, () =>
+                {
+                    _tkReward.Hide();
+                    _rewardOverlayValidationMode = false;
+                    _tkReward.ConfigureSuccessChrome();
+                });
+                return;
+            }
+
             EnsureRewardOverlay();
             if (_rewardOverlayRoot == null)
                 return;
@@ -830,6 +1107,12 @@ namespace LanguageGame.Presentation
         private void ResetRewardOverlayToRewardLayout()
         {
             _rewardOverlayValidationMode = false;
+            if (_toolkitShellReady)
+            {
+                _tkReward.ConfigureSuccessChrome();
+                return;
+            }
+
             ConfigureRewardOverlaySuccessChrome();
         }
 
@@ -846,6 +1129,13 @@ namespace LanguageGame.Presentation
 
         private void SetRewardOverlayVisible(bool visible)
         {
+            if (_toolkitShellReady)
+            {
+                if (!visible)
+                    _tkReward.Hide();
+                return;
+            }
+
             if (_rewardOverlayRoot != null)
                 _rewardOverlayRoot.SetActive(visible);
         }
@@ -900,6 +1190,8 @@ namespace LanguageGame.Presentation
             _activeStepView?.Teardown();
             _activeStepView = null;
             _boundStep = null;
+            if (_toolkitShellReady && _toolkitStepHost != null)
+                _toolkitStepHost.Clear();
             if (_activeStepObject != null)
             {
                 Destroy(_activeStepObject);

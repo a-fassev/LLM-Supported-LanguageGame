@@ -1,0 +1,39 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="root-shell" class="lg-fill-screen">
+
+        <ui:VisualElement name="content-plane" class="lg-shell lg-shell--narrow lg-fill-screen">
+            <ui:Label text="Welcome!" class="lg-heading-display" />
+            <ui:Label name="status-label" text="" class="lg-text-muted lg-text-body lg-text-muted" />
+
+            <ui:VisualElement name="login-panel" class="lg-muted-panel" style="padding: 24px;">
+                <ui:TextField name="login-username" label="Username" class="lg-textfield" />
+                <ui:TextField name="login-password" label="Password" class="lg-textfield"
+                    masking-character="*" password="true" />
+                <ui:Button name="login-button" text="Sign in" class="lg-btn lg-btn--primary" />
+                <ui:Button name="goto-register-button" text="New here? Create an account"
+                    class="lg-btn lg-btn--ghost" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="register-panel" class="lg-muted-panel" style="padding: 24px; margin-top: 16px;">
+                <ui:Label text="Choose your learner name" class="lg-text-body-lg lg-text-muted" />
+                <ui:VisualElement style="flex-direction: row; align-items: center; margin-bottom: 8px;">
+                    <ui:Label name="generated-username-label" text="..." class="lg-text-body-lg"
+                        style="flex-grow: 1;" />
+                    <ui:Button name="new-username-button" text="Suggest another"
+                        class="lg-btn lg-btn--secondary" />
+                </ui:VisualElement>
+                <ui:TextField name="register-password" label="Password" class="lg-textfield"
+                    masking-character="*" password="true" />
+                <ui:TextField name="register-password-confirm" label="Confirm password"
+                    class="lg-textfield"
+                    masking-character="*" password="true" />
+                <ui:Button name="register-button" text="Create account" class="lg-btn lg-btn--primary"
+                    style="margin-top: 8px;" />
+                <ui:Button name="goto-login-button" text="I already have an account" class="lg-btn lg-btn--ghost" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="overlay-plane" picking-mode="Ignore" class="lg-overlay-root" />
+
+    </ui:VisualElement>
+</ui:UXML>

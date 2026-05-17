@@ -1,21 +1,55 @@
-using UnityEngine;
-using UnityEngine.UI;
 using LanguageGame.Application;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace LanguageGame.Presentation
 {
-    /// <summary>Placeholder UI for the avatar shop hub screen (navigation + pizza display only).</summary>
+    /// <summary>Avatar shop hub with UI Toolkit (Wave 2).</summary>
     public class AvatarShopView : MonoBehaviour
     {
-        [SerializeField] private Button backButton;
-        [SerializeField] private Text pizzaSlicesText;
-        [SerializeField] private Text backpackPiecesText;
-        [SerializeField] private Text placeholderHintText;
+        private UIDocument _doc;
+
+        private Button _backButton;
+
+        private Label _walletPizzaChip;
+
+        private Label _walletBackpackChip;
+
+        private Button _equipButton;
+
+        private Button _purchaseButton;
+
+        private readonly LearningToolkitInfoBanner _infoBanner = new();
 
         private void Awake()
         {
-            if (backButton == null)
-                Debug.LogWarning("[AvatarShopView] backButton is not assigned.");
+            _doc = LearningToolkitBootstrap.SpawnUiDocument(this, "AvatarShopScreen");
+            if (_doc == null)
+            {
+                Debug.LogError("[AvatarShopView] UITK bootstrap failed — missing AvatarShopScreen or PanelSettings.");
+                enabled = false;
+                return;
+            }
+
+            var root = _doc.rootVisualElement;
+            _backButton = root.Q<Button>("back-button");
+            _walletPizzaChip = root.Q<Label>("wallet-chip-pizza");
+            _walletBackpackChip = root.Q<Label>("wallet-chip-backpack");
+            _equipButton = root.Q<Button>("equip-button");
+            _purchaseButton = root.Q<Button>("purchase-button");
+
+            VisualElement overlay = LearningToolkitBootstrap.ResolveOverlayPlane(_doc);
+            if (overlay != null)
+                _infoBanner.Attach(overlay);
+
+            _backButton?.RegisterCallback<ClickEvent>(_ => OnBackClicked());
+            _equipButton?.RegisterCallback<ClickEvent>(_ => ShowPlaceHolderToast("Nothing to equip yet."));
+            _purchaseButton?.RegisterCallback<ClickEvent>(_ => ShowPlaceHolderToast("Purchasing will arrive with catalog content."));
+
+            if (_equipButton != null)
+                _equipButton.SetEnabled(false);
+            if (_purchaseButton != null)
+                _purchaseButton.SetEnabled(false);
         }
 
         private void OnEnable()
@@ -23,20 +57,20 @@ namespace LanguageGame.Presentation
             RefreshWalletLabels();
         }
 
-        private void Start()
+        private void ShowPlaceHolderToast(string message)
         {
-            backButton?.onClick.AddListener(OnBackClicked);
+            _infoBanner.ShowInfo(message);
+            _doc?.rootVisualElement.schedule.Execute(() => _infoBanner.Hide()).StartingIn(2200);
         }
 
         private void RefreshWalletLabels()
         {
-            var slices   = GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
+            var slices = GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
             var backpack = GameFlowController.Instance != null ? GameFlowController.Instance.TotalBackpackPieces : 0;
-            var line = $"Pizza slices: {slices}";
-            if (pizzaSlicesText != null)
-                pizzaSlicesText.text = line;
-            if (backpackPiecesText != null)
-                backpackPiecesText.text = $"Backpack pieces: {backpack}";
+            if (_walletPizzaChip != null)
+                _walletPizzaChip.text = $"Pizza · {slices}";
+            if (_walletBackpackChip != null)
+                _walletBackpackChip.text = $"Backpack · {backpack}";
         }
 
         private void OnBackClicked()
@@ -52,7 +86,9 @@ namespace LanguageGame.Presentation
 
         private void OnDestroy()
         {
-            backButton?.onClick.RemoveListener(OnBackClicked);
+            _infoBanner.Destroy();
+            if (_doc != null)
+                Destroy(_doc.gameObject);
         }
     }
 }

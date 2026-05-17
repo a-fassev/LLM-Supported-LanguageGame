@@ -1,0 +1,63 @@
+@import url("tokens-semantics.uss");
+
+.lg-error-banner {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 96px;
+    padding: var(--lg-space-12) var(--lg-space-24);
+    background-color: var(--lg-feedback-guidance-bg);
+    border-top-left-radius: var(--lg-radius-md);
+    border-top-right-radius: var(--lg-radius-md);
+    border-top-width: var(--lg-stroke-1);
+    border-color: var(--lg-guidance);
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.lg-banner-message {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-right: var(--lg-space-12);
+}
+
+.lg-loading-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: var(--lg-shadow-overlay);
+    justify-content: center;
+    align-items: center;
+}
+
+.lg-loading-card {
+    min-width: 320px;
+    max-width: 480px;
+    padding: var(--lg-space-24);
+    border-radius: var(--lg-radius-lg);
+    background-color: var(--lg-surface-1);
+}
+
+.lg-modal-scrim {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: var(--lg-shadow-overlay);
+    justify-content: center;
+    align-items: center;
+}
+
+.lg-modal-card {
+    width: 88%;
+    max-width: 480px;
+    padding: var(--lg-space-24);
+    border-radius: var(--lg-radius-lg);
+    background-color: var(--lg-surface-1);
+    border-width: var(--lg-stroke-1);
+    border-color: var(--lg-border-soft);
+}

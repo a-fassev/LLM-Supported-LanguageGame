@@ -1,0 +1,29 @@
+@import url("tokens-primitives.uss");
+
+:root {
+    --lg-bg-app: var(--lg-paper-000);
+    --lg-bg-muted: var(--lg-cream-050);
+    --lg-surface-1: rgba(251, 249, 243, 0.98);
+    --lg-surface-2: rgba(254, 253, 251, 0.98);
+
+    --lg-text-main: var(--lg-ink-900);
+    --lg-text-soft: var(--lg-ink-700);
+    --lg-text-muted: var(--lg-ink-500);
+    --lg-text-inverse: var(--lg-white);
+
+    --lg-accent-primary-bg: var(--lg-sea-500);
+    --lg-accent-primary-press: var(--lg-sea-600);
+    --lg-accent-secondary-bg: rgba(239, 229, 217, 0.95);
+
+    --lg-border-soft: var(--lg-stroke-strong);
+    --lg-focus-ring: var(--lg-sea-500);
+
+    --lg-feedback-success-bg: rgba(229, 246, 237, 0.95);
+    --lg-feedback-success-fg: var(--lg-success);
+
+    --lg-feedback-attention-bg: rgba(253, 246, 226, 0.92);
+    --lg-feedback-guidance-bg: rgba(255, 239, 226, 0.95);
+
+    --lg-chip-new-bg: var(--lg-feedback-attention-bg);
+    --lg-chip-bonus-bg: rgba(239, 229, 246, 0.85);
+}

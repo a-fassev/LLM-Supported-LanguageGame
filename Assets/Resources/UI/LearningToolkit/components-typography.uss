@@ -1,0 +1,70 @@
+@import url("tokens-semantics.uss");
+
+TextField > Label,
+Label {
+    color: var(--lg-text-main);
+}
+
+.lg-heading-display {
+    font-size: var(--lg-font-display);
+    -unity-font-style: bold;
+    color: var(--lg-text-main);
+    -unity-text-outline-width: 0;
+}
+
+.lg-heading-screen {
+    font-size: var(--lg-font-h1);
+    -unity-font-style: bold;
+    letter-spacing: 0.2px;
+}
+
+.lg-text-h2 {
+    font-size: var(--lg-font-h2);
+}
+
+.lg-text-body {
+    font-size: var(--lg-font-body);
+    white-space: normal;
+}
+
+.lg-text-body-lg {
+    font-size: var(--lg-font-body-lg);
+}
+
+.lg-text-muted {
+    color: var(--lg-text-soft);
+}
+
+.lg-text-caption {
+    font-size: var(--lg-font-caption);
+    color: var(--lg-text-muted);
+}
+
+.lg-fill-screen {
+    flex-grow: 1;
+    background-color: var(--lg-bg-app);
+    flex-direction: column;
+}
+
+.lg-shell {
+    padding: var(--lg-space-24);
+    flex-grow: 1;
+}
+
+.lg-shell--narrow {
+    max-width: 520px;
+    align-self: center;
+}
+
+.lg-overlay-root {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.lg-muted-panel {
+    background-color: var(--lg-bg-muted);
+    border-radius: var(--lg-radius-md);
+}

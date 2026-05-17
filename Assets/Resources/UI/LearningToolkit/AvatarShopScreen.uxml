@@ -1,0 +1,41 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="avatar-root" class="lg-fill-screen">
+        <ui:VisualElement name="main-column" class="lg-shell lg-shell--narrow lg-fill-screen">
+            <ui:VisualElement name="avatar-header" style="flex-direction: row; align-items: center;">
+                <ui:Button name="back-button" text="Back" class="lg-btn lg-btn--ghost" />
+                <ui:VisualElement style="flex-grow: 1; align-items: center;">
+                    <ui:Label name="title-label" text="Avatar shop" class="lg-heading-screen" />
+                </ui:VisualElement>
+                <ui:VisualElement style="width: 72px;" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="wallet-strip" style="flex-direction: row; flex-wrap: wrap; margin-top: 8px;">
+                <ui:Label name="wallet-chip-pizza" text="" class="lg-chip"
+                    style="margin-right: 8px; margin-bottom: 8px;" />
+                <ui:Label name="wallet-chip-backpack" text="" class="lg-chip lg-chip--lock"
+                    style="margin-bottom: 8px;" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="avatar-body" style="flex-grow: 1; flex-direction: row; margin-top: 16px;">
+                <ui:ScrollView name="avatar-catalog-pane" class="lg-list-scroll"
+                    style="flex-grow: 1; min-width: 160px; margin-right: 12px;">
+                    <ui:Label name="catalog-placeholder" text="More avatar items will appear here later."
+                        class="lg-text-body lg-text-muted" style="white-space: normal; padding: 8px;" />
+                </ui:ScrollView>
+                <ui:VisualElement name="avatar-preview-pane" class="lg-muted-panel"
+                    style="flex-grow: 1; min-width: 160px; padding: 16px;">
+                    <ui:Label name="preview-title" text="Preview" class="lg-heading-screen"
+                        style="margin-bottom: 8px;" />
+                    <ui:Label name="preview-hint" text="Pick an item from the list when it is available."
+                        class="lg-text-body lg-text-muted" style="white-space: normal;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement name="avatar-actions" style="flex-direction: row; justify-content: flex-end; margin-top: 16px;">
+                <ui:Button name="equip-button" text="Equip" class="lg-btn lg-btn--secondary" style="margin-right: 8px;" />
+                <ui:Button name="purchase-button" text="Purchase" class="lg-btn lg-btn--primary" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="overlay-plane" class="lg-overlay-root" picking-mode="Ignore" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="root-shell" class="lg-fill-screen">
+
+        <ui:VisualElement name="main-column" class="lg-shell lg-shell--narrow lg-fill-screen">
+            <ui:Label text="Menu" class="lg-heading-display" />
+            <ui:Label text="Continue your language adventure" class="lg-text-body lg-text-muted lg-text-muted"
+                style="margin-bottom: 32px;" />
+
+            <ui:Button name="play-button" text="Continue" class="lg-btn lg-btn--primary"
+                style="align-self: stretch; margin-bottom: 12px;" />
+
+            <ui:Button name="logout-button" text="Sign out" class="lg-btn lg-btn--secondary lg-btn lg-btn--secondary"
+                style="align-self: stretch;" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="overlay-plane" class="lg-overlay-root" picking-mode="Ignore" />
+
+    </ui:VisualElement>
+</ui:UXML>
