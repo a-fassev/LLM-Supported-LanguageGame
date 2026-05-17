@@ -132,6 +132,88 @@ The shell switch uses **case-sensitive** C# **`case`** labels (e.g. `"DragDrop"`
 
 ---
 
+## DragDrop (`taskType`: DragDrop)
+
+Implementation: **`DragDropStepView`** + prefab **`Assets/Prefabs/Steps/TaskStep_T03_DragDrop.prefab`**. DTOs live in **`DragDropStepView.cs`** (`DragDropContentDto` and nested types). Validation and matching run **client-side** on **Check** (empty zones, wrong item in zone); optional **`requireBankEmpty`** forces every card into a target (no leftovers in the source strip).
+
+### `contentJson` fields
+
+| Field | Type | Notes |
+|-------|------|--------|
+| **`prompt`** | string | Main title (`titleText`). |
+| **`subtitle`** | string | Optional (`bodyText`, hidden when empty). |
+| **`shuffleItemOrder`** | bool | Randomize order of tiles in the source row. |
+| **`requireBankEmpty`** | bool | If true, every item must sit in some target before submit. |
+| **`items`** | array | Each **`id`** (unique), **`label`** and/or **`imageUrl`**. If **`imageUrl`** is set, it must be an **absolute `http://` or `https://`** URL. |
+| **`targets`** | array | Each **`id`** (unique), optional **`title`**, **`correctItemIds`** (non-empty item ids). Meaning depends on **`targetMode`**: see below. |
+| **`presentation`** | object | **`targetMode`**: `"blocks"` (default) or `"lines"`; optional **`sourceLabel`**, **`targetLabel`** for small section captions. |
+| **`lines`** | array | Required when **`presentation.targetMode`** is **`"lines"`**: rows of segments (see below). Exactly **one slot per target id** across all lines. |
+
+**`correctItemIds` by `targetMode`**
+
+- **`blocks`**: **Set equality** — the player must place **every** listed item id in that category at once (order does not matter). Several ids = **all required tiles**, not synonyms.
+- **`lines`**: **One** tile per slot. Multiple ids in **`correctItemIds`** mean **alternative correct answers** (synonyms), not several words in one gap.
+
+**Segment (`lines[].segments[]`)** — `kind` is case-insensitive:
+
+- **`text`**: literal run; **`text`** string.
+- **`slot`**: drop zone; **`targetId`** must match a **`targets[].id`**.
+
+### Example: category blocks (`targetMode` omitted or `"blocks"`)
+
+```json
+{
+  "prompt": "Trascina le parole.",
+  "subtitle": "",
+  "shuffleItemOrder": true,
+  "requireBankEmpty": false,
+  "items": [
+    { "id": "a", "label": "il gatto", "imageUrl": "" },
+    { "id": "b", "label": "la mela", "imageUrl": "" }
+  ],
+  "targets": [
+    { "id": "t1", "title": "Animali", "correctItemIds": ["a"] },
+    { "id": "t2", "title": "Cibo", "correctItemIds": ["b"] }
+  ],
+  "presentation": {
+    "targetMode": "blocks",
+    "sourceLabel": "Parole",
+    "targetLabel": "Categorie"
+  }
+}
+```
+
+### Example: sentence + inline slots (`"targetMode": "lines"`)
+
+```json
+{
+  "prompt": "Completa la frase.",
+  "shuffleItemOrder": true,
+  "items": [
+    { "id": "w1", "label": "mangia", "imageUrl": "" },
+    { "id": "w2", "label": "dorme", "imageUrl": "" }
+  ],
+  "targets": [
+    { "id": "s1", "title": "", "correctItemIds": ["w1"] },
+    { "id": "s2", "title": "", "correctItemIds": ["w2"] }
+  ],
+  "presentation": { "targetMode": "lines" },
+  "lines": [
+    {
+      "segments": [
+        { "kind": "text", "text": "Il gatto " },
+        { "kind": "slot", "targetId": "s1" },
+        { "kind": "text", "text": " e il cane " },
+        { "kind": "slot", "targetId": "s2" },
+        { "kind": "text", "text": "." }
+      ]
+    }
+  ]
+}
+```
+
+---
+
 ## Editor-driven vs runtime-built UI
 
 | Approach | When to use |
