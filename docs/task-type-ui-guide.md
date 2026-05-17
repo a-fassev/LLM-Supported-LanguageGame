@@ -97,7 +97,9 @@ Learners connect **left** and **right** items. **Drag** from a left card and rel
 | **`prompt`**, **`subtitle`** | Title / instructions |
 | **`leftItems`**, **`rightItems`** | Each: **`id`**, **`label`**, optional **`imageUrl`** |
 | **`correctPairs`** | Each pair: **`leftItemId`**, **`rightItemId`** — each left id appears **exactly once**; each right id at most **once** (one-to-one matching). |
-| **`presentation`** | Optional **`leftLabel`**, **`rightLabel`**, **`shuffleRightOrder`** (shuffle the right column for display) |
+| **`presentation`** | Optional **`leftLabel`**, **`rightLabel`**, **`shuffleRightOrder`** (shuffle the right column for display). If labels are omitted, defaults are **Sinistra** / **Destra**. |
+
+Learners can remove a pair with the **×** control on a paired left row (or re-pair / toggle as before).
 
 Example (minimal):
 

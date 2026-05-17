@@ -753,26 +753,7 @@ namespace LanguageGame.Presentation.Steps
             return true;
         }
 
-        private static bool IsAllowedHttpMediaUrl(string raw, out string error)
-        {
-            error = null;
-            if (string.IsNullOrWhiteSpace(raw))
-                return true;
-            var s = raw.Trim();
-            if (!Uri.TryCreate(s, UriKind.Absolute, out var uri))
-            {
-                error = "Media URL must be an absolute URL.";
-                return false;
-            }
-
-            if (!string.Equals(uri.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
-            {
-                error = "Media URL must use http or https.";
-                return false;
-            }
-
-            return true;
-        }
+        private static bool IsAllowedHttpMediaUrl(string raw, out string error) =>
+            ToolkitStepHttpResourceUrl.IsAllowed(raw, out error);
     }
 }

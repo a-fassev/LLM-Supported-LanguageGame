@@ -29,6 +29,7 @@ namespace LanguageGame.Presentation.Steps
 
         private readonly Dictionary<string, VisualElement> _leftById = new(StringComparer.Ordinal);
         private readonly Dictionary<string, VisualElement> _rightById = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, VisualElement> _unlinkByLeftId = new(StringComparer.Ordinal);
         private readonly Dictionary<string, string> _pairingLeftToRight = new(StringComparer.Ordinal);
         private readonly Dictionary<string, string> _expectedLeftToRight = new(StringComparer.Ordinal);
 
@@ -115,6 +116,7 @@ namespace LanguageGame.Presentation.Steps
             _lineLayer.ClearSegments();
             _leftById.Clear();
             _rightById.Clear();
+            _unlinkByLeftId.Clear();
             _pairingLeftToRight.Clear();
             _expectedLeftToRight.Clear();
             _dto = null;
@@ -159,12 +161,12 @@ namespace LanguageGame.Presentation.Steps
             }
 
             var pres = dto.presentation ?? new MatchingPresentationDto();
-            var leftHeader = new Label(string.IsNullOrWhiteSpace(pres.leftLabel) ? "Colonna A" : pres.leftLabel.Trim());
+            var leftHeader = new Label(string.IsNullOrWhiteSpace(pres.leftLabel) ? "Sinistra" : pres.leftLabel.Trim());
             leftHeader.AddToClassList("lg-text-caption");
             leftHeader.style.marginBottom = 6;
             _leftColumn.Add(leftHeader);
 
-            var rightHeader = new Label(string.IsNullOrWhiteSpace(pres.rightLabel) ? "Colonna B" : pres.rightLabel.Trim());
+            var rightHeader = new Label(string.IsNullOrWhiteSpace(pres.rightLabel) ? "Destra" : pres.rightLabel.Trim());
             rightHeader.AddToClassList("lg-text-caption");
             rightHeader.style.marginBottom = 6;
             _rightColumn.Add(rightHeader);
@@ -174,7 +176,7 @@ namespace LanguageGame.Presentation.Steps
             {
                 var def = FindItem(dto.leftItems, id);
                 if (def != null)
-                    AddItemTile(def, _leftColumn, isLeft: true);
+                    AddLeftTile(def);
             }
 
             var rightOrder = BuildRightOrder(dto, pres.shuffleRightOrder);
@@ -182,7 +184,7 @@ namespace LanguageGame.Presentation.Steps
             {
                 var def = FindItem(dto.rightItems, id);
                 if (def != null)
-                    AddItemTile(def, _rightColumn, isLeft: false);
+                    AddRightTile(def);
             }
 
             _contentReady = _leftById.Count > 0 && _rightById.Count > 0 && _expectedLeftToRight.Count > 0;
@@ -190,6 +192,7 @@ namespace LanguageGame.Presentation.Steps
                 context?.presentValidationMessage?.Invoke("Matching task is incomplete.");
 
             RegisterUiEvents();
+            RefreshUnpairControls();
             ScheduleRefreshLines();
         }
 
@@ -248,8 +251,6 @@ namespace LanguageGame.Presentation.Steps
             _root.RegisterCallback<PointerUpEvent>(OnRootPointerUp, TrickleDown.TrickleDown);
             _root.RegisterCallback<PointerCaptureOutEvent>(OnRootCaptureOut, TrickleDown.TrickleDown);
 
-            foreach (var kv in _leftById)
-                AttachLeftHandlers(kv.Value, kv.Key);
             foreach (var kv in _rightById)
                 AttachRightHandlers(kv.Value, kv.Key);
         }
@@ -352,6 +353,8 @@ namespace LanguageGame.Presentation.Steps
         {
             if (evt.pointerId != _activePointerId)
                 return;
+            if (_root.HasPointerCapture(evt.pointerId))
+                _root.ReleasePointer(evt.pointerId);
             EndDragState();
             ResetPointerGesture();
         }
@@ -369,7 +372,6 @@ namespace LanguageGame.Presentation.Steps
             _draggingLine = false;
             _dragLeftId = null;
             _lineLayer.SetRubberBand(null, null);
-            RefreshCommittedLines();
         }
 
         private void ToggleLeftSelect(string leftId)
@@ -407,13 +409,22 @@ namespace LanguageGame.Presentation.Steps
 
         private string FindRightIdUnder(Vector2 panelPosition)
         {
+            string best = null;
+            var bestArea = float.MaxValue;
             foreach (var kv in _rightById)
             {
-                if (kv.Value != null && kv.Value.worldBound.Contains(panelPosition))
-                    return kv.Key;
+                if (kv.Value == null || !kv.Value.worldBound.Contains(panelPosition))
+                    continue;
+                var r = kv.Value.worldBound;
+                var area = r.width * r.height;
+                if (area < bestArea)
+                {
+                    bestArea = area;
+                    best = kv.Key;
+                }
             }
 
-            return null;
+            return best;
         }
 
         private void TryPair(string leftId, string rightId)
@@ -443,7 +454,31 @@ namespace LanguageGame.Presentation.Steps
 
             _selectedLeftId = null;
             RefreshSelectionStyles();
+            RefreshUnpairControls();
             RefreshCommittedLines();
+        }
+
+        private void ClearPairForLeft(string leftId)
+        {
+            if (string.IsNullOrEmpty(leftId))
+                return;
+            if (!_pairingLeftToRight.Remove(leftId.Trim()))
+                return;
+            _selectedLeftId = null;
+            RefreshSelectionStyles();
+            RefreshUnpairControls();
+            RefreshCommittedLines();
+        }
+
+        private void RefreshUnpairControls()
+        {
+            foreach (var kv in _unlinkByLeftId)
+            {
+                if (kv.Value == null)
+                    continue;
+                var show = _pairingLeftToRight.ContainsKey(kv.Key);
+                kv.Value.style.display = show ? DisplayStyle.Flex : DisplayStyle.None;
+            }
         }
 
         private bool ValidatePairs()
@@ -539,7 +574,81 @@ namespace LanguageGame.Presentation.Steps
             }).ExecuteLater(0);
         }
 
-        private void AddItemTile(MatchingItemDto def, VisualElement column, bool isLeft)
+        private void AddLeftTile(MatchingItemDto def)
+        {
+            var itemId = def.id.Trim();
+
+            var outer = new VisualElement();
+            outer.name = $"match_left_{itemId}";
+            outer.style.flexDirection = FlexDirection.Row;
+            outer.style.alignItems = Align.Center;
+            outer.style.marginBottom = 8;
+            outer.userData = itemId;
+
+            var card = new VisualElement();
+            card.name = $"match_tile_{itemId}";
+            card.style.flexGrow = 1;
+            card.userData = itemId;
+            card.AddToClassList("lg-btn");
+            card.AddToClassList("lg-btn--secondary");
+            card.style.paddingLeft = 10;
+            card.style.paddingRight = 10;
+            card.style.paddingTop = 10;
+            card.style.paddingBottom = 10;
+            card.style.flexDirection = FlexDirection.Column;
+            card.style.alignItems = Align.FlexStart;
+
+            var text = string.IsNullOrWhiteSpace(def.label) ? itemId : def.label.Trim();
+            var lbl = new Label(text);
+            lbl.AddToClassList("lg-text-body");
+            lbl.style.whiteSpace = WhiteSpace.Normal;
+            card.Add(lbl);
+
+            var url = (def.imageUrl ?? string.Empty).Trim();
+            if (!string.IsNullOrEmpty(url) && ToolkitStepHttpResourceUrl.IsAllowed(url, out _) && _coroutineHost != null)
+            {
+                var img = new VisualElement();
+                img.style.width = 72;
+                img.style.height = 72;
+                img.style.marginTop = 4;
+                img.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Cover);
+                card.Add(img);
+                _imageLoads.Add(_coroutineHost.StartCoroutine(LoadImg(url, img)));
+            }
+
+            var unlink = new Label("×");
+            unlink.name = "matching-unpair";
+            unlink.tooltip = "Rimuovi collegamento";
+            unlink.style.width = 28;
+            unlink.style.minWidth = 28;
+            unlink.style.fontSize = 20;
+            unlink.style.unityTextAlign = TextAnchor.MiddleCenter;
+            unlink.style.color = new Color(0.42f, 0.45f, 0.52f, 1f);
+            unlink.style.display = DisplayStyle.None;
+            unlink.RegisterCallback<PointerDownEvent>(evt =>
+            {
+                if (!_interactable)
+                    return;
+                evt.StopPropagation();
+            });
+            unlink.RegisterCallback<PointerUpEvent>(evt =>
+            {
+                if (!_interactable)
+                    return;
+                evt.StopPropagation();
+                ClearPairForLeft(itemId);
+            });
+
+            outer.Add(card);
+            outer.Add(unlink);
+            _leftColumn.Add(outer);
+            _leftById[itemId] = outer;
+            _unlinkByLeftId[itemId] = unlink;
+
+            AttachLeftHandlers(card, itemId);
+        }
+
+        private void AddRightTile(MatchingItemDto def)
         {
             var itemId = def.id.Trim();
             var card = new VisualElement();
@@ -562,7 +671,7 @@ namespace LanguageGame.Presentation.Steps
             card.Add(lbl);
 
             var url = (def.imageUrl ?? string.Empty).Trim();
-            if (!string.IsNullOrEmpty(url) && IsAllowedHttpImageUrl(url) && _coroutineHost != null)
+            if (!string.IsNullOrEmpty(url) && ToolkitStepHttpResourceUrl.IsAllowed(url, out _) && _coroutineHost != null)
             {
                 var img = new VisualElement();
                 img.style.width = 72;
@@ -573,11 +682,8 @@ namespace LanguageGame.Presentation.Steps
                 _imageLoads.Add(_coroutineHost.StartCoroutine(LoadImg(url, img)));
             }
 
-            column.Add(card);
-            if (isLeft)
-                _leftById[itemId] = card;
-            else
-                _rightById[itemId] = card;
+            _rightColumn.Add(card);
+            _rightById[itemId] = card;
         }
 
         private IEnumerator LoadImg(string url, VisualElement ve)
@@ -669,16 +775,6 @@ namespace LanguageGame.Presentation.Steps
             return null;
         }
 
-        private static bool IsAllowedHttpImageUrl(string raw)
-        {
-            if (string.IsNullOrWhiteSpace(raw))
-                return true;
-            if (!Uri.TryCreate(raw.Trim(), UriKind.Absolute, out var uri))
-                return false;
-            return string.Equals(uri.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) ||
-                   string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase);
-        }
-
         private static bool TryDeserialize(string json, out MatchingContentDto dto, out string error)
         {
             dto = null;
@@ -736,9 +832,9 @@ namespace LanguageGame.Presentation.Steps
                     return false;
                 }
 
-                if (!string.IsNullOrWhiteSpace(it.imageUrl) && !IsAllowedHttpImageUrl(it.imageUrl))
+                if (!string.IsNullOrWhiteSpace(it.imageUrl) && !ToolkitStepHttpResourceUrl.IsAllowed(it.imageUrl, out var imgErr))
                 {
-                    error = "Each imageUrl must be an absolute http or https URL.";
+                    error = imgErr;
                     return false;
                 }
             }
@@ -765,9 +861,9 @@ namespace LanguageGame.Presentation.Steps
                     return false;
                 }
 
-                if (!string.IsNullOrWhiteSpace(it.imageUrl) && !IsAllowedHttpImageUrl(it.imageUrl))
+                if (!string.IsNullOrWhiteSpace(it.imageUrl) && !ToolkitStepHttpResourceUrl.IsAllowed(it.imageUrl, out var imgErr))
                 {
-                    error = "Each imageUrl must be an absolute http or https URL.";
+                    error = imgErr;
                     return false;
                 }
             }
@@ -825,6 +921,40 @@ namespace LanguageGame.Presentation.Steps
             }
 
             return true;
+        }
+
+        [Serializable]
+        private sealed class MatchingContentDto
+        {
+            public string prompt;
+            public string subtitle;
+            public MatchingItemDto[] leftItems;
+            public MatchingItemDto[] rightItems;
+            public MatchingPairDto[] correctPairs;
+            public MatchingPresentationDto presentation;
+        }
+
+        [Serializable]
+        private sealed class MatchingItemDto
+        {
+            public string id;
+            public string label;
+            public string imageUrl;
+        }
+
+        [Serializable]
+        private sealed class MatchingPairDto
+        {
+            public string leftItemId;
+            public string rightItemId;
+        }
+
+        [Serializable]
+        private sealed class MatchingPresentationDto
+        {
+            public string leftLabel;
+            public string rightLabel;
+            public bool shuffleRightOrder;
         }
 
         /// <summary>Draws committed segments plus optional rubber-band line during drag.</summary>
@@ -885,38 +1015,5 @@ namespace LanguageGame.Presentation.Steps
             }
         }
     }
-
-    [Serializable]
-    public sealed class MatchingContentDto
-    {
-        public string prompt;
-        public string subtitle;
-        public MatchingItemDto[] leftItems;
-        public MatchingItemDto[] rightItems;
-        public MatchingPairDto[] correctPairs;
-        public MatchingPresentationDto presentation;
-    }
-
-    [Serializable]
-    public sealed class MatchingItemDto
-    {
-        public string id;
-        public string label;
-        public string imageUrl;
-    }
-
-    [Serializable]
-    public sealed class MatchingPairDto
-    {
-        public string leftItemId;
-        public string rightItemId;
-    }
-
-    [Serializable]
-    public sealed class MatchingPresentationDto
-    {
-        public string leftLabel;
-        public string rightLabel;
-        public bool shuffleRightOrder;
-    }
 }
+

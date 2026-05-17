@@ -19,6 +19,8 @@ namespace LanguageGame.Presentation.Steps
         private readonly VisualElement _root;
         private readonly VisualElement _bankHost;
         private readonly VisualElement _targetsHost;
+        /// <summary>Last sibling under step root; holds the tile while dragging so it paints above bank + drop zones.</summary>
+        private readonly VisualElement _dragLayer;
         private readonly MonoBehaviour _coroutineHost;
         private readonly List<Coroutine> _imageLoads = new();
         private readonly List<Texture2D> _remoteTileTextures = new();
@@ -55,8 +57,17 @@ namespace LanguageGame.Presentation.Steps
             _targetsHost.style.flexGrow = 1;
             _targetsHost.style.flexDirection = FlexDirection.Column;
 
+            _dragLayer = new VisualElement { name = "drag-drop-float-layer" };
+            _dragLayer.pickingMode = PickingMode.Ignore;
+            _dragLayer.style.position = Position.Absolute;
+            _dragLayer.style.left = 0;
+            _dragLayer.style.right = 0;
+            _dragLayer.style.top = 0;
+            _dragLayer.style.bottom = 0;
+
             _root.Add(_bankHost);
             _root.Add(_targetsHost);
+            _root.Add(_dragLayer);
 
             host.Add(_root);
         }
@@ -68,6 +79,7 @@ namespace LanguageGame.Presentation.Steps
             StopImageLoads();
             _bankHost.Clear();
             _targetsHost.Clear();
+            _dragLayer.Clear();
             _itemTiles.Clear();
             _targetInnerHosts.Clear();
             _occupant.Clear();
@@ -165,6 +177,8 @@ namespace LanguageGame.Presentation.Steps
             _contentReady = _itemTiles.Count > 0 && _targetInnerHosts.Count > 0;
             if (!_contentReady)
                 context?.presentValidationMessage?.Invoke("Drag-and-drop task is incomplete.");
+
+            _root.Add(_dragLayer);
         }
 
         public void SetInteractable(bool interactable)
@@ -415,7 +429,7 @@ namespace LanguageGame.Presentation.Steps
             card.Add(lbl);
 
             var url = (def.imageUrl ?? string.Empty).Trim();
-            if (!string.IsNullOrEmpty(url) && IsAllowedHttpImageUrl(url, out _) && _coroutineHost != null)
+            if (!string.IsNullOrEmpty(url) && ToolkitStepHttpResourceUrl.IsAllowed(url, out _) && _coroutineHost != null)
             {
                 var img = new VisualElement();
                 img.style.width = 72;
@@ -514,28 +528,21 @@ namespace LanguageGame.Presentation.Steps
             if (string.IsNullOrEmpty(item_id))
                 return;
 
-            var hitZone = FindZoneUnder(panelPosition, tile);
+            var hitZone = FindZoneUnder(panelPosition);
             if (hitZone != null && hitZone.userData is string tid && !string.IsNullOrEmpty(tid))
                 MoveItemToTarget(item_id, tid);
             else
                 MoveItemToBank(item_id);
         }
 
-        private VisualElement FindZoneUnder(Vector2 panelPosition, VisualElement reference)
+        /// <summary>
+        /// Picks the innermost drop zone under a point (panel coordinates per <see cref="PointerEventBase{T}.position"/>).
+        /// Geometric only so the dragged tile does not steal hit-tests.
+        /// </summary>
+        private VisualElement FindZoneUnder(Vector2 panelPosition)
         {
-            var panel = reference?.panel;
-            if (panel != null)
-            {
-                var picked = panel.Pick(panelPosition);
-                for (var cur = picked; cur != null; cur = cur.parent)
-                {
-                    if (_pickupZones.Contains(cur) && cur.userData is string tid && !string.IsNullOrEmpty(tid))
-                        return cur;
-                }
-            }
-
             VisualElement best = null;
-            float bestArea = float.MaxValue;
+            var bestArea = float.MaxValue;
             foreach (var z in _pickupZones)
             {
                 if (z == null || !z.worldBound.Contains(panelPosition))
@@ -551,6 +558,35 @@ namespace LanguageGame.Presentation.Steps
             return best;
         }
 
+        internal void BeginTileDrag(VisualElement tile)
+        {
+            if (tile == null)
+                return;
+            _root.Add(_dragLayer);
+            var worldTopLeft = tile.LocalToWorld(Vector2.zero);
+            _dragLayer.Add(tile);
+            tile.style.position = Position.Absolute;
+            var localTopLeft = _dragLayer.WorldToLocal(worldTopLeft);
+            tile.style.left = localTopLeft.x;
+            tile.style.top = localTopLeft.y;
+            tile.style.translate = new StyleTranslate(new Translate(0, 0));
+        }
+
+        internal bool TileIsInFloatLayer(VisualElement tile) =>
+            tile != null && ReferenceEquals(tile.parent, _dragLayer);
+
+        private static void ClearTileDragPositioning(VisualElement tile)
+        {
+            if (tile == null)
+                return;
+            tile.style.position = StyleKeyword.Null;
+            tile.style.left = StyleKeyword.Null;
+            tile.style.top = StyleKeyword.Null;
+            tile.style.right = StyleKeyword.Null;
+            tile.style.bottom = StyleKeyword.Null;
+            tile.style.translate = new StyleTranslate(new Translate(0, 0));
+        }
+
         private void MoveItemToBank(string itemId)
         {
             if (!_itemTiles.TryGetValue(itemId, out var tile))
@@ -558,8 +594,8 @@ namespace LanguageGame.Presentation.Steps
             RemoveFromOccupants(itemId);
 
             var wrap = _bankHost.Q<VisualElement>("bank-wrap") ?? _bankHost;
+            ClearTileDragPositioning(tile);
             wrap.Add(tile);
-            tile.style.translate = new StyleTranslate(new Translate(0, 0));
             RefreshHints();
         }
 
@@ -591,8 +627,8 @@ namespace LanguageGame.Presentation.Steps
             }
 
             placedSet.Add(itemId);
+            ClearTileDragPositioning(tile);
             inner.Add(tile);
-            tile.style.translate = new StyleTranslate(new Translate(0, 0));
             RefreshHints();
         }
 
@@ -665,28 +701,6 @@ namespace LanguageGame.Presentation.Steps
             return false;
         }
 
-        private static bool IsAllowedHttpImageUrl(string raw, out string error)
-        {
-            error = null;
-            if (string.IsNullOrWhiteSpace(raw))
-                return true;
-            var s = raw.Trim();
-            if (!Uri.TryCreate(s, UriKind.Absolute, out var uri))
-            {
-                error = "Each imageUrl must be an absolute http or https URL.";
-                return false;
-            }
-
-            if (!string.Equals(uri.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) &&
-                !string.Equals(uri.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
-            {
-                error = "Each imageUrl must use http or https.";
-                return false;
-            }
-
-            return true;
-        }
-
         private static bool TryDeserialize(string json, out DragDropContentDto dto, out string error)
         {
             dto = null;
@@ -740,7 +754,7 @@ namespace LanguageGame.Presentation.Steps
                     return false;
                 }
 
-                if (hasImg && !IsAllowedHttpImageUrl(it.imageUrl, out var urlError))
+                if (hasImg && !ToolkitStepHttpResourceUrl.IsAllowed(it.imageUrl, out var urlError))
                 {
                     error = urlError;
                     return false;
@@ -849,7 +863,9 @@ namespace LanguageGame.Presentation.Steps
             private readonly DragDropToolkitStep _owner;
             private readonly VisualElement _tile;
             private Vector3 _pointerStart;
+            private Vector2 _lastPanelPosition;
             private bool _dragging;
+            private bool _pointerUpCompletingDrag;
 
             public TileDragManipulator(DragDropToolkitStep owner, VisualElement tile)
             {
@@ -879,8 +895,9 @@ namespace LanguageGame.Presentation.Steps
                     return;
                 _dragging = true;
                 _pointerStart = evt.position;
+                _lastPanelPosition = new Vector2(evt.position.x, evt.position.y);
+                _owner.BeginTileDrag(_tile);
                 target.CapturePointer(evt.pointerId);
-                _tile.BringToFront();
                 evt.StopPropagation();
             }
 
@@ -888,6 +905,7 @@ namespace LanguageGame.Presentation.Steps
             {
                 if (!_dragging || !target.HasPointerCapture(evt.pointerId))
                     return;
+                _lastPanelPosition = new Vector2(evt.position.x, evt.position.y);
                 var delta = evt.position - _pointerStart;
                 _tile.style.translate = new StyleTranslate(new Translate(delta.x, delta.y));
                 evt.StopPropagation();
@@ -898,16 +916,24 @@ namespace LanguageGame.Presentation.Steps
                 if (!_dragging)
                     return;
                 _dragging = false;
+                _pointerUpCompletingDrag = true;
                 if (target.HasPointerCapture(evt.pointerId))
                     target.ReleasePointer(evt.pointerId);
-
-                _owner.FinalizeDrag(_tile, new Vector2(evt.position.x, evt.position.y));
+                _lastPanelPosition = new Vector2(evt.position.x, evt.position.y);
+                _owner.FinalizeDrag(_tile, _lastPanelPosition);
+                _pointerUpCompletingDrag = false;
                 evt.StopPropagation();
             }
 
-            private void OnCaptureOut(PointerCaptureOutEvent evt)
+            private void OnCaptureOut(PointerCaptureOutEvent _)
             {
+                if (_pointerUpCompletingDrag)
+                    return;
+                if (!_dragging && !_owner.TileIsInFloatLayer(_tile))
+                    return;
+
                 _dragging = false;
+                _owner.FinalizeDrag(_tile, _lastPanelPosition);
             }
         }
     }
