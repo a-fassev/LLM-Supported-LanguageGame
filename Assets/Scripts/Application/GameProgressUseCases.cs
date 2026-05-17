@@ -64,7 +64,7 @@ namespace LanguageGame.Application
         }
 
         public IEnumerator Run(string runId, string stepId, Action<GameCompleteTaskEnvelope> onOk,
-            Action<string> onError)
+            Action<string> onError, string evaluationGateToken = null)
         {
             var e = _api.CompleteStepTask(
                 runId,
@@ -74,7 +74,8 @@ namespace LanguageGame.Application
                     GameSessionStateStore.ApplyTaskCompletion(done);
                     onOk?.Invoke(done);
                 },
-                onError);
+                onError,
+                evaluationGateToken);
             while (e.MoveNext())
                 yield return e.Current;
         }

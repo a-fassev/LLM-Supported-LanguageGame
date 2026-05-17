@@ -11,6 +11,10 @@ const paramsSchema = z.object({
   stepId: z.string().uuid(),
 });
 
+const completeOptionalBodySchema = z.object({
+  evaluationGateToken: z.string().uuid().optional(),
+});
+
 type RouteContext = { params: Promise<{ runId: string; stepId: string }> };
 
 export async function POST(request: Request, context: RouteContext) {
@@ -28,7 +32,29 @@ export async function POST(request: Request, context: RouteContext) {
     return jsonError(400, "Invalid request");
   }
 
-  const result = await completeQuestStepTask(session.accountId, parsed.data.runId, parsed.data.stepId);
+  const bodyText = await request.text();
+
+  let evaluationGateToken: string | undefined;
+
+  const trimmedBody = bodyText.trim();
+  if (trimmedBody.length > 0) {
+    let jsonBody: unknown;
+    try {
+      jsonBody = JSON.parse(trimmedBody);
+    } catch {
+      return jsonError(400, "Invalid JSON body");
+    }
+
+    const bodyParsed = completeOptionalBodySchema.safeParse(jsonBody);
+    if (!bodyParsed.success) {
+      return jsonError(400, "Invalid body payload");
+    }
+    evaluationGateToken = bodyParsed.data.evaluationGateToken;
+  }
+
+  const result = await completeQuestStepTask(session.accountId, parsed.data.runId, parsed.data.stepId, {
+    evaluationGateToken,
+  });
   if (!result.ok) {
     return jsonError(result.status, result.error, result.code);
   }

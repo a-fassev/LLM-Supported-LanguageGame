@@ -24,6 +24,7 @@ namespace LanguageGame.Presentation.Steps
                 "ClozeText" => new ClozeTextToolkitStep(stepHost),
                 "MultipleChoice" => new MultipleChoiceToolkitStep(stepHost, coroutineHost),
                 "Matching" => new MatchingToolkitStep(stepHost, coroutineHost),
+                "FreitextLlm" => new FreitextLlmToolkitStep(stepHost, coroutineHost),
                 "FreeText" => new StubToolkitTaskStep(stepHost, step.taskType),
                 "RelativeClause" => new StubToolkitTaskStep(stepHost, step.taskType),
                 "ErrorSpotting" => new StubToolkitTaskStep(stepHost, step.taskType),

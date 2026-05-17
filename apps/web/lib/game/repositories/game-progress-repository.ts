@@ -549,3 +549,70 @@ export async function rpcAdvanceQuestCutsceneStep(
     nextTaskStepId,
   };
 }
+
+/** Rotates gate id on each successful evaluation attempt (UPSERT conflict on active run/step). */
+export async function upsertFreitextLlmEvaluationGate(
+  accountId: string,
+  runId: string,
+  stepId: string,
+  ttlMinutes: number,
+): Promise<{ token: string } | null> {
+  const token = crypto.randomUUID();
+  const expiresAt = new Date(Date.now() + Math.max(1, ttlMinutes) * 60_000).toISOString();
+
+  const { error } = await admin()
+    .from("player_freitext_llm_gates")
+    .upsert(
+      {
+        id: token,
+        account_id: accountId,
+        run_id: runId,
+        step_id: stepId,
+        expires_at: expiresAt,
+      },
+      { onConflict: "run_id,step_id" },
+    );
+
+  if (error) {
+    console.error("[game-repo] upsertFreitextLlmEvaluationGate", error);
+    return null;
+  }
+
+  return { token };
+}
+
+/** Validates an unconsumed gate without deleting it so the client can retry /complete after transient RPC faults. */
+export async function validateFreitextLlmEvaluationGate(
+  accountId: string,
+  runId: string,
+  stepId: string,
+  gateToken: string,
+): Promise<boolean> {
+  const nowIso = new Date().toISOString();
+  const { data, error } = await admin()
+    .from("player_freitext_llm_gates")
+    .select("id")
+    .eq("id", gateToken)
+    .eq("account_id", accountId)
+    .eq("run_id", runId)
+    .eq("step_id", stepId)
+    .gt("expires_at", nowIso)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[game-repo] validateFreitextLlmEvaluationGate", error);
+    return false;
+  }
+  return !!(data && typeof data === "object");
+}
+
+/** Removes gate after authoritative step completion succeeds. Idempotent-ish: missing rows stay quiet. */
+export async function deleteFreitextLlmEvaluationGate(accountId: string, gateToken: string): Promise<boolean> {
+  const { error } = await admin().from("player_freitext_llm_gates").delete().eq("id", gateToken).eq("account_id", accountId);
+
+  if (error) {
+    console.error("[game-repo] deleteFreitextLlmEvaluationGate", error);
+    return false;
+  }
+  return true;
+}

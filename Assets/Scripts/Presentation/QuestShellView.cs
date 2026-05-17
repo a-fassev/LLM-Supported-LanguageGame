@@ -325,10 +325,19 @@ namespace LanguageGame.Presentation
             _tkLoading.Show("Checking...");
 
             var runId = flow.ServerRunId;
+
+            string evaluationGateToken = null;
+            if (_activeStepView is IEvaluationGateForTaskCompletion gateCarrier &&
+                gateCarrier.TryTakeEvaluationGateToken(out var tokenFromStep) &&
+                !string.IsNullOrWhiteSpace(tokenFromStep))
+            {
+                evaluationGateToken = tokenFromStep;
+            }
+
             var useCase = new CompleteTaskUseCase(_gameApi);
             GameCompleteTaskEnvelope done = null;
             var err = string.Empty;
-            yield return useCase.Run(runId, taskStepId, d => done = d, m => err = m);
+            yield return useCase.Run(runId, taskStepId, d => done = d, m => err = m, evaluationGateToken);
 
             _tkLoading.Hide();
 

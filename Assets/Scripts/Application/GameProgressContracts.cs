@@ -116,6 +116,39 @@ namespace LanguageGame.Application
     }
 
     [Serializable]
+    public sealed class FreitextLlmEvaluateAnswerBodyDto
+    {
+        public string answerText;
+    }
+
+    [Serializable]
+    public sealed class CompleteTaskEvaluationGateBodyDto
+    {
+        public string evaluationGateToken;
+    }
+
+    [Serializable]
+    public sealed class GameFreitextLlmEvaluateEnvelope
+    {
+        public bool ok;
+        public bool isPass;
+        public float weightedScore;
+        public float grammarScore;
+        public float vocabularyScore;
+        public float registerScore;
+        public string grammarFeedback;
+        public string vocabularyFeedback;
+        public string registerFeedback;
+        public string summaryFeedback;
+        public string nextStepAdvice;
+        public int scoreEarned;
+        public int scoreMax;
+        public string evaluationGateToken;
+        public string code;
+        public string error;
+    }
+
+    [Serializable]
     public class GameApiErrorEnvelope
     {
         public bool ok;

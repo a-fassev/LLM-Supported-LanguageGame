@@ -2,6 +2,8 @@ import {
   abandonAllInProgressRunsForAccount,
   bucketQuestsByChapterId,
   bucketStepsByQuestId,
+  deleteFreitextLlmEvaluationGate,
+  validateFreitextLlmEvaluationGate,
   ensureWalletRow,
   findInProgressRun,
   findLatestInProgressRunForAccount,
@@ -18,9 +20,23 @@ import {
   rpcCompleteQuestStepTask,
   rpcAdvanceQuestCutsceneStep,
   updateRunProgress,
+  upsertFreitextLlmEvaluationGate,
   type GameQuestRow,
   type GameQuestStepRow,
+  type PlayerQuestRunRow,
 } from "@/lib/game/repositories/game-progress-repository";
+import { countWordsAnswer, parseFreitextLlmStepContent } from "@/lib/llm/freitextLlmContentSchema";
+import { resolveFreitextLlmEvaluatorEnv } from "@/lib/llm/freitextLlmEnv";
+import {
+  calculateScore as calculateStructuredTaskScore,
+  invokeFreitextLlmJudge,
+  mapFreitextLlmProviderError,
+  normalizeFeedbackForLearner,
+  weightedSkillRatio,
+} from "@/lib/llm/freitextLlmEvaluationService";
+
+/** Must match Unity `ToolkitStepFactory` + `game_quest_steps.task_type` authoring. */
+export const FREITEXT_LLM_TASK_TYPE = "FreitextLlm" as const;
 
 export type GameQuestStepDto = {
   id: string;
@@ -152,6 +168,201 @@ function mapStepRow(row: GameQuestStepRow): GameQuestStepDto {
     rewardRulesJson: JSON.stringify(row.reward_rules ?? {}),
     isTask: row.step_kind === "task",
   };
+}
+
+function pickExpectedPendingStep(run: PlayerQuestRunRow, steps: GameQuestStepRow[]): GameQuestStepRow | null {
+  const ordered = [...steps].sort((a, b) => a.order_index - b.order_index);
+  const idx = run.current_step_order_index;
+  if (idx < 0 || idx >= ordered.length) return null;
+  return ordered[idx] ?? null;
+}
+
+export type EvaluateFreitextLlmResult =
+  | {
+      ok: true;
+      isPass: boolean;
+      weightedScore: number;
+      grammarScore: number;
+      vocabularyScore: number;
+      registerScore: number;
+      grammarFeedback: string;
+      vocabularyFeedback: string;
+      registerFeedback: string;
+      summaryFeedback: string;
+      nextStepAdvice: string;
+      scoreEarned: number;
+      scoreMax: number;
+      evaluationGateToken?: string;
+    }
+  | { ok: false; status: number; error: string; code?: string; retryable?: boolean };
+
+export async function evaluateFreitextLlmQuestStep(
+  accountId: string,
+  runId: string,
+  stepId: string,
+  answerText: string,
+): Promise<EvaluateFreitextLlmResult> {
+  const trimmed = typeof answerText === "string" ? answerText.trim() : "";
+
+  const run = await getQuestRunById(runId);
+  if (!run || run.account_id !== accountId) {
+    return { ok: false, status: 404, error: "Run not found", code: "run_not_found", retryable: false };
+  }
+  if (run.status !== "in_progress") {
+    return { ok: false, status: 400, error: "Run is not active", code: "run_not_active", retryable: false };
+  }
+
+  const stepsRows = await listStepsForQuest(run.quest_id);
+  if (!stepsRows) {
+    return { ok: false, status: 500, error: "Could not load quest steps", code: "steps_load_failed", retryable: true };
+  }
+
+  const expected = pickExpectedPendingStep(run, stepsRows);
+  if (!expected || expected.id !== stepId) {
+    return { ok: false, status: 409, error: "Step mismatch", code: "step_mismatch", retryable: false };
+  }
+  if (expected.step_kind !== "task" || expected.task_type !== FREITEXT_LLM_TASK_TYPE) {
+    return { ok: false, status: 400, error: "Wrong task type", code: "wrong_task_type", retryable: false };
+  }
+
+  if (trimmed.length === 0) {
+    return { ok: false, status: 400, error: "Answer is empty", code: "answer_empty", retryable: false };
+  }
+
+  const payload = parseFreitextLlmStepContent(expected.content_payload);
+  if (!payload.ok) {
+    return {
+      ok: false,
+      status: 502,
+      error: "Malformed FreitextLlm content payload",
+      code: "payload_invalid",
+      retryable: false,
+    };
+  }
+
+  const minW = payload.value.minWords ?? 0;
+  const maxW = payload.value.maxWords ?? 0;
+  const words = countWordsAnswer(trimmed);
+
+  if (minW > 0 && words < minW) {
+    return {
+      ok: false,
+      status: 400,
+      error: `Answer must have at least ${minW} word(s).`,
+      code: "answer_too_short",
+      retryable: false,
+    };
+  }
+
+  if (maxW > 0 && words > maxW) {
+    return {
+      ok: false,
+      status: 400,
+      error: `Answer must stay within ${maxW} words.`,
+      code: "answer_too_long",
+      retryable: false,
+    };
+  }
+
+  const env = resolveFreitextLlmEvaluatorEnv();
+  if (!env) {
+    return {
+      ok: false,
+      status: 503,
+      error: "LLM evaluation is not configured on the server.",
+      code: "evaluator_unavailable",
+      retryable: false,
+    };
+  }
+
+  const controller = new AbortController();
+  const timer =
+    env.llmTimeoutMs > 0
+      ? setTimeout(() => controller.abort(), Math.max(1000, env.llmTimeoutMs))
+      : null;
+
+  try {
+    const modelOut = await invokeFreitextLlmJudge(payload.value, trimmed, env, controller.signal);
+    const ratio = weightedSkillRatio(
+      payload.value.evaluation,
+      modelOut.grammarScore,
+      modelOut.vocabularyScore,
+      modelOut.registerScore,
+    );
+
+    const isPass = ratio >= payload.value.evaluation.passThreshold;
+
+    const scoreEarned = calculateStructuredTaskScore(
+      payload.value.evaluation.scoringPolicy,
+      ratio,
+      payload.value.evaluation.maxPoints,
+      payload.value.evaluation.passThreshold,
+    );
+
+    let evaluationGateToken: string | undefined;
+    if (isPass) {
+      const gate = await upsertFreitextLlmEvaluationGate(accountId, runId, stepId, env.gateTtlMinutes);
+      if (!gate) {
+        return {
+          ok: false,
+          status: 503,
+          error: "Could not issue evaluation gate.",
+          code: "gate_issue_failed",
+          retryable: true,
+        };
+      }
+      evaluationGateToken = gate.token;
+    }
+
+    return {
+      ok: true,
+      isPass,
+      weightedScore: ratio,
+      grammarScore: modelOut.grammarScore,
+      vocabularyScore: modelOut.vocabularyScore,
+      registerScore: modelOut.registerScore,
+      grammarFeedback: normalizeFeedbackForLearner(modelOut.grammarFeedback, 380),
+      vocabularyFeedback: normalizeFeedbackForLearner(modelOut.vocabularyFeedback, 380),
+      registerFeedback: normalizeFeedbackForLearner(modelOut.registerFeedback, 380),
+      summaryFeedback: normalizeFeedbackForLearner(modelOut.summaryFeedback, 520),
+      nextStepAdvice: normalizeFeedbackForLearner(modelOut.nextStepAdvice, 260),
+      scoreEarned,
+      scoreMax: payload.value.evaluation.maxPoints,
+      evaluationGateToken,
+    };
+  } catch (err) {
+    if (controller.signal.aborted) {
+      return {
+        ok: false,
+        status: 504,
+        error: "Model timed out while scoring this answer.",
+        code: "MODEL_TIMEOUT",
+        retryable: true,
+      };
+    }
+
+    const mapped = mapFreitextLlmProviderError(err);
+    if (mapped) {
+      return {
+        ok: false,
+        status: mapped.status,
+        error: mapped.message,
+        code: mapped.code,
+        retryable: mapped.retryable,
+      };
+    }
+
+    console.error("[game-progress] evaluateFreitextLlmQuestStep", err);
+    return {
+      ok: false,
+      status: 503,
+      error: "FreitextLlm evaluator error.",
+      code: "EVALUATOR_ERROR",
+      retryable: true,
+    };
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 type UnlockRules = {
@@ -466,7 +677,43 @@ export async function completeQuestStepTask(
   accountId: string,
   runId: string,
   stepId: string,
+  options?: { evaluationGateToken?: string | null },
 ): Promise<CompleteStepTaskResult> {
+  const run = await getQuestRunById(runId);
+  if (!run || run.account_id !== accountId) {
+    return { ok: false, status: 404, error: "Run not found", code: "run_not_found" };
+  }
+
+  const stepsRows = await listStepsForQuest(run.quest_id);
+  if (!stepsRows) return { ok: false, status: 500, error: "Could not load quest steps", code: "steps_load_failed" };
+
+  const expected = pickExpectedPendingStep(run, stepsRows);
+  if (!expected || expected.id !== stepId) {
+    return { ok: false, status: 409, error: "Step mismatch", code: "step_mismatch" };
+  }
+
+  if (expected.step_kind === "task" && expected.task_type === FREITEXT_LLM_TASK_TYPE) {
+    const token = typeof options?.evaluationGateToken === "string" ? options.evaluationGateToken.trim() : "";
+    if (!token) {
+      return {
+        ok: false,
+        status: 403,
+        error: "Completing FreitextLlm requires passing server evaluation.",
+        code: "evaluation_gate_required",
+      };
+    }
+
+    const gateOk = await validateFreitextLlmEvaluationGate(accountId, runId, stepId, token);
+    if (!gateOk) {
+      return {
+        ok: false,
+        status: 403,
+        error: "Stale or invalid evaluation token. Submit Check again to re-score your answer.",
+        code: "evaluation_gate_invalid",
+      };
+    }
+  }
+
   const rpc = await rpcCompleteQuestStepTask(accountId, runId, stepId);
   if (!rpc.ok) {
     if (rpc.code === "rpc_transport_error" || rpc.code === "rpc_payload_error") {
@@ -479,6 +726,14 @@ export async function completeQuestStepTask(
       code: rpc.code,
     };
   }
+
+  if (expected.step_kind === "task" && expected.task_type === FREITEXT_LLM_TASK_TYPE) {
+    const token = typeof options?.evaluationGateToken === "string" ? options.evaluationGateToken.trim() : "";
+    if (token.length > 0) {
+      await deleteFreitextLlmEvaluationGate(accountId, token);
+    }
+  }
+
   return {
     ok: true,
     awardedSlices: rpc.awardedSlices,

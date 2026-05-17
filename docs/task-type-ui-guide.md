@@ -11,7 +11,7 @@ Legacy **uGUI**, **`StepTemplateCatalog`**, and step **prefabs** were removed; d
 | Shell | `Assets/Scripts/Presentation/QuestShellView.cs` |
 | Factory | `Assets/Scripts/Presentation/Steps/ToolkitStepFactory.cs` |
 | Contracts | `Assets/Scripts/Presentation/Steps/IStepView.cs`, `ISubmitFromShell.cs`, `StepContext.cs` |
-| Implemented steps | `DragDropToolkitStep.cs`, `ClozeTextToolkitStep.cs`, `MultipleChoiceToolkitStep.cs`, `MatchingToolkitStep.cs`, `CutsceneToolkitStep.cs`, `StubToolkitTaskStep.cs` |
+| Implemented steps | `DragDropToolkitStep.cs`, `ClozeTextToolkitStep.cs`, `MultipleChoiceToolkitStep.cs`, `MatchingToolkitStep.cs`, `FreitextLlmToolkitStep.cs`, `CutsceneToolkitStep.cs`, `StubToolkitTaskStep.cs` |
 | Tokens | `UiDesignTokens.cs`, `UiThemeProvider.cs`; USS under `Assets/Resources/UI/LearningToolkit/` |
 
 ---
@@ -126,6 +126,47 @@ Example (minimal):
     "leftLabel": "Italiano",
     "rightLabel": "Significato",
     "shuffleRightOrder": true
+  }
+}
+```
+
+---
+
+### FreitextLlm (`taskType`: FreitextLlm)
+
+**Implementation:** **`FreitextLlmToolkitStep`** + **`IEvaluationGateForTaskCompletion`**.
+
+Behaviour summary:
+
+- Multiline **`TextField`** captures the learner response.
+- **Check** first calls **`POST /api/game/runs/{runId}/steps/{stepId}/evaluate`** with `{ "answerText": "<learner reply>" }`. The LLM verdict must pass before **`POST .../complete`** may run **with `{ "evaluationGateToken": "<uuid>" }`**.
+- Tokens are mirrored into `player_freitext_llm_gates` (see migrations) and revoked after authoritative completion.
+
+Minimal `contentJson` / **`content_payload`** template:
+
+```json
+{
+  "prompt": "Italian writing prompt headline.",
+  "instruction": "Extra guidance beneath the headline (optional).",
+  "targetLanguage": "it",
+  "showWordCount": true,
+  "showCharacterCount": false,
+  "minWords": 6,
+  "maxWords": 120,
+  "evaluation": {
+    "grammarWeight": 1,
+    "vocabularyWeight": 1,
+    "registerWeight": 1,
+    "passThreshold": 0.72,
+    "registerTarget": "neutral",
+    "scoringPolicy": "threshold_pass",
+    "maxPoints": 5,
+    "evaluationCriteria": [
+      "Italian grammar clarity",
+      "Word-choice fit versus prompt",
+      "Register aligns with communicated audience"
+    ],
+    "targetStructures": ["relative pronouns"]
   }
 }
 ```

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -126,11 +127,36 @@ namespace LanguageGame.Application
         }
 
         public IEnumerator CompleteStepTask(string runId, string stepId,
-            Action<GameCompleteTaskEnvelope> onOk, Action<string> onError)
+            Action<GameCompleteTaskEnvelope> onOk, Action<string> onError,
+            string evaluationGateToken = null)
         {
             var path =
                 $"/api/game/runs/{Uri.EscapeDataString(runId)}/steps/{Uri.EscapeDataString(stepId)}/complete";
-            yield return AuthorizedPostEmpty(path, text =>
+
+            if (string.IsNullOrWhiteSpace(evaluationGateToken))
+            {
+                yield return AuthorizedPostEmpty(path, text =>
+                {
+                    var env = JsonUtility.FromJson<GameCompleteTaskEnvelope>(text);
+                    MergeCompleteTaskEnvelopeSnakeCase(text, env);
+                    if (env != null && env.ok)
+                    {
+                        onOk?.Invoke(env);
+                        return;
+                    }
+                    onError?.Invoke(!string.IsNullOrEmpty(env?.error)
+                        ? env.error
+                        : ParseErrorMessage(text, "Could not complete task"));
+                }, onError);
+                yield break;
+            }
+
+            var gateJson = JsonUtility.ToJson(new CompleteTaskEvaluationGateBodyDto
+            {
+                evaluationGateToken = evaluationGateToken.Trim(),
+            });
+            var bytes = Encoding.UTF8.GetBytes(string.IsNullOrEmpty(gateJson) ? "{}" : gateJson);
+            yield return AuthorizedPostUtf8(path, bytes, text =>
             {
                 var env = JsonUtility.FromJson<GameCompleteTaskEnvelope>(text);
                 MergeCompleteTaskEnvelopeSnakeCase(text, env);
@@ -142,6 +168,38 @@ namespace LanguageGame.Application
                 onError?.Invoke(!string.IsNullOrEmpty(env?.error)
                     ? env.error
                     : ParseErrorMessage(text, "Could not complete task"));
+            }, onError);
+        }
+
+        public IEnumerator EvaluateFreitextLlmStep(string runId, string stepId, string answerText,
+            Action<GameFreitextLlmEvaluateEnvelope> onOk, Action<string> onError)
+        {
+            var path =
+                $"/api/game/runs/{Uri.EscapeDataString(runId)}/steps/{Uri.EscapeDataString(stepId)}/evaluate";
+
+            var payload = JsonUtility.ToJson(new FreitextLlmEvaluateAnswerBodyDto
+            {
+                answerText = answerText ?? string.Empty,
+            });
+            var bytes = Encoding.UTF8.GetBytes(payload ?? "{}");
+
+            yield return AuthorizedPostUtf8(path, bytes, text =>
+            {
+                var env = JsonUtility.FromJson<GameFreitextLlmEvaluateEnvelope>(text);
+                if (env != null && env.ok)
+                {
+                    onOk?.Invoke(env);
+                    return;
+                }
+
+                var message = env != null && !string.IsNullOrEmpty(env.error)
+                    ? env.error
+                    : ParseErrorMessage(text, "FreitextLlm scorer failed.");
+
+                if (env != null && !string.IsNullOrEmpty(env.code))
+                    message = $"{message} ({env.code})";
+
+                onError?.Invoke(message);
             }, onError);
         }
 
@@ -224,6 +282,43 @@ namespace LanguageGame.Application
 
             using var req = new UnityWebRequest($"{ApiBaseUrl}{path}", UnityWebRequest.kHttpVerbPOST);
             req.uploadHandler = new UploadHandlerRaw(Array.Empty<byte>());
+            req.downloadHandler = new DownloadHandlerBuffer();
+            req.uploadHandler.contentType = "application/json";
+            req.SetRequestHeader("Authorization", $"Bearer {token}");
+            req.SetRequestHeader("Content-Type", "application/json");
+            yield return req.SendWebRequest();
+
+            var statusCode = req.responseCode;
+            if (statusCode == 401 || statusCode == 403)
+            {
+                ClearSessionAfterUnauthorized();
+                onError?.Invoke("Session expired. Please sign in again.");
+                yield break;
+            }
+
+            if (req.result != UnityWebRequest.Result.Success)
+            {
+                var text = req.downloadHandler != null ? req.downloadHandler.text : string.Empty;
+                onError?.Invoke(!string.IsNullOrEmpty(text) ? ParseErrorMessage(text, req.error) : req.error);
+                yield break;
+            }
+
+            onBody?.Invoke(req.downloadHandler.text);
+        }
+
+        private IEnumerator AuthorizedPostUtf8(string path, byte[] bodyBytes, Action<string> onBody, Action<string> onError)
+        {
+            var token = AuthSessionStore.GetToken();
+            if (string.IsNullOrEmpty(token))
+            {
+                onError?.Invoke("Not logged in");
+                yield break;
+            }
+
+            var payload = bodyBytes ?? Array.Empty<byte>();
+
+            using var req = new UnityWebRequest($"{ApiBaseUrl}{path}", UnityWebRequest.kHttpVerbPOST);
+            req.uploadHandler = new UploadHandlerRaw(payload);
             req.downloadHandler = new DownloadHandlerBuffer();
             req.uploadHandler.contentType = "application/json";
             req.SetRequestHeader("Authorization", $"Bearer {token}");

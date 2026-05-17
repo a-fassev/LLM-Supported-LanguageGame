@@ -124,4 +124,42 @@ namespace LanguageGame.Presentation.Steps
         public string text;
         public string targetId;
     }
+
+    /// <summary>Freitext task scored by backend LLM; mirrors <c>FreitextLlm</c> <c>content_payload</c> JSON.</summary>
+    [Serializable]
+    public sealed class FreitextLlmContentDto
+    {
+        public string prompt;
+        public string instruction;
+        public string targetLanguage;
+
+        /// <summary>Show optional word-counter hint beneath the learner textarea.</summary>
+        public bool showWordCount;
+
+        /// <summary>Show optional character-counter hint beneath the learner textarea.</summary>
+        public bool showCharacterCount;
+        public int minWords;
+        public int maxWords;
+        public FreitextLlmEvaluationPayloadDto evaluation;
+    }
+
+    [Serializable]
+    public sealed class FreitextLlmEvaluationPayloadDto
+    {
+        public float grammarWeight;
+        public float vocabularyWeight;
+        public float registerWeight;
+        public float passThreshold;
+
+        /// <summary>Formal, informal, or neutral register guidance for the scorer.</summary>
+        public string registerTarget;
+
+        public string scoringPolicy;
+        public int maxPoints;
+
+        /// <summary>Optional authoring override — server merges defaults when null/empty.</summary>
+        public string[] evaluationCriteria;
+
+        public string[] targetStructures;
+    }
 }
