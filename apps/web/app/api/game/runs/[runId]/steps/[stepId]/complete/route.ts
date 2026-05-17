@@ -19,12 +19,16 @@ type RouteContext = { params: Promise<{ runId: string; stepId: string }> };
 
 export async function POST(request: Request, context: RouteContext) {
   const ip = getClientIp(request);
-  if (!checkRateLimit(`game_complete_step:${ip}`, 120, 60_000)) {
-    return jsonError(429, "Too many requests");
+  if (!checkRateLimit(`game_complete_step:ip:${ip}`, 120, 60_000)) {
+    return jsonError(429, "Too many requests", "RATE_LIMIT_IP");
   }
 
   const session = await requireSessionAccount(request);
   if (!session.ok) return session.response;
+
+  if (!checkRateLimit(`game_complete_step:acct:${session.accountId}`, 120, 60_000)) {
+    return jsonError(429, "Too many completions for this session", "RATE_LIMIT_ACCOUNT");
+  }
 
   const raw = await context.params;
   const parsed = paramsSchema.safeParse(raw);

@@ -6,7 +6,11 @@ using UnityEngine.UIElements;
 
 namespace LanguageGame.Presentation.Steps
 {
-    /// <summary>LLM-evaluated Freitext task (<c>taskType = FreitextLlm</c>).</summary>
+    /// <summary>
+    /// LLM-evaluated Freitext task (<c>taskType = FreitextLlm</c>).
+    /// Uses <see cref="JsonUtility"/> DTO parsing: keep authoring fields primitives + nested weights;
+    /// optional <c>string[]</c> in JSON may deserialize inconsistently in Unity—in that case keep rubric text in <c>prompt</c>/<c>instruction</c>.
+    /// </summary>
     public sealed class FreitextLlmToolkitStep : IStepView, ISubmitFromShell, IEvaluationGateForTaskCompletion
     {
         private const int AbsoluteMaxCharacters = 8000;
@@ -98,7 +102,9 @@ namespace LanguageGame.Presentation.Steps
             _statusLabel.style.display = DisplayStyle.None;
             _statusLabel.text = "";
 
-            _gameApi = UnityEngine.Object.FindAnyObjectByType<GameProgressApiClient>();
+            _gameApi = context?.gameProgressApi != null
+                ? context.gameProgressApi
+                : UnityEngine.Object.FindAnyObjectByType<GameProgressApiClient>();
 
             if (!TryDeserialize(context?.contentJson, out var dto, out var dtoError))
             {

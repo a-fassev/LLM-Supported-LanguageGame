@@ -331,7 +331,16 @@ export async function evaluateFreitextLlmQuestStep(
       evaluationGateToken,
     };
   } catch (err) {
-    if (controller.signal.aborted) {
+    const abortedBySignal = controller.signal.aborted;
+    const abortByName =
+      (err instanceof Error && err.name === "AbortError") ||
+      (typeof err === "object" &&
+        err !== null &&
+        "name" in err &&
+        typeof (err as { name?: unknown }).name === "string" &&
+        (err as { name: string }).name === "AbortError");
+
+    if (abortedBySignal || abortByName) {
       return {
         ok: false,
         status: 504,

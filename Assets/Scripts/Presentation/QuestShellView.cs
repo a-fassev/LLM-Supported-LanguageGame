@@ -221,6 +221,7 @@ namespace LanguageGame.Presentation
                 totalSlices = flow.TotalPizzaSlices,
                 totalBackpackPieces = flow.TotalBackpackPieces,
                 presentValidationMessage = PresentValidationMessage,
+                gameProgressApi = _gameApi,
             }, OnStepRequest);
             _activeStepView.SetInteractable(!_submitting);
 

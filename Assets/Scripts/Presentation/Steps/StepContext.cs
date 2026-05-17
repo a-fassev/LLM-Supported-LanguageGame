@@ -1,4 +1,5 @@
 using System;
+using LanguageGame.Application;
 
 namespace LanguageGame.Presentation.Steps
 {
@@ -23,6 +24,9 @@ namespace LanguageGame.Presentation.Steps
 
         /// <summary>Quest shell shows client-side validation (e.g. empty gaps) in the shared overlay.</summary>
         public Action<string> presentValidationMessage;
+
+        /// <summary>Optional: shell-injected HTTP client so steps avoid global lookup.</summary>
+        public GameProgressApiClient gameProgressApi;
 
         public bool IsTask => string.Equals(stepKind, "task", StringComparison.OrdinalIgnoreCase);
         public int StepNumberOneBased => stepIndexZeroBased + 1;
