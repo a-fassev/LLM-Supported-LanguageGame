@@ -7,7 +7,7 @@ namespace LanguageGame.Presentation
     /// <summary>
     /// Short “please wait” feedback when a scene load is requested while another is already in progress.
     /// </summary>
-    internal static class LearningToolkitNavigationFeedback
+    public static class LearningToolkitNavigationFeedback
     {
         private const string DefaultMessage = "Please wait…";
         private static readonly LearningToolkitInfoBanner Banner = new();
@@ -66,7 +66,7 @@ namespace LanguageGame.Presentation
     }
 
     /// <summary>Routes <see cref="GameFlowController.SceneTransitionSuppressed"/> to UITK without coupling Application code to overlays.</summary>
-    internal static class GameFlowNavigationSuppressedListener
+    public static class GameFlowNavigationSuppressedListener
     {
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Register()
