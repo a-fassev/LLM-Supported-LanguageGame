@@ -304,14 +304,16 @@ namespace LanguageGame.Presentation
 
             _secondary.RegisterCallback<ClickEvent>(_ =>
             {
+                var secondary = _onSecondary;
                 Hide();
-                _onSecondary?.Invoke();
+                secondary?.Invoke();
             });
 
             _primary.RegisterCallback<ClickEvent>(_ =>
             {
+                var primary = _onPrimary;
                 Hide();
-                _onPrimary?.Invoke();
+                primary?.Invoke();
             });
 
             row.Add(_secondary);
@@ -342,7 +344,10 @@ namespace LanguageGame.Presentation
                         return;
                 }
 
+                // Backdrop tap matches "cancel / stay" (secondary action).
+                var secondary = _onSecondary;
                 Hide();
+                secondary?.Invoke();
             });
 
             _card.RegisterCallback<ClickEvent>(evt => evt.StopImmediatePropagation());
@@ -496,6 +501,13 @@ namespace LanguageGame.Presentation
                 {
                     if (p == _card)
                         return;
+                }
+
+                if (_validationMode)
+                {
+                    var dismiss = _onBack;
+                    Hide();
+                    dismiss?.Invoke();
                 }
             });
 

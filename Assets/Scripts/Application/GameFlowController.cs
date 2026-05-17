@@ -7,6 +7,8 @@ namespace LanguageGame.Application
     {
         public static GameFlowController Instance { get; private set; }
 
+        private bool _sceneTransitionInProgress;
+
         private const string SceneAuth = "Auth";
         private const string SceneMainMenu = "MainMenu";
         private const string SceneChapterOverview = "ChapterOverview";
@@ -38,6 +40,18 @@ namespace LanguageGame.Application
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        private void OnDestroy()
+        {
+            if (Instance == this)
+                SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            _sceneTransitionInProgress = false;
         }
 
         public void LoadAuth()
@@ -220,6 +234,14 @@ namespace LanguageGame.Application
 
         private void LoadScene(string sceneName)
         {
+            if (_sceneTransitionInProgress)
+            {
+                Debug.LogWarning("[GameFlowController] Scene load ignored — transition already in progress.");
+                return;
+            }
+
+            _sceneTransitionInProgress = true;
+
             if (string.IsNullOrEmpty(sceneName))
             {
                 Debug.LogError("[GameFlowController] Scene name empty. Falling back to Auth.");

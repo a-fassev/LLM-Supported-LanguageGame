@@ -15,6 +15,18 @@ namespace LanguageGame.Application
     {
         [SerializeField] private AuthApiClient authApiClient;
 
+        /// <summary>
+        /// Shared heuristic for routing the player back to Auth after <see cref="AuthSessionStore"/> was cleared.
+        /// </summary>
+        public static bool LooksLikeSessionAuthFailure(string message)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+                return false;
+            return message.IndexOf("not logged in", StringComparison.OrdinalIgnoreCase) >= 0
+                   || message.IndexOf("session expired", StringComparison.OrdinalIgnoreCase) >= 0
+                   || message.IndexOf("unauthorized", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
         private void Awake()
         {
             if (authApiClient == null)
@@ -129,6 +141,14 @@ namespace LanguageGame.Application
             req.SetRequestHeader("Authorization", $"Bearer {token}");
             yield return req.SendWebRequest();
 
+            var statusCode = req.responseCode;
+            if (statusCode == 401 || statusCode == 403)
+            {
+                ClearSessionAfterUnauthorized();
+                onError?.Invoke("Session expired. Please sign in again.");
+                yield break;
+            }
+
             if (req.result != UnityWebRequest.Result.Success)
             {
                 onError?.Invoke(req.error);
@@ -155,6 +175,14 @@ namespace LanguageGame.Application
             req.SetRequestHeader("Content-Type", "application/json");
             yield return req.SendWebRequest();
 
+            var statusCode = req.responseCode;
+            if (statusCode == 401 || statusCode == 403)
+            {
+                ClearSessionAfterUnauthorized();
+                onError?.Invoke("Session expired. Please sign in again.");
+                yield break;
+            }
+
             if (req.result != UnityWebRequest.Result.Success)
             {
                 var text = req.downloadHandler != null ? req.downloadHandler.text : string.Empty;
@@ -163,6 +191,12 @@ namespace LanguageGame.Application
             }
 
             onBody?.Invoke(req.downloadHandler.text);
+        }
+
+        private static void ClearSessionAfterUnauthorized()
+        {
+            AuthSessionStore.Clear();
+            GameSessionStateStore.Clear();
         }
 
         private static string ParseErrorMessage(string json, string fallback)

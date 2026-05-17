@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 namespace LanguageGame.Presentation
 {
     /// <summary>
-    /// Quest runtime shell — UI Toolkit only (<see cref="QuestShellScreen"/> UXML + overlays).
+    /// Quest runtime shell — UI Toolkit only (QuestShellScreen UXML asset under Resources + overlays).
     /// </summary>
     public class QuestShellView : MonoBehaviour
     {
@@ -110,6 +110,16 @@ namespace LanguageGame.Presentation
             RefreshStepUi();
         }
 
+        private void ConfigureBackToChaptersButton(GameFlowController flow)
+        {
+            if (_tkBackToChapters == null)
+                return;
+
+            _tkBackToChapters.text = BackToChaptersLabel;
+            var enabled = flow != null && !_submitting;
+            _tkBackToChapters.SetEnabled(enabled);
+        }
+
         private void RefreshStepUi()
         {
             if (!_shellReady)
@@ -118,14 +128,13 @@ namespace LanguageGame.Presentation
             UpdateWalletLabels();
 
             var flow = GameFlowController.Instance;
+            ConfigureBackToChaptersButton(flow);
+
             if (flow == null)
             {
                 Debug.LogError("[QuestShellView] GameFlowController not found.");
                 return;
             }
-
-            if (_tkBackToChapters != null)
-                _tkBackToChapters.text = BackToChaptersLabel;
 
             if (!flow.IsServerQuestActive)
                 return;
@@ -187,7 +196,7 @@ namespace LanguageGame.Presentation
             {
                 Debug.LogError(
                     $"[QuestShellView] ToolkitStepFactory returned null — step-host missing?. stepId={step.id} taskType={step.taskType}");
-                _activeStepView = new MissingToolkitStepView(_toolkitStepHost, step);
+                _activeStepView = StubToolkitTaskStep.CreateMissingFactoryFallback(_toolkitStepHost, step);
             }
 
             _boundStep = step;
@@ -325,8 +334,14 @@ namespace LanguageGame.Presentation
             {
                 _submitting = false;
                 Debug.LogWarning($"[QuestShellView] Complete task failed: {err}");
-                _activeStepView?.SetInteractable(true);
-                RefreshStepUi();
+                if (GameProgressApiClient.LooksLikeSessionAuthFailure(err))
+                    GameFlowController.Instance?.LoadAuth();
+                else
+                {
+                    _activeStepView?.SetInteractable(true);
+                    RefreshStepUi();
+                }
+
                 yield break;
             }
 
@@ -379,8 +394,14 @@ namespace LanguageGame.Presentation
             if (done == null || !done.ok)
             {
                 Debug.LogWarning($"[QuestShellView] Cutscene advance failed: {err}");
-                _activeStepView?.SetInteractable(true);
-                RefreshStepUi();
+                if (GameProgressApiClient.LooksLikeSessionAuthFailure(err))
+                    GameFlowController.Instance?.LoadAuth();
+                else
+                {
+                    _activeStepView?.SetInteractable(true);
+                    RefreshStepUi();
+                }
+
                 yield break;
             }
 
@@ -419,6 +440,12 @@ namespace LanguageGame.Presentation
             if (finishResult == null || !finishResult.ok)
             {
                 _submitting = false;
+                if (GameProgressApiClient.LooksLikeSessionAuthFailure(finishErr))
+                {
+                    GameFlowController.Instance?.LoadAuth();
+                    yield break;
+                }
+
                 var message = string.IsNullOrEmpty(finishErr)
                     ? "Could not save quest completion. Tap Finish quest to retry."
                     : $"Could not save quest completion: {finishErr}";
@@ -457,6 +484,9 @@ namespace LanguageGame.Presentation
             }
 
             var flow = GameFlowController.Instance;
+            if (_submitting)
+                return;
+
             if (flow.IsServerQuestActive)
             {
                 if (flow.TryGetCurrentServerStep(out _))
@@ -468,6 +498,9 @@ namespace LanguageGame.Presentation
                 flow.LoadChapterOverview();
                 return;
             }
+
+            // Recovery: Quest scene without an active server run (stale entry, failed load, etc.).
+            flow.LoadChapterOverview();
         }
 
         private void OnBackConfirmCancel() => SetBackConfirmVisible(false);
@@ -611,56 +644,5 @@ namespace LanguageGame.Presentation
                 _toolkitStepHost.Clear();
         }
 
-        /// <summary>Fallback when no toolkit implementation could be created for the step.</summary>
-        private sealed class MissingToolkitStepView : IStepView, ISubmitFromShell
-        {
-            private readonly VisualElement _panel;
-
-            private StepContext _context;
-
-            public MissingToolkitStepView(VisualElement host, GameQuestStepDto step)
-            {
-                _panel = new VisualElement();
-                _panel.style.flexGrow = 1;
-                _panel.AddToClassList("lg-muted-panel");
-                _panel.style.paddingTop = 16;
-                _panel.style.paddingBottom = 16;
-                _panel.style.paddingLeft = 16;
-                _panel.style.paddingRight = 16;
-
-                var title = new Label(step != null && !string.IsNullOrEmpty(step.taskType)
-                    ? $"Unavailable ({step.taskType})"
-                    : "Step unavailable");
-                title.AddToClassList("lg-heading-screen");
-                title.style.marginBottom = 10;
-
-                var body = new Label(
-                    "This step could not be loaded. Leave the quest from the menu and try again.");
-                body.AddToClassList("lg-text-body");
-                body.AddToClassList("lg-text-muted");
-                body.style.whiteSpace = WhiteSpace.Normal;
-
-                _panel.Add(title);
-                _panel.Add(body);
-                host.Add(_panel);
-            }
-
-            public void Bind(StepContext context, Action<StepCompletionRequest> _) =>
-                _context = context;
-
-            public void SetInteractable(bool _)
-            {
-            }
-
-            public void SubmitFromShell() =>
-                _context?.presentValidationMessage?.Invoke(
-                    "This step could not be loaded. Leave the quest and try again.");
-
-            public void Teardown()
-            {
-                _context = null;
-                _panel?.RemoveFromHierarchy();
-            }
-        }
     }
 }

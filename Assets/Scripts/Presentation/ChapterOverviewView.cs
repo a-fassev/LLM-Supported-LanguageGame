@@ -111,6 +111,12 @@ namespace LanguageGame.Presentation
 
                 if (env == null || !env.ok)
                 {
+                    if (GameProgressApiClient.LooksLikeSessionAuthFailure(err))
+                    {
+                        GameFlowController.Instance?.LoadAuth();
+                        yield break;
+                    }
+
                     _loadErrorBanner.Show(
                         string.IsNullOrEmpty(err) ? "Could not load chapters." : err,
                         RestartBootstrapRoutine);

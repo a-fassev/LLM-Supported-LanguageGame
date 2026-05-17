@@ -131,7 +131,12 @@ namespace LanguageGame.Presentation
 
             yield return StartCoroutine(apiClient.ValidateSession(
                 onValid: () => { GameFlowController.Instance?.LoadMainMenu(); },
-                onInvalid: _ => { GameSessionStateStore.Clear(); }));
+                onInvalid: _ =>
+                {
+                    GameSessionStateStore.Clear();
+                    AuthSessionStore.Clear();
+                    SetStatus("Your session expired. Sign in again.");
+                }));
 
             _loading.Hide();
             PopAuthBusyScope();

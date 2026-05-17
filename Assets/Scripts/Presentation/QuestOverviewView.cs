@@ -233,6 +233,13 @@ namespace LanguageGame.Presentation
                 string message = string.IsNullOrEmpty(err)
                     ? "Could not start this quest."
                     : err;
+
+                if (GameProgressApiClient.LooksLikeSessionAuthFailure(err))
+                {
+                    GameFlowController.Instance?.LoadAuth();
+                    yield break;
+                }
+
                 _loadErrorBanner.Show(message, RefreshQuestSlots);
                 yield break;
             }

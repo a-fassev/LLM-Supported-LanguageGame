@@ -133,6 +133,12 @@ namespace LanguageGame.Presentation
                     if (!string.IsNullOrEmpty(err))
                         Debug.LogWarning($"[MainMenuView] Bootstrap failed: {err}");
 
+                    if (GameProgressApiClient.LooksLikeSessionAuthFailure(err))
+                    {
+                        GameFlowController.Instance?.LoadAuth();
+                        yield break;
+                    }
+
                     _loadErrorBanner.Show(
                         message,
                         () =>
@@ -163,6 +169,9 @@ namespace LanguageGame.Presentation
 
         private void OnPlayClicked()
         {
+            if (_bootstrapState == BootstrapLoadState.Loading)
+                return;
+
             GameFlowController flow = GameFlowController.Instance;
             if (flow == null)
             {

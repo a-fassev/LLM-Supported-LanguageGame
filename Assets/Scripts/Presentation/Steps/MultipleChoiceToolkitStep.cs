@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace LanguageGame.Presentation.Steps
 {
-    /// <summary>Multiple-choice task UI (UI Toolkit) — behavior aligned with <see cref="MultipleChoiceStepView"/>.</summary>
+    /// <summary>Multiple-choice task UI (UI Toolkit).</summary>
     public sealed class MultipleChoiceToolkitStep : IStepView, ISubmitFromShell
     {
         private const int MinOptions = 2;
@@ -26,6 +26,7 @@ namespace LanguageGame.Presentation.Steps
         private readonly List<Coroutine> _mediaLoads = new();
         private readonly List<Texture2D> _remoteImageTextures = new();
         private readonly List<Toggle> _activeToggles = new();
+        private readonly List<Button> _stemAudioPlayButtons = new();
         private readonly Dictionary<int, HashSet<string>> _selections = new();
 
         private MultipleChoiceContentDto _dto;
@@ -158,6 +159,12 @@ namespace LanguageGame.Presentation.Steps
                     tg.SetEnabled(interactable);
             }
 
+            foreach (var play in _stemAudioPlayButtons)
+            {
+                if (play != null)
+                    play.SetEnabled(interactable);
+            }
+
             RefreshNavInteractable();
         }
 
@@ -232,6 +239,7 @@ namespace LanguageGame.Presentation.Steps
             _stemHost.Clear();
             _optionsHost.Clear();
             _activeToggles.Clear();
+            _stemAudioPlayButtons.Clear();
             StopMediaLoads();
 
             var q = _questions[_currentIndex];
@@ -308,12 +316,14 @@ namespace LanguageGame.Presentation.Steps
                     play.AddToClassList("lg-btn");
                     play.AddToClassList("lg-btn--secondary");
                     play.style.marginBottom = 8;
+                    play.SetEnabled(_interactable);
                     play.clicked += () =>
                     {
                         if (!_interactable || _coroutineHost == null)
                             return;
                         _mediaLoads.Add(_coroutineHost.StartCoroutine(LoadAndPlayClip(url)));
                     };
+                    _stemAudioPlayButtons.Add(play);
                     _stemHost.Add(play);
                 }
             }
