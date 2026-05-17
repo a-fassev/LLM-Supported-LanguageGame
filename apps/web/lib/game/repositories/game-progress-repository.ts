@@ -74,6 +74,62 @@ function coerceNumber(value: unknown, fallback: number): number {
   return typeof value === "number" && Number.isFinite(value) ? value : fallback;
 }
 
+/** Supabase RPC jsonb is usually an object; some clients may stringify or use camelCase keys. */
+function asJsonObject(data: unknown): Record<string, unknown> | null {
+  if (data == null) return null;
+  if (typeof data === "string") {
+    try {
+      const parsed: unknown = JSON.parse(data);
+      if (parsed !== null && typeof parsed === "object" && !Array.isArray(parsed)) {
+        return parsed as Record<string, unknown>;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+  if (typeof data === "object" && !Array.isArray(data)) {
+    return data as Record<string, unknown>;
+  }
+  return null;
+}
+
+function readIntFromRow(row: Record<string, unknown>, ...keys: string[]): number {
+  for (const key of keys) {
+    if (!Object.prototype.hasOwnProperty.call(row, key)) continue;
+    const v = row[key];
+    if (typeof v === "number" && Number.isFinite(v)) return Math.trunc(v);
+    if (typeof v === "string") {
+      const t = v.trim();
+      if (t === "") continue;
+      const n = Number(t);
+      if (Number.isFinite(n)) return Math.trunc(n);
+    }
+  }
+  return 0;
+}
+
+function readOkFlag(row: Record<string, unknown>): boolean | null {
+  const v = row.ok;
+  if (v === true) return true;
+  if (v === false) return false;
+  if (v === "true") return true;
+  if (v === "false") return false;
+  return null;
+}
+
+function readBoolFromRow(row: Record<string, unknown>, ...keys: string[]): boolean {
+  for (const key of keys) {
+    if (!Object.prototype.hasOwnProperty.call(row, key)) continue;
+    const v = row[key];
+    if (v === true) return true;
+    if (v === false) return false;
+    if (v === "true") return true;
+    if (v === "false") return false;
+  }
+  return false;
+}
+
 export async function listActiveChaptersOrdered(): Promise<GameChapterRow[] | null> {
   const { data, error } = await admin()
     .from("game_chapters")
@@ -395,8 +451,9 @@ export async function rpcCompleteQuestStepTask(
     };
   }
 
-  const row = data as Record<string, unknown> | null;
-  if (!row || typeof row.ok !== "boolean") {
+  const row = asJsonObject(data);
+  const okFlag = row !== null ? readOkFlag(row) : null;
+  if (row === null || okFlag === null) {
     console.error("[game-repo] rpcCompleteQuestStepTask unexpected payload", data);
     return {
       ok: false,
@@ -405,7 +462,7 @@ export async function rpcCompleteQuestStepTask(
     };
   }
 
-  if (!row.ok) {
+  if (!okFlag) {
     return {
       ok: false,
       code: typeof row.code === "string" ? row.code : "rpc_error",
@@ -413,24 +470,22 @@ export async function rpcCompleteQuestStepTask(
     };
   }
 
-  const coerceInt = (v: unknown, fallback = 0): number =>
-    typeof v === "number" && Number.isFinite(v) ? Math.trunc(v) : fallback;
-
   let nextTaskStepId: string | null = null;
-  if (row.next_task_step_id !== null && row.next_task_step_id !== undefined) {
-    if (typeof row.next_task_step_id === "string") nextTaskStepId = row.next_task_step_id;
-    else if (typeof row.next_task_step_id === "number") nextTaskStepId = String(row.next_task_step_id);
+  const nextRaw = row.next_task_step_id ?? row.nextTaskStepId;
+  if (nextRaw !== null && nextRaw !== undefined) {
+    if (typeof nextRaw === "string") nextTaskStepId = nextRaw;
+    else if (typeof nextRaw === "number") nextTaskStepId = String(nextRaw);
   }
 
   return {
     ok: true,
-    awardedSlices: coerceInt(row.awarded_slices, 0),
-    totalSlices: coerceInt(row.total_slices, 0),
-    totalBackpackPieces: coerceInt(row.total_backpack_pieces, 0),
-    awardedBackpackPieces: coerceInt(row.awarded_backpack_pieces, 0),
-    questComplete: Boolean(row.quest_complete),
-    currentTaskOrderIndex: coerceInt(row.current_task_order_index, 0),
-    currentStepOrderIndex: coerceInt(row.current_step_order_index, 0),
+    awardedSlices: readIntFromRow(row, "awarded_slices", "awardedSlices"),
+    totalSlices: readIntFromRow(row, "total_slices", "totalSlices"),
+    totalBackpackPieces: readIntFromRow(row, "total_backpack_pieces", "totalBackpackPieces"),
+    awardedBackpackPieces: readIntFromRow(row, "awarded_backpack_pieces", "awardedBackpackPieces"),
+    questComplete: readBoolFromRow(row, "quest_complete", "questComplete"),
+    currentTaskOrderIndex: readIntFromRow(row, "current_task_order_index", "currentTaskOrderIndex"),
+    currentStepOrderIndex: readIntFromRow(row, "current_step_order_index", "currentStepOrderIndex"),
     nextTaskStepId,
   };
 }
@@ -456,8 +511,9 @@ export async function rpcAdvanceQuestCutsceneStep(
     };
   }
 
-  const row = data as Record<string, unknown> | null;
-  if (!row || typeof row.ok !== "boolean") {
+  const row = asJsonObject(data);
+  const okFlag = row !== null ? readOkFlag(row) : null;
+  if (row === null || okFlag === null) {
     console.error("[game-repo] rpcAdvanceQuestCutsceneStep unexpected payload", data);
     return {
       ok: false,
@@ -466,7 +522,7 @@ export async function rpcAdvanceQuestCutsceneStep(
     };
   }
 
-  if (!row.ok) {
+  if (!okFlag) {
     return {
       ok: false,
       code: typeof row.code === "string" ? row.code : "rpc_error",
@@ -474,24 +530,22 @@ export async function rpcAdvanceQuestCutsceneStep(
     };
   }
 
-  const coerceInt = (v: unknown, fallback = 0): number =>
-    typeof v === "number" && Number.isFinite(v) ? Math.trunc(v) : fallback;
-
   let nextTaskStepId: string | null = null;
-  if (row.next_task_step_id !== null && row.next_task_step_id !== undefined) {
-    if (typeof row.next_task_step_id === "string") nextTaskStepId = row.next_task_step_id;
-    else if (typeof row.next_task_step_id === "number") nextTaskStepId = String(row.next_task_step_id);
+  const nextRaw = row.next_task_step_id ?? row.nextTaskStepId;
+  if (nextRaw !== null && nextRaw !== undefined) {
+    if (typeof nextRaw === "string") nextTaskStepId = nextRaw;
+    else if (typeof nextRaw === "number") nextTaskStepId = String(nextRaw);
   }
 
   return {
     ok: true,
-    awardedSlices: coerceInt(row.awarded_slices, 0),
-    totalSlices: coerceInt(row.total_slices, 0),
-    totalBackpackPieces: coerceInt(row.total_backpack_pieces, 0),
-    awardedBackpackPieces: coerceInt(row.awarded_backpack_pieces, 0),
-    questComplete: Boolean(row.quest_complete),
-    currentTaskOrderIndex: coerceInt(row.current_task_order_index, 0),
-    currentStepOrderIndex: coerceInt(row.current_step_order_index, 0),
+    awardedSlices: readIntFromRow(row, "awarded_slices", "awardedSlices"),
+    totalSlices: readIntFromRow(row, "total_slices", "totalSlices"),
+    totalBackpackPieces: readIntFromRow(row, "total_backpack_pieces", "totalBackpackPieces"),
+    awardedBackpackPieces: readIntFromRow(row, "awarded_backpack_pieces", "awardedBackpackPieces"),
+    questComplete: readBoolFromRow(row, "quest_complete", "questComplete"),
+    currentTaskOrderIndex: readIntFromRow(row, "current_task_order_index", "currentTaskOrderIndex"),
+    currentStepOrderIndex: readIntFromRow(row, "current_step_order_index", "currentStepOrderIndex"),
     nextTaskStepId,
   };
 }

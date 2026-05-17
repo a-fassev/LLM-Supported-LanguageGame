@@ -12,6 +12,9 @@ namespace LanguageGame.Presentation
         private const string FinishQuestLabel = "Finish quest";
         private const string ShellCutsceneNextLabel = "Next";
         private const string BackToChaptersLabel = "Back to chapters";
+        private const string ShellTaskCheckLabel = "Check";
+        private const string RewardOverlayBackLabel = "Back";
+        private const string ValidationDismissLabel = "OK";
 
         [FormerlySerializedAs("cityMapButton")] [SerializeField] private Button backToChaptersButton;
         [SerializeField] private Button nextTaskButton;
@@ -32,6 +35,12 @@ namespace LanguageGame.Presentation
         private IStepView _activeStepView;
         private GameQuestStepDto _boundStep;
         private GameObject _rewardOverlayRoot;
+        private Text _rewardOverlayMessage;
+        private Text _rewardOverlayPizza;
+        private Text _rewardOverlayBackpack;
+        private Button _rewardOverlayBackButton;
+        private Button _rewardOverlayNextButton;
+        private bool _rewardOverlayValidationMode;
         private bool _hasPendingAdvance;
         private int _pendingStepOrderIndex;
         private int _pendingTaskOrderIndex;
@@ -55,6 +64,9 @@ namespace LanguageGame.Presentation
                 stepTemplateCatalog = Resources.Load<StepTemplateCatalog>("Steps/StepTemplateCatalog_Default");
             if (stepHost == null && taskDetailText != null)
                 stepHost = taskDetailText.transform.parent;
+            if (taskDetailText != null)
+                taskDetailText.raycastTarget = false;
+            ResolveStepMountParent();
         }
 
         private void Start()
@@ -91,7 +103,12 @@ namespace LanguageGame.Presentation
                 if (questTitleText != null)
                     questTitleText.text = string.IsNullOrEmpty(flow.ServerQuestDisplayName) ? "Finishing quest" : flow.ServerQuestDisplayName;
                 if (taskDetailText != null)
+                {
+                    taskDetailText.gameObject.SetActive(true);
                     taskDetailText.text = "Quest complete. Tap Finish quest to retry saving your completion.";
+                }
+                if (backToChaptersButton != null)
+                    backToChaptersButton.gameObject.SetActive(true);
                 if (nextTaskButton != null)
                     nextTaskButton.gameObject.SetActive(true);
                 SetButtonLabel(nextTaskButton, FinishQuestLabel);
@@ -105,7 +122,12 @@ namespace LanguageGame.Presentation
                 if (questTitleText != null)
                     questTitleText.text = string.IsNullOrEmpty(flow.ServerQuestDisplayName) ? "Quest complete" : flow.ServerQuestDisplayName;
                 if (taskDetailText != null)
+                {
+                    taskDetailText.gameObject.SetActive(true);
                     taskDetailText.text = string.Empty;
+                }
+                if (backToChaptersButton != null)
+                    backToChaptersButton.gameObject.SetActive(true);
                 if (nextTaskButton != null)
                     nextTaskButton.gameObject.SetActive(true);
                 SetButtonLabel(nextTaskButton, FinishQuestLabel);
@@ -121,8 +143,8 @@ namespace LanguageGame.Presentation
 
             if (taskDetailText != null)
             {
-                var kind = step.isTask ? $"Task: {step.taskType}" : "Cutscene";
-                taskDetailText.text = kind;
+                // Full-width placeholder sits in the task/cutscene band; hide it while a step view owns that area.
+                taskDetailText.gameObject.SetActive(false);
             }
 
             BindStep(step, flow);
@@ -146,6 +168,10 @@ namespace LanguageGame.Presentation
             }
             else
             {
+                Debug.LogWarning(
+                    $"[QuestShellView] No step prefab in catalog for templateKey='{step.templateKey}' taskType='{step.taskType}'. " +
+                    "Using an empty RectTransform; task UIs may fall back to runtime-generated controls. " +
+                    $"Check `Resources/Steps/StepTemplateCatalog_Default` and prefab GUIDs under `Assets/Prefabs/Steps/`.");
                 instance = new GameObject($"RuntimeStep_{step.orderIndex}", typeof(RectTransform));
                 instance.transform.SetParent(host, false);
                 if (step.isTask)
@@ -163,6 +189,9 @@ namespace LanguageGame.Presentation
                     instance.AddComponent<CutsceneStepBase>();
                 view = instance.GetComponent<IStepView>();
             }
+
+            if (taskDetailText != null)
+                instance.transform.SetSiblingIndex(taskDetailText.transform.GetSiblingIndex() + 1);
 
             _activeStepObject = instance;
             _activeStepView = view;
@@ -184,11 +213,26 @@ namespace LanguageGame.Presentation
                 isLastStep = flow.ServerCurrentStepNumberOneBased == flow.ServerStepCount,
                 totalSlices = flow.TotalPizzaSlices,
                 totalBackpackPieces = flow.TotalBackpackPieces,
-                suppressHostedBackChapterNavigation = true,
-                suppressHostedContinueNavigation = !step.isTask,
+                presentValidationMessage = PresentValidationMessage,
             }, OnStepRequest);
             _activeStepView.SetInteractable(!_submitting);
+            ResetRewardOverlayToRewardLayout();
             SetRewardOverlayVisible(false);
+        }
+
+        /// <summary>
+        /// Steps are parented directly to the task panel (full <see cref="RectTransform"/> rect) so every child
+        /// anchor/pivot matches Prefab Stage authoring for the same panel. Shell next/back remain later siblings
+        /// on that panel and still draw on top when visible; see <see cref="BindStep"/> for sibling index.
+        /// </summary>
+        private void ResolveStepMountParent()
+        {
+            if (taskDetailText == null)
+                return;
+
+            var panel = taskDetailText.transform.parent;
+            if (panel != null)
+                stepHost = panel;
         }
 
         private static void AddTaskViewComponent(GameObject go, string taskType)
@@ -261,26 +305,50 @@ namespace LanguageGame.Presentation
             }
 
             if (_boundStep != null && _boundStep.isTask)
+            {
+                if (_activeStepView is ISubmitFromShell submit)
+                    submit.SubmitFromShell();
+                else if (_activeStepView != null)
+                    Debug.LogWarning(
+                        "[QuestShellView] Task step does not implement ISubmitFromShell; Check did nothing. " +
+                        $"Step type: {_activeStepView.GetType().Name}");
                 return;
+            }
 
             OnStepRequest(new StepCompletionRequest { requestComplete = true });
         }
 
-        /// <summary>Shell Next is only visible for cutscenes; tasks keep their Check button inside the step.</summary>
+        /// <summary>
+        /// Shell owns Back + primary action for all steps: Check (task), Next (cutscene / finish).
+        /// </summary>
         private void ConfigureShellPrimaryChrome(GameQuestStepDto step)
         {
-            if (nextTaskButton == null || step == null)
+            if (step == null)
                 return;
 
             if (step.isTask)
             {
-                nextTaskButton.gameObject.SetActive(false);
+                if (backToChaptersButton != null)
+                    backToChaptersButton.gameObject.SetActive(true);
+                if (nextTaskButton != null)
+                {
+                    nextTaskButton.gameObject.SetActive(true);
+                    SetButtonLabel(nextTaskButton, ShellTaskCheckLabel);
+                    nextTaskButton.interactable = !_submitting && _gameApi != null;
+                }
+
                 return;
             }
 
-            nextTaskButton.gameObject.SetActive(true);
-            SetButtonLabel(nextTaskButton, ShellCutsceneNextLabel);
-            nextTaskButton.interactable = !_submitting && _gameApi != null;
+            if (backToChaptersButton != null)
+                backToChaptersButton.gameObject.SetActive(true);
+
+            if (nextTaskButton != null)
+            {
+                nextTaskButton.gameObject.SetActive(true);
+                SetButtonLabel(nextTaskButton, ShellCutsceneNextLabel);
+                nextTaskButton.interactable = !_submitting && _gameApi != null;
+            }
         }
 
         private IEnumerator CompleteServerTaskRoutine(string taskStepId)
@@ -333,6 +401,10 @@ namespace LanguageGame.Presentation
             _pendingTotalSlices = done.totalSlices;
             _pendingTotalBackpackPieces = done.totalBackpackPieces;
             _pendingQuestComplete = done.questComplete;
+            // Server totals are authoritative; apply now so the HUD matches the overlay instead of waiting for "Next".
+            flow.SetTotalPizzaSlices(done.totalSlices);
+            flow.SetTotalBackpackPieces(done.totalBackpackPieces);
+            UpdateWalletLabels();
             ShowRewardOverlay(done.awardedSlices, done.awardedBackpackPieces);
         }
 
@@ -681,6 +753,12 @@ namespace LanguageGame.Presentation
             backBtn.onClick.AddListener(OnRewardOverlayBack);
             nextBtn.onClick.AddListener(OnRewardOverlayNext);
 
+            _rewardOverlayMessage = msg;
+            _rewardOverlayPizza = pizza;
+            _rewardOverlayBackpack = backpack;
+            _rewardOverlayBackButton = backBtn;
+            _rewardOverlayNextButton = nextBtn;
+
             _rewardOverlayRoot = root;
             _rewardOverlayRoot.SetActive(false);
 
@@ -713,15 +791,57 @@ namespace LanguageGame.Presentation
             if (_rewardOverlayRoot == null)
                 return;
 
-            var msg = _rewardOverlayRoot.transform.Find("Panel/ResultMessageText")?.GetComponent<Text>();
-            var pizza = _rewardOverlayRoot.transform.Find("Panel/ResultPizzaText")?.GetComponent<Text>();
-            var backpack = _rewardOverlayRoot.transform.Find("Panel/ResultBackpackText")?.GetComponent<Text>();
-            if (msg != null) msg.text = "Success!";
-            if (pizza != null) pizza.text = $"Pizza slices gained: {Mathf.Max(0, awardedSlices)}";
-            if (backpack != null) backpack.text = $"Backpack pieces gained: {Mathf.Max(0, awardedBackpackPieces)}";
+            _rewardOverlayValidationMode = false;
+            ConfigureRewardOverlaySuccessChrome();
+
+            if (_rewardOverlayMessage != null)
+                _rewardOverlayMessage.text = "Success!";
+            if (_rewardOverlayPizza != null)
+                _rewardOverlayPizza.text = $"Pizza slices gained: {Mathf.Max(0, awardedSlices)}";
+            if (_rewardOverlayBackpack != null)
+                _rewardOverlayBackpack.text = $"Backpack pieces gained: {Mathf.Max(0, awardedBackpackPieces)}";
 
             _activeStepView?.SetInteractable(false);
             SetRewardOverlayVisible(true);
+        }
+
+        private void PresentValidationMessage(string message)
+        {
+            if (string.IsNullOrEmpty(message))
+                return;
+            EnsureRewardOverlay();
+            if (_rewardOverlayRoot == null)
+                return;
+
+            _rewardOverlayValidationMode = true;
+            if (_rewardOverlayMessage != null)
+                _rewardOverlayMessage.text = message;
+            if (_rewardOverlayPizza != null)
+                _rewardOverlayPizza.gameObject.SetActive(false);
+            if (_rewardOverlayBackpack != null)
+                _rewardOverlayBackpack.gameObject.SetActive(false);
+            if (_rewardOverlayNextButton != null)
+                _rewardOverlayNextButton.gameObject.SetActive(false);
+            SetButtonLabel(_rewardOverlayBackButton, ValidationDismissLabel);
+
+            SetRewardOverlayVisible(true);
+        }
+
+        private void ResetRewardOverlayToRewardLayout()
+        {
+            _rewardOverlayValidationMode = false;
+            ConfigureRewardOverlaySuccessChrome();
+        }
+
+        private void ConfigureRewardOverlaySuccessChrome()
+        {
+            if (_rewardOverlayPizza != null)
+                _rewardOverlayPizza.gameObject.SetActive(true);
+            if (_rewardOverlayBackpack != null)
+                _rewardOverlayBackpack.gameObject.SetActive(true);
+            if (_rewardOverlayNextButton != null)
+                _rewardOverlayNextButton.gameObject.SetActive(true);
+            SetButtonLabel(_rewardOverlayBackButton, RewardOverlayBackLabel);
         }
 
         private void SetRewardOverlayVisible(bool visible)
@@ -732,11 +852,22 @@ namespace LanguageGame.Presentation
 
         private void OnRewardOverlayBack()
         {
+            if (_rewardOverlayValidationMode)
+            {
+                SetRewardOverlayVisible(false);
+                _rewardOverlayValidationMode = false;
+                ConfigureRewardOverlaySuccessChrome();
+                return;
+            }
+
             SetRewardOverlayVisible(false);
         }
 
         private void OnRewardOverlayNext()
         {
+            if (_rewardOverlayValidationMode)
+                return;
+
             SetRewardOverlayVisible(false);
             ApplyPendingAdvanceAndContinue();
         }

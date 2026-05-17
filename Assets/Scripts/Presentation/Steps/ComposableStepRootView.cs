@@ -12,7 +12,7 @@ namespace LanguageGame.Presentation.Steps
     /// mechanic (<see cref="TaskStepBase"/>) or <see cref="CutsceneStepBase"/> prefab assigned in the Inspector.
     /// </summary>
     [RequireComponent(typeof(RectTransform))]
-    public sealed class ComposableStepRootView : MonoBehaviour, IStepView
+    public sealed class ComposableStepRootView : MonoBehaviour, IStepView, ISubmitFromShell
     {
         [SerializeField]
         [Tooltip(
@@ -103,6 +103,23 @@ namespace LanguageGame.Presentation.Steps
             HideMisconfigurationState();
             _resolvedInner?.Teardown();
             _resolvedInner = null;
+        }
+
+        public void SubmitFromShell()
+        {
+            _resolvedInner ??= ResolveInner(false);
+            if (_resolvedInner is ISubmitFromShell s)
+            {
+                s.SubmitFromShell();
+                return;
+            }
+
+            if (_resolvedInner != null)
+            {
+                Debug.LogWarning(
+                    $"[ComposableStepRootView] '{name}': inner '{_resolvedInner.GetType().Name}' does not implement {nameof(ISubmitFromShell)}; shell Check cannot submit this step.",
+                    this);
+            }
         }
 
         private void HideMisconfigurationState()

@@ -6,7 +6,7 @@ Related code:
 
 - Shell: `Assets/Scripts/Presentation/QuestShellView.cs`
 - Catalog: `Assets/Scripts/Presentation/Steps/StepTemplateCatalog.cs`, default asset `Assets/Resources/Steps/StepTemplateCatalog_Default.asset`
-- Contract: `Assets/Scripts/Presentation/Steps/IStepView.cs`, `StepContext.cs`
+- Contract: `Assets/Scripts/Presentation/Steps/IStepView.cs`, `ISubmitFromShell.cs`, `StepContext.cs`
 - Shared task baseline: `Assets/Scripts/Presentation/Steps/TaskStepBase.cs`
 - Layered prefab root shim: `Assets/Scripts/Presentation/Steps/ComposableStepRootView.cs`
 - Task type identifiers (domain): `Assets/Scripts/Domain/TaskType.cs`
@@ -27,9 +27,11 @@ Related code:
 onRequest(new StepCompletionRequest { requestComplete = true });
 ```
 
-(**`TaskStepBase`** already does this from its primary “check” flow; override or complement as needed.)
+(**`TaskStepBase`** implements **`ISubmitFromShell`**: the quest shell’s **Check** button calls **`SubmitFromShell()`**, which runs validation and then invokes **`requestComplete`** when valid. Use **`StepContext.presentValidationMessage`** for client-side errors—the shell shows a shared validation overlay.)
 
 **Shell resolution:** `QuestShellView` calls `GetComponent<IStepView>()` **only on the instantiated Catalog root**. Place `IStepView` on that root (either a mechanic/cutscene class directly or **`ComposableStepRootView`** below).
+
+**Shell chrome:** `QuestShellView` owns **Back**, the **primary** action (**Next** for cutscenes, **Check** for tasks, **Finish quest** when applicable), and **`TaskRewardOverlay`** (server rewards + client validation). Step prefabs are **mechanics only**—do not add Back/Check/Continue or per-step result overlays.
 
 ---
 
@@ -43,18 +45,13 @@ Use when you want **reusable mechanic/cutscene UI** nested under editor-authored
    - **Story/decoration**: plain `RectTransform` / `Image` / layout nodes (drag-and-drop in Prefab Mode).
    - **Mechanic module**: a **nested prefab** whose root exposes a component implementing **`IStepView`** (`TaskStepBase` subclass or `CutsceneStepBase`).
 2. On the shim, assign **`Inner Step View`** (`_innerStepView`) by dragging **that mechanic `MonoBehaviour`** from the Hierarchy (typically the nested prefab’s step script).
-3. The shim **forwards** `Bind`, `SetInteractable`, and `Teardown` to the inner view. Exactly **one** inner `IStepView` keeps behaviour unambiguous (`QuestShellView` does **not** search children automatically).
+3. The shim **forwards** `Bind`, `SetInteractable`, **`SubmitFromShell`**, and `Teardown` to the inner view. Exactly **one** inner `IStepView` keeps behaviour unambiguous (`QuestShellView` does **not** search children automatically).
 
 Optional **`ComposableStepRootView`** fields for missing/invalid **`Inner Step View`** (Play Mode diagnostic):
 
 - Assigned **`Misconfiguration Banner`** prefab subtree is shown whenever the leaf cannot bind (ensure ancestor Transforms stay **active**; inactive parents hide the banner regardless of **`SetActive(true)`** here).
 
 - If no banner is set, **`Create Runtime Misconfiguration Fallback`** (**on** by default) spawns an on-screen message so authoring mistakes are visible without staring at the console—it uses **`UiDesignTokens.palette.errorBackground`**, **`errorText`**, and **caption typography** when **`UiThemeProvider`** resolves; otherwise literal defaults aligned with **`LoadErrorBanner`**.
-
-### Navigation split with the shell
-
-- **Cutscenes:** `QuestShellView` exposes **Next** (primary chrome); **`CutsceneStepBase`** can suppress its hosted Continue button when **`suppressHostedContinueNavigation`** is set (shell already advances).
-- **Tasks:** **`nextTaskButton` is hidden** for task steps—the learner completes via **`Check`** / task flow **inside** the step UI (`ConfigureShellPrimaryChrome` in **`QuestShellView`**). Compose story layers **above** or **alongside** the mechanic container so they do not block required controls.
 
 ---
 
@@ -83,7 +80,7 @@ This is **gameplay and wiring**, independent of decorative story layers.
    - Parse **`context.contentJson`** (and other fields when needed) with **`JsonUtility`** or a serializer aligned with your API payloads.
    - Wire buttons, drag sources/targets, option lists—watch for repeated **`Bind`** and attach listeners safely (e.g. guard with a flag).
 
-3. **`requestComplete`** — call **`onRequest(new StepCompletionRequest { requestComplete = true })`** when the learner solves the activity (**`requestBackToChapters`** when leaving to the overview). Tasks often reuse **`TaskStepBase`’s** **Check** scaffold. **`TaskStepBase.Bind`** is **not virtual** yet; evolve behaviour inside **`TaskStepBase` or its subclasses**, add **`virtual`/`override`**/`protected` helpers when refactoring, or implement **`IStepView`** directly if you abandon the scaffold.
+3. **`requestComplete`** — call **`onRequest(new StepCompletionRequest { requestComplete = true })`** when the learner solves the activity (**`requestBackToChapters`** when leaving to the overview). For **`TaskStepBase`** subclasses, the shell **Check** button invokes **`ISubmitFromShell.SubmitFromShell()`**, which performs **`ValidateBeforeComplete`** and then raises **`requestComplete`** on success. Use **`PresentValidationFeedback`** / **`StepContext.presentValidationMessage`** for inline validation copy (shell overlay).
 
 4. **`SetInteractable(bool)`** — disable inputs during server round-trips (**`CompleteTask`** / **`AdvanceCutscene`** disable the hosted view).
 
@@ -91,7 +88,7 @@ This is **gameplay and wiring**, independent of decorative story layers.
 
 6. **`QuestShellView.AddTaskViewComponent`** — add a **`case "YourTaskType":`** alongside the **`case`**-sensitive string set (required when the catalog misses and the shell spawns the empty **`RectTransform` fallback`). Extend **`Assets/Scripts/Domain/TaskType.cs`** only if you keep an enum/tooling parity with content authors.
 
-For **cutscenes**, use **`CutsceneStepBase`** (or parallel **`IStepView`**) the same way, respecting **`suppressHostedContinueNavigation`** together with shell **Next**.
+For **cutscenes**, use **`CutsceneStepBase`** (or parallel **`IStepView`**) the same way; progression uses the shell **Next** button only (no in-prefab Continue).
 
 **Reuse tip:** Implement the mechanic as a **self-contained prefab** (everything the exercise needs underneath one root that carries **`IStepView`**). Nested instances of that prefab plug into **`ComposableStepRootView`** when you wrap story/backdrop visuals without rewriting mechanics.
 
@@ -148,8 +145,9 @@ Fully generic “compose unknown widget types only from JSON” is out of scope 
 
 ## Cutscenes vs tasks
 
-- **`suppressHostedBackChapterNavigation`** / **`suppressHostedContinueNavigation`** on **`StepContext`** tell the hosted view whether shell chrome already provides Back / Continue.
-- Tasks complete through the game API (“complete step” flow); **`requestComplete`** from the step view triggers that path for tasks (**`QuestShellView.OnStepRequest`**).
+- Shell **Back** + **primary** (**Next** vs **Check**) are configured in **`QuestShellView.ConfigureShellPrimaryChrome`**.
+- **`StepContext.presentValidationMessage`** passes client validation strings to the shell overlay (optional).
+- Tasks complete through the game API (“complete step” flow); **`requestComplete`** from the step view triggers **`QuestShellView.OnStepRequest`**.
 
 ---
 
@@ -160,7 +158,7 @@ Fully generic “compose unknown widget types only from JSON” is out of scope 
 3. [ ] Prefab authored for the mechanic (**Direct** root `IStepView` **or** **Layered** root **`ComposableStepRootView`** referencing nested mechanic).
 4. [ ] **`StepTemplateCatalog`** entry (**`taskType`** and/or **`templateKey`** + prefab).
 5. [ ] Tokens applied for typography/colors (**`UiThemeProvider`** / **`UiTokenApplier`**).
-6. [ ] (**Layered only**) Play Mode smoke: inner view binds, **`Check`** / **`requestComplete`** still reaches **`QuestShellView.OnStepRequest`**.
+6. [ ] (**Layered only**) Play Mode smoke: inner view binds, shell **Check** / **`SubmitFromShell`** / **`requestComplete`** still reaches **`QuestShellView.OnStepRequest`**.
 7. [ ] Extend **`Assets/Scripts/Domain/TaskType.cs`** only when you maintain an enum mirrored to authoring tooling.
 
 ---

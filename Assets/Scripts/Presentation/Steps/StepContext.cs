@@ -21,11 +21,8 @@ namespace LanguageGame.Presentation.Steps
         public int totalSlices;
         public int totalBackpackPieces;
 
-        /// <summary>Hides in-step navigation when QuestShell chrome already exposes it.</summary>
-        public bool suppressHostedBackChapterNavigation;
-
-        /// <summary>Hides Continue/Next on the cutscene canvas when QuestShell exposes the shell Next button.</summary>
-        public bool suppressHostedContinueNavigation;
+        /// <summary>Quest shell shows client-side validation (e.g. empty gaps) in the shared overlay.</summary>
+        public Action<string> presentValidationMessage;
 
         public bool IsTask => string.Equals(stepKind, "task", StringComparison.OrdinalIgnoreCase);
         public int StepNumberOneBased => stepIndexZeroBased + 1;

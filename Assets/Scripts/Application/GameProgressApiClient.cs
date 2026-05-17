@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -7,6 +8,8 @@ namespace LanguageGame.Application
 {
     /// <summary>
     /// HTTP client for game progress API (Bearer session). Lives beside <see cref="AuthApiClient"/> on GameFlow.
+    /// Task completion and cutscene advance responses normally use camelCase (Next.js). When those keys are absent,
+    /// snake_case fields (e.g. raw RPC-shaped JSON) are merged via a companion wire-type <c>JsonUtility</c> parse.
     /// </summary>
     public class GameProgressApiClient : MonoBehaviour
     {
@@ -63,6 +66,7 @@ namespace LanguageGame.Application
             yield return AuthorizedPostEmpty(path, text =>
             {
                 var env = JsonUtility.FromJson<GameCompleteTaskEnvelope>(text);
+                MergeCompleteTaskEnvelopeSnakeCase(text, env);
                 if (env != null && env.ok)
                 {
                     onOk?.Invoke(env);
@@ -82,6 +86,7 @@ namespace LanguageGame.Application
             yield return AuthorizedPostEmpty(path, text =>
             {
                 var env = JsonUtility.FromJson<GameCompleteTaskEnvelope>(text);
+                MergeCompleteTaskEnvelopeSnakeCase(text, env);
                 if (env != null && env.ok)
                 {
                     onOk?.Invoke(env);
@@ -166,6 +171,77 @@ namespace LanguageGame.Application
                 return fallback;
             var err = JsonUtility.FromJson<GameApiErrorEnvelope>(json);
             return !string.IsNullOrEmpty(err?.error) ? err.error : fallback;
+        }
+
+        /// <summary>
+        /// <see cref="JsonUtility"/> maps field names exactly. Prefer camelCase; copy snake_case when a camel key is missing.
+        /// </summary>
+        private static void MergeCompleteTaskEnvelopeSnakeCase(string json, GameCompleteTaskEnvelope env)
+        {
+            if (env == null || string.IsNullOrEmpty(json) || !env.ok)
+                return;
+
+            var sn = JsonUtility.FromJson<GameCompleteTaskEnvelopeSnake>(json);
+
+            if (!JsonKeyPresent(json, "awardedSlices") && JsonKeyPresent(json, "awarded_slices"))
+                env.awardedSlices = sn.awarded_slices;
+
+            if (!JsonKeyPresent(json, "awardedBackpackPieces") && JsonKeyPresent(json, "awarded_backpack_pieces"))
+                env.awardedBackpackPieces = sn.awarded_backpack_pieces;
+
+            if (!JsonKeyPresent(json, "totalSlices") && JsonKeyPresent(json, "total_slices"))
+                env.totalSlices = sn.total_slices;
+
+            if (!JsonKeyPresent(json, "totalBackpackPieces") && JsonKeyPresent(json, "total_backpack_pieces"))
+                env.totalBackpackPieces = sn.total_backpack_pieces;
+
+            if (!JsonKeyPresent(json, "questComplete") && JsonKeyPresent(json, "quest_complete"))
+                env.questComplete = sn.quest_complete;
+
+            if (!JsonKeyPresent(json, "currentStepOrderIndex") && JsonKeyPresent(json, "current_step_order_index"))
+                env.currentStepOrderIndex = sn.current_step_order_index;
+
+            if (!JsonKeyPresent(json, "currentTaskOrderIndex") && JsonKeyPresent(json, "current_task_order_index"))
+                env.currentTaskOrderIndex = sn.current_task_order_index;
+
+            if (!JsonKeyPresent(json, "nextTaskStepId") && JsonKeyPresent(json, "next_task_step_id"))
+                env.nextTaskStepId = sn.next_task_step_id ?? string.Empty;
+        }
+
+        /// <summary>True when <paramref name="key"/> appears as a JSON object property (immediately before <c>:</c>).</summary>
+        private static bool JsonKeyPresent(string json, string key)
+        {
+            if (string.IsNullOrEmpty(json) || string.IsNullOrEmpty(key))
+                return false;
+            var needle = $"\"{key}\"";
+            for (var i = 0;;)
+            {
+                var idx = json.IndexOf(needle, i, StringComparison.Ordinal);
+                if (idx < 0)
+                    return false;
+                var j = idx + needle.Length;
+                while (j < json.Length && char.IsWhiteSpace(json[j]))
+                    j++;
+                if (j < json.Length && json[j] == ':')
+                    return true;
+                i = idx + 1;
+            }
+        }
+
+        /// <summary>Wire DTO for PostgREST/RPC-style responses; used only after <c>GameCompleteTaskEnvelope</c> parse.</summary>
+        [Serializable]
+        private sealed class GameCompleteTaskEnvelopeSnake
+        {
+            public bool ok;
+            public int awarded_slices;
+            public int awarded_backpack_pieces;
+            public int total_slices;
+            public int total_backpack_pieces;
+            public bool quest_complete;
+            public int current_step_order_index;
+            public int current_task_order_index;
+            public string next_task_step_id;
+            public string error;
         }
     }
 }
