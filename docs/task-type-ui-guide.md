@@ -189,7 +189,8 @@ Interactive “Fehlersuche”: learner taps erroneous word/phrase spans, fills c
 | ----- | ------ |
 | **`prompt`** | Title / headline |
 | **`instruction`** | Hint under headline (optional) |
-| **`expectedErrorRange`** | **`min`**, **`max`** — authoring must match counted `true` error segments (`isError`), e.g. 4 mistakes with `{ "min": 4, "max": 5 }` works only if **`min ≤ 4 ≤ max`**. Unity shows a learner-facing hint line and validates selection + corrections |
+| **`counterCaption`** | Optional learner hint line above the chips. Supports placeholders **`{count}`**, **`{min}`**, **`{max}`** (filled from authoring). When omitted, Unity shows an Italian default with the exact error count |
+| **`expectedErrorRange`** | **`min`**, **`max`** — **authoring only**: the counted `true` error segments (`isError`) must satisfy **`min ≤ count ≤ max`**. Not shown verbatim to learners unless you use **`{min}` / `{max}`** inside **`counterCaption`** |
 | **`segments`** | Ordered list of **`id`**, **`text`**, **`isError`**, **`acceptedCorrections`** (required when `isError`; case-insensitive, whitespace-collapsed matching), optional **`hint`**
 
 Learner must select **exactly all** erroneous segments (and **no** non-errors) and supply a typed correction matching one of **`acceptedCorrections`** before completion.

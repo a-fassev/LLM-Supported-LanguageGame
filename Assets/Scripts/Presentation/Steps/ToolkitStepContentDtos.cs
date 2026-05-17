@@ -169,6 +169,13 @@ namespace LanguageGame.Presentation.Steps
     {
         public string prompt;
         public string instruction;
+
+        /// <summary>
+        /// Optional learner-facing line above the text (e.g. localized counter hint). When empty,
+        /// the step uses a default Italian caption with the exact number of authored errors only.
+        /// </summary>
+        public string counterCaption;
+
         public ErrorSpottingExpectedRangeDto expectedErrorRange;
         public ErrorSpottingSegmentDto[] segments;
     }

@@ -9,6 +9,8 @@ namespace LanguageGame.Presentation.Steps
     /// <summary>Error-spotting / Fehlersuche: tap incorrect segments, correct them, validate on shell Check.</summary>
     public sealed class ErrorSpottingToolkitStep : IStepView, ISubmitFromShell
     {
+        private static readonly Regex WhitespaceCollapse = new(@"\s+", RegexOptions.Compiled);
+
         private readonly VisualElement _root;
         private readonly VisualElement _chipsRow;
         private readonly VisualElement _correctionsHost;
@@ -70,10 +72,25 @@ namespace LanguageGame.Presentation.Steps
                 _root.Add(prompt);
             }
 
-            var range = dto.expectedErrorRange;
             var errCount = CountTrueErrors(dto);
-            var caption = new Label(
-                $"Trova tra {range.min} e {range.max} errori. (Ci sono proprio {errCount} nel testo.)");
+
+            string captionLine;
+            if (!string.IsNullOrWhiteSpace(dto.counterCaption))
+            {
+                var range = dto.expectedErrorRange;
+                captionLine = dto.counterCaption.Trim()
+                    .Replace("{count}", errCount.ToString())
+                    .Replace("{min}", range.min.ToString())
+                    .Replace("{max}", range.max.ToString());
+            }
+            else
+            {
+                captionLine = errCount == 1
+                    ? "Nel testo c'è 1 errore. Trovalo e correggilo."
+                    : $"Nel testo ci sono {errCount} errori. Trovali tutti e correggili.";
+            }
+
+            var caption = new Label(captionLine);
             caption.AddToClassList("lg-text-caption");
             caption.style.whiteSpace = WhiteSpace.Normal;
             caption.style.marginBottom = 8;
@@ -95,11 +112,6 @@ namespace LanguageGame.Presentation.Steps
                     continue;
 
                 var id = seg.id.Trim();
-                if (_segmentButtons.ContainsKey(id))
-                {
-                    Debug.LogWarning($"[ErrorSpottingToolkitStep] Duplicate segment id '{id}', skipping duplicate.");
-                    continue;
-                }
 
                 var chipText = seg.text ?? string.Empty;
                 var chip = new Button { text = chipText };
@@ -149,7 +161,10 @@ namespace LanguageGame.Presentation.Steps
             }
 
             if (!_interactable)
+            {
+                _context?.presentValidationMessage?.Invoke("Attendi un attimo…");
                 return;
+            }
 
             foreach (var eid in _trueErrorIds)
             {
@@ -434,7 +449,7 @@ namespace LanguageGame.Presentation.Steps
         {
             if (string.IsNullOrWhiteSpace(value))
                 return string.Empty;
-            value = Regex.Replace(value.Trim(), @"\s+", " ");
+            value = WhitespaceCollapse.Replace(value.Trim(), " ");
             return value;
         }
 
