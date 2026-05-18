@@ -253,8 +253,55 @@ namespace LanguageGame.Presentation.Steps
         /// </summary>
         public SpecialScreenPhotoViewerChromeDto photoViewerChrome;
 
+        /// <summary>
+        /// E-mail / letter editor chrome: header rows, static greeting and closing, in-frame send control.
+        /// Used with <c>taskType</c> <c>SpecialScreenMailEditor</c> or <c>screenVariant</c> <c>mail</c>/<c>letter</c>.
+        /// </summary>
+        public SpecialScreenMailChromeDto mailChrome;
+
         /// <summary>Ordered blocks shown sequentially inside one shell step.</summary>
         public SpecialScreenBlockDto[] blocks;
+    }
+
+    /// <summary>Mail or letter stationery layout for <see cref="SpecialScreenContentDto"/> (JsonUtility field names match JSON keys).</summary>
+    [Serializable]
+    public sealed class SpecialScreenMailChromeDto
+    {
+        /// <summary><c>email</c> (default) or <c>letter</c> — letter layout omits the subject row.</summary>
+        public string format;
+
+        /// <summary>Visible label for the from row (falls back to a client default).</summary>
+        public string rowLabelFrom;
+
+        /// <summary>Visible label for the to row (falls back to a client default).</summary>
+        public string rowLabelTo;
+
+        /// <summary>Visible label for the subject row (falls back to a client default).</summary>
+        public string rowLabelSubject;
+
+        /// <summary>Displayed value in the “from” header (read-only).</summary>
+        public string from;
+
+        /// <summary>Displayed value in the “to” header (read-only).</summary>
+        public string to;
+
+        /// <summary>Displayed value in the subject header (read-only; hidden in letter mode).</summary>
+        public string subject;
+
+        /// <summary>Salutation line above the learner task body (optional).</summary>
+        public string greeting;
+
+        /// <summary>Closing / signature line below the learner task body (optional).</summary>
+        public string closing;
+
+        /// <summary>In-frame send button caption (falls back to a client default).</summary>
+        public string sendButtonText;
+
+        /// <summary>
+        /// Short feedback shown after local validation succeeds (before the shell completes the step).
+        /// Falls back to the client default when empty.
+        /// </summary>
+        public string sendSuccessText;
     }
 
     /// <summary>Photo gallery / slideshow layout for <see cref="SpecialScreenContentDto"/> (JsonUtility field names match JSON keys).</summary>

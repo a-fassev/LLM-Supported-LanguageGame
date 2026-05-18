@@ -7,3 +7,4 @@
 @import url("special-screen-messenger.uss");
 @import url("special-screen-reader.uss");
 @import url("special-screen-photo-viewer.uss");
+@import url("special-screen-mail.uss");

@@ -1,0 +1,105 @@
+/* E-mail / letter editor frame for SpecialScreenMailEditor and mail/letter screenVariant */
+
+.lg-special-screen-mail-area {
+    flex-grow: 1;
+    min-height: 200px;
+}
+
+.lg-special-mail {
+    flex-grow: 1;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.lg-special-mail__scroll {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+}
+
+.lg-special-mail__panel {
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 0;
+    padding-top: 8px;
+    padding-bottom: 12px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: var(--lg-border-soft);
+    background-color: var(--lg-bg-elevated);
+}
+
+.lg-special-mail__row {
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+}
+
+.lg-special-mail__row-caption {
+    flex-shrink: 0;
+    width: 88px;
+    margin-right: 8px;
+    -unity-font-style: bold;
+    color: var(--lg-text-muted);
+}
+
+.lg-special-mail__row-value {
+    flex-grow: 1;
+    flex-shrink: 1;
+    white-space: normal;
+    color: var(--lg-text-default);
+}
+
+.lg-special-mail__greeting {
+    margin-top: 8px;
+    margin-bottom: 10px;
+    white-space: normal;
+    -unity-font-style: italic;
+    color: var(--lg-text-default);
+}
+
+.lg-special-mail__body {
+    flex-grow: 1;
+    flex-shrink: 0;
+    min-height: 100px;
+    margin-top: 4px;
+    margin-bottom: 12px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: var(--lg-border-soft);
+    background-color: var(--lg-bg-muted);
+}
+
+.lg-special-mail__closing {
+    margin-top: 4px;
+    margin-bottom: 12px;
+    white-space: normal;
+    color: var(--lg-text-default);
+}
+
+.lg-special-mail__send-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    flex-shrink: 0;
+    margin-top: 8px;
+}
+
+.lg-special-mail__send-row > Button {
+    margin-right: 12px;
+    margin-bottom: 4px;
+}
+
+.lg-special-mail__send-ack {
+    flex-grow: 1;
+    flex-shrink: 1;
+    color: var(--lg-success);
+    min-width: 120px;
+}

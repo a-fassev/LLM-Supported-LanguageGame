@@ -43,6 +43,11 @@ namespace LanguageGame.Presentation.Steps
         private bool _readerDisplayOnly;
         private bool _usePhotoChrome;
         private bool _photoDisplayOnly;
+        private bool _useMailChrome;
+
+        private Button _mailSendButton;
+        private Label _mailSendAckLabel;
+        private string _mailSendSuccessText;
 
         private readonly MonoBehaviour _coroutineHost;
 
@@ -90,6 +95,10 @@ namespace LanguageGame.Presentation.Steps
             _readerDisplayOnly = false;
             _usePhotoChrome = false;
             _photoDisplayOnly = false;
+            _useMailChrome = false;
+            _mailSendButton = null;
+            _mailSendAckLabel = null;
+            _mailSendSuccessText = null;
 
             _host.Clear();
 
@@ -105,8 +114,9 @@ namespace LanguageGame.Presentation.Steps
 
             var tt = context?.taskType ?? string.Empty;
             var useReaderChromeForLayout = ShouldUseReaderChrome(dto, tt);
-            _usePhotoChrome = ShouldUsePhotoViewerChrome(dto, tt) && !useReaderChromeForLayout;
-            _useMessengerChrome = ShouldUseMessengerChrome(dto, tt);
+            _useMailChrome = ShouldUseMailChrome(dto, tt);
+            _usePhotoChrome = ShouldUsePhotoViewerChrome(dto, tt) && !useReaderChromeForLayout && !_useMailChrome;
+            _useMessengerChrome = ShouldUseMessengerChrome(dto, tt) && !_useMailChrome;
             var readerWithoutMechanicsBlocks = dto.blocks == null || dto.blocks.Length == 0;
             _readerDisplayOnly = useReaderChromeForLayout && readerWithoutMechanicsBlocks;
             _photoDisplayOnly = _usePhotoChrome && readerWithoutMechanicsBlocks &&
@@ -129,6 +139,10 @@ namespace LanguageGame.Presentation.Steps
             else if (_usePhotoChrome)
             {
                 BuildPhotoAndNestedMechanicSlots(dto, context);
+            }
+            else if (_useMailChrome)
+            {
+                BuildMailChromeLayout(dto, context);
             }
             else
             {
@@ -182,6 +196,9 @@ namespace LanguageGame.Presentation.Steps
             foreach (var b in _blocks)
                 b.SetInteractable(interactable);
 
+            if (_mailSendButton != null)
+                _mailSendButton.SetEnabled(_interactable);
+
             RefreshNavigationChrome();
         }
 
@@ -213,6 +230,36 @@ namespace LanguageGame.Presentation.Steps
                 }
             }
 
+            if (_useMailChrome)
+            {
+                var ack = _mailSendSuccessText?.Trim() ?? string.Empty;
+                if (string.IsNullOrEmpty(ack))
+                    ack = "E-mail inviata.";
+
+                if (_mailSendAckLabel != null)
+                {
+                    _mailSendAckLabel.text = ack;
+                    _mailSendAckLabel.style.display = DisplayStyle.Flex;
+                }
+
+                if (_mailSendButton != null)
+                    _mailSendButton.SetEnabled(false);
+
+                if (_root != null)
+                {
+                    _root.schedule.Execute(CompleteAfterMailAck).StartingIn(450);
+                    return;
+                }
+            }
+
+            _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true });
+        }
+
+        private void CompleteAfterMailAck()
+        {
+            if (!_contentReady || _context == null)
+                return;
+
             _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true });
         }
 
@@ -238,6 +285,10 @@ namespace LanguageGame.Presentation.Steps
             _readerDisplayOnly = false;
             _usePhotoChrome = false;
             _photoDisplayOnly = false;
+            _useMailChrome = false;
+            _mailSendButton = null;
+            _mailSendAckLabel = null;
+            _mailSendSuccessText = null;
         }
 
         private void TeardownInner()
@@ -260,6 +311,10 @@ namespace LanguageGame.Presentation.Steps
             _readerDisplayOnly = false;
             _usePhotoChrome = false;
             _photoDisplayOnly = false;
+            _useMailChrome = false;
+            _mailSendButton = null;
+            _mailSendAckLabel = null;
+            _mailSendSuccessText = null;
         }
 
         private void AbortIncompleteBind()
@@ -282,6 +337,10 @@ namespace LanguageGame.Presentation.Steps
             _readerDisplayOnly = false;
             _usePhotoChrome = false;
             _photoDisplayOnly = false;
+            _useMailChrome = false;
+            _mailSendButton = null;
+            _mailSendAckLabel = null;
+            _mailSendSuccessText = null;
         }
 
         private bool TryBuildChrome()
@@ -395,6 +454,7 @@ namespace LanguageGame.Presentation.Steps
             _blockArea.RemoveFromClassList("lg-special-screen-block-area");
             _blockArea.RemoveFromClassList("lg-special-screen-reader-area");
             _blockArea.RemoveFromClassList("lg-special-screen-photo-area");
+            _blockArea.RemoveFromClassList("lg-special-screen-mail-area");
 
             if (_useMessengerChrome)
                 _blockArea.AddToClassList("lg-special-screen-block-area");
@@ -402,6 +462,8 @@ namespace LanguageGame.Presentation.Steps
                 _blockArea.AddToClassList("lg-special-screen-reader-area");
             else if (_usePhotoChrome)
                 _blockArea.AddToClassList("lg-special-screen-photo-area");
+            else if (_useMailChrome)
+                _blockArea.AddToClassList("lg-special-screen-mail-area");
         }
 
         private void ApplyChromeTitles(SpecialScreenContentDto dto)
@@ -409,7 +471,7 @@ namespace LanguageGame.Presentation.Steps
             var titleLabel = _root.Q<Label>("special-screen-title");
             if (titleLabel != null)
             {
-                if (_useMessengerChrome || _readerDisplayOnly)
+                if (_useMessengerChrome || _readerDisplayOnly || _useMailChrome)
                 {
                     titleLabel.style.display = DisplayStyle.None;
                 }
@@ -424,7 +486,7 @@ namespace LanguageGame.Presentation.Steps
             var subtitleLabel = _root.Q<Label>("special-screen-subtitle");
             if (subtitleLabel != null)
             {
-                if (_useMessengerChrome || _readerDisplayOnly)
+                if (_useMessengerChrome || _readerDisplayOnly || _useMailChrome)
                 {
                     subtitleLabel.style.display = DisplayStyle.None;
                 }
@@ -597,6 +659,139 @@ namespace LanguageGame.Presentation.Steps
 
             phone.Add(scroll);
             slot.Add(phone);
+        }
+
+        private void BuildMailChromeLayout(SpecialScreenContentDto dto, StepContext context)
+        {
+            if (_blockArea == null)
+                return;
+
+            var mail = dto.mailChrome ?? new SpecialScreenMailChromeDto();
+            _mailSendSuccessText = mail.sendSuccessText;
+            _mailSendButton = null;
+            _mailSendAckLabel = null;
+
+            var outer = new VisualElement();
+            outer.AddToClassList("lg-special-mail");
+            outer.style.flexGrow = 1;
+
+            var scroll = new ScrollView(ScrollViewMode.Vertical);
+            scroll.AddToClassList("lg-special-mail__scroll");
+            scroll.style.flexGrow = 1;
+
+            var panel = new VisualElement();
+            panel.AddToClassList("lg-special-mail__panel");
+
+            var showSubject = ShouldShowMailSubjectRow(mail, dto);
+            var lf = string.IsNullOrWhiteSpace(mail.rowLabelFrom) ? "Da:" : mail.rowLabelFrom.Trim();
+            var lt = string.IsNullOrWhiteSpace(mail.rowLabelTo) ? "A:" : mail.rowLabelTo.Trim();
+            var ls = string.IsNullOrWhiteSpace(mail.rowLabelSubject) ? "Oggetto:" : mail.rowLabelSubject.Trim();
+
+            AddMailHeaderRow(panel, lf, mail.from ?? string.Empty);
+            AddMailHeaderRow(panel, lt, mail.to ?? string.Empty);
+            if (showSubject)
+                AddMailHeaderRow(panel, ls, mail.subject ?? string.Empty);
+
+            var greeting = mail.greeting?.Trim() ?? string.Empty;
+            if (!string.IsNullOrEmpty(greeting))
+            {
+                var gLabel = new Label(greeting);
+                gLabel.AddToClassList("lg-special-mail__greeting");
+                gLabel.style.whiteSpace = WhiteSpace.Normal;
+                panel.Add(gLabel);
+            }
+
+            var bodyHost = new VisualElement();
+            bodyHost.AddToClassList("lg-special-mail__body");
+            bodyHost.style.flexGrow = 1;
+            bodyHost.style.minHeight = 120;
+            panel.Add(bodyHost);
+
+            var blockList = dto.blocks ?? Array.Empty<SpecialScreenBlockDto>();
+            foreach (var blockDto in blockList)
+            {
+                var slot = new VisualElement();
+                slot.style.flexGrow = 1;
+                slot.style.display = DisplayStyle.None;
+                bodyHost.Add(slot);
+                _slots.Add(slot);
+                _blocks.Add(CreateNestedBlock(blockDto));
+            }
+
+            var closing = mail.closing?.Trim() ?? string.Empty;
+            if (!string.IsNullOrEmpty(closing))
+            {
+                var cLabel = new Label(closing);
+                cLabel.AddToClassList("lg-special-mail__closing");
+                cLabel.style.whiteSpace = WhiteSpace.Normal;
+                panel.Add(cLabel);
+            }
+
+            var sendRow = new VisualElement();
+            sendRow.AddToClassList("lg-special-mail__send-row");
+
+            var sendBtnText = mail.sendButtonText?.Trim() ?? string.Empty;
+            var sendBtn = new Button();
+            sendBtn.text = string.IsNullOrEmpty(sendBtnText) ? "Invia" : sendBtnText;
+            sendBtn.AddToClassList("lg-btn");
+            sendBtn.AddToClassList("lg-btn--primary");
+            sendRow.Add(sendBtn);
+
+            var ack = new Label(string.Empty);
+            ack.AddToClassList("lg-special-mail__send-ack");
+            ack.AddToClassList("lg-text-caption");
+            ack.style.display = DisplayStyle.None;
+            ack.style.whiteSpace = WhiteSpace.Normal;
+            sendRow.Add(ack);
+
+            panel.Add(sendRow);
+
+            scroll.Add(panel);
+            outer.Add(scroll);
+            _blockArea.Add(outer);
+
+            _mailSendButton = sendBtn;
+            _mailSendAckLabel = ack;
+            sendBtn.clicked += OnMailSendClicked;
+
+            for (var i = 0; i < _blocks.Count; i++)
+                _blocks[i].Bind(_slots[i], context);
+
+            for (var i = 0; i < _blocks.Count; i++)
+            {
+                if (_blocks[i].IsBinderReady)
+                    continue;
+
+                context?.presentValidationMessage?.Invoke(
+                    $"La parte {i + 1} non è stata caricata correttamente.");
+                AbortIncompleteBind();
+                return;
+            }
+
+            if (_slots.Count > 0)
+                _slots[0].style.display = DisplayStyle.Flex;
+        }
+
+        private static void AddMailHeaderRow(VisualElement parent, string caption, string value)
+        {
+            var row = new VisualElement();
+            row.AddToClassList("lg-special-mail__row");
+
+            var cap = new Label(caption);
+            cap.AddToClassList("lg-special-mail__row-caption");
+
+            var val = new Label(value);
+            val.AddToClassList("lg-special-mail__row-value");
+            val.style.whiteSpace = WhiteSpace.Normal;
+
+            row.Add(cap);
+            row.Add(val);
+            parent.Add(row);
+        }
+
+        private void OnMailSendClicked()
+        {
+            SubmitFromShell();
         }
 
         private void StopReaderRemoteLoads()
@@ -892,6 +1087,61 @@ namespace LanguageGame.Presentation.Steps
 
             var v = dto.screenVariant?.Trim() ?? string.Empty;
             return string.Equals(v, "photo", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool ShouldUseMailChrome(SpecialScreenContentDto dto, string taskType)
+        {
+            if (dto == null)
+                return false;
+
+            if (ShouldUseReaderChrome(dto, taskType))
+                return false;
+
+            var tt = taskType ?? string.Empty;
+            if (!string.IsNullOrEmpty(tt) &&
+                string.Equals(tt, "SpecialScreenMailEditor", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            if (ShouldUsePhotoViewerChrome(dto, taskType))
+                return false;
+
+            var v = dto.screenVariant?.Trim() ?? string.Empty;
+            return string.Equals(v, "mail", StringComparison.OrdinalIgnoreCase)
+                   || string.Equals(v, "letter", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool ValidateMailChromeAuthoring(SpecialScreenMailChromeDto mail, out string error)
+        {
+            error = null;
+            if (mail == null)
+                return true;
+
+            var fmt = mail.format?.Trim() ?? string.Empty;
+            if (fmt.Length == 0)
+                return true;
+
+            if (!string.Equals(fmt, "email", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(fmt, "letter", StringComparison.OrdinalIgnoreCase))
+            {
+                error = "mailChrome.format deve essere email o letter.";
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool ShouldShowMailSubjectRow(SpecialScreenMailChromeDto mail, SpecialScreenContentDto dto)
+        {
+            var m = mail ?? new SpecialScreenMailChromeDto();
+            var fmt = m.format?.Trim() ?? string.Empty;
+            if (string.Equals(fmt, "letter", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            var v = dto?.screenVariant?.Trim() ?? string.Empty;
+            if (string.Equals(v, "letter", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            return true;
         }
 
         private static bool PhotoChromeRequiresLearnerCaption(SpecialScreenPhotoViewerChromeDto pv)
@@ -1211,13 +1461,26 @@ namespace LanguageGame.Presentation.Steps
 
             var tt = taskType ?? string.Empty;
             var useReader = ShouldUseReaderChrome(dto, tt);
-            var usePhoto = ShouldUsePhotoViewerChrome(dto, tt) && !useReader;
+            var useMail = ShouldUseMailChrome(dto, tt);
+            var usePhoto = ShouldUsePhotoViewerChrome(dto, tt) && !useReader && !useMail;
             var hasBlocks = dto.blocks != null && dto.blocks.Length > 0;
 
             if (!useReader && !hasBlocks && !usePhoto)
             {
                 error = "Serve almeno un blocco nella schermata speciale.";
                 return false;
+            }
+
+            if (useMail)
+            {
+                if (dto.smsChrome?.messages != null && dto.smsChrome.messages.Length > 0)
+                {
+                    error = "Non combinare smsChrome.messages con la cornice e-mail.";
+                    return false;
+                }
+
+                if (dto.mailChrome != null && !ValidateMailChromeAuthoring(dto.mailChrome, out error))
+                    return false;
             }
 
             if (useReader)
@@ -1307,7 +1570,7 @@ namespace LanguageGame.Presentation.Steps
                 }
             }
 
-            if (ShouldUseMessengerChrome(dto, tt) &&
+            if (!useMail && ShouldUseMessengerChrome(dto, tt) &&
                 !ValidateMessengerChrome(dto, out error))
                 return false;
 

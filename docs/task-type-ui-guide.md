@@ -183,6 +183,7 @@ Behaviour summary:
 - **`step_kind`** remains **`task`** — progression uses the normal shell **Controlla** → **`complete_quest_step_task`** flow (same as other puzzle tasks).
 - **Reader display-only** (**`SpecialScreenReader`** or **`screenVariant`**: **`reader`**): Unity renders **`readerChrome`** only when **`blocks`** is omitted or empty; non-empty **`blocks`** are **rejected at parse**. Optional two columns / line-numbered excerpt. Paging **←** / **→** is **hidden**; **Controlla** completes without embedded mechanic validation.
 - **Photo gallery / slideshow** (**`SpecialScreenPhotoViewer`** or **`screenVariant`**: **`photo`**): Unity renders **`photoViewerChrome`** in the first «part». Use **`displayMode`** **`grid4`** (wrapped row) or **`slideshow`** (image + in-panel **←**/**→**). Optional learner **`caption`** fields validated against **`acceptedCaptions`**. **`smsChrome`** must **not** be combined with photo mode. Additional mechanics may follow in **`blocks`** (photo is always **part 1**).
+- **E-mail / letter editor** (**`SpecialScreenMailEditor`** or **`screenVariant`**: **`mail`** / **`letter`**): Unity renders **`mailChrome`** (read-only header rows, optional greeting/closing) and nests ordered **`blocks`** inside the body area. **`smsChrome.messages`** must **not** be combined with mail mode. The in-frame **send** button triggers the same validation + completion path as shell **Controlla** (including the **last-part** rule when several **`blocks`** exist). After validation succeeds, **`sendSuccessText`** is shown briefly before the step completes.
 - For all other special screens, one server step hosts **multiple ordered mechanics** inside **`blocks`**; learners move with **←** / **→** (same pattern as multiple-choice paging, with a centered progress caption between the arrows).
 - **→** validates the **current** block only (embedded **`ClozeText`** / **`ErrorSpotting`** rules, or **photo** learner captions when leaving the photo part), when **`blocks`** is non-empty **or** the photo part is not the only part.
 - Shell **Controlla** is accepted only on the **last** block (or immediately in reader display-only mode or **photo-only display mode** with no learner captions) and then validates **every** block again before **`StepCompletionRequest`** fires (no-op when there are zero blocks in reader-only mode).
@@ -192,19 +193,99 @@ Behaviour summary:
 
 Chrome loads from **`SpecialScreenHost`** (`Assets/Resources/UI/LearningToolkit/SpecialScreenHost.uxml`) with a **programmatic fallback** if Resources loading fails.
 
-DTO types live beside other payloads in **`ToolkitStepContentDtos.cs`** (`SpecialScreenContentDto`, `SpecialScreenReaderChromeDto`, `SpecialScreenPhotoViewerChromeDto`, `SpecialScreenPhotoItemDto`, `SpecialScreenSmsChromeDto`, `SpecialScreenChatMessageDto`, `SpecialScreenBlockDto`, `SpecialScreenStubBlockDto`).
+DTO types live beside other payloads in **`ToolkitStepContentDtos.cs`** (`SpecialScreenContentDto`, `SpecialScreenMailChromeDto`, `SpecialScreenReaderChromeDto`, `SpecialScreenPhotoViewerChromeDto`, `SpecialScreenPhotoItemDto`, `SpecialScreenSmsChromeDto`, `SpecialScreenChatMessageDto`, `SpecialScreenBlockDto`, `SpecialScreenStubBlockDto`).
 
 #### Top-level `contentJson`
 
 | Field | Required | Notes |
 | ----- | -------- | ----- |
 | **`screenVariant`** | no | Authoring hint (`sms`, `whatsapp`, `mail`, `photo`, `reader`, `generic`, …). `whatsapp` applies a subtle green tint to outgoing bubbles. |
-| **`title`** | no | Chrome headline (hidden for messenger **or** reader display-only; reader may fall back to **`readerChrome.headline`**) |
-| **`subtitle`** | no | Chrome subline (hidden for messenger **or** reader display-only; reader may fall back to **`readerChrome.subheadline`**) |
-| **`smsChrome`** | no | Messenger transcript + status bar. When present **and** messenger mode is active (see below), Unity renders a **smartphone mockup**, **scrollable** chat, and hosts mechanics inside bubbles. Ignored when reader mode wins (see below). |
+| **`title`** | no | Chrome headline (hidden for messenger **or** reader display-only **or** mail / letter mode; reader may fall back to **`readerChrome.headline`**) |
+| **`subtitle`** | no | Chrome subline (hidden for messenger **or** reader display-only **or** mail / letter mode; reader may fall back to **`readerChrome.subheadline`**) |
+| **`smsChrome`** | no | Messenger transcript + status bar. When present **and** messenger mode is active (see below), Unity renders a **smartphone mockup**, **scrollable** chat, and hosts mechanics inside bubbles. Ignored when reader mode wins (see below). Must **not** populate **`messages`** when **mail / letter** mode applies. |
 | **`readerChrome`** | yes for reader mode | Required when **`taskType`** is **`SpecialScreenReader`** **or** **`screenVariant`** is **`reader`**. See **Reader mode** below. |
 | **`photoViewerChrome`** | yes for photo mode | Required when **`taskType`** is **`SpecialScreenPhotoViewer`** **or** **`screenVariant`** is **`photo`**. See **Photo viewer mode** below. |
-| **`blocks`** | yes *except* reader / photo-only | Non-empty array for messenger / generic multi-part screens. **Photo mode** may use **`[]`** when the step is **only** the gallery, or add entries for **additional** parts after the photo part. In **reader mode**: **omit `blocks` or `[]` only** — combining non-empty **`blocks`** with reader chrome is invalid. |
+| **`mailChrome`** | no | Optional authoring for **mail / letter** mode. When mail mode applies, omitted fields use sensible UI defaults. See **Mail / letter editor mode** below. |
+| **`blocks`** | yes *except* reader / photo-only | Non-empty array for messenger / generic multi-part screens **and** for mail/letter editor mode. **Photo mode** may use **`[]`** when the step is **only** the gallery, or add entries for **additional** parts after the photo part. In **reader mode**: **omit `blocks` or `[]` only** — combining non-empty **`blocks`** with reader chrome is invalid. |
+
+#### Mail / letter editor mode
+
+Mail UI activates when **`taskType`** is **`SpecialScreenMailEditor`** **or** **`screenVariant`** is **`mail`** / **`letter`** (case-insensitive). **`SpecialScreenMailEditor`** takes precedence over a conflicting **`screenVariant`:** **`photo`** (the mail frame is still used).
+
+- **`blocks`:** non-empty array: each entry is a **`cloze_text`**, **`error_spotting`**, or **`stub`** block rendered inside the editable «body» region (multi-part paging matches other special screens).
+- **Messenger conflict:** **`smsChrome.messages`** must be empty/absent.
+- **Subject row:** hidden when **`mailChrome.format`** is **`letter`** **or** **`screenVariant`** is **`letter`** (and **`format`** is omitted).
+- **Send affordance:** **`mailChrome.sendButtonText`** (default **Invia**) labels the in-panel button; **`mailChrome.sendSuccessText`** (default **E-mail inviata.**) appears briefly after successful local validation, before **`StepCompletionRequest`**. Shell **Controlla** performs the same checks.
+
+| `mailChrome` field | Required | Notes |
+| ------------------ | -------- | ----- |
+| **`format`** | no | **`email`** or **`letter`** — **`letter`** omits the subject row |
+| **`rowLabelFrom`** / **`rowLabelTo`** / **`rowLabelSubject`** | no | Visible labels for the three header rows (Italian defaults **Da:** / **A:** / **Oggetto:**) |
+| **`from`** / **`to`** / **`subject`** | no | Read-only header values (**`subject`** hidden in letter layout) |
+| **`greeting`** / **`closing`** | no | Static lines shown above / below the **`blocks`** body |
+| **`sendButtonText`** | no | In-frame button — default **Invia** |
+| **`sendSuccessText`** | no | Short confirmation line — default **E-mail inviata.** |
+
+Example (**`SpecialScreenMailEditor`**, single embedded cloze):
+
+```json
+{
+  "screenVariant": "mail",
+  "mailChrome": {
+    "from": "studio.italiano@scuola.it",
+    "to": "prof.rossi@scuola.it",
+    "subject": "Compito: registri formali e informali",
+    "greeting": "Gentile Prof.ssa Rossi,",
+    "closing": "Cordiali saluti,\nAlex",
+    "sendButtonText": "Invia",
+    "sendSuccessText": "E-mail inviata."
+  },
+  "blocks": [
+    {
+      "blockType": "cloze_text",
+      "clozeText": {
+        "prompt": "Completa con la forma adatta.",
+        "caseSensitive": false,
+        "lines": [
+          {
+            "segments": [
+              { "kind": "text", "text": "Ti scrivo per " },
+              { "kind": "gap", "correctAnswers": ["chiedere", "domandare"], "maxLength": 24 },
+              { "kind": "text", "text": " un chiarimento sulla lezione." }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
+```
+
+Example (**`letter`**, subject row suppressed):
+
+```json
+{
+  "screenVariant": "letter",
+  "mailChrome": {
+    "format": "letter",
+    "rowLabelFrom": "Da:",
+    "rowLabelTo": "A:",
+    "from": "Alex",
+    "to": "Nonna Lucia",
+    "greeting": "Cara nonna,",
+    "closing": "Un abbraccio,\nAlex"
+  },
+  "blocks": [
+    {
+      "blockType": "stub",
+      "stub": {
+        "headline": "",
+        "body": "(Esercizio di produzione scritta — collega qui una closure o un altro blocco quando disponibile.)"
+      }
+    }
+  ]
+}
+```
 
 #### Reader mode (magazine / book excerpt)
 
