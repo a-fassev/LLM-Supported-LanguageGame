@@ -192,9 +192,28 @@ namespace LanguageGame.Presentation
             ApplyQuestShellDifficultyChrome(step);
         }
 
+        /// <summary>
+        /// Skip rebinding only when the server step is unchanged for UI purposes (same id + payload + chrome inputs).
+        /// </summary>
+        private static bool SameStepBindingForUi(GameQuestStepDto cached, GameQuestStepDto incoming)
+        {
+            if (incoming == null || cached == null)
+                return false;
+            if (!string.Equals(cached.id, incoming.id, StringComparison.Ordinal))
+                return false;
+            return string.Equals(cached.contentJson ?? "", incoming.contentJson ?? "", StringComparison.Ordinal)
+                   && string.Equals(cached.difficulty ?? "", incoming.difficulty ?? "", StringComparison.Ordinal)
+                   && string.Equals(cached.templateKey ?? "", incoming.templateKey ?? "", StringComparison.Ordinal)
+                   && string.Equals(cached.rewardRulesJson ?? "", incoming.rewardRulesJson ?? "", StringComparison.Ordinal)
+                   && string.Equals(cached.stepKind ?? "", incoming.stepKind ?? "", StringComparison.Ordinal)
+                   && string.Equals(cached.taskType ?? "", incoming.taskType ?? "", StringComparison.Ordinal)
+                   && cached.isTask == incoming.isTask
+                   && cached.orderIndex == incoming.orderIndex;
+        }
+
         private void BindStep(GameQuestStepDto step, GameFlowController flow)
         {
-            if (_boundStep != null && _boundStep.id == step.id)
+            if (_boundStep != null && SameStepBindingForUi(_boundStep, step))
                 return;
 
             TeardownBoundStep();

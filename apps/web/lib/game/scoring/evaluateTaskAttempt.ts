@@ -155,7 +155,7 @@ function normIdSet(ids: unknown): Set<string> {
 
 function mcQuestions(content: Record<string, unknown>): {
   selectionMode: string;
-  correct: Set<string>[];
+  correct: Set<string>;
 }[] {
   const qs = Array.isArray(content.questions) ? (content.questions as Record<string, unknown>[]) : null;
   if (qs && qs.length > 0) {
@@ -396,9 +396,9 @@ export function evaluateSpecialScreen(
     weight += 1;
     let inner: TaskAttemptEvalResult;
     if (bt === "ClozeText" && att.taskType === "ClozeText") {
-      inner = evaluateCloze(payload, att);
+      inner = evaluateCloze(payload, att as z.infer<typeof clozeAttemptSchema>);
     } else if (bt === "ErrorSpotting" && att.taskType === "ErrorSpotting") {
-      inner = evaluateErrorSpotting(payload, att);
+      inner = evaluateErrorSpotting(payload, att as z.infer<typeof errorSpottingAttemptSchema>);
     } else {
       return err(400, `Special screen block ${i + 1} attempt type mismatch`, "attempt_mismatch");
     }
