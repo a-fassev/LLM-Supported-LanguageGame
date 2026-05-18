@@ -8,8 +8,9 @@ using UnityEngine.UIElements;
 namespace LanguageGame.Presentation.Steps
 {
     /// <summary>
-    /// Host step for <c>SpecialScreen*</c> tasks: shared chrome + sequential embedded mechanics (blocks).
-    /// Learners move between parts with «←» / «→» (same chrome as multiple-choice paging); shell primary <c>Controlla</c> completes only after every block validates (must be on the last part).
+    /// Host step for <c>SpecialScreen*</c> tasks: shared chrome plus either sequential embedded mechanics in <c>blocks[]</c>
+    /// (paged with «←» / «→», shell primary <c>Controlla</c> after the last part), a display-only magazine/book reader layout
+    /// via <see cref="SpecialScreenReaderChromeDto"/>, or a photo gallery / slideshow via <see cref="SpecialScreenPhotoViewerChromeDto"/>.
     /// </summary>
     public sealed class SpecialScreenToolkitStep : IStepView, ISubmitFromShell
     {
@@ -39,8 +40,9 @@ namespace LanguageGame.Presentation.Steps
         private bool _contentReady;
         private bool _interactable = true;
         private bool _useMessengerChrome;
-        private bool _useReaderChrome;
         private bool _readerDisplayOnly;
+        private bool _usePhotoChrome;
+        private bool _photoDisplayOnly;
 
         private readonly MonoBehaviour _coroutineHost;
 
@@ -64,6 +66,11 @@ namespace LanguageGame.Presentation.Steps
             bool IsBinderReady { get; }
         }
 
+        /// <summary>Creates the special-screen host bound to the shell <c>step-host</c>.</summary>
+        /// <param name="host">Visual container for this step.</param>
+        /// <param name="coroutineHost">
+        /// MonoBehaviour used to start reader hero image loads (<see cref="BuildReaderLayout"/>).
+        /// When null, remote <c>readerChrome.imageUrl</c> is skipped with a logged warning.</param>
         public SpecialScreenToolkitStep(VisualElement host, MonoBehaviour coroutineHost)
         {
             _host = host ?? throw new ArgumentNullException(nameof(host));
@@ -80,8 +87,9 @@ namespace LanguageGame.Presentation.Steps
             _contentReady = false;
             _interactable = true;
             _useMessengerChrome = false;
-            _useReaderChrome = false;
             _readerDisplayOnly = false;
+            _usePhotoChrome = false;
+            _photoDisplayOnly = false;
 
             _host.Clear();
 
@@ -96,10 +104,13 @@ namespace LanguageGame.Presentation.Steps
             }
 
             var tt = context?.taskType ?? string.Empty;
-            _useReaderChrome = ShouldUseReaderChrome(dto, tt);
+            var useReaderChromeForLayout = ShouldUseReaderChrome(dto, tt);
+            _usePhotoChrome = ShouldUsePhotoViewerChrome(dto, tt) && !useReaderChromeForLayout;
             _useMessengerChrome = ShouldUseMessengerChrome(dto, tt);
             var readerWithoutMechanicsBlocks = dto.blocks == null || dto.blocks.Length == 0;
-            _readerDisplayOnly = _useReaderChrome && readerWithoutMechanicsBlocks;
+            _readerDisplayOnly = useReaderChromeForLayout && readerWithoutMechanicsBlocks;
+            _photoDisplayOnly = _usePhotoChrome && readerWithoutMechanicsBlocks &&
+                                !PhotoChromeRequiresLearnerCaption(dto.photoViewerChrome);
 
             if (!TryBuildChrome())
             {
@@ -115,9 +126,20 @@ namespace LanguageGame.Presentation.Steps
             {
                 BuildReaderLayout(dto, context);
             }
+            else if (_usePhotoChrome)
+            {
+                BuildPhotoAndNestedMechanicSlots(dto, context);
+            }
             else
             {
-                foreach (var blockDto in dto.blocks)
+                var blockList = dto.blocks;
+                if (blockList == null)
+                {
+                    context?.presentValidationMessage?.Invoke("Contenuto della schermata speciale non valido.");
+                    return;
+                }
+
+                foreach (var blockDto in blockList)
                 {
                     var slot = new VisualElement();
                     slot.style.flexGrow = 1;
@@ -172,9 +194,9 @@ namespace LanguageGame.Presentation.Steps
                 return;
             }
 
-            if (!_useReaderChrome || !_readerDisplayOnly)
+            if (!_readerDisplayOnly)
             {
-                if (_currentIndex != _blocks.Count - 1)
+                if (_blocks.Count > 0 && _currentIndex != _blocks.Count - 1)
                 {
                     _context?.presentValidationMessage?.Invoke(
                         "Completa tutte le parti con «→» prima di premere Controlla.");
@@ -213,8 +235,9 @@ namespace LanguageGame.Presentation.Steps
             _currentIndex = 0;
             _contentReady = false;
             _useMessengerChrome = false;
-            _useReaderChrome = false;
             _readerDisplayOnly = false;
+            _usePhotoChrome = false;
+            _photoDisplayOnly = false;
         }
 
         private void TeardownInner()
@@ -234,8 +257,9 @@ namespace LanguageGame.Presentation.Steps
             _currentIndex = 0;
             _contentReady = false;
             _useMessengerChrome = false;
-            _useReaderChrome = false;
             _readerDisplayOnly = false;
+            _usePhotoChrome = false;
+            _photoDisplayOnly = false;
         }
 
         private void AbortIncompleteBind()
@@ -255,8 +279,9 @@ namespace LanguageGame.Presentation.Steps
             _currentIndex = 0;
             _contentReady = false;
             _useMessengerChrome = false;
-            _useReaderChrome = false;
             _readerDisplayOnly = false;
+            _usePhotoChrome = false;
+            _photoDisplayOnly = false;
         }
 
         private bool TryBuildChrome()
@@ -369,11 +394,14 @@ namespace LanguageGame.Presentation.Steps
 
             _blockArea.RemoveFromClassList("lg-special-screen-block-area");
             _blockArea.RemoveFromClassList("lg-special-screen-reader-area");
+            _blockArea.RemoveFromClassList("lg-special-screen-photo-area");
 
             if (_useMessengerChrome)
                 _blockArea.AddToClassList("lg-special-screen-block-area");
             else if (_readerDisplayOnly)
                 _blockArea.AddToClassList("lg-special-screen-reader-area");
+            else if (_usePhotoChrome)
+                _blockArea.AddToClassList("lg-special-screen-photo-area");
         }
 
         private void ApplyChromeTitles(SpecialScreenContentDto dto)
@@ -407,6 +435,47 @@ namespace LanguageGame.Presentation.Steps
                     subtitleLabel.style.display = string.IsNullOrEmpty(s) ? DisplayStyle.None : DisplayStyle.Flex;
                 }
             }
+        }
+
+        private void BuildPhotoAndNestedMechanicSlots(SpecialScreenContentDto dto, StepContext context)
+        {
+            var photoSlot = new VisualElement();
+            photoSlot.style.flexGrow = 1;
+            photoSlot.style.display = DisplayStyle.None;
+            _blockArea.Add(photoSlot);
+            _slots.Add(photoSlot);
+            _blocks.Add(new PhotoViewerNestedBlock(dto.photoViewerChrome, _coroutineHost));
+
+            var extra = dto.blocks;
+            if (extra != null)
+            {
+                foreach (var blockDto in extra)
+                {
+                    var slot = new VisualElement();
+                    slot.style.flexGrow = 1;
+                    slot.style.display = DisplayStyle.None;
+                    _blockArea.Add(slot);
+                    _slots.Add(slot);
+                    _blocks.Add(CreateNestedBlock(blockDto));
+                }
+            }
+
+            for (var i = 0; i < _blocks.Count; i++)
+                _blocks[i].Bind(_slots[i], context);
+
+            for (var i = 0; i < _blocks.Count; i++)
+            {
+                if (_blocks[i].IsBinderReady)
+                    continue;
+
+                context?.presentValidationMessage?.Invoke(
+                    $"La parte {i + 1} non è stata caricata correttamente.");
+                AbortIncompleteBind();
+                return;
+            }
+
+            if (_slots.Count > 0)
+                _slots[0].style.display = DisplayStyle.Flex;
         }
 
         /// <summary>
@@ -576,12 +645,13 @@ namespace LanguageGame.Presentation.Steps
                 hero.AddToClassList("lg-special-reader__image");
                 panel.Add(hero);
 
-                if (ToolkitStepHttpResourceUrl.IsAllowed(imageUrl, out _) && _coroutineHost != null)
-                {
-                    _readerImageLoads.Add(_coroutineHost.StartCoroutine(LoadReaderImage(imageUrl, hero)));
-                }
-                else if (!ToolkitStepHttpResourceUrl.IsAllowed(imageUrl, out var errImg))
+                if (!ToolkitStepHttpResourceUrl.IsAllowed(imageUrl, out var errImg))
                     Debug.LogWarning($"[SpecialScreenToolkitStep] Reader image URL skipped: {errImg}");
+                else if (_coroutineHost != null)
+                    _readerImageLoads.Add(_coroutineHost.StartCoroutine(LoadReaderImage(imageUrl, hero)));
+                else
+                    Debug.LogWarning(
+                        "[SpecialScreenToolkitStep] Reader hero image skipped: no coroutine host for remote load.");
             }
 
             var headline = !(string.IsNullOrWhiteSpace(rc.headline))
@@ -677,7 +747,8 @@ namespace LanguageGame.Presentation.Steps
         }
 
         /// <remarks>
-        /// Note: prefers paragraph splits (<c>\n\n</c>); falls back to a midpoint word wrap for long single blocks.
+        /// Prefer paragraph splits on <c>\n\n</c>; for a single block, split on the last space before the midpoint,
+        /// or at a character midpoint when there is no suitable space.
         /// </remarks>
         private static void AddReaderTwoColumns(VisualElement panel, string body)
         {
@@ -740,9 +811,12 @@ namespace LanguageGame.Presentation.Steps
             var mid = text.Length / 2;
             var split = text.LastIndexOf(' ', mid);
             if (split <= 0)
-                split = text.IndexOf(' ', mid, StringComparison.Ordinal);
+                split = text.IndexOf(' ', mid);
             if (split <= 0)
-                return text;
+            {
+                right = text.Substring(mid).Trim();
+                return text.Substring(0, mid).Trim();
+            }
 
             var left = text.Substring(0, split).Trim();
             right = text.Substring(split).Trim();
@@ -803,9 +877,100 @@ namespace LanguageGame.Presentation.Steps
             return readerTask || readerVariant;
         }
 
+        private static bool ShouldUsePhotoViewerChrome(SpecialScreenContentDto dto, string taskType)
+        {
+            if (dto == null)
+                return false;
+
+            if (ShouldUseReaderChrome(dto, taskType))
+                return false;
+
+            var tt = taskType ?? string.Empty;
+            if (!string.IsNullOrEmpty(tt) &&
+                string.Equals(tt, "SpecialScreenPhotoViewer", StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            var v = dto.screenVariant?.Trim() ?? string.Empty;
+            return string.Equals(v, "photo", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool PhotoChromeRequiresLearnerCaption(SpecialScreenPhotoViewerChromeDto pv)
+        {
+            if (pv?.items == null)
+                return false;
+
+            foreach (var it in pv.items)
+            {
+                if (it != null && it.requireLearnerCaption)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool ValidatePhotoViewerChromeContent(SpecialScreenPhotoViewerChromeDto pv, out string error)
+        {
+            error = null;
+            if (pv == null)
+            {
+                error = "Serve photoViewerChrome.";
+                return false;
+            }
+
+            if (pv.items == null || pv.items.Length < 1)
+            {
+                error = "Serve almeno un elemento in photoViewerChrome.items.";
+                return false;
+            }
+
+            var dm = pv.displayMode?.Trim() ?? string.Empty;
+            if (dm.Length > 0 &&
+                !string.Equals(dm, "grid4", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(dm, "slideshow", StringComparison.OrdinalIgnoreCase))
+            {
+                error = "photoViewerChrome.displayMode deve essere grid4 o slideshow.";
+                return false;
+            }
+
+            for (var i = 0; i < pv.items.Length; i++)
+            {
+                var it = pv.items[i];
+                if (it == null)
+                {
+                    error = $"Elemento foto {i + 1}: contenuto mancante.";
+                    return false;
+                }
+
+                var url = it.imageUrl?.Trim() ?? string.Empty;
+                if (string.IsNullOrEmpty(url))
+                {
+                    error = $"Elemento foto {i + 1}: imageUrl mancante.";
+                    return false;
+                }
+
+                if (!ToolkitStepHttpResourceUrl.IsAllowed(url, out _))
+                {
+                    error = $"Elemento foto {i + 1}: URL dell'immagine non consentito (usa https pubblico).";
+                    return false;
+                }
+
+                if (it.requireLearnerCaption &&
+                    (it.acceptedCaptions == null || it.acceptedCaptions.Length == 0))
+                {
+                    error = $"Elemento foto {i + 1}: serve acceptedCaptions per la didascalia.";
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private static bool ShouldUseMessengerChrome(SpecialScreenContentDto dto, string taskType)
         {
             if (ShouldUseReaderChrome(dto, taskType))
+                return false;
+
+            if (ShouldUsePhotoViewerChrome(dto, taskType))
                 return false;
 
             if (dto?.smsChrome?.messages == null || dto.smsChrome.messages.Length == 0)
@@ -928,7 +1093,7 @@ namespace LanguageGame.Presentation.Steps
 
         private void RefreshNavigationChrome()
         {
-            var hidePaging = _readerDisplayOnly && _slots.Count == 0;
+            var hidePaging = (_readerDisplayOnly && _slots.Count == 0) || _blocks.Count <= 1;
 
             if (_navRow != null)
                 _navRow.style.display = hidePaging ? DisplayStyle.None : DisplayStyle.Flex;
@@ -1045,9 +1210,10 @@ namespace LanguageGame.Presentation.Steps
 
             var tt = taskType ?? string.Empty;
             var useReader = ShouldUseReaderChrome(dto, tt);
+            var usePhoto = ShouldUsePhotoViewerChrome(dto, tt) && !useReader;
             var hasBlocks = dto.blocks != null && dto.blocks.Length > 0;
 
-            if (!useReader && !hasBlocks)
+            if (!useReader && !hasBlocks && !usePhoto)
             {
                 error = "Serve almeno un blocco nella schermata speciale.";
                 return false;
@@ -1077,6 +1243,48 @@ namespace LanguageGame.Presentation.Steps
                     error = "URL dell'immagine nel reader non consentito (usa https pubblico).";
                     return false;
                 }
+
+                if (hasBlocks)
+                {
+                    error =
+                        "Modalità lettura: non usare blocchi interattivi. Ometti «blocks» o usa un array vuoto.";
+                    return false;
+                }
+            }
+
+            if (usePhoto)
+            {
+                if (!ValidatePhotoViewerChromeContent(dto.photoViewerChrome, out error))
+                    return false;
+
+                if (dto.smsChrome != null && dto.smsChrome.messages != null && dto.smsChrome.messages.Length > 0)
+                {
+                    error =
+                        "Modalità foto: rimuovi smsChrome.messages o cambia taskType / screenVariant.";
+                    return false;
+                }
+
+                if (hasBlocks)
+                {
+                    for (var i = 0; i < dto.blocks.Length; i++)
+                    {
+                        var b = dto.blocks[i];
+                        if (b == null || string.IsNullOrWhiteSpace(b.blockType))
+                        {
+                            error = $"Blocco {i + 1}: manca blockType.";
+                            return false;
+                        }
+
+                        if (!ValidateBlockPayload(b, out var blockError))
+                        {
+                            error = $"Blocco {i + 1}: {blockError}";
+                            return false;
+                        }
+                    }
+                }
+
+                error = null;
+                return true;
             }
 
             if (hasBlocks)
@@ -1278,6 +1486,366 @@ namespace LanguageGame.Presentation.Steps
             public bool TryValidate(out string message)
             {
                 message = null;
+                return true;
+            }
+        }
+
+        private sealed class PhotoViewerNestedBlock : ISpecialScreenNestedBlock
+        {
+            private readonly SpecialScreenPhotoViewerChromeDto _dto;
+            private readonly MonoBehaviour _coroutineHost;
+            private readonly List<Coroutine> _loads = new();
+            private readonly List<Texture2D> _textures = new();
+            private readonly Dictionary<int, TextField> _learnerFields = new();
+
+            private int _slideshowIndex;
+            private SpecialScreenPhotoItemDto[] _slideshowItems;
+            private VisualElement _slideshowImageHost;
+            private VisualElement _slideshowCaptionHost;
+            private Button _slideshowPrev;
+            private Button _slideshowNext;
+
+            public PhotoViewerNestedBlock(SpecialScreenPhotoViewerChromeDto dto, MonoBehaviour coroutineHost)
+            {
+                _dto = dto ?? new SpecialScreenPhotoViewerChromeDto();
+                _coroutineHost = coroutineHost;
+            }
+
+            public bool IsBinderReady => true;
+
+            public void SetInteractable(bool interactable)
+            {
+                foreach (var kv in _learnerFields)
+                    kv.Value.SetEnabled(interactable);
+
+                if (_slideshowPrev != null)
+                    _slideshowPrev.SetEnabled(interactable);
+                if (_slideshowNext != null)
+                    _slideshowNext.SetEnabled(interactable);
+            }
+
+            public void Teardown()
+            {
+                if (_slideshowPrev != null)
+                {
+                    _slideshowPrev.clicked -= OnSlideshowPrev;
+                    _slideshowPrev = null;
+                }
+
+                if (_slideshowNext != null)
+                {
+                    _slideshowNext.clicked -= OnSlideshowNext;
+                    _slideshowNext = null;
+                }
+
+                foreach (var c in _loads)
+                {
+                    if (c != null && _coroutineHost != null)
+                        _coroutineHost.StopCoroutine(c);
+                }
+
+                _loads.Clear();
+                foreach (var t in _textures)
+                {
+                    if (t != null)
+                        UnityEngine.Object.Destroy(t);
+                }
+
+                _textures.Clear();
+                _learnerFields.Clear();
+                _slideshowItems = null;
+                _slideshowImageHost = null;
+                _slideshowCaptionHost = null;
+            }
+
+            public void Bind(VisualElement slot, StepContext _)
+            {
+                slot.Clear();
+                var scroll = new ScrollView(ScrollViewMode.Vertical);
+                scroll.AddToClassList("lg-special-photo-scroll");
+                scroll.style.flexGrow = 1;
+
+                var pv = _dto;
+                if (!string.IsNullOrWhiteSpace(pv.prompt))
+                {
+                    var p = new Label(pv.prompt.Trim());
+                    p.AddToClassList("lg-text-body");
+                    p.style.whiteSpace = WhiteSpace.Normal;
+                    p.style.marginBottom = 8;
+                    scroll.Add(p);
+                }
+
+                var items = pv.items;
+                if (items == null || items.Length == 0)
+                {
+                    slot.Add(scroll);
+                    return;
+                }
+
+                var mode = pv.displayMode?.Trim() ?? string.Empty;
+                var slideshow = string.Equals(mode, "slideshow", StringComparison.OrdinalIgnoreCase);
+                if (slideshow)
+                    BuildSlideshow(scroll, items);
+                else
+                    BuildGrid(scroll, items);
+
+                slot.Add(scroll);
+            }
+
+            private void BuildGrid(ScrollView scroll, SpecialScreenPhotoItemDto[] items)
+            {
+                var grid = new VisualElement();
+                grid.AddToClassList("lg-special-photo-grid");
+
+                for (var i = 0; i < items.Length; i++)
+                {
+                    var it = items[i];
+                    if (it == null)
+                        continue;
+
+                    var cell = new VisualElement();
+                    cell.AddToClassList("lg-special-photo-cell");
+
+                    var imgHost = new VisualElement();
+                    imgHost.AddToClassList("lg-special-photo-cell__image");
+                    StartLoad(it.imageUrl, imgHost);
+                    cell.Add(imgHost);
+
+                    if (it.requireLearnerCaption)
+                    {
+                        var tf = new TextField();
+                        tf.AddToClassList("lg-special-photo-field");
+                        _learnerFields[i] = tf;
+                        cell.Add(tf);
+                    }
+                    else if (_dto.showCaptions)
+                    {
+                        var capText = it.caption?.Trim() ?? string.Empty;
+                        var cap = new Label(string.IsNullOrEmpty(capText) ? "\u2014" : capText);
+                        cap.AddToClassList("lg-special-photo-caption--fixed");
+                        cap.style.whiteSpace = WhiteSpace.Normal;
+                        cell.Add(cap);
+                    }
+
+                    grid.Add(cell);
+                }
+
+                scroll.Add(grid);
+            }
+
+            private void BuildSlideshow(ScrollView scroll, SpecialScreenPhotoItemDto[] items)
+            {
+                _slideshowItems = items;
+                _slideshowIndex = 0;
+
+                var stage = new VisualElement();
+                stage.AddToClassList("lg-special-photo-slideshow");
+
+                _slideshowImageHost = new VisualElement();
+                _slideshowImageHost.AddToClassList("lg-special-photo-slideshow__image");
+                stage.Add(_slideshowImageHost);
+
+                _slideshowCaptionHost = new VisualElement();
+                _slideshowCaptionHost.AddToClassList("lg-special-photo-slideshow__caption");
+                _slideshowCaptionHost.style.flexDirection = FlexDirection.Column;
+                stage.Add(_slideshowCaptionHost);
+
+                var nav = new VisualElement();
+                nav.AddToClassList("lg-special-photo-slideshow__nav");
+                nav.style.flexDirection = FlexDirection.Row;
+                nav.style.alignItems = Align.Center;
+                nav.style.justifyContent = Justify.SpaceBetween;
+
+                _slideshowPrev = new Button { text = "\u2190" };
+                _slideshowPrev.AddToClassList("lg-btn");
+                _slideshowPrev.AddToClassList("lg-btn--secondary");
+                _slideshowPrev.clicked += OnSlideshowPrev;
+
+                var idxLabel = new Label();
+                idxLabel.AddToClassList("lg-text-caption");
+                idxLabel.name = "lg-special-photo-slideshow-idx";
+
+                _slideshowNext = new Button { text = "\u2192" };
+                _slideshowNext.AddToClassList("lg-btn");
+                _slideshowNext.AddToClassList("lg-btn--secondary");
+                _slideshowNext.clicked += OnSlideshowNext;
+
+                nav.Add(_slideshowPrev);
+                nav.Add(idxLabel);
+                nav.Add(_slideshowNext);
+                stage.Add(nav);
+
+                for (var pi = 0; pi < items.Length; pi++)
+                {
+                    var pit = items[pi];
+                    if (pit != null && pit.requireLearnerCaption && !_learnerFields.ContainsKey(pi))
+                    {
+                        var tf = new TextField();
+                        tf.AddToClassList("lg-special-photo-field");
+                        _learnerFields[pi] = tf;
+                    }
+                }
+
+                scroll.Add(stage);
+                RefreshSlideshowSlide(idxLabel);
+            }
+
+            private void OnSlideshowPrev()
+            {
+                if (_slideshowItems == null || _slideshowItems.Length == 0)
+                    return;
+                _slideshowIndex = (_slideshowIndex - 1 + _slideshowItems.Length) % _slideshowItems.Length;
+
+                var idxLabel = _slideshowImageHost?.parent?.Q<Label>("lg-special-photo-slideshow-idx");
+                RefreshSlideshowSlide(idxLabel);
+            }
+
+            private void OnSlideshowNext()
+            {
+                if (_slideshowItems == null || _slideshowItems.Length == 0)
+                    return;
+                _slideshowIndex = (_slideshowIndex + 1) % _slideshowItems.Length;
+
+                var idxLabel = _slideshowImageHost?.parent?.Q<Label>("lg-special-photo-slideshow-idx");
+                RefreshSlideshowSlide(idxLabel);
+            }
+
+            private void RefreshSlideshowSlide(Label idxLabel)
+            {
+                if (_slideshowItems == null || _slideshowImageHost == null || _slideshowCaptionHost == null)
+                    return;
+
+                if (_slideshowIndex < 0 || _slideshowIndex >= _slideshowItems.Length)
+                    return;
+
+                var it = _slideshowItems[_slideshowIndex];
+                if (it == null)
+                    return;
+
+                _slideshowImageHost.Clear();
+                StartLoad(it.imageUrl, _slideshowImageHost);
+
+                _slideshowCaptionHost.Clear();
+                if (it.requireLearnerCaption)
+                {
+                    if (!_learnerFields.TryGetValue(_slideshowIndex, out var tf) || tf == null)
+                    {
+                        tf = new TextField();
+                        tf.AddToClassList("lg-special-photo-field");
+                        _learnerFields[_slideshowIndex] = tf;
+                    }
+
+                    _slideshowCaptionHost.Add(tf);
+                }
+                else if (_dto.showCaptions)
+                {
+                    var capText = it.caption?.Trim() ?? string.Empty;
+                    var cap = new Label(string.IsNullOrEmpty(capText) ? "\u2014" : capText);
+                    cap.AddToClassList("lg-special-photo-caption--fixed");
+                    cap.style.whiteSpace = WhiteSpace.Normal;
+                    _slideshowCaptionHost.Add(cap);
+                }
+
+                if (idxLabel != null)
+                    idxLabel.text = $"{_slideshowIndex + 1} / {_slideshowItems.Length}";
+            }
+
+            private void StartLoad(string url, VisualElement target)
+            {
+                if (target == null)
+                    return;
+
+                var trimmed = url?.Trim() ?? string.Empty;
+                if (string.IsNullOrEmpty(trimmed))
+                    return;
+
+                if (!ToolkitStepHttpResourceUrl.IsAllowed(trimmed, out _))
+                    return;
+
+                if (_coroutineHost == null)
+                {
+                    Debug.LogWarning(
+                        "[SpecialScreenToolkitStep] Photo image skipped: no coroutine host for remote load.");
+                    return;
+                }
+
+                _loads.Add(_coroutineHost.StartCoroutine(LoadPhotoTexture(trimmed, target)));
+            }
+
+            private IEnumerator LoadPhotoTexture(string url, VisualElement target)
+            {
+                if (!ToolkitStepHttpResourceUrl.TryVerifyForClientFetch(url, out _))
+                    yield break;
+
+                using var req = UnityWebRequestTexture.GetTexture(url);
+                yield return req.SendWebRequest();
+                if (req.result != UnityWebRequest.Result.Success || target == null)
+                    yield break;
+
+                var tex = DownloadHandlerTexture.GetContent(req);
+                if (tex == null)
+                    yield break;
+
+                _textures.Add(tex);
+                target.style.backgroundImage = new StyleBackground(tex);
+            }
+
+            public bool TryValidate(out string message)
+            {
+                message = null;
+                var items = _dto?.items;
+                if (items == null)
+                    return true;
+
+                for (var i = 0; i < items.Length; i++)
+                {
+                    var it = items[i];
+                    if (it == null || !it.requireLearnerCaption)
+                        continue;
+
+                    if (!_learnerFields.TryGetValue(i, out var field) || field == null)
+                    {
+                        message = $"Didascalia {i + 1}: campo mancante.";
+                        return false;
+                    }
+
+                    var raw = field.value?.Trim() ?? string.Empty;
+                    if (string.IsNullOrEmpty(raw))
+                    {
+                        message = "Completa tutte le didascalie richieste.";
+                        return false;
+                    }
+
+                    var answers = it.acceptedCaptions;
+                    if (answers == null || answers.Length == 0)
+                    {
+                        message = "Configurazione didascalia non valida.";
+                        return false;
+                    }
+
+                    var comp = it.caseSensitive
+                        ? StringComparison.Ordinal
+                        : StringComparison.OrdinalIgnoreCase;
+
+                    var matched = false;
+                    foreach (var a in answers)
+                    {
+                        if (string.IsNullOrWhiteSpace(a))
+                            continue;
+                        if (string.Equals(raw, a.Trim(), comp))
+                        {
+                            matched = true;
+                            break;
+                        }
+                    }
+
+                    if (!matched)
+                    {
+                        message = "Controlla le didascalie inserite.";
+                        return false;
+                    }
+                }
+
                 return true;
             }
         }

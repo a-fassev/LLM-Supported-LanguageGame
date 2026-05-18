@@ -247,8 +247,53 @@ namespace LanguageGame.Presentation.Steps
         /// </summary>
         public SpecialScreenReaderChromeDto readerChrome;
 
+        /// <summary>
+        /// Foto-/Bildgalerie chrome: grid of up to four images or an in-panel slideshow.
+        /// Used with <c>taskType</c> <c>SpecialScreenPhotoViewer</c> or <c>screenVariant</c> <c>photo</c>.
+        /// </summary>
+        public SpecialScreenPhotoViewerChromeDto photoViewerChrome;
+
         /// <summary>Ordered blocks shown sequentially inside one shell step.</summary>
         public SpecialScreenBlockDto[] blocks;
+    }
+
+    /// <summary>Photo gallery / slideshow layout for <see cref="SpecialScreenContentDto"/> (JsonUtility field names match JSON keys).</summary>
+    [Serializable]
+    public sealed class SpecialScreenPhotoViewerChromeDto
+    {
+        /// <summary><c>grid4</c> (default) or <c>slideshow</c> — case-insensitive.</summary>
+        public string displayMode;
+
+        /// <summary>Optional line above the gallery (instructions).</summary>
+        public string prompt;
+
+        /// <summary>When false, fixed captions are hidden (images only).</summary>
+        public bool showCaptions;
+
+        /// <summary>Images and optional captions / learner caption fields.</summary>
+        public SpecialScreenPhotoItemDto[] items;
+    }
+
+    /// <summary>One image in <see cref="SpecialScreenPhotoViewerChromeDto.items"/>.</summary>
+    [Serializable]
+    public sealed class SpecialScreenPhotoItemDto
+    {
+        public string id;
+
+        /// <summary>Absolute http(s) URL — same allowlist as other toolkit steps.</summary>
+        public string imageUrl;
+
+        /// <summary>Fixed caption shown under the image when <see cref="SpecialScreenPhotoViewerChromeDto.showCaptions"/> is true.</summary>
+        public string caption;
+
+        /// <summary>When true, the learner must type a caption; validated against <see cref="acceptedCaptions"/>.</summary>
+        public bool requireLearnerCaption;
+
+        /// <summary>Whitespace-trimmed, case-insensitive match when <see cref="requireLearnerCaption"/> is true.</summary>
+        public string[] acceptedCaptions;
+
+        /// <summary>When false (default), caption matching ignores case.</summary>
+        public bool caseSensitive;
     }
 
     /// <summary>Reader/magazine layout chrome for <see cref="SpecialScreenContentDto"/> (JsonUtility field names match JSON keys).</summary>
@@ -270,6 +315,7 @@ namespace LanguageGame.Presentation.Steps
         /// <summary>
         /// <c>1</c> or <c>2</c> text columns. Values outside that range default to <c>2</c> for magazine-style layout.
         /// When <see cref="showLineNumbers"/> is true, Unity uses a single column regardless.
+        /// Without line numbers, a single long paragraph with no spaces splits at a character midpoint for two columns.
         /// </summary>
         public int columnCount;
 

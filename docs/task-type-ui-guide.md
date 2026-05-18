@@ -181,16 +181,18 @@ Minimal `contentJson` / **`content_payload`** template:
 Behaviour summary:
 
 - **`step_kind`** remains **`task`** — progression uses the normal shell **Controlla** → **`complete_quest_step_task`** flow (same as other puzzle tasks).
-- **Reader display-only** (**`SpecialScreenReader`** or **`screenVariant`**: **`reader`** with optional empty **`blocks`**): Unity renders **`readerChrome`** (hero image + long text, optional two columns or line-numbered excerpt). Paging **←** / **→** is **hidden**; **Controlla** completes the step with no embedded mechanic validation.
+- **Reader display-only** (**`SpecialScreenReader`** or **`screenVariant`**: **`reader`**): Unity renders **`readerChrome`** only when **`blocks`** is omitted or empty; non-empty **`blocks`** are **rejected at parse**. Optional two columns / line-numbered excerpt. Paging **←** / **→** is **hidden**; **Controlla** completes without embedded mechanic validation.
+- **Photo gallery / slideshow** (**`SpecialScreenPhotoViewer`** or **`screenVariant`**: **`photo`**): Unity renders **`photoViewerChrome`** in the first «part». Use **`displayMode`** **`grid4`** (wrapped row) or **`slideshow`** (image + in-panel **←**/**→**). Optional learner **`caption`** fields validated against **`acceptedCaptions`**. **`smsChrome`** must **not** be combined with photo mode. Additional mechanics may follow in **`blocks`** (photo is always **part 1**).
 - For all other special screens, one server step hosts **multiple ordered mechanics** inside **`blocks`**; learners move with **←** / **→** (same pattern as multiple-choice paging, with a centered progress caption between the arrows).
-- **→** validates the **current** block only (embedded **`ClozeText`** / **`ErrorSpotting`** rules), when **`blocks`** is non-empty.
-- Shell **Controlla** is accepted only on the **last** block (or immediately in reader display-only mode) and then validates **every** block again before **`StepCompletionRequest`** fires (no-op when there are zero blocks).
+- **→** validates the **current** block only (embedded **`ClozeText`** / **`ErrorSpotting`** rules, or **photo** learner captions when leaving the photo part), when **`blocks`** is non-empty **or** the photo part is not the only part.
+- Shell **Controlla** is accepted only on the **last** block (or immediately in reader display-only mode or **photo-only display mode** with no learner captions) and then validates **every** block again before **`StepCompletionRequest`** fires (no-op when there are zero blocks in reader-only mode).
+
 
 **Learner-facing validation copy** for special screens and for embedded **`ClozeText`** / **`ErrorSpotting`** blocks is **Italian** (aligned with standalone error-spotting tasks).
 
 Chrome loads from **`SpecialScreenHost`** (`Assets/Resources/UI/LearningToolkit/SpecialScreenHost.uxml`) with a **programmatic fallback** if Resources loading fails.
 
-DTO types live beside other payloads in **`ToolkitStepContentDtos.cs`** (`SpecialScreenContentDto`, `SpecialScreenReaderChromeDto`, `SpecialScreenSmsChromeDto`, `SpecialScreenChatMessageDto`, `SpecialScreenBlockDto`, `SpecialScreenStubBlockDto`).
+DTO types live beside other payloads in **`ToolkitStepContentDtos.cs`** (`SpecialScreenContentDto`, `SpecialScreenReaderChromeDto`, `SpecialScreenPhotoViewerChromeDto`, `SpecialScreenPhotoItemDto`, `SpecialScreenSmsChromeDto`, `SpecialScreenChatMessageDto`, `SpecialScreenBlockDto`, `SpecialScreenStubBlockDto`).
 
 #### Top-level `contentJson`
 
@@ -201,15 +203,17 @@ DTO types live beside other payloads in **`ToolkitStepContentDtos.cs`** (`Specia
 | **`subtitle`** | no | Chrome subline (hidden for messenger **or** reader display-only; reader may fall back to **`readerChrome.subheadline`**) |
 | **`smsChrome`** | no | Messenger transcript + status bar. When present **and** messenger mode is active (see below), Unity renders a **smartphone mockup**, **scrollable** chat, and hosts mechanics inside bubbles. Ignored when reader mode wins (see below). |
 | **`readerChrome`** | yes for reader mode | Required when **`taskType`** is **`SpecialScreenReader`** **or** **`screenVariant`** is **`reader`**. See **Reader mode** below. |
-| **`blocks`** | yes *except* reader display-only | Non-empty ordered array for messenger / generic multi-part screens. For **display-only reader** steps, omit **`blocks`** or send an empty array `[]`. |
+| **`photoViewerChrome`** | yes for photo mode | Required when **`taskType`** is **`SpecialScreenPhotoViewer`** **or** **`screenVariant`** is **`photo`**. See **Photo viewer mode** below. |
+| **`blocks`** | yes *except* reader / photo-only | Non-empty array for messenger / generic multi-part screens. **Photo mode** may use **`[]`** when the step is **only** the gallery, or add entries for **additional** parts after the photo part. In **reader mode**: **omit `blocks` or `[]` only** — combining non-empty **`blocks`** with reader chrome is invalid. |
 
 #### Reader mode (magazine / book excerpt)
 
 Reader UI activates when **`taskType`** is **`SpecialScreenReader`** **or** **`screenVariant`** is **`reader`** (case-insensitive). **`readerChrome`** is **required** and **`readerChrome.bodyText`** must be non-empty (plain text; newlines preserved).
 
+- **No interactive `blocks`:** reader mode must not define mechanics — omit **`blocks`** or use **`[]`**. The client rejects payloads that mix **`readerChrome`** (when reader mode applies) with a non-empty **`blocks`** array.
 - **Messenger conflict:** if reader mode applies, **`smsChrome`** / messenger layout is **not** used (even if `smsChrome.messages` is populated).
 - **Remote images:** optional **`readerChrome.imageUrl`** must be an absolute **`http`/`https`** URL allowed by **`ToolkitStepHttpResourceUrl`** (same rules as other toolkit steps).
-- **`columnCount`:** **`1`** or **`2`**. **`2`** (default when omitted or any other value) uses a **two-column** magazine flow: paragraphs split on blank lines (`\n\n`); a single long paragraph is split near the midpoint on a space.
+- **`columnCount`:** **`1`** or **`2`**. **`2`** (default when omitted or any other value) uses a **two-column** magazine flow: paragraphs split on blank lines (`\n\n`); a single long paragraph splits on a **space** near the midpoint, or at a **character** midpoint if there is **no** space.
 - **`showLineNumbers`:** when **`true`**, each line (split on `\n`) is shown with a **monotonic line index** in the gutter; **single-column** only (Unity ignores multi-column for this mode).
 - **Shell paging:** hidden when **`blocks`** is empty; learners press **Controlla** to complete.
 
@@ -220,6 +224,81 @@ Reader UI activates when **`taskType`** is **`SpecialScreenReader`** **or** **`s
 | **`headline`** / **`subheadline`** | no | In-panel titles; fall back to root **`title`** / **`subtitle`** when empty |
 | **`columnCount`** | no | `1` or `2` (see above) |
 | **`showLineNumbers`** | no | Book-excerpt style line numbers |
+
+#### Photo viewer mode (gallery / slideshow)
+
+Photo UI activates when **`taskType`** is **`SpecialScreenPhotoViewer`** **or** **`screenVariant`** is **`photo`** (case-insensitive). **`photoViewerChrome`** is **required** and must include at least one **`items[]`** entry. **`smsChrome.messages`** must **not** be populated (combine with **reader**, not messenger).
+
+- **`displayMode`:** **`grid4`** (default when omitted) shows a **wrapped** row/column grid; **`slideshow`** shows **one** image with **in-panel** **←** / **→** (separate from shell paging when multiple parts exist).
+- **`prompt`:** optional instruction line above the gallery.
+- **`showCaptions`:** when **`true`**, fixed **`caption`** text is shown under each image (learner **`TextField`** is shown regardless when **`requireLearnerCaption`** is **`true`**).
+- **`items[]`:** each item needs **`imageUrl`** (**`http`/`https`**, allowed hostnames per **`ToolkitStepHttpResourceUrl`**). Use **`caption`** for fixed labels. For a learner-written caption, set **`requireLearnerCaption`:** **`true`** and **`acceptedCaptions`** (non-empty; **case-insensitive** unless **`caseSensitive`:** **`true`**).
+- **Additional `blocks`:** optional. When present, the **photo** is **part 1**; shell **←** / **→** moves between photo and nested mechanics (**`cloze_text`**, **`error_spotting`**, **`stub`**). When **`blocks`** is empty and there are **no** learner captions, shell paging is **hidden** and **Controlla** completes immediately.
+
+| `photoViewerChrome` field | Required | Notes |
+| ------------------------- | -------- | ----- |
+| **`items`** | yes | At least one image entry |
+| **`displayMode`** | no | `grid4` or `slideshow` |
+| **`prompt`** | no | Instruction copy |
+| **`showCaptions`** | no | Show fixed `caption` labels |
+
+Example (**`SpecialScreenPhotoViewer`**, **`grid4`**, three fixed captions + one learner caption):
+
+```json
+{
+  "screenVariant": "photo",
+  "title": "Galleria",
+  "subtitle": "Completa l'ultima didascalia.",
+  "photoViewerChrome": {
+    "displayMode": "grid4",
+    "prompt": "Tre didascalie sono già scritte. Scrivi la quarta.",
+    "showCaptions": true,
+    "items": [
+      {
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/320px-Cat03.jpg",
+        "caption": "Il gatto"
+      },
+      {
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/YellowLabradorLooking_new.jpg/320px-YellowLabradorLooking_new.jpg",
+        "caption": "Il cane"
+      },
+      {
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Big_ben_clock_face.jpg/320px-Big_ben_clock_face.jpg",
+        "caption": "Il monumento"
+      },
+      {
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Flag_of_Hungary.svg/320px-Flag_of_Hungary.svg.png",
+        "requireLearnerCaption": true,
+        "acceptedCaptions": ["La bandiera", "bandiera"]
+      }
+    ]
+  },
+  "blocks": []
+}
+```
+
+Example (**`slideshow`**):
+
+```json
+{
+  "screenVariant": "photo",
+  "photoViewerChrome": {
+    "displayMode": "slideshow",
+    "showCaptions": true,
+    "items": [
+      {
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/320px-Cat03.jpg",
+        "caption": "Foto 1"
+      },
+      {
+        "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/YellowLabradorLooking_new.jpg/320px-YellowLabradorLooking_new.jpg",
+        "caption": "Foto 2"
+      }
+    ]
+  },
+  "blocks": []
+}
+```
 
 #### Messenger mode (SMS / WhatsApp viewer)
 
