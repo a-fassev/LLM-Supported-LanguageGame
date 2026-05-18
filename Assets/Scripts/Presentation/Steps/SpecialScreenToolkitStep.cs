@@ -1564,6 +1564,7 @@ namespace LanguageGame.Presentation.Steps
                 _slideshowItems = null;
                 _slideshowImageHost = null;
                 _slideshowCaptionHost = null;
+                _slideshowIndexLabel = null;
             }
 
             public void Bind(VisualElement slot, StepContext _)
@@ -1772,6 +1773,21 @@ namespace LanguageGame.Presentation.Steps
                     _slideshowIndexLabel.text = $"{_slideshowIndex + 1} / {_slideshowItems.Length}";
             }
 
+            private void ShowLoadErrorOnTarget(VisualElement target)
+            {
+                if (target == null)
+                    return;
+
+                target.Clear();
+                target.style.backgroundImage = StyleKeyword.None;
+
+                var err = new Label("Immagine non disponibile.");
+                err.AddToClassList("lg-text-caption");
+                err.AddToClassList("lg-text-muted");
+                err.style.whiteSpace = WhiteSpace.Normal;
+                target.Add(err);
+            }
+
             private void StartLoad(string url, VisualElement target, int? slideshowGeneration)
             {
                 if (target == null)
@@ -1779,15 +1795,25 @@ namespace LanguageGame.Presentation.Steps
 
                 var trimmed = url?.Trim() ?? string.Empty;
                 if (string.IsNullOrEmpty(trimmed))
+                {
+                    Debug.LogWarning("[SpecialScreenToolkitStep] Photo image URL is empty.");
+                    ShowLoadErrorOnTarget(target);
                     return;
+                }
 
-                if (!ToolkitStepHttpResourceUrl.IsAllowed(trimmed, out _))
+                if (!ToolkitStepHttpResourceUrl.IsAllowed(trimmed, out var allowErr))
+                {
+                    Debug.LogWarning(
+                        $"[SpecialScreenToolkitStep] Photo image URL not allowed '{trimmed}': {allowErr ?? "unknown"}");
+                    ShowLoadErrorOnTarget(target);
                     return;
+                }
 
                 if (_coroutineHost == null)
                 {
                     Debug.LogWarning(
                         "[SpecialScreenToolkitStep] Photo image skipped: no coroutine host for remote load.");
+                    ShowLoadErrorOnTarget(target);
                     return;
                 }
 
@@ -1800,6 +1826,7 @@ namespace LanguageGame.Presentation.Steps
                 {
                     Debug.LogWarning(
                         $"[SpecialScreenToolkitStep] Photo image fetch blocked for '{url}': {verr}");
+                    ShowLoadErrorOnTarget(target);
                     yield break;
                 }
 
@@ -1815,6 +1842,8 @@ namespace LanguageGame.Presentation.Steps
                     {
                         Debug.LogWarning(
                             $"[SpecialScreenToolkitStep] Photo image load failed for '{url}': {req.result} {req.error}");
+                        if (target != null)
+                            ShowLoadErrorOnTarget(target);
                     }
 
                     yield break;
@@ -1825,6 +1854,7 @@ namespace LanguageGame.Presentation.Steps
                 {
                     Debug.LogWarning(
                         $"[SpecialScreenToolkitStep] Photo image decode failed or empty for '{url}'.");
+                    ShowLoadErrorOnTarget(target);
                     yield break;
                 }
 
