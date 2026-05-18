@@ -61,6 +61,7 @@ Repository layout **as committed today**:
 ```text
 LLM-Supported-LanguageGame/
 ├── AGENTS.md
+├── DOC/                      # concise authoring docs (game config, step JSON/rewards, UI styling)
 ├── LEARNINGS.md              # pending notes for /apply-learnings (may be empty)
 ├── supabase/migrations/      # Postgres schema for game progress (apply via Supabase CLI or SQL editor)
 ├── Assets/
