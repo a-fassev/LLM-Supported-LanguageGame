@@ -101,7 +101,13 @@ namespace LanguageGame.Presentation
                 yield break;
             }
 
-            if (!GameSessionStateStore.TryGetBootstrapSnapshot(out _))
+            // Reload bootstrap when missing, stale, or invalidated (e.g. after task completion).
+            // Otherwise wallet labels show fresh totals from the API while chapter/quest isUnlocked stays stale.
+            bool hasSnapshot = GameSessionStateStore.TryGetBootstrapSnapshot(out _);
+            bool needBootstrap =
+                !hasSnapshot || !GameSessionStateStore.IsBootstrapFresh(GameSessionStateStore.DefaultBootstrapFreshSeconds);
+
+            if (needBootstrap)
             {
                 var useCase = new LoadGameBootstrapUseCase(_gameApi);
                 GameBootstrapEnvelope env = null;
