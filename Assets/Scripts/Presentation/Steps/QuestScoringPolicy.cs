@@ -5,17 +5,17 @@ namespace LanguageGame.Presentation.Steps
     /// <summary>Detects whether the shell should send a task attempt payload for server-side pizza scoring.</summary>
     public static class QuestScoringPolicy
     {
-    [System.Serializable]
-    private struct PizzaSniff
-    {
-        public string mode;
-    }
+        [System.Serializable]
+        private struct PizzaSniff
+        {
+            public string mode;
+        }
 
-    [System.Serializable]
-    private struct RewardSniff
-    {
-        public PizzaSniff pizza;
-    }
+        [System.Serializable]
+        private struct RewardSniff
+        {
+            public PizzaSniff pizza;
+        }
 
         public static bool ServerScoresPizza(string rewardRulesJson)
         {
@@ -74,3 +74,7 @@ namespace LanguageGame.Presentation.Steps
             }
 
             sb.Append('"');
+            return sb.ToString();
+        }
+    }
+}
