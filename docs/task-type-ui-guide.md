@@ -237,7 +237,7 @@ Anti-pattern (invalid — missing **`body`**, server returns 502):
 
 **Implementation:** **`ErrorSpottingToolkitStep`**.
 
-Interactive “Fehlersuche”: learner taps erroneous word/phrase spans, fills corrections, validates on shell **Check** (client compares against authoring).
+Interactive “Fehlersuche”: learner taps **only** segments with **`isError`**. Tapping a non-error span shows an **immediate validation message** (no selection). Each flagged span toggles to an **inline `TextField`** for the correction (drafts persist while toggling other words). **Ripristina** clears selections and correction drafts. **Check** validates selections + inline answers against **`acceptedCorrections`** (client-side).
 
 | Field | Notes |
 | ----- | ------ |
@@ -247,7 +247,7 @@ Interactive “Fehlersuche”: learner taps erroneous word/phrase spans, fills c
 | **`expectedErrorRange`** | **`min`**, **`max`** — **authoring only**: the counted `true` error segments (`isError`) must satisfy **`min ≤ count ≤ max`**. Not shown verbatim to learners unless you use **`{min}` / `{max}`** inside **`counterCaption`** |
 | **`segments`** | Ordered list of **`id`**, **`text`**, **`isError`**, **`acceptedCorrections`** (required when `isError`; case-insensitive, whitespace-collapsed matching), optional **`hint`**
 
-Learner must select **exactly all** erroneous segments (and **no** non-errors) and supply a typed correction matching one of **`acceptedCorrections`** before completion.
+Learner must select **exactly all** erroneous segments, **must not** tap non-errors (blocked with feedback), and type a correction in each inline field matching one of **`acceptedCorrections`** before completion.
 
 Example (minimal):
 

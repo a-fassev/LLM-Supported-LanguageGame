@@ -6,22 +6,28 @@ using UnityEngine.UIElements;
 
 namespace LanguageGame.Presentation.Steps
 {
-    /// <summary>Error-spotting / Fehlersuche: tap incorrect segments, correct them, validate on shell Check.</summary>
+    /// <summary>Error-spotting / Fehlersuche: tap incorrect segments, correct inline, validate on shell Check.</summary>
     public sealed class ErrorSpottingToolkitStep : IStepView, ISubmitFromShell
     {
         private static readonly Regex WhitespaceCollapse = new(@"\s+");
 
+        private const int CorrectionMaxLength = 128;
+
         private readonly VisualElement _root;
         private readonly VisualElement _chipsRow;
-        private readonly VisualElement _correctionsHost;
 
         private StepContext _context;
         private Action<StepCompletionRequest> _onRequest;
 
         private ErrorSpottingContentDto _dto;
-        private readonly Dictionary<string, Button> _segmentButtons = new();
+        private Button _resetButton;
+
+        /// <summary>Per-segment wrapper in reading order; holds either a chip <see cref="Button"/> or inline <see cref="TextField"/>.</summary>
+        private readonly Dictionary<string, VisualElement> _slotById = new(StringComparer.Ordinal);
+
         private readonly HashSet<string> _selectedSegmentIds = new(StringComparer.Ordinal);
         private readonly Dictionary<string, TextField> _correctionFields = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, string> _correctionDrafts = new(StringComparer.Ordinal);
         private readonly HashSet<string> _trueErrorIds = new(StringComparer.Ordinal);
 
         private bool _contentReady;
@@ -40,9 +46,6 @@ namespace LanguageGame.Presentation.Steps
             _chipsRow = new VisualElement();
             _chipsRow.AddToClassList("lg-error-spotting-row");
             _chipsRow.style.flexGrow = 0;
-
-            _correctionsHost = new VisualElement();
-            _correctionsHost.AddToClassList("lg-error-spotting-corrections");
 
             host.Add(_root);
         }
@@ -106,46 +109,42 @@ namespace LanguageGame.Presentation.Steps
                 _root.Add(ins);
             }
 
+            _resetButton = new Button { text = "Ripristina" };
+            _resetButton.AddToClassList("lg-btn");
+            _resetButton.AddToClassList("lg-btn--secondary");
+            _resetButton.style.alignSelf = Align.FlexStart;
+            _resetButton.style.marginBottom = 12;
+            _resetButton.clicked += OnResetClicked;
+            _root.Add(_resetButton);
+
             foreach (var seg in dto.segments)
             {
                 var id = seg.id.Trim();
-
-                var chipText = seg.text ?? string.Empty;
-                var chip = new Button { text = chipText };
-                chip.AddToClassList("lg-error-spotting-chip");
-                chip.tooltip = seg.hint ?? string.Empty;
-                chip.clicked += () => OnChipClicked(id);
-                _chipsRow.Add(chip);
-                _segmentButtons[id] = chip;
-
                 if (seg.isError)
                     _trueErrorIds.Add(id);
+
+                BuildSlotContent(id, seg);
             }
 
             _root.Add(_chipsRow);
-            _root.Add(_correctionsHost);
 
-            if (_segmentButtons.Count == 0)
+            if (_slotById.Count == 0)
             {
                 context?.presentValidationMessage?.Invoke("Questo compito non ha segmenti nel testo.");
                 return;
             }
 
-            RefreshChipStyles();
             _contentReady = true;
         }
 
         public void SetInteractable(bool interactable)
         {
             _interactable = interactable;
-            foreach (var kv in _segmentButtons)
-            {
-                kv.Value?.SetEnabled(interactable && _contentReady);
-            }
+            _resetButton?.SetEnabled(interactable && _contentReady);
 
-            foreach (var kv in _correctionFields)
+            foreach (var kv in _slotById)
             {
-                kv.Value?.SetEnabled(interactable && _contentReady);
+                SetSlotChildrenEnabled(kv.Value, interactable && _contentReady);
             }
         }
 
@@ -163,6 +162,8 @@ namespace LanguageGame.Presentation.Steps
                 return;
             }
 
+            SyncDraftsFromFields();
+
             foreach (var eid in _trueErrorIds)
             {
                 if (!_selectedSegmentIds.Contains(eid))
@@ -172,25 +173,12 @@ namespace LanguageGame.Presentation.Steps
                 }
             }
 
-            foreach (var sid in _selectedSegmentIds)
-            {
-                if (!_trueErrorIds.Contains(sid))
-                {
-                    _context?.presentValidationMessage?.Invoke(
-                        "Hai marcato anche una parte che non è uno sbaglio. Rimuovi la selezione.");
-                    return;
-                }
-            }
-
             foreach (var eid in _trueErrorIds)
             {
-                if (!_correctionFields.TryGetValue(eid, out var tf) || tf == null)
-                {
-                    _context?.presentValidationMessage?.Invoke("Correggi ogni errore selezionato.");
-                    return;
-                }
+                if (!_correctionDrafts.TryGetValue(eid, out var raw))
+                    raw = string.Empty;
 
-                var typed = NormalizeAnswer(tf.value);
+                var typed = NormalizeAnswer(raw);
                 if (typed.Length == 0)
                 {
                     _context?.presentValidationMessage?.Invoke("Scrivi la correzione per ogni errore.");
@@ -221,12 +209,23 @@ namespace LanguageGame.Presentation.Steps
         private void ResetState()
         {
             _contentReady = false;
-            _segmentButtons.Clear();
+            _resetButton = null;
+            _slotById.Clear();
             _selectedSegmentIds.Clear();
             _correctionFields.Clear();
+            _correctionDrafts.Clear();
             _trueErrorIds.Clear();
             _chipsRow.Clear();
-            _correctionsHost.Clear();
+        }
+
+        private void OnResetClicked()
+        {
+            if (!_interactable || !_contentReady || _dto == null)
+                return;
+
+            _selectedSegmentIds.Clear();
+            _correctionDrafts.Clear();
+            RefreshAllSlots();
         }
 
         private void OnChipClicked(string id)
@@ -241,86 +240,119 @@ namespace LanguageGame.Presentation.Steps
             if (!_contentReady)
                 return;
 
+            var seg = FindSegment(id);
+            if (seg == null)
+                return;
+
+            if (!seg.isError)
+            {
+                _context?.presentValidationMessage?.Invoke(
+                    "Questa parte non è un errore. Scegli solo le parole sbagliate.");
+                return;
+            }
+
             if (_selectedSegmentIds.Contains(id))
                 _selectedSegmentIds.Remove(id);
             else
                 _selectedSegmentIds.Add(id);
 
-            RefreshChipStyles();
-            RebuildCorrectionsUi();
+            BuildSlotContent(id, seg);
         }
 
-        private void RefreshChipStyles()
+        private void BuildSlotContent(string id, ErrorSpottingSegmentDto seg)
         {
-            foreach (var kv in _segmentButtons)
+            if (!_slotById.TryGetValue(id, out var slot))
             {
-                kv.Value.RemoveFromClassList("lg-error-spotting-chip--marked");
-                if (_selectedSegmentIds.Contains(kv.Key))
-                    kv.Value.AddToClassList("lg-error-spotting-chip--marked");
+                slot = new VisualElement();
+                slot.AddToClassList("lg-error-spotting-slot");
+                _slotById[id] = slot;
+                _chipsRow.Add(slot);
+            }
+
+            slot.Clear();
+            _correctionFields.Remove(id);
+
+            slot.RemoveFromClassList("lg-error-spotting-slot--marked");
+            if (_selectedSegmentIds.Contains(id))
+                slot.AddToClassList("lg-error-spotting-slot--marked");
+
+            var chipText = seg.text ?? string.Empty;
+
+            if (!seg.isError)
+            {
+                var btn = new Button { text = chipText };
+                btn.AddToClassList("lg-error-spotting-chip");
+                btn.tooltip = seg.hint ?? string.Empty;
+                btn.clicked += () => OnChipClicked(id);
+                btn.SetEnabled(_interactable && _contentReady);
+                slot.Add(btn);
+                return;
+            }
+
+            if (_selectedSegmentIds.Contains(id))
+            {
+                var initial = string.Empty;
+                if (_correctionDrafts.TryGetValue(id, out var draft))
+                    initial = draft;
+
+                var tf = new TextField { value = initial, maxLength = CorrectionMaxLength };
+                tf.AddToClassList("lg-textfield");
+                tf.AddToClassList("lg-error-spotting-inline-field");
+                tf.tooltip = seg.hint ?? string.Empty;
+                tf.SetEnabled(_interactable && _contentReady);
+                tf.RegisterValueChangedCallback(ev =>
+                {
+                    _correctionDrafts[id] = ev.newValue ?? string.Empty;
+                });
+                slot.Add(tf);
+                _correctionFields[id] = tf;
+            }
+            else
+            {
+                var btn = new Button { text = chipText };
+                btn.AddToClassList("lg-error-spotting-chip");
+                btn.tooltip = seg.hint ?? string.Empty;
+                btn.clicked += () => OnChipClicked(id);
+                btn.SetEnabled(_interactable && _contentReady);
+                slot.Add(btn);
             }
         }
 
-        private void RebuildCorrectionsUi()
+        private void RefreshAllSlots()
         {
-            _correctionsHost.Clear();
-            _correctionFields.Clear();
-
-            var ordered = OrderedSelectedErrorSegments();
-            if (ordered.Count == 0)
+            if (_dto?.segments == null)
                 return;
 
-            var headline = new Label("Correzioni");
-            headline.AddToClassList("lg-text-h2");
-            headline.style.marginBottom = 10;
-            _correctionsHost.Add(headline);
-
-            foreach (var seg in ordered)
-            {
-                var wrapper = new VisualElement();
-                wrapper.style.marginBottom = 12;
-
-                var lab = new Label($"Segmento «{NormalizeDisplaySnippet(seg)}»:");
-                lab.AddToClassList("lg-text-caption");
-                lab.style.whiteSpace = WhiteSpace.Normal;
-
-                var tf = new TextField { maxLength = 128 };
-                tf.AddToClassList("lg-textfield");
-                tf.SetEnabled(_interactable && _contentReady);
-
-                wrapper.Add(lab);
-                wrapper.Add(tf);
-                _correctionsHost.Add(wrapper);
-
-                _correctionFields[seg.id.Trim()] = tf;
-            }
-        }
-
-        private static string NormalizeDisplaySnippet(ErrorSpottingSegmentDto seg)
-        {
-            if (seg == null)
-                return string.Empty;
-            var t = (seg.text ?? string.Empty).Trim();
-            return t.Length <= 48 ? t : t.Substring(0, 48) + "…";
-        }
-
-        private List<ErrorSpottingSegmentDto> OrderedSelectedErrorSegments()
-        {
-            var list = new List<ErrorSpottingSegmentDto>();
-            if (_dto?.segments == null)
-                return list;
-
             foreach (var seg in _dto.segments)
-            {
-                if (seg == null || string.IsNullOrWhiteSpace(seg.id))
-                    continue;
-                if (!seg.isError)
-                    continue;
-                var id = seg.id.Trim();
-                if (_selectedSegmentIds.Contains(id))
-                    list.Add(seg);
-            }
+                BuildSlotContent(seg.id.Trim(), seg);
+        }
 
-            return list;
+        private static void SetSlotChildrenEnabled(VisualElement slot, bool enabled)
+        {
+            if (slot == null)
+                return;
+            for (var i = 0; i < slot.childCount; i++)
+            {
+                var c = slot.ElementAt(i);
+                switch (c)
+                {
+                    case Button b:
+                        b.SetEnabled(enabled);
+                        break;
+                    case TextField tf:
+                        tf.SetEnabled(enabled);
+                        break;
+                }
+            }
+        }
+
+        private void SyncDraftsFromFields()
+        {
+            foreach (var kv in _correctionFields)
+            {
+                if (kv.Value != null)
+                    _correctionDrafts[kv.Key] = kv.Value.value ?? string.Empty;
+            }
         }
 
         private ErrorSpottingSegmentDto FindSegment(string id)
