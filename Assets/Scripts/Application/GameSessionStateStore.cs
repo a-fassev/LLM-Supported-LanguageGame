@@ -225,6 +225,7 @@ namespace LanguageGame.Application
                     contentJson = step.contentJson,
                     rewardRulesJson = step.rewardRulesJson,
                     isTask = step.isTask,
+                    difficulty = step.difficulty,
                 };
             }
 

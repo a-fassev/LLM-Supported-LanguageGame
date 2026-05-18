@@ -194,30 +194,11 @@ namespace LanguageGame.Presentation
 
         private void RefreshWallet()
         {
-            int pizzaTotal = ExtractTotalSlices();
-            int backpackTotal = ExtractBackpackPieces();
-
             if (_walletPizza != null)
-                _walletPizza.text = pizzaTotal.ToString();
+                _walletPizza.text = WalletUiTotals.GetDisplayedPizzaSlices().ToString();
 
             if (_walletBackpack != null)
-                _walletBackpack.text = backpackTotal.ToString();
-        }
-
-        private static int ExtractTotalSlices()
-        {
-            if (GameSessionStateStore.TryGetLatestTotalSlices(out var slicesFromStore))
-                return slicesFromStore;
-
-            return GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
-        }
-
-        private static int ExtractBackpackPieces()
-        {
-            if (GameSessionStateStore.TryGetLatestTotalBackpackPieces(out var pieces))
-                return pieces;
-
-            return GameFlowController.Instance != null ? GameFlowController.Instance.TotalBackpackPieces : 0;
+                _walletBackpack.text = WalletUiTotals.GetDisplayedBackpackPieces().ToString();
         }
 
         private void ApplyChapterSlot(int idx, GameChapterBootstrapDto[] chapters)

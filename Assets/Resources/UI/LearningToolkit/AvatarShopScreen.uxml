@@ -11,11 +11,11 @@
 
             <ui:VisualElement name="wallet-strip" class="lg-hud-strip" style="margin-top: 4px;">
                 <ui:VisualElement class="lg-hud-badge lg-hud-badge--pizza" style="margin-bottom: 8px;">
-                    <ui:Label text="&#x1f355;" class="lg-hud-badge__icon" />
+                    <ui:Label text="P" class="lg-hud-badge__icon lg-hud-badge__glyph--pizza" />
                     <ui:Label name="wallet-chip-pizza" text="" class="lg-hud-badge__value" />
                 </ui:VisualElement>
                 <ui:VisualElement class="lg-hud-badge lg-hud-badge--backpack" style="margin-bottom: 8px;">
-                    <ui:Label text="&#x1f392;" class="lg-hud-badge__icon" />
+                    <ui:Label text="B" class="lg-hud-badge__icon lg-hud-badge__glyph--backpack" />
                     <ui:Label name="wallet-chip-backpack" text="" class="lg-hud-badge__value" />
                 </ui:VisualElement>
             </ui:VisualElement>

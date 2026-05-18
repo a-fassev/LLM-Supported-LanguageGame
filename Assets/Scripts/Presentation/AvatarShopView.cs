@@ -79,8 +79,8 @@ namespace LanguageGame.Presentation
 
         private void RefreshWalletLabels()
         {
-            var slices = GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
-            var backpack = GameFlowController.Instance != null ? GameFlowController.Instance.TotalBackpackPieces : 0;
+            var slices = WalletUiTotals.GetDisplayedPizzaSlices();
+            var backpack = WalletUiTotals.GetDisplayedBackpackPieces();
             if (_walletPizzaChip != null)
                 _walletPizzaChip.text = slices.ToString();
             if (_walletBackpackChip != null)

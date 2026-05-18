@@ -59,6 +59,8 @@ export type GameQuestStepDto = {
   contentJson: string;
   rewardRulesJson: string;
   isTask: boolean;
+  /** Optional; mirrors `content_payload.difficulty` when string (Unity hard-task chrome). */
+  difficulty: string | null;
 };
 
 export type GameQuestClientDto = {
@@ -167,7 +169,14 @@ export type GetRunResult =
     }
   | { ok: false; status: number; error: string; code?: string; details?: CutscenePayloadInvalidApiDetails };
 
+function extractDifficultyFromPayload(payload: Record<string, unknown> | undefined): string | null {
+  if (!payload) return null;
+  const value = payload.difficulty;
+  return typeof value === "string" ? value : null;
+}
+
 function buildQuestStepDto(row: GameQuestStepRow): GameQuestStepDto {
+  const payload = row.content_payload ?? {};
   return {
     id: row.id,
     orderIndex: row.order_index,
@@ -175,9 +184,10 @@ function buildQuestStepDto(row: GameQuestStepRow): GameQuestStepDto {
     taskType: row.task_type,
     templateKey: row.template_key ?? "",
     logicalTaskKey: row.logical_task_key ?? null,
-    contentJson: JSON.stringify(row.content_payload ?? {}),
+    contentJson: JSON.stringify(payload),
     rewardRulesJson: JSON.stringify(row.reward_rules ?? {}),
     isTask: row.step_kind === "task",
+    difficulty: extractDifficultyFromPayload(payload),
   };
 }
 

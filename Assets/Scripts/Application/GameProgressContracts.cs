@@ -17,6 +17,8 @@ namespace LanguageGame.Application
         public string contentJson;
         public string rewardRulesJson;
         public bool isTask;
+        /// <summary>Optional UI hint from API; hard tasks use Terra emphasis chrome.</summary>
+        public string difficulty;
     }
 
     [Serializable]

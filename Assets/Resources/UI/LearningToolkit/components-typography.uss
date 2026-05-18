@@ -94,7 +94,7 @@ Label {
     align-self: stretch;
 }
 
-.lg-main-actions > Button + Button {
+.lg-mt-12 {
     margin-top: var(--lg-space-12);
 }
 

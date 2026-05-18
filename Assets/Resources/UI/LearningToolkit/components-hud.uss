@@ -32,6 +32,16 @@
     -unity-text-align: middle-center;
 }
 
+.lg-hud-badge__icon.lg-hud-badge__glyph--pizza {
+    color: var(--lg-terra-520);
+    -unity-font-style: bold;
+}
+
+.lg-hud-badge__icon.lg-hud-badge__glyph--backpack {
+    color: var(--lg-sea-600);
+    -unity-font-style: bold;
+}
+
 .lg-hud-badge__value {
     font-size: var(--lg-font-body);
     -unity-font-style: bold;

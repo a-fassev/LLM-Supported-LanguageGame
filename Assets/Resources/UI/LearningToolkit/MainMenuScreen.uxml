@@ -12,7 +12,7 @@
 
             <ui:VisualElement name="main-actions" class="lg-main-actions">
                 <ui:Button name="play-button" text="Continue" class="lg-btn lg-btn--primary" />
-                <ui:Button name="logout-button" text="Sign out" class="lg-btn lg-btn--secondary" />
+                <ui:Button name="logout-button" text="Sign out" class="lg-btn lg-btn--secondary lg-mt-12" />
             </ui:VisualElement>
         </ui:VisualElement>
 

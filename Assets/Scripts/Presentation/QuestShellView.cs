@@ -141,7 +141,10 @@ namespace LanguageGame.Presentation
             }
 
             if (!flow.IsServerQuestActive)
+            {
+                ClearQuestDifficultyChrome();
                 return;
+            }
 
             if (!string.IsNullOrEmpty(_pendingFinishRunId))
             {
@@ -310,22 +313,44 @@ namespace LanguageGame.Presentation
             _tkPrimary.style.display = DisplayStyle.Flex;
         }
 
-        private static bool ContentJsonDeclaresHardTask(string contentJson)
+        private static bool TemplateKeyImpliesHard(string templateKey)
         {
-            if (string.IsNullOrEmpty(contentJson))
+            if (string.IsNullOrEmpty(templateKey))
                 return false;
-            return contentJson.IndexOf("\"difficulty\":\"hard\"", StringComparison.OrdinalIgnoreCase) >= 0
-                   || contentJson.IndexOf("\"difficulty\": \"hard\"", StringComparison.OrdinalIgnoreCase) >= 0;
+            if (string.Equals(templateKey, "hard", StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (templateKey.EndsWith("-hard", StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (templateKey.EndsWith("_hard", StringComparison.OrdinalIgnoreCase))
+                return true;
+            if (templateKey.StartsWith("hard_", StringComparison.OrdinalIgnoreCase))
+                return true;
+            return false;
+        }
+
+        private static bool TryGetHardFromContentJsonRoot(string contentJson)
+        {
+            if (string.IsNullOrWhiteSpace(contentJson))
+                return false;
+            var trimmed = contentJson.TrimStart();
+            if (trimmed.Length == 0 || trimmed[0] != '{')
+                return false;
+
+            var probe = JsonUtility.FromJson<TaskContentDifficultyProbe>(contentJson);
+            return probe != null &&
+                   string.Equals(probe.difficulty, "hard", StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool ShouldUseHardTaskChrome(GameQuestStepDto step)
         {
             if (step == null || !step.isTask)
                 return false;
-            if (!string.IsNullOrEmpty(step.templateKey) &&
-                step.templateKey.IndexOf("hard", StringComparison.OrdinalIgnoreCase) >= 0)
+            if (!string.IsNullOrEmpty(step.difficulty) &&
+                string.Equals(step.difficulty, "hard", StringComparison.OrdinalIgnoreCase))
                 return true;
-            return ContentJsonDeclaresHardTask(step.contentJson);
+            if (TemplateKeyImpliesHard(step.templateKey))
+                return true;
+            return TryGetHardFromContentJsonRoot(step.contentJson);
         }
 
         private void ApplyQuestShellDifficultyChrome(GameQuestStepDto step)
@@ -610,9 +635,8 @@ namespace LanguageGame.Presentation
 
         private void UpdateWalletLabels()
         {
-            var flow = GameFlowController.Instance;
-            var slices = flow != null ? flow.TotalPizzaSlices : 0;
-            var backpack = flow != null ? flow.TotalBackpackPieces : 0;
+            var slices = WalletUiTotals.GetDisplayedPizzaSlices();
+            var backpack = WalletUiTotals.GetDisplayedBackpackPieces();
 
             if (_tkWalletPizza != null)
                 _tkWalletPizza.text = slices.ToString();
@@ -724,6 +748,12 @@ namespace LanguageGame.Presentation
             _boundStep = null;
             if (_shellReady && _toolkitStepHost != null)
                 _toolkitStepHost.Clear();
+        }
+
+        [Serializable]
+        private sealed class TaskContentDifficultyProbe
+        {
+            public string difficulty;
         }
 
     }
