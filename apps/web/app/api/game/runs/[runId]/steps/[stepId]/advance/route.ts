@@ -42,5 +42,7 @@ export async function POST(_request: Request, context: RouteContext) {
     currentStepOrderIndex: result.currentStepOrderIndex,
     currentTaskOrderIndex: result.currentTaskOrderIndex,
     nextTaskStepId: result.nextTaskStepId ?? "",
+    taskItemsCorrect: result.taskItemsCorrect,
+    taskItemsTotal: result.taskItemsTotal,
   });
 }

@@ -141,6 +141,9 @@ export type CompleteStepTaskResult =
       currentStepOrderIndex: number;
       currentTaskOrderIndex: number;
       nextTaskStepId: string | null;
+      /** Authoritative discrete score when pizza was scored via evaluateTaskAttempt; -1 = not provided. */
+      taskItemsCorrect: number;
+      taskItemsTotal: number;
     }
   | { ok: false; status: number; error: string; code?: string };
 
@@ -800,6 +803,8 @@ export async function completeQuestStepTask(
   const pizzaRules = parsePizzaRewardRules(rewardRules);
   let pAwardedSlices = 0;
   let freetextGateToken: string | undefined;
+  let taskItemsCorrect = -1;
+  let taskItemsTotal = -1;
 
   if (expected.step_kind === "task" && expected.task_type === FREITEXT_LLM_TASK_TYPE) {
     const token = typeof options?.evaluationGateToken === "string" ? options.evaluationGateToken.trim() : "";
@@ -853,6 +858,10 @@ export async function completeQuestStepTask(
     }
     const pizzaRatio = ev.pizzaRatio ?? ev.ratio;
     pAwardedSlices = slicesFromRatio(pizzaRatio, pizzaRules);
+    if (ev.itemsTotal != null && ev.itemsTotal > 0) {
+      taskItemsCorrect = Math.max(0, ev.itemsCorrect ?? 0);
+      taskItemsTotal = ev.itemsTotal;
+    }
   }
 
   const rpc = await rpcCompleteQuestStepTask(accountId, runId, stepId, pAwardedSlices);
@@ -882,6 +891,8 @@ export async function completeQuestStepTask(
     currentStepOrderIndex: rpc.currentStepOrderIndex,
     currentTaskOrderIndex: rpc.currentTaskOrderIndex,
     nextTaskStepId: rpc.nextTaskStepId,
+    taskItemsCorrect,
+    taskItemsTotal,
   };
 }
 
@@ -913,6 +924,8 @@ export async function advanceQuestCutscene(
     currentStepOrderIndex: rpc.currentStepOrderIndex,
     currentTaskOrderIndex: rpc.currentTaskOrderIndex,
     nextTaskStepId: rpc.nextTaskStepId,
+    taskItemsCorrect: -1,
+    taskItemsTotal: -1,
   };
 }
 

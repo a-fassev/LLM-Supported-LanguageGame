@@ -90,7 +90,7 @@ describe("completeQuestStepTask (scored pizza + RPC)", () => {
     const result = await completeQuestStepTask(accountId, runId, stepId, {
       attempt: { taskType: "MultipleChoice", multipleChoice: { selections: [[]] } },
     });
-    expect(result.ok).toBe(true);
+    expect(result).toMatchObject({ ok: true, taskItemsCorrect: 0, taskItemsTotal: 1 });
     expect(mocks.rpcCompleteQuestStepTask).toHaveBeenCalledWith(accountId, runId, stepId, 0);
   });
 
@@ -98,7 +98,7 @@ describe("completeQuestStepTask (scored pizza + RPC)", () => {
     const result = await completeQuestStepTask(accountId, runId, stepId, {
       attempt: { taskType: "MultipleChoice", multipleChoice: { selections: [["x"]] } },
     });
-    expect(result.ok).toBe(true);
+    expect(result).toMatchObject({ ok: true, taskItemsCorrect: 1, taskItemsTotal: 1 });
     expect(mocks.rpcCompleteQuestStepTask).toHaveBeenCalledWith(accountId, runId, stepId, 5);
   });
 
@@ -118,9 +118,7 @@ describe("completeQuestStepTask (scored pizza + RPC)", () => {
     const result = await completeQuestStepTask(accountId, runId, stepId, {
       attempt: { taskType: "MultipleChoice", multipleChoice: { selections: [[]] } },
     });
-    expect(result.ok).toBe(false);
-    if (result.ok) throw new Error("expected fail");
-    expect(result.code).toBe("ratio_below_minimum");
+    expect(result).toMatchObject({ ok: false, code: "ratio_below_minimum" });
     expect(mocks.rpcCompleteQuestStepTask).not.toHaveBeenCalled();
   });
 
@@ -156,7 +154,7 @@ describe("completeQuestStepTask (scored pizza + RPC)", () => {
         specialScreen: { blocks: [{ taskType: "Stub" as const }] },
       },
     });
-    expect(result.ok).toBe(true);
+    expect(result).toMatchObject({ ok: true, taskItemsCorrect: -1, taskItemsTotal: -1 });
     expect(mocks.rpcCompleteQuestStepTask).toHaveBeenCalledWith(accountId, runId, stepId, 0);
   });
 });

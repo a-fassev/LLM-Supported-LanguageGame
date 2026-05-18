@@ -74,6 +74,8 @@ describe("evaluateTaskAttempt", () => {
     expect(r.ok).toBe(true);
     if (!r.ok) throw new Error("fail");
     expect(r.ratio).toBe(0.5);
+    expect(r.itemsCorrect).toBe(1);
+    expect(r.itemsTotal).toBe(2);
   });
 
   it("dispatches evaluateTaskAttempt", () => {

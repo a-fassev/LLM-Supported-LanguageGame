@@ -23,6 +23,8 @@ Composite **Special Screen** tasks (`SpecialScreen*`): see **`.cursor/skills/uni
 4. Client validation uses **`StepContext.presentValidationMessage`** only (shell reward modal validation mode).
 5. **Slow operations** (server round-trips, LLM gates): use **`StepContext.presentBusyOverlay(message)`** / **`dismissBusyOverlay()`** (injected by the shell from the same overlay as quest loading). Always **`dismiss`** on error and early exit. Do not add a second loading UI stack inside the step.
 
+Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`taskItemsTotal`** in **`GameCompleteTaskEnvelope`** when the server evaluated a scored attempt (otherwise **`-1`**). The shell uses these for Italian reward-overlay headlines (partial vs perfect), not for wallet math.
+
 ## Adding or extending a task type
 
 1. **`taskType`** string must match API / DB (`game_quest_steps.task_type`). **`ToolkitStepFactory`** uses a **`switch`** — casing must match server payloads. Keep **`Assets/Scripts/Application/GameProgressContracts.cs`** (and any **`apps/web`** payload validators) aligned when introducing or renaming a type.

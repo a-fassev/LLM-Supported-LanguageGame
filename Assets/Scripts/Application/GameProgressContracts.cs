@@ -106,6 +106,12 @@ namespace LanguageGame.Application
         public int currentTaskOrderIndex;
         public string nextTaskStepId;
         public string error;
+
+        /// <summary>Authoritative part-score when server ran attempt evaluation; -1 when not applicable.</summary>
+        public int taskItemsCorrect = -1;
+
+        /// <summary>Authoritative part-score denominator; -1 when not applicable.</summary>
+        public int taskItemsTotal = -1;
     }
 
     [Serializable]

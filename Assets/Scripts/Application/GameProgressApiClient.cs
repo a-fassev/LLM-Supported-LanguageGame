@@ -439,6 +439,35 @@ namespace LanguageGame.Application
 
             if (!JsonKeyPresent(json, "nextTaskStepId") && JsonKeyPresent(json, "next_task_step_id"))
                 env.nextTaskStepId = sn.next_task_step_id ?? string.Empty;
+
+            if (!JsonKeyPresent(json, "taskItemsCorrect") && JsonKeyPresent(json, "task_items_correct"))
+                env.taskItemsCorrect = sn.task_items_correct;
+
+            if (!JsonKeyPresent(json, "taskItemsTotal") && JsonKeyPresent(json, "task_items_total"))
+                env.taskItemsTotal = sn.task_items_total;
+
+            NormalizeTaskItemsFieldsFromJson(json, env);
+        }
+
+        /// <summary>
+        /// <see cref="JsonUtility"/> only assigns fields present in JSON. When either score key is missing
+        /// (camelCase or snake_case), or only one of the two is present, normalize both to <c>-1</c> so the
+        /// client never shows a bogus partial breakdown (e.g. legacy servers).
+        /// </summary>
+        private static void NormalizeTaskItemsFieldsFromJson(string json, GameCompleteTaskEnvelope env)
+        {
+            if (env == null || string.IsNullOrEmpty(json))
+                return;
+
+            var hasCorrect =
+                JsonKeyPresent(json, "taskItemsCorrect") || JsonKeyPresent(json, "task_items_correct");
+            var hasTotal =
+                JsonKeyPresent(json, "taskItemsTotal") || JsonKeyPresent(json, "task_items_total");
+            if (!hasCorrect || !hasTotal)
+            {
+                env.taskItemsCorrect = -1;
+                env.taskItemsTotal = -1;
+            }
         }
 
         /// <summary>True when <paramref name="key"/> appears as a JSON object property (immediately before <c>:</c>).</summary>
@@ -475,6 +504,8 @@ namespace LanguageGame.Application
             public int current_task_order_index;
             public string next_task_step_id;
             public string error;
+            public int task_items_correct;
+            public int task_items_total;
         }
     }
 }

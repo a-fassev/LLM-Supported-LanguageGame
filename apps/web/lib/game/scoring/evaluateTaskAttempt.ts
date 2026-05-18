@@ -77,6 +77,9 @@ export type TaskAttemptEvalResult =
       ratio: number;
       /** Optional: pizza mapping only; defaults to `ratio`. Used when completion should pass but pizza stays 0 (e.g. stub-only SpecialScreen). */
       pizzaRatio?: number;
+      /** Discrete score parts (e.g. gaps correct / gaps total); omit when not meaningful for UX. */
+      itemsCorrect?: number;
+      itemsTotal?: number;
     }
   | { ok: false; status: number; error: string; code: string };
 
@@ -141,7 +144,7 @@ export function evaluateCloze(
     if (typeof raw !== "string") return err(400, "Invalid cloze answer", "attempt_invalid");
     if (matchesAnswer(raw, spec.answers, spec.insensitive)) correct++;
   }
-  return { ok: true, ratio: correct / specs.length };
+  return { ok: true, ratio: correct / specs.length, itemsCorrect: correct, itemsTotal: specs.length };
 }
 
 function normIdSet(ids: unknown): Set<string> {
@@ -201,7 +204,7 @@ export function evaluateMultipleChoice(
       correct++;
     }
   }
-  return { ok: true, ratio: correct / questions.length };
+  return { ok: true, ratio: correct / questions.length, itemsCorrect: correct, itemsTotal: questions.length };
 }
 
 function setsEqual(a: Set<string>, b: Set<string>): boolean {
@@ -261,7 +264,7 @@ export function evaluateDragDrop(
     return ids.length > 0;
   }).length;
   if (denom === 0) return err(502, "DragDrop targets missing correctItemIds", "payload_invalid");
-  return { ok: true, ratio: correct / denom };
+  return { ok: true, ratio: correct / denom, itemsCorrect: correct, itemsTotal: denom };
 }
 
 export function evaluateMatching(
@@ -282,7 +285,7 @@ export function evaluateMatching(
     const gr = got[l]?.trim() ?? "";
     if (gr && gr === r) correct++;
   }
-  return { ok: true, ratio: correct / expected.size };
+  return { ok: true, ratio: correct / expected.size, itemsCorrect: correct, itemsTotal: expected.size };
 }
 
 function normalizeCorr(s: string): string {
@@ -317,7 +320,7 @@ export function evaluateErrorSpotting(
 
   for (const sid of selected) {
     if (!trueIds.has(sid)) {
-      return { ok: true, ratio: 0 };
+      return { ok: true, ratio: 0, itemsCorrect: 0, itemsTotal: errors.length };
     }
   }
 
@@ -337,7 +340,7 @@ export function evaluateErrorSpotting(
     if (ok) fixed++;
   }
 
-  return { ok: true, ratio: fixed / errors.length };
+  return { ok: true, ratio: fixed / errors.length, itemsCorrect: fixed, itemsTotal: errors.length };
 }
 
 function mapSpecialBlockType(raw: string | undefined): string {
@@ -360,6 +363,8 @@ export function evaluateSpecialScreen(
 
   let weighted = 0;
   let weight = 0;
+  let itemsCorrectSum = 0;
+  let itemsTotalSum = 0;
 
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
@@ -404,11 +409,23 @@ export function evaluateSpecialScreen(
     }
     if (!inner.ok) return inner;
     weighted += inner.ratio;
+    if (inner.itemsTotal != null && inner.itemsTotal > 0) {
+      itemsCorrectSum += Math.max(0, inner.itemsCorrect ?? 0);
+      itemsTotalSum += inner.itemsTotal;
+    }
   }
 
   // No scorable blocks: full completion credit, no pizza (avoid minting slices on empty screens).
   if (weight === 0) return { ok: true, ratio: 1, pizzaRatio: 0 };
-  return { ok: true, ratio: weighted / weight };
+  const base: TaskAttemptEvalResult = { ok: true, ratio: weighted / weight };
+  if (itemsTotalSum > 0) {
+    return {
+      ...base,
+      itemsCorrect: itemsCorrectSum,
+      itemsTotal: itemsTotalSum,
+    };
+  }
+  return base;
 }
 
 export function evaluateTaskAttempt(

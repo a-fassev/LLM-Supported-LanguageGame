@@ -476,7 +476,18 @@ namespace LanguageGame.Presentation
             flow.SetTotalPizzaSlices(done.totalSlices);
             flow.SetTotalBackpackPieces(done.totalBackpackPieces);
             UpdateWalletLabels();
-            ShowRewardOverlay(done.awardedSlices, done.awardedBackpackPieces);
+            ShowRewardOverlay(done.awardedSlices, done.awardedBackpackPieces, done.taskItemsCorrect, done.taskItemsTotal);
+        }
+
+        private static string BuildTaskCompletionHeadline(int taskItemsCorrect, int taskItemsTotal)
+        {
+            if (taskItemsTotal <= 0)
+                return "Compito completato!";
+            if (taskItemsCorrect >= taskItemsTotal)
+                return "Tutto giusto!";
+            if (taskItemsCorrect <= 0)
+                return "Nessuna risposta era corretta.";
+            return $"Hai risposto correttamente a {taskItemsCorrect} su {taskItemsTotal} elementi.";
         }
 
         private IEnumerator AdvanceCutsceneRoutine(string cutsceneStepId)
@@ -676,14 +687,14 @@ namespace LanguageGame.Presentation
                 Destroy(_toolkitDoc.gameObject);
         }
 
-        private void ShowRewardOverlay(int awardedSlices, int awardedBackpackPieces)
+        private void ShowRewardOverlay(int awardedSlices, int awardedBackpackPieces, int taskItemsCorrect, int taskItemsTotal)
         {
             _rewardOverlayValidationMode = false;
             _tkReward.ConfigureSuccessChrome();
             _tkReward.ShowSuccess(
-                "Success!",
-                $"Pizza slices gained: {Mathf.Max(0, awardedSlices)}",
-                $"Backpack pieces gained: {Mathf.Max(0, awardedBackpackPieces)}",
+                BuildTaskCompletionHeadline(taskItemsCorrect, taskItemsTotal),
+                $"Fette di pizza guadagnate: {Mathf.Max(0, awardedSlices)}",
+                $"Pezzi per lo zaino guadagnati: {Mathf.Max(0, awardedBackpackPieces)}",
                 OnToolkitRewardBackDismiss,
                 OnToolkitRewardNextDismiss);
             _activeStepView?.SetInteractable(false);
