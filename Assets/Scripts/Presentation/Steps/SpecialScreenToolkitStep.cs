@@ -501,13 +501,10 @@ namespace LanguageGame.Presentation.Steps
         {
             var outer = new VisualElement();
             outer.name = "special-screen-root";
-            outer.AddToClassList("lg-muted-panel");
+            outer.AddToClassList("lg-game-panel");
+            outer.AddToClassList("lg-panel-padded");
             outer.style.flexGrow = 1;
             outer.style.flexDirection = FlexDirection.Column;
-            outer.style.paddingTop = 16;
-            outer.style.paddingBottom = 16;
-            outer.style.paddingLeft = 16;
-            outer.style.paddingRight = 16;
 
             var title = new Label { name = "special-screen-title" };
             title.AddToClassList("lg-heading-screen");

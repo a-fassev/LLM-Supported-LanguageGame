@@ -82,9 +82,9 @@ namespace LanguageGame.Presentation
             var slices = GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
             var backpack = GameFlowController.Instance != null ? GameFlowController.Instance.TotalBackpackPieces : 0;
             if (_walletPizzaChip != null)
-                _walletPizzaChip.text = $"Pizza · {slices}";
+                _walletPizzaChip.text = slices.ToString();
             if (_walletBackpackChip != null)
-                _walletBackpackChip.text = $"Backpack · {backpack}";
+                _walletBackpackChip.text = backpack.ToString();
         }
 
         private void OnBackClicked()

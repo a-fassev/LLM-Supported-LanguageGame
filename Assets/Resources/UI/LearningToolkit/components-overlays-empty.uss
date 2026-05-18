@@ -6,11 +6,11 @@
     right: 0;
     bottom: 0;
     min-height: 96px;
-    padding: var(--lg-space-12) var(--lg-space-24);
+    padding: var(--lg-space-12) var(--lg-space-24) var(--lg-safe-inset-bottom) var(--lg-space-24);
     background-color: var(--lg-feedback-guidance-bg);
     border-top-left-radius: var(--lg-radius-md);
     border-top-right-radius: var(--lg-radius-md);
-    border-top-width: var(--lg-stroke-1);
+    border-top-width: var(--lg-stroke-2);
     border-color: var(--lg-guidance);
     flex-direction: row;
     justify-content: space-between;
@@ -36,9 +36,12 @@
 .lg-loading-card {
     min-width: 320px;
     max-width: 480px;
-    padding: var(--lg-space-24);
+    padding: var(--lg-space-32);
     border-radius: var(--lg-radius-lg);
     background-color: var(--lg-surface-1);
+    border-width: var(--lg-stroke-2);
+    border-color: var(--lg-modal-border-game);
+    border-top-color: var(--lg-card-highlight);
 }
 
 .lg-modal-scrim {
@@ -55,9 +58,10 @@
 .lg-modal-card {
     width: 88%;
     max-width: 480px;
-    padding: var(--lg-space-24);
+    padding: var(--lg-space-32);
     border-radius: var(--lg-radius-lg);
     background-color: var(--lg-surface-1);
-    border-width: var(--lg-stroke-1);
-    border-color: var(--lg-border-soft);
+    border-width: var(--lg-stroke-2);
+    border-color: var(--lg-modal-border-game);
+    border-top-color: var(--lg-card-highlight);
 }

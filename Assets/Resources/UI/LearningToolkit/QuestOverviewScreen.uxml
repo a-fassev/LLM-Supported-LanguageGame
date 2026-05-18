@@ -1,14 +1,26 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="root-shell" class="lg-fill-screen">
 
-        <ui:VisualElement name="main-column" class="lg-shell lg-shell--narrow lg-fill-screen">
-            <ui:Button name="back-button" text="Back to chapters" class="lg-btn lg-btn--ghost"
-                style="align-self: flex-start;" />
+        <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
+            <ui:VisualElement class="lg-page-header">
+                <ui:Button name="back-button" text="Back to chapters" class="lg-btn lg-btn--nav" />
+            </ui:VisualElement>
 
             <ui:Label name="chapter-title-label" text="Chapter quests"
                 class="lg-heading-display" style="margin-top: 8px;" />
 
-            <ui:ScrollView name="quest-scroll" class="lg-list-scroll" style="margin-top: 16px;">
+            <ui:VisualElement name="hud-strip" class="lg-hud-strip">
+                <ui:VisualElement name="wallet-badge-pizza" class="lg-hud-badge lg-hud-badge--pizza">
+                    <ui:Label name="hud-pizza-icon" text="&#x1f355;" class="lg-hud-badge__icon" />
+                    <ui:Label name="wallet-pizza" text="0" class="lg-hud-badge__value" />
+                </ui:VisualElement>
+                <ui:VisualElement name="wallet-badge-backpack" class="lg-hud-badge lg-hud-badge--backpack">
+                    <ui:Label name="hud-backpack-icon" text="&#x1f392;" class="lg-hud-badge__icon" />
+                    <ui:Label name="wallet-backpack" text="0" class="lg-hud-badge__value" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:ScrollView name="quest-scroll" class="lg-list-scroll" style="margin-top: 8px;">
 
                 <ui:Button name="quest-row-0" class="lg-list-row-button">
                     <ui:Label name="quest-title-0" text=""

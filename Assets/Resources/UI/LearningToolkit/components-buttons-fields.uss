@@ -25,6 +25,43 @@ Button.lg-btn--primary:hover {
     background-color: var(--lg-accent-primary-press);
 }
 
+Button.lg-btn--primary:active {
+    background-color: var(--lg-accent-primary-press);
+}
+
+Button.lg-btn--primary-hard {
+    background-color: var(--lg-terra-520);
+    color: var(--lg-text-inverse);
+}
+
+Button.lg-btn--primary-hard:hover {
+    background-color: var(--lg-terra-450);
+}
+
+Button.lg-btn--primary-hard:focus {
+    border-width: 2px;
+    border-color: var(--lg-focus-ring);
+}
+
+Button.lg-btn--primary-hard:active {
+    background-color: var(--lg-terra-520);
+}
+
+Button.lg-btn--nav {
+    min-height: 44px;
+    padding-left: var(--lg-space-12);
+    padding-right: var(--lg-space-12);
+    background-color: rgba(43, 128, 168, 0.08);
+    border-width: var(--lg-stroke-1);
+    border-color: var(--lg-sea-500);
+    color: var(--lg-sea-600);
+    -unity-font-style: bold;
+}
+
+Button.lg-btn--nav:hover {
+    background-color: rgba(43, 128, 168, 0.14);
+}
+
 Button.lg-btn--secondary {
     background-color: var(--lg-accent-secondary-bg);
     border-width: var(--lg-stroke-1);

@@ -13,6 +13,10 @@ namespace LanguageGame.Presentation
 
         private Label _chapterTitleText;
 
+        private Label _walletPizza;
+
+        private Label _walletBackpack;
+
         private Button _backButton;
 
         private readonly Button[] _questButtons = new Button[VisibleQuestSlots];
@@ -57,6 +61,8 @@ namespace LanguageGame.Presentation
 
             VisualElement root = _doc.rootVisualElement;
             _chapterTitleText = root.Q<Label>("chapter-title-label");
+            _walletPizza = root.Q<Label>("wallet-pizza");
+            _walletBackpack = root.Q<Label>("wallet-backpack");
             _backButton = root.Q<Button>("back-button");
             _backButton?.RegisterCallback<ClickEvent>(_ => OnBackToChapterClicked());
 
@@ -78,6 +84,37 @@ namespace LanguageGame.Presentation
 
             _gameApi = FindAnyObjectByType<GameProgressApiClient>();
             RefreshQuestSlots();
+        }
+
+        private void OnEnable()
+        {
+            RefreshWallet();
+        }
+
+        private void RefreshWallet()
+        {
+            int pizza = ExtractTotalSlices();
+            int backpack = ExtractBackpackPieces();
+            if (_walletPizza != null)
+                _walletPizza.text = pizza.ToString();
+            if (_walletBackpack != null)
+                _walletBackpack.text = backpack.ToString();
+        }
+
+        private static int ExtractTotalSlices()
+        {
+            if (GameSessionStateStore.TryGetLatestTotalSlices(out var slicesFromStore))
+                return slicesFromStore;
+
+            return GameFlowController.Instance != null ? GameFlowController.Instance.TotalPizzaSlices : 0;
+        }
+
+        private static int ExtractBackpackPieces()
+        {
+            if (GameSessionStateStore.TryGetLatestTotalBackpackPieces(out var pieces))
+                return pieces;
+
+            return GameFlowController.Instance != null ? GameFlowController.Instance.TotalBackpackPieces : 0;
         }
 
         private void RefreshQuestSlots()
@@ -102,6 +139,8 @@ namespace LanguageGame.Presentation
                     ? "Chapter quests"
                     : flow.SelectedChapterDisplayName;
             }
+
+            RefreshWallet();
 
             GameQuestBootstrapDto[] quests = flow.SelectedChapterQuests;
             for (var idx = 0; idx < VisibleQuestSlots; idx++)

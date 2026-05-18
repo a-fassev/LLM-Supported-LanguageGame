@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="root-shell" class="lg-fill-screen">
-        <ui:VisualElement name="main-column" class="lg-shell lg-shell--narrow">
+        <ui:VisualElement name="main-column" class="lg-shell lg-shell--form">
             <ui:Label text="Theme preview" class="lg-heading-display" />
             <ui:VisualElement style="flex-direction: row; flex-wrap: wrap;">
                 <ui:Button text="Primary" class="lg-btn lg-btn--primary lg-btn lg-btn--primary" />

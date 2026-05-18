@@ -35,6 +35,7 @@ namespace LanguageGame.Presentation
         private UIDocument _toolkitDoc;
         private bool _shellReady;
         private VisualElement _toolkitStepHost;
+        private VisualElement _questStepPanel;
         private Button _tkBackToChapters;
         private Button _tkPrimary;
         private Label _tkQuestTitle;
@@ -72,6 +73,7 @@ namespace LanguageGame.Presentation
             _tkWalletPizza = root.Q<Label>("wallet-pizza");
             _tkWalletBackpack = root.Q<Label>("wallet-backpack");
             _toolkitStepHost = root.Q<VisualElement>("step-host");
+            _questStepPanel = root.Q<VisualElement>("quest-step-panel");
 
             if (_tkBackToChapters == null || _tkPrimary == null || _toolkitStepHost == null)
             {
@@ -143,6 +145,7 @@ namespace LanguageGame.Presentation
 
             if (!string.IsNullOrEmpty(_pendingFinishRunId))
             {
+                ClearQuestDifficultyChrome();
                 var titleFinishing = string.IsNullOrEmpty(flow.ServerQuestDisplayName)
                     ? "Finishing quest"
                     : flow.ServerQuestDisplayName;
@@ -183,6 +186,7 @@ namespace LanguageGame.Presentation
 
             BindStep(step, flow);
             ConfigureShellPrimaryChrome(step);
+            ApplyQuestShellDifficultyChrome(step);
         }
 
         private void BindStep(GameQuestStepDto step, GameFlowController flow)
@@ -304,6 +308,45 @@ namespace LanguageGame.Presentation
             _tkPrimary.text = ShellCutsceneNextLabel;
             _tkPrimary.SetEnabled(!_submitting && _gameApi != null);
             _tkPrimary.style.display = DisplayStyle.Flex;
+        }
+
+        private static bool ContentJsonDeclaresHardTask(string contentJson)
+        {
+            if (string.IsNullOrEmpty(contentJson))
+                return false;
+            return contentJson.IndexOf("\"difficulty\":\"hard\"", StringComparison.OrdinalIgnoreCase) >= 0
+                   || contentJson.IndexOf("\"difficulty\": \"hard\"", StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static bool ShouldUseHardTaskChrome(GameQuestStepDto step)
+        {
+            if (step == null || !step.isTask)
+                return false;
+            if (!string.IsNullOrEmpty(step.templateKey) &&
+                step.templateKey.IndexOf("hard", StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+            return ContentJsonDeclaresHardTask(step.contentJson);
+        }
+
+        private void ApplyQuestShellDifficultyChrome(GameQuestStepDto step)
+        {
+            var hard = ShouldUseHardTaskChrome(step);
+            if (_questStepPanel != null)
+                _questStepPanel.EnableInClassList("lg-game-panel--hard", hard);
+
+            if (_tkPrimary != null)
+            {
+                var isTask = step != null && step.isTask;
+                _tkPrimary.EnableInClassList("lg-btn--primary-hard", hard && isTask);
+            }
+        }
+
+        private void ClearQuestDifficultyChrome()
+        {
+            if (_questStepPanel != null)
+                _questStepPanel.RemoveFromClassList("lg-game-panel--hard");
+            if (_tkPrimary != null)
+                _tkPrimary.RemoveFromClassList("lg-btn--primary-hard");
         }
 
         private IEnumerator CompleteServerTaskRoutine(string taskStepId, string taskAttemptJson = null)
@@ -675,6 +718,7 @@ namespace LanguageGame.Presentation
 
         private void TeardownBoundStep()
         {
+            ClearQuestDifficultyChrome();
             _activeStepView?.Teardown();
             _activeStepView = null;
             _boundStep = null;

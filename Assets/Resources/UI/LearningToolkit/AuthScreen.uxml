@@ -1,11 +1,11 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="root-shell" class="lg-fill-screen">
 
-        <ui:VisualElement name="content-plane" class="lg-shell lg-shell--narrow lg-fill-screen">
+        <ui:VisualElement name="content-plane" class="lg-shell lg-shell--form lg-fill-screen">
             <ui:Label text="Welcome!" class="lg-heading-display" />
-            <ui:Label name="status-label" text="" class="lg-text-muted lg-text-body lg-text-muted" />
+            <ui:Label name="status-label" text="" class="lg-text-body lg-text-muted" />
 
-            <ui:VisualElement name="login-panel" class="lg-muted-panel" style="padding: 24px;">
+            <ui:VisualElement name="login-panel" class="lg-game-panel lg-panel-padded">
                 <ui:TextField name="login-username" label="Username" class="lg-textfield" />
                 <ui:TextField name="login-password" label="Password" class="lg-textfield"
                     masking-character="*" password="true" />
@@ -14,7 +14,7 @@
                     class="lg-btn lg-btn--ghost" />
             </ui:VisualElement>
 
-            <ui:VisualElement name="register-panel" class="lg-muted-panel" style="padding: 24px; margin-top: 16px;">
+            <ui:VisualElement name="register-panel" class="lg-game-panel lg-panel-padded" style="margin-top: 16px;">
                 <ui:Label text="Choose your learner name" class="lg-text-body-lg lg-text-muted" />
                 <ui:VisualElement style="flex-direction: row; align-items: center; margin-bottom: 8px;">
                     <ui:Label name="generated-username-label" text="..." class="lg-text-body-lg"

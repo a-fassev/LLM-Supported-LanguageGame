@@ -24,6 +24,8 @@
     --lg-space-16: 16px;
     --lg-space-24: 24px;
     --lg-space-32: 32px;
+    --lg-space-20: 20px;
+    --lg-space-40: 40px;
 
     /* Radii */
     --lg-radius-sm: 8px;
@@ -33,7 +35,21 @@
 
     /* Hairlines */
     --lg-stroke-1: 1px;
+    --lg-stroke-2: 2px;
+    --lg-stroke-3: 3px;
     --lg-stroke-strong: rgb(218, 210, 198);
+
+    /* Safe-area rhythm (logical insets; tune per device if needed later) */
+    --lg-safe-inset-h: 20px;
+    --lg-safe-inset-top: 16px;
+    --lg-safe-inset-bottom: 20px;
+
+    /* Bevel / inner highlight (USS has no box-shadow) */
+    --lg-highlight-line: rgba(255, 255, 255, 0.55);
+
+    /* Task difficulty surfaces */
+    --lg-paper-100: rgb(229, 224, 213);
+    --lg-terra-bg: rgba(217, 120, 86, 0.12);
 
     /* Overlays — Unity USS lacks full CSS box-shadow; cards use borders only */
     --lg-shadow-overlay: rgba(40, 38, 34, 0.45);

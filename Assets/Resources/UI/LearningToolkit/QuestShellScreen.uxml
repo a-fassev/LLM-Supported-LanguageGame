@@ -1,23 +1,30 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="quest-root" class="lg-fill-screen">
-        <ui:VisualElement name="main-column" class="lg-shell lg-fill-screen"
-            style="padding-left: 16px; padding-right: 16px; padding-top: 12px; padding-bottom: 12px;">
-            <ui:VisualElement style="flex-direction: row; align-items: center; flex-shrink: 0;">
-                <ui:Button name="back-to-chapters-button" text="Back to chapters" class="lg-btn lg-btn--ghost" />
+        <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
+            <ui:VisualElement class="lg-page-header">
+                <ui:Button name="back-to-chapters-button" text="Back to chapters" class="lg-btn lg-btn--nav" />
                 <ui:Label name="quest-title-label" text="" class="lg-heading-screen"
                     style="flex-grow: 1; -unity-text-align: middle-center; white-space: normal;" />
             </ui:VisualElement>
-            <ui:VisualElement style="flex-direction: row; flex-wrap: wrap; flex-shrink: 0; margin-top: 4px;">
-                <ui:Label text="Pizza slices: " class="lg-text-caption lg-text-muted" />
-                <ui:Label name="wallet-pizza" text="0" class="lg-text-caption" style="-unity-font-style: bold;" />
-                <ui:Label text=" • Backpack pieces: " class="lg-text-caption lg-text-muted" style="margin-left: 8px;" />
-                <ui:Label name="wallet-backpack" text="0" class="lg-text-caption" style="-unity-font-style: bold;" />
+
+            <ui:VisualElement name="hud-strip" class="lg-hud-strip">
+                <ui:VisualElement name="wallet-badge-pizza" class="lg-hud-badge lg-hud-badge--pizza">
+                    <ui:Label name="hud-pizza-icon" text="&#x1f355;" class="lg-hud-badge__icon" />
+                    <ui:Label name="wallet-pizza" text="0" class="lg-hud-badge__value" />
+                </ui:VisualElement>
+                <ui:VisualElement name="wallet-badge-backpack" class="lg-hud-badge lg-hud-badge--backpack">
+                    <ui:Label name="hud-backpack-icon" text="&#x1f392;" class="lg-hud-badge__icon" />
+                    <ui:Label name="wallet-backpack" text="0" class="lg-hud-badge__value" />
+                </ui:VisualElement>
             </ui:VisualElement>
-            <ui:ScrollView name="step-scroll" class="lg-list-scroll"
-                style="flex-grow: 1; min-height: 180px; margin-top: 12px;">
-                <ui:VisualElement name="step-host" style="flex-grow: 1; min-height: 160px;" />
-            </ui:ScrollView>
-            <ui:VisualElement name="quest-footer" style="flex-shrink: 0; margin-top: 12px;">
+
+            <ui:VisualElement name="quest-step-panel" class="lg-game-panel lg-quest-step-panel">
+                <ui:ScrollView name="step-scroll" class="lg-list-scroll" style="flex-grow: 1; min-height: 180px;">
+                    <ui:VisualElement name="step-host" style="flex-grow: 1; min-height: 160px;" />
+                </ui:ScrollView>
+            </ui:VisualElement>
+
+            <ui:VisualElement name="quest-footer" class="lg-quest-footer" style="flex-shrink: 0; margin-top: 12px;">
                 <ui:Button name="primary-action-button" text="Controlla" class="lg-btn lg-btn--primary"
                     style="align-self: flex-end;" />
             </ui:VisualElement>

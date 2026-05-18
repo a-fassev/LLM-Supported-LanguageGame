@@ -1,26 +1,27 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="root-shell" class="lg-fill-screen">
 
-        <ui:VisualElement name="main-column" class="lg-shell lg-shell--narrow lg-fill-screen">
-            <ui:VisualElement style="flex-direction: row; align-items: center;">
-                <ui:Button name="back-button" text="Main menu" class="lg-btn lg-btn--ghost" />
+        <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
+            <ui:VisualElement class="lg-page-header">
+                <ui:Button name="back-button" text="Main menu" class="lg-btn lg-btn--nav" />
                 <ui:VisualElement style="flex-grow: 1; align-items: center;">
                     <ui:Label name="title-label" text="Choose a chapter" class="lg-heading-screen" />
                 </ui:VisualElement>
                 <ui:Button name="avatar-shop-button" text="Avatar" class="lg-btn lg-btn--secondary" />
             </ui:VisualElement>
 
-            <ui:VisualElement style="flex-direction: row; flex-wrap: wrap;">
-                <ui:Label text="Pizza slices: " class="lg-text-caption lg-text-muted" />
-                <ui:Label text="?" name="wallet-pizza" class="lg-text-caption"
-                    style="-unity-font-style: bold;" />
-                <ui:Label text=" • Backpack pieces: " class="lg-text-muted lg-text-caption lg-text-muted"
-                    style="margin-left: 8px;" />
-                <ui:Label text="?" name="wallet-backpack" class="lg-text-caption"
-                    style="-unity-font-style: bold;" />
+            <ui:VisualElement name="hud-strip" class="lg-hud-strip">
+                <ui:VisualElement name="wallet-badge-pizza" class="lg-hud-badge lg-hud-badge--pizza">
+                    <ui:Label name="hud-pizza-icon" text="&#x1f355;" class="lg-hud-badge__icon" />
+                    <ui:Label name="wallet-pizza" text="?" class="lg-hud-badge__value" />
+                </ui:VisualElement>
+                <ui:VisualElement name="wallet-badge-backpack" class="lg-hud-badge lg-hud-badge--backpack">
+                    <ui:Label name="hud-backpack-icon" text="&#x1f392;" class="lg-hud-badge__icon" />
+                    <ui:Label name="wallet-backpack" text="?" class="lg-hud-badge__value" />
+                </ui:VisualElement>
             </ui:VisualElement>
 
-            <ui:ScrollView name="chapter-scroll" class="lg-list-scroll" style="margin-top: 16px;">
+            <ui:ScrollView name="chapter-scroll" class="lg-list-scroll" style="margin-top: 8px;">
                 <ui:Button name="chapter-row-0" class="lg-list-row-button">
                     <ui:Label name="chapter-title-0" text="" class="lg-list-row-text lg-text-body-lg lg-text-muted" />
                     <ui:Label name="chapter-chip-0" text="" class="lg-chip lg-chip--lock" />

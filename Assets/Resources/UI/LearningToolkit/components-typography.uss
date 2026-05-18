@@ -47,13 +47,55 @@ Label {
 }
 
 .lg-shell {
-    padding: var(--lg-space-24);
+    padding-left: var(--lg-safe-inset-h);
+    padding-right: var(--lg-safe-inset-h);
+    padding-top: var(--lg-space-24);
+    padding-bottom: var(--lg-safe-inset-bottom);
     flex-grow: 1;
 }
 
-.lg-shell--narrow {
-    max-width: 520px;
+/* Full-bleed layout for game/map/overview/task shells */
+.lg-shell--full {
+    align-self: stretch;
+    width: 100%;
+    max-width: none;
+}
+
+/* Narrow centered column for auth/forms */
+.lg-shell--form {
+    max-width: 440px;
     align-self: center;
+    width: 100%;
+}
+
+/* Top chrome row (back + title actions) */
+.lg-page-header {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+    width: 100%;
+    margin-bottom: var(--lg-space-8);
+}
+
+/* Push footer actions to bottom of a column shell */
+.lg-stack-flex-grow {
+    flex-grow: 1;
+    min-height: var(--lg-space-16);
+}
+
+.lg-main-actions {
+    flex-direction: column;
+    flex-shrink: 0;
+    align-self: stretch;
+    margin-top: auto;
+}
+
+.lg-main-actions > Button {
+    align-self: stretch;
+}
+
+.lg-main-actions > Button + Button {
+    margin-top: var(--lg-space-12);
 }
 
 .lg-overlay-root {

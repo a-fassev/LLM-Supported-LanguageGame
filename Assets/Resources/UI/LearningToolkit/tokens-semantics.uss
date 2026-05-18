@@ -5,6 +5,7 @@
     --lg-bg-muted: var(--lg-cream-050);
     --lg-surface-1: rgba(251, 249, 243, 0.98);
     --lg-surface-2: rgba(254, 253, 251, 0.98);
+    --lg-bg-elevated: var(--lg-surface-2);
 
     --lg-text-main: var(--lg-ink-900);
     --lg-text-soft: var(--lg-ink-700);
@@ -26,4 +27,16 @@
 
     --lg-chip-new-bg: var(--lg-feedback-attention-bg);
     --lg-chip-bonus-bg: rgba(239, 229, 246, 0.85);
+
+    --lg-hud-bg: var(--lg-cream-050);
+    --lg-hud-border: var(--lg-stroke-strong);
+    --lg-hud-highlight: var(--lg-highlight-line);
+
+    --lg-task-bg: var(--lg-surface-1);
+    --lg-task-bg-hard: var(--lg-paper-100);
+    --lg-task-border: var(--lg-border-soft);
+    --lg-task-border-hard: var(--lg-terra-450);
+
+    --lg-card-highlight: var(--lg-highlight-line);
+    --lg-modal-border-game: var(--lg-sea-600);
 }
