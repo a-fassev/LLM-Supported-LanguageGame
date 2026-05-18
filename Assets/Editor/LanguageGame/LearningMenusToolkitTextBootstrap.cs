@@ -21,6 +21,8 @@ namespace LanguageGame.EditorTools
 
         private const string PanelTextAssetPath = "Assets/Resources/UI/LearningMenusPanelTextSettings.asset";
 
+        private const string PanelSettingsAssetPath = "Assets/Resources/UI/LearningMenusPanelSettings.asset";
+
         static LearningMenusToolkitTextBootstrap()
         {
             EditorApplication.delayCall += () => EnsureMenusTextAssets(forceRegenerateFont: false);
@@ -72,6 +74,9 @@ namespace LanguageGame.EditorTools
 
                 AssignDefaultFontReflection(panelText, fontAsset);
             }
+
+            EnsureFontReferences(panelText, sourceFont, fontAsset);
+            EnsurePanelSettingsReferencesTextSettings(panelText);
 
             EditorUtility.SetDirty(panelText);
             AssetDatabase.SaveAssets();
@@ -160,6 +165,68 @@ namespace LanguageGame.EditorTools
                 "m_DefaultFontAsset",
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             fi?.SetValue(panelText, fa);
+        }
+
+        /// <summary>
+        /// Prevents stale/corrupt entries (for example a ThemeStyleSheet GUID in m_FontReferences) which can
+        /// trigger editor mesh generation warnings.
+        /// </summary>
+        private static void EnsureFontReferences(PanelTextSettings panelText, Font sourceFont, FontAsset fontAsset)
+        {
+            if (panelText == null || sourceFont == null || fontAsset == null)
+                return;
+
+            var so = new SerializedObject(panelText);
+            SerializedProperty refs = so.FindProperty("m_FontReferences");
+            if (refs == null || !refs.isArray)
+                return;
+
+            refs.arraySize = 1;
+            SerializedProperty item = refs.GetArrayElementAtIndex(0);
+            SerializedProperty fontProp = item.FindPropertyRelative("font");
+            SerializedProperty fontAssetProp = item.FindPropertyRelative("fontAsset");
+            if (fontProp != null)
+                fontProp.objectReferenceValue = sourceFont;
+            if (fontAssetProp != null)
+                fontAssetProp.objectReferenceValue = fontAsset;
+
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>
+        /// UITK editor mesh generation and UI Builder need <see cref="PanelSettings.textSettings"/> assigned on the asset,
+        /// not only at runtime in <see cref="LearningToolkitBootstrap"/>.
+        /// </summary>
+        private static void EnsurePanelSettingsReferencesTextSettings(PanelTextSettings panelText)
+        {
+            if (panelText == null)
+                return;
+
+            var panelSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsAssetPath);
+            if (panelSettings == null)
+            {
+                Debug.LogWarning(
+                    $"[LearningMenusToolkitTextBootstrap] Missing PanelSettings at {PanelSettingsAssetPath}.");
+                return;
+            }
+
+            if (panelSettings.textSettings == panelText)
+                return;
+
+            var so = new SerializedObject(panelSettings);
+            SerializedProperty textProp = so.FindProperty("m_TextSettings") ?? so.FindProperty("textSettings");
+            if (textProp != null && textProp.objectReferenceValue != panelText)
+            {
+                textProp.objectReferenceValue = panelText;
+                so.ApplyModifiedPropertiesWithoutUndo();
+            }
+            else if (panelSettings.textSettings == null)
+            {
+                panelSettings.textSettings = panelText;
+            }
+
+            EditorUtility.SetDirty(panelSettings);
+            so.Update();
         }
 
         private static void EnsureFolderHierarchy(params string[] segments)
