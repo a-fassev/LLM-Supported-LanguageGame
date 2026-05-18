@@ -241,8 +241,43 @@ namespace LanguageGame.Presentation.Steps
         /// </summary>
         public SpecialScreenSmsChromeDto smsChrome;
 
+        /// <summary>
+        /// Zeitschrift-/Buch-reader chrome: static illustration + scrollable prose (optional two columns, optional line numbers).
+        /// Used with <c>taskType</c> <c>SpecialScreenReader</c> or <c>screenVariant</c> <c>reader</c>.
+        /// </summary>
+        public SpecialScreenReaderChromeDto readerChrome;
+
         /// <summary>Ordered blocks shown sequentially inside one shell step.</summary>
         public SpecialScreenBlockDto[] blocks;
+    }
+
+    /// <summary>Reader/magazine layout chrome for <see cref="SpecialScreenContentDto"/> (JsonUtility field names match JSON keys).</summary>
+    [Serializable]
+    public sealed class SpecialScreenReaderChromeDto
+    {
+        /// <summary>Optional hero image (absolute http/https).</summary>
+        public string imageUrl;
+
+        /// <summary>Article title inside the reader panel (optional; falls back to root <c>title</c>).</summary>
+        public string headline;
+
+        /// <summary>Optional subline under the headline (falls back to root <c>subtitle</c>).</summary>
+        public string subheadline;
+
+        /// <summary>Long reading text; newlines preserved.</summary>
+        public string bodyText;
+
+        /// <summary>
+        /// <c>1</c> or <c>2</c> text columns. Values outside that range default to <c>2</c> for magazine-style layout.
+        /// When <see cref="showLineNumbers"/> is true, Unity uses a single column regardless.
+        /// </summary>
+        public int columnCount;
+
+        /// <summary>
+        /// When true, prefix each textual line with a monotonic index (Bücher/Auszüge — line references).
+        /// Implies single-column layout in the client.
+        /// </summary>
+        public bool showLineNumbers;
     }
 
     /// <summary>Messenger-style status bar + chat list for special screens (JsonUtility field names match JSON keys).</summary>
@@ -276,6 +311,7 @@ namespace LanguageGame.Presentation.Steps
         /// <summary>Optional small caption above bubble text.</summary>
         public string author;
 
+        /// <summary>Optional preview line while another «part» is active; if omitted and this row hosts a mechanic for another block, Unity shows a muted placeholder («…»).</summary>
         public string text;
 
         /// <summary>
@@ -284,7 +320,10 @@ namespace LanguageGame.Presentation.Steps
         /// </summary>
         public bool hostsEmbeddedMechanic;
 
-        /// <summary>Index into root <c>blocks</c> when <see cref="hostsEmbeddedMechanic"/> is true.</summary>
+        /// <summary>
+        /// Index into root <c>blocks</c> when <see cref="hostsEmbeddedMechanic"/> is true.
+        /// Unity <see cref="UnityEngine.JsonUtility"/> treats omitted integers as <c>0</c>; always author this field explicitly when embedding any block other than the first.
+        /// </summary>
         public int embeddedMechanicBlockIndex;
     }
 

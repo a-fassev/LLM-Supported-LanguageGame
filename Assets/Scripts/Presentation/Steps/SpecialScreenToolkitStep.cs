@@ -1,22 +1,28 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UIElements;
 
 namespace LanguageGame.Presentation.Steps
 {
     /// <summary>
     /// Host step for <c>SpecialScreen*</c> tasks: shared chrome + sequential embedded mechanics (blocks).
-    /// Learners move between parts with <c>Indietro</c> / <c>Avanti</c>; shell primary <c>Controlla</c> completes only after every block validates (must be on the last part).
+    /// Learners move between parts with «←» / «→» (same chrome as multiple-choice paging); shell primary <c>Controlla</c> completes only after every block validates (must be on the last part).
     /// </summary>
     public sealed class SpecialScreenToolkitStep : IStepView, ISubmitFromShell
     {
         private const string HostUxmlResourcePath = "UI/LearningToolkit/SpecialScreenHost";
 
+        /// <summary>Shown when a message hosts a mechanic for another «part» and no preview <c>text</c> was authored.</summary>
+        private const string MessengerDeferredMechanicPlaceholder = "…";
+
         private readonly VisualElement _host;
 
         private VisualElement _root;
         private VisualElement _blockArea;
+        private VisualElement _navRow;
         private Button _prevButton;
         private Button _nextButton;
         private Label _progressLabel;
@@ -26,11 +32,17 @@ namespace LanguageGame.Presentation.Steps
 
         private readonly List<ISpecialScreenNestedBlock> _blocks = new();
         private readonly List<VisualElement> _slots = new();
+        private readonly List<Coroutine> _readerImageLoads = new();
+        private readonly List<Texture2D> _readerRemoteTextures = new();
 
         private int _currentIndex;
         private bool _contentReady;
         private bool _interactable = true;
         private bool _useMessengerChrome;
+        private bool _useReaderChrome;
+        private bool _readerDisplayOnly;
+
+        private readonly MonoBehaviour _coroutineHost;
 
         private enum BlockKind
         {
@@ -52,9 +64,10 @@ namespace LanguageGame.Presentation.Steps
             bool IsBinderReady { get; }
         }
 
-        public SpecialScreenToolkitStep(VisualElement host, MonoBehaviour _)
+        public SpecialScreenToolkitStep(VisualElement host, MonoBehaviour coroutineHost)
         {
             _host = host ?? throw new ArgumentNullException(nameof(host));
+            _coroutineHost = coroutineHost;
         }
 
         public void Bind(StepContext context, Action<StepCompletionRequest> onRequest)
@@ -67,6 +80,8 @@ namespace LanguageGame.Presentation.Steps
             _contentReady = false;
             _interactable = true;
             _useMessengerChrome = false;
+            _useReaderChrome = false;
+            _readerDisplayOnly = false;
 
             _host.Clear();
 
@@ -80,7 +95,11 @@ namespace LanguageGame.Presentation.Steps
                 return;
             }
 
-            _useMessengerChrome = ShouldUseMessengerChrome(dto, context?.taskType ?? string.Empty);
+            var tt = context?.taskType ?? string.Empty;
+            _useReaderChrome = ShouldUseReaderChrome(dto, tt);
+            _useMessengerChrome = ShouldUseMessengerChrome(dto, tt);
+            var readerWithoutMechanicsBlocks = dto.blocks == null || dto.blocks.Length == 0;
+            _readerDisplayOnly = _useReaderChrome && readerWithoutMechanicsBlocks;
 
             if (!TryBuildChrome())
             {
@@ -92,37 +111,44 @@ namespace LanguageGame.Presentation.Steps
             ApplyMessengerChromeShell();
             ApplyChromeTitles(dto);
 
-            foreach (var blockDto in dto.blocks)
+            if (_readerDisplayOnly)
             {
-                var slot = new VisualElement();
-                slot.style.flexGrow = 1;
-                slot.style.display = DisplayStyle.None;
-                _blockArea.Add(slot);
-                _slots.Add(slot);
-                _blocks.Add(CreateNestedBlock(blockDto));
+                BuildReaderLayout(dto, context);
             }
-
-            for (var i = 0; i < _blocks.Count; i++)
+            else
             {
-                if (_useMessengerChrome)
-                    BuildMessengerChromeInSlot(_slots[i], dto, i, _blocks[i], context);
-                else
-                    _blocks[i].Bind(_slots[i], context);
+                foreach (var blockDto in dto.blocks)
+                {
+                    var slot = new VisualElement();
+                    slot.style.flexGrow = 1;
+                    slot.style.display = DisplayStyle.None;
+                    _blockArea.Add(slot);
+                    _slots.Add(slot);
+                    _blocks.Add(CreateNestedBlock(blockDto));
+                }
+
+                for (var i = 0; i < _blocks.Count; i++)
+                {
+                    if (_useMessengerChrome)
+                        BuildMessengerChromeInSlot(_slots[i], dto, i, _blocks[i], context);
+                    else
+                        _blocks[i].Bind(_slots[i], context);
+                }
+
+                for (var i = 0; i < _blocks.Count; i++)
+                {
+                    if (_blocks[i].IsBinderReady)
+                        continue;
+
+                    context?.presentValidationMessage?.Invoke(
+                        $"La parte {i + 1} non è stata caricata correttamente.");
+                    AbortIncompleteBind();
+                    return;
+                }
+
+                if (_slots.Count > 0)
+                    _slots[0].style.display = DisplayStyle.Flex;
             }
-
-            for (var i = 0; i < _blocks.Count; i++)
-            {
-                if (_blocks[i].IsBinderReady)
-                    continue;
-
-                context?.presentValidationMessage?.Invoke(
-                    $"La parte {i + 1} non è stata caricata correttamente.");
-                AbortIncompleteBind();
-                return;
-            }
-
-            if (_slots.Count > 0)
-                _slots[0].style.display = DisplayStyle.Flex;
 
             RefreshNavigationChrome();
             _contentReady = true;
@@ -146,11 +172,14 @@ namespace LanguageGame.Presentation.Steps
                 return;
             }
 
-            if (_currentIndex != _blocks.Count - 1)
+            if (!_useReaderChrome || !_readerDisplayOnly)
             {
-                _context?.presentValidationMessage?.Invoke(
-                    "Completa tutte le parti con «Avanti» prima di premere Controlla.");
-                return;
+                if (_currentIndex != _blocks.Count - 1)
+                {
+                    _context?.presentValidationMessage?.Invoke(
+                        "Completa tutte le parti con «→» prima di premere Controlla.");
+                    return;
+                }
             }
 
             foreach (var block in _blocks)
@@ -167,6 +196,7 @@ namespace LanguageGame.Presentation.Steps
 
         public void Teardown()
         {
+            StopReaderRemoteLoads();
             foreach (var b in _blocks)
                 b.Teardown();
             _blocks.Clear();
@@ -176,16 +206,20 @@ namespace LanguageGame.Presentation.Steps
             _onRequest = null;
             _root = null;
             _blockArea = null;
+            _navRow = null;
             _prevButton = null;
             _nextButton = null;
             _progressLabel = null;
             _currentIndex = 0;
             _contentReady = false;
             _useMessengerChrome = false;
+            _useReaderChrome = false;
+            _readerDisplayOnly = false;
         }
 
         private void TeardownInner()
         {
+            StopReaderRemoteLoads();
             foreach (var b in _blocks)
                 b.Teardown();
             _blocks.Clear();
@@ -193,16 +227,20 @@ namespace LanguageGame.Presentation.Steps
             _host.Clear();
             _root = null;
             _blockArea = null;
+            _navRow = null;
             _prevButton = null;
             _nextButton = null;
             _progressLabel = null;
             _currentIndex = 0;
             _contentReady = false;
             _useMessengerChrome = false;
+            _useReaderChrome = false;
+            _readerDisplayOnly = false;
         }
 
         private void AbortIncompleteBind()
         {
+            StopReaderRemoteLoads();
             foreach (var b in _blocks)
                 b.Teardown();
             _blocks.Clear();
@@ -210,12 +248,15 @@ namespace LanguageGame.Presentation.Steps
             _host.Clear();
             _root = null;
             _blockArea = null;
+            _navRow = null;
             _prevButton = null;
             _nextButton = null;
             _progressLabel = null;
             _currentIndex = 0;
             _contentReady = false;
             _useMessengerChrome = false;
+            _useReaderChrome = false;
+            _readerDisplayOnly = false;
         }
 
         private bool TryBuildChrome()
@@ -249,6 +290,7 @@ namespace LanguageGame.Presentation.Steps
         {
             _root = _host.Q<VisualElement>("special-screen-root") ?? _host;
             _blockArea = _root.Q<VisualElement>("special-screen-block-area");
+            _navRow = _root.Q<VisualElement>("special-screen-nav-row");
             _prevButton = _root.Q<Button>("special-screen-prev");
             _nextButton = _root.Q<Button>("special-screen-next");
             _progressLabel = _root.Q<Label>("special-screen-progress");
@@ -287,31 +329,33 @@ namespace LanguageGame.Presentation.Steps
             subtitle.style.marginBottom = 8;
             outer.Add(subtitle);
 
-            var progress = new Label { name = "special-screen-progress" };
-            progress.AddToClassList("lg-text-caption");
-            progress.style.marginBottom = 12;
-            outer.Add(progress);
-
             var blockArea = new VisualElement { name = "special-screen-block-area" };
             blockArea.style.flexGrow = 1;
             blockArea.style.minHeight = 120;
             outer.Add(blockArea);
 
-            var navRow = new VisualElement();
+            var navRow = new VisualElement { name = "special-screen-nav-row" };
             navRow.style.flexDirection = FlexDirection.Row;
-            navRow.style.justifyContent = Justify.SpaceBetween;
+            navRow.style.alignItems = Align.Center;
+            navRow.style.justifyContent = Justify.Center;
             navRow.style.flexShrink = 0;
             navRow.style.marginTop = 12;
 
-            var prev = new Button { name = "special-screen-prev", text = "Indietro" };
+            var prev = new Button { name = "special-screen-prev", text = "\u2190" };
             prev.AddToClassList("lg-btn");
             prev.AddToClassList("lg-btn--secondary");
 
-            var next = new Button { name = "special-screen-next", text = "Avanti" };
+            var progress = new Label { name = "special-screen-progress" };
+            progress.AddToClassList("lg-text-caption");
+            progress.style.marginLeft = 12;
+            progress.style.marginRight = 12;
+
+            var next = new Button { name = "special-screen-next", text = "\u2192" };
             next.AddToClassList("lg-btn");
-            next.AddToClassList("lg-btn--primary");
+            next.AddToClassList("lg-btn--secondary");
 
             navRow.Add(prev);
+            navRow.Add(progress);
             navRow.Add(next);
             outer.Add(navRow);
 
@@ -323,10 +367,13 @@ namespace LanguageGame.Presentation.Steps
             if (_blockArea == null)
                 return;
 
+            _blockArea.RemoveFromClassList("lg-special-screen-block-area");
+            _blockArea.RemoveFromClassList("lg-special-screen-reader-area");
+
             if (_useMessengerChrome)
                 _blockArea.AddToClassList("lg-special-screen-block-area");
-            else
-                _blockArea.RemoveFromClassList("lg-special-screen-block-area");
+            else if (_readerDisplayOnly)
+                _blockArea.AddToClassList("lg-special-screen-reader-area");
         }
 
         private void ApplyChromeTitles(SpecialScreenContentDto dto)
@@ -334,7 +381,7 @@ namespace LanguageGame.Presentation.Steps
             var titleLabel = _root.Q<Label>("special-screen-title");
             if (titleLabel != null)
             {
-                if (_useMessengerChrome)
+                if (_useMessengerChrome || _readerDisplayOnly)
                 {
                     titleLabel.style.display = DisplayStyle.None;
                 }
@@ -349,7 +396,7 @@ namespace LanguageGame.Presentation.Steps
             var subtitleLabel = _root.Q<Label>("special-screen-subtitle");
             if (subtitleLabel != null)
             {
-                if (_useMessengerChrome)
+                if (_useMessengerChrome || _readerDisplayOnly)
                 {
                     subtitleLabel.style.display = DisplayStyle.None;
                 }
@@ -362,6 +409,10 @@ namespace LanguageGame.Presentation.Steps
             }
         }
 
+        /// <summary>
+        /// Smartphone mockup + scroll transcript for one «part». The message list repeats for every block index;
+        /// only the bubble matching <paramref name="slotBlockIndex"/> receives interactive mechanics.
+        /// </summary>
         private void BuildMessengerChromeInSlot(
             VisualElement slot,
             SpecialScreenContentDto dto,
@@ -407,10 +458,17 @@ namespace LanguageGame.Presentation.Steps
             scroll.AddToClassList("lg-special-phone__scroll");
             scroll.style.flexGrow = 1;
 
-            foreach (var msgDto in dto.smsChrome.messages)
+            var msgs = dto.smsChrome.messages;
+            for (var mi = 0; mi < msgs.Length; mi++)
             {
+                var msgDto = msgs[mi];
                 if (msgDto == null)
+                {
+                    Debug.LogWarning(
+                        $"[SpecialScreenToolkitStep] smsChrome.messages[{mi}] is null; skipping bubble " +
+                        $"(messenger payloads should fail validation — check authoring).");
                     continue;
+                }
 
                 var incoming = IsIncomingDirection(msgDto.direction);
                 var embedHere = msgDto.hostsEmbeddedMechanic &&
@@ -451,7 +509,18 @@ namespace LanguageGame.Presentation.Steps
                         body.style.whiteSpace = WhiteSpace.Normal;
                         bubble.Add(body);
                     }
+                    else if (msgDto.hostsEmbeddedMechanic)
+                    {
+                        var deferred = new Label(MessengerDeferredMechanicPlaceholder);
+                        deferred.AddToClassList("lg-special-bubble__text");
+                        deferred.AddToClassList("lg-text-muted");
+                        deferred.style.whiteSpace = WhiteSpace.Normal;
+                        bubble.Add(deferred);
+                    }
                 }
+
+                if (bubble.childCount == 0)
+                    continue;
 
                 row.Add(bubble);
                 scroll.Add(row);
@@ -461,8 +530,284 @@ namespace LanguageGame.Presentation.Steps
             slot.Add(phone);
         }
 
+        private void StopReaderRemoteLoads()
+        {
+            if (_coroutineHost != null)
+            {
+                foreach (var c in _readerImageLoads)
+                {
+                    if (c != null)
+                        _coroutineHost.StopCoroutine(c);
+                }
+            }
+
+            _readerImageLoads.Clear();
+            foreach (var tex in _readerRemoteTextures)
+            {
+                if (tex != null)
+                    UnityEngine.Object.Destroy(tex);
+            }
+
+            _readerRemoteTextures.Clear();
+        }
+
+        private void BuildReaderLayout(SpecialScreenContentDto dto, StepContext _)
+        {
+            StopReaderRemoteLoads();
+            _blockArea.Clear();
+
+            var rc = dto.readerChrome ?? new SpecialScreenReaderChromeDto();
+            var rawBody = rc.bodyText ?? string.Empty;
+            var body = rawBody.Replace("\r\n", "\n").Replace('\r', '\n');
+
+            var scroll = new ScrollView(ScrollViewMode.Vertical);
+            scroll.AddToClassList("lg-special-reader-scroll");
+            scroll.style.flexGrow = 1;
+
+            var panel = new VisualElement();
+            panel.AddToClassList("lg-special-reader-panel");
+            scroll.Add(panel);
+            _blockArea.Add(scroll);
+
+            var imageUrl = rc.imageUrl?.Trim() ?? string.Empty;
+            if (!string.IsNullOrEmpty(imageUrl))
+            {
+                var hero = new VisualElement();
+                hero.AddToClassList("lg-special-reader__image");
+                panel.Add(hero);
+
+                if (ToolkitStepHttpResourceUrl.IsAllowed(imageUrl, out _) && _coroutineHost != null)
+                {
+                    _readerImageLoads.Add(_coroutineHost.StartCoroutine(LoadReaderImage(imageUrl, hero)));
+                }
+                else if (!ToolkitStepHttpResourceUrl.IsAllowed(imageUrl, out var errImg))
+                    Debug.LogWarning($"[SpecialScreenToolkitStep] Reader image URL skipped: {errImg}");
+            }
+
+            var headline = !(string.IsNullOrWhiteSpace(rc.headline))
+                ? rc.headline.Trim()
+                : dto.title?.Trim() ?? string.Empty;
+            if (!string.IsNullOrEmpty(headline))
+            {
+                var hl = new Label(headline);
+                hl.AddToClassList("lg-heading-screen");
+                hl.AddToClassList("lg-special-reader__headline");
+                hl.style.whiteSpace = WhiteSpace.Normal;
+                panel.Add(hl);
+            }
+
+            var sub = !(string.IsNullOrWhiteSpace(rc.subheadline))
+                ? rc.subheadline.Trim()
+                : dto.subtitle?.Trim() ?? string.Empty;
+            if (!string.IsNullOrEmpty(sub))
+            {
+                var sl = new Label(sub);
+                sl.AddToClassList("lg-text-body");
+                sl.AddToClassList("lg-text-muted");
+                sl.AddToClassList("lg-special-reader__subhead");
+                sl.style.whiteSpace = WhiteSpace.Normal;
+                panel.Add(sl);
+            }
+
+            if (rc.showLineNumbers)
+            {
+                AddReaderLineNumberBlock(panel, body);
+            }
+            else if (EffectiveColumnCount(rc) >= 2)
+            {
+                AddReaderTwoColumns(panel, body);
+            }
+            else
+            {
+                var single = new Label(body);
+                single.AddToClassList("lg-text-body");
+                single.AddToClassList("lg-special-reader__body");
+                single.style.whiteSpace = WhiteSpace.Normal;
+                panel.Add(single);
+            }
+        }
+
+        private static int EffectiveColumnCount(SpecialScreenReaderChromeDto rc)
+        {
+            if (rc == null)
+                return 2;
+
+            return rc.columnCount switch
+            {
+                1 => 1,
+                2 => 2,
+                _ => 2,
+            };
+        }
+
+        private static void AddReaderLineNumberBlock(VisualElement panel, string body)
+        {
+            var lineNo = 1;
+            foreach (var line in SplitLinesPreserveTrailing(body))
+            {
+                var row = new VisualElement();
+                row.AddToClassList("lg-special-reader__line-row");
+
+                var num = new Label($"{lineNo}");
+                num.AddToClassList("lg-text-caption");
+                num.AddToClassList("lg-special-reader__line-num");
+
+                var txt = new Label(line);
+                txt.AddToClassList("lg-text-body");
+                txt.AddToClassList("lg-special-reader__line-text");
+                txt.style.whiteSpace = WhiteSpace.Normal;
+
+                row.Add(num);
+                row.Add(txt);
+                panel.Add(row);
+                lineNo++;
+            }
+        }
+
+        private static IEnumerable<string> SplitLinesPreserveTrailing(string body)
+        {
+            if (body.Length == 0)
+            {
+                yield return string.Empty;
+                yield break;
+            }
+
+            foreach (var line in body.Split('\n'))
+                yield return line;
+        }
+
+        /// <remarks>
+        /// Note: prefers paragraph splits (<c>\n\n</c>); falls back to a midpoint word wrap for long single blocks.
+        /// </remarks>
+        private static void AddReaderTwoColumns(VisualElement panel, string body)
+        {
+            var trimmed = (body ?? string.Empty).Trim();
+            if (string.IsNullOrEmpty(trimmed))
+                return;
+
+            var paragraphs = SplitParagraphList(trimmed);
+            string leftText;
+            string rightText;
+
+            if (paragraphs.Count >= 2)
+            {
+                var k = Math.Max(1, (paragraphs.Count + 1) / 2);
+                leftText = string.Join("\n\n", paragraphs.GetRange(0, k));
+                rightText = paragraphs.Count > k
+                    ? string.Join("\n\n", paragraphs.GetRange(k, paragraphs.Count - k))
+                    : string.Empty;
+            }
+            else
+            {
+                leftText = SplitAtApproximateMidpoint(trimmed, out rightText);
+            }
+
+            var row = new VisualElement();
+            row.AddToClassList("lg-special-reader__columns-row");
+
+            var left = new VisualElement();
+            left.AddToClassList("lg-special-reader__column");
+            left.AddToClassList("lg-special-reader__column--first");
+            var l = new Label(leftText);
+            l.AddToClassList("lg-text-body");
+            l.AddToClassList("lg-special-reader__body");
+            l.style.whiteSpace = WhiteSpace.Normal;
+            left.Add(l);
+
+            var right = new VisualElement();
+            right.AddToClassList("lg-special-reader__column");
+            right.AddToClassList("lg-special-reader__column--second");
+            var r = new Label(rightText);
+            r.AddToClassList("lg-text-body");
+            r.AddToClassList("lg-special-reader__body");
+            r.style.whiteSpace = WhiteSpace.Normal;
+            right.Add(r);
+
+            row.Add(left);
+            row.Add(right);
+            panel.Add(row);
+        }
+
+        private static string SplitAtApproximateMidpoint(string text, out string right)
+        {
+            right = string.Empty;
+            if (string.IsNullOrEmpty(text))
+                return string.Empty;
+
+            if (text.Length < 2)
+                return text;
+
+            var mid = text.Length / 2;
+            var split = text.LastIndexOf(' ', mid);
+            if (split <= 0)
+                split = text.IndexOf(' ', mid, StringComparison.Ordinal);
+            if (split <= 0)
+                return text;
+
+            var left = text.Substring(0, split).Trim();
+            right = text.Substring(split).Trim();
+            return left;
+        }
+
+        private static List<string> SplitParagraphList(string body)
+        {
+            var trimmed = body.Trim();
+            if (string.IsNullOrEmpty(trimmed))
+                return new List<string>();
+
+            var parts = trimmed.Split(new[] { "\n\n" }, StringSplitOptions.None);
+            var list = new List<string>();
+            foreach (var p in parts)
+            {
+                var t = (p ?? string.Empty).Trim();
+                if (!string.IsNullOrEmpty(t))
+                    list.Add(t.Trim());
+            }
+
+            return list.Count > 0 ? list : new List<string> { trimmed };
+        }
+
+        private IEnumerator LoadReaderImage(string url, VisualElement target)
+        {
+            if (!ToolkitStepHttpResourceUrl.TryVerifyForClientFetch(url, out var verr))
+            {
+                Debug.LogWarning($"[SpecialScreenToolkitStep] Reader image blocked: {verr}");
+                yield break;
+            }
+
+            using var req = UnityWebRequestTexture.GetTexture(url);
+            yield return req.SendWebRequest();
+            if (req.result != UnityWebRequest.Result.Success || target == null)
+                yield break;
+
+            var tex = DownloadHandlerTexture.GetContent(req);
+            if (tex == null)
+                yield break;
+
+            _readerRemoteTextures.Add(tex);
+            target.style.backgroundImage = new StyleBackground(tex);
+        }
+
+        private static bool ShouldUseReaderChrome(SpecialScreenContentDto dto, string taskType)
+        {
+            if (dto == null)
+                return false;
+
+            var readerTask =
+                !string.IsNullOrEmpty(taskType) &&
+                string.Equals(taskType, "SpecialScreenReader", StringComparison.OrdinalIgnoreCase);
+
+            var v = dto.screenVariant?.Trim() ?? string.Empty;
+            var readerVariant = string.Equals(v, "reader", StringComparison.OrdinalIgnoreCase);
+
+            return readerTask || readerVariant;
+        }
+
         private static bool ShouldUseMessengerChrome(SpecialScreenContentDto dto, string taskType)
         {
+            if (ShouldUseReaderChrome(dto, taskType))
+                return false;
+
             if (dto?.smsChrome?.messages == null || dto.smsChrome.messages.Length == 0)
                 return false;
 
@@ -502,13 +847,24 @@ namespace LanguageGame.Presentation.Steps
             {
                 var m = messages[mi];
                 if (m == null)
-                    continue;
+                {
+                    error = $"Messaggio {mi + 1}: contenuto mancante.";
+                    return false;
+                }
 
                 var dir = m.direction?.Trim() ?? string.Empty;
                 if (!string.Equals(dir, "incoming", StringComparison.OrdinalIgnoreCase) &&
                     !string.Equals(dir, "outgoing", StringComparison.OrdinalIgnoreCase))
                 {
                     error = $"Messaggio {mi + 1}: «direction» deve essere incoming o outgoing.";
+                    return false;
+                }
+
+                if (!m.hostsEmbeddedMechanic &&
+                    string.IsNullOrWhiteSpace(m.text) &&
+                    string.IsNullOrWhiteSpace(m.author))
+                {
+                    error = $"Messaggio {mi + 1}: serve «text», «author» oppure hostsEmbeddedMechanic.";
                     return false;
                 }
 
@@ -544,7 +900,7 @@ namespace LanguageGame.Presentation.Steps
 
         private void OnPrevClicked()
         {
-            if (!_contentReady || !_interactable || _currentIndex <= 0)
+            if (!_contentReady || !_interactable || _currentIndex <= 0 || _slots.Count == 0)
                 return;
 
             _slots[_currentIndex].style.display = DisplayStyle.None;
@@ -555,7 +911,7 @@ namespace LanguageGame.Presentation.Steps
 
         private void OnNextClicked()
         {
-            if (!_contentReady || !_interactable || _currentIndex >= _blocks.Count - 1)
+            if (!_contentReady || !_interactable || _slots.Count == 0 || _currentIndex >= _blocks.Count - 1)
                 return;
 
             if (!_blocks[_currentIndex].TryValidate(out var msg))
@@ -572,21 +928,27 @@ namespace LanguageGame.Presentation.Steps
 
         private void RefreshNavigationChrome()
         {
+            var hidePaging = _readerDisplayOnly && _slots.Count == 0;
+
+            if (_navRow != null)
+                _navRow.style.display = hidePaging ? DisplayStyle.None : DisplayStyle.Flex;
+
             if (_progressLabel != null)
             {
-                _progressLabel.text = _blocks.Count > 0
-                    ? $"Parte {_currentIndex + 1} di {_blocks.Count}"
-                    : string.Empty;
+                _progressLabel.text =
+                    hidePaging || _blocks.Count == 0
+                        ? string.Empty
+                        : $"Parte {_currentIndex + 1} di {_blocks.Count}";
             }
 
-            var atFirst = _currentIndex <= 0;
-            var atLast = _blocks.Count == 0 || _currentIndex >= _blocks.Count - 1;
+            var atFirst = hidePaging || _currentIndex <= 0;
+            var atLast = hidePaging || _blocks.Count == 0 || _currentIndex >= _blocks.Count - 1;
 
             if (_prevButton != null)
-                _prevButton.SetEnabled(_interactable && !atFirst);
+                _prevButton.SetEnabled(_interactable && !hidePaging && !atFirst && _slots.Count > 0);
 
             if (_nextButton != null)
-                _nextButton.SetEnabled(_interactable && !atLast);
+                _nextButton.SetEnabled(_interactable && !hidePaging && !atLast && _slots.Count > 0);
         }
 
         private static BlockKind ClassifyBlock(string raw)
@@ -675,29 +1037,68 @@ namespace LanguageGame.Presentation.Steps
             }
 
             dto = JsonUtility.FromJson<SpecialScreenContentDto>(json);
-            if (dto?.blocks == null || dto.blocks.Length == 0)
+            if (dto == null)
+            {
+                error = "Contenuto della schermata speciale non valido.";
+                return false;
+            }
+
+            var tt = taskType ?? string.Empty;
+            var useReader = ShouldUseReaderChrome(dto, tt);
+            var hasBlocks = dto.blocks != null && dto.blocks.Length > 0;
+
+            if (!useReader && !hasBlocks)
             {
                 error = "Serve almeno un blocco nella schermata speciale.";
                 return false;
             }
 
-            for (var i = 0; i < dto.blocks.Length; i++)
+            if (useReader)
             {
-                var b = dto.blocks[i];
-                if (b == null || string.IsNullOrWhiteSpace(b.blockType))
+                var rc = dto.readerChrome;
+                if (rc == null)
                 {
-                    error = $"Blocco {i + 1}: manca blockType.";
+                    error = string.Equals(tt, "SpecialScreenReader", StringComparison.OrdinalIgnoreCase)
+                        ? "Serve readerChrome per SpecialScreenReader."
+                        : "Per screenVariant «reader» serve readerChrome.";
                     return false;
                 }
 
-                if (!ValidateBlockPayload(b, out var blockError))
+                if (string.IsNullOrWhiteSpace(rc.bodyText))
                 {
-                    error = $"Blocco {i + 1}: {blockError}";
+                    error = "readerChrome.bodyText non può essere vuoto.";
+                    return false;
+                }
+
+                var imgUrl = rc.imageUrl?.Trim() ?? string.Empty;
+                if (!string.IsNullOrEmpty(imgUrl) &&
+                    !ToolkitStepHttpResourceUrl.IsAllowed(imgUrl, out _))
+                {
+                    error = "URL dell'immagine nel reader non consentito (usa https pubblico).";
                     return false;
                 }
             }
 
-            if (ShouldUseMessengerChrome(dto, taskType ?? string.Empty) &&
+            if (hasBlocks)
+            {
+                for (var i = 0; i < dto.blocks.Length; i++)
+                {
+                    var b = dto.blocks[i];
+                    if (b == null || string.IsNullOrWhiteSpace(b.blockType))
+                    {
+                        error = $"Blocco {i + 1}: manca blockType.";
+                        return false;
+                    }
+
+                    if (!ValidateBlockPayload(b, out var blockError))
+                    {
+                        error = $"Blocco {i + 1}: {blockError}";
+                        return false;
+                    }
+                }
+            }
+
+            if (ShouldUseMessengerChrome(dto, tt) &&
                 !ValidateMessengerChrome(dto, out error))
                 return false;
 
@@ -821,6 +1222,7 @@ namespace LanguageGame.Presentation.Steps
         {
             private readonly SpecialScreenStubBlockDto _dto;
             private bool _ready;
+            private VisualElement _slot;
 
             public StubNestedBlock(SpecialScreenStubBlockDto dto)
             {
@@ -832,7 +1234,8 @@ namespace LanguageGame.Presentation.Steps
             public void Bind(VisualElement slot, StepContext parentContext)
             {
                 _ready = false;
-                slot.Clear();
+                _slot = slot ?? throw new ArgumentNullException(nameof(slot));
+                _slot.Clear();
 
                 var panel = new VisualElement();
                 panel.style.paddingTop = 8;
@@ -859,7 +1262,7 @@ namespace LanguageGame.Presentation.Steps
                 body.style.whiteSpace = WhiteSpace.Normal;
                 panel.Add(body);
 
-                slot.Add(panel);
+                _slot.Add(panel);
                 _ready = true;
             }
 
@@ -868,6 +1271,8 @@ namespace LanguageGame.Presentation.Steps
             public void Teardown()
             {
                 _ready = false;
+                _slot?.Clear();
+                _slot = null;
             }
 
             public bool TryValidate(out string message)

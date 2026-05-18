@@ -12,7 +12,7 @@ description: >-
 
 Special Screens are **normal tasks** (`game_quest_steps.step_kind = task`): progression stays **`complete_quest_step_task`** / shell **Controlla**, not cutscene advance.
 
-One server row hosts **several mechanics** as **`blocks[]`**, sequenced with **Indietro** / **Avanti** inside [`SpecialScreenToolkitStep.cs`](Assets/Scripts/Presentation/Steps/SpecialScreenToolkitStep.cs). Shell **Controlla** only on the **last** part; it re-validates **every** block.
+One server row usually hosts **several mechanics** as **`blocks[]`**, sequenced with **←** / **→** (same arrow chrome as multiple-choice paging) inside [`SpecialScreenToolkitStep.cs`](Assets/Scripts/Presentation/Steps/SpecialScreenToolkitStep.cs). Shell **Controlla** only on the **last** part; it re-validates **every** block. **Display-only readers** (**`SpecialScreenReader`** / **`screenVariant` `reader`** with empty **`blocks`**) hide paging; **Controlla** submits immediately once the chrome is loaded.
 
 Contract tables and learner-copy notes: **`docs/task-type-ui-guide.md`** (Special Screen section).
 
@@ -23,10 +23,11 @@ Contract tables and learner-copy notes: **`docs/task-type-ui-guide.md`** (Specia
 
 ## `contentJson` (Unity `JsonUtility`)
 
-- Root DTOs: **`SpecialScreenContentDto`**, **`SpecialScreenBlockDto`**, **`SpecialScreenStubBlockDto`**, optional **`SpecialScreenSmsChromeDto`** / **`SpecialScreenChatMessageDto`** in [`ToolkitStepContentDtos.cs`](Assets/Scripts/Presentation/Steps/ToolkitStepContentDtos.cs).
+- Root DTOs: **`SpecialScreenContentDto`**, **`SpecialScreenBlockDto`**, **`SpecialScreenStubBlockDto`**, optional **`SpecialScreenReaderChromeDto`**, **`SpecialScreenSmsChromeDto`** / **`SpecialScreenChatMessageDto`** in [`ToolkitStepContentDtos.cs`](Assets/Scripts/Presentation/Steps/ToolkitStepContentDtos.cs).
 - **`screenVariant`**: authoring hint for skins (`sms`, **`whatsapp`** (green outgoing bubbles), `mail`, `photo`, `reader`, …).
-- **`smsChrome`**: optional messenger transcript + status bar; when messenger mode is active (`SpecialScreenSms` task type **or** `screenVariant` `sms`/`whatsapp`), Unity renders a smartphone mockup + **`ScrollView`** chat and embeds mechanics in bubbles (`hostsEmbeddedMechanic` + `embeddedMechanicBlockIndex`). Styles: **`special-screen-messenger.uss`** (imported by **`theme-learn.uss`**).
-- **`blocks[]`**: required, non-empty; each row has **`blockType`** plus exactly one nested payload.
+- **`smsChrome`**: optional messenger transcript + status bar; when messenger mode is active (`SpecialScreenSms` task type **or** `screenVariant` `sms`/`whatsapp`), Unity renders a smartphone mockup + **`ScrollView`** chat and embeds mechanics in bubbles (`hostsEmbeddedMechanic` + `embeddedMechanicBlockIndex`; **always author `embeddedMechanicBlockIndex` when not block `0`** — JsonUtility defaults omitted ints to `0`). Deferred-mechanic rows without **`text`** show a muted **`…`**; entirely empty rows are rejected at parse time and omitted at runtime. Styles: **`special-screen-messenger.uss`** (imported by **`theme-learn.uss`**).
+- **`readerChrome`**: magazine/book reader (**`SpecialScreenReader`** **or** `screenVariant` **`reader`**): optional **`imageUrl`** + **`bodyText`**, **`columnCount`**, **`showLineNumbers`**. **Empty `blocks`** = display-only shell (arrow row hidden); messenger chrome is suppressed when reader mode applies. USS: **`special-screen-reader.uss`** (via **`theme-learn.uss`**).
+- **`blocks[]`**: required for messenger / generic multi-mechanic payloads (non-empty). For reader display-only payloads, **`blocks`** may be **omitted** or **`[]`**.
 
 **Supported `blockType`** (case-insensitive aliases in code): **`cloze_text` / `ClozeText`**, **`error_spotting` / `ErrorSpotting`**, **`stub`**.
 
@@ -53,14 +54,15 @@ For purely visual chrome (SMS frame, mail headers): prefer branching on **`scree
 ## Backend reminder
 
 - **`task_type`** is free text paired with **`step_kind`** rules; no new **`step_kind`** required.
-- Example seed script pattern: **`supabase/scripts/special_screen_foundation_demo.sql`**; SMS/WhatsApp demo: **`supabase/scripts/special_screen_sms_whatsapp_demo.sql`**.
+- Example seed script pattern: **`supabase/scripts/special_screen_foundation_demo.sql`**; SMS/WhatsApp demo: **`supabase/scripts/special_screen_sms_whatsapp_demo.sql`**; Reader demo: **`supabase/scripts/special_screen_reader_demo.sql`**.
 
 ## Checklist
 
 - [ ] Payload parses at bind time; **`IsBinderReady`** passes for every block after bind (host aborts cleanly otherwise).
 - [ ] **`presentValidationMessage`** for learner errors only (no extra overlay stack).
 - [ ] New **`task_type`** added to **`IsSpecialScreenTaskType`** when introducing another **`SpecialScreen*`** alias.
-- [ ] Play Mode: **Avanti** gates progression; **Controlla** completes task + wallet overlay path unchanged.
+- [ ] Play Mode (multi-block): **→** gates progression; **Controlla** completes task + wallet overlay path unchanged.
+- [ ] Play Mode (**reader-only**): no **→**, **Controlla** succeeds from the single screen once content parsed.
 
 ## Key paths
 
@@ -71,5 +73,6 @@ For purely visual chrome (SMS frame, mail headers): prefer branching on **`scree
 | Factory | `Assets/Scripts/Presentation/Steps/ToolkitStepFactory.cs` |
 | Chrome UXML | `Assets/Resources/UI/LearningToolkit/SpecialScreenHost.uxml` |
 | Messenger USS | `Assets/Resources/UI/LearningToolkit/special-screen-messenger.uss` (via `theme-learn.uss`) |
-| Demo seed SQL | `supabase/scripts/special_screen_sms_whatsapp_demo.sql` |
+| Reader USS | `Assets/Resources/UI/LearningToolkit/special-screen-reader.uss` (via `theme-learn.uss`) |
+| Demo seed SQL | `supabase/scripts/special_screen_sms_whatsapp_demo.sql`; reader: `special_screen_reader_demo.sql` |
 | Shell | `Assets/Scripts/Presentation/QuestShellView.cs` |

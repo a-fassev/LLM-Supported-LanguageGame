@@ -181,25 +181,45 @@ Minimal `contentJson` / **`content_payload`** template:
 Behaviour summary:
 
 - **`step_kind`** remains **`task`** — progression uses the normal shell **Controlla** → **`complete_quest_step_task`** flow (same as other puzzle tasks).
-- One server step hosts **multiple ordered mechanics** inside **`blocks`**; learners move with **Indietro** / **Avanti** inside the screen.
-- **Avanti** validates the **current** block only (embedded **`ClozeText`** / **`ErrorSpotting`** rules).
-- Shell **Controlla** is accepted only on the **last** block and then validates **every** block again before **`StepCompletionRequest`** fires.
+- **Reader display-only** (**`SpecialScreenReader`** or **`screenVariant`**: **`reader`** with optional empty **`blocks`**): Unity renders **`readerChrome`** (hero image + long text, optional two columns or line-numbered excerpt). Paging **←** / **→** is **hidden**; **Controlla** completes the step with no embedded mechanic validation.
+- For all other special screens, one server step hosts **multiple ordered mechanics** inside **`blocks`**; learners move with **←** / **→** (same pattern as multiple-choice paging, with a centered progress caption between the arrows).
+- **→** validates the **current** block only (embedded **`ClozeText`** / **`ErrorSpotting`** rules), when **`blocks`** is non-empty.
+- Shell **Controlla** is accepted only on the **last** block (or immediately in reader display-only mode) and then validates **every** block again before **`StepCompletionRequest`** fires (no-op when there are zero blocks).
 
 **Learner-facing validation copy** for special screens and for embedded **`ClozeText`** / **`ErrorSpotting`** blocks is **Italian** (aligned with standalone error-spotting tasks).
 
 Chrome loads from **`SpecialScreenHost`** (`Assets/Resources/UI/LearningToolkit/SpecialScreenHost.uxml`) with a **programmatic fallback** if Resources loading fails.
 
-DTO types live beside other payloads in **`ToolkitStepContentDtos.cs`** (`SpecialScreenContentDto`, `SpecialScreenSmsChromeDto`, `SpecialScreenChatMessageDto`, `SpecialScreenBlockDto`, `SpecialScreenStubBlockDto`).
+DTO types live beside other payloads in **`ToolkitStepContentDtos.cs`** (`SpecialScreenContentDto`, `SpecialScreenReaderChromeDto`, `SpecialScreenSmsChromeDto`, `SpecialScreenChatMessageDto`, `SpecialScreenBlockDto`, `SpecialScreenStubBlockDto`).
 
 #### Top-level `contentJson`
 
 | Field | Required | Notes |
 | ----- | -------- | ----- |
 | **`screenVariant`** | no | Authoring hint (`sms`, `whatsapp`, `mail`, `photo`, `reader`, `generic`, …). `whatsapp` applies a subtle green tint to outgoing bubbles. |
-| **`title`** | no | Chrome headline (hidden when messenger chrome is active so the phone mockup stays focused) |
-| **`subtitle`** | no | Chrome subline (hidden when messenger chrome is active) |
-| **`smsChrome`** | no | Messenger transcript + status bar. When present **and** messenger mode is active (see below), Unity renders a **smartphone mockup**, **scrollable** chat, and hosts mechanics inside bubbles. |
-| **`blocks`** | yes | Non-empty ordered array |
+| **`title`** | no | Chrome headline (hidden for messenger **or** reader display-only; reader may fall back to **`readerChrome.headline`**) |
+| **`subtitle`** | no | Chrome subline (hidden for messenger **or** reader display-only; reader may fall back to **`readerChrome.subheadline`**) |
+| **`smsChrome`** | no | Messenger transcript + status bar. When present **and** messenger mode is active (see below), Unity renders a **smartphone mockup**, **scrollable** chat, and hosts mechanics inside bubbles. Ignored when reader mode wins (see below). |
+| **`readerChrome`** | yes for reader mode | Required when **`taskType`** is **`SpecialScreenReader`** **or** **`screenVariant`** is **`reader`**. See **Reader mode** below. |
+| **`blocks`** | yes *except* reader display-only | Non-empty ordered array for messenger / generic multi-part screens. For **display-only reader** steps, omit **`blocks`** or send an empty array `[]`. |
+
+#### Reader mode (magazine / book excerpt)
+
+Reader UI activates when **`taskType`** is **`SpecialScreenReader`** **or** **`screenVariant`** is **`reader`** (case-insensitive). **`readerChrome`** is **required** and **`readerChrome.bodyText`** must be non-empty (plain text; newlines preserved).
+
+- **Messenger conflict:** if reader mode applies, **`smsChrome`** / messenger layout is **not** used (even if `smsChrome.messages` is populated).
+- **Remote images:** optional **`readerChrome.imageUrl`** must be an absolute **`http`/`https`** URL allowed by **`ToolkitStepHttpResourceUrl`** (same rules as other toolkit steps).
+- **`columnCount`:** **`1`** or **`2`**. **`2`** (default when omitted or any other value) uses a **two-column** magazine flow: paragraphs split on blank lines (`\n\n`); a single long paragraph is split near the midpoint on a space.
+- **`showLineNumbers`:** when **`true`**, each line (split on `\n`) is shown with a **monotonic line index** in the gutter; **single-column** only (Unity ignores multi-column for this mode).
+- **Shell paging:** hidden when **`blocks`** is empty; learners press **Controlla** to complete.
+
+| `readerChrome` field | Required | Notes |
+| -------------------- | -------- | ----- |
+| **`bodyText`** | yes | Long reading copy |
+| **`imageUrl`** | no | Optional hero illustration |
+| **`headline`** / **`subheadline`** | no | In-panel titles; fall back to root **`title`** / **`subtitle`** when empty |
+| **`columnCount`** | no | `1` or `2` (see above) |
+| **`showLineNumbers`** | no | Book-excerpt style line numbers |
 
 #### Messenger mode (SMS / WhatsApp viewer)
 
@@ -214,9 +234,15 @@ Rules (Unity client validation):
 
 - Every chat message must set **`direction`** to **`incoming`** (left / NPC-style) or **`outgoing`** (right / player-style).
 - **Each** entry in **`blocks`** must be referenced by **exactly one** chat message with **`hostsEmbeddedMechanic`: true** and matching **`embeddedMechanicBlockIndex`** (0-based index into **`blocks`**). Embed the mechanic that should appear inside that bubble (typically **`cloze_text`**).
+- **Unity `JsonUtility`**: if **`embeddedMechanicBlockIndex`** is **omitted** from JSON, it deserializes as **`0`** — always include the property explicitly when targeting block index **`1`** or higher (otherwise authoring mistakes may surface only as wrong-slot UX).
 - Messages without `hostsEmbeddedMechanic` use plain **`text`** (optional **`author`** caption above the bubble).
+- Rows must include at least one of **`text`**, **`author`**, or **`hostsEmbeddedMechanic`** — purely empty rows fail validation.
+- **`null` entries inside `messages`** are rejected at parse time.
+- For a row with **`hostsEmbeddedMechanic`** targeting **another** block than the active «part», provide optional **`text`** as a conversational preview; if **`text`** is empty, Unity shows a muted **`…`** placeholder instead of an empty bubble.
+- Fully empty bubbles (no author, no body, no mechanic slot on this part) are **not** rendered.
 - **`smsChrome.statusBar`**: optional; **`timeText`** and **`signalHint`** are atmosphere-only (defaults apply if omitted).
 - **`smsChrome.chatHeaderTitle`**: optional in-app header (e.g. contact name).
+- For a learner completing **their own** reply, host **`cloze_text`** in an **`outgoing`** bubble; NPC prompts stay **`incoming`**.
 
 Server storage: PostgreSQL column is **`content_payload` (jsonb)**; HTTP/API exposes the same object as **`contentJson`**.
 
@@ -235,7 +261,7 @@ Example (minimal multi-block):
 {
   "screenVariant": "generic",
   "title": "Schermata speciale (esempio)",
-  "subtitle": "Usa «Avanti» tra le parti, poi «Controlla».",
+  "subtitle": "Usa «→» tra le parti, poi «Controlla».",
   "blocks": [
     {
       "blockType": "cloze_text",
@@ -278,15 +304,10 @@ Example (**`SpecialScreenSms`**, WhatsApp-style skin, single embedded **`cloze_t
       {
         "direction": "incoming",
         "author": "Marco",
-        "text": "Ciao! Hai tempo per una pizza stasera?"
+        "text": "Ciao! Pizza stasera? A che ora ti va bene?"
       },
       {
         "direction": "outgoing",
-        "text": "Certo, perché no?"
-      },
-      {
-        "direction": "incoming",
-        "author": "Marco",
         "hostsEmbeddedMechanic": true,
         "embeddedMechanicBlockIndex": 0,
         "text": ""
@@ -302,15 +323,50 @@ Example (**`SpecialScreenSms`**, WhatsApp-style skin, single embedded **`cloze_t
         "lines": [
           {
             "segments": [
-              { "kind": "text", "text": "Perfetto, ci vediamo alle " },
+              { "kind": "text", "text": "Alle " },
               { "kind": "gap", "correctAnswers": ["otto", "8"], "maxLength": 12 },
-              { "kind": "text", "text": "." }
+              { "kind": "text", "text": " va bene!" }
             ]
           }
         ]
       }
     }
   ]
+}
+```
+
+Example (**`SpecialScreenReader`**, magazine-style two-column body + hero image):
+
+```json
+{
+  "screenVariant": "reader",
+  "title": "",
+  "subtitle": "",
+  "readerChrome": {
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/320px-Cat03.jpg",
+    "headline": "Rubrica cultura — La città che legge",
+    "subheadline": "Articolo dimostrativo (testo sintetico).",
+    "columnCount": 2,
+    "showLineNumbers": false,
+    "bodyText": "Questo contenuto è un esempio per la rubrica ludica.\n\nLa lettura permette una pausa dall'azione degli altri compiti della quest.\n\nUsa nuovi paragrafi (riga vuota) per decidere dove spezzare le colonne: il client raggruppa i paragrafi nella colonna sinistra e poi in quella destra.\n\nAlla fine, il giocatore preme solo «Controlla» per continuare."
+  },
+  "blocks": []
+}
+```
+
+Example (**book excerpt**, line-numbered single column):
+
+```json
+{
+  "screenVariant": "reader",
+  "readerChrome": {
+    "headline": "Estratto dal libro",
+    "subheadline": "Riferimenti con numeri di riga.",
+    "columnCount": 2,
+    "showLineNumbers": true,
+    "bodyText": "Era una mattina luminosa quando Anna uscì di casa.\nSentiva già odore di pane fresco dall'angolo.\nDecise di fermarsi prima del tram."
+  },
+  "blocks": []
 }
 ```
 
