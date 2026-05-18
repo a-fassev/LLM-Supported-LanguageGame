@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 
 namespace LanguageGame.Presentation.Steps
 {
-    /// <summary>Error-spotting / Fehlersuche: tap incorrect segments, correct inline, validate on shell Check.</summary>
+    /// <summary>Error-spotting / Fehlersuche: any segment can be marked; selected spans use an inline correction field; validation on Check.</summary>
     public sealed class ErrorSpottingToolkitStep : IStepView, ISubmitFromShell
     {
         private static readonly Regex WhitespaceCollapse = new(@"\s+");
@@ -164,6 +164,16 @@ namespace LanguageGame.Presentation.Steps
 
             SyncDraftsFromFields();
 
+            foreach (var sid in _selectedSegmentIds)
+            {
+                if (!_trueErrorIds.Contains(sid))
+                {
+                    _context?.presentValidationMessage?.Invoke(
+                        "Hai marcato anche una parte che non è uno sbaglio. Rimuovi la selezione.");
+                    return;
+                }
+            }
+
             foreach (var eid in _trueErrorIds)
             {
                 if (!_selectedSegmentIds.Contains(eid))
@@ -244,12 +254,6 @@ namespace LanguageGame.Presentation.Steps
             if (seg == null)
                 return;
 
-            if (!seg.isError)
-            {
-                // No overlay: do not reveal whether this span is an error.
-                return;
-            }
-
             if (_selectedSegmentIds.Contains(id))
                 _selectedSegmentIds.Remove(id);
             else
@@ -277,7 +281,7 @@ namespace LanguageGame.Presentation.Steps
 
             var chipText = seg.text ?? string.Empty;
 
-            if (!seg.isError)
+            if (!_selectedSegmentIds.Contains(id))
             {
                 var btn = new Button { text = chipText };
                 btn.AddToClassList("lg-error-spotting-chip");
@@ -288,33 +292,21 @@ namespace LanguageGame.Presentation.Steps
                 return;
             }
 
-            if (_selectedSegmentIds.Contains(id))
-            {
-                var initial = string.Empty;
-                if (_correctionDrafts.TryGetValue(id, out var draft))
-                    initial = draft;
+            var initial = string.Empty;
+            if (_correctionDrafts.TryGetValue(id, out var draft))
+                initial = draft;
 
-                var tf = new TextField { value = initial, maxLength = CorrectionMaxLength };
-                tf.AddToClassList("lg-textfield");
-                tf.AddToClassList("lg-error-spotting-inline-field");
-                tf.tooltip = seg.hint ?? string.Empty;
-                tf.SetEnabled(_interactable && _contentReady);
-                tf.RegisterValueChangedCallback(ev =>
-                {
-                    _correctionDrafts[id] = ev.newValue ?? string.Empty;
-                });
-                slot.Add(tf);
-                _correctionFields[id] = tf;
-            }
-            else
+            var tf = new TextField { value = initial, maxLength = CorrectionMaxLength };
+            tf.AddToClassList("lg-textfield");
+            tf.AddToClassList("lg-error-spotting-inline-field");
+            tf.tooltip = seg.hint ?? string.Empty;
+            tf.SetEnabled(_interactable && _contentReady);
+            tf.RegisterValueChangedCallback(ev =>
             {
-                var btn = new Button { text = chipText };
-                btn.AddToClassList("lg-error-spotting-chip");
-                btn.tooltip = seg.hint ?? string.Empty;
-                btn.clicked += () => OnChipClicked(id);
-                btn.SetEnabled(_interactable && _contentReady);
-                slot.Add(btn);
-            }
+                _correctionDrafts[id] = ev.newValue ?? string.Empty;
+            });
+            slot.Add(tf);
+            _correctionFields[id] = tf;
         }
 
         private void RefreshAllSlots()

@@ -237,7 +237,7 @@ Anti-pattern (invalid — missing **`body`**, server returns 502):
 
 **Implementation:** **`ErrorSpottingToolkitStep`**.
 
-Interactive “Fehlersuche”: only segments with **`isError`** react to taps (toggle + inline correction). Taps on other spans are **ignored with no feedback** so the UI does not reveal which words are wrong. Each flagged span toggles to an **inline `TextField`** for the correction (drafts persist while toggling other words). **Ripristina** clears selections and correction drafts. **Check** validates selections + inline answers against **`acceptedCorrections`** (client-side).
+Interactive “Fehlersuche”: **every** segment can be marked/unmarked. A **marked** span shows an **inline `TextField`** (same UX for all tokens); wrong-mark validation and `acceptedCorrections` checks happen only on **Check**. **Ripristina** clears selections and drafts.
 
 | Field | Notes |
 | ----- | ------ |
@@ -247,7 +247,7 @@ Interactive “Fehlersuche”: only segments with **`isError`** react to taps (t
 | **`expectedErrorRange`** | **`min`**, **`max`** — **authoring only**: the counted `true` error segments (`isError`) must satisfy **`min ≤ count ≤ max`**. Not shown verbatim to learners unless you use **`{min}` / `{max}`** inside **`counterCaption`** |
 | **`segments`** | Ordered list of **`id`**, **`text`**, **`isError`**, **`acceptedCorrections`** (required when `isError`; case-insensitive, whitespace-collapsed matching), optional **`hint`**
 
-Learner must select **exactly all** erroneous segments (non-error taps do nothing) and type a correction in each inline field matching one of **`acceptedCorrections`** before completion.
+Learner must end with **exactly** the set of segments where **`isError`** is true (any extra mark or missing error fails on **Check**), and each true-error inline answer must match one of **`acceptedCorrections`**. Inline text on non-error marks is ignored for correction scoring but selection still counts toward the “wrong mark” check.
 
 Example (minimal):
 
