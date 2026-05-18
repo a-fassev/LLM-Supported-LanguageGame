@@ -246,8 +246,7 @@ namespace LanguageGame.Presentation.Steps
 
             if (!seg.isError)
             {
-                _context?.presentValidationMessage?.Invoke(
-                    "Questa parte non è un errore. Scegli solo le parole sbagliate.");
+                // No overlay: do not reveal whether this span is an error.
                 return;
             }
 
