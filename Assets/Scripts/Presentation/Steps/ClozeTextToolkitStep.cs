@@ -38,7 +38,7 @@ namespace LanguageGame.Presentation.Steps
             _contentReady = false;
             _root.Clear();
 
-            if (!TryDeserialize(context?.contentJson, out var dto, out var error))
+            if (!TryParseContentDto(context?.contentJson, out var dto, out var error))
             {
                 Debug.LogWarning($"[ClozeTextToolkitStep] Invalid contentJson: {error ?? "unknown"}");
                 context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? "Invalid cloze content." : error);
@@ -133,10 +133,25 @@ namespace LanguageGame.Presentation.Steps
 
         public void SubmitFromShell()
         {
+            if (!TryValidateLocally(out var message))
+            {
+                _context?.presentValidationMessage?.Invoke(message);
+                return;
+            }
+
+            _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true });
+        }
+
+        /// <summary>
+        /// Client-side validation without completing the step (used by composite hosts such as <see cref="SpecialScreenToolkitStep"/>).
+        /// </summary>
+        public bool TryValidateLocally(out string message)
+        {
+            message = null;
             if (!_contentReady)
             {
-                _context?.presentValidationMessage?.Invoke("This task is not ready yet. Check the lesson content.");
-                return;
+                message = "This task is not ready yet. Check the lesson content.";
+                return false;
             }
 
             foreach (var slot in _gaps)
@@ -146,18 +161,18 @@ namespace LanguageGame.Presentation.Steps
                 var typed = (slot.field.value ?? string.Empty).Trim();
                 if (typed.Length == 0)
                 {
-                    _context?.presentValidationMessage?.Invoke("Fill in every gap.");
-                    return;
+                    message = "Fill in every gap.";
+                    return false;
                 }
 
                 if (!MatchesAnyAnswer(typed, slot.answers, slot.caseInsensitive))
                 {
-                    _context?.presentValidationMessage?.Invoke("Not quite — check your answers.");
-                    return;
+                    message = "Not quite — check your answers.";
+                    return false;
                 }
             }
 
-            _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true });
+            return true;
         }
 
         public void Teardown()
@@ -168,7 +183,7 @@ namespace LanguageGame.Presentation.Steps
             _root?.RemoveFromHierarchy();
         }
 
-        private static bool TryDeserialize(string json, out ClozeTextContentDto dto, out string error)
+        internal static bool TryParseContentDto(string json, out ClozeTextContentDto dto, out string error)
         {
             dto = null;
             error = null;

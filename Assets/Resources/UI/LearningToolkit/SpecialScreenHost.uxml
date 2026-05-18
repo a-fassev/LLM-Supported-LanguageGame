@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="special-screen-root" class="lg-muted-panel"
+        style="flex-grow: 1; flex-direction: column; padding-left: 16px; padding-right: 16px; padding-top: 16px; padding-bottom: 16px;">
+        <ui:Label name="special-screen-title" class="lg-heading-screen"
+            style="white-space: normal; margin-bottom: 8px;" />
+        <ui:Label name="special-screen-subtitle" class="lg-text-body lg-text-muted"
+            style="white-space: normal; margin-bottom: 8px;" />
+        <ui:Label name="special-screen-progress" class="lg-text-caption" style="margin-bottom: 12px;" />
+        <ui:VisualElement name="special-screen-block-area" style="flex-grow: 1; min-height: 120px;" />
+        <ui:VisualElement style="flex-direction: row; justify-content: space-between; flex-shrink: 0; margin-top: 12px;">
+            <ui:Button name="special-screen-prev" text="Previous" class="lg-btn lg-btn--secondary" />
+            <ui:Button name="special-screen-next" text="Next" class="lg-btn lg-btn--primary" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

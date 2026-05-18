@@ -219,4 +219,46 @@ namespace LanguageGame.Presentation.Steps
         public string ariaNote;
         public string primaryCtaLabel;
     }
+
+    /// <summary>
+    /// Special-screen task (<c>SpecialScreen*</c> server <c>task_type</c>): chrome + ordered embedded mechanics.
+    /// Parsed with <see cref="UnityEngine.JsonUtility"/> from server <c>contentJson</c>.
+    /// </summary>
+    [Serializable]
+    public sealed class SpecialScreenContentDto
+    {
+        /// <summary>
+        /// Authoring hint for frame/layout variants (e.g. sms, mail, photo, reader); UI-specific skins may branch on this.</summary>
+        public string screenVariant;
+
+        public string title;
+        public string subtitle;
+
+        /// <summary>Ordered blocks shown sequentially inside one shell step.</summary>
+        public SpecialScreenBlockDto[] blocks;
+    }
+
+    /// <summary>
+    /// One mechanic embedded in a special screen. Exactly one nested payload field should be populated for the given <see cref="blockType"/>.
+    /// </summary>
+    [Serializable]
+    public sealed class SpecialScreenBlockDto
+    {
+        /// <summary>
+        /// Supported values (case-insensitive): <c>cloze_text</c>, <c>ClozeText</c>, <c>error_spotting</c>, <c>ErrorSpotting</c>, <c>stub</c>.
+        /// </summary>
+        public string blockType;
+
+        public ClozeTextContentDto clozeText;
+        public ErrorSpottingContentDto errorSpotting;
+        public SpecialScreenStubBlockDto stub;
+    }
+
+    /// <summary>Placeholder block for authoring shells not yet wired to a mechanic.</summary>
+    [Serializable]
+    public sealed class SpecialScreenStubBlockDto
+    {
+        public string headline;
+        public string body;
+    }
 }

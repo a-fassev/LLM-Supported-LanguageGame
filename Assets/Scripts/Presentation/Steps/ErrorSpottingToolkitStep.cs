@@ -57,7 +57,7 @@ namespace LanguageGame.Presentation.Steps
             ResetState();
             _root.Clear();
 
-            if (!TryDeserialize(context?.contentJson, out var dto, out var error))
+            if (!TryParseContentDto(context?.contentJson, out var dto, out var error))
             {
                 Debug.LogWarning($"[ErrorSpottingToolkitStep] Invalid contentJson: {error ?? "unknown"}");
                 context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? "Invalid error-spotting content." : error);
@@ -150,16 +150,31 @@ namespace LanguageGame.Presentation.Steps
 
         public void SubmitFromShell()
         {
+            if (!TryValidateLocally(out var message))
+            {
+                _context?.presentValidationMessage?.Invoke(message);
+                return;
+            }
+
+            _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true });
+        }
+
+        /// <summary>
+        /// Client-side validation without completing the step (used by composite hosts such as <see cref="SpecialScreenToolkitStep"/>).
+        /// </summary>
+        public bool TryValidateLocally(out string message)
+        {
+            message = null;
             if (!_contentReady || _dto == null)
             {
-                _context?.presentValidationMessage?.Invoke("Il compito non è pronto. Controlla i contenuti.");
-                return;
+                message = "Il compito non è pronto. Controlla i contenuti.";
+                return false;
             }
 
             if (!_interactable)
             {
-                _context?.presentValidationMessage?.Invoke("Attendi un attimo…");
-                return;
+                message = "Attendi un attimo…";
+                return false;
             }
 
             SyncDraftsFromFields();
@@ -168,9 +183,9 @@ namespace LanguageGame.Presentation.Steps
             {
                 if (!_trueErrorIds.Contains(sid))
                 {
-                    _context?.presentValidationMessage?.Invoke(
-                        "Hai marcato anche una parte che non è uno sbaglio. Rimuovi la selezione.");
-                    return;
+                    message =
+                        "Hai marcato anche una parte che non è uno sbaglio. Rimuovi la selezione.";
+                    return false;
                 }
             }
 
@@ -178,8 +193,8 @@ namespace LanguageGame.Presentation.Steps
             {
                 if (!_selectedSegmentIds.Contains(eid))
                 {
-                    _context?.presentValidationMessage?.Invoke("Devi selezionare tutti gli errori nel testo.");
-                    return;
+                    message = "Devi selezionare tutti gli errori nel testo.";
+                    return false;
                 }
             }
 
@@ -191,20 +206,20 @@ namespace LanguageGame.Presentation.Steps
                 var typed = NormalizeAnswer(raw);
                 if (typed.Length == 0)
                 {
-                    _context?.presentValidationMessage?.Invoke("Scrivi la correzione per ogni errore.");
-                    return;
+                    message = "Scrivi la correzione per ogni errore.";
+                    return false;
                 }
 
                 var segDto = FindSegment(eid);
                 if (segDto == null ||
                     !MatchesAnyCorrection(typed, segDto.acceptedCorrections))
                 {
-                    _context?.presentValidationMessage?.Invoke("Non ancora corretto — controlla le tue parole.");
-                    return;
+                    message = "Non ancora corretto — controlla le tue parole.";
+                    return false;
                 }
             }
 
-            _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true });
+            return true;
         }
 
         public void Teardown()
@@ -376,7 +391,7 @@ namespace LanguageGame.Presentation.Steps
             return n;
         }
 
-        private static bool TryDeserialize(string json, out ErrorSpottingContentDto dto, out string error)
+        internal static bool TryParseContentDto(string json, out ErrorSpottingContentDto dto, out string error)
         {
             dto = null;
             error = null;

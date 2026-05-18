@@ -11,7 +11,7 @@ Legacy **uGUI**, **`StepTemplateCatalog`**, and step **prefabs** were removed; d
 | Shell | `Assets/Scripts/Presentation/QuestShellView.cs` |
 | Factory | `Assets/Scripts/Presentation/Steps/ToolkitStepFactory.cs` |
 | Contracts | `Assets/Scripts/Presentation/Steps/IStepView.cs`, `ISubmitFromShell.cs`, `StepContext.cs` |
-| Implemented steps | `DragDropToolkitStep.cs`, `ClozeTextToolkitStep.cs`, `MultipleChoiceToolkitStep.cs`, `MatchingToolkitStep.cs`, `FreitextLlmToolkitStep.cs`, `CutsceneToolkitStep.cs`, `StubToolkitTaskStep.cs` |
+| Implemented steps | `DragDropToolkitStep.cs`, `ClozeTextToolkitStep.cs`, `MultipleChoiceToolkitStep.cs`, `MatchingToolkitStep.cs`, `FreitextLlmToolkitStep.cs`, `SpecialScreenToolkitStep.cs`, `CutsceneToolkitStep.cs`, `StubToolkitTaskStep.cs` |
 | Tokens | `UiDesignTokens.cs`, `UiThemeProvider.cs`; USS under `Assets/Resources/UI/LearningToolkit/` |
 
 ---
@@ -168,6 +168,75 @@ Minimal `contentJson` / **`content_payload`** template:
     ],
     "targetStructures": ["relative pronouns"]
   }
+}
+```
+
+---
+
+### Special Screen (`taskType`: `SpecialScreen`, `SpecialScreenSms`, `SpecialScreenMailEditor`, `SpecialScreenPhotoViewer`, `SpecialScreenReader`)
+
+**Implementation:** **`SpecialScreenToolkitStep`** (`ToolkitStepFactory` routes all variants to the same host).
+
+Behaviour summary:
+
+- **`step_kind`** remains **`task`** — progression uses the normal shell **Check** → **`complete_quest_step_task`** flow (same as other puzzle tasks).
+- One server step hosts **multiple ordered mechanics** inside **`blocks`**; learners move with **Previous** / **Next** inside the screen.
+- **Next** validates the **current** block only (embedded **`ClozeText`** / **`ErrorSpotting`** rules).
+- Shell **Check** is accepted only on the **last** block and then validates **every** block again before **`StepCompletionRequest`** fires.
+
+Chrome loads from **`SpecialScreenHost`** (`Assets/Resources/UI/LearningToolkit/SpecialScreenHost.uxml`) with a **programmatic fallback** if Resources loading fails.
+
+DTO types live beside other payloads in **`ToolkitStepContentDtos.cs`** (`SpecialScreenContentDto`, `SpecialScreenBlockDto`, `SpecialScreenStubBlockDto`).
+
+#### Top-level `contentJson`
+
+| Field | Required | Notes |
+| ----- | -------- | ----- |
+| **`screenVariant`** | no | Authoring hint (`sms`, `mail`, `photo`, `reader`, `generic`, …) for future skins |
+| **`title`** | no | Chrome headline |
+| **`subtitle`** | no | Chrome subline |
+| **`blocks`** | yes | Non-empty ordered array |
+
+#### Block object (`blocks[]`)
+
+| Field | Notes |
+| ----- | ----- |
+| **`blockType`** | `cloze_text` / `ClozeText`, `error_spotting` / `ErrorSpotting`, `stub` (case-insensitive) |
+| **`clozeText`** | Same shape as standalone **`ClozeText`** tasks |
+| **`errorSpotting`** | Same shape as standalone **`ErrorSpotting`** tasks |
+| **`stub`** | Optional **`headline`** / **`body`** placeholder copy |
+
+Example (minimal multi-block):
+
+```json
+{
+  "screenVariant": "generic",
+  "title": "Special screen foundation",
+  "subtitle": "Use Next between parts, then Check.",
+  "blocks": [
+    {
+      "blockType": "cloze_text",
+      "clozeText": {
+        "prompt": "Completa.",
+        "caseSensitive": false,
+        "lines": [
+          {
+            "segments": [
+              { "kind": "text", "text": "Mi chiamo " },
+              { "kind": "gap", "correctAnswers": ["Anna"], "maxLength": 24 }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "blockType": "stub",
+      "stub": {
+        "headline": "Placeholder chrome",
+        "body": "Future SMS / mail / reader frames attach here."
+      }
+    }
+  ]
 }
 ```
 
