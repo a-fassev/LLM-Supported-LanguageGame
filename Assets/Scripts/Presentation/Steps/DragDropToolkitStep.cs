@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UIElements;
@@ -8,7 +9,7 @@ using UnityEngine.UIElements;
 namespace LanguageGame.Presentation.Steps
 {
     /// <summary>Drag-and-drop task UI (UI Toolkit).</summary>
-    public sealed class DragDropToolkitStep : IStepView, ISubmitFromShell
+    public sealed class DragDropToolkitStep : IStepView, ISubmitFromShell, ITaskAttemptPayloadProvider
     {
         private const string DefaultBlocksSourceLabel = "Parole da spostare";
         private const string DefaultBlocksTargetLabel = "Trascina qui sotto nella categoria giusta";
@@ -193,6 +194,19 @@ namespace LanguageGame.Presentation.Steps
 
         public void SubmitFromShell()
         {
+            if (_context != null && QuestScoringPolicy.ServerScoresPizza(_context.rewardRulesJson))
+            {
+                if (!TryBuildTaskAttemptJson(out var json, out var aerr))
+                {
+                    if (!string.IsNullOrEmpty(aerr))
+                        _context?.presentValidationMessage?.Invoke(aerr);
+                    return;
+                }
+
+                _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true, taskAttemptJson = json });
+                return;
+            }
+
             if (!Validate())
                 return;
             _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true });
@@ -285,6 +299,49 @@ namespace LanguageGame.Presentation.Steps
                 }
             }
 
+            return true;
+        }
+
+        public bool TryBuildTaskAttemptJson(out string attemptJson, out string validationMessage)
+        {
+            attemptJson = null;
+            validationMessage = null;
+            if (!_contentReady || _dto == null)
+            {
+                validationMessage = "This task is not ready yet.";
+                return false;
+            }
+
+            var pairs = new List<string>();
+            foreach (var t in _dto.targets)
+            {
+                if (t == null || string.IsNullOrWhiteSpace(t.id))
+                    continue;
+                var tid = t.id.Trim();
+                if (!_occupant.TryGetValue(tid, out var placed) || placed == null)
+                    placed = new HashSet<string>(StringComparer.Ordinal);
+
+                if (_blocksMode)
+                {
+                    var ids = placed.OrderBy(x => x, StringComparer.Ordinal).ToList();
+                    var inner = string.Join(",", ids.Select(TaskAttemptJson.StringLiteral));
+                    pairs.Add(TaskAttemptJson.StringLiteral(tid) + ":[" + inner + "]");
+                }
+                else
+                {
+                    var only = FirstOf(placed) ?? string.Empty;
+                    pairs.Add(TaskAttemptJson.StringLiteral(tid) + ":" + TaskAttemptJson.StringLiteral(only));
+                }
+            }
+
+            if (pairs.Count == 0)
+            {
+                validationMessage = "Nessuna zona di rilascio configurata.";
+                return false;
+            }
+
+            attemptJson =
+                "{\"taskType\":\"DragDrop\",\"dragDrop\":{\"assignments\":{" + string.Join(",", pairs) + "}}}";
             return true;
         }
 

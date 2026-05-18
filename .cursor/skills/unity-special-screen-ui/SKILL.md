@@ -35,6 +35,15 @@ Contract tables and learner-copy notes: **`docs/task-type-ui-guide.md`** (Specia
 
 Nested payloads must satisfy the same rules as standalone tasks — **`ClozeTextToolkitStep.TryParseContentDto`**, **`ErrorSpottingToolkitStep.TryParseContentDto`**.
 
+## Server scoring (Next.js, must stay aligned)
+
+Authoritative pizza for **`SpecialScreen*`** steps uses the same **`complete`** attempt path as other tasks when `reward_rules.pizza` is **scored**. The server (`apps/web/lib/game/scoring/evaluateTaskAttempt.ts`, **`evaluateSpecialScreen`**):
+
+- Only **`stub`**, **`cloze_text` / `ClozeText`**, and **`error_spotting` / `ErrorSpotting`** in **`content_payload.blocks[]`** participate in scoring. Any other **`blockType`** → **502 `unsupported_special_screen_block`** (do not add mystery types in DB without updating **`mapSpecialBlockType`** + Zod attempt shapes + evaluator).
+- Missing nested **`clozeText`** / **`errorSpotting`** on a scored block → **`payload_invalid`** (not silent skip).
+- **Stub-only** `blocks[]` (no cloze/error): completion can succeed with **no pizza** for that step (implementation: eligibility **ratio** vs pizza-only **pizzaRatio** in the evaluator—stubs are not exercises).
+- Adding a **new embedded block kind** for scoring: extend Unity **`ClassifyBlock`** **and** server **`mapSpecialBlockType`**, attempt schema, and **`evaluateSpecialScreen`** branch together.
+
 ## Embedded mechanics
 
 - Reuse **`ClozeTextToolkitStep`** / **`ErrorSpottingToolkitStep`** with **`useMutedChrome: false`** so panels do not stack inside the host chrome.

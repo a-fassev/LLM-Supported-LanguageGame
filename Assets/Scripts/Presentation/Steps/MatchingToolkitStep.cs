@@ -12,7 +12,7 @@ namespace LanguageGame.Presentation.Steps
     /// Matching task: pair items from a left column to a right column by dragging a line from left to right,
     /// or by tapping a left item then tapping the matching right item.
     /// </summary>
-    public sealed class MatchingToolkitStep : IStepView, ISubmitFromShell
+    public sealed class MatchingToolkitStep : IStepView, ISubmitFromShell, ITaskAttemptPayloadProvider
     {
         private const float DragThresholdPx = 10f;
 
@@ -204,6 +204,19 @@ namespace LanguageGame.Presentation.Steps
 
         public void SubmitFromShell()
         {
+            if (_context != null && QuestScoringPolicy.ServerScoresPizza(_context.rewardRulesJson))
+            {
+                if (!TryBuildTaskAttemptJson(out var json, out var aerr))
+                {
+                    if (!string.IsNullOrEmpty(aerr))
+                        _context?.presentValidationMessage?.Invoke(aerr);
+                    return;
+                }
+
+                _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true, taskAttemptJson = json });
+                return;
+            }
+
             if (!ValidatePairs())
                 return;
             _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true });
@@ -529,6 +542,38 @@ namespace LanguageGame.Presentation.Steps
                 return false;
             }
 
+            return true;
+        }
+
+        public bool TryBuildTaskAttemptJson(out string attemptJson, out string validationMessage)
+        {
+            attemptJson = null;
+            validationMessage = null;
+            if (!_contentReady || _dto == null)
+            {
+                validationMessage = "Matching task is not ready yet.";
+                return false;
+            }
+
+            var elems = new List<string>();
+            foreach (var left in _dto.leftItems)
+            {
+                if (left == null || string.IsNullOrWhiteSpace(left.id))
+                    continue;
+                var lid = left.id.Trim();
+                _pairingLeftToRight.TryGetValue(lid, out var rid);
+                rid = string.IsNullOrEmpty(rid) ? string.Empty : rid.Trim();
+                elems.Add($"{TaskAttemptJson.StringLiteral(lid)}:{TaskAttemptJson.StringLiteral(rid)}");
+            }
+
+            if (elems.Count == 0)
+            {
+                validationMessage = "Matching task is incomplete.";
+                return false;
+            }
+
+            attemptJson =
+                "{\"taskType\":\"Matching\",\"matching\":{\"pairs\":{" + string.Join(",", elems) + "}}}";
             return true;
         }
 

@@ -13,7 +13,7 @@ namespace LanguageGame.Presentation.Steps
     /// via <see cref="SpecialScreenReaderChromeDto"/>, a photo gallery / slideshow via <see cref="SpecialScreenPhotoViewerChromeDto"/>,
     /// or an e-mail / letter editor frame via <see cref="SpecialScreenMailChromeDto"/>.
     /// </summary>
-    public sealed class SpecialScreenToolkitStep : IStepView, ISubmitFromShell
+    public sealed class SpecialScreenToolkitStep : IStepView, ISubmitFromShell, ITaskAttemptPayloadProvider
     {
         private const string HostUxmlResourcePath = "UI/LearningToolkit/SpecialScreenHost";
 
@@ -71,6 +71,9 @@ namespace LanguageGame.Presentation.Steps
             void Teardown();
 
             bool TryValidate(out string message);
+
+            /// <summary>JSON value for <c>specialScreen.blocks[]</c> (object or <c>null</c> literal).</summary>
+            bool TryExportBlockAttemptJson(out string jsonFragment, out string error);
 
             /// <summary>True when embedded <see cref="Bind"/> produced a usable mechanic.</summary>
             bool IsBinderReady { get; }
@@ -224,6 +227,31 @@ namespace LanguageGame.Presentation.Steps
                 return;
             }
 
+            if (_context != null && QuestScoringPolicy.ServerScoresPizza(_context.rewardRulesJson))
+            {
+                if (!_readerDisplayOnly)
+                {
+                    if (_blocks.Count > 0 && _currentIndex != _blocks.Count - 1)
+                    {
+                        var msg = _useMailChrome
+                            ? "Completa tutte le parti con «→» prima di premere Controlla o Invia."
+                            : "Completa tutte le parti con «→» prima di premere Controlla.";
+                        _context?.presentValidationMessage?.Invoke(msg);
+                        return;
+                    }
+                }
+
+                if (!TryBuildTaskAttemptJson(out var json, out var aerr))
+                {
+                    if (!string.IsNullOrEmpty(aerr))
+                        _context?.presentValidationMessage?.Invoke(aerr);
+                    return;
+                }
+
+                _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true, taskAttemptJson = json });
+                return;
+            }
+
             if (!_readerDisplayOnly)
             {
                 if (_blocks.Count > 0 && _currentIndex != _blocks.Count - 1)
@@ -271,12 +299,63 @@ namespace LanguageGame.Presentation.Steps
             _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true });
         }
 
+        public bool TryBuildTaskAttemptJson(out string attemptJson, out string validationMessage)
+        {
+            attemptJson = null;
+            validationMessage = null;
+            if (_context == null)
+            {
+                validationMessage = "Questa schermata non è ancora pronta.";
+                return false;
+            }
+
+            var tt = string.IsNullOrWhiteSpace(_context.taskType) ? "SpecialScreen" : _context.taskType.Trim();
+            if (_blocks.Count == 0)
+            {
+                attemptJson =
+                    "{\"taskType\":" +
+                    TaskAttemptJson.StringLiteral(tt) +
+                    ",\"specialScreen\":{\"blocks\":[]}}";
+                return true;
+            }
+
+            var frags = new List<string>(_blocks.Count);
+            foreach (var b in _blocks)
+            {
+                if (!b.TryExportBlockAttemptJson(out var frag, out var err))
+                {
+                    validationMessage = string.IsNullOrEmpty(err)
+                        ? "Impossibile esportare un blocco della schermata speciale."
+                        : err;
+                    return false;
+                }
+
+                frags.Add(frag);
+            }
+
+            attemptJson =
+                "{\"taskType\":" +
+                TaskAttemptJson.StringLiteral(tt) +
+                ",\"specialScreen\":{\"blocks\":[" +
+                string.Join(",", frags) +
+                "]}}";
+            return true;
+        }
+
         private void CompleteAfterMailAck()
         {
             _mailCompletionPending = false;
 
             if (!_contentReady || _context == null)
                 return;
+
+            if (QuestScoringPolicy.ServerScoresPizza(_context.rewardRulesJson))
+            {
+                if (!TryBuildTaskAttemptJson(out var json, out _))
+                    return;
+                _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true, taskAttemptJson = json });
+                return;
+            }
 
             _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true });
         }
@@ -1695,6 +1774,15 @@ namespace LanguageGame.Presentation.Steps
 
                 return _step.TryValidateLocally(out message);
             }
+
+            public bool TryExportBlockAttemptJson(out string jsonFragment, out string error)
+            {
+                jsonFragment = null;
+                error = null;
+                if (_step == null || !_step.TryBuildTaskAttemptJson(out jsonFragment, out error))
+                    return false;
+                return !string.IsNullOrEmpty(jsonFragment);
+            }
         }
 
         private sealed class ErrorSpottingNestedBlock : ISpecialScreenNestedBlock
@@ -1737,6 +1825,15 @@ namespace LanguageGame.Presentation.Steps
                 }
 
                 return _step.TryValidateLocally(out message);
+            }
+
+            public bool TryExportBlockAttemptJson(out string jsonFragment, out string error)
+            {
+                jsonFragment = null;
+                error = null;
+                if (_step == null || !_step.TryBuildTaskAttemptJson(out jsonFragment, out error))
+                    return false;
+                return !string.IsNullOrEmpty(jsonFragment);
             }
         }
 
@@ -1800,6 +1897,13 @@ namespace LanguageGame.Presentation.Steps
             public bool TryValidate(out string message)
             {
                 message = null;
+                return true;
+            }
+
+            public bool TryExportBlockAttemptJson(out string jsonFragment, out string error)
+            {
+                jsonFragment = "{\"taskType\":\"Stub\"}";
+                error = null;
                 return true;
             }
         }
@@ -2240,6 +2344,13 @@ namespace LanguageGame.Presentation.Steps
                     }
                 }
 
+                return true;
+            }
+
+            public bool TryExportBlockAttemptJson(out string jsonFragment, out string error)
+            {
+                jsonFragment = "{\"taskType\":\"Stub\"}";
+                error = null;
                 return true;
             }
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -7,7 +8,7 @@ using UnityEngine.UIElements;
 namespace LanguageGame.Presentation.Steps
 {
     /// <summary>Error-spotting / Fehlersuche: any segment can be marked; selected spans use an inline correction field; validation on Check.</summary>
-    public sealed class ErrorSpottingToolkitStep : IStepView, ISubmitFromShell
+    public sealed class ErrorSpottingToolkitStep : IStepView, ISubmitFromShell, ITaskAttemptPayloadProvider
     {
         private static readonly Regex WhitespaceCollapse = new(@"\s+");
 
@@ -159,6 +160,19 @@ namespace LanguageGame.Presentation.Steps
 
         public void SubmitFromShell()
         {
+            if (_context != null && QuestScoringPolicy.ServerScoresPizza(_context.rewardRulesJson))
+            {
+                if (!TryBuildTaskAttemptJson(out var json, out var aerr))
+                {
+                    if (!string.IsNullOrEmpty(aerr))
+                        _context?.presentValidationMessage?.Invoke(aerr);
+                    return;
+                }
+
+                _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true, taskAttemptJson = json });
+                return;
+            }
+
             if (!TryValidateLocally(out var message))
             {
                 _context?.presentValidationMessage?.Invoke(message);
@@ -228,6 +242,36 @@ namespace LanguageGame.Presentation.Steps
                 }
             }
 
+            return true;
+        }
+
+        public bool TryBuildTaskAttemptJson(out string attemptJson, out string validationMessage)
+        {
+            attemptJson = null;
+            validationMessage = null;
+            if (!_contentReady || _dto == null)
+            {
+                validationMessage = "Il compito non è pronto.";
+                return false;
+            }
+
+            SyncDraftsFromFields();
+
+            var selArr = string.Join(",", _selectedSegmentIds.OrderBy(x => x).Select(TaskAttemptJson.StringLiteral));
+            var corrParts = new List<string>();
+            foreach (var sid in _selectedSegmentIds.OrderBy(x => x))
+            {
+                _correctionDrafts.TryGetValue(sid, out var raw);
+                var v = NormalizeAnswer(raw ?? string.Empty);
+                corrParts.Add($"{TaskAttemptJson.StringLiteral(sid)}:{TaskAttemptJson.StringLiteral(v)}");
+            }
+
+            attemptJson =
+                "{\"taskType\":\"ErrorSpotting\",\"errorSpotting\":{\"selectedSegmentIds\":[" +
+                selArr +
+                "],\"corrections\":{" +
+                string.Join(",", corrParts) +
+                "}}}";
             return true;
         }
 

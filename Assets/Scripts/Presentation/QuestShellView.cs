@@ -254,7 +254,7 @@ namespace LanguageGame.Presentation
             {
                 if (_gameApi == null || _submitting || string.IsNullOrEmpty(_boundStep.id))
                     return;
-                StartCoroutine(CompleteServerTaskRoutine(_boundStep.id));
+                StartCoroutine(CompleteServerTaskRoutine(_boundStep.id, request.taskAttemptJson));
                 return;
             }
 
@@ -306,7 +306,7 @@ namespace LanguageGame.Presentation
             _tkPrimary.style.display = DisplayStyle.Flex;
         }
 
-        private IEnumerator CompleteServerTaskRoutine(string taskStepId)
+        private IEnumerator CompleteServerTaskRoutine(string taskStepId, string taskAttemptJson = null)
         {
             var flow = GameFlowController.Instance;
             if (flow == null || _gameApi == null || string.IsNullOrEmpty(taskStepId))
@@ -338,10 +338,28 @@ namespace LanguageGame.Presentation
                 evaluationGateToken = tokenFromStep;
             }
 
+            var serverScoredPizza = QuestScoringPolicy.ServerScoresPizza(_boundStep.rewardRulesJson);
+            var isFreitextLlm = string.Equals(_boundStep.taskType, "FreitextLlm", StringComparison.Ordinal);
+
+            if (serverScoredPizza && !isFreitextLlm && string.IsNullOrWhiteSpace(taskAttemptJson))
+            {
+                _tkLoading.Hide();
+                _submitting = false;
+                Debug.LogWarning("[QuestShellView] Scored pizza task submitted without attempt JSON; check step wiring.");
+                PresentValidationMessage("Impossibile inviare il compito. Riprova.");
+                _activeStepView?.SetInteractable(true);
+                RefreshStepUi();
+                yield break;
+            }
+
+            if (!serverScoredPizza || isFreitextLlm)
+                taskAttemptJson = null;
+
             var useCase = new CompleteTaskUseCase(_gameApi);
             GameCompleteTaskEnvelope done = null;
             var err = string.Empty;
-            yield return useCase.Run(runId, taskStepId, d => done = d, m => err = m, evaluationGateToken);
+            yield return useCase.Run(runId, taskStepId, d => done = d, m => err = m, evaluationGateToken,
+                taskAttemptJson);
 
             _tkLoading.Hide();
 

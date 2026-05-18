@@ -34,9 +34,10 @@ Canonical **technical** contracts live in `AGENTS.md`; **task-type orientation**
 
 - Mascot can be **lightweight** (e.g. **static in a corner**), not a full controllable avatar.
 - **Rewards (reference: Essen project)** — distinct roles for children and copy:
-  - **Pizza slices (~0–3 per task outcome):** **Practice / encouragement** loot—shows performance in the moment, supports unlocking **mascot skins** in the avatar shop, and can recur when learners **replay** the same tasks so repetition still feels supported.
+  - **Pizza slices:** **Practice / encouragement** loot—shows **how well the step went** in the moment (often **whole slices**, sometimes **fewer slices** when the child only got part of the exercise right). The **game server** applies the teacher-authored rules so the same answers **always** produce the same slice count—play stays **fair** and predictable. Slices support unlocking **mascot skins** in the avatar shop and can recur on **replay** so repetition still feels supported.
   - **Backpack pieces:** **Milestone / mastery** loot—conceptually tied to **first-time success on a distinct task**, not infinite grinding on repeats. Messaging and tutorials must not imply endless backpack gains from redoing one activity forever.
   - **Where totals appear:** show balances on **ChapterOverview**, inside **quests (quest shell)**, and in **AvatarShop**; keep the **main menu** visually light (players land there to continue—full wallet HUD belongs with exploration/customization flows).
+  - **Composite special screens:** a step may mix **real exercises** (e.g. gaps, error spotting) with **story-only** pieces; children should still feel **one quest**, but **pizza** should only reflect **actual language work**—**stub** / layout blocks alone should not feel like “jackpot” pizza.
   - Optional **expressions** by situation remain nice-to-have.
 - **Visual direction** (not final): e.g. **lion** (Bologna) or neutral **boy/girl** school-trip style.
 

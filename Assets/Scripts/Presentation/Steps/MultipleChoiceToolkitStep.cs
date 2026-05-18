@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UIElements;
@@ -8,7 +9,7 @@ using UnityEngine.UIElements;
 namespace LanguageGame.Presentation.Steps
 {
     /// <summary>Multiple-choice task UI (UI Toolkit).</summary>
-    public sealed class MultipleChoiceToolkitStep : IStepView, ISubmitFromShell
+    public sealed class MultipleChoiceToolkitStep : IStepView, ISubmitFromShell, ITaskAttemptPayloadProvider
     {
         private const int MinOptions = 2;
         private const int MaxOptions = 8;
@@ -176,6 +177,19 @@ namespace LanguageGame.Presentation.Steps
                 return;
             }
 
+            if (_context != null && QuestScoringPolicy.ServerScoresPizza(_context.rewardRulesJson))
+            {
+                if (!TryBuildTaskAttemptJson(out var json, out var aerr))
+                {
+                    if (!string.IsNullOrEmpty(aerr))
+                        _context?.presentValidationMessage?.Invoke(aerr);
+                    return;
+                }
+
+                _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true, taskAttemptJson = json });
+                return;
+            }
+
             for (var i = 0; i < _questions.Length; i++)
             {
                 if (!_selections.TryGetValue(i, out var sel) || sel == null || sel.Count == 0)
@@ -205,6 +219,36 @@ namespace LanguageGame.Presentation.Steps
             }
 
             _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true });
+        }
+
+        public bool TryBuildTaskAttemptJson(out string attemptJson, out string validationMessage)
+        {
+            attemptJson = null;
+            validationMessage = null;
+            if (!_contentReady || _questions == null)
+            {
+                validationMessage = "Invalid multiple-choice content.";
+                return false;
+            }
+
+            var outer = new List<string>(_questions.Length);
+            for (var i = 0; i < _questions.Length; i++)
+            {
+                if (!_selections.TryGetValue(i, out var sel) || sel == null || sel.Count == 0)
+                {
+                    validationMessage = "Please answer every question before checking.";
+                    return false;
+                }
+
+                var ids = sel.OrderBy(x => x, StringComparer.Ordinal).ToList();
+                outer.Add("[" + string.Join(",", ids.Select(TaskAttemptJson.StringLiteral)) + "]");
+            }
+
+            attemptJson =
+                "{\"taskType\":\"MultipleChoice\",\"multipleChoice\":{\"selections\":[" +
+                string.Join(",", outer) +
+                "]}}";
+            return true;
         }
 
         public void Teardown()

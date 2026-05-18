@@ -1,0 +1,448 @@
+import { z } from "zod";
+
+const clozeAttemptSchema = z.object({
+  taskType: z.literal("ClozeText"),
+  clozeText: z.object({
+    answers: z.array(z.string()),
+  }),
+});
+
+const mcAttemptSchema = z.object({
+  taskType: z.literal("MultipleChoice"),
+  multipleChoice: z.object({
+    selections: z.array(z.array(z.string())),
+  }),
+});
+
+const dragAttemptSchema = z.object({
+  taskType: z.literal("DragDrop"),
+  dragDrop: z.object({
+    assignments: z.record(z.string(), z.union([z.string(), z.array(z.string())])),
+  }),
+});
+
+const matchingAttemptSchema = z.object({
+  taskType: z.literal("Matching"),
+  matching: z.object({
+    pairs: z.record(z.string(), z.string()),
+  }),
+});
+
+const errorSpottingAttemptSchema = z.object({
+  taskType: z.literal("ErrorSpotting"),
+  errorSpotting: z.object({
+    selectedSegmentIds: z.array(z.string()),
+    corrections: z.record(z.string(), z.string()),
+  }),
+});
+
+const specialBlockAttemptSchema = z.union([
+  clozeAttemptSchema,
+  mcAttemptSchema,
+  dragAttemptSchema,
+  matchingAttemptSchema,
+  errorSpottingAttemptSchema,
+  z.object({ taskType: z.literal("Stub") }),
+  z.object({ taskType: z.string() }).passthrough(),
+]);
+
+const specialScreenAttemptSchema = z.object({
+  taskType: z.enum([
+    "SpecialScreen",
+    "SpecialScreenSms",
+    "SpecialScreenMailEditor",
+    "SpecialScreenPhotoViewer",
+    "SpecialScreenReader",
+  ]),
+  specialScreen: z.object({
+    blocks: z.array(specialBlockAttemptSchema.nullable()),
+  }),
+});
+
+export const taskAttemptSchema = z.discriminatedUnion("taskType", [
+  clozeAttemptSchema,
+  mcAttemptSchema,
+  dragAttemptSchema,
+  matchingAttemptSchema,
+  errorSpottingAttemptSchema,
+  specialScreenAttemptSchema,
+]);
+
+export type TaskAttempt = z.infer<typeof taskAttemptSchema>;
+
+export type TaskAttemptEvalResult =
+  | {
+      ok: true;
+      /** Eligibility / minimum-performance ratio (0..1). */
+      ratio: number;
+      /** Optional: pizza mapping only; defaults to `ratio`. Used when completion should pass but pizza stays 0 (e.g. stub-only SpecialScreen). */
+      pizzaRatio?: number;
+    }
+  | { ok: false; status: number; error: string; code: string };
+
+function err(status: number, error: string, code: string): TaskAttemptEvalResult {
+  return { ok: false, status, error, code };
+}
+
+function gapInsensitive(root: boolean, seg: Record<string, unknown>): boolean {
+  const ic = seg.ignoreCase;
+  if (typeof ic === "string") {
+    const t = ic.trim().toLowerCase();
+    if (t === "true") return true;
+    if (t === "false") return false;
+  }
+  return root;
+}
+
+function clozeGapSpecs(content: Record<string, unknown>): { insensitive: boolean; answers: string[] }[] {
+  const lines = Array.isArray(content.lines) ? (content.lines as Record<string, unknown>[]) : [];
+  const rootIns = content.caseSensitive === true ? false : true;
+  const specs: { insensitive: boolean; answers: string[] }[] = [];
+  for (const line of lines) {
+    const segs = Array.isArray(line.segments) ? (line.segments as Record<string, unknown>[]) : [];
+    for (const seg of segs) {
+      const kind = typeof seg.kind === "string" ? seg.kind.trim().toLowerCase() : "";
+      if (kind !== "gap") continue;
+      const answersRaw = Array.isArray(seg.correctAnswers) ? (seg.correctAnswers as unknown[]) : [];
+      const answers = answersRaw
+        .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
+        .map((x) => x.trim());
+      if (answers.length === 0) continue;
+      specs.push({ insensitive: gapInsensitive(rootIns, seg), answers });
+    }
+  }
+  return specs;
+}
+
+function matchesAnswer(typed: string, answers: string[], insensitive: boolean): boolean {
+  const t = typed.trim();
+  for (const a of answers) {
+    if (insensitive) {
+      if (t.toLowerCase() === a.trim().toLowerCase()) return true;
+    } else if (t === a.trim()) return true;
+  }
+  return false;
+}
+
+export function evaluateCloze(
+  content: Record<string, unknown>,
+  attempt: z.infer<typeof clozeAttemptSchema>,
+): TaskAttemptEvalResult {
+  const specs = clozeGapSpecs(content);
+  if (specs.length === 0) return err(502, "Cloze payload has no gaps", "payload_invalid");
+  const answers = attempt.clozeText.answers;
+  if (answers.length !== specs.length) {
+    return err(400, "Cloze attempt gap count mismatch", "attempt_mismatch");
+  }
+  let correct = 0;
+  for (let i = 0; i < specs.length; i++) {
+    const spec = specs[i];
+    const raw = answers[i] ?? "";
+    if (typeof raw !== "string") return err(400, "Invalid cloze answer", "attempt_invalid");
+    if (matchesAnswer(raw, spec.answers, spec.insensitive)) correct++;
+  }
+  return { ok: true, ratio: correct / specs.length };
+}
+
+function normIdSet(ids: unknown): Set<string> {
+  const out = new Set<string>();
+  if (!Array.isArray(ids)) return out;
+  for (const x of ids) {
+    if (typeof x === "string" && x.length > 0) out.add(x.trim());
+  }
+  return out;
+}
+
+function mcQuestions(content: Record<string, unknown>): {
+  selectionMode: string;
+  correct: Set<string>[];
+}[] {
+  const qs = Array.isArray(content.questions) ? (content.questions as Record<string, unknown>[]) : null;
+  if (qs && qs.length > 0) {
+    return qs.map((q) => {
+      const mode = typeof q.selectionMode === "string" ? q.selectionMode : "single";
+      const correct = normIdSet(q.correctOptionIds);
+      return {
+        selectionMode: mode.trim().toLowerCase() || "single",
+        correct,
+      };
+    });
+  }
+  const mode = typeof content.selectionMode === "string" ? content.selectionMode : "single";
+  return [
+    {
+      selectionMode: mode.trim().toLowerCase() || "single",
+      correct: normIdSet(content.correctOptionIds),
+    },
+  ];
+}
+
+function isSingleSelect(mode: string): boolean {
+  return mode !== "multi" && mode !== "multiple";
+}
+
+export function evaluateMultipleChoice(
+  content: Record<string, unknown>,
+  attempt: z.infer<typeof mcAttemptSchema>,
+): TaskAttemptEvalResult {
+  const questions = mcQuestions(content);
+  const sel = attempt.multipleChoice.selections;
+  if (sel.length !== questions.length) {
+    return err(400, "Multiple-choice attempt length mismatch", "attempt_mismatch");
+  }
+  let correct = 0;
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
+    const chosen = new Set((sel[i] ?? []).map((x) => x.trim()).filter((x) => x.length > 0));
+    if (chosen.size === 0) continue;
+    if (isSingleSelect(q.selectionMode)) {
+      if (chosen.size === 1 && setsEqual(chosen, q.correct)) correct++;
+    } else if (setsEqual(chosen, q.correct)) {
+      correct++;
+    }
+  }
+  return { ok: true, ratio: correct / questions.length };
+}
+
+function setsEqual(a: Set<string>, b: Set<string>): boolean {
+  if (a.size !== b.size) return false;
+  for (const x of a) {
+    if (!b.has(x)) return false;
+  }
+  return true;
+}
+
+function normalizeAssignmentMap(raw: Record<string, string | string[]>): Map<string, Set<string>> {
+  const m = new Map<string, Set<string>>();
+  for (const [k, v] of Object.entries(raw)) {
+    const key = k.trim();
+    if (!key) continue;
+    const set = new Set<string>();
+    if (Array.isArray(v)) {
+      for (const x of v) {
+        if (typeof x === "string" && x.trim()) set.add(x.trim());
+      }
+    } else if (typeof v === "string" && v.trim()) {
+      set.add(v.trim());
+    }
+    m.set(key, set);
+  }
+  return m;
+}
+
+export function evaluateDragDrop(
+  content: Record<string, unknown>,
+  attempt: z.infer<typeof dragAttemptSchema>,
+): TaskAttemptEvalResult {
+  const pres = (content.presentation ?? {}) as Record<string, unknown>;
+  const mode = typeof pres.targetMode === "string" ? pres.targetMode.trim().toLowerCase() : "";
+  if (mode === "lines") {
+    return err(501, "DragDrop lines mode scoring is not implemented on the server yet.", "unsupported_dragdrop_mode");
+  }
+  const targets = Array.isArray(content.targets) ? (content.targets as Record<string, unknown>[]) : [];
+  if (targets.length === 0) return err(502, "DragDrop has no targets", "payload_invalid");
+
+  const assignments = normalizeAssignmentMap(attempt.dragDrop.assignments);
+  let correct = 0;
+  for (const t of targets) {
+    const tid = typeof t.id === "string" ? t.id.trim() : "";
+    if (!tid) continue;
+    const expectedList = Array.isArray(t.correctItemIds) ? (t.correctItemIds as unknown[]) : [];
+    const expected = new Set<string>();
+    for (const x of expectedList) {
+      if (typeof x === "string" && x.trim()) expected.add(x.trim());
+    }
+    const placed = assignments.get(tid) ?? new Set<string>();
+    if (expected.size === 0) continue;
+    if (setsEqual(placed, expected)) correct++;
+  }
+  const denom = targets.filter((t) => {
+    const ids = Array.isArray(t.correctItemIds) ? t.correctItemIds : [];
+    return ids.length > 0;
+  }).length;
+  if (denom === 0) return err(502, "DragDrop targets missing correctItemIds", "payload_invalid");
+  return { ok: true, ratio: correct / denom };
+}
+
+export function evaluateMatching(
+  content: Record<string, unknown>,
+  attempt: z.infer<typeof matchingAttemptSchema>,
+): TaskAttemptEvalResult {
+  const pairs = Array.isArray(content.correctPairs) ? (content.correctPairs as Record<string, unknown>[]) : [];
+  const expected = new Map<string, string>();
+  for (const p of pairs) {
+    const l = typeof p.leftItemId === "string" ? p.leftItemId.trim() : "";
+    const r = typeof p.rightItemId === "string" ? p.rightItemId.trim() : "";
+    if (l && r) expected.set(l, r);
+  }
+  if (expected.size === 0) return err(502, "Matching has no correct pairs", "payload_invalid");
+  const got = attempt.matching.pairs;
+  let correct = 0;
+  for (const [l, r] of expected) {
+    const gr = got[l]?.trim() ?? "";
+    if (gr && gr === r) correct++;
+  }
+  return { ok: true, ratio: correct / expected.size };
+}
+
+function normalizeCorr(s: string): string {
+  return s.trim().replace(/\s+/g, " ");
+}
+
+function errorSegmentIds(content: Record<string, unknown>): { id: string; answers: string[] }[] {
+  const segs = Array.isArray(content.segments) ? (content.segments as Record<string, unknown>[]) : [];
+  const out: { id: string; answers: string[] }[] = [];
+  for (const s of segs) {
+    const isErr = s.isError === true;
+    const id = typeof s.id === "string" ? s.id.trim() : "";
+    if (!isErr || !id) continue;
+    const acc = Array.isArray(s.acceptedCorrections) ? (s.acceptedCorrections as unknown[]) : [];
+    const answers = acc.filter((x): x is string => typeof x === "string" && x.trim().length > 0).map((x) => x.trim());
+    if (answers.length > 0) out.push({ id, answers });
+  }
+  return out;
+}
+
+export function evaluateErrorSpotting(
+  content: Record<string, unknown>,
+  attempt: z.infer<typeof errorSpottingAttemptSchema>,
+): TaskAttemptEvalResult {
+  const errors = errorSegmentIds(content);
+  if (errors.length === 0) return err(502, "ErrorSpotting has no errors", "payload_invalid");
+
+  const trueIds = new Set(errors.map((e) => e.id));
+  const selected = new Set(
+    attempt.errorSpotting.selectedSegmentIds.map((x) => x.trim()).filter((x) => x.length > 0),
+  );
+
+  for (const sid of selected) {
+    if (!trueIds.has(sid)) {
+      return { ok: true, ratio: 0 };
+    }
+  }
+
+  let fixed = 0;
+  for (const e of errors) {
+    if (!selected.has(e.id)) continue;
+    const raw = attempt.errorSpotting.corrections[e.id] ?? "";
+    const typed = normalizeCorr(typeof raw === "string" ? raw : "");
+    if (!typed) continue;
+    let ok = false;
+    for (const a of e.answers) {
+      if (typed.toLowerCase() === normalizeCorr(a).toLowerCase()) {
+        ok = true;
+        break;
+      }
+    }
+    if (ok) fixed++;
+  }
+
+  return { ok: true, ratio: fixed / errors.length };
+}
+
+function mapSpecialBlockType(raw: string | undefined): string {
+  const t = (raw ?? "").trim().toLowerCase();
+  if (t === "cloze_text" || t === "clozetext") return "ClozeText";
+  if (t === "error_spotting" || t === "errorspotting") return "ErrorSpotting";
+  if (t === "stub") return "Stub";
+  return "Unknown";
+}
+
+export function evaluateSpecialScreen(
+  content: Record<string, unknown>,
+  attempt: z.infer<typeof specialScreenAttemptSchema>,
+): TaskAttemptEvalResult {
+  const blocks = Array.isArray(content.blocks) ? (content.blocks as Record<string, unknown>[]) : [];
+  const attempts = attempt.specialScreen.blocks;
+  if (attempts.length !== blocks.length) {
+    return err(400, "Special screen block attempt length mismatch", "attempt_mismatch");
+  }
+
+  let weighted = 0;
+  let weight = 0;
+
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    const att = attempts[i];
+    const rawBlockType = typeof block.blockType === "string" ? block.blockType : "";
+    const bt = mapSpecialBlockType(rawBlockType);
+
+    if (bt === "Stub") continue;
+
+    if (bt === "Unknown") {
+      return err(
+        502,
+        `Special screen block ${i + 1} uses an unsupported blockType for server scoring (got "${rawBlockType.trim() || "(missing)"}"). Supported: stub, cloze_text/ClozeText, error_spotting/ErrorSpotting.`,
+        "unsupported_special_screen_block",
+      );
+    }
+
+    if (att == null) {
+      return err(400, `Special screen block ${i + 1} is missing an attempt entry`, "attempt_mismatch");
+    }
+
+    const payload =
+      bt === "ClozeText"
+        ? (block.clozeText as Record<string, unknown> | undefined)
+        : (block.errorSpotting as Record<string, unknown> | undefined);
+    if (!payload || typeof payload !== "object") {
+      return err(
+        502,
+        `Special screen block ${i + 1} (${bt}) is missing nested content in content_payload`,
+        "payload_invalid",
+      );
+    }
+
+    weight += 1;
+    let inner: TaskAttemptEvalResult;
+    if (bt === "ClozeText" && att.taskType === "ClozeText") {
+      inner = evaluateCloze(payload, att);
+    } else if (bt === "ErrorSpotting" && att.taskType === "ErrorSpotting") {
+      inner = evaluateErrorSpotting(payload, att);
+    } else {
+      return err(400, `Special screen block ${i + 1} attempt type mismatch`, "attempt_mismatch");
+    }
+    if (!inner.ok) return inner;
+    weighted += inner.ratio;
+  }
+
+  // No scorable blocks: full completion credit, no pizza (avoid minting slices on empty screens).
+  if (weight === 0) return { ok: true, ratio: 1, pizzaRatio: 0 };
+  return { ok: true, ratio: weighted / weight };
+}
+
+export function evaluateTaskAttempt(
+  taskType: string,
+  contentPayload: Record<string, unknown>,
+  attemptRaw: unknown,
+): TaskAttemptEvalResult {
+  const parsed = taskAttemptSchema.safeParse(attemptRaw);
+  if (!parsed.success) {
+    return err(400, "Invalid task attempt payload", "attempt_invalid");
+  }
+  const attempt = parsed.data;
+  if (attempt.taskType !== taskType) {
+    return err(400, "Attempt taskType does not match step", "attempt_task_mismatch");
+  }
+
+  switch (attempt.taskType) {
+    case "ClozeText":
+      return evaluateCloze(contentPayload, attempt);
+    case "MultipleChoice":
+      return evaluateMultipleChoice(contentPayload, attempt);
+    case "DragDrop":
+      return evaluateDragDrop(contentPayload, attempt);
+    case "Matching":
+      return evaluateMatching(contentPayload, attempt);
+    case "ErrorSpotting":
+      return evaluateErrorSpotting(contentPayload, attempt);
+    case "SpecialScreen":
+    case "SpecialScreenSms":
+    case "SpecialScreenMailEditor":
+    case "SpecialScreenPhotoViewer":
+    case "SpecialScreenReader":
+      return evaluateSpecialScreen(contentPayload, attempt);
+    default:
+      return err(400, "Unsupported task type", "unsupported_task");
+  }
+}

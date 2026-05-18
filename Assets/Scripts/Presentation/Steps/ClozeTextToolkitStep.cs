@@ -6,7 +6,7 @@ using UnityEngine.UIElements;
 namespace LanguageGame.Presentation.Steps
 {
     /// <summary>Cloze (gap-fill) task UI in UI Toolkit.</summary>
-    public sealed class ClozeTextToolkitStep : IStepView, ISubmitFromShell
+    public sealed class ClozeTextToolkitStep : IStepView, ISubmitFromShell, ITaskAttemptPayloadProvider
     {
         private readonly VisualElement _root;
 
@@ -144,6 +144,19 @@ namespace LanguageGame.Presentation.Steps
 
         public void SubmitFromShell()
         {
+            if (_context != null && QuestScoringPolicy.ServerScoresPizza(_context.rewardRulesJson))
+            {
+                if (!TryBuildTaskAttemptJson(out var json, out var aerr))
+                {
+                    if (!string.IsNullOrEmpty(aerr))
+                        _context?.presentValidationMessage?.Invoke(aerr);
+                    return;
+                }
+
+                _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true, taskAttemptJson = json });
+                return;
+            }
+
             if (!TryValidateLocally(out var message))
             {
                 _context?.presentValidationMessage?.Invoke(message);
@@ -183,6 +196,28 @@ namespace LanguageGame.Presentation.Steps
                 }
             }
 
+            return true;
+        }
+
+        public bool TryBuildTaskAttemptJson(out string attemptJson, out string validationMessage)
+        {
+            attemptJson = null;
+            validationMessage = null;
+            if (!_contentReady)
+            {
+                validationMessage = "Il compito non è ancora pronto.";
+                return false;
+            }
+
+            var parts = new List<string>(_gaps.Count);
+            foreach (var slot in _gaps)
+            {
+                var typed = slot.field != null ? (slot.field.value ?? string.Empty).Trim() : string.Empty;
+                parts.Add(TaskAttemptJson.StringLiteral(typed));
+            }
+
+            attemptJson =
+                "{\"taskType\":\"ClozeText\",\"clozeText\":{\"answers\":[" + string.Join(",", parts) + "]}}";
             return true;
         }
 

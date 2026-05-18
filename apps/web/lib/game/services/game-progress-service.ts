@@ -3,7 +3,7 @@ import {
   bucketQuestsByChapterId,
   bucketStepsByQuestId,
   deleteFreitextLlmEvaluationGate,
-  validateFreitextLlmEvaluationGate,
+  fetchFreitextLlmEvaluationGate,
   ensureWalletRow,
   findInProgressRun,
   findLatestInProgressRunForAccount,
@@ -34,6 +34,8 @@ import {
 
 export type { CutscenePayloadErrorDetail };
 
+import { evaluateTaskAttempt } from "@/lib/game/scoring/evaluateTaskAttempt";
+import { meetsScoredPizzaMinimum, parsePizzaRewardRules, slicesFromRatio } from "@/lib/game/scoring/pizzaReward";
 import { countWordsAnswer, parseFreitextLlmStepContent } from "@/lib/llm/freitextLlmContentSchema";
 import { resolveFreitextLlmEvaluatorEnv } from "@/lib/llm/freitextLlmEnv";
 import {
@@ -337,7 +339,9 @@ export async function evaluateFreitextLlmQuestStep(
       modelOut.registerScore,
     );
 
-    const isPass = ratio >= payload.value.evaluation.passThreshold;
+    const pizzaRules = parsePizzaRewardRules((expected.reward_rules ?? {}) as Record<string, unknown>);
+    const isPass =
+      ratio >= payload.value.evaluation.passThreshold && meetsScoredPizzaMinimum(ratio, pizzaRules);
 
     const scoreEarned = calculateStructuredTaskScore(
       payload.value.evaluation.scoringPolicy,
@@ -345,10 +349,18 @@ export async function evaluateFreitextLlmQuestStep(
       payload.value.evaluation.maxPoints,
       payload.value.evaluation.passThreshold,
     );
+    const gatePizzaSlices =
+      pizzaRules.kind === "scored" ? slicesFromRatio(ratio, pizzaRules) : 0;
 
     let evaluationGateToken: string | undefined;
     if (isPass) {
-      const gate = await upsertFreitextLlmEvaluationGate(accountId, runId, stepId, env.gateTtlMinutes);
+      const gate = await upsertFreitextLlmEvaluationGate(
+        accountId,
+        runId,
+        stepId,
+        env.gateTtlMinutes,
+        gatePizzaSlices,
+      );
       if (!gate) {
         return {
           ok: false,
@@ -759,7 +771,7 @@ export async function completeQuestStepTask(
   accountId: string,
   runId: string,
   stepId: string,
-  options?: { evaluationGateToken?: string | null },
+  options?: { evaluationGateToken?: string | null; attempt?: unknown | null },
 ): Promise<CompleteStepTaskResult> {
   const run = await getQuestRunById(runId);
   if (!run || run.account_id !== accountId) {
@@ -774,6 +786,11 @@ export async function completeQuestStepTask(
     return { ok: false, status: 409, error: "Step mismatch", code: "step_mismatch" };
   }
 
+  const rewardRules = (expected.reward_rules ?? {}) as Record<string, unknown>;
+  const pizzaRules = parsePizzaRewardRules(rewardRules);
+  let pAwardedSlices = 0;
+  let freetextGateToken: string | undefined;
+
   if (expected.step_kind === "task" && expected.task_type === FREITEXT_LLM_TASK_TYPE) {
     const token = typeof options?.evaluationGateToken === "string" ? options.evaluationGateToken.trim() : "";
     if (!token) {
@@ -785,8 +802,8 @@ export async function completeQuestStepTask(
       };
     }
 
-    const gateOk = await validateFreitextLlmEvaluationGate(accountId, runId, stepId, token);
-    if (!gateOk) {
+    const gate = await fetchFreitextLlmEvaluationGate(accountId, runId, stepId, token);
+    if (!gate) {
       return {
         ok: false,
         status: 403,
@@ -794,9 +811,41 @@ export async function completeQuestStepTask(
         code: "evaluation_gate_invalid",
       };
     }
+    freetextGateToken = token;
+    if (pizzaRules.kind === "scored") {
+      pAwardedSlices = gate.pizzaSlicesAward;
+    }
+  } else if (expected.step_kind === "task" && pizzaRules.kind === "scored") {
+    const tt = expected.task_type ?? "";
+    if (!tt) {
+      return { ok: false, status: 400, error: "Task type missing on step", code: "task_type_missing" };
+    }
+    if (options?.attempt === undefined || options.attempt === null) {
+      return {
+        ok: false,
+        status: 400,
+        error: "This task requires an attempt payload for scored pizza rewards.",
+        code: "attempt_required",
+      };
+    }
+    const content = (expected.content_payload ?? {}) as Record<string, unknown>;
+    const ev = evaluateTaskAttempt(tt, content, options.attempt);
+    if (!ev.ok) {
+      return { ok: false, status: ev.status, error: ev.error, code: ev.code };
+    }
+    if (!meetsScoredPizzaMinimum(ev.ratio, pizzaRules)) {
+      return {
+        ok: false,
+        status: 400,
+        error: "Performance is below the minimum required to complete this task.",
+        code: "ratio_below_minimum",
+      };
+    }
+    const pizzaRatio = ev.pizzaRatio ?? ev.ratio;
+    pAwardedSlices = slicesFromRatio(pizzaRatio, pizzaRules);
   }
 
-  const rpc = await rpcCompleteQuestStepTask(accountId, runId, stepId);
+  const rpc = await rpcCompleteQuestStepTask(accountId, runId, stepId, pAwardedSlices);
   if (!rpc.ok) {
     if (rpc.code === "rpc_transport_error" || rpc.code === "rpc_payload_error") {
       console.error("[game-progress] completeQuestStepTask RPC failure", rpc.code, rpc.error);
@@ -809,11 +858,8 @@ export async function completeQuestStepTask(
     };
   }
 
-  if (expected.step_kind === "task" && expected.task_type === FREITEXT_LLM_TASK_TYPE) {
-    const token = typeof options?.evaluationGateToken === "string" ? options.evaluationGateToken.trim() : "";
-    if (token.length > 0) {
-      await deleteFreitextLlmEvaluationGate(accountId, token);
-    }
+  if (freetextGateToken) {
+    await deleteFreitextLlmEvaluationGate(accountId, freetextGateToken);
   }
 
   return {

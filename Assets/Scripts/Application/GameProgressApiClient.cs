@@ -128,12 +128,13 @@ namespace LanguageGame.Application
 
         public IEnumerator CompleteStepTask(string runId, string stepId,
             Action<GameCompleteTaskEnvelope> onOk, Action<string> onError,
-            string evaluationGateToken = null)
+            string evaluationGateToken = null, string taskAttemptJson = null)
         {
             var path =
                 $"/api/game/runs/{Uri.EscapeDataString(runId)}/steps/{Uri.EscapeDataString(stepId)}/complete";
 
-            if (string.IsNullOrWhiteSpace(evaluationGateToken))
+            var body = BuildCompleteTaskBody(evaluationGateToken, taskAttemptJson);
+            if (body == null)
             {
                 yield return AuthorizedPostEmpty(path, text =>
                 {
@@ -151,11 +152,7 @@ namespace LanguageGame.Application
                 yield break;
             }
 
-            var gateJson = JsonUtility.ToJson(new CompleteTaskEvaluationGateBodyDto
-            {
-                evaluationGateToken = evaluationGateToken.Trim(),
-            });
-            var bytes = Encoding.UTF8.GetBytes(string.IsNullOrEmpty(gateJson) ? "{}" : gateJson);
+            var bytes = Encoding.UTF8.GetBytes(body);
             yield return AuthorizedPostUtf8(path, bytes, text =>
             {
                 var env = JsonUtility.FromJson<GameCompleteTaskEnvelope>(text);
@@ -169,6 +166,58 @@ namespace LanguageGame.Application
                     ? env.error
                     : ParseErrorMessage(text, "Could not complete task"));
             }, onError);
+        }
+
+        private static string BuildCompleteTaskBody(string evaluationGateToken, string taskAttemptJson)
+        {
+            var hasGate = !string.IsNullOrWhiteSpace(evaluationGateToken);
+            var hasAttempt = !string.IsNullOrWhiteSpace(taskAttemptJson);
+            if (!hasGate && !hasAttempt)
+                return null;
+
+            var sb = new StringBuilder();
+            sb.Append('{');
+            if (hasGate)
+            {
+                sb.Append("\"evaluationGateToken\":\"");
+                sb.Append(EscapeJsonString(evaluationGateToken.Trim()));
+                sb.Append('"');
+            }
+
+            if (hasAttempt)
+            {
+                if (hasGate)
+                    sb.Append(',');
+                sb.Append("\"attempt\":");
+                sb.Append(taskAttemptJson.Trim());
+            }
+
+            sb.Append('}');
+            return sb.ToString();
+        }
+
+        private static string EscapeJsonString(string s)
+        {
+            if (string.IsNullOrEmpty(s))
+                return string.Empty;
+            var sb = new StringBuilder();
+            foreach (var ch in s)
+            {
+                switch (ch)
+                {
+                    case '\\':
+                        sb.Append("\\\\");
+                        break;
+                    case '"':
+                        sb.Append("\\\"");
+                        break;
+                    default:
+                        sb.Append(ch);
+                        break;
+                }
+            }
+
+            return sb.ToString();
         }
 
         public IEnumerator EvaluateFreitextLlmStep(string runId, string stepId, string answerText,

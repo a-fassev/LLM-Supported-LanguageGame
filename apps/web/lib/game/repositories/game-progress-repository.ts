@@ -433,13 +433,14 @@ export async function rpcCompleteQuestStepTask(
   accountId: string,
   runId: string,
   stepId: string,
+  pAwardedSlices: number,
 ): Promise<RpcCompleteQuestStepTaskResult> {
+  const clamped = Math.max(0, Math.min(5, Math.trunc(pAwardedSlices)));
   const { data, error } = await admin().rpc("complete_quest_step_task", {
     p_account_id: accountId,
     p_run_id: runId,
     p_step_id: stepId,
-    // Fourth arg matches PostgREST-exposed overload; Postgres ignores this and derives pizza from reward_rules.
-    p_awarded_slices: 0,
+    p_awarded_slices: clamped,
   });
 
   if (error) {
@@ -556,9 +557,11 @@ export async function upsertFreitextLlmEvaluationGate(
   runId: string,
   stepId: string,
   ttlMinutes: number,
+  pizzaSlicesAward: number,
 ): Promise<{ token: string } | null> {
   const token = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + Math.max(1, ttlMinutes) * 60_000).toISOString();
+  const slices = Math.max(0, Math.min(5, Math.trunc(pizzaSlicesAward)));
 
   const { error } = await admin()
     .from("player_freitext_llm_gates")
@@ -569,6 +572,7 @@ export async function upsertFreitextLlmEvaluationGate(
         run_id: runId,
         step_id: stepId,
         expires_at: expiresAt,
+        pizza_slices_award: slices,
       },
       { onConflict: "run_id,step_id" },
     );
@@ -581,17 +585,17 @@ export async function upsertFreitextLlmEvaluationGate(
   return { token };
 }
 
-/** Validates an unconsumed gate without deleting it so the client can retry /complete after transient RPC faults. */
-export async function validateFreitextLlmEvaluationGate(
+/** Validates gate and returns stored pizza award (for scored pizza rules). */
+export async function fetchFreitextLlmEvaluationGate(
   accountId: string,
   runId: string,
   stepId: string,
   gateToken: string,
-): Promise<boolean> {
+): Promise<{ token: string; pizzaSlicesAward: number } | null> {
   const nowIso = new Date().toISOString();
   const { data, error } = await admin()
     .from("player_freitext_llm_gates")
-    .select("id")
+    .select("id, pizza_slices_award")
     .eq("id", gateToken)
     .eq("account_id", accountId)
     .eq("run_id", runId)
@@ -600,10 +604,17 @@ export async function validateFreitextLlmEvaluationGate(
     .maybeSingle();
 
   if (error) {
-    console.error("[game-repo] validateFreitextLlmEvaluationGate", error);
-    return false;
+    console.error("[game-repo] fetchFreitextLlmEvaluationGate", error);
+    return null;
   }
-  return !!(data && typeof data === "object");
+  if (!data || typeof data !== "object") return null;
+  const row = data as { id?: unknown; pizza_slices_award?: unknown };
+  const id = typeof row.id === "string" ? row.id : null;
+  if (!id) return null;
+  const rawAward = row.pizza_slices_award;
+  const pizzaSlicesAward =
+    typeof rawAward === "number" && Number.isFinite(rawAward) ? Math.trunc(rawAward) : 0;
+  return { token: id, pizzaSlicesAward };
 }
 
 /** Removes gate after authoritative step completion succeeds. Idempotent-ish: missing rows stay quiet. */
