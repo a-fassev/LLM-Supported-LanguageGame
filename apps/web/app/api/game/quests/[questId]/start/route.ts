@@ -29,7 +29,7 @@ export async function POST(request: Request, context: RouteContext) {
 
   const result = await startOrResumeQuest(session.accountId, parsed.data.questId);
   if (!result.ok) {
-    return jsonError(result.status, result.error, result.code);
+    return jsonError(result.status, result.error, result.code, result.details);
   }
 
   return jsonOk({

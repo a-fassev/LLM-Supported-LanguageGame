@@ -29,7 +29,7 @@ export async function GET(request: Request, context: RouteContext) {
 
   const result = await getGameRun(session.accountId, parsed.data.runId);
   if (!result.ok) {
-    return jsonError(result.status, result.error, result.code);
+    return jsonError(result.status, result.error, result.code, result.details);
   }
 
   return jsonOk({

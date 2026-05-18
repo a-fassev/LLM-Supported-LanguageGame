@@ -98,7 +98,7 @@ export type BootstrapResult =
       chapters: GameChapterClientDto[];
       activeRun: ActiveQuestRunClientDto | null;
     }
-  | { ok: false; status: number; error: string; code?: string };
+  | { ok: false; status: number; error: string; code?: string; details?: Record<string, unknown> };
 
 export type StartQuestResult =
   | {
@@ -116,7 +116,7 @@ export type StartQuestResult =
       /** Count of successfully completed tasks in this run (not incremented by cutscene advance). */
       currentTaskOrderIndex: number;
     }
-  | { ok: false; status: number; error: string; code?: string };
+  | { ok: false; status: number; error: string; code?: string; details?: Record<string, unknown> };
 
 export type CompleteStepTaskResult =
   | {
@@ -155,7 +155,15 @@ export type GetRunResult =
       currentStepOrderIndex: number;
       currentTaskOrderIndex: number;
     }
-  | { ok: false; status: number; error: string; code?: string };
+  | { ok: false; status: number; error: string; code?: string; details?: Record<string, unknown> };
+
+export type CutscenePayloadErrorDetail = {
+  questSlug: string;
+  questId: string;
+  stepId: string;
+  templateKey: string;
+  issues: string;
+};
 
 function buildQuestStepDto(row: GameQuestStepRow): GameQuestStepDto {
   return {
@@ -173,23 +181,60 @@ function buildQuestStepDto(row: GameQuestStepRow): GameQuestStepDto {
 
 type MapQuestStepsResult =
   | { ok: true; steps: GameQuestStepDto[] }
-  | { ok: false; status: 502; error: string; code: "payload_invalid" };
+  | {
+      ok: false;
+      status: 502;
+      error: string;
+      code: "payload_invalid";
+      details: CutscenePayloadErrorDetail;
+    };
 
-function mapQuestStepRowsWithCutsceneValidation(rows: GameQuestStepRow[]): MapQuestStepsResult {
+function collectCutscenePayloadErrors(
+  questRows: GameQuestRow[],
+  stepsByQuest: Map<string, GameQuestStepRow[]>,
+): CutscenePayloadErrorDetail[] {
+  const out: CutscenePayloadErrorDetail[] = [];
+  for (const quest of questRows) {
+    const stepRows = stepsByQuest.get(quest.id) ?? [];
+    for (const row of stepRows) {
+      if (row.step_kind !== "cutscene") continue;
+      const parsed = parseCutsceneContent(row.content_payload);
+      if (!parsed.ok) {
+        out.push({
+          questSlug: quest.slug,
+          questId: quest.id,
+          stepId: row.id,
+          templateKey: row.template_key ?? "",
+          issues: parsed.issues,
+        });
+      }
+    }
+  }
+  return out;
+}
+
+function mapQuestStepRowsWithCutsceneValidation(
+  rows: GameQuestStepRow[],
+  questRef: { id: string; slug: string },
+): MapQuestStepsResult {
   for (const row of rows) {
     if (row.step_kind !== "cutscene") continue;
     const parsed = parseCutsceneContent(row.content_payload);
     if (!parsed.ok) {
-      console.error("[game-progress] Malformed Cutscene content payload", {
+      const detail: CutscenePayloadErrorDetail = {
+        questSlug: questRef.slug,
+        questId: questRef.id,
         stepId: row.id,
-        templateKey: row.template_key,
+        templateKey: row.template_key ?? "",
         issues: parsed.issues,
-      });
+      };
+      console.error("[game-progress] Malformed Cutscene content payload", detail);
       return {
         ok: false,
         status: 502,
         error: "Malformed Cutscene content payload",
         code: "payload_invalid",
+        details: detail,
       };
     }
   }
@@ -546,6 +591,18 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
   const questsByChapter = bucketQuestsByChapterId(quests);
   const stepsByQuest = bucketStepsByQuestId(allSteps);
 
+  const cutscenePayloadErrors = collectCutscenePayloadErrors(quests, stepsByQuest);
+  if (cutscenePayloadErrors.length > 0) {
+    console.error("[game-progress] Malformed Cutscene content payload(s)", cutscenePayloadErrors);
+    return {
+      ok: false,
+      status: 502,
+      error: "Malformed Cutscene content payload",
+      code: "payload_invalid",
+      details: { cutscenePayloadErrors },
+    };
+  }
+
   const chaptersSorted = [...chapters].sort((a, b) => a.order_index - b.order_index);
 
   const chapterDtos: GameChapterClientDto[] = [];
@@ -568,15 +625,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
     const questDtos: GameQuestClientDto[] = [];
     for (const quest of chapterQuestsSorted) {
       const stepRows = stepsByQuest.get(quest.id) ?? [];
-      const mappedSteps = mapQuestStepRowsWithCutsceneValidation(stepRows);
-      if (!mappedSteps.ok) {
-        return {
-          ok: false,
-          status: mappedSteps.status,
-          error: mappedSteps.error,
-          code: mappedSteps.code,
-        };
-      }
+      const stepsSnapshot = stepRows.map(buildQuestStepDto);
 
       const gatesOk = isUnlockedForPlayer(
         quest,
@@ -610,7 +659,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
         isUnlocked: unlocked,
         hasCompletedAnyRun: completedQuestSet.has(quest.id),
         unlockHint,
-        steps: mappedSteps.steps,
+        steps: stepsSnapshot,
       });
     }
 
@@ -704,13 +753,14 @@ export async function startOrResumeQuest(accountId: string, questId: string): Pr
   if (!stepRows || stepRows.length === 0)
     return { ok: false, status: 500, error: "Quest has no steps" };
 
-  const mappedSteps = mapQuestStepRowsWithCutsceneValidation(stepRows);
+  const mappedSteps = mapQuestStepRowsWithCutsceneValidation(stepRows, { id: quest.id, slug: quest.slug });
   if (!mappedSteps.ok) {
     return {
       ok: false,
       status: mappedSteps.status,
       error: mappedSteps.error,
       code: mappedSteps.code,
+      details: mappedSteps.details,
     };
   }
 
@@ -889,13 +939,14 @@ export async function getGameRun(accountId: string, runId: string): Promise<GetR
   const wallet = await getWalletTotals(accountId);
   if (wallet === null) return { ok: false, status: 500, error: "Could not load wallet" };
 
-  const mappedSteps = mapQuestStepRowsWithCutsceneValidation(stepsRows);
+  const mappedSteps = mapQuestStepRowsWithCutsceneValidation(stepsRows, { id: quest.id, slug: quest.slug });
   if (!mappedSteps.ok) {
     return {
       ok: false,
       status: mappedSteps.status,
       error: mappedSteps.error,
       code: mappedSteps.code,
+      details: mappedSteps.details,
     };
   }
 

@@ -16,7 +16,7 @@ export async function GET(request: Request) {
 
   const result = await bootstrapGameState(session.accountId);
   if (!result.ok) {
-    return jsonError(result.status, result.error, result.code);
+    return jsonError(result.status, result.error, result.code, result.details);
   }
 
   return jsonOk({
