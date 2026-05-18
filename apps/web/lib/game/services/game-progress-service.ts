@@ -25,7 +25,15 @@ import {
   type GameQuestStepRow,
   type PlayerQuestRunRow,
 } from "@/lib/game/repositories/game-progress-repository";
-import { parseCutsceneContent } from "@/lib/game/schemas/cutsceneContentSchema";
+import {
+  collectCutscenePayloadErrors,
+  parseCutsceneStepContent,
+  type CutscenePayloadErrorDetail,
+  type CutscenePayloadInvalidApiDetails,
+} from "@/lib/game/cutscenePayloadValidation";
+
+export type { CutscenePayloadErrorDetail };
+
 import { countWordsAnswer, parseFreitextLlmStepContent } from "@/lib/llm/freitextLlmContentSchema";
 import { resolveFreitextLlmEvaluatorEnv } from "@/lib/llm/freitextLlmEnv";
 import {
@@ -98,7 +106,7 @@ export type BootstrapResult =
       chapters: GameChapterClientDto[];
       activeRun: ActiveQuestRunClientDto | null;
     }
-  | { ok: false; status: number; error: string; code?: string; details?: Record<string, unknown> };
+  | { ok: false; status: number; error: string; code?: string; details?: CutscenePayloadInvalidApiDetails };
 
 export type StartQuestResult =
   | {
@@ -116,7 +124,7 @@ export type StartQuestResult =
       /** Count of successfully completed tasks in this run (not incremented by cutscene advance). */
       currentTaskOrderIndex: number;
     }
-  | { ok: false; status: number; error: string; code?: string; details?: Record<string, unknown> };
+  | { ok: false; status: number; error: string; code?: string; details?: CutscenePayloadInvalidApiDetails };
 
 export type CompleteStepTaskResult =
   | {
@@ -155,15 +163,7 @@ export type GetRunResult =
       currentStepOrderIndex: number;
       currentTaskOrderIndex: number;
     }
-  | { ok: false; status: number; error: string; code?: string; details?: Record<string, unknown> };
-
-export type CutscenePayloadErrorDetail = {
-  questSlug: string;
-  questId: string;
-  stepId: string;
-  templateKey: string;
-  issues: string;
-};
+  | { ok: false; status: number; error: string; code?: string; details?: CutscenePayloadInvalidApiDetails };
 
 function buildQuestStepDto(row: GameQuestStepRow): GameQuestStepDto {
   return {
@@ -189,37 +189,12 @@ type MapQuestStepsResult =
       details: CutscenePayloadErrorDetail;
     };
 
-function collectCutscenePayloadErrors(
-  questRows: GameQuestRow[],
-  stepsByQuest: Map<string, GameQuestStepRow[]>,
-): CutscenePayloadErrorDetail[] {
-  const out: CutscenePayloadErrorDetail[] = [];
-  for (const quest of questRows) {
-    const stepRows = stepsByQuest.get(quest.id) ?? [];
-    for (const row of stepRows) {
-      if (row.step_kind !== "cutscene") continue;
-      const parsed = parseCutsceneContent(row.content_payload);
-      if (!parsed.ok) {
-        out.push({
-          questSlug: quest.slug,
-          questId: quest.id,
-          stepId: row.id,
-          templateKey: row.template_key ?? "",
-          issues: parsed.issues,
-        });
-      }
-    }
-  }
-  return out;
-}
-
 function mapQuestStepRowsWithCutsceneValidation(
   rows: GameQuestStepRow[],
   questRef: { id: string; slug: string },
 ): MapQuestStepsResult {
   for (const row of rows) {
-    if (row.step_kind !== "cutscene") continue;
-    const parsed = parseCutsceneContent(row.content_payload);
+    const parsed = parseCutsceneStepContent(row);
     if (!parsed.ok) {
       const detail: CutscenePayloadErrorDetail = {
         questSlug: questRef.slug,
@@ -302,6 +277,7 @@ export async function evaluateFreitextLlmQuestStep(
 
   const payload = parseFreitextLlmStepContent(expected.content_payload);
   if (!payload.ok) {
+    // `code` matches cutscene schema failures; disambiguate by route path and error message (no `details` here).
     return {
       ok: false,
       status: 502,

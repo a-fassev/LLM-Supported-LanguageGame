@@ -183,7 +183,7 @@ Cutscenes are **presentation-only**: learners advance with the quest shell **Nex
 
 **Strict authoring (Next.js):** cutscene payloads are validated when quests are loaded for session APIs. **`extra` properties are rejected** (Zod `.strict()`): typos like `"tilte"` fail fast so content never silently diverges from this contract.
 
-**Server error convention:** malformed cutscene JSON → HTTP **502** with `code: "payload_invalid"` and message `Malformed Cutscene content payload` (quest bootstrap / start / resume / run snapshot). Responses may include **`details.cutscenePayloadErrors`** (bootstrap: all bad steps) or **`details`** with a single step (`questSlug`, `stepId`, `templateKey`, `issues`) for start/run endpoints — use for authoring fixes, not learner-facing copy.
+**Server error convention:** malformed cutscene JSON → HTTP **502** with `code: "payload_invalid"` and message `Malformed Cutscene content payload` (quest bootstrap / start / resume / run snapshot). Responses may include **`details.cutscenePayloadErrors`** (bootstrap: all bad steps) or **`details`** with a single step (`questSlug`, `stepId`, `templateKey`, `issues`) for start/run endpoints — use for authoring fixes, not learner-facing copy. The same `code` string is used for unrelated **`FreitextLlm`** step payload failures on **`/evaluate`** (no `details`); use **path + message** to tell them apart.
 
 **Unity:** parses `contentJson` with `JsonUtility` + guards; invalid JSON shows a short **Italian** placeholder — never raw JSON in the body.
 
