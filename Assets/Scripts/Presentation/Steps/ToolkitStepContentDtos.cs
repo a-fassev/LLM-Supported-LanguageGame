@@ -234,8 +234,58 @@ namespace LanguageGame.Presentation.Steps
         public string title;
         public string subtitle;
 
+        /// <summary>
+        /// Optional SMS / messenger chrome: status bar + chat transcript. When combined with <c>SpecialScreenSms</c>
+        /// or <c>screenVariant</c> <c>sms</c>/<c>whatsapp</c>, the host renders a phone mockup and embeds mechanics
+        /// in the bubble that references the current block index via <see cref="SpecialScreenChatMessageDto.hostsEmbeddedMechanic"/>.
+        /// </summary>
+        public SpecialScreenSmsChromeDto smsChrome;
+
         /// <summary>Ordered blocks shown sequentially inside one shell step.</summary>
         public SpecialScreenBlockDto[] blocks;
+    }
+
+    /// <summary>Messenger-style status bar + chat list for special screens (JsonUtility field names match JSON keys).</summary>
+    [Serializable]
+    public sealed class SpecialScreenSmsChromeDto
+    {
+        public SpecialScreenSmsStatusBarDto statusBar;
+
+        /// <summary>Shown in the in-phone header (e.g. NPC or group name).</summary>
+        public string chatHeaderTitle;
+
+        public SpecialScreenChatMessageDto[] messages;
+    }
+
+    [Serializable]
+    public sealed class SpecialScreenSmsStatusBarDto
+    {
+        /// <summary>Clock text (atmosphere only).</summary>
+        public string timeText;
+
+        /// <summary>Short reception / network hint (e.g. LTE, signal dots).</summary>
+        public string signalHint;
+    }
+
+    [Serializable]
+    public sealed class SpecialScreenChatMessageDto
+    {
+        /// <summary><c>incoming</c> (NPC / left) or <c>outgoing</c> (player / right), case-insensitive.</summary>
+        public string direction;
+
+        /// <summary>Optional small caption above bubble text.</summary>
+        public string author;
+
+        public string text;
+
+        /// <summary>
+        /// When true, this bubble hosts the mechanic for <see cref="embeddedMechanicBlockIndex"/> (0-based index into <c>blocks</c>);
+        /// must match the currently active block part when that part is shown.
+        /// </summary>
+        public bool hostsEmbeddedMechanic;
+
+        /// <summary>Index into root <c>blocks</c> when <see cref="hostsEmbeddedMechanic"/> is true.</summary>
+        public int embeddedMechanicBlockIndex;
     }
 
     /// <summary>

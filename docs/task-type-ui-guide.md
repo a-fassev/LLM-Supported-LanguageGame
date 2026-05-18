@@ -22,7 +22,7 @@ Legacy **uGUI**, **`StepTemplateCatalog`**, and step **prefabs** were removed; d
 2. **`BindStep`** calls **`ToolkitStepFactory.Create(step, _toolkitStepHost, this)`**.
 3. If the factory returns **`null`** (only when **`stepHost`** is **`null`**), the shell installs **`MissingToolkitStepView`** — visible message + **`SubmitFromShell`** routes validation feedback so the learner is not stuck silently.
 4. **Shell chrome**: Back, primary (**Next** / **Check** / **Finish quest**), loading, validation, reward overlays (`LearningToolkitOverlays`).
-5. **Tasks**: shell **Check** → **`ISubmitFromShell.SubmitFromShell()`**. **Cutscenes**: **Next** → **`StepCompletionRequest`** / advance RPC flow.
+5. **Tasks**: shell primary **Controlla** → **`ISubmitFromShell.SubmitFromShell()`**. **Cutscenes**: **Next** → **`StepCompletionRequest`** / advance RPC flow.
 
 Complete a step from code:
 
@@ -88,6 +88,7 @@ Root / per-question fields include **`stem`** blocks (**text** / **image** / **a
 
 **Implementation:** **`ClozeTextToolkitStep`**. Parse and behaviour live in that file.
 
+Learner-facing validation messages from **Check** / composite hosts are **Italian**.
 ---
 
 ### Matching (`taskType`: Matching)
@@ -179,23 +180,45 @@ Minimal `contentJson` / **`content_payload`** template:
 
 Behaviour summary:
 
-- **`step_kind`** remains **`task`** — progression uses the normal shell **Check** → **`complete_quest_step_task`** flow (same as other puzzle tasks).
-- One server step hosts **multiple ordered mechanics** inside **`blocks`**; learners move with **Previous** / **Next** inside the screen.
-- **Next** validates the **current** block only (embedded **`ClozeText`** / **`ErrorSpotting`** rules).
-- Shell **Check** is accepted only on the **last** block and then validates **every** block again before **`StepCompletionRequest`** fires.
+- **`step_kind`** remains **`task`** — progression uses the normal shell **Controlla** → **`complete_quest_step_task`** flow (same as other puzzle tasks).
+- One server step hosts **multiple ordered mechanics** inside **`blocks`**; learners move with **Indietro** / **Avanti** inside the screen.
+- **Avanti** validates the **current** block only (embedded **`ClozeText`** / **`ErrorSpotting`** rules).
+- Shell **Controlla** is accepted only on the **last** block and then validates **every** block again before **`StepCompletionRequest`** fires.
+
+**Learner-facing validation copy** for special screens and for embedded **`ClozeText`** / **`ErrorSpotting`** blocks is **Italian** (aligned with standalone error-spotting tasks).
 
 Chrome loads from **`SpecialScreenHost`** (`Assets/Resources/UI/LearningToolkit/SpecialScreenHost.uxml`) with a **programmatic fallback** if Resources loading fails.
 
-DTO types live beside other payloads in **`ToolkitStepContentDtos.cs`** (`SpecialScreenContentDto`, `SpecialScreenBlockDto`, `SpecialScreenStubBlockDto`).
+DTO types live beside other payloads in **`ToolkitStepContentDtos.cs`** (`SpecialScreenContentDto`, `SpecialScreenSmsChromeDto`, `SpecialScreenChatMessageDto`, `SpecialScreenBlockDto`, `SpecialScreenStubBlockDto`).
 
 #### Top-level `contentJson`
 
 | Field | Required | Notes |
 | ----- | -------- | ----- |
-| **`screenVariant`** | no | Authoring hint (`sms`, `mail`, `photo`, `reader`, `generic`, …) for future skins |
-| **`title`** | no | Chrome headline |
-| **`subtitle`** | no | Chrome subline |
+| **`screenVariant`** | no | Authoring hint (`sms`, `whatsapp`, `mail`, `photo`, `reader`, `generic`, …). `whatsapp` applies a subtle green tint to outgoing bubbles. |
+| **`title`** | no | Chrome headline (hidden when messenger chrome is active so the phone mockup stays focused) |
+| **`subtitle`** | no | Chrome subline (hidden when messenger chrome is active) |
+| **`smsChrome`** | no | Messenger transcript + status bar. When present **and** messenger mode is active (see below), Unity renders a **smartphone mockup**, **scrollable** chat, and hosts mechanics inside bubbles. |
 | **`blocks`** | yes | Non-empty ordered array |
+
+#### Messenger mode (SMS / WhatsApp viewer)
+
+Messenger UI activates when **`smsChrome.messages`** is a **non-empty** array **and** any of:
+
+- **`taskType`** is **`SpecialScreenSms`**, or
+- **`screenVariant`** is **`sms`** or **`whatsapp`** (case-insensitive).
+
+Otherwise `smsChrome` is ignored and the generic special-screen chrome is used (title/subtitle + sequential blocks only).
+
+Rules (Unity client validation):
+
+- Every chat message must set **`direction`** to **`incoming`** (left / NPC-style) or **`outgoing`** (right / player-style).
+- **Each** entry in **`blocks`** must be referenced by **exactly one** chat message with **`hostsEmbeddedMechanic`: true** and matching **`embeddedMechanicBlockIndex`** (0-based index into **`blocks`**). Embed the mechanic that should appear inside that bubble (typically **`cloze_text`**).
+- Messages without `hostsEmbeddedMechanic` use plain **`text`** (optional **`author`** caption above the bubble).
+- **`smsChrome.statusBar`**: optional; **`timeText`** and **`signalHint`** are atmosphere-only (defaults apply if omitted).
+- **`smsChrome.chatHeaderTitle`**: optional in-app header (e.g. contact name).
+
+Server storage: PostgreSQL column is **`content_payload` (jsonb)**; HTTP/API exposes the same object as **`contentJson`**.
 
 #### Block object (`blocks[]`)
 
@@ -211,8 +234,8 @@ Example (minimal multi-block):
 ```json
 {
   "screenVariant": "generic",
-  "title": "Special screen foundation",
-  "subtitle": "Use Next between parts, then Check.",
+  "title": "Schermata speciale (esempio)",
+  "subtitle": "Usa «Avanti» tra le parti, poi «Controlla».",
   "blocks": [
     {
       "blockType": "cloze_text",
@@ -232,8 +255,59 @@ Example (minimal multi-block):
     {
       "blockType": "stub",
       "stub": {
-        "headline": "Placeholder chrome",
-        "body": "Future SMS / mail / reader frames attach here."
+        "headline": "Cornice segnaposto",
+        "body": "Qui arriveranno cornici SMS / mail / lettore."
+      }
+    }
+  ]
+}
+```
+
+Example (**`SpecialScreenSms`**, WhatsApp-style skin, single embedded **`cloze_text`** in-thread):
+
+```json
+{
+  "screenVariant": "whatsapp",
+  "smsChrome": {
+    "statusBar": {
+      "timeText": "14:32",
+      "signalHint": "LTE ●●●●●"
+    },
+    "chatHeaderTitle": "Marco",
+    "messages": [
+      {
+        "direction": "incoming",
+        "author": "Marco",
+        "text": "Ciao! Hai tempo per una pizza stasera?"
+      },
+      {
+        "direction": "outgoing",
+        "text": "Certo, perché no?"
+      },
+      {
+        "direction": "incoming",
+        "author": "Marco",
+        "hostsEmbeddedMechanic": true,
+        "embeddedMechanicBlockIndex": 0,
+        "text": ""
+      }
+    ]
+  },
+  "blocks": [
+    {
+      "blockType": "cloze_text",
+      "clozeText": {
+        "prompt": "",
+        "caseSensitive": false,
+        "lines": [
+          {
+            "segments": [
+              { "kind": "text", "text": "Perfetto, ci vediamo alle " },
+              { "kind": "gap", "correctAnswers": ["otto", "8"], "maxLength": 12 },
+              { "kind": "text", "text": "." }
+            ]
+          }
+        ]
       }
     }
   ]
