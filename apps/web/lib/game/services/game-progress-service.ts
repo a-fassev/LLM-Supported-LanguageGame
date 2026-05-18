@@ -25,6 +25,7 @@ import {
   type GameQuestStepRow,
   type PlayerQuestRunRow,
 } from "@/lib/game/repositories/game-progress-repository";
+import { parseCutsceneContent } from "@/lib/game/schemas/cutsceneContentSchema";
 import { countWordsAnswer, parseFreitextLlmStepContent } from "@/lib/llm/freitextLlmContentSchema";
 import { resolveFreitextLlmEvaluatorEnv } from "@/lib/llm/freitextLlmEnv";
 import {
@@ -156,7 +157,7 @@ export type GetRunResult =
     }
   | { ok: false; status: number; error: string; code?: string };
 
-function mapStepRow(row: GameQuestStepRow): GameQuestStepDto {
+function buildQuestStepDto(row: GameQuestStepRow): GameQuestStepDto {
   return {
     id: row.id,
     orderIndex: row.order_index,
@@ -168,6 +169,31 @@ function mapStepRow(row: GameQuestStepRow): GameQuestStepDto {
     rewardRulesJson: JSON.stringify(row.reward_rules ?? {}),
     isTask: row.step_kind === "task",
   };
+}
+
+type MapQuestStepsResult =
+  | { ok: true; steps: GameQuestStepDto[] }
+  | { ok: false; status: 502; error: string; code: "payload_invalid" };
+
+function mapQuestStepRowsWithCutsceneValidation(rows: GameQuestStepRow[]): MapQuestStepsResult {
+  for (const row of rows) {
+    if (row.step_kind !== "cutscene") continue;
+    const parsed = parseCutsceneContent(row.content_payload);
+    if (!parsed.ok) {
+      console.error("[game-progress] Malformed Cutscene content payload", {
+        stepId: row.id,
+        templateKey: row.template_key,
+        issues: parsed.issues,
+      });
+      return {
+        ok: false,
+        status: 502,
+        error: "Malformed Cutscene content payload",
+        code: "payload_invalid",
+      };
+    }
+  }
+  return { ok: true, steps: rows.map(buildQuestStepDto) };
 }
 
 function pickExpectedPendingStep(run: PlayerQuestRunRow, steps: GameQuestStepRow[]): GameQuestStepRow | null {
@@ -539,8 +565,19 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
         ? ""
         : `Complete every quest in "${chaptersSorted[chIdx - 1]?.display_name ?? "the previous chapter"}" to unlock this chapter.`;
 
-    const questDtos: GameQuestClientDto[] = chapterQuestsSorted.map((quest) => {
+    const questDtos: GameQuestClientDto[] = [];
+    for (const quest of chapterQuestsSorted) {
       const stepRows = stepsByQuest.get(quest.id) ?? [];
+      const mappedSteps = mapQuestStepRowsWithCutsceneValidation(stepRows);
+      if (!mappedSteps.ok) {
+        return {
+          ok: false,
+          status: mappedSteps.status,
+          error: mappedSteps.error,
+          code: mappedSteps.code,
+        };
+      }
+
       const gatesOk = isUnlockedForPlayer(
         quest,
         questsBySlug,
@@ -564,7 +601,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
         );
       }
 
-      return {
+      questDtos.push({
         id: quest.id,
         chapterId: chapter.id,
         slug: quest.slug,
@@ -573,9 +610,9 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
         isUnlocked: unlocked,
         hasCompletedAnyRun: completedQuestSet.has(quest.id),
         unlockHint,
-        steps: stepRows.map(mapStepRow),
-      };
-    });
+        steps: mappedSteps.steps,
+      });
+    }
 
     chapterDtos.push({
       id: chapter.id,
@@ -667,6 +704,16 @@ export async function startOrResumeQuest(accountId: string, questId: string): Pr
   if (!stepRows || stepRows.length === 0)
     return { ok: false, status: 500, error: "Quest has no steps" };
 
+  const mappedSteps = mapQuestStepRowsWithCutsceneValidation(stepRows);
+  if (!mappedSteps.ok) {
+    return {
+      ok: false,
+      status: mappedSteps.status,
+      error: mappedSteps.error,
+      code: mappedSteps.code,
+    };
+  }
+
   return {
     ok: true,
     runId: run.id,
@@ -676,7 +723,7 @@ export async function startOrResumeQuest(accountId: string, questId: string): Pr
     displayName: quest.display_name,
     totalSlices: wallet.totalSlices,
     totalBackpackPieces: wallet.totalBackpackPieces,
-    steps: stepRows.map(mapStepRow),
+    steps: mappedSteps.steps,
     currentStepOrderIndex: run.current_step_order_index,
     currentTaskOrderIndex: run.current_task_order_index,
   };
@@ -842,6 +889,16 @@ export async function getGameRun(accountId: string, runId: string): Promise<GetR
   const wallet = await getWalletTotals(accountId);
   if (wallet === null) return { ok: false, status: 500, error: "Could not load wallet" };
 
+  const mappedSteps = mapQuestStepRowsWithCutsceneValidation(stepsRows);
+  if (!mappedSteps.ok) {
+    return {
+      ok: false,
+      status: mappedSteps.status,
+      error: mappedSteps.error,
+      code: mappedSteps.code,
+    };
+  }
+
   return {
     ok: true,
     runId: run.id,
@@ -852,7 +909,7 @@ export async function getGameRun(accountId: string, runId: string): Promise<GetR
     status: run.status,
     totalSlices: wallet.totalSlices,
     totalBackpackPieces: wallet.totalBackpackPieces,
-    steps: stepsRows.map(mapStepRow),
+    steps: mappedSteps.steps,
     currentStepOrderIndex: run.current_step_order_index,
     currentTaskOrderIndex: run.current_task_order_index,
   };

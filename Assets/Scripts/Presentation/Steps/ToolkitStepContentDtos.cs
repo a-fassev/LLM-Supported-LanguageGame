@@ -202,4 +202,21 @@ namespace LanguageGame.Presentation.Steps
         /// <summary>Optional authoring hint/tooltip shown when the segment is selected.</summary>
         public string hint;
     }
+
+    /// <summary>
+    /// Cutscene step payload: mirrors v1 <c>contentJson</c> for <c>step_kind = cutscene</c>.
+    /// Optional fields may be empty; <see cref="CutsceneToolkitStep"/> hides unused UI slots.
+    /// </summary>
+    [Serializable]
+    public sealed class CutsceneContentDto
+    {
+        public int schemaVersion;
+        public string title;
+        public string body;
+        public string subtitle;
+        public string illustrationId;
+        public string tone;
+        public string ariaNote;
+        public string primaryCtaLabel;
+    }
 }

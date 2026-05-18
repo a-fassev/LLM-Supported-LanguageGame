@@ -177,6 +177,60 @@ Minimal `contentJson` / **`content_payload`** template:
 
 **Implementation:** **`CutsceneToolkitStep`**.
 
+Cutscenes are **presentation-only**: learners advance with the quest shell **Next** button (no **Check**, no puzzle rewards from `contentJson`). The server stores JSON in `game_quest_steps.content_payload`; the API exposes it as **`contentJson`** (stringified object).
+
+**Schema version:** optional top-level **`schemaVersion`** (integer, defaults to **`1`** if omitted). Only **`1`** is defined today.
+
+**Strict authoring (Next.js):** cutscene payloads are validated when quests are loaded for session APIs. **`extra` properties are rejected** (Zod `.strict()`): typos like `"tilte"` fail fast so content never silently diverges from this contract.
+
+**Server error convention:** malformed cutscene JSON → HTTP **502** with `code: "payload_invalid"` and message `Malformed Cutscene content payload` (quest bootstrap / start / resume / run snapshot).
+
+**Unity:** parses `contentJson` with `JsonUtility` + guards; invalid JSON shows a short **Italian** placeholder — never raw JSON in the body.
+
+| Field | Required | Notes |
+| ----- | -------- | ----- |
+| **`title`** | yes | Headline |
+| **`body`** | yes | Flowing narrative / instructions (plain text) |
+| **`schemaVersion`** | no | Default `1` |
+| **`subtitle`** | no | Line under the headline |
+| **`illustrationId`** | no | Optional asset key for future illustration hooks (not auto-resolved in Unity yet) |
+| **`tone`** | no | Optional UI tone hint (e.g. `celebratory`, `neutral`); cosmetic only |
+| **`ariaNote`** | no | Accessibility / screen-reader note (reserved; Unity may map to `HelpText` later) |
+| **`primaryCtaLabel`** | no | Cosmetic only; **does not** replace shell **Next** / localization |
+
+Example (minimal):
+
+```json
+{
+  "schemaVersion": 1,
+  "title": "Benvenuto",
+  "body": "Iniziamo la tua avventura nella città."
+}
+```
+
+Example (options):
+
+```json
+{
+  "schemaVersion": 1,
+  "title": "Ottimo lavoro",
+  "subtitle": "Piccola pausa",
+  "body": "Hai finito tutti i compiti di questa quest. Premi Avanti per continuare.",
+  "tone": "celebratory",
+  "illustrationId": "mascot-wave",
+  "primaryCtaLabel": "Avanti"
+}
+```
+
+Anti-pattern (invalid — missing **`body`**, server returns 502):
+
+```json
+{
+  "schemaVersion": 1,
+  "title": "Incomplete"
+}
+```
+
 ---
 
 ### ErrorSpotting (`taskType`: ErrorSpotting)
