@@ -18,17 +18,25 @@ namespace LanguageGame.Presentation.Steps
 
         private bool _contentReady;
 
-        public ClozeTextToolkitStep(VisualElement host)
+        /// <param name="useMutedChrome">When false (e.g. embedded in <see cref="SpecialScreenToolkitStep"/>), skips outer panel styling to avoid stacked frames.</param>
+        public ClozeTextToolkitStep(VisualElement host, bool useMutedChrome = true)
         {
             _root = new VisualElement();
             _root.style.flexGrow = 1;
-            _root.AddToClassList("lg-muted-panel");
-            _root.style.paddingTop = 16;
-            _root.style.paddingBottom = 16;
-            _root.style.paddingLeft = 16;
-            _root.style.paddingRight = 16;
+            if (useMutedChrome)
+            {
+                _root.AddToClassList("lg-muted-panel");
+                _root.style.paddingTop = 16;
+                _root.style.paddingBottom = 16;
+                _root.style.paddingLeft = 16;
+                _root.style.paddingRight = 16;
+            }
+
             host.Add(_root);
         }
+
+        /// <summary>True after <see cref="Bind"/> produced interactive gaps.</summary>
+        public bool IsBinderReady => _contentReady;
 
         public void Bind(StepContext context, Action<StepCompletionRequest> onRequest)
         {
@@ -41,7 +49,9 @@ namespace LanguageGame.Presentation.Steps
             if (!TryParseContentDto(context?.contentJson, out var dto, out var error))
             {
                 Debug.LogWarning($"[ClozeTextToolkitStep] Invalid contentJson: {error ?? "unknown"}");
-                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? "Invalid cloze content." : error);
+                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error)
+                    ? "Contenuto del testo a buchi non valido."
+                    : error);
                 return;
             }
 
@@ -115,7 +125,8 @@ namespace LanguageGame.Presentation.Steps
             if (_gaps.Count == 0)
             {
                 Debug.LogWarning("[ClozeTextToolkitStep] Parsed payload but found no gap slots.");
-                context?.presentValidationMessage?.Invoke("Cloze task has no gaps.");
+                context?.presentValidationMessage?.Invoke(
+                    "Questo esercizio non ha spazi da completare.");
                 return;
             }
 
@@ -150,7 +161,7 @@ namespace LanguageGame.Presentation.Steps
             message = null;
             if (!_contentReady)
             {
-                message = "This task is not ready yet. Check the lesson content.";
+                message = "Il compito non è ancora pronto. Controlla i contenuti.";
                 return false;
             }
 
@@ -161,13 +172,13 @@ namespace LanguageGame.Presentation.Steps
                 var typed = (slot.field.value ?? string.Empty).Trim();
                 if (typed.Length == 0)
                 {
-                    message = "Fill in every gap.";
+                    message = "Compila tutti i buchi.";
                     return false;
                 }
 
                 if (!MatchesAnyAnswer(typed, slot.answers, slot.caseInsensitive))
                 {
-                    message = "Not quite — check your answers.";
+                    message = "Non ancora giusto — controlla le tue risposte.";
                     return false;
                 }
             }
@@ -189,20 +200,20 @@ namespace LanguageGame.Presentation.Steps
             error = null;
             if (string.IsNullOrWhiteSpace(json))
             {
-                error = "Missing content.";
+                error = "Contenuto mancante.";
                 return false;
             }
 
             if (!json.TrimStart().StartsWith("{", StringComparison.Ordinal))
             {
-                error = "Cloze content must be a JSON object.";
+                error = "Il contenuto deve essere un oggetto JSON.";
                 return false;
             }
 
             dto = JsonUtility.FromJson<ClozeTextContentDto>(json);
             if (dto?.lines == null || dto.lines.Length == 0)
             {
-                error = "Cloze content needs at least one line.";
+                error = "Serve almeno una riga di testo.";
                 return false;
             }
 
@@ -211,7 +222,7 @@ namespace LanguageGame.Presentation.Steps
             {
                 if (line?.segments == null || line.segments.Length == 0)
                 {
-                    error = "Each line needs at least one segment.";
+                    error = "Ogni riga deve avere almeno un segmento.";
                     return false;
                 }
 
@@ -223,7 +234,7 @@ namespace LanguageGame.Presentation.Steps
                         continue;
                     if (!HasValidGapAnswers(seg.correctAnswers))
                     {
-                        error = "Each gap needs at least one correct answer.";
+                        error = "Ogni buco deve avere almeno una risposta corretta.";
                         return false;
                     }
 
@@ -233,7 +244,7 @@ namespace LanguageGame.Presentation.Steps
 
             if (gapCount == 0)
             {
-                error = "Cloze content needs at least one gap segment.";
+                error = "Serve almeno un buco nel testo.";
                 return false;
             }
 

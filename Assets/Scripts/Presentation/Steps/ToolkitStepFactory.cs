@@ -28,12 +28,21 @@ namespace LanguageGame.Presentation.Steps
                 "FreeText" => new StubToolkitTaskStep(stepHost, step.taskType),
                 "RelativeClause" => new StubToolkitTaskStep(stepHost, step.taskType),
                 "ErrorSpotting" => new ErrorSpottingToolkitStep(stepHost),
-                "SpecialScreen" => new SpecialScreenToolkitStep(stepHost, coroutineHost),
-                "SpecialScreenSms" => new SpecialScreenToolkitStep(stepHost, coroutineHost),
-                "SpecialScreenMailEditor" => new SpecialScreenToolkitStep(stepHost, coroutineHost),
-                "SpecialScreenPhotoViewer" => new SpecialScreenToolkitStep(stepHost, coroutineHost),
-                "SpecialScreenReader" => new SpecialScreenToolkitStep(stepHost, coroutineHost),
+                string tt when IsSpecialScreenTaskType(tt) => new SpecialScreenToolkitStep(stepHost, coroutineHost),
                 _ => new StubToolkitTaskStep(stepHost, string.IsNullOrEmpty(step.taskType) ? "Task" : step.taskType),
+            };
+        }
+
+        private static bool IsSpecialScreenTaskType(string taskType)
+        {
+            if (string.IsNullOrEmpty(taskType))
+                return false;
+
+            return taskType switch
+            {
+                "SpecialScreen" or "SpecialScreenSms" or "SpecialScreenMailEditor" or "SpecialScreenPhotoViewer"
+                    or "SpecialScreenReader" => true,
+                _ => false,
             };
         }
     }

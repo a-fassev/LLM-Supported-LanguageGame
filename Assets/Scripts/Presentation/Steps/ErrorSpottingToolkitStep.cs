@@ -33,15 +33,19 @@ namespace LanguageGame.Presentation.Steps
         private bool _contentReady;
         private bool _interactable = true;
 
-        public ErrorSpottingToolkitStep(VisualElement host)
+        /// <param name="useMutedChrome">When false (e.g. embedded in <see cref="SpecialScreenToolkitStep"/>), skips outer panel styling to avoid stacked frames.</param>
+        public ErrorSpottingToolkitStep(VisualElement host, bool useMutedChrome = true)
         {
             _root = new VisualElement();
             _root.style.flexGrow = 1;
-            _root.AddToClassList("lg-muted-panel");
-            _root.style.paddingTop = 16;
-            _root.style.paddingBottom = 16;
-            _root.style.paddingLeft = 16;
-            _root.style.paddingRight = 16;
+            if (useMutedChrome)
+            {
+                _root.AddToClassList("lg-muted-panel");
+                _root.style.paddingTop = 16;
+                _root.style.paddingBottom = 16;
+                _root.style.paddingLeft = 16;
+                _root.style.paddingRight = 16;
+            }
 
             _chipsRow = new VisualElement();
             _chipsRow.AddToClassList("lg-error-spotting-row");
@@ -49,6 +53,9 @@ namespace LanguageGame.Presentation.Steps
 
             host.Add(_root);
         }
+
+        /// <summary>True after <see cref="Bind"/> produced segment UI.</summary>
+        public bool IsBinderReady => _contentReady;
 
         public void Bind(StepContext context, Action<StepCompletionRequest> onRequest)
         {
@@ -60,7 +67,9 @@ namespace LanguageGame.Presentation.Steps
             if (!TryParseContentDto(context?.contentJson, out var dto, out var error))
             {
                 Debug.LogWarning($"[ErrorSpottingToolkitStep] Invalid contentJson: {error ?? "unknown"}");
-                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? "Invalid error-spotting content." : error);
+                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error)
+                    ? "Contenuto dell'esercizio «trova gli errori» non valido."
+                    : error);
                 return;
             }
 
@@ -234,7 +243,12 @@ namespace LanguageGame.Presentation.Steps
         private void ResetState()
         {
             _contentReady = false;
-            _resetButton = null;
+            if (_resetButton != null)
+            {
+                _resetButton.clicked -= OnResetClicked;
+                _resetButton = null;
+            }
+
             _slotById.Clear();
             _selectedSegmentIds.Clear();
             _correctionFields.Clear();
@@ -398,26 +412,26 @@ namespace LanguageGame.Presentation.Steps
 
             if (string.IsNullOrWhiteSpace(json))
             {
-                error = "Missing content.";
+                error = "Contenuto mancante.";
                 return false;
             }
 
             if (!json.TrimStart().StartsWith("{", StringComparison.Ordinal))
             {
-                error = "Error-spotting content must be a JSON object.";
+                error = "Il contenuto deve essere un oggetto JSON.";
                 return false;
             }
 
             dto = JsonUtility.FromJson<ErrorSpottingContentDto>(json);
             if (dto?.segments == null || dto.segments.Length == 0)
             {
-                error = "Error-spotting content needs segments.";
+                error = "Servono i segmenti di testo.";
                 return false;
             }
 
             if (dto.expectedErrorRange == null)
             {
-                error = "Error-spotting content needs expectedErrorRange.";
+                error = "Serve expectedErrorRange (min/max numero errori).";
                 return false;
             }
 
@@ -426,7 +440,7 @@ namespace LanguageGame.Presentation.Steps
 
             if (min < 1 || max < min)
             {
-                error = "expectedErrorRange.min and max must be valid (min ≥ 1, max ≥ min).";
+                error = "expectedErrorRange non valido (min ≥ 1 e max ≥ min).";
                 return false;
             }
 
@@ -434,7 +448,7 @@ namespace LanguageGame.Presentation.Steps
             if (trueErrors < min || trueErrors > max)
             {
                 error =
-                    $"Authoring mismatch: counted {trueErrors} error segments, but expectedErrorRange asks for {min}–{max}.";
+                    $"Contenuto incoerente: ci sono {trueErrors} errori nel testo, ma il range previsto è {min}–{max}.";
                 return false;
             }
 
@@ -443,20 +457,20 @@ namespace LanguageGame.Presentation.Steps
             {
                 if (seg == null)
                 {
-                    error = "Each segment entry must be an object.";
+                    error = "Ogni elemento dei segmenti deve essere un oggetto.";
                     return false;
                 }
 
                 if (string.IsNullOrWhiteSpace(seg.id))
                 {
-                    error = "Each segment needs a non-empty id.";
+                    error = "Ogni segmento deve avere un id non vuoto.";
                     return false;
                 }
 
                 var idKey = seg.id.Trim();
                 if (!seenIds.Add(idKey))
                 {
-                    error = $"Duplicate segment id '{idKey}'.";
+                    error = $"Id duplicato nel segmento «{idKey}».";
                     return false;
                 }
 
@@ -464,7 +478,8 @@ namespace LanguageGame.Presentation.Steps
                 {
                     if (!HasValidCorrections(seg.acceptedCorrections))
                     {
-                        error = $"Segment '{idKey}' is flagged as error but acceptedCorrections is empty.";
+                        error =
+                            $"Il segmento «{idKey}» è segnato come errore ma non ha correzioni accettate.";
                         return false;
                     }
                 }

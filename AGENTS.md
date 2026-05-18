@@ -35,6 +35,12 @@ The **committed** repository is a **Unity 6.4** project at the **repository root
 - **UI design tokens:** Shared styling data lives in `UiDesignTokens` (`Assets/Scripts/Presentation/UiDesignTokens.cs`, ScriptableObject). `UiThemeProvider` exposes tokens at runtime; optional default asset at `Resources/UI/UiDesignTokens_Default`. Prefer USS theme classes under `Assets/Resources/UI/LearningToolkit/` for menus and quest shell instead of scattering literals in C#.
 - **Wallet HUD (pizza + backpack pieces):** Displayed via UI Toolkit where the screen defines wallet chips (**ChapterOverview**, **Quest**, **AvatarShop**). **`MainMenu` may omit wallet labels** while bootstrap still refreshes session totals for later scenes.
 
+**Quest shell task steps (patterns):**
+
+- **Single factory router:** `ToolkitStepFactory.Create` maps each `GameQuestStepDto` to an `IStepView`: non-task rows use `CutsceneToolkitStep`; task rows switch on `taskType` (`DragDrop`, `ClozeText`, `MultipleChoice`, `Matching`, `FreitextLlm`, `ErrorSpotting`, …). Unregistered types use `StubToolkitTaskStep` until a real UI exists.
+- **Special Screen family:** `SpecialScreen`, `SpecialScreenSms`, `SpecialScreenMailEditor`, `SpecialScreenPhotoViewer`, and `SpecialScreenReader` all resolve to `SpecialScreenToolkitStep` (`IsSpecialScreenTaskType`). Adding another `SpecialScreen*` alias means extending that helper in `ToolkitStepFactory`, plus DTO/`content_json` alignment. New task types generally need a `*ToolkitStep` class, DTO shapes (often `ToolkitStepContentDtos.cs`), a factory case, and DB/API `content_json` kept in sync with `GameProgressContracts` and any Next.js validation.
+- **Long-running task work:** `QuestShellView` injects `StepContext.presentBusyOverlay` / `dismissBusyOverlay` (same full-screen loading overlay as progression). Steps with slow HTTP (e.g. LLM evaluation) must use these instead of ad hoc spinners; composite hosts that clone `StepContext` for nested blocks (e.g. `SpecialScreenToolkitStep`) must forward both callbacks.
+
 ### Web / auth API (`apps/web`)
 
 - **Next.js** App Router API routes under `apps/web/app/api/auth/*` and `apps/web/app/api/game/*` (session-auth game bootstrap, quest start/resume, step completion, run finish).

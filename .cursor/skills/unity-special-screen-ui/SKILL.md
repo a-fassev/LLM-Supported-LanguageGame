@@ -28,7 +28,7 @@ Contract tables and learner-copy notes: **`docs/task-type-ui-guide.md`** (Specia
 - **`smsChrome`**: optional messenger transcript + status bar; when messenger mode is active (`SpecialScreenSms` task type **or** `screenVariant` `sms`/`whatsapp`), Unity renders a smartphone mockup + **`ScrollView`** chat and embeds mechanics in bubbles (`hostsEmbeddedMechanic` + `embeddedMechanicBlockIndex`; **always author `embeddedMechanicBlockIndex` when not block `0`** — JsonUtility defaults omitted ints to `0`). Deferred-mechanic rows without **`text`** show a muted **`…`**; entirely empty rows are rejected at parse time and omitted at runtime. Styles: **`special-screen-messenger.uss`** (imported by **`theme-learn.uss`**).
 - **`readerChrome`**: magazine/book reader (**`SpecialScreenReader`** **or** `screenVariant` **`reader`**): optional **`imageUrl`** + **`bodyText`**, **`columnCount`**, **`showLineNumbers`**. **Empty `blocks`** = display-only shell (arrow row hidden); **`blocks`** must not be populated in reader mode (client rejects mixed payloads). Messenger chrome is suppressed when reader mode applies. USS: **`special-screen-reader.uss`** (via **`theme-learn.uss`**).
 - **`photoViewerChrome`**: gallery / slideshow (**`SpecialScreenPhotoViewer`** **or** `screenVariant` **`photo`**): **`displayMode`** `grid4` or `slideshow`, **`items[]`** (`imageUrl`, optional **`caption`**, optional learner **`requireLearnerCaption`** + **`acceptedCaptions`**). Do not combine with **`smsChrome.messages`**. Extra **`blocks[]`** become parts **after** the photo part. USS: **`special-screen-photo-viewer.uss`** (via **`theme-learn.uss`**).
-- **`mailChrome`**: e-mail / letter frame (**`SpecialScreenMailEditor`** **or** `screenVariant` **`mail`** / **`letter`**): read-only **`from`** / **`to`** / **`subject`**, optional **`greeting`** / **`closing`**, **`sendButtonText`** / **`sendSuccessText`**. **`blocks[]`** render inside the body; in-frame **send** mirrors shell **Controlla**. Do not combine with **`smsChrome.messages`**. USS: **`special-screen-mail.uss`** (via **`theme-learn.uss`**).
+- **`mailChrome`**: e-mail / letter frame (**`SpecialScreenMailEditor`** **or** `screenVariant` **`mail`** / **`letter`**): read-only header rows, then embedded **`blocks[]`**, then **`greeting`** and **`closing`**, then in-frame send (same flow as shell **Controlla**). Header fields: **`from`** / **`fromText`**, **`to`** / **`toText`**, etc. Scrolls vertically when content is tall. Do not combine with **`smsChrome.messages`**. USS: **`special-screen-mail.uss`** (via **`theme-learn.uss`**).
 - **`blocks[]`**: required for messenger / mail / generic multi-mechanic payloads unless **reader** or **photo-only** (see above). For reader payloads, **`blocks`** must be **omitted** or **`[]`** only.
 
 **Supported `blockType`** (case-insensitive aliases in code): **`cloze_text` / `ClozeText`**, **`error_spotting` / `ErrorSpotting`**, **`stub`**.
@@ -39,12 +39,13 @@ Nested payloads must satisfy the same rules as standalone tasks — **`ClozeText
 
 - Reuse **`ClozeTextToolkitStep`** / **`ErrorSpottingToolkitStep`** with **`useMutedChrome: false`** so panels do not stack inside the host chrome.
 - **`TryValidateLocally`** on those steps is the single validation source for composite submit (never duplicate gap/error rules in the host).
+- When cloning **`StepContext`** for nested blocks, **forward** **`presentBusyOverlay`** and **`dismissBusyOverlay`** from the parent context so embedded mechanics (e.g. **Freitext** / LLM-heavy flows) use the same shell loading overlay as standalone tasks.
 
 ## Adding a new block kind
 
 1. Extend **`BlockKind`** / **`ClassifyBlock`** / **`ValidateBlockPayload`** / **`CreateNestedBlock`** in **`SpecialScreenToolkitStep`** (keep parse validation aligned with **`JsonUtility`** field shapes).
 2. Implement **`ISpecialScreenNestedBlock`**: **`Bind`**, **`Teardown`**, **`SetInteractable`**, **`TryValidate`**, **`IsBinderReady`**.
-3. **`Bind`**: clone **`StepContext`** with **`CloneStepContext`**-style field copy and nested **`contentJson`** (`JsonUtility.ToJson` on the nested DTO).
+3. **`Bind`**: clone **`StepContext`** with **`CloneStepContext`**-style field copy and nested **`contentJson`** (`JsonUtility.ToJson` on the nested DTO); copied fields must include **`presentBusyOverlay`** / **`dismissBusyOverlay`** when the new block type can trigger slow work.
 4. Update **`docs/task-type-ui-guide.md`** block table + example snippet.
 
 For purely visual chrome (SMS frame, mail headers): prefer branching on **`screenVariant`** inside the host or lightweight USS/UXML under Resources — keep mechanic payloads separate from layout unless authoring asks otherwise.

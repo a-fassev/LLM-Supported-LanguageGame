@@ -2,9 +2,10 @@
 name: product
 description: |
   Domain knowledge for the language-learning game from the learner and product perspective:
-  Italian for children (gifted-education school), city-map quests, task variety, mascot rewards,
-  research study context, privacy posture. Use when deciding UX, copy, pacing, difficulty, task
-  design, or explaining what players experience—not for implementation details (see AGENTS.md).
+  Italian for children (gifted-education school), city-map quests, task variety (incl. composite
+  special screens), mascot rewards, research study context, privacy posture. Use when deciding UX,
+  copy, pacing, difficulty, task design, or explaining what players experience—not for implementation
+  details (see AGENTS.md).
 ---
 
 # Product knowledge (user perspective)
@@ -27,6 +28,7 @@ Canonical **technical** contracts live in `AGENTS.md`; **task-type orientation**
 - **Chapter overview** as the main hub—not a free-roam character hub.
 - **Chapter cards/buttons** drive progression visibility via unlock rules.
 - **Tap a chapter** to open quest overview, then start a **quest**; quests **chain** (finishing one unlocks the next).
+- **Inside a quest**, children move through **steps** in a single **quest shell**: **tasks** use a primary **Check** action labeled **«Controlla»** (Italian); **story / cutscene** beats advance with **Next** when the content is display-only. **Leave / back** paths should stay clear so children never feel trapped in homework mode.
 
 ### Mascot and motivation
 
@@ -42,26 +44,28 @@ Canonical **technical** contracts live in `AGENTS.md`; **task-type orientation**
 
 - Task types are **modular** (e.g. drag-and-drop): swap **texts and content** without rebuilding core mechanics.
 - **Pedagogical preference:** **little free-text** input where possible, for clearer scoring and control.
-- **LLM use** is **intentionally narrow** at first—expand only where justified; many types are **fixed, deterministic** checks on the backend.
+- **LLM use** is **intentionally narrow**—today that means **short Italian writing checked against clear criteria**; most tasks are **fixed, deterministic** checks on the server.
+- **Special screens** dress several small mechanics inside **one believable frame** (e.g. **phone chat**, **email/letter**, **photo strip**, **magazine-style reader**). Learners may tap **«→»** to move between parts, then **«Controlla»** (and sometimes an in-frame **send** on mail) so pacing still feels like **one quest**, not a pile of worksheets.
 
 ## Task categories (what kids do)
 
-**Mostly deterministic (no LLM):**
+**Implemented today — mostly deterministic (no LLM scoring):**
 
-| Category        | Player action (short) |
-|----------------|------------------------|
-| Error spotting | Find/fix a deliberate mistake in a sentence or short text. |
-| Drag & drop    | Order fragments, fill gaps, match pronouns/referents, sort into categories. |
-| Cloze          | Fill gaps; often **multiple choice** or **closed answers** against accepted solutions. |
-| Matching       | Pair columns (words/meanings, clauses, pictures/terms, etc.). |
-| Multiple choice | Choose correct option (reading, listening, grammar, culture). |
+| Category | Player action (short) |
+|----------|------------------------|
+| Error spotting | Find/fix a deliberate mistake; mark segments and confirm corrections. |
+| Drag & drop | Order fragments, fill gaps, match pronouns/referents, sort into categories. |
+| Cloze | Fill gaps; typically **closed answers** / accepted solutions (incl. pickers where authored). |
+| Matching | Pair columns (words/meanings, clauses, pictures/terms, etc.). |
+| Multiple choice | Choose correct option(s) from stems that can mix **text**, **image**, and **audio**. |
+| Special screen (composite) | **Chat**, **mail/letter**, **photo gallery/slideshow**, or **reader** chrome wrapping the same core mechanics (e.g. cloze / error spotting) in a story context; often **multi-part** with clear arrows between parts. |
 
-**LLM-assisted (use sparingly, higher evaluation risk):**
+**LLM-assisted (use sparingly; copy must set expectations):**
 
-| Category              | Player action (short) |
-|-----------------------|------------------------|
-| Free text (scored)    | Short open answer; model scores vs **predefined criteria** (e.g. target structure present). |
-| Relative-clause puzzle | Describe a target **without naming it**, using relative clauses; model guesses within **1–3 tries**. |
+| Category | Player action (short) |
+|----------|------------------------|
+| Short free writing (scored) | Brief **Italian** answer; server-backed check against **authored criteria** (learners should understand there can be a short **“checking”** moment before feedback—avoid implying instant magic). |
+| Relative-clause puzzle *(planned / not shipped as a dedicated screen yet)* | Describe a target **without naming it**, using relative clauses; model-guided guessing—**teacher sign-off** before exposing widely. |
 
 The **final menu** of task types may still change with **feasibility** and **teacher sign-off**.
 
@@ -86,8 +90,8 @@ When you design flows, wording, difficulty, or task presentation:
 
 1. **Child-first, Italian-first**—clarity, encouragement, age-appropriate tone; gifted learners still need **accessible** UI.
 2. **Game feel over admin feel**—motivation, progression, and feedback matter as much as correctness.
-3. **Prefer deterministic UX** where the product promises a **fair, repeatable** outcome; surface LLM-based tasks only when the design **owns** the softer scoring tradeoffs.
-4. **LLM as backstage support** unless the experience intentionally exposes it to the child.
+3. **Prefer deterministic UX** where the product promises a **fair, repeatable** outcome; surface LLM-based tasks only when the design **owns** the softer scoring tradeoffs (and when **Controlla** feedback can stay **encouraging** even if wording is model-shaped).
+4. **LLM as backstage support** unless the experience intentionally exposes it to the child; **Italian shell copy** and **special-screen fiction** (chat, mail, reader) should still read as **school-trip / lesson** tone, not generic chatbot.
 5. If an idea only fits a **generic enterprise app**, it is likely **wrong** here unless the user says otherwise.
 
 ## Out of scope for this skill

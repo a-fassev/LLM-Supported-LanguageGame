@@ -88,8 +88,8 @@ begin
     'quest-01-special-screen-foundation-demo',
     $payload${
       "screenVariant": "generic",
-      "title": "Special screen foundation demo",
-      "subtitle": "Use Next between parts, then Check.",
+      "title": "Demo schermata speciale",
+      "subtitle": "Usa «→» tra le parti, poi «Controlla».",
       "blocks": [
         {
           "blockType": "cloze_text",
@@ -109,8 +109,8 @@ begin
         {
           "blockType": "stub",
           "stub": {
-            "headline": "Placeholder chrome",
-            "body": "Future SMS / mail / reader frames attach here."
+            "headline": "Cornice segnaposto",
+            "body": "Qui arriveranno cornici SMS / mail / lettore."
           }
         },
         {

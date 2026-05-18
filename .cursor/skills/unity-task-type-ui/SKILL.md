@@ -12,18 +12,22 @@ Quest steps render inside **`QuestShellScreen`** (`Assets/Resources/UI/LearningT
 
 Full narrative and **`contentJson`** tables: **`docs/task-type-ui-guide.md`**.
 
+Composite **Special Screen** tasks (`SpecialScreen*`): see **`.cursor/skills/unity-special-screen-ui/SKILL.md`**.
+
 ## Flow
 
 1. **`QuestShellView`** loads server step → **`ToolkitStepFactory.Create(step, stepHost, coroutineHost)`** → **`IStepView.Bind(StepContext, …)`**.
-2. Shell owns **Back**, **primary** (**Next** / **Check** / **Finish quest**), loading overlay, validation overlay, reward overlay (`LearningToolkitOverlays`).
-3. Tasks submit via **`ISubmitFromShell.SubmitFromShell()`** when the learner taps **Check**. Cutscenes advance via **`StepCompletionRequest`** from **`CutsceneToolkitStep`** or shell **Next**.
+   - **Non-task** steps → **`CutsceneToolkitStep`**. **Task** steps → **`switch (taskType)`** to a concrete `*ToolkitStep`; unknown types → **`StubToolkitTaskStep`**.
+2. Shell owns **Back**, **primary** (**Next** / **Controlla** / **Finish quest**), loading overlay, validation overlay, reward overlay (`LearningToolkitOverlays`).
+3. Tasks submit via **`ISubmitFromShell.SubmitFromShell()`** when the learner taps **Controlla**. Cutscenes advance via **`StepCompletionRequest`** from **`CutsceneToolkitStep`** or shell **Next**.
 4. Client validation uses **`StepContext.presentValidationMessage`** only (shell reward modal validation mode).
+5. **Slow operations** (server round-trips, LLM gates): use **`StepContext.presentBusyOverlay(message)`** / **`dismissBusyOverlay()`** (injected by the shell from the same overlay as quest loading). Always **`dismiss`** on error and early exit. Do not add a second loading UI stack inside the step.
 
 ## Adding or extending a task type
 
-1. **`taskType`** string must match API / DB (`game_quest_steps.task_type`). **`ToolkitStepFactory`** uses a **`switch`** — casing must match server payloads.
+1. **`taskType`** string must match API / DB (`game_quest_steps.task_type`). **`ToolkitStepFactory`** uses a **`switch`** — casing must match server payloads. Keep **`Assets/Scripts/Application/GameProgressContracts.cs`** (and any **`apps/web`** payload validators) aligned when introducing or renaming a type.
 
-2. **Implement `IStepView`** (and **`ISubmitFromShell`** for tasks submitted by shell Check):
+2. **Implement `IStepView`** (and **`ISubmitFromShell`** for tasks submitted by shell Controlla):
    - Place class under `Assets/Scripts/Presentation/Steps/` (e.g. `*ToolkitStep.cs`).
    - **`Bind`**: parse **`context.contentJson`**, attach UI under **`stepHost`**, avoid duplicate listeners on re-bind.
    - **`Teardown`**: **`RemoveFromHierarchy`** on roots you own; clear delegates / schedules.
@@ -41,7 +45,8 @@ Full narrative and **`contentJson`** tables: **`docs/task-type-ui-guide.md`**.
 - [ ] **`ToolkitStepFactory`** **`case`** for **`taskType`**.
 - [ ] **`Bind` / `Teardown` / `SetInteractable`** correct; **`ISubmitFromShell`** for shell-driven submit.
 - [ ] Validation only via **`presentValidationMessage`** (no second overlay stack).
-- [ ] Play Mode: shell Check → API flow; wallet overlay after server success.
+- [ ] Long waits use **`presentBusyOverlay` / `dismissBusyOverlay`** only (no duplicate loaders).
+- [ ] Play Mode: shell Controlla → API flow; wallet overlay after server success.
 
 ## Key paths
 
@@ -49,6 +54,6 @@ Full narrative and **`contentJson`** tables: **`docs/task-type-ui-guide.md`**.
 |------|------|
 | Shell | `Assets/Scripts/Presentation/QuestShellView.cs` |
 | Factory | `Assets/Scripts/Presentation/Steps/ToolkitStepFactory.cs` |
-| Contracts | `Assets/Scripts/Presentation/Steps/IStepView.cs`, `ISubmitFromShell.cs`, `StepContext.cs` |
+| Contracts | `Assets/Scripts/Presentation/Steps/IStepView.cs`, `ISubmitFromShell.cs`, `StepContext.cs`; HTTP DTOs `Assets/Scripts/Application/GameProgressContracts.cs` |
 | UXML shell | `Assets/Resources/UI/LearningToolkit/QuestShellScreen.uxml` |
 | Theme | `Assets/Resources/UI/LearningToolkit/*.uss`, `LearningMenusTheme.tss` |

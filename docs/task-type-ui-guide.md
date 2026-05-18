@@ -214,15 +214,18 @@ Mail UI activates when **`taskType`** is **`SpecialScreenMailEditor`** **or** **
 
 - **`blocks`:** non-empty array: each entry is a **`cloze_text`**, **`error_spotting`**, or **`stub`** block rendered inside the editable «body» region (multi-part paging matches other special screens).
 - **Messenger conflict:** **`smsChrome.messages`** must be empty/absent.
-- **Subject row:** hidden when **`mailChrome.format`** is **`letter`** **or** **`screenVariant`** is **`letter`** (and **`format`** is omitted).
+- **Chrome order (mail):** **`Da` / `A` / `Oggetto`** first, then the **`blocks[]`** «body» box, then **`greeting`** and **`closing`**, then **Invia** — matches a layout where the learner works on the message first and sees salutation/sign-off underneath. The mail column scrolls vertically when content exceeds the viewport.
 - **Send affordance:** **`mailChrome.sendButtonText`** (default **Invia**) labels the in-panel button; **`mailChrome.sendSuccessText`** (default **E-mail inviata.**) appears briefly after successful local validation, before **`StepCompletionRequest`**. Shell **Controlla** performs the same checks.
 
 | `mailChrome` field | Required | Notes |
 | ------------------ | -------- | ----- |
 | **`format`** | no | **`email`** or **`letter`** — **`letter`** omits the subject row |
 | **`rowLabelFrom`** / **`rowLabelTo`** / **`rowLabelSubject`** | no | Visible labels for the three header rows (Italian defaults **Da:** / **A:** / **Oggetto:**) |
-| **`from`** / **`to`** / **`subject`** | no | Read-only header values (**`subject`** hidden in letter layout) |
-| **`greeting`** / **`closing`** | no | Static lines shown above / below the **`blocks`** body |
+| **`from`** / **`fromText`** | no | Address line after **Da:** — either key works (use **`fromText`** if your toolchain reserves **`from`**) |
+| **`to`** / **`toText`** | no | Address line after **A:** |
+| **`subject`** / **`subjectText`** | no | **Oggetto** line (**`subject`** hidden in letter layout) |
+| **`greeting`** / **`greetingText`** | no | Salutation above the **`blocks`** body |
+| **`closing`** / **`closingText`** | no | Sign-off below the **`blocks`** body |
 | **`sendButtonText`** | no | In-frame button — default **Invia** |
 | **`sendSuccessText`** | no | Short confirmation line — default **E-mail inviata.** |
 

@@ -15,7 +15,7 @@ namespace LanguageGame.Presentation
         private const string FinishQuestLabel = "Finish quest";
         private const string ShellCutsceneNextLabel = "Next";
         private const string BackToChaptersLabel = "Back to chapters";
-        private const string ShellTaskCheckLabel = "Check";
+        private const string ShellTaskCheckLabel = "Controlla";
         private const string ValidationDismissLabel = "OK";
 
         private GameProgressApiClient _gameApi;
@@ -221,6 +221,9 @@ namespace LanguageGame.Presentation
                 totalSlices = flow.TotalPizzaSlices,
                 totalBackpackPieces = flow.TotalBackpackPieces,
                 presentValidationMessage = PresentValidationMessage,
+                presentBusyOverlay = msg =>
+                    _tkLoading.Show(string.IsNullOrWhiteSpace(msg) ? "Loading…" : msg),
+                dismissBusyOverlay = () => _tkLoading.Hide(),
                 gameProgressApi = _gameApi,
             }, OnStepRequest);
             _activeStepView.SetInteractable(!_submitting);
@@ -275,10 +278,10 @@ namespace LanguageGame.Presentation
                     submit.SubmitFromShell();
                 else if (_activeStepView != null)
                     Debug.LogWarning(
-                        "[QuestShellView] Task step does not implement ISubmitFromShell; Check did nothing. " +
+                        "[QuestShellView] Task step does not implement ISubmitFromShell; Controlla did nothing. " +
                         $"Step type: {_activeStepView.GetType().Name}");
                 else
-                    Debug.LogWarning("[QuestShellView] Task step Check pressed but no active step view.");
+                    Debug.LogWarning("[QuestShellView] Task step Controlla pressed but no active step view.");
                 return;
             }
 

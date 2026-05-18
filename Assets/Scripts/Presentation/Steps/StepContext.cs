@@ -25,6 +25,16 @@ namespace LanguageGame.Presentation.Steps
         /// <summary>Quest shell shows client-side validation (e.g. empty gaps) in the shared overlay.</summary>
         public Action<string> presentValidationMessage;
 
+        /// <summary>
+        /// Optional: same full-screen loading overlay as primary Check/Save (e.g. while an LLM evaluates Freitext).
+        /// Pair with <see cref="dismissBusyOverlay"/> on error/cancel; on success the shell may replace the message
+        /// immediately with server-task completion (e.g. &quot;Checking…&quot;).
+        /// </summary>
+        public Action<string> presentBusyOverlay;
+
+        /// <summary>Optional: hides the overlay from <see cref="presentBusyOverlay"/>.</summary>
+        public Action dismissBusyOverlay;
+
         /// <summary>Optional: shell-injected HTTP client so steps avoid global lookup.</summary>
         public GameProgressApiClient gameProgressApi;
 

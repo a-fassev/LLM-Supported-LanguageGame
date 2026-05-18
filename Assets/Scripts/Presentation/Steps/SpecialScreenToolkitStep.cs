@@ -10,7 +10,8 @@ namespace LanguageGame.Presentation.Steps
     /// <summary>
     /// Host step for <c>SpecialScreen*</c> tasks: shared chrome plus either sequential embedded mechanics in <c>blocks[]</c>
     /// (paged with «←» / «→», shell primary <c>Controlla</c> after the last part), a display-only magazine/book reader layout
-    /// via <see cref="SpecialScreenReaderChromeDto"/>, or a photo gallery / slideshow via <see cref="SpecialScreenPhotoViewerChromeDto"/>.
+    /// via <see cref="SpecialScreenReaderChromeDto"/>, a photo gallery / slideshow via <see cref="SpecialScreenPhotoViewerChromeDto"/>,
+    /// or an e-mail / letter editor frame via <see cref="SpecialScreenMailChromeDto"/>.
     /// </summary>
     public sealed class SpecialScreenToolkitStep : IStepView, ISubmitFromShell
     {
@@ -18,6 +19,9 @@ namespace LanguageGame.Presentation.Steps
 
         /// <summary>Shown when a message hosts a mechanic for another «part» and no preview <c>text</c> was authored.</summary>
         private const string MessengerDeferredMechanicPlaceholder = "…";
+
+        /// <summary>Delay before firing step completion after mail «send» acknowledgement (milliseconds).</summary>
+        private const int MailSendAckDelayMs = 450;
 
         private readonly VisualElement _host;
 
@@ -48,6 +52,7 @@ namespace LanguageGame.Presentation.Steps
         private Button _mailSendButton;
         private Label _mailSendAckLabel;
         private string _mailSendSuccessText;
+        private bool _mailCompletionPending;
 
         private readonly MonoBehaviour _coroutineHost;
 
@@ -99,6 +104,7 @@ namespace LanguageGame.Presentation.Steps
             _mailSendButton = null;
             _mailSendAckLabel = null;
             _mailSendSuccessText = null;
+            _mailCompletionPending = false;
 
             _host.Clear();
 
@@ -197,7 +203,7 @@ namespace LanguageGame.Presentation.Steps
                 b.SetInteractable(interactable);
 
             if (_mailSendButton != null)
-                _mailSendButton.SetEnabled(_interactable);
+                _mailSendButton.SetEnabled(_interactable && !_mailCompletionPending);
 
             RefreshNavigationChrome();
         }
@@ -211,12 +217,21 @@ namespace LanguageGame.Presentation.Steps
                 return;
             }
 
+            if (_mailCompletionPending)
+            {
+                if (Debug.isDebugBuild)
+                    Debug.Log("[SpecialScreenToolkitStep] SubmitFromShell skipped: mail completion pending.");
+                return;
+            }
+
             if (!_readerDisplayOnly)
             {
                 if (_blocks.Count > 0 && _currentIndex != _blocks.Count - 1)
                 {
-                    _context?.presentValidationMessage?.Invoke(
-                        "Completa tutte le parti con «→» prima di premere Controlla.");
+                    var msg = _useMailChrome
+                        ? "Completa tutte le parti con «→» prima di premere Controlla o Invia."
+                        : "Completa tutte le parti con «→» prima di premere Controlla.";
+                    _context?.presentValidationMessage?.Invoke(msg);
                     return;
                 }
             }
@@ -247,7 +262,8 @@ namespace LanguageGame.Presentation.Steps
 
                 if (_root != null)
                 {
-                    _root.schedule.Execute(CompleteAfterMailAck).StartingIn(450);
+                    _mailCompletionPending = true;
+                    _root.schedule.Execute(CompleteAfterMailAck).StartingIn(MailSendAckDelayMs);
                     return;
                 }
             }
@@ -257,6 +273,8 @@ namespace LanguageGame.Presentation.Steps
 
         private void CompleteAfterMailAck()
         {
+            _mailCompletionPending = false;
+
             if (!_contentReady || _context == null)
                 return;
 
@@ -266,6 +284,7 @@ namespace LanguageGame.Presentation.Steps
         public void Teardown()
         {
             StopReaderRemoteLoads();
+            UnwireMailSendButton();
             foreach (var b in _blocks)
                 b.Teardown();
             _blocks.Clear();
@@ -286,14 +305,15 @@ namespace LanguageGame.Presentation.Steps
             _usePhotoChrome = false;
             _photoDisplayOnly = false;
             _useMailChrome = false;
-            _mailSendButton = null;
             _mailSendAckLabel = null;
             _mailSendSuccessText = null;
+            _mailCompletionPending = false;
         }
 
         private void TeardownInner()
         {
             StopReaderRemoteLoads();
+            UnwireMailSendButton();
             foreach (var b in _blocks)
                 b.Teardown();
             _blocks.Clear();
@@ -312,14 +332,15 @@ namespace LanguageGame.Presentation.Steps
             _usePhotoChrome = false;
             _photoDisplayOnly = false;
             _useMailChrome = false;
-            _mailSendButton = null;
             _mailSendAckLabel = null;
             _mailSendSuccessText = null;
+            _mailCompletionPending = false;
         }
 
         private void AbortIncompleteBind()
         {
             StopReaderRemoteLoads();
+            UnwireMailSendButton();
             foreach (var b in _blocks)
                 b.Teardown();
             _blocks.Clear();
@@ -338,9 +359,18 @@ namespace LanguageGame.Presentation.Steps
             _usePhotoChrome = false;
             _photoDisplayOnly = false;
             _useMailChrome = false;
-            _mailSendButton = null;
             _mailSendAckLabel = null;
             _mailSendSuccessText = null;
+            _mailCompletionPending = false;
+        }
+
+        private void UnwireMailSendButton()
+        {
+            if (_mailSendButton == null)
+                return;
+
+            _mailSendButton.clicked -= OnMailSendClicked;
+            _mailSendButton = null;
         }
 
         private bool TryBuildChrome()
@@ -671,6 +701,12 @@ namespace LanguageGame.Presentation.Steps
             _mailSendButton = null;
             _mailSendAckLabel = null;
 
+            var fromVal = MailChromeString(mail.from, mail.fromText);
+            var toVal = MailChromeString(mail.to, mail.toText);
+            var subjectVal = MailChromeString(mail.subject, mail.subjectText);
+            var greetingVal = MailChromeString(mail.greeting, mail.greetingText);
+            var closingVal = MailChromeString(mail.closing, mail.closingText);
+
             var outer = new VisualElement();
             outer.AddToClassList("lg-special-mail");
             outer.style.flexGrow = 1;
@@ -678,6 +714,8 @@ namespace LanguageGame.Presentation.Steps
             var scroll = new ScrollView(ScrollViewMode.Vertical);
             scroll.AddToClassList("lg-special-mail__scroll");
             scroll.style.flexGrow = 1;
+            scroll.style.flexShrink = 1;
+            scroll.style.minHeight = 0;
 
             var panel = new VisualElement();
             panel.AddToClassList("lg-special-mail__panel");
@@ -687,23 +725,15 @@ namespace LanguageGame.Presentation.Steps
             var lt = string.IsNullOrWhiteSpace(mail.rowLabelTo) ? "A:" : mail.rowLabelTo.Trim();
             var ls = string.IsNullOrWhiteSpace(mail.rowLabelSubject) ? "Oggetto:" : mail.rowLabelSubject.Trim();
 
-            AddMailHeaderRow(panel, lf, mail.from ?? string.Empty);
-            AddMailHeaderRow(panel, lt, mail.to ?? string.Empty);
+            AddMailHeaderRow(panel, lf, fromVal);
+            AddMailHeaderRow(panel, lt, toVal);
             if (showSubject)
-                AddMailHeaderRow(panel, ls, mail.subject ?? string.Empty);
-
-            var greeting = mail.greeting?.Trim() ?? string.Empty;
-            if (!string.IsNullOrEmpty(greeting))
-            {
-                var gLabel = new Label(greeting);
-                gLabel.AddToClassList("lg-special-mail__greeting");
-                gLabel.style.whiteSpace = WhiteSpace.Normal;
-                panel.Add(gLabel);
-            }
+                AddMailHeaderRow(panel, ls, subjectVal);
 
             var bodyHost = new VisualElement();
             bodyHost.AddToClassList("lg-special-mail__body");
-            bodyHost.style.flexGrow = 1;
+            bodyHost.style.flexGrow = 0;
+            bodyHost.style.flexShrink = 0;
             bodyHost.style.minHeight = 120;
             panel.Add(bodyHost);
 
@@ -711,17 +741,28 @@ namespace LanguageGame.Presentation.Steps
             foreach (var blockDto in blockList)
             {
                 var slot = new VisualElement();
-                slot.style.flexGrow = 1;
+                slot.style.flexGrow = 0;
+                slot.style.flexShrink = 0;
                 slot.style.display = DisplayStyle.None;
                 bodyHost.Add(slot);
                 _slots.Add(slot);
                 _blocks.Add(CreateNestedBlock(blockDto));
             }
 
-            var closing = mail.closing?.Trim() ?? string.Empty;
+            if (!string.IsNullOrEmpty(greetingVal))
+            {
+                var gLabel = new Label(greetingVal);
+                gLabel.AddToClassList("lg-text-body");
+                gLabel.AddToClassList("lg-special-mail__greeting");
+                gLabel.style.whiteSpace = WhiteSpace.Normal;
+                panel.Add(gLabel);
+            }
+
+            var closing = closingVal;
             if (!string.IsNullOrEmpty(closing))
             {
                 var cLabel = new Label(closing);
+                cLabel.AddToClassList("lg-text-body");
                 cLabel.AddToClassList("lg-special-mail__closing");
                 cLabel.style.whiteSpace = WhiteSpace.Normal;
                 panel.Add(cLabel);
@@ -781,6 +822,7 @@ namespace LanguageGame.Presentation.Steps
             cap.AddToClassList("lg-special-mail__row-caption");
 
             var val = new Label(value);
+            val.AddToClassList("lg-text-body");
             val.AddToClassList("lg-special-mail__row-value");
             val.style.whiteSpace = WhiteSpace.Normal;
 
@@ -1142,6 +1184,14 @@ namespace LanguageGame.Presentation.Steps
                 return false;
 
             return true;
+        }
+
+        /// <summary>Picks the first non-empty mail header field; supports alternate JSON keys (e.g. <c>fromText</c>).</summary>
+        private static string MailChromeString(string primary, string alternate)
+        {
+            if (!string.IsNullOrWhiteSpace(primary))
+                return primary.Trim();
+            return alternate?.Trim() ?? string.Empty;
         }
 
         private static bool PhotoChromeRequiresLearnerCaption(SpecialScreenPhotoViewerChromeDto pv)

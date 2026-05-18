@@ -1,8 +1,8 @@
--- Inserts an SMS/WhatsApp-style Special Screen demo for quest-01 (smartphone mockup + embedded cloze).
--- task_type: SpecialScreenSms | screenVariant: whatsapp (green outgoing bubble tint).
--- Anchor: immediately after logical_task_key quest-01-special-screen-foundation-demo when present,
--- otherwise after quest-01-freitext-llm-demo (same fallback as special_screen_foundation_demo.sql).
--- Safe to re-run: skips when logical_task_key quest-01-special-screen-sms-whatsapp-demo already exists.
+-- SMS/WhatsApp-style Special Screen demo for quest-01 (smartphone mockup + embedded cloze).
+-- Cloze sits in an outgoing (player) bubble so the learner completes their own reply.
+-- task_type: SpecialScreenSms | screenVariant: whatsapp.
+-- Anchor for first insert: after quest-01-special-screen-foundation-demo if present, else quest-01-freitext-llm-demo.
+-- Safe to re-run: updates content_payload when logical_task_key already exists; otherwise inserts once.
 
 do $$
 declare
@@ -11,7 +11,50 @@ declare
   v_ins_order int;
   v_exists boolean;
   v_bump int;
+  v_payload jsonb;
 begin
+  v_payload := $payload${
+      "screenVariant": "whatsapp",
+      "smsChrome": {
+        "statusBar": {
+          "timeText": "14:32",
+          "signalHint": "LTE ●●●●●"
+        },
+        "chatHeaderTitle": "Marco",
+        "messages": [
+          {
+            "direction": "incoming",
+            "author": "Marco",
+            "text": "Ciao! Pizza stasera? A che ora ti va bene?"
+          },
+          {
+            "direction": "outgoing",
+            "hostsEmbeddedMechanic": true,
+            "embeddedMechanicBlockIndex": 0,
+            "text": ""
+          }
+        ]
+      },
+      "blocks": [
+        {
+          "blockType": "cloze_text",
+          "clozeText": {
+            "prompt": "",
+            "caseSensitive": false,
+            "lines": [
+              {
+                "segments": [
+                  { "kind": "text", "text": "Alle " },
+                  { "kind": "gap", "correctAnswers": ["otto", "8"], "maxLength": 12 },
+                  { "kind": "text", "text": " va bene!" }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }$payload$::jsonb;
+
   select id
   into v_quest_id
   from public.game_quests
@@ -33,7 +76,14 @@ begin
   into v_exists;
 
   if v_exists then
-    raise notice 'special_screen_sms_whatsapp_demo: quest-01-special-screen-sms-whatsapp-demo already present; skipping';
+    update public.game_quest_steps s
+    set
+      content_payload = v_payload,
+      updated_at = now()
+    where s.quest_id = v_quest_id
+      and s.logical_task_key = 'quest-01-special-screen-sms-whatsapp-demo';
+
+    raise notice 'special_screen_sms_whatsapp_demo: updated quest-01-special-screen-sms-whatsapp-demo payload';
     return;
   end if;
 
@@ -56,7 +106,7 @@ begin
   end if;
 
   if v_anchor_order is null then
-    raise notice 'special_screen_sms_whatsapp_demo: anchor step not found; skipping';
+    raise notice 'special_screen_sms_whatsapp_demo: anchor step not found; skipping insert';
     return;
   end if;
 
@@ -99,53 +149,10 @@ begin
     'SpecialScreenSms',
     'task.special-screen.sms.whatsapp',
     'quest-01-special-screen-sms-whatsapp-demo',
-    $payload${
-      "screenVariant": "whatsapp",
-      "smsChrome": {
-        "statusBar": {
-          "timeText": "14:32",
-          "signalHint": "LTE ●●●●●"
-        },
-        "chatHeaderTitle": "Marco",
-        "messages": [
-          {
-            "direction": "incoming",
-            "author": "Marco",
-            "text": "Ciao! Hai tempo per una pizza stasera?"
-          },
-          {
-            "direction": "outgoing",
-            "text": "Certo, perché no?"
-          },
-          {
-            "direction": "incoming",
-            "author": "Marco",
-            "hostsEmbeddedMechanic": true,
-            "embeddedMechanicBlockIndex": 0,
-            "text": ""
-          }
-        ]
-      },
-      "blocks": [
-        {
-          "blockType": "cloze_text",
-          "clozeText": {
-            "prompt": "",
-            "caseSensitive": false,
-            "lines": [
-              {
-                "segments": [
-                  { "kind": "text", "text": "Perfetto, ci vediamo alle " },
-                  { "kind": "gap", "correctAnswers": ["otto", "8"], "maxLength": 12 },
-                  { "kind": "text", "text": "." }
-                ]
-              }
-            ]
-          }
-        }
-      ]
-    }$payload$::jsonb,
+    v_payload,
     '{"pizza":{"mode":"flat","value":2},"backpack":{"mode":"first_completion","value":1}}'::jsonb,
     true
   );
+
+  raise notice 'special_screen_sms_whatsapp_demo: inserted quest-01-special-screen-sms-whatsapp-demo';
 end $$;

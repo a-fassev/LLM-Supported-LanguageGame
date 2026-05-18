@@ -279,20 +279,37 @@ namespace LanguageGame.Presentation.Steps
         /// <summary>Visible label for the subject row (falls back to a client default).</summary>
         public string rowLabelSubject;
 
-        /// <summary>Displayed value in the “from” header (read-only).</summary>
+        /// <summary>Displayed value in the "from" header (read-only).</summary>
         public string from;
 
-        /// <summary>Displayed value in the “to” header (read-only).</summary>
+        /// <summary>
+        /// Alternative JSON key for <see cref="from"/> (some authoring stacks avoid the word <c>from</c> in payloads).
+        /// </summary>
+        public string fromText;
+
+        /// <summary>Displayed value in the "to" header (read-only).</summary>
         public string to;
+
+        /// <summary>Alternative JSON key for <see cref="to"/>.</summary>
+        public string toText;
 
         /// <summary>Displayed value in the subject header (read-only; hidden in letter mode).</summary>
         public string subject;
 
+        /// <summary>Alternative JSON key for <see cref="subject"/>.</summary>
+        public string subjectText;
+
         /// <summary>Salutation line above the learner task body (optional).</summary>
         public string greeting;
 
+        /// <summary>Alternative JSON key for <see cref="greeting"/>.</summary>
+        public string greetingText;
+
         /// <summary>Closing / signature line below the learner task body (optional).</summary>
         public string closing;
+
+        /// <summary>Alternative JSON key for <see cref="closing"/>.</summary>
+        public string closingText;
 
         /// <summary>In-frame send button caption (falls back to a client default).</summary>
         public string sendButtonText;

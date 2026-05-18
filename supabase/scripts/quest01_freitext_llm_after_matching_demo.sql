@@ -7,6 +7,7 @@ declare
   v_match_order int;
   v_ins_order int;
   v_exists boolean;
+  v_bump int;
 begin
   select id
   into v_quest_id
@@ -48,12 +49,25 @@ begin
 
   v_ins_order := v_match_order + 1;
 
+  select coalesce(max(s.order_index), 0) + 10000
+  into v_bump
+  from public.game_quest_steps s
+  where s.quest_id = v_quest_id;
+
+  -- Two-phase bump: unique (quest_id, order_index) + non-negative check forbid single-pass +1.
   update public.game_quest_steps
   set
-    order_index = order_index + 1,
+    order_index = order_index + v_bump,
     updated_at = now()
   where quest_id = v_quest_id
     and order_index >= v_ins_order;
+
+  update public.game_quest_steps
+  set
+    order_index = order_index - v_bump + 1,
+    updated_at = now()
+  where quest_id = v_quest_id
+    and order_index >= v_ins_order + v_bump;
 
   insert into public.game_quest_steps (
     quest_id,

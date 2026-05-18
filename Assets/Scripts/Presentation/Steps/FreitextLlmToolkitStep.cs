@@ -27,8 +27,6 @@ namespace LanguageGame.Presentation.Steps
 
         private readonly Label _statsLabel;
 
-        private readonly Label _statusLabel;
-
         private Coroutine _evaluationRoutine;
 
         private FreitextLlmContentDto _dto;
@@ -78,16 +76,10 @@ namespace LanguageGame.Presentation.Steps
             _statsLabel.AddToClassList("lg-text-caption");
             _statsLabel.style.marginTop = 8;
 
-            _statusLabel = new Label();
-            _statusLabel.AddToClassList("lg-text-caption");
-            _statusLabel.style.marginTop = 10;
-            _statusLabel.style.display = DisplayStyle.None;
-
             _root.Add(_promptLabel);
             _root.Add(_instructionLabel);
             _root.Add(_answerField);
             _root.Add(_statsLabel);
-            _root.Add(_statusLabel);
 
             host.Add(_root);
         }
@@ -99,8 +91,6 @@ namespace LanguageGame.Presentation.Steps
             _contentReady = false;
             _evaluating = false;
             _queuedEvaluationGateToken = null;
-            _statusLabel.style.display = DisplayStyle.None;
-            _statusLabel.text = "";
 
             _gameApi = context?.gameProgressApi != null
                 ? context.gameProgressApi
@@ -144,7 +134,11 @@ namespace LanguageGame.Presentation.Steps
             var answerTrimmed = _answerField.value?.Trim() ?? "";
 
             if (_evaluationRoutine != null)
+            {
                 _coroutineHost.StopCoroutine(_evaluationRoutine);
+                _evaluationRoutine = null;
+                _context?.dismissBusyOverlay?.Invoke();
+            }
 
             _evaluationRoutine = _coroutineHost.StartCoroutine(EvaluateAndQueueGateRoutine(answerTrimmed));
         }
@@ -162,6 +156,8 @@ namespace LanguageGame.Presentation.Steps
                 _coroutineHost.StopCoroutine(_evaluationRoutine);
                 _evaluationRoutine = null;
             }
+
+            _context?.dismissBusyOverlay?.Invoke();
 
             _root.RemoveFromHierarchy();
             _dto = null;
@@ -189,8 +185,7 @@ namespace LanguageGame.Presentation.Steps
 
                 _evaluating = true;
                 SetInteractableSafe(false);
-                _statusLabel.text = "Talking to scorer… please wait.";
-                _statusLabel.style.display = DisplayStyle.Flex;
+                _context.presentBusyOverlay?.Invoke("Reviewing your writing…");
 
                 GameFreitextLlmEvaluateEnvelope envelope = null;
                 var error = string.Empty;
@@ -202,12 +197,12 @@ namespace LanguageGame.Presentation.Steps
                     msg => error = msg);
 
                 _evaluating = false;
-                _statusLabel.style.display = DisplayStyle.None;
-
-                SetInteractableSafe(true);
 
                 if (envelope == null || !envelope.ok)
                 {
+                    _context.dismissBusyOverlay?.Invoke();
+                    SetInteractableSafe(true);
+
                     if (GameProgressApiClient.LooksLikeSessionAuthFailure(error))
                         GameFlowController.Instance?.LoadAuth();
                     else if (!string.IsNullOrWhiteSpace(error))
@@ -220,6 +215,9 @@ namespace LanguageGame.Presentation.Steps
 
                 if (!envelope.isPass)
                 {
+                    _context.dismissBusyOverlay?.Invoke();
+                    SetInteractableSafe(true);
+
                     var msg = $"{envelope.summaryFeedback}\n\nNext step hint: {envelope.nextStepAdvice}";
                     _context.presentValidationMessage?.Invoke(ClampPresentationMessage(msg));
                     yield break;
@@ -227,11 +225,14 @@ namespace LanguageGame.Presentation.Steps
 
                 if (string.IsNullOrWhiteSpace(envelope.evaluationGateToken))
                 {
+                    _context.dismissBusyOverlay?.Invoke();
+                    SetInteractableSafe(true);
                     _context?.presentValidationMessage?.Invoke("Server did not release a progression token.");
                     yield break;
                 }
 
                 _queuedEvaluationGateToken = envelope.evaluationGateToken.Trim();
+                // Keep overlay visible; quest shell will swap the message to "Checking…" on complete.
                 _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true });
             }
             finally
