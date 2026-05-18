@@ -114,3 +114,6 @@ apps/web/.next/
 .DS_Store
 .AppleDouble
 .LSOverride
+
+# Cursor — ephemeral agent/MCP scratch files (never commit)
+.cursor/tmp_*
