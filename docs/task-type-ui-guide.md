@@ -233,7 +233,7 @@ Photo UI activates when **`taskType`** is **`SpecialScreenPhotoViewer`** **or** 
 - **`prompt`:** optional instruction line above the gallery.
 - **`showCaptions`:** when **`true`**, fixed **`caption`** text is shown under each image (learner **`TextField`** is shown regardless when **`requireLearnerCaption`** is **`true`**).
 - **`items[]`:** each item needs **`imageUrl`** (**`http`/`https`**, allowed hostnames per **`ToolkitStepHttpResourceUrl`**). Use **`caption`** for fixed labels. For a learner-written caption, set **`requireLearnerCaption`:** **`true`** and **`acceptedCaptions`** (non-empty; **case-insensitive** unless **`caseSensitive`:** **`true`**).
-- **Additional `blocks`:** optional. When present, the **photo** is **part 1**; shell **←** / **→** moves between photo and nested mechanics (**`cloze_text`**, **`error_spotting`**, **`stub`**). When **`blocks`** is empty and there are **no** learner captions, shell paging is **hidden** and **Controlla** completes immediately.
+- **Additional `blocks`:** optional. When present, the **photo** is **part 1**; shell **←** / **→** moves between photo and nested mechanics (**`cloze_text`**, **`error_spotting`**, **`stub`**). When the step has **only** the photo part (no extra **`blocks`**) and **no** learner captions, shell paging is **hidden** and **Controlla** completes immediately. Other **`SpecialScreen`** payloads with a **single** mechanic block still show **«Parte 1 di 1»** (paging chrome preserved).
 
 | `photoViewerChrome` field | Required | Notes |
 | ------------------------- | -------- | ----- |

@@ -1093,7 +1093,8 @@ namespace LanguageGame.Presentation.Steps
 
         private void RefreshNavigationChrome()
         {
-            var hidePaging = (_readerDisplayOnly && _slots.Count == 0) || _blocks.Count <= 1;
+            var hidePaging = (_readerDisplayOnly && _slots.Count == 0) ||
+                               (_usePhotoChrome && _blocks.Count <= 1);
 
             if (_navRow != null)
                 _navRow.style.display = hidePaging ? DisplayStyle.None : DisplayStyle.Flex;
@@ -1499,9 +1500,12 @@ namespace LanguageGame.Presentation.Steps
             private readonly Dictionary<int, TextField> _learnerFields = new();
 
             private int _slideshowIndex;
+            private int _slideshowLoadGeneration;
+            private Texture2D _slideshowHeroTexture;
             private SpecialScreenPhotoItemDto[] _slideshowItems;
             private VisualElement _slideshowImageHost;
             private VisualElement _slideshowCaptionHost;
+            private Label _slideshowIndexLabel;
             private Button _slideshowPrev;
             private Button _slideshowNext;
 
@@ -1526,6 +1530,8 @@ namespace LanguageGame.Presentation.Steps
 
             public void Teardown()
             {
+                _slideshowLoadGeneration++;
+
                 if (_slideshowPrev != null)
                 {
                     _slideshowPrev.clicked -= OnSlideshowPrev;
@@ -1537,6 +1543,8 @@ namespace LanguageGame.Presentation.Steps
                     _slideshowNext.clicked -= OnSlideshowNext;
                     _slideshowNext = null;
                 }
+
+                ReleaseSlideshowHeroTexture();
 
                 foreach (var c in _loads)
                 {
@@ -1608,7 +1616,7 @@ namespace LanguageGame.Presentation.Steps
 
                     var imgHost = new VisualElement();
                     imgHost.AddToClassList("lg-special-photo-cell__image");
-                    StartLoad(it.imageUrl, imgHost);
+                    StartLoad(it.imageUrl, imgHost, null);
                     cell.Add(imgHost);
 
                     if (it.requireLearnerCaption)
@@ -1663,7 +1671,7 @@ namespace LanguageGame.Presentation.Steps
 
                 var idxLabel = new Label();
                 idxLabel.AddToClassList("lg-text-caption");
-                idxLabel.name = "lg-special-photo-slideshow-idx";
+                _slideshowIndexLabel = idxLabel;
 
                 _slideshowNext = new Button { text = "\u2192" };
                 _slideshowNext.AddToClassList("lg-btn");
@@ -1687,7 +1695,7 @@ namespace LanguageGame.Presentation.Steps
                 }
 
                 scroll.Add(stage);
-                RefreshSlideshowSlide(idxLabel);
+                RefreshSlideshowSlide();
             }
 
             private void OnSlideshowPrev()
@@ -1696,8 +1704,7 @@ namespace LanguageGame.Presentation.Steps
                     return;
                 _slideshowIndex = (_slideshowIndex - 1 + _slideshowItems.Length) % _slideshowItems.Length;
 
-                var idxLabel = _slideshowImageHost?.parent?.Q<Label>("lg-special-photo-slideshow-idx");
-                RefreshSlideshowSlide(idxLabel);
+                RefreshSlideshowSlide();
             }
 
             private void OnSlideshowNext()
@@ -1706,11 +1713,20 @@ namespace LanguageGame.Presentation.Steps
                     return;
                 _slideshowIndex = (_slideshowIndex + 1) % _slideshowItems.Length;
 
-                var idxLabel = _slideshowImageHost?.parent?.Q<Label>("lg-special-photo-slideshow-idx");
-                RefreshSlideshowSlide(idxLabel);
+                RefreshSlideshowSlide();
             }
 
-            private void RefreshSlideshowSlide(Label idxLabel)
+            private void ReleaseSlideshowHeroTexture()
+            {
+                if (_slideshowHeroTexture == null)
+                    return;
+
+                _textures.Remove(_slideshowHeroTexture);
+                UnityEngine.Object.Destroy(_slideshowHeroTexture);
+                _slideshowHeroTexture = null;
+            }
+
+            private void RefreshSlideshowSlide()
             {
                 if (_slideshowItems == null || _slideshowImageHost == null || _slideshowCaptionHost == null)
                     return;
@@ -1722,8 +1738,14 @@ namespace LanguageGame.Presentation.Steps
                 if (it == null)
                     return;
 
+                _slideshowLoadGeneration++;
+                var gen = _slideshowLoadGeneration;
+
+                ReleaseSlideshowHeroTexture();
                 _slideshowImageHost.Clear();
-                StartLoad(it.imageUrl, _slideshowImageHost);
+                _slideshowImageHost.style.backgroundImage = StyleKeyword.None;
+
+                StartLoad(it.imageUrl, _slideshowImageHost, gen);
 
                 _slideshowCaptionHost.Clear();
                 if (it.requireLearnerCaption)
@@ -1746,11 +1768,11 @@ namespace LanguageGame.Presentation.Steps
                     _slideshowCaptionHost.Add(cap);
                 }
 
-                if (idxLabel != null)
-                    idxLabel.text = $"{_slideshowIndex + 1} / {_slideshowItems.Length}";
+                if (_slideshowIndexLabel != null)
+                    _slideshowIndexLabel.text = $"{_slideshowIndex + 1} / {_slideshowItems.Length}";
             }
 
-            private void StartLoad(string url, VisualElement target)
+            private void StartLoad(string url, VisualElement target, int? slideshowGeneration)
             {
                 if (target == null)
                     return;
@@ -1769,22 +1791,51 @@ namespace LanguageGame.Presentation.Steps
                     return;
                 }
 
-                _loads.Add(_coroutineHost.StartCoroutine(LoadPhotoTexture(trimmed, target)));
+                _loads.Add(_coroutineHost.StartCoroutine(LoadPhotoTexture(trimmed, target, slideshowGeneration)));
             }
 
-            private IEnumerator LoadPhotoTexture(string url, VisualElement target)
+            private IEnumerator LoadPhotoTexture(string url, VisualElement target, int? slideshowGeneration)
             {
-                if (!ToolkitStepHttpResourceUrl.TryVerifyForClientFetch(url, out _))
+                if (!ToolkitStepHttpResourceUrl.TryVerifyForClientFetch(url, out var verr))
+                {
+                    Debug.LogWarning(
+                        $"[SpecialScreenToolkitStep] Photo image fetch blocked for '{url}': {verr}");
                     yield break;
+                }
 
                 using var req = UnityWebRequestTexture.GetTexture(url);
                 yield return req.SendWebRequest();
-                if (req.result != UnityWebRequest.Result.Success || target == null)
+
+                if (slideshowGeneration.HasValue && slideshowGeneration.Value != _slideshowLoadGeneration)
                     yield break;
+
+                if (req.result != UnityWebRequest.Result.Success || target == null)
+                {
+                    if (req.result != UnityWebRequest.Result.Success)
+                    {
+                        Debug.LogWarning(
+                            $"[SpecialScreenToolkitStep] Photo image load failed for '{url}': {req.result} {req.error}");
+                    }
+
+                    yield break;
+                }
 
                 var tex = DownloadHandlerTexture.GetContent(req);
                 if (tex == null)
+                {
+                    Debug.LogWarning(
+                        $"[SpecialScreenToolkitStep] Photo image decode failed or empty for '{url}'.");
                     yield break;
+                }
+
+                if (slideshowGeneration.HasValue && slideshowGeneration.Value != _slideshowLoadGeneration)
+                {
+                    UnityEngine.Object.Destroy(tex);
+                    yield break;
+                }
+
+                if (slideshowGeneration.HasValue)
+                    _slideshowHeroTexture = tex;
 
                 _textures.Add(tex);
                 target.style.backgroundImage = new StyleBackground(tex);
