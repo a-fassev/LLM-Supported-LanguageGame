@@ -15,6 +15,7 @@ namespace LanguageGame.Presentation.Steps
     {
         private const int AbsoluteMaxCharacters = 8000;
 
+        private readonly bool _uiReady;
         private readonly VisualElement _root;
 
         private readonly MonoBehaviour _coroutineHost;
@@ -48,17 +49,19 @@ namespace LanguageGame.Presentation.Steps
         public FreitextLlmToolkitStep(VisualElement host, MonoBehaviour coroutineHost)
         {
             _coroutineHost = coroutineHost;
-            if (!ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.FreitextLlmTask, "freitext-llm-root", out _root))
-            {
-                _root = new VisualElement();
-                _root.style.flexGrow = 1;
-                host.Add(_root);
-            }
-
-            _promptLabel = ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(FreitextLlmToolkitStep));
-            _instructionLabel = ToolkitStepUx.Query<Label>(_root, "task-instruction", nameof(FreitextLlmToolkitStep));
-            _answerField = ToolkitStepUx.Query<TextField>(_root, "task-answer-field", nameof(FreitextLlmToolkitStep));
-            _statsLabel = ToolkitStepUx.Query<Label>(_root, "task-stats-label", nameof(FreitextLlmToolkitStep));
+            _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.FreitextLlmTask, "freitext-llm-root", out _root);
+            _promptLabel = _uiReady
+                ? ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(FreitextLlmToolkitStep))
+                : null;
+            _instructionLabel = _uiReady
+                ? ToolkitStepUx.Query<Label>(_root, "task-instruction", nameof(FreitextLlmToolkitStep))
+                : null;
+            _answerField = _uiReady
+                ? ToolkitStepUx.Query<TextField>(_root, "task-answer-field", nameof(FreitextLlmToolkitStep))
+                : null;
+            _statsLabel = _uiReady
+                ? ToolkitStepUx.Query<Label>(_root, "task-stats-label", nameof(FreitextLlmToolkitStep))
+                : null;
 
             if (_answerField != null)
                 _answerField.RegisterValueChangedCallback(_ => RefreshStats());
@@ -71,6 +74,9 @@ namespace LanguageGame.Presentation.Steps
             _contentReady = false;
             _evaluating = false;
             _queuedEvaluationGateToken = null;
+
+            if (!ToolkitStepUx.GuardTemplateReady(_uiReady && _answerField != null, context))
+                return;
 
             _gameApi = context?.gameProgressApi != null
                 ? context.gameProgressApi
@@ -237,6 +243,9 @@ namespace LanguageGame.Presentation.Steps
 
         private void RefreshStats()
         {
+            if (_statsLabel == null || _answerField == null)
+                return;
+
             if (_dto == null)
             {
                 _statsLabel.style.display = DisplayStyle.None;

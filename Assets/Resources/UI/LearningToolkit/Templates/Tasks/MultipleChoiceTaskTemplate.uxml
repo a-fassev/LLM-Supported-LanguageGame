@@ -1,7 +1,10 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="multiple-choice-root" class="lg-muted-panel lg-task-template-root"
         style="flex-grow: 1; flex-direction: column;">
-        <ui:VisualElement name="mc-header-host" style="flex-grow: 0;" />
+        <ui:Label name="task-prompt" text="" class="lg-heading-screen"
+            style="display: none; margin-bottom: 8px; white-space: normal;" />
+        <ui:Label name="task-subtitle" text="" class="lg-text-body lg-text-muted"
+            style="display: none; margin-bottom: 12px; white-space: normal;" />
         <ui:VisualElement name="mc-stem-host" style="flex-grow: 0; margin-bottom: 12px;" />
         <ui:VisualElement name="mc-options-host" style="flex-grow: 1;" />
         <ui:VisualElement name="mc-nav-row"

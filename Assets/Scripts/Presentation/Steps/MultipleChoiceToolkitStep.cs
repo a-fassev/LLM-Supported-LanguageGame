@@ -15,8 +15,10 @@ namespace LanguageGame.Presentation.Steps
         private const int MaxOptions = 8;
         private const int MaxStemImageHeight = 260;
 
+        private readonly bool _uiReady;
         private readonly VisualElement _root;
-        private readonly VisualElement _headerHost;
+        private readonly Label _promptLabel;
+        private readonly Label _subtitleLabel;
         private readonly VisualElement _stemHost;
         private readonly VisualElement _optionsHost;
         private readonly VisualElement _navHost;
@@ -45,23 +47,31 @@ namespace LanguageGame.Presentation.Steps
         public MultipleChoiceToolkitStep(VisualElement host, MonoBehaviour coroutineHost)
         {
             _coroutineHost = coroutineHost;
-            if (!ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.MultipleChoiceTask, "multiple-choice-root", out _root))
-            {
-                _root = new VisualElement();
-                _root.style.flexGrow = 1;
-                host.Add(_root);
-            }
-
-            _headerHost = ToolkitStepUx.Query<VisualElement>(_root, "mc-header-host", nameof(MultipleChoiceToolkitStep))
-                          ?? _root;
-            _stemHost = ToolkitStepUx.Query<VisualElement>(_root, "mc-stem-host", nameof(MultipleChoiceToolkitStep))
-                        ?? _root;
-            _optionsHost = ToolkitStepUx.Query<VisualElement>(_root, "mc-options-host", nameof(MultipleChoiceToolkitStep))
-                           ?? _root;
-            _navHost = ToolkitStepUx.Query<VisualElement>(_root, "mc-nav-row", nameof(MultipleChoiceToolkitStep));
-            _prevButton = ToolkitStepUx.Query<Button>(_root, "mc-prev-button", nameof(MultipleChoiceToolkitStep));
-            _nextButton = ToolkitStepUx.Query<Button>(_root, "mc-next-button", nameof(MultipleChoiceToolkitStep));
-            _progressLabel = ToolkitStepUx.Query<Label>(_root, "mc-progress-label", nameof(MultipleChoiceToolkitStep));
+            _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.MultipleChoiceTask, "multiple-choice-root", out _root);
+            _promptLabel = _uiReady
+                ? ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(MultipleChoiceToolkitStep))
+                : null;
+            _subtitleLabel = _uiReady
+                ? ToolkitStepUx.Query<Label>(_root, "task-subtitle", nameof(MultipleChoiceToolkitStep))
+                : null;
+            _stemHost = _uiReady
+                ? ToolkitStepUx.Query<VisualElement>(_root, "mc-stem-host", nameof(MultipleChoiceToolkitStep))
+                : null;
+            _optionsHost = _uiReady
+                ? ToolkitStepUx.Query<VisualElement>(_root, "mc-options-host", nameof(MultipleChoiceToolkitStep))
+                : null;
+            _navHost = _uiReady
+                ? ToolkitStepUx.Query<VisualElement>(_root, "mc-nav-row", nameof(MultipleChoiceToolkitStep))
+                : null;
+            _prevButton = _uiReady
+                ? ToolkitStepUx.Query<Button>(_root, "mc-prev-button", nameof(MultipleChoiceToolkitStep))
+                : null;
+            _nextButton = _uiReady
+                ? ToolkitStepUx.Query<Button>(_root, "mc-next-button", nameof(MultipleChoiceToolkitStep))
+                : null;
+            _progressLabel = _uiReady
+                ? ToolkitStepUx.Query<Label>(_root, "mc-progress-label", nameof(MultipleChoiceToolkitStep))
+                : null;
 
             if (_prevButton != null)
                 _prevButton.clicked += OnPrevClicked;
@@ -74,7 +84,12 @@ namespace LanguageGame.Presentation.Steps
             _context = context;
             _onRequest = onRequest;
             StopMediaLoads();
-            _headerHost.Clear();
+
+            if (!ToolkitStepUx.GuardTemplateReady(_uiReady && _stemHost != null && _optionsHost != null, context))
+                return;
+
+            ToolkitStepUx.SetOptionalLabel(_promptLabel, null);
+            ToolkitStepUx.SetOptionalLabel(_subtitleLabel, null);
             _stemHost.Clear();
             _optionsHost.Clear();
             _activeToggles.Clear();
@@ -102,24 +117,8 @@ namespace LanguageGame.Presentation.Steps
                 return;
             }
 
-            if (!string.IsNullOrEmpty(dto.prompt?.Trim()))
-            {
-                var title = new Label(dto.prompt.Trim());
-                title.AddToClassList("lg-heading-screen");
-                title.style.marginBottom = 8;
-                title.style.whiteSpace = WhiteSpace.Normal;
-                _headerHost.Add(title);
-            }
-
-            if (!string.IsNullOrEmpty(dto.subtitle?.Trim()))
-            {
-                var sub = new Label(dto.subtitle.Trim());
-                sub.AddToClassList("lg-text-body");
-                sub.AddToClassList("lg-text-muted");
-                sub.style.marginBottom = 12;
-                sub.style.whiteSpace = WhiteSpace.Normal;
-                _headerHost.Add(sub);
-            }
+            ToolkitStepUx.SetOptionalLabel(_promptLabel, dto.prompt?.Trim());
+            ToolkitStepUx.SetOptionalLabel(_subtitleLabel, dto.subtitle?.Trim());
 
             for (var i = 0; i < _questions.Length; i++)
                 _selections[i] = new HashSet<string>(StringComparer.Ordinal);

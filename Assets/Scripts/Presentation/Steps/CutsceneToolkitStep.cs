@@ -23,6 +23,12 @@ namespace LanguageGame.Presentation.Steps
             "gameInfo",
         };
 
+        private static VisualTreeAsset s_narratorBeatTemplate;
+        private static VisualTreeAsset s_npcDialogBeatTemplate;
+        private static VisualTreeAsset s_innerMonologueBeatTemplate;
+        private static VisualTreeAsset s_gameInfoBeatTemplate;
+
+        private readonly bool _uiReady;
         private readonly VisualElement _root;
         private readonly VisualElement _beatHost;
 
@@ -39,25 +45,20 @@ namespace LanguageGame.Presentation.Steps
 
         public CutsceneToolkitStep(VisualElement host)
         {
-            if (!ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.CutsceneHost, "cutscene-root", out _root))
-            {
-                _root = new VisualElement { name = "cutscene-root" };
-                _root.AddToClassList("lg-cutscene-root");
-                _root.style.flexGrow = 1;
-                host.Add(_root);
-            }
-
-            _beatHost = ToolkitStepUx.Query<VisualElement>(_root, "cutscene-beat-host", nameof(CutsceneToolkitStep));
-            if (_beatHost == null)
-            {
-                _beatHost = new VisualElement();
-                _beatHost.style.flexGrow = 1;
-                _root.Add(_beatHost);
-            }
+            _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.CutsceneHost, "cutscene-root", out _root);
+            _beatHost = _uiReady
+                ? ToolkitStepUx.Query<VisualElement>(_root, "cutscene-beat-host", nameof(CutsceneToolkitStep))
+                : null;
         }
 
         public void Bind(StepContext context, Action<StepCompletionRequest> onRequest)
         {
+            if (!ToolkitStepUx.GuardTemplateReady(_uiReady && _beatHost != null, context))
+            {
+                _isContentValid = false;
+                return;
+            }
+
             _onRequest = onRequest;
             _onBeatChanged = context?.onCutsceneBeatChanged;
             _coroutineHost = context?.coroutineHost;
@@ -236,6 +237,7 @@ namespace LanguageGame.Presentation.Steps
         private VisualElement BuildThoughtPanel(CutsceneBeatDto beat)
         {
             var panel = ToolkitStepUx.Instantiate(
+                InnerMonologueBeatTemplate,
                 ToolkitStepTemplatePaths.CutsceneInnerMonologueBeat,
                 "cutscene-thought-root");
             if (panel == null)
@@ -249,6 +251,7 @@ namespace LanguageGame.Presentation.Steps
         private VisualElement BuildGameInfoPanel(CutsceneBeatDto beat)
         {
             var panel = ToolkitStepUx.Instantiate(
+                GameInfoBeatTemplate,
                 ToolkitStepTemplatePaths.CutsceneGameInfoBeat,
                 "cutscene-gameinfo-root");
             if (panel == null)
@@ -262,6 +265,7 @@ namespace LanguageGame.Presentation.Steps
         private VisualElement BuildNpcDialog(CutsceneBeatDto beat)
         {
             var row = ToolkitStepUx.Instantiate(
+                NpcDialogBeatTemplate,
                 ToolkitStepTemplatePaths.CutsceneNpcDialogBeat,
                 "cutscene-npc-root");
             if (row == null)
@@ -286,8 +290,21 @@ namespace LanguageGame.Presentation.Steps
             return row;
         }
 
+        private static VisualTreeAsset NarratorBeatTemplate =>
+            s_narratorBeatTemplate ??= Resources.Load<VisualTreeAsset>(ToolkitStepTemplatePaths.CutsceneNarratorBeat);
+
+        private static VisualTreeAsset NpcDialogBeatTemplate =>
+            s_npcDialogBeatTemplate ??= Resources.Load<VisualTreeAsset>(ToolkitStepTemplatePaths.CutsceneNpcDialogBeat);
+
+        private static VisualTreeAsset InnerMonologueBeatTemplate =>
+            s_innerMonologueBeatTemplate ??=
+                Resources.Load<VisualTreeAsset>(ToolkitStepTemplatePaths.CutsceneInnerMonologueBeat);
+
+        private static VisualTreeAsset GameInfoBeatTemplate =>
+            s_gameInfoBeatTemplate ??= Resources.Load<VisualTreeAsset>(ToolkitStepTemplatePaths.CutsceneGameInfoBeat);
+
         private static VisualElement InstantiateNarratorBeat() =>
-            ToolkitStepUx.Instantiate(ToolkitStepTemplatePaths.CutsceneNarratorBeat, "cutscene-narrator-root");
+            ToolkitStepUx.Instantiate(NarratorBeatTemplate, ToolkitStepTemplatePaths.CutsceneNarratorBeat, "cutscene-narrator-root");
 
         private CutsceneNpcCastEntryDto ResolveCast(string speakerId)
         {

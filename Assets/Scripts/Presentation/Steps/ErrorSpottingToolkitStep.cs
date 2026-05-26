@@ -14,6 +14,7 @@ namespace LanguageGame.Presentation.Steps
 
         private const int CorrectionMaxLength = 128;
 
+        private readonly bool _uiReady;
         private readonly VisualElement _root;
         private readonly VisualElement _chipsRow;
         private readonly Label _promptLabel;
@@ -40,20 +41,25 @@ namespace LanguageGame.Presentation.Steps
         /// <param name="useMutedChrome">When false (e.g. embedded in <see cref="SpecialScreenToolkitStep"/>), skips outer panel styling to avoid stacked frames.</param>
         public ErrorSpottingToolkitStep(VisualElement host, bool useMutedChrome = true)
         {
-            if (!ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.ErrorSpottingTask, "error-spotting-root", out _root))
-            {
-                _root = new VisualElement();
-                _root.style.flexGrow = 1;
-                host.Add(_root);
-            }
+            _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.ErrorSpottingTask, "error-spotting-root", out _root);
+            if (_uiReady)
+                ToolkitStepUx.ApplyMutedTaskChrome(_root, useMutedChrome);
 
-            ToolkitStepUx.ApplyMutedTaskChrome(_root, useMutedChrome);
-            _promptLabel = ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(ErrorSpottingToolkitStep));
-            _captionLabel = ToolkitStepUx.Query<Label>(_root, "task-caption", nameof(ErrorSpottingToolkitStep));
-            _instructionLabel = ToolkitStepUx.Query<Label>(_root, "task-instruction", nameof(ErrorSpottingToolkitStep));
-            _resetButton = ToolkitStepUx.Query<Button>(_root, "task-reset-button", nameof(ErrorSpottingToolkitStep));
-            _chipsRow = ToolkitStepUx.Query<VisualElement>(_root, "error-spotting-chips-row", nameof(ErrorSpottingToolkitStep))
-                        ?? _root;
+            _promptLabel = _uiReady
+                ? ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(ErrorSpottingToolkitStep))
+                : null;
+            _captionLabel = _uiReady
+                ? ToolkitStepUx.Query<Label>(_root, "task-caption", nameof(ErrorSpottingToolkitStep))
+                : null;
+            _instructionLabel = _uiReady
+                ? ToolkitStepUx.Query<Label>(_root, "task-instruction", nameof(ErrorSpottingToolkitStep))
+                : null;
+            _resetButton = _uiReady
+                ? ToolkitStepUx.Query<Button>(_root, "task-reset-button", nameof(ErrorSpottingToolkitStep))
+                : null;
+            _chipsRow = _uiReady
+                ? ToolkitStepUx.Query<VisualElement>(_root, "error-spotting-chips-row", nameof(ErrorSpottingToolkitStep))
+                : null;
 
             if (_resetButton != null)
                 _resetButton.clicked += OnResetClicked;
@@ -67,7 +73,11 @@ namespace LanguageGame.Presentation.Steps
             _context = context;
             _onRequest = onRequest;
             ResetState();
-            _chipsRow?.Clear();
+
+            if (!ToolkitStepUx.GuardTemplateReady(_uiReady && _chipsRow != null, context))
+                return;
+
+            _chipsRow.Clear();
             ToolkitStepUx.SetOptionalLabel(_promptLabel, null);
             ToolkitStepUx.SetOptionalLabel(_captionLabel, null);
             ToolkitStepUx.SetOptionalLabel(_instructionLabel, null);
@@ -272,7 +282,7 @@ namespace LanguageGame.Presentation.Steps
             _correctionFields.Clear();
             _correctionDrafts.Clear();
             _trueErrorIds.Clear();
-            _chipsRow.Clear();
+            _chipsRow?.Clear();
         }
 
         private void OnResetClicked()

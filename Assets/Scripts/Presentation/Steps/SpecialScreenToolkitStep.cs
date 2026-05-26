@@ -8,10 +8,9 @@ using UnityEngine.UIElements;
 namespace LanguageGame.Presentation.Steps
 {
     /// <summary>
-    /// Host step for <c>SpecialScreen*</c> tasks: shared chrome plus either sequential embedded mechanics in <c>blocks[]</c>
-    /// (paged with «←» / «→», shell primary <c>Controlla</c> after the last part), a display-only magazine/book reader layout
-    /// via <see cref="SpecialScreenReaderChromeDto"/>, a photo gallery / slideshow via <see cref="SpecialScreenPhotoViewerChromeDto"/>,
-    /// or an e-mail / letter editor frame via <see cref="SpecialScreenMailChromeDto"/>.
+    /// Host step for <c>SpecialScreen*</c> tasks: outer chrome from <see cref="SpecialScreenHost"/> UXML; messenger / mail /
+    /// photo / reader device chrome is still built in C# (see <c>special-screen-*.uss</c>) until those layouts move to UXML templates.
+    /// Sequential embedded mechanics in <c>blocks[]</c> use «←» / «→»; shell primary <c>Controlla</c> completes after the last part.
     /// </summary>
     public sealed class SpecialScreenToolkitStep : IStepView, ISubmitFromShell, ITaskAttemptPayloadProvider
     {
@@ -133,8 +132,7 @@ namespace LanguageGame.Presentation.Steps
 
             if (!TryBuildChrome())
             {
-                context?.presentValidationMessage?.Invoke(
-                    "Impossibile costruire la cornice della schermata speciale.");
+                context?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
                 return;
             }
 
@@ -489,61 +487,7 @@ namespace LanguageGame.Presentation.Steps
             _nextButton.clicked += OnNextClicked;
         }
 
-        private void BuildFallbackChrome()
-        {
-            var outer = new VisualElement();
-            outer.name = "special-screen-root";
-            outer.AddToClassList("lg-game-panel");
-            outer.AddToClassList("lg-panel-padded");
-            outer.style.flexGrow = 1;
-            outer.style.flexDirection = FlexDirection.Column;
-
-            var title = new Label { name = "special-screen-title" };
-            title.AddToClassList("lg-heading-screen");
-            title.style.whiteSpace = WhiteSpace.Normal;
-            title.style.marginBottom = 8;
-            outer.Add(title);
-
-            var subtitle = new Label { name = "special-screen-subtitle" };
-            subtitle.AddToClassList("lg-text-body");
-            subtitle.AddToClassList("lg-text-muted");
-            subtitle.style.whiteSpace = WhiteSpace.Normal;
-            subtitle.style.marginBottom = 8;
-            outer.Add(subtitle);
-
-            var blockArea = new VisualElement { name = "special-screen-block-area" };
-            blockArea.style.flexGrow = 1;
-            blockArea.style.minHeight = 120;
-            outer.Add(blockArea);
-
-            var navRow = new VisualElement { name = "special-screen-nav-row" };
-            navRow.style.flexDirection = FlexDirection.Row;
-            navRow.style.alignItems = Align.Center;
-            navRow.style.justifyContent = Justify.Center;
-            navRow.style.flexShrink = 0;
-            navRow.style.marginTop = 12;
-
-            var prev = new Button { name = "special-screen-prev", text = "\u2190" };
-            prev.AddToClassList("lg-btn");
-            prev.AddToClassList("lg-btn--secondary");
-
-            var progress = new Label { name = "special-screen-progress" };
-            progress.AddToClassList("lg-text-caption");
-            progress.style.marginLeft = 12;
-            progress.style.marginRight = 12;
-
-            var next = new Button { name = "special-screen-next", text = "\u2192" };
-            next.AddToClassList("lg-btn");
-            next.AddToClassList("lg-btn--secondary");
-
-            navRow.Add(prev);
-            navRow.Add(progress);
-            navRow.Add(next);
-            outer.Add(navRow);
-
-            _host.Add(outer);
-        }
-
+        /// <summary>Applies USS classes; smartphone frame and chat rows are created in code (not yet UXML templates).</summary>
         private void ApplyMessengerChromeShell()
         {
             if (_blockArea == null)

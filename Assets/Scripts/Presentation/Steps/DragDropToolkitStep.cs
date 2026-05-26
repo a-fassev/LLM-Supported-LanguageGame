@@ -17,6 +17,7 @@ namespace LanguageGame.Presentation.Steps
             "Tocca una carta e trascinala nella zona della categoria corretta. Puoi spostarle di nuovo se sbagli.";
         private const string DropZoneHintText = "Trascina qui";
 
+        private readonly bool _uiReady;
         private readonly VisualElement _root;
         private readonly VisualElement _bankHost;
         private readonly VisualElement _targetsHost;
@@ -44,20 +45,23 @@ namespace LanguageGame.Presentation.Steps
         public DragDropToolkitStep(VisualElement host, MonoBehaviour coroutineHost)
         {
             _coroutineHost = coroutineHost;
-            if (!ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.DragDropTask, "drag-drop-root", out _root))
-            {
-                _root = new VisualElement();
-                _root.style.flexGrow = 1;
-                host.Add(_root);
-            }
+            _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.DragDropTask, "drag-drop-root", out _root);
+            _promptLabel = _uiReady
+                ? ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(DragDropToolkitStep))
+                : null;
+            _subtitleLabel = _uiReady
+                ? ToolkitStepUx.Query<Label>(_root, "task-subtitle", nameof(DragDropToolkitStep))
+                : null;
+            _bankHost = _uiReady
+                ? ToolkitStepUx.Query<VisualElement>(_root, "drag-drop-bank-host", nameof(DragDropToolkitStep))
+                : null;
+            _targetsHost = _uiReady
+                ? ToolkitStepUx.Query<VisualElement>(_root, "drag-drop-targets-host", nameof(DragDropToolkitStep))
+                : null;
+            _dragLayer = _uiReady
+                ? ToolkitStepUx.Query<VisualElement>(_root, "drag-drop-float-layer", nameof(DragDropToolkitStep))
+                : null;
 
-            _promptLabel = ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(DragDropToolkitStep));
-            _subtitleLabel = ToolkitStepUx.Query<Label>(_root, "task-subtitle", nameof(DragDropToolkitStep));
-            _bankHost = ToolkitStepUx.Query<VisualElement>(_root, "drag-drop-bank-host", nameof(DragDropToolkitStep))
-                        ?? _root;
-            _targetsHost = ToolkitStepUx.Query<VisualElement>(_root, "drag-drop-targets-host", nameof(DragDropToolkitStep))
-                           ?? _root;
-            _dragLayer = ToolkitStepUx.Query<VisualElement>(_root, "drag-drop-float-layer", nameof(DragDropToolkitStep));
             if (_dragLayer != null)
                 _dragLayer.pickingMode = PickingMode.Ignore;
         }
@@ -67,6 +71,10 @@ namespace LanguageGame.Presentation.Steps
             _context = context;
             _onRequest = onRequest;
             StopImageLoads();
+
+            if (!ToolkitStepUx.GuardTemplateReady(_uiReady && _bankHost != null && _targetsHost != null, context))
+                return;
+
             _bankHost.Clear();
             _targetsHost.Clear();
             _dragLayer?.Clear();
@@ -98,9 +106,7 @@ namespace LanguageGame.Presentation.Steps
             var sub = dto.subtitle?.Trim() ?? string.Empty;
             if (sub.Length == 0 && !isLines)
                 sub = DefaultBlocksInstruction;
-            ToolkitStepUx.SetOptionalLabel(_subtitleLabel, sub, hideWhenEmpty: isLines && sub.Length == 0);
-            if (!isLines && sub.Length > 0 && _subtitleLabel != null)
-                _subtitleLabel.style.display = DisplayStyle.Flex;
+            ToolkitStepUx.SetOptionalLabel(_subtitleLabel, sub, hideWhenEmpty: string.IsNullOrEmpty(sub));
 
             if (isLines)
             {

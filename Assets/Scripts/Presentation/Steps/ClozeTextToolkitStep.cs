@@ -8,6 +8,7 @@ namespace LanguageGame.Presentation.Steps
     /// <summary>Cloze (gap-fill) task UI in UI Toolkit.</summary>
     public sealed class ClozeTextToolkitStep : IStepView, ISubmitFromShell, ITaskAttemptPayloadProvider
     {
+        private readonly bool _uiReady;
         private readonly VisualElement _root;
         private readonly VisualElement _linesHost;
         private readonly Label _promptLabel;
@@ -23,17 +24,16 @@ namespace LanguageGame.Presentation.Steps
         /// <param name="useMutedChrome">When false (e.g. embedded in <see cref="SpecialScreenToolkitStep"/>), skips outer panel styling to avoid stacked frames.</param>
         public ClozeTextToolkitStep(VisualElement host, bool useMutedChrome = true)
         {
-            if (!ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.ClozeTextTask, "cloze-text-root", out _root))
-            {
-                _root = new VisualElement();
-                _root.style.flexGrow = 1;
-                host.Add(_root);
-            }
+            _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.ClozeTextTask, "cloze-text-root", out _root);
+            _promptLabel = _uiReady
+                ? ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(ClozeTextToolkitStep))
+                : null;
+            _linesHost = _uiReady
+                ? ToolkitStepUx.Query<VisualElement>(_root, "cloze-lines-host", nameof(ClozeTextToolkitStep))
+                : null;
 
-            ToolkitStepUx.ApplyMutedTaskChrome(_root, useMutedChrome);
-            _promptLabel = ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(ClozeTextToolkitStep));
-            _linesHost = ToolkitStepUx.Query<VisualElement>(_root, "cloze-lines-host", nameof(ClozeTextToolkitStep))
-                          ?? _root;
+            if (_uiReady)
+                ToolkitStepUx.ApplyMutedTaskChrome(_root, useMutedChrome);
         }
 
         /// <summary>True after <see cref="Bind"/> produced interactive gaps.</summary>
@@ -45,7 +45,11 @@ namespace LanguageGame.Presentation.Steps
             _onRequest = onRequest;
             _gaps.Clear();
             _contentReady = false;
-            _linesHost?.Clear();
+
+            if (!ToolkitStepUx.GuardTemplateReady(_uiReady && _linesHost != null, context))
+                return;
+
+            _linesHost.Clear();
             ToolkitStepUx.SetOptionalLabel(_promptLabel, null);
 
             if (!TryParseContentDto(context?.contentJson, out var dto, out var error))

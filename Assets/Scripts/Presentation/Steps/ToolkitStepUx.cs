@@ -6,6 +6,10 @@ namespace LanguageGame.Presentation.Steps
     /// <summary>Load UXML step templates, clone into hosts, and query protected named slots.</summary>
     internal static class ToolkitStepUx
     {
+        /// <summary>Shown when a required UXML template failed to load (no programmatic fallback UI).</summary>
+        public const string TemplateLoadFailedMessage =
+            "Impossibile caricare l'interfaccia del compito. Aggiorna l'app o contatta il supporto.";
+
         public static bool TryMount(
             VisualElement host,
             string resourcesPath,
@@ -41,12 +45,19 @@ namespace LanguageGame.Presentation.Steps
         }
 
         /// <summary>Instantiate a detached template root (e.g. cutscene beat panels).</summary>
-        public static VisualElement Instantiate(string resourcesPath, string rootElementName)
+        public static VisualElement Instantiate(string resourcesPath, string rootElementName) =>
+            Instantiate(Resources.Load<VisualTreeAsset>(resourcesPath), resourcesPath, rootElementName);
+
+        /// <summary>Instantiate from a cached <see cref="VisualTreeAsset"/> (avoids repeated Resources.Load).</summary>
+        public static VisualElement Instantiate(
+            VisualTreeAsset template,
+            string resourcesPathForLogs,
+            string rootElementName)
         {
-            var template = Resources.Load<VisualTreeAsset>(resourcesPath);
             if (template == null)
             {
-                Debug.LogError($"[ToolkitStepUx] Missing VisualTreeAsset at Resources/{resourcesPath}.");
+                Debug.LogError(
+                    $"[ToolkitStepUx] Missing VisualTreeAsset at Resources/{resourcesPathForLogs}.");
                 return null;
             }
 
@@ -98,6 +109,15 @@ namespace LanguageGame.Presentation.Steps
 
             label.style.display = DisplayStyle.Flex;
             label.text = text ?? string.Empty;
+        }
+
+        public static bool GuardTemplateReady(bool uiReady, StepContext context)
+        {
+            if (uiReady)
+                return true;
+
+            context?.presentValidationMessage?.Invoke(TemplateLoadFailedMessage);
+            return false;
         }
 
         public static void ApplyMutedTaskChrome(VisualElement root, bool useMutedChrome)

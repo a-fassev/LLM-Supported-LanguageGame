@@ -16,6 +16,7 @@ namespace LanguageGame.Presentation.Steps
     {
         private const float DragThresholdPx = 10f;
 
+        private readonly bool _uiReady;
         private readonly VisualElement _root;
         private readonly Label _promptLabel;
         private readonly Label _subtitleLabel;
@@ -54,26 +55,28 @@ namespace LanguageGame.Presentation.Steps
         public MatchingToolkitStep(VisualElement host, MonoBehaviour coroutineHost)
         {
             _coroutineHost = coroutineHost;
+            _onPairingGeometryChanged = OnPairingGeometryChanged;
 
-            if (!ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.MatchingTask, "matching-root", out _root))
-            {
-                _root = new VisualElement();
-                _root.style.flexGrow = 1;
-                host.Add(_root);
-            }
+            _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.MatchingTask, "matching-root", out _root);
+            _promptLabel = _uiReady
+                ? ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(MatchingToolkitStep))
+                : null;
+            _subtitleLabel = _uiReady
+                ? ToolkitStepUx.Query<Label>(_root, "task-subtitle", nameof(MatchingToolkitStep))
+                : null;
+            _pairingArea = _uiReady
+                ? ToolkitStepUx.Query<VisualElement>(_root, "matching-pairing-area", nameof(MatchingToolkitStep))
+                : null;
+            _columnsRow = _uiReady
+                ? ToolkitStepUx.Query<VisualElement>(_root, "matching-columns-row", nameof(MatchingToolkitStep))
+                : null;
+            _leftColumn = _uiReady
+                ? ToolkitStepUx.Query<VisualElement>(_root, "matching-left-column", nameof(MatchingToolkitStep))
+                : null;
+            _rightColumn = _uiReady
+                ? ToolkitStepUx.Query<VisualElement>(_root, "matching-right-column", nameof(MatchingToolkitStep))
+                : null;
 
-            _promptLabel = ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(MatchingToolkitStep));
-            _subtitleLabel = ToolkitStepUx.Query<Label>(_root, "task-subtitle", nameof(MatchingToolkitStep));
-            _pairingArea = ToolkitStepUx.Query<VisualElement>(_root, "matching-pairing-area", nameof(MatchingToolkitStep))
-                            ?? _root;
-            _columnsRow = ToolkitStepUx.Query<VisualElement>(_root, "matching-columns-row", nameof(MatchingToolkitStep))
-                          ?? _pairingArea;
-            _leftColumn = ToolkitStepUx.Query<VisualElement>(_root, "matching-left-column", nameof(MatchingToolkitStep))
-                          ?? _columnsRow;
-            _rightColumn = ToolkitStepUx.Query<VisualElement>(_root, "matching-right-column", nameof(MatchingToolkitStep))
-                           ?? _columnsRow;
-
-            var lineHost = ToolkitStepUx.Query<VisualElement>(_root, "matching-line-layer-host", nameof(MatchingToolkitStep));
             _lineLayer = new MatchingLineLayer { name = "matching-line-layer" };
             _lineLayer.pickingMode = PickingMode.Ignore;
             _lineLayer.style.position = Position.Absolute;
@@ -81,12 +84,16 @@ namespace LanguageGame.Presentation.Steps
             _lineLayer.style.top = 0;
             _lineLayer.style.right = 0;
             _lineLayer.style.bottom = 0;
+
+            if (!_uiReady || _pairingArea == null)
+                return;
+
+            var lineHost = ToolkitStepUx.Query<VisualElement>(_root, "matching-line-layer-host", nameof(MatchingToolkitStep));
             if (lineHost != null)
                 lineHost.Add(_lineLayer);
             else
                 _pairingArea.Add(_lineLayer);
 
-            _onPairingGeometryChanged = OnPairingGeometryChanged;
             _pairingArea.RegisterCallback(_onPairingGeometryChanged);
         }
 
@@ -96,6 +103,12 @@ namespace LanguageGame.Presentation.Steps
             _onRequest = onRequest;
             StopImageLoads();
             TeardownBindings();
+
+            if (!ToolkitStepUx.GuardTemplateReady(
+                    _uiReady && _leftColumn != null && _rightColumn != null && _lineLayer != null,
+                    context))
+                return;
+
             ToolkitStepUx.SetOptionalLabel(_promptLabel, null);
             ToolkitStepUx.SetOptionalLabel(_subtitleLabel, null);
 
