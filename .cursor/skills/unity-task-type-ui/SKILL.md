@@ -12,6 +12,8 @@ Quest steps render inside **`QuestShellScreen`** (`Assets/Resources/UI/LearningT
 
 **Layout = UXML templates** under `Assets/Resources/UI/LearningToolkit/Templates/`; **content = `contentJson`** from the API. Use **`ToolkitStepUx.TryMount`** / **`Instantiate`** and stable **`name`** anchors (see **`ToolkitStepTemplatePaths`**). Do not add a second shell primary button in step UXML. Styling: [`DOC/03-styling.md`](DOC/03-styling.md).
 
+**UI Builder fixtures (Option B):** production task/cutscene templates may include Italian sample children under named **hosts** so designers style real structure in UI Builder. On **`Bind`**, call **`ToolkitStepUx.ClearHost(host)`** on every dynamic host first, then rebuild with **`ToolkitStepUx.InstantiatePart`** from **`Templates/Parts/*.uxml`** (register paths in **`ToolkitStepTemplatePaths`**). Runtime output must mirror fixture hierarchy and **`lg-*`** USS—do not hand-build divergent trees. Optional `lg-preview-sample` is editor-only; separate `*Preview.uxml` is not the default path.
+
 Full narrative and **`contentJson`** tables: **`docs/task-type-ui-guide.md`**.
 
 Composite **Special Screen** tasks (`SpecialScreen*`): see **`.cursor/skills/unity-special-screen-ui/SKILL.md`**.
@@ -31,12 +33,12 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 
 1. **`taskType`** string must match API / DB (`game_quest_steps.task_type`). **`ToolkitStepFactory`** uses a **`switch`** — casing must match server payloads. Keep **`Assets/Scripts/Application/GameProgressContracts.cs`** (and any **`apps/web`** payload validators) aligned when introducing or renaming a type.
 
-2. **Add UXML template(s)** under `Assets/Resources/UI/LearningToolkit/Templates/Tasks/` (or `Cutscenes/` for beat layouts). Register path in **`ToolkitStepTemplatePaths`**. Every bindable control needs a stable **`name`**; document protected names in UXML comments.
+2. **Add UXML template(s)** under `Assets/Resources/UI/LearningToolkit/Templates/Tasks/` (or `Cutscenes/` for beat layouts). Put repeating rows/cards in **`Templates/Parts/`** when the same subtree is used for fixtures and runtime. Register paths in **`ToolkitStepTemplatePaths`**. Every bindable control needs a stable **`name`**; document protected names in UXML comments. Fixture samples belong **only** under hosts that **`ClearHost`** clears.
 
 3. **Implement `IStepView`** (and **`ISubmitFromShell`** for tasks submitted by shell Controlla):
    - Place class under `Assets/Scripts/Presentation/Steps/` (e.g. `*ToolkitStep.cs`).
    - **Constructor**: **`ToolkitStepUx.TryMount(stepHost, path, rootName, out _root)`**; cache **`QueryRequired`** / **`QueryOptional`** results for hosts and labels.
-   - **`Bind`**: parse **`context.contentJson`**, fill template slots; build dynamic children only inside named host elements; avoid duplicate listeners on re-bind.
+   - **`Bind`**: parse **`context.contentJson`**; **`ClearHost`** on dynamic hosts; fill static slots; clone dynamic children with **`InstantiatePart`** (or structure-identical markup); avoid duplicate listeners on re-bind.
    - **`Teardown`**: **`RemoveFromHierarchy`** on mounted root; clear delegates / schedules.
    - **`SetInteractable`**: disable inputs during **`CompleteServerTaskRoutine`** / **`AdvanceCutsceneRoutine`**.
 
@@ -58,7 +60,7 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 
 ## Checklist
 
-- [ ] UXML template(s) + **`ToolkitStepTemplatePaths`** entry; protected **`name`** slots unchanged vs C# queries.
+- [ ] UXML template(s) + **`Templates/Parts/`** where needed + **`ToolkitStepTemplatePaths`** entries; protected **`name`** slots unchanged vs C# queries; fixtures only under **`ClearHost`** targets.
 - [ ] Stable **`contentJson`** aligned with backend.
 - [ ] **`ToolkitStepFactory`** **`case`** for **`taskType`**.
 - [ ] **`Bind` / `Teardown` / `SetInteractable`** correct; **`ISubmitFromShell`** for shell-driven submit.

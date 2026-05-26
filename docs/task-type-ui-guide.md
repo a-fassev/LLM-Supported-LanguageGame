@@ -46,12 +46,16 @@ Task and cutscene layouts are authored as **UXML** under `Assets/Resources/UI/Le
 |--------|--------|
 | Mount root template | `ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.…, "root-name", out _root)` |
 | Detached beat/panel | `ToolkitStepUx.Instantiate(path, "root-name")` |
+| Clear dynamic host (removes UI Builder fixtures) | `ToolkitStepUx.ClearHost(host)` — call at start of bind on every runtime-cleared host |
+| Clone shared row/card/bubble | `ToolkitStepUx.InstantiatePart(ToolkitStepTemplatePaths.…Part, "root-name")` from `Templates/Parts/` |
 | Bind text slots | `ToolkitStepUx.SetOptionalLabel(label, text)` |
-| Query slots | `ToolkitStepUx.Query<T>(root, "element-name", nameof(YourStep))` |
+| Query slots | `ToolkitStepUx.QueryRequired` / `QueryOptional` (see `ToolkitStepUx.cs`) |
 
 **Protected `name` attributes** in UXML must stay stable — C# queries them by name. Do not rename `task-prompt`, `mc-options-host`, `cutscene-beat-host`, etc., without updating the step class.
 
-Paths are centralized in **`ToolkitStepTemplatePaths`**. Styling uses **`lg-*`** USS classes (`task-templates.uss`, per-type USS). Dynamic lists (options, drag tiles, cloze gaps) are still created in C# inside named host slots.
+Paths are centralized in **`ToolkitStepTemplatePaths`** (`Tasks/`, `Cutscenes/`, `Parts/`, `SpecialScreens/`). Styling uses **`lg-*`** USS classes (`task-templates.uss`, per-type USS).
+
+**UI Builder fixtures (Option B):** production templates may include Italian sample trees under named hosts so designers style real structure without separate `*Preview.uxml`. On bind, **`ClearHost`** then rebuild dynamic lists from **`contentJson`** using **`InstantiatePart`** so runtime DOM matches fixture hierarchy and classes. Fixture children must live only inside hosts that bind clears.
 
 Reference host: **`SpecialScreenHost.uxml`** + **`SpecialScreenToolkitStep`**.
 

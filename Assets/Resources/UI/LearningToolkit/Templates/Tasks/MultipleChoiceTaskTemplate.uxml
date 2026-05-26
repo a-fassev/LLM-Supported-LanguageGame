@@ -1,4 +1,4 @@
-<!-- UI Builder: style fixtures under hosts; runtime Bind clears hosts and rebuilds from contentJson. -->
+<!-- UI Builder: fixtures mirror Templates/Parts; runtime ClearHost + InstantiatePart. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="multiple-choice-root" class="lg-muted-panel lg-task-template-root"
         style="flex-grow: 1; flex-direction: column;">
@@ -7,29 +7,37 @@
         <ui:Label name="task-subtitle" text="Leggi bene la domanda." class="lg-text-body lg-text-muted lg-preview-sample"
             style="margin-bottom: 12px; white-space: normal;" />
         <ui:VisualElement name="mc-stem-host" style="flex-grow: 0; margin-bottom: 12px;">
-            <ui:Label text="Quale parola significa «ciao»?" class="lg-text-body lg-preview-sample"
+            <ui:Label name="mc-stem-text-part" text="Quale parola significa «ciao»?" class="lg-text-body lg-preview-sample"
                 style="white-space: normal; margin-bottom: 8px;" />
         </ui:VisualElement>
         <ui:VisualElement name="mc-options-host" style="flex-grow: 1;">
-            <ui:VisualElement class="lg-list-row-button lg-preview-sample"
-                style="flex-direction: row; align-items: center; margin-bottom: 10px; padding: 8px;">
+            <ui:VisualElement name="mc-option-row-part" class="lg-list-row-button lg-preview-sample"
+                style="flex-direction: row; align-items: center; margin-bottom: 10px; padding-top: 8px; padding-bottom: 8px; padding-left: 8px; padding-right: 8px;">
                 <ui:Toggle />
-                <ui:Label text="Ciao" class="lg-text-body" style="flex-grow: 1; margin-left: 8px; white-space: normal;" />
+                <ui:Label name="mc-option-label" text="Ciao" class="lg-text-body"
+                    style="flex-grow: 1; margin-left: 8px; white-space: normal;" />
+                <ui:VisualElement name="mc-option-image" style="display: none; width: 96px; height: 96px; margin-left: 8px;" />
             </ui:VisualElement>
-            <ui:VisualElement class="lg-list-row-button lg-preview-sample"
-                style="flex-direction: row; align-items: center; margin-bottom: 10px; padding: 8px;">
+            <ui:VisualElement name="mc-option-row-part" class="lg-list-row-button lg-preview-sample"
+                style="flex-direction: row; align-items: center; margin-bottom: 10px; padding-top: 8px; padding-bottom: 8px; padding-left: 8px; padding-right: 8px;">
                 <ui:Toggle />
-                <ui:Label text="Grazie" class="lg-text-body" style="flex-grow: 1; margin-left: 8px; white-space: normal;" />
+                <ui:Label name="mc-option-label" text="Grazie" class="lg-text-body"
+                    style="flex-grow: 1; margin-left: 8px; white-space: normal;" />
+                <ui:VisualElement name="mc-option-image" style="display: none; width: 96px; height: 96px; margin-left: 8px;" />
             </ui:VisualElement>
-            <ui:VisualElement class="lg-list-row-button lg-preview-sample"
-                style="flex-direction: row; align-items: center; margin-bottom: 10px; padding: 8px;">
+            <ui:VisualElement name="mc-option-row-part" class="lg-list-row-button lg-preview-sample"
+                style="flex-direction: row; align-items: center; margin-bottom: 10px; padding-top: 8px; padding-bottom: 8px; padding-left: 8px; padding-right: 8px;">
                 <ui:Toggle />
-                <ui:Label text="Arrivederci" class="lg-text-body" style="flex-grow: 1; margin-left: 8px; white-space: normal;" />
+                <ui:Label name="mc-option-label" text="Arrivederci" class="lg-text-body"
+                    style="flex-grow: 1; margin-left: 8px; white-space: normal;" />
+                <ui:VisualElement name="mc-option-image" style="display: none; width: 96px; height: 96px; margin-left: 8px;" />
             </ui:VisualElement>
-            <ui:VisualElement class="lg-list-row-button lg-preview-sample"
-                style="flex-direction: row; align-items: center; margin-bottom: 10px; padding: 8px;">
+            <ui:VisualElement name="mc-option-row-part" class="lg-list-row-button lg-preview-sample"
+                style="flex-direction: row; align-items: center; margin-bottom: 10px; padding-top: 8px; padding-bottom: 8px; padding-left: 8px; padding-right: 8px;">
                 <ui:Toggle />
-                <ui:Label text="Per favore" class="lg-text-body" style="flex-grow: 1; margin-left: 8px; white-space: normal;" />
+                <ui:Label name="mc-option-label" text="Per favore" class="lg-text-body"
+                    style="flex-grow: 1; margin-left: 8px; white-space: normal;" />
+                <ui:VisualElement name="mc-option-image" style="display: none; width: 96px; height: 96px; margin-left: 8px;" />
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="mc-nav-row"

@@ -61,7 +61,8 @@ For purely visual chrome (SMS frame, mail headers): prefer branching on **`scree
 
 ## Chrome asset
 
-- **`Assets/Resources/UI/LearningToolkit/SpecialScreenHost.uxml`** — outer host; **`Templates/SpecialScreens/SpecialScreenMessengerChrome`**, **`SpecialScreenMailChrome`**, **`SpecialScreenReaderChrome`**, **`SpecialScreenPhotoChrome`** for device shells (chat bubbles and photo grid/slideshow cells stay dynamic in C#).
+- **`Assets/Resources/UI/LearningToolkit/SpecialScreenHost.uxml`** — outer host; **`Templates/SpecialScreens/SpecialScreenMessengerChrome`**, **`SpecialScreenMailChrome`**, **`SpecialScreenReaderChrome`**, **`SpecialScreenPhotoChrome`** for device shells.
+- **Option B fixtures + parts:** chrome UXML includes Italian sample rows/cells under named hosts for UI Builder; **`Bind`** calls **`ToolkitStepUx.ClearHost`** on chat/grid/header/body hosts, then **`InstantiatePart`** from **`Templates/Parts/`** (e.g. **`SpecialScreenChatRowIncomingPart`**, **`SpecialScreenPhotoGridCellPart`**, **`StubTaskPanelPart`** — see **`ToolkitStepTemplatePaths`**). Match fixture **`lg-*`** / **`name`** anchors in runtime builds; embedded cloze/error still use their task step classes inside bubble/block slots.
 
 ## Backend reminder
 

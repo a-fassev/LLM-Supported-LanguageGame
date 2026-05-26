@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -6,6 +7,7 @@ namespace LanguageGame.Presentation.Steps
     /// <summary>Load UXML step templates, clone into hosts, and query protected named slots.</summary>
     internal static class ToolkitStepUx
     {
+        private static readonly Dictionary<string, VisualTreeAsset> s_templateCache = new();
         /// <summary>
         /// Shown when a required UXML template failed to load. Task steps have no fallback UI;
         /// cutscenes may still show <see cref="TryMountBeatFailurePanel"/> when narrator beat UXML is missing.
@@ -23,7 +25,7 @@ namespace LanguageGame.Presentation.Steps
             if (host == null)
                 return false;
 
-            var template = Resources.Load<VisualTreeAsset>(resourcesPath);
+            var template = LoadTemplate(resourcesPath);
             if (template == null)
             {
                 Debug.LogError(
@@ -45,11 +47,31 @@ namespace LanguageGame.Presentation.Steps
 
         /// <summary>Instantiate a detached template root (e.g. cutscene beat panels).</summary>
         public static VisualElement Instantiate(string resourcesPath, string rootElementName) =>
-            Instantiate(Resources.Load<VisualTreeAsset>(resourcesPath), resourcesPath, rootElementName);
+            Instantiate(LoadTemplate(resourcesPath), resourcesPath, rootElementName);
 
         /// <summary>Clone a shared part template under <c>Templates/Parts/</c>.</summary>
         public static VisualElement InstantiatePart(string resourcesPath, string rootElementName) =>
-            Instantiate(resourcesPath, rootElementName);
+            Instantiate(LoadTemplate(resourcesPath), resourcesPath, rootElementName);
+
+        /// <summary>
+        /// Instantiate a required part; surfaces <see cref="TemplateLoadFailedMessage"/> when the asset or root is missing.
+        /// </summary>
+        public static bool TryInstantiatePart(
+            string resourcesPath,
+            string rootElementName,
+            string ownerStepName,
+            StepContext context,
+            out VisualElement root)
+        {
+            root = InstantiatePart(resourcesPath, rootElementName);
+            if (root != null)
+                return true;
+
+            Debug.LogError(
+                $"[{ownerStepName}] Failed to instantiate part Resources/{resourcesPath} root='{rootElementName}'.");
+            context?.presentValidationMessage?.Invoke(TemplateLoadFailedMessage);
+            return false;
+        }
 
         /// <summary>Instantiate from a cached <see cref="VisualTreeAsset"/> (avoids repeated Resources.Load).</summary>
         public static VisualElement Instantiate(
@@ -59,6 +81,21 @@ namespace LanguageGame.Presentation.Steps
             template == null
                 ? LogMissingTemplate(resourcesPathForLogs)
                 : DetachTemplateRoot(template, resourcesPathForLogs, rootElementName);
+
+        private static VisualTreeAsset LoadTemplate(string resourcesPath)
+        {
+            if (string.IsNullOrEmpty(resourcesPath))
+                return null;
+
+            if (s_templateCache.TryGetValue(resourcesPath, out var cached) && cached != null)
+                return cached;
+
+            var loaded = Resources.Load<VisualTreeAsset>(resourcesPath);
+            if (loaded != null)
+                s_templateCache[resourcesPath] = loaded;
+
+            return loaded;
+        }
 
         /// <summary>Query a protected slot; logs an error when missing (use for guard-listed elements).</summary>
         public static T QueryRequired<T>(VisualElement root, string elementName, string ownerStepName)

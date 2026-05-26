@@ -1,0 +1,3 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Label name="drag-drop-caption-part" text="" class="lg-text-caption" />
+</ui:UXML>

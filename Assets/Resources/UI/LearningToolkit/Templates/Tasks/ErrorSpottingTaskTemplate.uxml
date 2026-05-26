@@ -1,4 +1,4 @@
-<!-- UI Builder: sample chips under error-spotting-chips-row; runtime clears row on Bind. -->
+<!-- UI Builder: fixtures mirror Templates/Parts; runtime clears error-spotting-chips-row on Bind. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="error-spotting-root" class="lg-muted-panel lg-task-template-root"
         style="flex-grow: 1; flex-direction: column;">
@@ -11,23 +11,25 @@
         <ui:Button name="task-reset-button" text="Ripristina" class="lg-btn lg-btn--secondary"
             style="align-self: flex-start; margin-bottom: 12px;" />
         <ui:VisualElement name="error-spotting-chips-row" class="lg-error-spotting-row" style="flex-grow: 0;">
-            <ui:VisualElement class="lg-error-spotting-slot lg-preview-sample">
-                <ui:Button text="casa" class="lg-error-spotting-chip" />
+            <ui:VisualElement name="error-spotting-slot-part" class="lg-error-spotting-slot lg-preview-sample">
+                <ui:Button name="error-spotting-chip-part" text="casa" class="lg-error-spotting-chip" />
             </ui:VisualElement>
-            <ui:VisualElement class="lg-error-spotting-slot lg-preview-sample">
-                <ui:Button text="bello" class="lg-error-spotting-chip" />
+            <ui:VisualElement name="error-spotting-slot-part" class="lg-error-spotting-slot lg-preview-sample">
+                <ui:Button name="error-spotting-chip-part" text="bello" class="lg-error-spotting-chip" />
             </ui:VisualElement>
-            <ui:VisualElement class="lg-error-spotting-slot lg-preview-sample">
-                <ui:Button text="molto" class="lg-error-spotting-chip" />
+            <ui:VisualElement name="error-spotting-slot-part" class="lg-error-spotting-slot lg-preview-sample">
+                <ui:Button name="error-spotting-chip-part" text="molto" class="lg-error-spotting-chip" />
             </ui:VisualElement>
-            <ui:VisualElement class="lg-error-spotting-slot lg-preview-sample">
-                <ui:Button text="grande" class="lg-error-spotting-chip" />
+            <ui:VisualElement name="error-spotting-slot-part" class="lg-error-spotting-slot lg-preview-sample">
+                <ui:Button name="error-spotting-chip-part" text="grande" class="lg-error-spotting-chip" />
             </ui:VisualElement>
-            <ui:VisualElement class="lg-error-spotting-slot lg-preview-sample">
-                <ui:Button text="ieri" class="lg-error-spotting-chip" />
+            <ui:VisualElement name="error-spotting-slot-part" class="lg-error-spotting-slot lg-preview-sample">
+                <ui:Button name="error-spotting-chip-part" text="ieri" class="lg-error-spotting-chip" />
             </ui:VisualElement>
-            <ui:VisualElement class="lg-error-spotting-slot lg-preview-sample lg-error-spotting-slot--marked">
-                <ui:TextField value="bella" class="lg-textfield lg-error-spotting-inline-field" />
+            <ui:VisualElement name="error-spotting-slot-part"
+                class="lg-error-spotting-slot lg-preview-sample lg-error-spotting-slot--marked">
+                <ui:TextField name="error-spotting-inline-field-part" value="bella"
+                    class="lg-textfield lg-error-spotting-inline-field" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

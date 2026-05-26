@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Label name="special-photo-caption-fixed-part" text="" class="lg-special-photo-caption--fixed"
+        style="white-space: normal;" />
+</ui:UXML>

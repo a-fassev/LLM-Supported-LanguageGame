@@ -273,12 +273,16 @@ namespace LanguageGame.Presentation.Steps
             var q = _questions[_currentIndex];
             if (q == null)
             {
+                _contentReady = false;
                 _context?.presentValidationMessage?.Invoke("Invalid multiple-choice question.");
                 return;
             }
 
-            BuildStem(q);
-            BuildOptions(q);
+            if (!BuildStem(q) || !BuildOptions(q))
+            {
+                _contentReady = false;
+                return;
+            }
 
             var showNav = _questions.Length > 1;
             if (_navHost != null)
@@ -298,10 +302,10 @@ namespace LanguageGame.Presentation.Steps
                                         _currentIndex < _questions.Length - 1);
         }
 
-        private void BuildStem(MultipleChoiceQuestionDto q)
+        private bool BuildStem(MultipleChoiceQuestionDto q)
         {
             if (q?.stem == null || q.stem.Length == 0)
-                return;
+                return true;
             foreach (var b in q.stem)
             {
                 if (b == null || string.IsNullOrWhiteSpace(b.kind))
@@ -312,15 +316,20 @@ namespace LanguageGame.Presentation.Steps
                     var run = b.text?.Trim() ?? string.Empty;
                     if (run.Length == 0)
                         continue;
-                    var lblPart = ToolkitStepUx.InstantiatePart(
-                        ToolkitStepTemplatePaths.McStemTextPart,
-                        "mc-stem-text-part");
-                    if (lblPart is Label lbl)
-                    {
-                        lbl.text = run;
-                        _stemHost.Add(lbl);
-                    }
+                    if (!ToolkitStepUx.TryInstantiatePart(
+                            ToolkitStepTemplatePaths.McStemTextPart,
+                            "mc-stem-text-part",
+                            nameof(MultipleChoiceToolkitStep),
+                            _context,
+                            out var lblPart))
+                        return false;
 
+                    var lbl = ToolkitStepUx.QueryRequired<Label>(lblPart, "mc-stem-text-part", nameof(MultipleChoiceToolkitStep));
+                    if (lbl == null)
+                        return false;
+
+                    lbl.text = run;
+                    _stemHost.Add(lblPart);
                     continue;
                 }
 
@@ -329,11 +338,13 @@ namespace LanguageGame.Presentation.Steps
                     var url = (b.imageUrl ?? string.Empty).Trim();
                     if (url.Length == 0 || !IsAllowedHttpMediaUrl(url, out _))
                         continue;
-                    var imgVe = ToolkitStepUx.InstantiatePart(
-                        ToolkitStepTemplatePaths.McStemImagePart,
-                        "mc-stem-image-part");
-                    if (imgVe == null)
-                        continue;
+                    if (!ToolkitStepUx.TryInstantiatePart(
+                            ToolkitStepTemplatePaths.McStemImagePart,
+                            "mc-stem-image-part",
+                            nameof(MultipleChoiceToolkitStep),
+                            _context,
+                            out var imgVe))
+                        return false;
                     imgVe.style.height = MaxStemImageHeight;
                     imgVe.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
                     if (_coroutineHost != null)
@@ -347,11 +358,17 @@ namespace LanguageGame.Presentation.Steps
                     var url = (b.audioUrl ?? string.Empty).Trim();
                     if (url.Length == 0 || !IsAllowedHttpMediaUrl(url, out _))
                         continue;
-                    var play = ToolkitStepUx.InstantiatePart(
-                        ToolkitStepTemplatePaths.McStemAudioPart,
-                        "mc-stem-audio-part") as Button;
+                    if (!ToolkitStepUx.TryInstantiatePart(
+                            ToolkitStepTemplatePaths.McStemAudioPart,
+                            "mc-stem-audio-part",
+                            nameof(MultipleChoiceToolkitStep),
+                            _context,
+                            out var playPart))
+                        return false;
+
+                    var play = playPart as Button;
                     if (play == null)
-                        continue;
+                        return false;
                     play.SetEnabled(_interactable);
                     play.clicked += () =>
                     {
@@ -363,14 +380,16 @@ namespace LanguageGame.Presentation.Steps
                     _stemHost.Add(play);
                 }
             }
+
+            return true;
         }
 
-        private void BuildOptions(MultipleChoiceQuestionDto q)
+        private bool BuildOptions(MultipleChoiceQuestionDto q)
         {
             if (q?.options == null)
             {
                 _context?.presentValidationMessage?.Invoke("Invalid multiple-choice content.");
-                return;
+                return false;
             }
 
             _optionsDisplayOrder.Clear();
@@ -383,31 +402,41 @@ namespace LanguageGame.Presentation.Steps
             if (_optionsDisplayOrder.Count == 0)
             {
                 _context?.presentValidationMessage?.Invoke("This question has no valid answer choices.");
-                return;
+                return false;
             }
 
             if (!q.preserveOptionOrder)
                 ShuffleOptions(_optionsDisplayOrder);
 
             foreach (var opt in _optionsDisplayOrder)
-                CreateOptionRow(q, opt);
+            {
+                if (!CreateOptionRow(q, opt))
+                    return false;
+            }
+
+            return true;
         }
 
-        private void CreateOptionRow(MultipleChoiceQuestionDto q, McOptionDto opt)
+        private bool CreateOptionRow(MultipleChoiceQuestionDto q, McOptionDto opt)
         {
             if (opt == null)
-                return;
+                return true;
             var id = opt.id.Trim();
 
-            var row = ToolkitStepUx.InstantiatePart(
-                ToolkitStepTemplatePaths.McOptionRowPart,
-                "mc-option-row-part");
-            if (row == null)
-                return;
+            if (!ToolkitStepUx.TryInstantiatePart(
+                    ToolkitStepTemplatePaths.McOptionRowPart,
+                    "mc-option-row-part",
+                    nameof(MultipleChoiceToolkitStep),
+                    _context,
+                    out var row))
+                return false;
 
             var toggle = row.Q<Toggle>();
             if (toggle == null)
-                return;
+            {
+                _context?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                return false;
+            }
 
             toggle.value = SelectionSetFor(_currentIndex).Contains(id);
             toggle.SetEnabled(_interactable);
@@ -460,6 +489,7 @@ namespace LanguageGame.Presentation.Steps
                 imgVe.style.display = DisplayStyle.None;
 
             _optionsHost.Add(row);
+            return true;
         }
 
         private HashSet<string> SelectionSetFor(int index)

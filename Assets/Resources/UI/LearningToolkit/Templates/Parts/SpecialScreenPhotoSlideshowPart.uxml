@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="special-photo-slideshow-part" class="lg-special-photo-slideshow">
+        <ui:VisualElement name="special-photo-stage" class="lg-special-photo-slideshow__stage">
+            <ui:VisualElement name="special-photo-image-host" class="lg-special-photo-slideshow__image" />
+        </ui:VisualElement>
+        <ui:VisualElement name="special-photo-nav" class="lg-special-photo-slideshow__nav"
+            style="flex-direction: row; align-items: center; justify-content: space-between; margin-top: 8px;">
+            <ui:Button name="special-photo-prev" text="&#8592;" class="lg-btn lg-btn--secondary" />
+            <ui:Label name="special-photo-index" text="1 / 1" class="lg-text-caption" />
+            <ui:Button name="special-photo-next" text="&#8594;" class="lg-btn lg-btn--secondary" />
+        </ui:VisualElement>
+        <ui:VisualElement name="special-photo-caption-host" class="lg-special-photo-slideshow__caption"
+            style="flex-direction: column; margin-top: 8px;" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,4 @@
+<!-- Runtime + photo grid fixtures: copy this node when styling learner caption fields (Option B). -->
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:TextField name="special-photo-learner-field-part" class="lg-special-photo-field" />
+</ui:UXML>

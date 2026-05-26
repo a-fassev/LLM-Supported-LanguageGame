@@ -1,0 +1,3 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="special-block-slot-part" style="flex-grow: 1; display: none;" />
+</ui:UXML>

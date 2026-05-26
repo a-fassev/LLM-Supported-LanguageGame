@@ -167,11 +167,9 @@ namespace LanguageGame.Presentation.Steps
 
                 foreach (var blockDto in blockList)
                 {
-                    var slot = new VisualElement();
-                    slot.style.flexGrow = 1;
-                    slot.style.display = DisplayStyle.None;
-                    _blockArea.Add(slot);
-                    _slots.Add(slot);
+                    if (!TryCreateBlockSlot(context, out var slot))
+                        return;
+
                     _blocks.Add(CreateNestedBlock(blockDto));
                 }
 
@@ -558,11 +556,9 @@ namespace LanguageGame.Presentation.Steps
         {
             ToolkitStepUx.ClearHost(_blockArea);
 
-            var photoSlot = new VisualElement();
-            photoSlot.style.flexGrow = 1;
-            photoSlot.style.display = DisplayStyle.None;
-            _blockArea.Add(photoSlot);
-            _slots.Add(photoSlot);
+            if (!TryCreateBlockSlot(context, out var photoSlot))
+                return false;
+
             _blocks.Add(new PhotoViewerNestedBlock(dto.photoViewerChrome, _coroutineHost));
 
             var extra = dto.blocks;
@@ -570,11 +566,9 @@ namespace LanguageGame.Presentation.Steps
             {
                 foreach (var blockDto in extra)
                 {
-                    var slot = new VisualElement();
-                    slot.style.flexGrow = 1;
-                    slot.style.display = DisplayStyle.None;
-                    _blockArea.Add(slot);
-                    _slots.Add(slot);
+                    if (!TryCreateBlockSlot(context, out var slot))
+                        return false;
+
                     _blocks.Add(CreateNestedBlock(blockDto));
                 }
             }
@@ -656,43 +650,64 @@ namespace LanguageGame.Presentation.Steps
                 var embedHere = msgDto.hostsEmbeddedMechanic &&
                                 msgDto.embeddedMechanicBlockIndex == slotBlockIndex;
 
-                var row = InstantiateMessengerChatRow(incoming);
+                var row = InstantiateMessengerChatRow(incoming, parentContext);
                 if (row == null)
-                    continue;
+                    return false;
 
                 var bubble = GetMessengerBubbleFromRow(row, incoming);
                 if (bubble == null)
-                    continue;
+                {
+                    parentContext?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                    return false;
+                }
 
-                if (!string.IsNullOrWhiteSpace(msgDto.author))
-                    AddMessengerBubbleAuthor(bubble, msgDto.author);
+                if (!string.IsNullOrWhiteSpace(msgDto.author) &&
+                    !AddMessengerBubbleAuthor(bubble, msgDto.author, parentContext))
+                    return false;
 
                 if (embedHere)
                 {
-                    var mechanicHost = ToolkitStepUx.InstantiatePart(
-                        ToolkitStepTemplatePaths.SpecialScreenBubbleMechanicHostPart,
-                        "special-bubble-mechanic-host-part");
-                    if (mechanicHost == null)
-                        continue;
+                    if (!ToolkitStepUx.TryInstantiatePart(
+                            ToolkitStepTemplatePaths.SpecialScreenBubbleMechanicHostPart,
+                            "special-bubble-mechanic-host-part",
+                            nameof(SpecialScreenToolkitStep),
+                            parentContext,
+                            out var mechanicHost))
+                        return false;
+
                     bubble.Add(mechanicHost);
                     nested.Bind(mechanicHost, parentContext);
+                    if (!nested.IsBinderReady)
+                        return false;
                 }
                 else
                 {
                     var txt = msgDto.text?.Trim() ?? string.Empty;
                     if (!string.IsNullOrEmpty(txt))
-                        AddMessengerBubbleText(bubble, txt);
+                    {
+                        if (!AddMessengerBubbleText(bubble, txt, parentContext))
+                            return false;
+                    }
                     else if (msgDto.hostsEmbeddedMechanic)
                     {
-                        var deferred = ToolkitStepUx.InstantiatePart(
-                            ToolkitStepTemplatePaths.SpecialScreenBubbleTextPart,
-                            "special-bubble-text-part") as Label;
-                        if (deferred != null)
+                        if (!ToolkitStepUx.TryInstantiatePart(
+                                ToolkitStepTemplatePaths.SpecialScreenBubbleTextPart,
+                                "special-bubble-text-part",
+                                nameof(SpecialScreenToolkitStep),
+                                parentContext,
+                                out var deferredPart))
+                            return false;
+
+                        var deferred = deferredPart as Label;
+                        if (deferred == null)
                         {
-                            deferred.text = MessengerDeferredMechanicPlaceholder;
-                            deferred.AddToClassList("lg-text-muted");
-                            bubble.Add(deferred);
+                            parentContext?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                            return false;
                         }
+
+                        deferred.text = MessengerDeferredMechanicPlaceholder;
+                        deferred.AddToClassList("lg-text-muted");
+                        bubble.Add(deferredPart);
                     }
                 }
 
@@ -793,18 +808,26 @@ namespace LanguageGame.Presentation.Steps
             ToolkitStepUx.ClearHost(headerHost);
             ToolkitStepUx.ClearHost(bodyHost);
 
-            AddMailHeaderRow(headerHost, lf, fromVal);
-            AddMailHeaderRow(headerHost, lt, toVal);
-            if (showSubject)
-                AddMailHeaderRow(headerHost, ls, subjectVal);
+            if (!AddMailHeaderRow(headerHost, lf, fromVal, context) ||
+                !AddMailHeaderRow(headerHost, lt, toVal, context))
+                return false;
+
+            if (showSubject && !AddMailHeaderRow(headerHost, ls, subjectVal, context))
+                return false;
 
             var blockList = dto.blocks ?? Array.Empty<SpecialScreenBlockDto>();
             foreach (var blockDto in blockList)
             {
-                var slot = new VisualElement();
+                if (!ToolkitStepUx.TryInstantiatePart(
+                        ToolkitStepTemplatePaths.SpecialScreenBlockSlotPart,
+                        "special-block-slot-part",
+                        nameof(SpecialScreenToolkitStep),
+                        context,
+                        out var slot))
+                    return false;
+
                 slot.style.flexGrow = 0;
                 slot.style.flexShrink = 0;
-                slot.style.display = DisplayStyle.None;
                 bodyHost.Add(slot);
                 _slots.Add(slot);
                 _blocks.Add(CreateNestedBlock(blockDto));
@@ -842,13 +865,35 @@ namespace LanguageGame.Presentation.Steps
             return true;
         }
 
-        private static void AddMailHeaderRow(VisualElement parent, string caption, string value)
+        private bool TryCreateBlockSlot(StepContext context, out VisualElement slot)
         {
-            var row = ToolkitStepUx.InstantiatePart(
-                ToolkitStepTemplatePaths.SpecialScreenMailHeaderRowPart,
-                "special-mail-header-row-part");
-            if (row == null)
-                return;
+            slot = null;
+            if (!ToolkitStepUx.TryInstantiatePart(
+                    ToolkitStepTemplatePaths.SpecialScreenBlockSlotPart,
+                    "special-block-slot-part",
+                    nameof(SpecialScreenToolkitStep),
+                    context,
+                    out slot))
+                return false;
+
+            _blockArea.Add(slot);
+            _slots.Add(slot);
+            return true;
+        }
+
+        private static bool AddMailHeaderRow(
+            VisualElement parent,
+            string caption,
+            string value,
+            StepContext context)
+        {
+            if (!ToolkitStepUx.TryInstantiatePart(
+                    ToolkitStepTemplatePaths.SpecialScreenMailHeaderRowPart,
+                    "special-mail-header-row-part",
+                    nameof(SpecialScreenToolkitStep),
+                    context,
+                    out var row))
+                return false;
 
             var cap = row.Q<Label>("special-mail-row-caption");
             var val = row.Q<Label>("special-mail-row-value");
@@ -858,38 +903,67 @@ namespace LanguageGame.Presentation.Steps
                 val.text = value;
 
             parent.Add(row);
+            return true;
         }
 
-        private static VisualElement InstantiateMessengerChatRow(bool incoming) =>
-            ToolkitStepUx.InstantiatePart(
+        private static VisualElement InstantiateMessengerChatRow(bool incoming, StepContext context)
+        {
+            ToolkitStepUx.TryInstantiatePart(
                 incoming
                     ? ToolkitStepTemplatePaths.SpecialScreenChatRowIncomingPart
                     : ToolkitStepTemplatePaths.SpecialScreenChatRowOutgoingPart,
-                incoming ? "special-chat-row-incoming-part" : "special-chat-row-outgoing-part");
+                incoming ? "special-chat-row-incoming-part" : "special-chat-row-outgoing-part",
+                nameof(SpecialScreenToolkitStep),
+                context,
+                out var row);
+            return row;
+        }
 
         private static VisualElement GetMessengerBubbleFromRow(VisualElement row, bool incoming) =>
             row?.Q<VisualElement>(incoming ? "special-bubble-in-part" : "special-bubble-out-part");
 
-        private static void AddMessengerBubbleAuthor(VisualElement bubble, string author)
+        private static bool AddMessengerBubbleAuthor(VisualElement bubble, string author, StepContext context)
         {
-            var auth = ToolkitStepUx.InstantiatePart(
-                ToolkitStepTemplatePaths.SpecialScreenBubbleAuthorPart,
-                "special-bubble-author-part") as Label;
+            if (!ToolkitStepUx.TryInstantiatePart(
+                    ToolkitStepTemplatePaths.SpecialScreenBubbleAuthorPart,
+                    "special-bubble-author-part",
+                    nameof(SpecialScreenToolkitStep),
+                    context,
+                    out var authPart))
+                return false;
+
+            var auth = authPart as Label;
             if (auth == null)
-                return;
+            {
+                context?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                return false;
+            }
+
             auth.text = author.Trim();
-            bubble.Add(auth);
+            bubble.Add(authPart);
+            return true;
         }
 
-        private static void AddMessengerBubbleText(VisualElement bubble, string text)
+        private static bool AddMessengerBubbleText(VisualElement bubble, string text, StepContext context)
         {
-            var body = ToolkitStepUx.InstantiatePart(
-                ToolkitStepTemplatePaths.SpecialScreenBubbleTextPart,
-                "special-bubble-text-part") as Label;
+            if (!ToolkitStepUx.TryInstantiatePart(
+                    ToolkitStepTemplatePaths.SpecialScreenBubbleTextPart,
+                    "special-bubble-text-part",
+                    nameof(SpecialScreenToolkitStep),
+                    context,
+                    out var bodyPart))
+                return false;
+
+            var body = bodyPart as Label;
             if (body == null)
-                return;
+            {
+                context?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                return false;
+            }
+
             body.text = text;
-            bubble.Add(body);
+            bubble.Add(bodyPart);
+            return true;
         }
 
         private void OnMailSendClicked()
@@ -985,21 +1059,37 @@ namespace LanguageGame.Presentation.Steps
             ToolkitStepUx.SetOptionalLabel(subheadLabel, sub);
 
             ToolkitStepUx.ClearHost(bodyHost);
-            if (rc.showLineNumbers)
+            if (!string.IsNullOrEmpty(body))
             {
-                AddReaderLineNumberBlock(bodyHost, body);
-            }
-            else if (EffectiveColumnCount(rc) >= 2)
-            {
-                AddReaderTwoColumns(bodyHost, body);
-            }
-            else
-            {
-                var single = new Label(body);
-                single.AddToClassList("lg-text-body");
-                single.AddToClassList("lg-special-reader__body");
-                single.style.whiteSpace = WhiteSpace.Normal;
-                bodyHost.Add(single);
+                if (rc.showLineNumbers)
+                {
+                    if (!AddReaderLineNumberBlock(bodyHost, body, context))
+                        return false;
+                }
+                else if (EffectiveColumnCount(rc) >= 2)
+                {
+                    if (!AddReaderTwoColumns(bodyHost, body, context))
+                        return false;
+                }
+                else if (!ToolkitStepUx.TryInstantiatePart(
+                             ToolkitStepTemplatePaths.SpecialScreenReaderBodyLabelPart,
+                             "special-reader-body-label-part",
+                             nameof(SpecialScreenToolkitStep),
+                             context,
+                             out var singlePart))
+                {
+                    return false;
+                }
+                else if (singlePart is Label single)
+                {
+                    single.text = body;
+                    bodyHost.Add(singlePart);
+                }
+                else
+                {
+                    context?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                    return false;
+                }
             }
 
             return true;
@@ -1018,16 +1108,21 @@ namespace LanguageGame.Presentation.Steps
             };
         }
 
-        private static void AddReaderLineNumberBlock(VisualElement panel, string body)
+        private static bool AddReaderLineNumberBlock(VisualElement panel, string body, StepContext context)
         {
+            if (string.IsNullOrEmpty(body))
+                return true;
+
             var lineNo = 1;
             foreach (var line in SplitLinesPreserveTrailing(body))
             {
-                var row = ToolkitStepUx.InstantiatePart(
-                    ToolkitStepTemplatePaths.SpecialScreenReaderLineRowPart,
-                    "special-reader-line-row-part");
-                if (row == null)
-                    continue;
+                if (!ToolkitStepUx.TryInstantiatePart(
+                        ToolkitStepTemplatePaths.SpecialScreenReaderLineRowPart,
+                        "special-reader-line-row-part",
+                        nameof(SpecialScreenToolkitStep),
+                        context,
+                        out var row))
+                    return false;
 
                 var num = row.Q<Label>("special-reader-line-num");
                 var txt = row.Q<Label>("special-reader-line-text");
@@ -1039,6 +1134,8 @@ namespace LanguageGame.Presentation.Steps
                 panel.Add(row);
                 lineNo++;
             }
+
+            return true;
         }
 
         private static IEnumerable<string> SplitLinesPreserveTrailing(string body)
@@ -1057,11 +1154,11 @@ namespace LanguageGame.Presentation.Steps
         /// Prefer paragraph splits on <c>\n\n</c>; for a single block, split on the last space before the midpoint,
         /// or at a character midpoint when there is no suitable space.
         /// </remarks>
-        private static void AddReaderTwoColumns(VisualElement panel, string body)
+        private static bool AddReaderTwoColumns(VisualElement panel, string body, StepContext context)
         {
             var trimmed = (body ?? string.Empty).Trim();
             if (string.IsNullOrEmpty(trimmed))
-                return;
+                return true;
 
             var paragraphs = SplitParagraphList(trimmed);
             string leftText;
@@ -1080,30 +1177,51 @@ namespace LanguageGame.Presentation.Steps
                 leftText = SplitAtApproximateMidpoint(trimmed, out rightText);
             }
 
-            var row = new VisualElement();
-            row.AddToClassList("lg-special-reader__columns-row");
+            if (!ToolkitStepUx.TryInstantiatePart(
+                    ToolkitStepTemplatePaths.SpecialScreenReaderColumnsRowPart,
+                    "special-reader-columns-row-part",
+                    nameof(SpecialScreenToolkitStep),
+                    context,
+                    out var row))
+                return false;
 
-            var left = new VisualElement();
-            left.AddToClassList("lg-special-reader__column");
-            left.AddToClassList("lg-special-reader__column--first");
-            var l = new Label(leftText);
-            l.AddToClassList("lg-text-body");
-            l.AddToClassList("lg-special-reader__body");
-            l.style.whiteSpace = WhiteSpace.Normal;
-            left.Add(l);
+            var left = row.Q<VisualElement>("special-reader-column-first");
+            var right = row.Q<VisualElement>("special-reader-column-second");
+            if (left == null || right == null)
+            {
+                context?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                return false;
+            }
 
-            var right = new VisualElement();
-            right.AddToClassList("lg-special-reader__column");
-            right.AddToClassList("lg-special-reader__column--second");
-            var r = new Label(rightText);
-            r.AddToClassList("lg-text-body");
-            r.AddToClassList("lg-special-reader__body");
-            r.style.whiteSpace = WhiteSpace.Normal;
-            right.Add(r);
+            if (!ToolkitStepUx.TryInstantiatePart(
+                    ToolkitStepTemplatePaths.SpecialScreenReaderBodyLabelPart,
+                    "special-reader-body-label-part",
+                    nameof(SpecialScreenToolkitStep),
+                    context,
+                    out var leftPart) ||
+                leftPart is not Label leftLabel)
+                return false;
 
-            row.Add(left);
-            row.Add(right);
+            leftLabel.text = leftText;
+            left.Add(leftPart);
+
+            if (!string.IsNullOrEmpty(rightText))
+            {
+                if (!ToolkitStepUx.TryInstantiatePart(
+                        ToolkitStepTemplatePaths.SpecialScreenReaderBodyLabelPart,
+                        "special-reader-body-label-part",
+                        nameof(SpecialScreenToolkitStep),
+                        context,
+                        out var rightPart) ||
+                    rightPart is not Label rightLabel)
+                    return false;
+
+                rightLabel.text = rightText;
+                right.Add(rightPart);
+            }
+
             panel.Add(row);
+            return true;
         }
 
         private static string SplitAtApproximateMidpoint(string text, out string right)
@@ -1847,14 +1965,13 @@ namespace LanguageGame.Presentation.Steps
                 _slot = slot ?? throw new ArgumentNullException(nameof(slot));
                 ToolkitStepUx.ClearHost(_slot);
 
-                var panel = ToolkitStepUx.InstantiatePart(
-                    ToolkitStepTemplatePaths.StubTaskPanelPart,
-                    "stub-task-panel-part");
-                if (panel == null)
-                {
-                    _ready = false;
+                if (!ToolkitStepUx.TryInstantiatePart(
+                        ToolkitStepTemplatePaths.StubTaskPanelPart,
+                        "stub-task-panel-part",
+                        nameof(SpecialScreenToolkitStep),
+                        parentContext,
+                        out var panel))
                     return;
-                }
 
                 var dto = _dto ?? new SpecialScreenStubBlockDto();
 
@@ -1922,6 +2039,7 @@ namespace LanguageGame.Presentation.Steps
             private Label _slideshowIndexLabel;
             private Button _slideshowPrev;
             private Button _slideshowNext;
+            private StepContext _bindContext;
             private bool _binderReady;
 
             public PhotoViewerNestedBlock(SpecialScreenPhotoViewerChromeDto dto, MonoBehaviour coroutineHost)
@@ -1985,7 +2103,7 @@ namespace LanguageGame.Presentation.Steps
 
             public void Bind(VisualElement slot, StepContext context)
             {
-                _ = context;
+                _bindContext = context;
                 _binderReady = false;
                 slot.Clear();
 
@@ -1997,6 +2115,7 @@ namespace LanguageGame.Presentation.Steps
                 {
                     Debug.LogError(
                         $"[SpecialScreenToolkitStep] Missing photo chrome at Resources/{ToolkitStepTemplatePaths.SpecialScreenPhotoChrome}.");
+                    context?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
                     return;
                 }
 
@@ -2005,18 +2124,33 @@ namespace LanguageGame.Presentation.Steps
                     "photo-scroll",
                     nameof(SpecialScreenToolkitStep));
                 if (scroll == null)
+                {
+                    context?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
                     return;
+                }
 
                 ToolkitStepUx.ClearHost(scroll);
 
                 var pv = _dto;
-                if (!string.IsNullOrWhiteSpace(pv.prompt))
+                var promptText = pv.prompt?.Trim() ?? string.Empty;
+                if (promptText.Length > 0)
                 {
-                    var p = new Label(pv.prompt.Trim());
-                    p.AddToClassList("lg-text-body");
-                    p.style.whiteSpace = WhiteSpace.Normal;
-                    p.style.marginBottom = 8;
-                    scroll.Add(p);
+                    if (!ToolkitStepUx.TryInstantiatePart(
+                            ToolkitStepTemplatePaths.SpecialScreenPhotoPromptPart,
+                            "special-photo-prompt-part",
+                            nameof(SpecialScreenToolkitStep),
+                            _bindContext,
+                            out var promptPart))
+                        return;
+
+                    if (promptPart is not Label promptLabel)
+                    {
+                        _bindContext?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                        return;
+                    }
+
+                    promptLabel.text = promptText;
+                    scroll.Add(promptPart);
                 }
 
                 var items = pv.items;
@@ -2028,42 +2162,66 @@ namespace LanguageGame.Presentation.Steps
 
                 var mode = pv.displayMode?.Trim() ?? string.Empty;
                 var slideshow = string.Equals(mode, "slideshow", StringComparison.OrdinalIgnoreCase);
-                if (slideshow)
-                    BuildSlideshow(scroll, items);
-                else
-                    BuildGrid(scroll, items);
-
-                _binderReady = true;
+                _binderReady = slideshow
+                    ? BuildSlideshow(scroll, items)
+                    : BuildGrid(scroll, items);
             }
 
-            private void BuildGrid(ScrollView scroll, SpecialScreenPhotoItemDto[] items)
+            private bool TryInstantiateLearnerCaptionField(int itemIndex, out TextField field, VisualElement parent = null)
             {
-                var grid = new VisualElement();
-                grid.AddToClassList("lg-special-photo-grid");
+                field = null;
+                if (!ToolkitStepUx.TryInstantiatePart(
+                        ToolkitStepTemplatePaths.SpecialScreenPhotoLearnerFieldPart,
+                        "special-photo-learner-field-part",
+                        nameof(SpecialScreenToolkitStep),
+                        _bindContext,
+                        out var fieldPart))
+                    return false;
 
+                if (fieldPart is not TextField tf)
+                {
+                    _bindContext?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                    return false;
+                }
+
+                field = tf;
+                _learnerFields[itemIndex] = tf;
+                if (parent != null)
+                    parent.Add(fieldPart);
+                return true;
+            }
+
+            private bool BuildGrid(ScrollView scroll, SpecialScreenPhotoItemDto[] items)
+            {
+                if (!ToolkitStepUx.TryInstantiatePart(
+                        ToolkitStepTemplatePaths.SpecialScreenPhotoGridPart,
+                        "special-photo-grid-part",
+                        nameof(SpecialScreenToolkitStep),
+                        _bindContext,
+                        out var grid))
+                    return false;
+
+                var cellsAdded = 0;
                 for (var i = 0; i < items.Length; i++)
                 {
                     var it = items[i];
                     if (it == null)
                         continue;
 
-                    var cell = ToolkitStepUx.InstantiatePart(
-                        ToolkitStepTemplatePaths.SpecialScreenPhotoGridCellPart,
-                        "special-photo-grid-cell-part");
-                    if (cell == null)
-                        continue;
+                    if (!ToolkitStepUx.TryInstantiatePart(
+                            ToolkitStepTemplatePaths.SpecialScreenPhotoGridCellPart,
+                            "special-photo-grid-cell-part",
+                            nameof(SpecialScreenToolkitStep),
+                            _bindContext,
+                            out var cell))
+                        return false;
 
                     var imgHost = cell.Q<VisualElement>("special-photo-cell-image");
                     if (imgHost != null)
                         StartLoad(it.imageUrl, imgHost, null);
 
-                    if (it.requireLearnerCaption)
-                    {
-                        var tf = new TextField();
-                        tf.AddToClassList("lg-special-photo-field");
-                        _learnerFields[i] = tf;
-                        cell.Add(tf);
-                    }
+                    if (it.requireLearnerCaption && !TryInstantiateLearnerCaptionField(i, out _, cell))
+                        return false;
                     else if (_dto.showCaptions)
                     {
                         var capText = it.caption?.Trim() ?? string.Empty;
@@ -2076,66 +2234,58 @@ namespace LanguageGame.Presentation.Steps
                     }
 
                     grid.Add(cell);
+                    cellsAdded++;
+                }
+
+                if (cellsAdded == 0)
+                {
+                    _bindContext?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                    return false;
                 }
 
                 scroll.Add(grid);
+                return true;
             }
 
-            private void BuildSlideshow(ScrollView scroll, SpecialScreenPhotoItemDto[] items)
+            private bool BuildSlideshow(ScrollView scroll, SpecialScreenPhotoItemDto[] items)
             {
                 _slideshowItems = items;
                 _slideshowIndex = 0;
 
-                var stage = new VisualElement();
-                stage.AddToClassList("lg-special-photo-slideshow");
+                if (!ToolkitStepUx.TryInstantiatePart(
+                        ToolkitStepTemplatePaths.SpecialScreenPhotoSlideshowPart,
+                        "special-photo-slideshow-part",
+                        nameof(SpecialScreenToolkitStep),
+                        _bindContext,
+                        out var stage))
+                    return false;
 
-                _slideshowImageHost = new VisualElement();
-                _slideshowImageHost.AddToClassList("lg-special-photo-slideshow__image");
-                stage.Add(_slideshowImageHost);
+                _slideshowImageHost = stage.Q<VisualElement>("special-photo-image-host");
+                _slideshowCaptionHost = stage.Q<VisualElement>("special-photo-caption-host");
+                _slideshowPrev = stage.Q<Button>("special-photo-prev");
+                _slideshowNext = stage.Q<Button>("special-photo-next");
+                _slideshowIndexLabel = stage.Q<Label>("special-photo-index");
+                if (_slideshowImageHost == null || _slideshowCaptionHost == null || _slideshowPrev == null ||
+                    _slideshowNext == null || _slideshowIndexLabel == null)
+                {
+                    _bindContext?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                    return false;
+                }
 
-                _slideshowCaptionHost = new VisualElement();
-                _slideshowCaptionHost.AddToClassList("lg-special-photo-slideshow__caption");
-                _slideshowCaptionHost.style.flexDirection = FlexDirection.Column;
-                stage.Add(_slideshowCaptionHost);
-
-                var nav = new VisualElement();
-                nav.AddToClassList("lg-special-photo-slideshow__nav");
-                nav.style.flexDirection = FlexDirection.Row;
-                nav.style.alignItems = Align.Center;
-                nav.style.justifyContent = Justify.SpaceBetween;
-
-                _slideshowPrev = new Button { text = "\u2190" };
-                _slideshowPrev.AddToClassList("lg-btn");
-                _slideshowPrev.AddToClassList("lg-btn--secondary");
                 _slideshowPrev.clicked += OnSlideshowPrev;
-
-                var idxLabel = new Label();
-                idxLabel.AddToClassList("lg-text-caption");
-                _slideshowIndexLabel = idxLabel;
-
-                _slideshowNext = new Button { text = "\u2192" };
-                _slideshowNext.AddToClassList("lg-btn");
-                _slideshowNext.AddToClassList("lg-btn--secondary");
                 _slideshowNext.clicked += OnSlideshowNext;
-
-                nav.Add(_slideshowPrev);
-                nav.Add(idxLabel);
-                nav.Add(_slideshowNext);
-                stage.Add(nav);
 
                 for (var pi = 0; pi < items.Length; pi++)
                 {
                     var pit = items[pi];
-                    if (pit != null && pit.requireLearnerCaption && !_learnerFields.ContainsKey(pi))
-                    {
-                        var tf = new TextField();
-                        tf.AddToClassList("lg-special-photo-field");
-                        _learnerFields[pi] = tf;
-                    }
+                    if (pit != null && pit.requireLearnerCaption && !_learnerFields.ContainsKey(pi) &&
+                        !TryInstantiateLearnerCaptionField(pi, out _))
+                        return false;
                 }
 
                 scroll.Add(stage);
                 RefreshSlideshowSlide();
+                return true;
             }
 
             private void OnSlideshowPrev()
@@ -2192,20 +2342,24 @@ namespace LanguageGame.Presentation.Steps
                 {
                     if (!_learnerFields.TryGetValue(_slideshowIndex, out var tf) || tf == null)
                     {
-                        tf = new TextField();
-                        tf.AddToClassList("lg-special-photo-field");
-                        _learnerFields[_slideshowIndex] = tf;
+                        if (!TryInstantiateLearnerCaptionField(_slideshowIndex, out tf))
+                            return;
                     }
 
                     _slideshowCaptionHost.Add(tf);
                 }
-                else if (_dto.showCaptions)
+                else if (_dto.showCaptions &&
+                         ToolkitStepUx.TryInstantiatePart(
+                             ToolkitStepTemplatePaths.SpecialScreenPhotoCaptionFixedPart,
+                             "special-photo-caption-fixed-part",
+                             nameof(SpecialScreenToolkitStep),
+                             _bindContext,
+                             out var capPart) &&
+                         capPart is Label cap)
                 {
                     var capText = it.caption?.Trim() ?? string.Empty;
-                    var cap = new Label(string.IsNullOrEmpty(capText) ? "\u2014" : capText);
-                    cap.AddToClassList("lg-special-photo-caption--fixed");
-                    cap.style.whiteSpace = WhiteSpace.Normal;
-                    _slideshowCaptionHost.Add(cap);
+                    cap.text = string.IsNullOrEmpty(capText) ? "\u2014" : capText;
+                    _slideshowCaptionHost.Add(capPart);
                 }
 
                 if (_slideshowIndexLabel != null)
@@ -2220,11 +2374,13 @@ namespace LanguageGame.Presentation.Steps
                 target.Clear();
                 target.style.backgroundImage = StyleKeyword.None;
 
-                var err = new Label("Immagine non disponibile.");
-                err.AddToClassList("lg-text-caption");
-                err.AddToClassList("lg-text-muted");
-                err.style.whiteSpace = WhiteSpace.Normal;
-                target.Add(err);
+                if (ToolkitStepUx.TryInstantiatePart(
+                        ToolkitStepTemplatePaths.SpecialScreenPhotoLoadErrorPart,
+                        "special-photo-load-error-part",
+                        nameof(SpecialScreenToolkitStep),
+                        _bindContext,
+                        out var errPart))
+                    target.Add(errPart);
             }
 
             private void StartLoad(string url, VisualElement target, int? slideshowGeneration)

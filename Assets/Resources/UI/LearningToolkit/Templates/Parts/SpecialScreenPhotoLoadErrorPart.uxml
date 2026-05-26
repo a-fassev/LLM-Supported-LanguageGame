@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Label name="special-photo-load-error-part" text="Immagine non disponibile." class="lg-text-caption lg-text-muted"
+        style="white-space: normal;" />
+</ui:UXML>

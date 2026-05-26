@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Label name="special-photo-prompt-part" text="" class="lg-text-body"
+        style="white-space: normal; margin-bottom: 8px;" />
+</ui:UXML>

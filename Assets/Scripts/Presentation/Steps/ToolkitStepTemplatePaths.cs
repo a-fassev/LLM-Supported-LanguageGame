@@ -40,6 +40,11 @@ namespace LanguageGame.Presentation.Steps
 
         public const string MatchingCardPart = Parts + "/MatchingCardPart";
         public const string MatchingLeftRowPart = Parts + "/MatchingLeftRowPart";
+        public const string MatchingColumnHeaderPart = Parts + "/MatchingColumnHeaderPart";
+
+        public const string DragDropCaptionPart = Parts + "/DragDropCaptionPart";
+        public const string DragDropBankWrapPart = Parts + "/DragDropBankWrapPart";
+        public const string DragDropLineRowPart = Parts + "/DragDropLineRowPart";
 
         public const string SpecialScreenChatRowIncomingPart = Parts + "/SpecialScreenChatRowIncomingPart";
         public const string SpecialScreenChatRowOutgoingPart = Parts + "/SpecialScreenChatRowOutgoingPart";
@@ -49,6 +54,15 @@ namespace LanguageGame.Presentation.Steps
         public const string SpecialScreenMailHeaderRowPart = Parts + "/SpecialScreenMailHeaderRowPart";
         public const string SpecialScreenReaderLineRowPart = Parts + "/SpecialScreenReaderLineRowPart";
         public const string SpecialScreenPhotoGridCellPart = Parts + "/SpecialScreenPhotoGridCellPart";
+        public const string SpecialScreenPhotoGridPart = Parts + "/SpecialScreenPhotoGridPart";
+        public const string SpecialScreenPhotoSlideshowPart = Parts + "/SpecialScreenPhotoSlideshowPart";
+        public const string SpecialScreenPhotoPromptPart = Parts + "/SpecialScreenPhotoPromptPart";
+        public const string SpecialScreenPhotoCaptionFixedPart = Parts + "/SpecialScreenPhotoCaptionFixedPart";
+        public const string SpecialScreenPhotoLoadErrorPart = Parts + "/SpecialScreenPhotoLoadErrorPart";
+        public const string SpecialScreenPhotoLearnerFieldPart = Parts + "/SpecialScreenPhotoLearnerFieldPart";
+        public const string SpecialScreenBlockSlotPart = Parts + "/SpecialScreenBlockSlotPart";
+        public const string SpecialScreenReaderBodyLabelPart = Parts + "/SpecialScreenReaderBodyLabelPart";
+        public const string SpecialScreenReaderColumnsRowPart = Parts + "/SpecialScreenReaderColumnsRowPart";
         public const string StubTaskPanelPart = Parts + "/StubTaskPanelPart";
 
         private const string SpecialScreens = Root + "/SpecialScreens";

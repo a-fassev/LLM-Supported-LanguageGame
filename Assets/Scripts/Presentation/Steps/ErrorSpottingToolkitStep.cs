@@ -323,10 +323,12 @@ namespace LanguageGame.Presentation.Steps
         {
             if (!_slotById.TryGetValue(id, out var slot))
             {
-                slot = ToolkitStepUx.InstantiatePart(
-                    ToolkitStepTemplatePaths.ErrorSpottingSlotPart,
-                    "error-spotting-slot-part");
-                if (slot == null)
+                if (!ToolkitStepUx.TryInstantiatePart(
+                        ToolkitStepTemplatePaths.ErrorSpottingSlotPart,
+                        "error-spotting-slot-part",
+                        nameof(ErrorSpottingToolkitStep),
+                        _context,
+                        out slot))
                     return;
                 _slotById[id] = slot;
                 _chipsRow.Add(slot);
@@ -343,9 +345,15 @@ namespace LanguageGame.Presentation.Steps
 
             if (!_selectedSegmentIds.Contains(id))
             {
-                var btn = ToolkitStepUx.InstantiatePart(
-                    ToolkitStepTemplatePaths.ErrorSpottingChipPart,
-                    "error-spotting-chip-part") as Button;
+                if (!ToolkitStepUx.TryInstantiatePart(
+                        ToolkitStepTemplatePaths.ErrorSpottingChipPart,
+                        "error-spotting-chip-part",
+                        nameof(ErrorSpottingToolkitStep),
+                        _context,
+                        out var btnPart))
+                    return;
+
+                var btn = btnPart as Button;
                 if (btn == null)
                     return;
                 btn.text = chipText;
@@ -360,9 +368,15 @@ namespace LanguageGame.Presentation.Steps
             if (_correctionDrafts.TryGetValue(id, out var draft))
                 initial = draft;
 
-            var tf = ToolkitStepUx.InstantiatePart(
-                ToolkitStepTemplatePaths.ErrorSpottingInlineFieldPart,
-                "error-spotting-inline-field-part") as TextField;
+            if (!ToolkitStepUx.TryInstantiatePart(
+                    ToolkitStepTemplatePaths.ErrorSpottingInlineFieldPart,
+                    "error-spotting-inline-field-part",
+                    nameof(ErrorSpottingToolkitStep),
+                    _context,
+                    out var tfPart))
+                return;
+
+            var tf = tfPart as TextField;
             if (tf == null)
                 return;
 

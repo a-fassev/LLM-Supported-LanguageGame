@@ -69,11 +69,13 @@ namespace LanguageGame.Presentation.Steps
                 if (line?.segments == null || line.segments.Length == 0)
                     continue;
 
-                var row = ToolkitStepUx.InstantiatePart(
-                    ToolkitStepTemplatePaths.ClozeLineRowPart,
-                    "cloze-line-row-part");
-                if (row == null)
-                    continue;
+                if (!ToolkitStepUx.TryInstantiatePart(
+                        ToolkitStepTemplatePaths.ClozeLineRowPart,
+                        "cloze-line-row-part",
+                        nameof(ClozeTextToolkitStep),
+                        context,
+                        out var row))
+                    return;
 
                 var hasContent = false;
                 foreach (var seg in line.segments)
@@ -86,15 +88,21 @@ namespace LanguageGame.Presentation.Steps
                     {
                         if (!string.IsNullOrEmpty(seg.text))
                         {
-                            var lit = ToolkitStepUx.InstantiatePart(
-                                ToolkitStepTemplatePaths.ClozeLiteralPart,
-                                "cloze-literal-part") as Label;
-                            if (lit != null)
-                            {
-                                lit.text = seg.text;
-                                row.Add(lit);
-                                hasContent = true;
-                            }
+                            if (!ToolkitStepUx.TryInstantiatePart(
+                                    ToolkitStepTemplatePaths.ClozeLiteralPart,
+                                    "cloze-literal-part",
+                                    nameof(ClozeTextToolkitStep),
+                                    context,
+                                    out var litPart))
+                                return;
+
+                            var lit = litPart as Label;
+                            if (lit == null)
+                                return;
+
+                            lit.text = seg.text;
+                            row.Add(litPart);
+                            hasContent = true;
                         }
 
                         continue;
@@ -104,11 +112,17 @@ namespace LanguageGame.Presentation.Steps
                         continue;
 
                     var gapInsensitive = ResolveGapCaseInsensitive(rootInsensitive, seg.ignoreCase);
-                    var tf = ToolkitStepUx.InstantiatePart(
-                        ToolkitStepTemplatePaths.ClozeGapFieldPart,
-                        "cloze-gap-field-part") as TextField;
+                    if (!ToolkitStepUx.TryInstantiatePart(
+                            ToolkitStepTemplatePaths.ClozeGapFieldPart,
+                            "cloze-gap-field-part",
+                            nameof(ClozeTextToolkitStep),
+                            context,
+                            out var tfPart))
+                        return;
+
+                    var tf = tfPart as TextField;
                     if (tf == null)
-                        continue;
+                        return;
 
                     if (seg.maxLength > 0)
                         tf.maxLength = Mathf.Clamp(seg.maxLength, 1, 256);

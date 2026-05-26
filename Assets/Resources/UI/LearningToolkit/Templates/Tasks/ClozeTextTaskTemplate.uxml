@@ -1,27 +1,36 @@
-<!-- UI Builder: fixtures under cloze-lines-host only; runtime clears host on Bind. -->
+<!-- UI Builder: fixtures mirror Templates/Parts; runtime clears cloze-lines-host on Bind. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="cloze-text-root" class="lg-muted-panel lg-task-template-root"
         style="flex-grow: 1; flex-direction: column;">
         <ui:Label name="task-prompt" text="Completa le lacune con la parola giusta." class="lg-heading-screen lg-preview-sample"
             style="margin-bottom: 16px; white-space: normal;" />
         <ui:VisualElement name="cloze-lines-host" style="flex-grow: 1;">
-            <ui:VisualElement class="lg-preview-sample"
+            <ui:VisualElement name="cloze-line-row-part" class="lg-preview-sample"
                 style="flex-direction: row; flex-wrap: wrap; align-items: center; margin-bottom: 10px;">
-                <ui:Label text="Io " class="lg-text-body" style="margin-right: 6px; white-space: normal;" />
-                <ui:TextField value="sono" class="lg-textfield" style="min-width: 100px; margin-right: 6px;" />
-                <ui:Label text=" italiano." class="lg-text-body" style="white-space: normal;" />
+                <ui:Label name="cloze-literal-part" text="Io " class="lg-text-body"
+                    style="white-space: normal; margin-right: 6px;" />
+                <ui:TextField name="cloze-gap-field-part" value="sono" class="lg-textfield"
+                    style="min-width: 100px; margin-right: 6px;" />
+                <ui:Label name="cloze-literal-part" text=" italiano." class="lg-text-body"
+                    style="white-space: normal; margin-right: 6px;" />
             </ui:VisualElement>
-            <ui:VisualElement class="lg-preview-sample"
+            <ui:VisualElement name="cloze-line-row-part" class="lg-preview-sample"
                 style="flex-direction: row; flex-wrap: wrap; align-items: center; margin-bottom: 10px;">
-                <ui:Label text="La pizza " class="lg-text-body" style="margin-right: 6px; white-space: normal;" />
-                <ui:TextField value="è" class="lg-textfield" style="min-width: 80px; margin-right: 6px;" />
-                <ui:Label text=" buonissima." class="lg-text-body" style="white-space: normal;" />
+                <ui:Label name="cloze-literal-part" text="La pizza " class="lg-text-body"
+                    style="white-space: normal; margin-right: 6px;" />
+                <ui:TextField name="cloze-gap-field-part" value="è" class="lg-textfield"
+                    style="min-width: 80px; margin-right: 6px;" />
+                <ui:Label name="cloze-literal-part" text=" buonissima." class="lg-text-body"
+                    style="white-space: normal; margin-right: 6px;" />
             </ui:VisualElement>
-            <ui:VisualElement class="lg-preview-sample"
+            <ui:VisualElement name="cloze-line-row-part" class="lg-preview-sample"
                 style="flex-direction: row; flex-wrap: wrap; align-items: center; margin-bottom: 10px;">
-                <ui:Label text="Domani " class="lg-text-body" style="margin-right: 6px; white-space: normal;" />
-                <ui:TextField value="andiamo" class="lg-textfield" style="min-width: 120px; margin-right: 6px;" />
-                <ui:Label text=" al mercato." class="lg-text-body" style="white-space: normal;" />
+                <ui:Label name="cloze-literal-part" text="Domani " class="lg-text-body"
+                    style="white-space: normal; margin-right: 6px;" />
+                <ui:TextField name="cloze-gap-field-part" value="andiamo" class="lg-textfield"
+                    style="min-width: 120px; margin-right: 6px;" />
+                <ui:Label name="cloze-literal-part" text=" al mercato." class="lg-text-body"
+                    style="white-space: normal; margin-right: 6px;" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

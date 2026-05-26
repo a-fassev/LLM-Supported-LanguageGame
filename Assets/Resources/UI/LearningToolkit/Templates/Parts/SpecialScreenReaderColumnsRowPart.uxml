@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="special-reader-columns-row-part" class="lg-special-reader__columns-row">
+        <ui:VisualElement name="special-reader-column-first" class="lg-special-reader__column lg-special-reader__column--first" />
+        <ui:VisualElement name="special-reader-column-second" class="lg-special-reader__column lg-special-reader__column--second" />
+    </ui:VisualElement>
+</ui:UXML>

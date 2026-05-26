@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="bank-wrap"
+        style="flex-direction: row; flex-wrap: wrap; margin-top: 4px;" />
+</ui:UXML>

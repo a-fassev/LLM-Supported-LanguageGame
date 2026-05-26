@@ -3,5 +3,8 @@
         <ui:VisualElement name="special-photo-cell-image" class="lg-special-photo-cell__image" />
         <ui:Label name="special-photo-cell-caption" text="" class="lg-special-photo-caption--fixed"
             style="white-space: normal; display: none;" />
+        <!-- UI Builder sample (optional): clone SpecialScreenPhotoLearnerFieldPart structure here. -->
+        <ui:TextField name="special-photo-learner-field-part" class="lg-special-photo-field"
+            style="display: none;" />
     </ui:VisualElement>
 </ui:UXML>

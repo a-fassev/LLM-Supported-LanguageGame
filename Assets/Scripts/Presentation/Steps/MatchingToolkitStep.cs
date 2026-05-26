@@ -142,30 +142,32 @@ namespace LanguageGame.Presentation.Steps
             ToolkitStepUx.SetOptionalLabel(_subtitleLabel, dto.subtitle?.Trim());
 
             var pres = dto.presentation ?? new MatchingPresentationDto();
-            var leftHeader = new Label(string.IsNullOrWhiteSpace(pres.leftLabel) ? "Sinistra" : pres.leftLabel.Trim());
-            leftHeader.AddToClassList("lg-text-caption");
-            leftHeader.style.marginBottom = 6;
-            _leftColumn.Add(leftHeader);
+            if (!AddColumnHeader(
+                    _leftColumn,
+                    string.IsNullOrWhiteSpace(pres.leftLabel) ? "Sinistra" : pres.leftLabel.Trim(),
+                    context))
+                return;
 
-            var rightHeader = new Label(string.IsNullOrWhiteSpace(pres.rightLabel) ? "Destra" : pres.rightLabel.Trim());
-            rightHeader.AddToClassList("lg-text-caption");
-            rightHeader.style.marginBottom = 6;
-            _rightColumn.Add(rightHeader);
+            if (!AddColumnHeader(
+                    _rightColumn,
+                    string.IsNullOrWhiteSpace(pres.rightLabel) ? "Destra" : pres.rightLabel.Trim(),
+                    context))
+                return;
 
             var leftOrder = BuildLeftOrder(dto);
             foreach (var id in leftOrder)
             {
                 var def = FindItem(dto.leftItems, id);
-                if (def != null)
-                    AddLeftTile(def);
+                if (def != null && !AddLeftTile(def))
+                    return;
             }
 
             var rightOrder = BuildRightOrder(dto, pres.shuffleRightOrder);
             foreach (var id in rightOrder)
             {
                 var def = FindItem(dto.rightItems, id);
-                if (def != null)
-                    AddRightTile(def);
+                if (def != null && !AddRightTile(def))
+                    return;
             }
 
             _contentReady = _leftById.Count > 0 && _rightById.Count > 0 && _expectedLeftToRight.Count > 0;
@@ -596,12 +598,33 @@ namespace LanguageGame.Presentation.Steps
             }).ExecuteLater(0);
         }
 
+        private static bool AddColumnHeader(VisualElement column, string text, StepContext context)
+        {
+            if (!ToolkitStepUx.TryInstantiatePart(
+                    ToolkitStepTemplatePaths.MatchingColumnHeaderPart,
+                    "matching-column-header-part",
+                    nameof(MatchingToolkitStep),
+                    context,
+                    out var headerRoot))
+                return false;
+
+            var header = headerRoot as Label;
+            if (header == null)
+                return false;
+
+            header.text = text;
+            column.Add(headerRoot);
+            return true;
+        }
+
         private VisualElement BuildMatchingCard(MatchingItemDto def, string itemId)
         {
-            var card = ToolkitStepUx.InstantiatePart(
-                ToolkitStepTemplatePaths.MatchingCardPart,
-                "matching-card-part");
-            if (card == null)
+            if (!ToolkitStepUx.TryInstantiatePart(
+                    ToolkitStepTemplatePaths.MatchingCardPart,
+                    "matching-card-part",
+                    nameof(MatchingToolkitStep),
+                    _context,
+                    out var card))
                 return null;
 
             var text = string.IsNullOrWhiteSpace(def.label) ? itemId : def.label.Trim();
@@ -624,26 +647,28 @@ namespace LanguageGame.Presentation.Steps
             return card;
         }
 
-        private void AddLeftTile(MatchingItemDto def)
+        private bool AddLeftTile(MatchingItemDto def)
         {
             var itemId = def.id.Trim();
 
-            var outer = ToolkitStepUx.InstantiatePart(
-                ToolkitStepTemplatePaths.MatchingLeftRowPart,
-                "matching-left-row-part");
-            if (outer == null)
-                return;
+            if (!ToolkitStepUx.TryInstantiatePart(
+                    ToolkitStepTemplatePaths.MatchingLeftRowPart,
+                    "matching-left-row-part",
+                    nameof(MatchingToolkitStep),
+                    _context,
+                    out var outer))
+                return false;
 
             outer.name = $"match_left_{itemId}";
             outer.userData = itemId;
 
             var cardHost = outer.Q<VisualElement>("matching-left-card-host");
             if (cardHost == null)
-                return;
+                return false;
 
             var card = BuildMatchingCard(def, itemId);
             if (card == null)
-                return;
+                return false;
 
             card.style.flexGrow = 1;
             card.focusable = true;
@@ -676,14 +701,15 @@ namespace LanguageGame.Presentation.Steps
                 _unlinkByLeftId[itemId] = unlink;
 
             AttachLeftHandlers(card, itemId);
+            return true;
         }
 
-        private void AddRightTile(MatchingItemDto def)
+        private bool AddRightTile(MatchingItemDto def)
         {
             var itemId = def.id.Trim();
             var card = BuildMatchingCard(def, itemId);
             if (card == null)
-                return;
+                return false;
 
             card.name = $"match_tile_{itemId}";
             card.userData = itemId;
@@ -692,6 +718,7 @@ namespace LanguageGame.Presentation.Steps
 
             _rightColumn.Add(card);
             _rightById[itemId] = card;
+            return true;
         }
 
         private IEnumerator LoadImg(string url, VisualElement ve)

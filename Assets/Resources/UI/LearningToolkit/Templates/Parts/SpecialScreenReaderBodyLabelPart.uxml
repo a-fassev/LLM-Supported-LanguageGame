@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Label name="special-reader-body-label-part" text="" class="lg-text-body lg-special-reader__body"
+        style="white-space: normal;" />
+</ui:UXML>

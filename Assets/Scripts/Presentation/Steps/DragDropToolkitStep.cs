@@ -110,10 +110,14 @@ namespace LanguageGame.Presentation.Steps
 
             if (isLines)
             {
-                var bw = new VisualElement();
-                bw.name = "bank-wrap";
-                bw.style.flexDirection = FlexDirection.Row;
-                bw.style.flexWrap = Wrap.Wrap;
+                if (!ToolkitStepUx.TryInstantiatePart(
+                        ToolkitStepTemplatePaths.DragDropBankWrapPart,
+                        "bank-wrap",
+                        nameof(DragDropToolkitStep),
+                        context,
+                        out var bw))
+                    return;
+
                 _bankHost.Add(bw);
             }
 
@@ -122,31 +126,38 @@ namespace LanguageGame.Presentation.Steps
                 var srcLabel = presentation.sourceLabel?.Trim() ?? string.Empty;
                 if (srcLabel.Length == 0)
                     srcLabel = DefaultBlocksSourceLabel;
-                var sl = new Label(srcLabel);
-                sl.AddToClassList("lg-text-caption");
-                _bankHost.Add(sl);
-                var wrap = new VisualElement();
-                wrap.style.flexDirection = FlexDirection.Row;
-                wrap.style.flexWrap = Wrap.Wrap;
-                wrap.name = "bank-wrap";
+                if (!AddCaptionLabel(_bankHost, srcLabel, context))
+                    return;
+
+                if (!ToolkitStepUx.TryInstantiatePart(
+                        ToolkitStepTemplatePaths.DragDropBankWrapPart,
+                        "bank-wrap",
+                        nameof(DragDropToolkitStep),
+                        context,
+                        out var wrap))
+                    return;
+
                 _bankHost.Add(wrap);
 
                 var tgtLabel = presentation.targetLabel?.Trim() ?? string.Empty;
                 if (tgtLabel.Length == 0)
                     tgtLabel = DefaultBlocksTargetLabel;
-                var tl = new Label(tgtLabel);
-                tl.AddToClassList("lg-text-caption");
-                tl.style.marginBottom = 6;
-                _targetsHost.Add(tl);
+                if (!AddCaptionLabel(_targetsHost, tgtLabel, context, marginBottom: 6))
+                    return;
             }
 
             VisualElement bankWrap = _bankHost.Q<VisualElement>("bank-wrap") ?? _bankHost;
 
             if (!isLines)
+            {
                 foreach (var t in dto.targets)
-                    BuildBlockTarget(t);
-            else
-                BuildLinesLayout(dto);
+                {
+                    if (!BuildBlockTarget(t))
+                        return;
+                }
+            }
+            else if (!BuildLinesLayout(dto))
+                return;
 
             foreach (var tid in _targetInnerHosts.Keys)
                 _occupant[tid] = new HashSet<string>(StringComparer.Ordinal);
@@ -155,8 +166,8 @@ namespace LanguageGame.Presentation.Steps
             foreach (var id in order)
             {
                 var def = FindItem(dto, id);
-                if (def != null)
-                    CreateBankTile(def, bankWrap);
+                if (def != null && !CreateBankTile(def, bankWrap))
+                    return;
             }
 
             _contentReady = _itemTiles.Count > 0 && _targetInnerHosts.Count > 0;
@@ -330,17 +341,41 @@ namespace LanguageGame.Presentation.Steps
             return true;
         }
 
-        private void BuildBlockTarget(DragDropTargetDto t)
+        private static bool AddCaptionLabel(VisualElement host, string text, StepContext context, int marginBottom = 0)
+        {
+            if (!ToolkitStepUx.TryInstantiatePart(
+                    ToolkitStepTemplatePaths.DragDropCaptionPart,
+                    "drag-drop-caption-part",
+                    nameof(DragDropToolkitStep),
+                    context,
+                    out var captionRoot))
+                return false;
+
+            var caption = captionRoot as Label;
+            if (caption == null)
+                return false;
+
+            caption.text = text;
+            if (marginBottom > 0)
+                caption.style.marginBottom = marginBottom;
+
+            host.Add(captionRoot);
+            return true;
+        }
+
+        private bool BuildBlockTarget(DragDropTargetDto t)
         {
             if (t == null || string.IsNullOrWhiteSpace(t.id))
-                return;
+                return true;
             var tid = t.id.Trim();
 
-            var block = ToolkitStepUx.InstantiatePart(
-                ToolkitStepTemplatePaths.DragDropTargetBlockPart,
-                "drag-drop-target-block-part");
-            if (block == null)
-                return;
+            if (!ToolkitStepUx.TryInstantiatePart(
+                    ToolkitStepTemplatePaths.DragDropTargetBlockPart,
+                    "drag-drop-target-block-part",
+                    nameof(DragDropToolkitStep),
+                    _context,
+                    out var block))
+                return false;
 
             var title = block.Q<Label>("drag-drop-target-title");
             if (title != null)
@@ -351,17 +386,19 @@ namespace LanguageGame.Presentation.Steps
 
             var dropZone = block.Q<VisualElement>("drag-drop-drop-zone");
             if (dropZone == null)
-                return;
+                return false;
 
             dropZone.style.backgroundColor = new Color(0.55f, 0.62f, 0.85f, 0.35f);
             dropZone.userData = tid;
             _pickupZones.Add(dropZone);
 
-            var inner = ToolkitStepUx.InstantiatePart(
-                ToolkitStepTemplatePaths.DragDropDropZoneInnerPart,
-                "drag-drop-drop-zone-inner-part");
-            if (inner == null)
-                return;
+            if (!ToolkitStepUx.TryInstantiatePart(
+                    ToolkitStepTemplatePaths.DragDropDropZoneInnerPart,
+                    "drag-drop-drop-zone-inner-part",
+                    nameof(DragDropToolkitStep),
+                    _context,
+                    out var inner))
+                return false;
 
             inner.style.justifyContent = _blocksMode ? Justify.FlexStart : Justify.Center;
             var hint = inner.Q<Label>("drag-drop-drop-hint");
@@ -372,21 +409,24 @@ namespace LanguageGame.Presentation.Steps
             _targetsHost.Add(block);
 
             _targetInnerHosts[tid] = inner;
+            return true;
         }
 
-        private void BuildLinesLayout(DragDropContentDto dto)
+        private bool BuildLinesLayout(DragDropContentDto dto)
         {
             if (dto.lines == null)
-                return;
+                return true;
             foreach (var line in dto.lines)
             {
                 if (line?.segments == null || line.segments.Length == 0)
                     continue;
-                var row = new VisualElement();
-                row.style.flexDirection = FlexDirection.Row;
-                row.style.flexWrap = Wrap.Wrap;
-                row.style.alignItems = Align.Center;
-                row.style.marginBottom = 10;
+                if (!ToolkitStepUx.TryInstantiatePart(
+                        ToolkitStepTemplatePaths.DragDropLineRowPart,
+                        "drag-drop-line-row-part",
+                        nameof(DragDropToolkitStep),
+                        _context,
+                        out var row))
+                    return false;
 
                 foreach (var seg in line.segments)
                 {
@@ -395,10 +435,20 @@ namespace LanguageGame.Presentation.Steps
                     var k = seg.kind.Trim();
                     if (string.Equals(k, "text", StringComparison.OrdinalIgnoreCase))
                     {
-                        var lit = new Label(seg.text ?? string.Empty);
-                        lit.AddToClassList("lg-text-body");
-                        lit.style.marginRight = 6;
-                        row.Add(lit);
+                        if (!ToolkitStepUx.TryInstantiatePart(
+                                ToolkitStepTemplatePaths.ClozeLiteralPart,
+                                "cloze-literal-part",
+                                nameof(DragDropToolkitStep),
+                                _context,
+                                out var litPart))
+                            return false;
+
+                        var lit = litPart as Label;
+                        if (lit == null)
+                            return false;
+
+                        lit.text = seg.text ?? string.Empty;
+                        row.Add(litPart);
                         continue;
                     }
 
@@ -408,18 +458,20 @@ namespace LanguageGame.Presentation.Steps
                     if (string.IsNullOrEmpty(slotId))
                         continue;
 
-                    var slot = ToolkitStepUx.InstantiatePart(
-                        ToolkitStepTemplatePaths.DragDropLineSlotPart,
-                        "drag-drop-line-slot-part");
-                    if (slot == null)
-                        continue;
+                    if (!ToolkitStepUx.TryInstantiatePart(
+                            ToolkitStepTemplatePaths.DragDropLineSlotPart,
+                            "drag-drop-line-slot-part",
+                            nameof(DragDropToolkitStep),
+                            _context,
+                            out var slot))
+                        return false;
 
                     slot.userData = slotId;
                     _pickupZones.Add(slot);
 
                     var inner = slot.Q<VisualElement>("drag-drop-line-slot-inner");
                     if (inner == null)
-                        continue;
+                        return false;
 
                     var hint = inner.Q<Label>("drag-drop-drop-hint");
                     if (hint != null)
@@ -431,16 +483,20 @@ namespace LanguageGame.Presentation.Steps
 
                 _targetsHost.Add(row);
             }
+
+            return true;
         }
 
-        private void CreateBankTile(DragDropItemDto def, VisualElement bankWrap)
+        private bool CreateBankTile(DragDropItemDto def, VisualElement bankWrap)
         {
             var itemId = def.id.Trim();
-            var card = ToolkitStepUx.InstantiatePart(
-                ToolkitStepTemplatePaths.DragDropTilePart,
-                "drag-drop-tile-part");
-            if (card == null)
-                return;
+            if (!ToolkitStepUx.TryInstantiatePart(
+                    ToolkitStepTemplatePaths.DragDropTilePart,
+                    "drag-drop-tile-part",
+                    nameof(DragDropToolkitStep),
+                    _context,
+                    out var card))
+                return false;
 
             card.name = $"tile_{itemId}";
             card.userData = itemId;
@@ -466,6 +522,7 @@ namespace LanguageGame.Presentation.Steps
             bankWrap.Add(card);
             _itemTiles[itemId] = card;
             RefreshHints();
+            return true;
         }
 
         private void StopImageLoads()

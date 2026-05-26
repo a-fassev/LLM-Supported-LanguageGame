@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Label name="matching-column-header-part" text="" class="lg-text-caption"
+        style="margin-bottom: 6px;" />
+</ui:UXML>
