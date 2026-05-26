@@ -72,7 +72,7 @@ namespace LanguageGame.Presentation.Steps
             _onRequest = onRequest;
             StopImageLoads();
 
-            if (!ToolkitStepUx.GuardTemplateReady(_uiReady && _bankHost != null && _targetsHost != null, context))
+            if (!ToolkitStepUx.GuardTemplateReady(_uiReady, context, _bankHost, _targetsHost, _dragLayer))
                 return;
 
             _bankHost.Clear();

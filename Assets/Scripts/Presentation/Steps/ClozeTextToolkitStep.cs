@@ -46,7 +46,7 @@ namespace LanguageGame.Presentation.Steps
             _gaps.Clear();
             _contentReady = false;
 
-            if (!ToolkitStepUx.GuardTemplateReady(_uiReady && _linesHost != null, context))
+            if (!ToolkitStepUx.GuardTemplateReady(_uiReady, context, _linesHost))
                 return;
 
             _linesHost.Clear();

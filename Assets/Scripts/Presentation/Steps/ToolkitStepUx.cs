@@ -29,18 +29,11 @@ namespace LanguageGame.Presentation.Steps
                 return false;
             }
 
-            template.CloneTree(host);
-            root = string.IsNullOrEmpty(rootElementName)
-                ? (host.childCount > 0 ? host[host.childCount - 1] : null)
-                : host.Q<VisualElement>(rootElementName);
-
+            root = DetachTemplateRoot(template, resourcesPath, rootElementName);
             if (root == null)
-            {
-                Debug.LogError(
-                    $"[ToolkitStepUx] Template '{resourcesPath}' has no root named '{rootElementName}'.");
                 return false;
-            }
 
+            host.Add(root);
             return true;
         }
 
@@ -52,31 +45,10 @@ namespace LanguageGame.Presentation.Steps
         public static VisualElement Instantiate(
             VisualTreeAsset template,
             string resourcesPathForLogs,
-            string rootElementName)
-        {
-            if (template == null)
-            {
-                Debug.LogError(
-                    $"[ToolkitStepUx] Missing VisualTreeAsset at Resources/{resourcesPathForLogs}.");
-                return null;
-            }
-
-            var wrapper = new VisualElement();
-            template.CloneTree(wrapper);
-            var root = string.IsNullOrEmpty(rootElementName)
-                ? (wrapper.childCount > 0 ? wrapper[0] : null)
-                : wrapper.Q<VisualElement>(rootElementName);
-
-            if (root == null)
-            {
-                Debug.LogError(
-                    $"[ToolkitStepUx] Template '{resourcesPath}' has no root named '{rootElementName}'.");
-                return null;
-            }
-
-            root.RemoveFromHierarchy();
-            return root;
-        }
+            string rootElementName) =>
+            template == null
+                ? LogMissingTemplate(resourcesPathForLogs)
+                : DetachTemplateRoot(template, resourcesPathForLogs, rootElementName);
 
         public static T Query<T>(VisualElement root, string elementName, string ownerStepName)
             where T : VisualElement
@@ -111,13 +83,27 @@ namespace LanguageGame.Presentation.Steps
             label.text = text ?? string.Empty;
         }
 
-        public static bool GuardTemplateReady(bool uiReady, StepContext context)
+        public static bool GuardTemplateReady(bool uiReady, StepContext context, params VisualElement[] requiredSlots)
         {
-            if (uiReady)
+            if (!uiReady)
+            {
+                context?.presentValidationMessage?.Invoke(TemplateLoadFailedMessage);
+                return false;
+            }
+
+            if (requiredSlots == null)
                 return true;
 
-            context?.presentValidationMessage?.Invoke(TemplateLoadFailedMessage);
-            return false;
+            foreach (var slot in requiredSlots)
+            {
+                if (slot != null)
+                    continue;
+
+                context?.presentValidationMessage?.Invoke(TemplateLoadFailedMessage);
+                return false;
+            }
+
+            return true;
         }
 
         public static void ApplyMutedTaskChrome(VisualElement root, bool useMutedChrome)
@@ -135,6 +121,35 @@ namespace LanguageGame.Presentation.Steps
                 root.RemoveFromClassList("lg-muted-panel");
                 root.RemoveFromClassList("lg-task-template-root");
             }
+        }
+
+        private static VisualElement DetachTemplateRoot(
+            VisualTreeAsset template,
+            string resourcesPathForLogs,
+            string rootElementName)
+        {
+            var wrapper = new VisualElement();
+            template.CloneTree(wrapper);
+            var root = string.IsNullOrEmpty(rootElementName)
+                ? (wrapper.childCount > 0 ? wrapper[0] : null)
+                : wrapper.Q<VisualElement>(rootElementName);
+
+            if (root != null)
+            {
+                root.RemoveFromHierarchy();
+                return root;
+            }
+
+            Debug.LogError(
+                $"[ToolkitStepUx] Template '{resourcesPathForLogs}' has no root named '{rootElementName}'.");
+            return null;
+        }
+
+        private static VisualElement LogMissingTemplate(string resourcesPathForLogs)
+        {
+            Debug.LogError(
+                $"[ToolkitStepUx] Missing VisualTreeAsset at Resources/{resourcesPathForLogs}.");
+            return null;
         }
     }
 }

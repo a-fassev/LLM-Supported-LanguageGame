@@ -104,9 +104,7 @@ namespace LanguageGame.Presentation.Steps
             StopImageLoads();
             TeardownBindings();
 
-            if (!ToolkitStepUx.GuardTemplateReady(
-                    _uiReady && _leftColumn != null && _rightColumn != null && _lineLayer != null,
-                    context))
+            if (!ToolkitStepUx.GuardTemplateReady(_uiReady, context, _leftColumn, _rightColumn, _lineLayer))
                 return;
 
             ToolkitStepUx.SetOptionalLabel(_promptLabel, null);

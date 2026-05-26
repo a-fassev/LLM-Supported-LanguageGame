@@ -75,7 +75,7 @@ namespace LanguageGame.Presentation.Steps
             _evaluating = false;
             _queuedEvaluationGateToken = null;
 
-            if (!ToolkitStepUx.GuardTemplateReady(_uiReady && _answerField != null, context))
+            if (!ToolkitStepUx.GuardTemplateReady(_uiReady, context, _answerField, _statsLabel))
                 return;
 
             _gameApi = context?.gameProgressApi != null

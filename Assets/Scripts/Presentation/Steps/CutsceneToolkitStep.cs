@@ -53,7 +53,7 @@ namespace LanguageGame.Presentation.Steps
 
         public void Bind(StepContext context, Action<StepCompletionRequest> onRequest)
         {
-            if (!ToolkitStepUx.GuardTemplateReady(_uiReady && _beatHost != null, context))
+            if (!ToolkitStepUx.GuardTemplateReady(_uiReady, context, _beatHost))
             {
                 _isContentValid = false;
                 return;
@@ -204,29 +204,42 @@ namespace LanguageGame.Presentation.Steps
                 return;
             }
 
-            var mode = (beat.presentationMode ?? "narrator").Trim();
-            switch (mode.ToLowerInvariant())
+            if (!TryAddBeatPanel(BuildBeatPanel(beat)))
             {
-                case "npcdialog":
-                    _beatHost.Add(BuildNpcDialog(beat));
-                    break;
-                case "innermonologue":
-                    _beatHost.Add(BuildThoughtPanel(beat));
-                    break;
-                case "gameinfo":
-                    _beatHost.Add(BuildGameInfoPanel(beat));
-                    break;
-                default:
-                    _beatHost.Add(BuildNarratorPanel(beat));
-                    break;
+                _isContentValid = false;
+                return;
             }
+        }
+
+        private static VisualElement BuildBeatPanel(CutsceneBeatDto beat)
+        {
+            var mode = (beat.presentationMode ?? "narrator").Trim();
+            return mode.ToLowerInvariant() switch
+            {
+                "npcdialog" => BuildNpcDialog(beat),
+                "innermonologue" => BuildThoughtPanel(beat),
+                "gameinfo" => BuildGameInfoPanel(beat),
+                _ => BuildNarratorPanel(beat),
+            };
+        }
+
+        private bool TryAddBeatPanel(VisualElement panel)
+        {
+            if (panel != null)
+            {
+                _beatHost.Add(panel);
+                return true;
+            }
+
+            RenderInvalid();
+            return false;
         }
 
         private VisualElement BuildNarratorPanel(CutsceneBeatDto beat)
         {
             var panel = InstantiateNarratorBeat();
             if (panel == null)
-                return new VisualElement();
+                return null;
 
             SetBeatLabel(panel, "beat-title", beat.title, hideWhenEmpty: true);
             SetBeatLabel(panel, "beat-subtitle", beat.subtitle, hideWhenEmpty: true);
@@ -241,7 +254,7 @@ namespace LanguageGame.Presentation.Steps
                 ToolkitStepTemplatePaths.CutsceneInnerMonologueBeat,
                 "cutscene-thought-root");
             if (panel == null)
-                return new VisualElement();
+                return null;
 
             SetBeatLabel(panel, "beat-title", beat.title, hideWhenEmpty: true);
             SetBeatLabel(panel, "beat-body", beat.body?.Trim() ?? string.Empty);
@@ -255,7 +268,7 @@ namespace LanguageGame.Presentation.Steps
                 ToolkitStepTemplatePaths.CutsceneGameInfoBeat,
                 "cutscene-gameinfo-root");
             if (panel == null)
-                return new VisualElement();
+                return null;
 
             SetBeatLabel(panel, "beat-title", beat.title, hideWhenEmpty: true);
             SetBeatLabel(panel, "beat-body", beat.body?.Trim() ?? string.Empty);
@@ -269,7 +282,7 @@ namespace LanguageGame.Presentation.Steps
                 ToolkitStepTemplatePaths.CutsceneNpcDialogBeat,
                 "cutscene-npc-root");
             if (row == null)
-                return new VisualElement();
+                return null;
 
             var cast = ResolveCast(beat.speakerId);
             var side = (cast?.side ?? "right").Trim().ToLowerInvariant();

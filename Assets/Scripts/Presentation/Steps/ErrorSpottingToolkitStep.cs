@@ -74,7 +74,7 @@ namespace LanguageGame.Presentation.Steps
             _onRequest = onRequest;
             ResetState();
 
-            if (!ToolkitStepUx.GuardTemplateReady(_uiReady && _chipsRow != null, context))
+            if (!ToolkitStepUx.GuardTemplateReady(_uiReady, context, _chipsRow, _resetButton))
                 return;
 
             _chipsRow.Clear();

@@ -85,7 +85,13 @@ namespace LanguageGame.Presentation.Steps
             _onRequest = onRequest;
             StopMediaLoads();
 
-            if (!ToolkitStepUx.GuardTemplateReady(_uiReady && _stemHost != null && _optionsHost != null, context))
+            if (!ToolkitStepUx.GuardTemplateReady(
+                    _uiReady,
+                    context,
+                    _stemHost,
+                    _optionsHost,
+                    _prevButton,
+                    _nextButton))
                 return;
 
             ToolkitStepUx.SetOptionalLabel(_promptLabel, null);
