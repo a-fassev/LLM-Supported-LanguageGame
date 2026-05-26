@@ -22,7 +22,8 @@ Layouts load from `Resources/UI/LearningToolkit/{ScreenName}` **without extensio
 | `MainMenuScreen.uxml` | [`MainMenuView`](../Assets/Scripts/Presentation/MainMenuView.cs) |
 | `ChapterOverviewScreen.uxml` | [`ChapterOverviewView`](../Assets/Scripts/Presentation/ChapterOverviewView.cs) |
 | `QuestOverviewScreen.uxml` | [`QuestOverviewView`](../Assets/Scripts/Presentation/QuestOverviewView.cs) |
-| `QuestShellScreen.uxml` | [`QuestShellView`](../Assets/Scripts/Presentation/QuestShellView.cs) |
+| `TaskShellScreen.uxml` | [`TaskShellPresenter`](../Assets/Scripts/Presentation/TaskShellPresenter.cs) via [`QuestStepShellHost`](../Assets/Scripts/Presentation/QuestStepShellHost.cs) |
+| `CutShellScreen.uxml` | [`CutsceneShellPresenter`](../Assets/Scripts/Presentation/CutsceneShellPresenter.cs) via [`QuestStepShellHost`](../Assets/Scripts/Presentation/QuestStepShellHost.cs) |
 | `AvatarShopScreen.uxml` | [`AvatarShopView`](../Assets/Scripts/Presentation/AvatarShopView.cs) |
 | `SpecialScreenHost.uxml` | Special screen composite step host |
 | `Templates/Tasks/*.uxml` | Per-task-type layouts (UI Builder) |

@@ -7,7 +7,7 @@ namespace LanguageGame.Presentation.Steps
     /// <summary>Builds UI Toolkit step views for the quest shell.</summary>
     public static class ToolkitStepFactory
     {
-        /// <param name="stepHost">Visual container (<c>step-host</c>) from quest shell UXML.</param>
+        /// <param name="stepHost">Visual container (<c>step-host</c>) from task or cutscene shell UXML.</param>
         /// <param name="coroutineHost">Owner for steps that need coroutines (e.g. loading textures).</param>
         /// <returns><c>null</c> only when <paramref name="stepHost"/> is <c>null</c>; otherwise a concrete <see cref="IStepView"/>.</returns>
         public static IStepView Create(GameQuestStepDto step, VisualElement stepHost, MonoBehaviour coroutineHost)

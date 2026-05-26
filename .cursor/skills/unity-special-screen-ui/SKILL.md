@@ -91,4 +91,5 @@ For purely visual chrome (SMS frame, mail headers): prefer branching on **`scree
 | Photo USS | `Assets/Resources/UI/LearningToolkit/special-screen-photo-viewer.uss` (via `theme-learn.uss`) |
 | Mail USS | `Assets/Resources/UI/LearningToolkit/special-screen-mail.uss` (via `theme-learn.uss`) |
 | Demo seed SQL | `supabase/scripts/special_screen_sms_whatsapp_demo.sql`; reader: `special_screen_reader_demo.sql`; photo: `special_screen_photo_viewer_demo.sql`; mail: `special_screen_mail_editor_demo.sql` |
-| Shell | `Assets/Scripts/Presentation/QuestShellView.cs` |
+| Shell host | `Assets/Scripts/Presentation/QuestStepShellHost.cs` |
+| Task shell | `Assets/Scripts/Presentation/TaskShellPresenter.cs` |

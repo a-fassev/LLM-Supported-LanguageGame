@@ -1,6 +1,6 @@
 namespace LanguageGame.Presentation.Steps
 {
-    /// <summary>Quest shell uses this to advance local beats before server cutscene advance.</summary>
+    /// <summary>Cutscene shell uses this to advance local beats before server cutscene advance.</summary>
     public interface ICutsceneBeatNavigator
     {
         /// <summary>False when <c>contentJson</c> could not be parsed; shell must not advance the server step.</summary>

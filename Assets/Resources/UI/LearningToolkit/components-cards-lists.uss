@@ -42,6 +42,41 @@
     width: 100%;
 }
 
+/* Cutscene shell: full-stage narrative (no task panel chrome). */
+.lg-cut-shell__column {
+    flex-grow: 1;
+}
+
+.lg-cut-shell__header {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+    width: 100%;
+    min-height: 44px;
+}
+
+.lg-cut-shell__stage {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.lg-cut-shell__step-host {
+    flex-grow: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.lg-cut-shell__footer {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    flex-shrink: 0;
+    width: 100%;
+    margin-top: var(--lg-space-12);
+}
+
 .lg-list-scroll {
     flex-grow: 1;
 }

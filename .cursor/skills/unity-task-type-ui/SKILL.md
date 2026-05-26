@@ -8,7 +8,7 @@ description: >-
 
 # Unity task-type step UI (UI Toolkit)
 
-Quest steps render inside **`QuestShellScreen`** (`Assets/Resources/UI/LearningToolkit/QuestShellScreen.uxml`): the **`step-host`** `VisualElement` is cleared and populated at runtime.
+Task steps render inside **`TaskShellScreen`** (`Assets/Resources/UI/LearningToolkit/TaskShellScreen.uxml`); cutscenes use **`CutShellScreen.uxml`**. **`QuestStepShellHost`** swaps shells in the **`Quest`** scene. The **`step-host`** `VisualElement` is cleared and populated at runtime.
 
 **Layout = UXML templates** under `Assets/Resources/UI/LearningToolkit/Templates/`; **content = `contentJson`** from the API. Use **`ToolkitStepUx.TryMount`** / **`Instantiate`** and stable **`name`** anchors (see **`ToolkitStepTemplatePaths`**). Do not add a second shell primary button in step UXML. Styling: [`DOC/03-styling.md`](DOC/03-styling.md).
 
@@ -20,8 +20,8 @@ Composite **Special Screen** tasks (`SpecialScreen*`): see **`.cursor/skills/uni
 
 ## Flow
 
-1. **`QuestShellView`** loads server step → **`ToolkitStepFactory.Create(step, stepHost, coroutineHost)`** → **`IStepView.Bind(StepContext, …)`**.
-   - **Non-task** steps → **`CutsceneToolkitStep`**. **Task** steps → **`switch (taskType)`** to a concrete `*ToolkitStep`; unknown types → **`StubToolkitTaskStep`**.
+1. **`QuestStepShellHost`** routes to **`TaskShellPresenter`** or **`CutsceneShellPresenter`** → **`ToolkitStepFactory.Create(step, stepHost, coroutineHost)`** → **`IStepView.Bind(StepContext, …)`**.
+   - **Cutscene** shell → **`CutsceneToolkitStep`**. **Task** shell → **`switch (taskType)`** to a concrete `*ToolkitStep`; unknown types → **`StubToolkitTaskStep`**.
 2. Shell owns **Back**, **primary** (**Next** / **Controlla** / **Finish quest**), loading overlay, validation overlay, reward overlay (`LearningToolkitOverlays`).
 3. Tasks submit via **`ISubmitFromShell.SubmitFromShell()`** when the learner taps **Controlla**. Cutscenes use shell **Weiter** (default label; beat/root `primaryCtaLabel` overrides)—see **Cutscenes** below.
 4. Client validation uses **`StepContext.presentValidationMessage`** only (shell reward modal validation mode).
@@ -51,12 +51,12 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 ## Cutscenes (`step_kind: cutscene`)
 
 - **Payload:** `contentJson` is **`beats[]`** only (Zod: `apps/web/lib/game/schemas/cutsceneContentSchema.ts`). Each beat: required **`presentationMode`** + **`body`**; optional `title`, `subtitle`, `speakerId`, `autoAdvanceMs`, `primaryCtaLabel`. Root optional **`npcCast[]`**, **`navigation`** (`blockBack`, `primaryCtaLabel`). No legacy root `title`/`body`.
-- **Implementation:** `CutsceneToolkitStep` + **`ICutsceneBeatNavigator`**. `QuestShellView` calls **`TryAdvanceBeat()`** on **Weiter** until the last beat, then existing **`AdvanceCutsceneRoutine`** / advance RPC. When **`IsContentValid`** is false, **Weiter** is disabled and the server step must not advance.
+- **Implementation:** `CutsceneToolkitStep` + **`ICutsceneBeatNavigator`**. **`CutsceneShellPresenter`** calls **`TryAdvanceBeat()`** on **Weiter** until the last beat, then **`AdvanceCutsceneRoutine`** / advance RPC. When **`IsContentValid`** is false, **Weiter** is disabled and the server step must not advance.
 - **Client validation:** `TryDeserialize` mirrors web Zod (`presentationMode` enum, `npcDialog` + `speakerId`, cast membership when `npcCast` is non-empty).
 - **`onCutsceneBeatChanged`:** `StepContext` callback — shell refreshes CTA / back chrome after local beat changes (incl. auto-advance).
 - **`autoAdvanceMs`:** Beat auto-continues via coroutine on **`StepContext.coroutineHost`** (quest shell). Cancel on manual **Weiter** / teardown.
-- **Quest meta (not in cutscene JSON):** `GameFlowController.ServerQuestMetaJson` from API **`metaJson`** — reference document button, pause menu, `flow.blockBack`, `flow.autoStartQuestSlug`. Do not duplicate brochure text in every task `contentJson`; use quest **`meta_payload.referenceDocument`**.
-- **New shell/cutscene navigation:** Extend **`ICutsceneBeatNavigator`** and shell wiring in **`QuestShellView`**—do not add parallel advance paths.
+- **Quest meta (not in cutscene JSON):** `GameFlowController.ServerQuestMetaJson` from API **`metaJson`** — reference document on **task shell only**, pause menu on both shells, `flow.blockBack`, `flow.autoStartQuestSlug`. Do not duplicate brochure text in every task `contentJson`; use quest **`meta_payload.referenceDocument`**.
+- **New shell/cutscene navigation:** Extend **`ICutsceneBeatNavigator`** and **`CutsceneShellPresenter`**—do not add parallel advance paths.
 
 ## Checklist
 
@@ -72,11 +72,15 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 
 | Role | Path |
 |------|------|
-| Shell | `Assets/Scripts/Presentation/QuestShellView.cs` |
+| Shell host | `Assets/Scripts/Presentation/QuestStepShellHost.cs` |
+| Task shell | `Assets/Scripts/Presentation/TaskShellPresenter.cs` |
+| Cutscene shell | `Assets/Scripts/Presentation/CutsceneShellPresenter.cs` |
+| Shared runtime | `Assets/Scripts/Presentation/QuestShellSharedRuntime.cs` |
 | Factory | `Assets/Scripts/Presentation/Steps/ToolkitStepFactory.cs` |
 | Contracts | `IStepView`, `ISubmitFromShell`, `ICutsceneBeatNavigator`, `StepContext`; `GameProgressContracts`, `QuestMetaPayloadDto` |
 | Cutscene USS | `Assets/Resources/UI/LearningToolkit/cutscene-narrative.uss` |
 | Step templates | `Assets/Resources/UI/LearningToolkit/Templates/` |
 | Template loader | `ToolkitStepUx.cs`, `ToolkitStepTemplatePaths.cs` |
-| UXML shell | `Assets/Resources/UI/LearningToolkit/QuestShellScreen.uxml` |
+| UXML task shell | `Assets/Resources/UI/LearningToolkit/TaskShellScreen.uxml` |
+| UXML cut shell | `Assets/Resources/UI/LearningToolkit/CutShellScreen.uxml` |
 | Theme | `Assets/Resources/UI/LearningToolkit/*.uss`, `LearningMenusTheme.tss` |

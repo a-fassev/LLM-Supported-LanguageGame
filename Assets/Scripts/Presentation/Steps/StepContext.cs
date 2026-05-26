@@ -25,7 +25,7 @@ namespace LanguageGame.Presentation.Steps
         public int totalSlices;
         public int totalBackpackPieces;
 
-        /// <summary>Quest shell shows client-side validation (e.g. empty gaps) in the shared overlay.</summary>
+        /// <summary>Task shell shows client-side validation (e.g. empty gaps) in the shared overlay.</summary>
         public Action<string> presentValidationMessage;
 
         /// <summary>

@@ -1,6 +1,6 @@
 # Building task-specific UI (Unity, UI Toolkit)
 
-Per-task screens run **inside the quest shell**: `QuestShellView` clears the **`step-host`** region of **`QuestShellScreen`** (`Assets/Resources/UI/LearningToolkit/QuestShellScreen.uxml`) and **`ToolkitStepFactory`** builds an **`IStepView`** implementation for the active server step.
+Per-task screens run **inside the task shell** (`TaskShellScreen.uxml`); cutscenes use **`CutShellScreen.uxml`**. **`QuestStepShellHost`** in the **`Quest`** scene swaps shells by `step_kind`. Each shell clears **`step-host`** and **`ToolkitStepFactory`** builds an **`IStepView`** for the active server step.
 
 Legacy **uGUI**, **`StepTemplateCatalog`**, and step **prefabs** were removed; do not follow older prefab/catalog workflows.
 
@@ -8,7 +8,9 @@ Legacy **uGUI**, **`StepTemplateCatalog`**, and step **prefabs** were removed; d
 
 | Role | Path |
 |------|------|
-| Shell | `Assets/Scripts/Presentation/QuestShellView.cs` |
+| Shell host | `Assets/Scripts/Presentation/QuestStepShellHost.cs` |
+| Task shell | `Assets/Scripts/Presentation/TaskShellPresenter.cs` |
+| Cutscene shell | `Assets/Scripts/Presentation/CutsceneShellPresenter.cs` |
 | Factory | `Assets/Scripts/Presentation/Steps/ToolkitStepFactory.cs` |
 | Contracts | `Assets/Scripts/Presentation/Steps/IStepView.cs`, `ISubmitFromShell.cs`, `StepContext.cs` |
 | Implemented steps | `DragDropToolkitStep.cs`, `ClozeTextToolkitStep.cs`, `MultipleChoiceToolkitStep.cs`, `MatchingToolkitStep.cs`, `FreitextLlmToolkitStep.cs`, `SpecialScreenToolkitStep.cs`, `CutsceneToolkitStep.cs`, `StubToolkitTaskStep.cs` |
@@ -18,7 +20,7 @@ Legacy **uGUI**, **`StepTemplateCatalog`**, and step **prefabs** were removed; d
 
 ## Architecture
 
-1. **`GameFlowController`** loads **`Quest`**; **`QuestShellView`** mirrors server progression.
+1. **`GameFlowController`** loads **`Quest`**; **`QuestStepShellHost`** mirrors server progression via task or cutscene shell.
 2. **`BindStep`** calls **`ToolkitStepFactory.Create(step, _toolkitStepHost, this)`**.
 3. If the factory returns **`null`** (only when **`stepHost`** is **`null`**), the shell installs **`MissingToolkitStepView`** — visible message + **`SubmitFromShell`** routes validation feedback so the learner is not stuck silently.
 4. **Shell chrome**: Back, primary (**Next** / **Check** / **Finish quest**), loading, validation, reward overlays (`LearningToolkitOverlays`).
@@ -658,7 +660,7 @@ Example (minimal):
 
 ## Cutscenes vs tasks
 
-- **`QuestShellView.ConfigureShellPrimaryChrome`** sets **Weiter** (cutscene beat pager) vs **Controlla** (tasks).
+- **`CutsceneShellPresenter`** sets **Weiter** (cutscene beat pager); **`TaskShellPresenter`** sets **Controlla** (tasks).
 - Invalid cutscene JSON: **`ICutsceneBeatNavigator.IsContentValid == false`** — **Weiter** disabled, no advance RPC.
 - **`presentValidationMessage`** feeds the shell validation overlay.
 - Server authoritative rewards still come from complete-step / advance-step API responses.

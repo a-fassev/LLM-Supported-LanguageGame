@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="cut-shell-root" class="lg-fill-screen lg-cut-shell">
+        <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen lg-cut-shell__column">
+            <ui:VisualElement name="cut-shell-header" class="lg-cut-shell__header">
+                <ui:VisualElement class="lg-stack-flex-grow"/>
+                <ui:Button name="pause-menu-button" text="Pause" class="lg-btn lg-btn--ghost"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="cut-shell-stage" class="lg-cut-shell__stage">
+                <ui:VisualElement name="step-host" class="lg-cut-shell__step-host"/>
+            </ui:VisualElement>
+            <ui:VisualElement name="cut-shell-footer" class="lg-cut-shell__footer">
+                <ui:Button name="primary-action-button" text="Weiter" class="lg-btn lg-btn--primary" style="align-self: flex-end;"/>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="overlay-plane" picking-mode="Ignore" class="lg-overlay-root"/>
+    </ui:VisualElement>
+</ui:UXML>
