@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 /// <summary>Logs whether SpecialScreens chrome UXML exist under Resources (editor menu helper).</summary>
 public static class SpecialScreensAssetDiagnostics
@@ -32,7 +33,7 @@ public static class SpecialScreensAssetDiagnostics
     [MenuItem("Tools/Learning Toolkit/Reimport SpecialScreens Folder")]
     public static void Reimport()
     {
-        AssetDatabase.ImportAsset(Folder, ImportAssetOptions.ImportAssetOptions.ImportRecursive);
+        AssetDatabase.ImportAsset(Folder, ImportAssetOptions.ImportRecursive);
         AssetDatabase.Refresh();
         Verify();
     }
