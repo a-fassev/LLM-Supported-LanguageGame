@@ -25,13 +25,18 @@ export const questMetaPayloadSchema = z
 
 export type QuestMetaPayloadParsed = z.infer<typeof questMetaPayloadSchema>;
 
-/** Lenient read for bootstrap: invalid keys are stripped; empty object on total failure. */
+/** Lenient read for bootstrap: invalid keys are stripped; logs when parsing fails. */
 export function parseQuestMetaPayload(raw: unknown): QuestMetaPayloadParsed {
   if (raw == null || typeof raw !== "object" || Array.isArray(raw)) {
     return {};
   }
   const parsed = questMetaPayloadSchema.safeParse(raw);
-  return parsed.success ? parsed.data : {};
+  if (!parsed.success) {
+    const issues = parsed.error.issues.map((i) => `${i.path.join(".") || "root"}: ${i.message}`).join("; ");
+    console.warn("[quest-meta] Invalid meta_payload stripped to empty object:", issues);
+    return {};
+  }
+  return parsed.data;
 }
 
 /** Strict validation for write/admin paths. */

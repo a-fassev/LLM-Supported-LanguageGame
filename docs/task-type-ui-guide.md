@@ -537,59 +537,60 @@ Example (**book excerpt**, line-numbered single column):
 
 ### Cutscenes (`isTask`: false)
 
-**Implementation:** **`CutsceneToolkitStep`**.
+**Implementation:** **`CutsceneToolkitStep`** + **`ICutsceneBeatNavigator`**.
 
-Cutscenes are **presentation-only**: learners advance with the quest shell **Next** button (no **Check**, no puzzle rewards from `contentJson`). The server stores JSON in `game_quest_steps.content_payload`; the API exposes it as **`contentJson`** (stringified object).
+Cutscenes are **presentation-only**: learners tap shell **Weiter** to page through **`beats[]`** locally; the server **`advance`** RPC runs only after the **last** beat (no **Controlla**, no puzzle rewards). Quest-wide chrome (brochure, pause, `blockBack`, auto-start next quest) lives in **`game_quests.meta_payload`** → API **`metaJson`** — see **`DOC/02-steps-and-rewards.md`**.
 
-**Schema version:** optional top-level **`schemaVersion`** (integer, defaults to **`1`** if omitted). Only **`1`** is defined today.
+**Strict authoring (Next.js):** [`cutsceneContentSchema.ts`](../apps/web/lib/game/schemas/cutsceneContentSchema.ts) — **`.strict()`**, no legacy root `title`/`body`.
 
-**Strict authoring (Next.js):** cutscene payloads are validated when quests are loaded for session APIs. **`extra` properties are rejected** (Zod `.strict()`): typos like `"tilte"` fail fast so content never silently diverges from this contract.
+**Server error convention:** malformed cutscene JSON → HTTP **502** `payload_invalid` / `Malformed Cutscene content payload` (bootstrap may list **`details.cutscenePayloadErrors`**).
 
-**Server error convention:** malformed cutscene JSON → HTTP **502** with `code: "payload_invalid"` and message `Malformed Cutscene content payload` (quest bootstrap / start / resume / run snapshot). Responses may include **`details.cutscenePayloadErrors`** (bootstrap: all bad steps) or **`details`** with a single step (`questSlug`, `stepId`, `templateKey`, `issues`) for start/run endpoints — use for authoring fixes, not learner-facing copy. The same `code` string is used for unrelated **`FreitextLlm`** step payload failures on **`/evaluate`** (no `details`); use **path + message** to tell them apart.
+**Unity:** `JsonUtility` + guards. Invalid payload → Italian placeholder, **`IsContentValid == false`**, primary **Weiter** disabled (no server advance).
 
-**Unity:** parses `contentJson` with `JsonUtility` + guards; invalid JSON shows a short **Italian** placeholder — never raw JSON in the body.
+| Root field | Required | Notes |
+| ---------- | -------- | ----- |
+| **`beats`** | yes (min 1) | Ordered narrative beats |
+| **`npcCast`** | no | `{ id, displayName, portraitId?, side? }` for NPC dialog |
+| **`navigation`** | no | `{ blockBack?, primaryCtaLabel? }` |
 
-| Field | Required | Notes |
-| ----- | -------- | ----- |
-| **`title`** | yes | Headline |
-| **`body`** | yes | Flowing narrative / instructions (plain text) |
-| **`schemaVersion`** | no | Default `1` |
-| **`subtitle`** | no | Line under the headline |
-| **`illustrationId`** | no | Optional asset key for future illustration hooks (not auto-resolved in Unity yet) |
-| **`tone`** | no | Optional UI tone hint (e.g. `celebratory`, `neutral`); cosmetic only |
-| **`ariaNote`** | no | Accessibility / screen-reader note (reserved; Unity may map to `HelpText` later) |
-| **`primaryCtaLabel`** | no | Cosmetic only; **does not** replace shell **Next** / localization |
+| Per-beat field | Required | Notes |
+| -------------- | -------- | ----- |
+| **`presentationMode`** | yes | `narrator` \| `npcDialog` \| `innerMonologue` \| `gameInfo` |
+| **`body`** | yes | Plain text |
+| **`speakerId`** | yes when `npcDialog` | Must match **`npcCast[].id`** when `npcCast` is non-empty |
+| **`title`**, **`subtitle`** | no | Optional headlines |
+| **`autoAdvanceMs`** | no | Positive ms; auto-**Weiter** after delay |
+| **`primaryCtaLabel`** | no | Overrides shell **Weiter** for this beat (else `navigation.primaryCtaLabel`) |
 
 Example (minimal):
 
 ```json
 {
-  "schemaVersion": 1,
-  "title": "Benvenuto",
-  "body": "Iniziamo la tua avventura nella città."
+  "beats": [
+    { "presentationMode": "narrator", "body": "Iniziamo la tua avventura nella città." }
+  ]
 }
 ```
 
-Example (options):
+Example (NPC dialog):
 
 ```json
 {
-  "schemaVersion": 1,
-  "title": "Ottimo lavoro",
-  "subtitle": "Piccola pausa",
-  "body": "Hai finito tutti i compiti di questa quest. Premi Avanti per continuare.",
-  "tone": "celebratory",
-  "illustrationId": "mascot-wave",
-  "primaryCtaLabel": "Avanti"
+  "npcCast": [{ "id": "tonio", "displayName": "Tonio", "side": "right" }],
+  "beats": [
+    { "presentationMode": "narrator", "body": "Entri nel bar." },
+    { "presentationMode": "npcDialog", "speakerId": "tonio", "body": "Ciao!" }
+  ],
+  "navigation": { "primaryCtaLabel": "Weiter" }
 }
 ```
 
-Anti-pattern (invalid — missing **`body`**, server returns 502):
+Anti-pattern (invalid — legacy root shape):
 
 ```json
 {
-  "schemaVersion": 1,
-  "title": "Incomplete"
+  "title": "Incomplete",
+  "body": "Old shape"
 }
 ```
 
@@ -636,7 +637,8 @@ Example (minimal):
 
 ## Cutscenes vs tasks
 
-- **`QuestShellView.ConfigureShellPrimaryChrome`** sets **Next** vs **Check**.
+- **`QuestShellView.ConfigureShellPrimaryChrome`** sets **Weiter** (cutscene beat pager) vs **Controlla** (tasks).
+- Invalid cutscene JSON: **`ICutsceneBeatNavigator.IsContentValid == false`** — **Weiter** disabled, no advance RPC.
 - **`presentValidationMessage`** feeds the shell validation overlay.
 - Server authoritative rewards still come from complete-step / advance-step API responses.
 

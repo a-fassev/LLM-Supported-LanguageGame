@@ -42,7 +42,34 @@ export const cutsceneContentSchema = z
     npcCast: z.array(cutsceneNpcCastEntrySchema).optional(),
     navigation: cutsceneNavigationSchema.optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((data, ctx) => {
+    const castIds = new Set((data.npcCast ?? []).map((entry) => entry.id));
+    const hasCast = castIds.size > 0;
+
+    data.beats.forEach((beat, index) => {
+      if (beat.presentationMode !== "npcDialog")
+        return;
+
+      const speakerId = beat.speakerId?.trim() ?? "";
+      if (!speakerId) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["beats", index, "speakerId"],
+          message: "speakerId is required when presentationMode is npcDialog",
+        });
+        return;
+      }
+
+      if (hasCast && !castIds.has(speakerId)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["beats", index, "speakerId"],
+          message: "speakerId must match an id in npcCast",
+        });
+      }
+    });
+  });
 
 export type CutsceneContentParsed = z.infer<typeof cutsceneContentSchema>;
 export type CutsceneBeatParsed = z.infer<typeof cutsceneBeatSchema>;

@@ -12,17 +12,18 @@ namespace LanguageGame.Presentation
     /// </summary>
     public class QuestShellView : MonoBehaviour
     {
-        private const string FinishQuestLabel = "Finish quest";
+        private const string FinishQuestLabel = "Quest beenden";
         private const string ShellCutsceneDefaultCtaLabel = "Weiter";
-        private const string BackToChaptersLabel = "Back to chapters";
+        private const string BackToChaptersLabel = "Zurück zu Kapiteln";
         private const string ShellTaskCheckLabel = "Controlla";
-        private const string ValidationDismissLabel = "OK";
+        private const string ValidationDismissLabel = "Verstanden";
 
         private GameProgressApiClient _gameApi;
         private string _pendingFinishRunId;
         private bool _submitting;
         private IStepView _activeStepView;
         private GameQuestStepDto _boundStep;
+        private string _boundQuestMetaJson;
         private bool _rewardOverlayValidationMode;
         private bool _hasPendingAdvance;
         private int _pendingStepOrderIndex;
@@ -162,7 +163,7 @@ namespace LanguageGame.Presentation
             {
                 ClearQuestDifficultyChrome();
                 var titleFinishing = string.IsNullOrEmpty(flow.ServerQuestDisplayName)
-                    ? "Finishing quest"
+                    ? "Quest wird abgeschlossen…"
                     : flow.ServerQuestDisplayName;
                 if (_tkQuestTitle != null)
                     _tkQuestTitle.text = titleFinishing;
@@ -180,7 +181,7 @@ namespace LanguageGame.Presentation
             if (!flow.TryGetCurrentServerStep(out var step))
             {
                 var titleDone = string.IsNullOrEmpty(flow.ServerQuestDisplayName)
-                    ? "Quest complete"
+                    ? "Quest abgeschlossen"
                     : flow.ServerQuestDisplayName;
                 if (_tkQuestTitle != null)
                     _tkQuestTitle.text = titleDone;
@@ -226,7 +227,10 @@ namespace LanguageGame.Presentation
 
         private void BindStep(GameQuestStepDto step, GameFlowController flow)
         {
-            if (_boundStep != null && SameStepBindingForUi(_boundStep, step))
+            var questMetaJson = flow?.ServerQuestMetaJson ?? string.Empty;
+            if (_boundStep != null &&
+                SameStepBindingForUi(_boundStep, step) &&
+                string.Equals(_boundQuestMetaJson ?? string.Empty, questMetaJson, StringComparison.Ordinal))
                 return;
 
             TeardownBoundStep();
@@ -241,6 +245,7 @@ namespace LanguageGame.Presentation
             }
 
             _boundStep = step;
+            _boundQuestMetaJson = questMetaJson;
 
             _activeStepView.Bind(new StepContext
             {
@@ -251,6 +256,7 @@ namespace LanguageGame.Presentation
                 questDisplayName = flow.ServerQuestDisplayName,
                 questMetaJson = flow.ServerQuestMetaJson,
                 coroutineHost = this,
+                onCutsceneBeatChanged = RefreshCutsceneShellChrome,
                 stepKind = step.stepKind,
                 taskType = step.taskType,
                 templateKey = step.templateKey,
@@ -263,7 +269,7 @@ namespace LanguageGame.Presentation
                 totalBackpackPieces = flow.TotalBackpackPieces,
                 presentValidationMessage = PresentValidationMessage,
                 presentBusyOverlay = msg =>
-                    _tkLoading.Show(string.IsNullOrWhiteSpace(msg) ? "Loading…" : msg),
+                    _tkLoading.Show(string.IsNullOrWhiteSpace(msg) ? "Laden…" : msg),
                 dismissBusyOverlay = () => _tkLoading.Hide(),
                 gameProgressApi = _gameApi,
             }, OnStepRequest);
@@ -290,6 +296,14 @@ namespace LanguageGame.Presentation
 
             if (_boundStep == null)
                 return;
+
+            if (!_boundStep.isTask &&
+                _activeStepView is ICutsceneBeatNavigator invalidNav &&
+                !invalidNav.IsContentValid)
+            {
+                Debug.LogWarning("[QuestShellView] Cutscene advance blocked — invalid contentJson.");
+                return;
+            }
 
             if (_boundStep.isTask)
             {
@@ -328,12 +342,12 @@ namespace LanguageGame.Presentation
 
             if (_activeStepView is ICutsceneBeatNavigator cutsceneNav)
             {
+                if (!cutsceneNav.IsContentValid)
+                    return;
+
                 cutsceneNav.OnShellPrimaryPressed();
                 if (cutsceneNav.TryAdvanceBeat())
-                {
-                    ConfigureShellPrimaryChrome(_boundStep);
                     return;
-                }
             }
 
             OnStepRequest(new StepCompletionRequest { requestComplete = true });
@@ -352,9 +366,20 @@ namespace LanguageGame.Presentation
                 return;
             }
 
+            var cutsceneValid = _activeStepView is not ICutsceneBeatNavigator nav || nav.IsContentValid;
             _tkPrimary.text = ResolveCutsceneCtaLabel();
-            _tkPrimary.SetEnabled(!_submitting && _gameApi != null);
+            _tkPrimary.SetEnabled(cutsceneValid && !_submitting && _gameApi != null);
             _tkPrimary.style.display = DisplayStyle.Flex;
+        }
+
+        private void RefreshCutsceneShellChrome()
+        {
+            var flow = GameFlowController.Instance;
+            if (_boundStep == null || flow == null)
+                return;
+
+            ConfigureShellPrimaryChrome(_boundStep);
+            ConfigureBackToChaptersButton(flow);
         }
 
         private string ResolveCutsceneCtaLabel()
@@ -492,7 +517,7 @@ namespace LanguageGame.Presentation
             _activeStepView?.SetInteractable(false);
             RefreshStepUi();
 
-            _tkLoading.Show("Checking...");
+            _tkLoading.Show("Wird geprüft…");
 
             var runId = flow.ServerRunId;
 
@@ -589,7 +614,7 @@ namespace LanguageGame.Presentation
             _activeStepView?.SetInteractable(false);
             RefreshStepUi();
 
-            _tkLoading.Show("Saving...");
+            _tkLoading.Show("Speichern…");
 
             var runId = flow.ServerRunId;
             var useCase = new AdvanceCutsceneUseCase(_gameApi);
@@ -638,7 +663,7 @@ namespace LanguageGame.Presentation
             _activeStepView?.SetInteractable(false);
             RefreshStepUi();
 
-            _tkLoading.Show("Returning to chapters...");
+            _tkLoading.Show("Zurück zu den Kapiteln…");
 
             var finish = new FinishQuestRunUseCase(_gameApi);
             GameFinishEnvelope finishResult = null;
@@ -657,8 +682,8 @@ namespace LanguageGame.Presentation
                 }
 
                 var message = string.IsNullOrEmpty(finishErr)
-                    ? "Could not save quest completion. Tap Finish quest to retry."
-                    : $"Could not save quest completion: {finishErr}";
+                    ? "Quest konnte nicht abgeschlossen werden. Tippe auf Quest beenden, um es erneut zu versuchen."
+                    : $"Quest konnte nicht abgeschlossen werden: {finishErr}";
                 Debug.LogWarning("[QuestShellView] " + message);
 
                 _tkFinishError.Show(message, () =>
@@ -804,7 +829,7 @@ namespace LanguageGame.Presentation
                 yield break;
             }
 
-            _tkLoading.Show("Heading into your quest…");
+            _tkLoading.Show("Quest wird gestartet…");
 
             var useCase = new StartQuestRunUseCase(_gameApi);
             GameStartQuestEnvelope started = null;
@@ -849,9 +874,9 @@ namespace LanguageGame.Presentation
             {
                 var flow = GameFlowController.Instance;
                 var message = flow != null && flow.IsServerQuestActive
-                    ? "Progress is saved on the server after each step. You can resume this quest later from chapters. Leave now?"
-                    : "Leaving now will discard your progress on this quest. Do you want to go back to chapters?";
-                _tkBackConfirm.Show("Leave quest?", message, "Stay", "Back to chapters", OnBackConfirmCancel,
+                    ? "Dein Fortschritt wird nach jedem Schritt gespeichert. Du kannst die Quest später in den Kapiteln fortsetzen. Jetzt verlassen?"
+                    : "Wenn du jetzt gehst, geht der Fortschritt in dieser Quest verloren. Zurück zu den Kapiteln?";
+                _tkBackConfirm.Show("Quest verlassen?", message, "Bleiben", BackToChaptersLabel, OnBackConfirmCancel,
                     OnBackConfirmLeave);
             }
             else
@@ -976,6 +1001,7 @@ namespace LanguageGame.Presentation
             _activeStepView?.Teardown();
             _activeStepView = null;
             _boundStep = null;
+            _boundQuestMetaJson = null;
             if (_shellReady && _toolkitStepHost != null)
                 _toolkitStepHost.Clear();
         }

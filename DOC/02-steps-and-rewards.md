@@ -52,7 +52,7 @@ DTO: **`CutsceneContentDto`** ([`ToolkitStepContentDtos.cs`](../Assets/Scripts/P
 | `presentationMode` | yes | `narrator` \| `npcDialog` \| `innerMonologue` \| `gameInfo` |
 | `body` | yes | Plain text |
 | `title`, `subtitle` | no | Optional headline lines |
-| `speakerId` | no | References `npcCast[].id` when `presentationMode` is `npcDialog` |
+| `speakerId` | yes when `npcDialog` | Must reference `npcCast[].id` when `npcCast` is non-empty |
 | `autoAdvanceMs` | no | Positive ms; shell auto-advances beat (tap still works) |
 | `primaryCtaLabel` | no | Overrides shell CTA for this beat (default **Weiter**) |
 

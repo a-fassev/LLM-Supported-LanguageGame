@@ -19,7 +19,7 @@ Composite **Special Screen** tasks (`SpecialScreen*`): see **`.cursor/skills/uni
 1. **`QuestShellView`** loads server step → **`ToolkitStepFactory.Create(step, stepHost, coroutineHost)`** → **`IStepView.Bind(StepContext, …)`**.
    - **Non-task** steps → **`CutsceneToolkitStep`**. **Task** steps → **`switch (taskType)`** to a concrete `*ToolkitStep`; unknown types → **`StubToolkitTaskStep`**.
 2. Shell owns **Back**, **primary** (**Next** / **Controlla** / **Finish quest**), loading overlay, validation overlay, reward overlay (`LearningToolkitOverlays`).
-3. Tasks submit via **`ISubmitFromShell.SubmitFromShell()`** when the learner taps **Controlla**. Cutscenes advance via **`StepCompletionRequest`** from **`CutsceneToolkitStep`** or shell **Next**.
+3. Tasks submit via **`ISubmitFromShell.SubmitFromShell()`** when the learner taps **Controlla**. Cutscenes use shell **Weiter** (default label; beat/root `primaryCtaLabel` overrides)—see **Cutscenes** below.
 4. Client validation uses **`StepContext.presentValidationMessage`** only (shell reward modal validation mode).
 5. **Slow operations** (server round-trips, LLM gates): use **`StepContext.presentBusyOverlay(message)`** / **`dismissBusyOverlay()`** (injected by the shell from the same overlay as quest loading). Always **`dismiss`** on error and early exit. Do not add a second loading UI stack inside the step.
 
@@ -41,6 +41,16 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 
 5. **Stub / placeholder**: Unimplemented types use **`StubToolkitTaskStep`** until a real mechanic exists.
 
+## Cutscenes (`step_kind: cutscene`)
+
+- **Payload:** `contentJson` is **`beats[]`** only (Zod: `apps/web/lib/game/schemas/cutsceneContentSchema.ts`). Each beat: required **`presentationMode`** + **`body`**; optional `title`, `subtitle`, `speakerId`, `autoAdvanceMs`, `primaryCtaLabel`. Root optional **`npcCast[]`**, **`navigation`** (`blockBack`, `primaryCtaLabel`). No legacy root `title`/`body`.
+- **Implementation:** `CutsceneToolkitStep` + **`ICutsceneBeatNavigator`**. `QuestShellView` calls **`TryAdvanceBeat()`** on **Weiter** until the last beat, then existing **`AdvanceCutsceneRoutine`** / advance RPC. When **`IsContentValid`** is false, **Weiter** is disabled and the server step must not advance.
+- **Client validation:** `TryDeserialize` mirrors web Zod (`presentationMode` enum, `npcDialog` + `speakerId`, cast membership when `npcCast` is non-empty).
+- **`onCutsceneBeatChanged`:** `StepContext` callback — shell refreshes CTA / back chrome after local beat changes (incl. auto-advance).
+- **`autoAdvanceMs`:** Beat auto-continues via coroutine on **`StepContext.coroutineHost`** (quest shell). Cancel on manual **Weiter** / teardown.
+- **Quest meta (not in cutscene JSON):** `GameFlowController.ServerQuestMetaJson` from API **`metaJson`** — reference document button, pause menu, `flow.blockBack`, `flow.autoStartQuestSlug`. Do not duplicate brochure text in every task `contentJson`; use quest **`meta_payload.referenceDocument`**.
+- **New shell/cutscene navigation:** Extend **`ICutsceneBeatNavigator`** and shell wiring in **`QuestShellView`**—do not add parallel advance paths.
+
 ## Checklist
 
 - [ ] Stable **`contentJson`** aligned with backend.
@@ -56,6 +66,7 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 |------|------|
 | Shell | `Assets/Scripts/Presentation/QuestShellView.cs` |
 | Factory | `Assets/Scripts/Presentation/Steps/ToolkitStepFactory.cs` |
-| Contracts | `Assets/Scripts/Presentation/Steps/IStepView.cs`, `ISubmitFromShell.cs`, `StepContext.cs`; HTTP DTOs `Assets/Scripts/Application/GameProgressContracts.cs` |
+| Contracts | `IStepView`, `ISubmitFromShell`, `ICutsceneBeatNavigator`, `StepContext`; `GameProgressContracts`, `QuestMetaPayloadDto` |
+| Cutscene USS | `Assets/Resources/UI/LearningToolkit/cutscene-narrative.uss` |
 | UXML shell | `Assets/Resources/UI/LearningToolkit/QuestShellScreen.uxml` |
 | Theme | `Assets/Resources/UI/LearningToolkit/*.uss`, `LearningMenusTheme.tss` |

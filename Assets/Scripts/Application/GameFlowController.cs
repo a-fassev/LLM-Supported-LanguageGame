@@ -25,6 +25,7 @@ namespace LanguageGame.Application
         private string _serverQuestId;
         private string _serverQuestDisplayName;
         private string _serverQuestMetaJson;
+        private QuestMetaPayloadDto _serverQuestMeta = new QuestMetaPayloadDto();
         private GameQuestStepDto[] _serverSteps;
         private int _serverStepOrderIndex;
         private int _serverTaskOrderIndex;
@@ -155,6 +156,7 @@ namespace LanguageGame.Application
             _serverQuestId = questId;
             _serverQuestDisplayName = displayName;
             _serverQuestMetaJson = questMetaJson ?? string.Empty;
+            _serverQuestMeta = QuestMetaPayloadParser.Parse(_serverQuestMetaJson);
             _serverSteps = steps;
             _serverStepOrderIndex = Mathf.Clamp(currentStepOrderIndex, 0, steps.Length - 1);
             _serverTaskOrderIndex = Mathf.Max(0, currentTaskOrderIndex);
@@ -184,7 +186,7 @@ namespace LanguageGame.Application
 
         public string ServerQuestMetaJson => _serverQuestMetaJson ?? string.Empty;
 
-        public QuestMetaPayloadDto ServerQuestMeta => QuestMetaPayloadParser.Parse(ServerQuestMetaJson);
+        public QuestMetaPayloadDto ServerQuestMeta => _serverQuestMeta ?? new QuestMetaPayloadDto();
 
         public void ApplyServerTaskProgress(int newStepOrderIndex, int newTaskOrderIndex,
             int totalSlices, int totalBackpackPieces, bool questComplete)
@@ -256,6 +258,7 @@ namespace LanguageGame.Application
             _serverQuestId = null;
             _serverQuestDisplayName = null;
             _serverQuestMetaJson = null;
+            _serverQuestMeta = new QuestMetaPayloadDto();
             _serverSteps = null;
             _serverStepOrderIndex = 0;
             _serverTaskOrderIndex = 0;

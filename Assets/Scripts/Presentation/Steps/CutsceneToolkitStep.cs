@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using LanguageGame.Application;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -10,8 +11,17 @@ namespace LanguageGame.Presentation.Steps
     public sealed class CutsceneToolkitStep : IStepView, ICutsceneBeatNavigator
     {
         private const string DefaultCtaLabel = "Weiter";
-        private const string PlaceholderBody =
-            "Contenuto non disponibile. Premi Weiter per continuare.";
+        private const string InvalidContentBody =
+            "Inhalt fehlerhaft. Fortschritt ist blockiert, bis die Szene korrekt geladen ist.";
+        private const string InvalidContentTitle = "Szene nicht verfügbar";
+
+        private static readonly HashSet<string> ValidPresentationModes = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "narrator",
+            "npcDialog",
+            "innerMonologue",
+            "gameInfo",
+        };
 
         private readonly VisualElement _root;
         private readonly VisualElement _beatHost;
@@ -21,7 +31,11 @@ namespace LanguageGame.Presentation.Steps
         private Coroutine _autoAdvanceCoroutine;
         private MonoBehaviour _coroutineHost;
         private Action<StepCompletionRequest> _onRequest;
+        private Action _onBeatChanged;
         private bool _questBlockBack;
+        private bool _isContentValid;
+
+        public bool IsContentValid => _isContentValid;
 
         public CutsceneToolkitStep(VisualElement host)
         {
@@ -39,25 +53,31 @@ namespace LanguageGame.Presentation.Steps
         public void Bind(StepContext context, Action<StepCompletionRequest> onRequest)
         {
             _onRequest = onRequest;
+            _onBeatChanged = context?.onCutsceneBeatChanged;
             _coroutineHost = context?.coroutineHost;
             _questBlockBack = ResolveQuestBlockBack(context?.questMetaJson);
             _beatIndex = 0;
 
-            if (!TryDeserialize(context?.contentJson, out _dto, out _))
+            if (!TryDeserialize(context?.contentJson, out _dto, out var parseError))
             {
+                _isContentValid = false;
                 _dto = null;
+                Debug.LogWarning($"[CutsceneToolkitStep] Invalid cutscene content: {parseError}");
                 RenderInvalid();
+                NotifyBeatChanged();
                 return;
             }
 
+            _isContentValid = true;
             RenderCurrentBeat();
             ScheduleAutoAdvanceForCurrentBeat();
+            NotifyBeatChanged();
         }
 
         public bool TryAdvanceBeat()
         {
             CancelAutoAdvance();
-            if (_dto?.beats == null || _dto.beats.Length == 0)
+            if (!_isContentValid || _dto?.beats == null || _dto.beats.Length == 0)
                 return false;
 
             if (_beatIndex >= _dto.beats.Length - 1)
@@ -66,6 +86,7 @@ namespace LanguageGame.Presentation.Steps
             _beatIndex++;
             RenderCurrentBeat();
             ScheduleAutoAdvanceForCurrentBeat();
+            NotifyBeatChanged();
             return true;
         }
 
@@ -129,11 +150,16 @@ namespace LanguageGame.Presentation.Steps
         {
             yield return new WaitForSeconds(Mathf.Max(0.1f, delayMs / 1000f));
             _autoAdvanceCoroutine = null;
+            if (!_isContentValid)
+                yield break;
+
             if (TryAdvanceBeat())
-                return;
+                yield break;
 
             _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true });
         }
+
+        private void NotifyBeatChanged() => _onBeatChanged?.Invoke();
 
         private void CancelAutoAdvance()
         {
@@ -146,9 +172,9 @@ namespace LanguageGame.Presentation.Steps
         {
             _beatHost.Clear();
             var panel = CreateNarratorPanel();
-            SetLabelText(panel, "title", "Cutscene");
+            SetLabelText(panel, "title", InvalidContentTitle);
             SetLabelText(panel, "subtitle", string.Empty, hideWhenEmpty: true);
-            SetLabelText(panel, "body", PlaceholderBody);
+            SetLabelText(panel, "body", InvalidContentBody);
             _beatHost.Add(panel);
         }
 
@@ -191,7 +217,7 @@ namespace LanguageGame.Presentation.Steps
             var panel = CreateNarratorPanel();
             SetLabelText(panel, "title", beat.title, hideWhenEmpty: true);
             SetLabelText(panel, "subtitle", beat.subtitle, hideWhenEmpty: true);
-            SetLabelText(panel, "body", beat.body?.Trim() ?? PlaceholderBody);
+            SetLabelText(panel, "body", beat.body?.Trim() ?? string.Empty);
             return panel;
         }
 
@@ -400,11 +426,104 @@ namespace LanguageGame.Presentation.Steps
                     return false;
                 }
 
-                if (string.IsNullOrWhiteSpace(beat.presentationMode))
-                    beat.presentationMode = "narrator";
+                var modeRaw = string.IsNullOrWhiteSpace(beat.presentationMode)
+                    ? "narrator"
+                    : beat.presentationMode.Trim();
+                if (!ValidPresentationModes.Contains(modeRaw))
+                {
+                    dto = null;
+                    error = $"Beat {i} has invalid presentationMode '{modeRaw}'.";
+                    return false;
+                }
+
+                beat.presentationMode = NormalizePresentationMode(modeRaw);
+
+                if (string.Equals(beat.presentationMode, "npcDialog", StringComparison.Ordinal))
+                {
+                    if (string.IsNullOrWhiteSpace(beat.speakerId))
+                    {
+                        dto = null;
+                        error = $"Beat {i} requires speakerId when presentationMode is npcDialog.";
+                        return false;
+                    }
+
+                    if (dto.npcCast != null && dto.npcCast.Length > 0 &&
+                        !NpcCastContainsSpeaker(dto.npcCast, beat.speakerId))
+                    {
+                        dto = null;
+                        error = $"Beat {i} speakerId must match an id in npcCast.";
+                        return false;
+                    }
+                }
+
+                if (beat.autoAdvanceMs < 0)
+                {
+                    dto = null;
+                    error = $"Beat {i} autoAdvanceMs must be a positive integer when set.";
+                    return false;
+                }
+            }
+
+            if (dto.npcCast != null)
+            {
+                for (var c = 0; c < dto.npcCast.Length; c++)
+                {
+                    if (!TryValidateNpcCastEntry(dto.npcCast[c], c, out error))
+                    {
+                        dto = null;
+                        return false;
+                    }
+                }
             }
 
             return true;
+        }
+
+        private static bool TryValidateNpcCastEntry(CutsceneNpcCastEntryDto entry, int index, out string error)
+        {
+            error = null;
+            if (entry == null || string.IsNullOrWhiteSpace(entry.id) ||
+                string.IsNullOrWhiteSpace(entry.displayName))
+            {
+                error = $"npcCast[{index}] requires non-empty id and displayName.";
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(entry.side))
+                return true;
+
+            var side = entry.side.Trim();
+            if (!side.Equals("left", StringComparison.OrdinalIgnoreCase) &&
+                !side.Equals("right", StringComparison.OrdinalIgnoreCase))
+            {
+                error = $"npcCast[{index}].side must be 'left' or 'right'.";
+                return false;
+            }
+
+            return true;
+        }
+
+        private static bool NpcCastContainsSpeaker(CutsceneNpcCastEntryDto[] npcCast, string speakerId)
+        {
+            var id = speakerId.Trim();
+            foreach (var entry in npcCast)
+            {
+                if (entry != null && string.Equals(entry.id, id, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static string NormalizePresentationMode(string mode)
+        {
+            if (mode.Equals("npcDialog", StringComparison.OrdinalIgnoreCase))
+                return "npcDialog";
+            if (mode.Equals("innerMonologue", StringComparison.OrdinalIgnoreCase))
+                return "innerMonologue";
+            if (mode.Equals("gameInfo", StringComparison.OrdinalIgnoreCase))
+                return "gameInfo";
+            return "narrator";
         }
     }
 }

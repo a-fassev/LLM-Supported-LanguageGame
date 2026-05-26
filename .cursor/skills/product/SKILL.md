@@ -28,7 +28,7 @@ Canonical **technical** contracts live in `AGENTS.md`; **task-type orientation**
 - **Chapter overview** as the main hub—not a free-roam character hub.
 - **Chapter cards/buttons** drive progression visibility via unlock rules.
 - **Tap a chapter** to open quest overview, then start a **quest**; quests **chain** (finishing one unlocks the next).
-- **Inside a quest**, children move through **steps** in a single **quest shell**: **tasks** use a primary **Check** action labeled **«Controlla»** (Italian); **story / cutscene** beats advance with **Next** when the content is display-only. **Leave / back** paths should stay clear so children never feel trapped in homework mode.
+- **Inside a quest**, children move through **steps** in a single **quest shell**: **tasks** use **«Controlla»**; **story / cutscene** steps use **«Weiter»** and can show several narrative beats in one row (Erzähler, NPC speech, inner thoughts, game-info hints) before the next task. **Pause** and an optional **reference document** (e.g. a brochure to re-read during bar tasks) live in the shell chrome—not buried inside one exercise. Some quests may **block leaving** or **continue straight into the next quest** when the story requires it; otherwise **back to chapters** stays available so children do not feel trapped in homework mode.
 
 ### Mascot and motivation
 

@@ -768,7 +768,7 @@ namespace LanguageGame.Presentation
             _card = new VisualElement();
             _card.AddToClassList("lg-modal-card");
 
-            var title = new Label("Pause");
+            var title = new Label("Pausieren");
             title.AddToClassList("lg-heading-screen");
             title.style.marginBottom = 16;
 

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   parseQuestMetaPayload,
   parseQuestMetaPayloadStrict,
@@ -22,9 +22,28 @@ describe("questMetaPayloadSchema", () => {
     expect(parseQuestMetaPayload("bad")).toEqual({});
   });
 
+  it("warns and strips invalid object keys", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(parseQuestMetaPayload({ unknown: true })).toEqual({});
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
   it("strict mode rejects unknown keys", () => {
     const r = parseQuestMetaPayloadStrict({ unknown: true });
     expect(r.ok).toBe(false);
+  });
+
+  it("lenient parse warns and strips when unknown key accompanies flow", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(
+      parseQuestMetaPayload({
+        flow: { blockBack: true },
+        typoField: true,
+      }),
+    ).toEqual({});
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
   });
 
   it("serializes flow flags", () => {

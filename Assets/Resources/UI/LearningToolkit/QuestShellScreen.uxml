@@ -7,7 +7,7 @@
                     style="flex-grow: 1; -unity-text-align: middle-center; white-space: normal;" />
                 <ui:Button name="reference-document-button" text="Broschüre" class="lg-btn lg-btn--ghost"
                     style="display: none; margin-right: 4px;" />
-                <ui:Button name="pause-menu-button" text="Pause" class="lg-btn lg-btn--ghost" />
+                <ui:Button name="pause-menu-button" text="Pausieren" class="lg-btn lg-btn--ghost" />
             </ui:VisualElement>
 
             <ui:VisualElement name="hud-strip" class="lg-hud-strip">

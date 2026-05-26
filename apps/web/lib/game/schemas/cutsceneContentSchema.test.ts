@@ -38,4 +38,41 @@ describe("parseCutsceneContent", () => {
     });
     expect(r.ok).toBe(false);
   });
+
+  it("rejects npcDialog without speakerId", () => {
+    const r = parseCutsceneContent({
+      beats: [{ presentationMode: "npcDialog", body: "Ciao" }],
+    });
+    expect(r.ok).toBe(false);
+  });
+
+  it("rejects speakerId not in npcCast", () => {
+    const r = parseCutsceneContent({
+      npcCast: [{ id: "a", displayName: "A" }],
+      beats: [{ presentationMode: "npcDialog", speakerId: "missing", body: "Hi" }],
+    });
+    expect(r.ok).toBe(false);
+  });
+
+  it("rejects invalid presentationMode", () => {
+    const r = parseCutsceneContent({
+      beats: [{ presentationMode: "cinematic", body: "Hi" }],
+    });
+    expect(r.ok).toBe(false);
+  });
+
+  it("rejects invalid npcCast entry", () => {
+    const r = parseCutsceneContent({
+      npcCast: [{ id: "a", displayName: "" }],
+      beats: [{ presentationMode: "narrator", body: "Hi" }],
+    });
+    expect(r.ok).toBe(false);
+  });
+
+  it("rejects negative autoAdvanceMs", () => {
+    const r = parseCutsceneContent({
+      beats: [{ presentationMode: "narrator", body: "Hi", autoAdvanceMs: -1 }],
+    });
+    expect(r.ok).toBe(false);
+  });
 });

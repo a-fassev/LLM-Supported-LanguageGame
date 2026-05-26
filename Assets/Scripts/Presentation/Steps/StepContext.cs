@@ -44,6 +44,9 @@ namespace LanguageGame.Presentation.Steps
         /// <summary>Optional: host for cutscene auto-advance coroutines.</summary>
         public MonoBehaviour coroutineHost;
 
+        /// <summary>Optional: invoked when the visible cutscene beat changes (local pager).</summary>
+        public Action onCutsceneBeatChanged;
+
         public bool IsTask => string.Equals(stepKind, "task", StringComparison.OrdinalIgnoreCase);
         public int StepNumberOneBased => stepIndexZeroBased + 1;
     }
