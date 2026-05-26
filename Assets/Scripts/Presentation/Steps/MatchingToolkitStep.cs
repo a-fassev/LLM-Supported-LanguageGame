@@ -17,6 +17,8 @@ namespace LanguageGame.Presentation.Steps
         private const float DragThresholdPx = 10f;
 
         private readonly VisualElement _root;
+        private readonly Label _promptLabel;
+        private readonly Label _subtitleLabel;
         private readonly VisualElement _pairingArea;
         private readonly VisualElement _columnsRow;
         private readonly VisualElement _leftColumn;
@@ -53,52 +55,36 @@ namespace LanguageGame.Presentation.Steps
         {
             _coroutineHost = coroutineHost;
 
-            _root = new VisualElement();
-            _root.style.flexGrow = 1;
-            _root.AddToClassList("lg-muted-panel");
-            _root.style.paddingTop = 12;
-            _root.style.paddingBottom = 12;
-            _root.style.paddingLeft = 12;
-            _root.style.paddingRight = 12;
+            if (!ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.MatchingTask, "matching-root", out _root))
+            {
+                _root = new VisualElement();
+                _root.style.flexGrow = 1;
+                host.Add(_root);
+            }
 
-            _pairingArea = new VisualElement();
-            _pairingArea.style.flexGrow = 1;
-            _pairingArea.style.minHeight = 220;
-            _pairingArea.style.position = Position.Relative;
+            _promptLabel = ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(MatchingToolkitStep));
+            _subtitleLabel = ToolkitStepUx.Query<Label>(_root, "task-subtitle", nameof(MatchingToolkitStep));
+            _pairingArea = ToolkitStepUx.Query<VisualElement>(_root, "matching-pairing-area", nameof(MatchingToolkitStep))
+                            ?? _root;
+            _columnsRow = ToolkitStepUx.Query<VisualElement>(_root, "matching-columns-row", nameof(MatchingToolkitStep))
+                          ?? _pairingArea;
+            _leftColumn = ToolkitStepUx.Query<VisualElement>(_root, "matching-left-column", nameof(MatchingToolkitStep))
+                          ?? _columnsRow;
+            _rightColumn = ToolkitStepUx.Query<VisualElement>(_root, "matching-right-column", nameof(MatchingToolkitStep))
+                           ?? _columnsRow;
 
-            _columnsRow = new VisualElement();
-            _columnsRow.style.flexGrow = 1;
-            _columnsRow.style.flexDirection = FlexDirection.Row;
-            _columnsRow.style.alignItems = Align.Stretch;
-
-            _leftColumn = new VisualElement();
-            _leftColumn.style.flexGrow = 1;
-            _leftColumn.style.flexBasis = 0;
-            _leftColumn.style.marginRight = 8;
-            _leftColumn.style.flexDirection = FlexDirection.Column;
-
-            _rightColumn = new VisualElement();
-            _rightColumn.style.flexGrow = 1;
-            _rightColumn.style.flexBasis = 0;
-            _rightColumn.style.marginLeft = 8;
-            _rightColumn.style.flexDirection = FlexDirection.Column;
-
+            var lineHost = ToolkitStepUx.Query<VisualElement>(_root, "matching-line-layer-host", nameof(MatchingToolkitStep));
             _lineLayer = new MatchingLineLayer { name = "matching-line-layer" };
+            _lineLayer.pickingMode = PickingMode.Ignore;
             _lineLayer.style.position = Position.Absolute;
             _lineLayer.style.left = 0;
             _lineLayer.style.top = 0;
             _lineLayer.style.right = 0;
             _lineLayer.style.bottom = 0;
-            _lineLayer.pickingMode = PickingMode.Ignore;
-
-            _columnsRow.Add(_leftColumn);
-            _columnsRow.Add(_rightColumn);
-
-            _pairingArea.Add(_columnsRow);
-            _pairingArea.Add(_lineLayer);
-
-            _root.Add(_pairingArea);
-            host.Add(_root);
+            if (lineHost != null)
+                lineHost.Add(_lineLayer);
+            else
+                _pairingArea.Add(_lineLayer);
 
             _onPairingGeometryChanged = OnPairingGeometryChanged;
             _pairingArea.RegisterCallback(_onPairingGeometryChanged);
@@ -110,7 +96,8 @@ namespace LanguageGame.Presentation.Steps
             _onRequest = onRequest;
             StopImageLoads();
             TeardownBindings();
-            ClearPromptChrome();
+            ToolkitStepUx.SetOptionalLabel(_promptLabel, null);
+            ToolkitStepUx.SetOptionalLabel(_subtitleLabel, null);
 
             _leftColumn.Clear();
             _rightColumn.Clear();
@@ -140,26 +127,8 @@ namespace LanguageGame.Presentation.Steps
                 _expectedLeftToRight[p.leftItemId.Trim()] = p.rightItemId.Trim();
             }
 
-            if (!string.IsNullOrWhiteSpace(dto.prompt))
-            {
-                var title = new Label(dto.prompt.Trim());
-                title.AddToClassList("lg-heading-screen");
-                title.style.marginBottom = 8;
-                title.style.whiteSpace = WhiteSpace.Normal;
-                _root.Insert(0, title);
-            }
-
-            var sub = dto.subtitle?.Trim() ?? string.Empty;
-            if (sub.Length > 0)
-            {
-                var subLbl = new Label(sub);
-                subLbl.AddToClassList("lg-text-body");
-                subLbl.AddToClassList("lg-text-muted");
-                subLbl.style.whiteSpace = WhiteSpace.Normal;
-                subLbl.style.marginBottom = 8;
-                var subInsert = !string.IsNullOrWhiteSpace(dto.prompt) ? 1 : 0;
-                _root.Insert(subInsert, subLbl);
-            }
+            ToolkitStepUx.SetOptionalLabel(_promptLabel, dto.prompt?.Trim());
+            ToolkitStepUx.SetOptionalLabel(_subtitleLabel, dto.subtitle?.Trim());
 
             var pres = dto.presentation ?? new MatchingPresentationDto();
             var leftHeader = new Label(string.IsNullOrWhiteSpace(pres.leftLabel) ? "Sinistra" : pres.leftLabel.Trim());
@@ -240,16 +209,6 @@ namespace LanguageGame.Presentation.Steps
             _root.UnregisterCallback<PointerMoveEvent>(OnRootPointerMove);
             _root.UnregisterCallback<PointerUpEvent>(OnRootPointerUp);
             _root.UnregisterCallback<PointerCaptureOutEvent>(OnRootCaptureOut);
-        }
-
-        private void ClearPromptChrome()
-        {
-            for (var i = _root.childCount - 1; i >= 0; i--)
-            {
-                var ch = _root[i];
-                if (!ReferenceEquals(ch, _pairingArea))
-                    ch.RemoveFromHierarchy();
-            }
         }
 
         private void OnPairingGeometryChanged(GeometryChangedEvent _)

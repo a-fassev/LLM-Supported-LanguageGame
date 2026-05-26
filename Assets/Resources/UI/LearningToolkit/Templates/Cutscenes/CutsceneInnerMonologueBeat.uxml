@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="cutscene-thought-root" class="lg-cutscene-thought">
+        <ui:VisualElement name="thought-bubble" class="lg-cutscene-thought__bubble">
+            <ui:Label name="beat-title" text="" class="lg-cutscene-thought__title"
+                style="display: none; white-space: normal;" />
+            <ui:Label name="beat-body" text="Placeholder thought" class="lg-cutscene-thought__body"
+                style="white-space: normal;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

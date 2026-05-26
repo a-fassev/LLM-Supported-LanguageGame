@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="error-spotting-root" class="lg-muted-panel lg-task-template-root"
+        style="flex-grow: 1; flex-direction: column;">
+        <ui:Label name="task-prompt" text="" class="lg-heading-screen"
+            style="display: none; margin-bottom: 8px; white-space: normal;" />
+        <ui:Label name="task-caption" text="" class="lg-text-caption"
+            style="display: none; margin-bottom: 8px; white-space: normal;" />
+        <ui:Label name="task-instruction" text="" class="lg-text-body lg-text-muted"
+            style="display: none; margin-bottom: 8px; white-space: normal;" />
+        <ui:Button name="task-reset-button" text="Ripristina" class="lg-btn lg-btn--secondary"
+            style="align-self: flex-start; margin-bottom: 12px;" />
+        <ui:VisualElement name="error-spotting-chips-row" class="lg-error-spotting-row" style="flex-grow: 0;" />
+    </ui:VisualElement>
+</ui:UXML>

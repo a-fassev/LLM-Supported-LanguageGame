@@ -10,3 +10,4 @@
 @import url("special-screen-photo-viewer.uss");
 @import url("special-screen-mail.uss");
 @import url("cutscene-narrative.uss");
+@import url("task-templates.uss");

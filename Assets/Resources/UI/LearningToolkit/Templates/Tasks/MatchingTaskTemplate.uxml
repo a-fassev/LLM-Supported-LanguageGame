@@ -1,0 +1,21 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="matching-root" class="lg-muted-panel lg-task-template-root"
+        style="flex-grow: 1; flex-direction: column;">
+        <ui:Label name="task-prompt" text="" class="lg-heading-screen"
+            style="display: none; margin-bottom: 8px; white-space: normal;" />
+        <ui:Label name="task-subtitle" text="" class="lg-text-body lg-text-muted"
+            style="display: none; margin-bottom: 8px; white-space: normal;" />
+        <ui:VisualElement name="matching-pairing-area"
+            style="flex-grow: 1; min-height: 220px; position: relative;">
+            <ui:VisualElement name="matching-columns-row"
+                style="flex-grow: 1; flex-direction: row; align-items: stretch;">
+                <ui:VisualElement name="matching-left-column"
+                    style="flex-grow: 1; flex-basis: 0; margin-right: 8px; flex-direction: column;" />
+                <ui:VisualElement name="matching-right-column"
+                    style="flex-grow: 1; flex-basis: 0; margin-left: 8px; flex-direction: column;" />
+            </ui:VisualElement>
+            <ui:VisualElement name="matching-line-layer-host" picking-mode="Ignore"
+                style="position: absolute; left: 0; top: 0; right: 0; bottom: 0;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

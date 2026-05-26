@@ -15,7 +15,7 @@ namespace LanguageGame.Presentation.Steps
     /// </summary>
     public sealed class SpecialScreenToolkitStep : IStepView, ISubmitFromShell, ITaskAttemptPayloadProvider
     {
-        private const string HostUxmlResourcePath = "UI/LearningToolkit/SpecialScreenHost";
+        private const string HostUxmlResourcePath = ToolkitStepTemplatePaths.SpecialScreenHost;
 
         /// <summary>Shown when a message hosts a mechanic for another «part» and no preview <c>text</c> was authored.</summary>
         private const string MessengerDeferredMechanicPlaceholder = "…";
@@ -454,10 +454,8 @@ namespace LanguageGame.Presentation.Steps
 
         private bool TryBuildChrome()
         {
-            var tpl = Resources.Load<VisualTreeAsset>(HostUxmlResourcePath);
-            if (tpl != null)
+            if (ToolkitStepUx.TryMount(_host, HostUxmlResourcePath, "special-screen-root", out _))
             {
-                tpl.CloneTree(_host);
                 CacheChromeQueries();
                 if (_blockArea != null && _prevButton != null && _nextButton != null)
                 {
@@ -468,14 +466,8 @@ namespace LanguageGame.Presentation.Steps
                 _host.Clear();
             }
 
-            BuildFallbackChrome();
-            CacheChromeQueries();
-            if (_blockArea != null && _prevButton != null && _nextButton != null)
-            {
-                WireNavigationHandlers();
-                return true;
-            }
-
+            Debug.LogError(
+                $"[SpecialScreenToolkitStep] Missing host template at Resources/{HostUxmlResourcePath}.");
             return false;
         }
 

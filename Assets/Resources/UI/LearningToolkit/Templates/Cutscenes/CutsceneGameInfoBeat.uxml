@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="cutscene-gameinfo-root" class="lg-cutscene-gameinfo">
+        <ui:Label name="gameinfo-icon" text="i" class="lg-cutscene-gameinfo__icon" />
+        <ui:VisualElement name="gameinfo-text-col" class="lg-cutscene-gameinfo__text">
+            <ui:Label name="beat-title" text="" class="lg-cutscene-gameinfo__title"
+                style="display: none; white-space: normal;" />
+            <ui:Label name="beat-body" text="Placeholder game info" class="lg-cutscene-gameinfo__body"
+                style="white-space: normal;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

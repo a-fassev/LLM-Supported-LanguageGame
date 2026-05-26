@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="multiple-choice-root" class="lg-muted-panel lg-task-template-root"
+        style="flex-grow: 1; flex-direction: column;">
+        <ui:VisualElement name="mc-header-host" style="flex-grow: 0;" />
+        <ui:VisualElement name="mc-stem-host" style="flex-grow: 0; margin-bottom: 12px;" />
+        <ui:VisualElement name="mc-options-host" style="flex-grow: 1;" />
+        <ui:VisualElement name="mc-nav-row"
+            style="flex-direction: row; justify-content: center; align-items: center; flex-shrink: 0; margin-top: 12px;">
+            <ui:Button name="mc-prev-button" text="&#8592;" class="lg-btn lg-btn--secondary" />
+            <ui:Label name="mc-progress-label" text="" class="lg-text-caption"
+                style="margin-left: 12px; margin-right: 12px;" />
+            <ui:Button name="mc-next-button" text="&#8594;" class="lg-btn lg-btn--secondary" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

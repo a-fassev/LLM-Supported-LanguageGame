@@ -16,6 +16,9 @@ namespace LanguageGame.Presentation.Steps
 
         private readonly VisualElement _root;
         private readonly VisualElement _chipsRow;
+        private readonly Label _promptLabel;
+        private readonly Label _captionLabel;
+        private readonly Label _instructionLabel;
 
         private StepContext _context;
         private Action<StepCompletionRequest> _onRequest;
@@ -37,22 +40,23 @@ namespace LanguageGame.Presentation.Steps
         /// <param name="useMutedChrome">When false (e.g. embedded in <see cref="SpecialScreenToolkitStep"/>), skips outer panel styling to avoid stacked frames.</param>
         public ErrorSpottingToolkitStep(VisualElement host, bool useMutedChrome = true)
         {
-            _root = new VisualElement();
-            _root.style.flexGrow = 1;
-            if (useMutedChrome)
+            if (!ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.ErrorSpottingTask, "error-spotting-root", out _root))
             {
-                _root.AddToClassList("lg-muted-panel");
-                _root.style.paddingTop = 16;
-                _root.style.paddingBottom = 16;
-                _root.style.paddingLeft = 16;
-                _root.style.paddingRight = 16;
+                _root = new VisualElement();
+                _root.style.flexGrow = 1;
+                host.Add(_root);
             }
 
-            _chipsRow = new VisualElement();
-            _chipsRow.AddToClassList("lg-error-spotting-row");
-            _chipsRow.style.flexGrow = 0;
+            ToolkitStepUx.ApplyMutedTaskChrome(_root, useMutedChrome);
+            _promptLabel = ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(ErrorSpottingToolkitStep));
+            _captionLabel = ToolkitStepUx.Query<Label>(_root, "task-caption", nameof(ErrorSpottingToolkitStep));
+            _instructionLabel = ToolkitStepUx.Query<Label>(_root, "task-instruction", nameof(ErrorSpottingToolkitStep));
+            _resetButton = ToolkitStepUx.Query<Button>(_root, "task-reset-button", nameof(ErrorSpottingToolkitStep));
+            _chipsRow = ToolkitStepUx.Query<VisualElement>(_root, "error-spotting-chips-row", nameof(ErrorSpottingToolkitStep))
+                        ?? _root;
 
-            host.Add(_root);
+            if (_resetButton != null)
+                _resetButton.clicked += OnResetClicked;
         }
 
         /// <summary>True after <see cref="Bind"/> produced segment UI.</summary>
@@ -63,7 +67,10 @@ namespace LanguageGame.Presentation.Steps
             _context = context;
             _onRequest = onRequest;
             ResetState();
-            _root.Clear();
+            _chipsRow?.Clear();
+            ToolkitStepUx.SetOptionalLabel(_promptLabel, null);
+            ToolkitStepUx.SetOptionalLabel(_captionLabel, null);
+            ToolkitStepUx.SetOptionalLabel(_instructionLabel, null);
 
             if (!TryParseContentDto(context?.contentJson, out var dto, out var error))
             {
@@ -76,14 +83,7 @@ namespace LanguageGame.Presentation.Steps
 
             _dto = dto;
 
-            if (!string.IsNullOrWhiteSpace(dto.prompt))
-            {
-                var prompt = new Label(dto.prompt.Trim());
-                prompt.AddToClassList("lg-heading-screen");
-                prompt.style.marginBottom = 8;
-                prompt.style.whiteSpace = WhiteSpace.Normal;
-                _root.Add(prompt);
-            }
+            ToolkitStepUx.SetOptionalLabel(_promptLabel, dto.prompt?.Trim());
 
             var errCount = CountTrueErrors(dto);
 
@@ -103,29 +103,8 @@ namespace LanguageGame.Presentation.Steps
                     : $"Nel testo ci sono {errCount} errori. Trovali tutti e correggili.";
             }
 
-            var caption = new Label(captionLine);
-            caption.AddToClassList("lg-text-caption");
-            caption.style.whiteSpace = WhiteSpace.Normal;
-            caption.style.marginBottom = 8;
-            _root.Add(caption);
-
-            if (!string.IsNullOrWhiteSpace(dto.instruction))
-            {
-                var ins = new Label(dto.instruction.Trim());
-                ins.AddToClassList("lg-text-body");
-                ins.AddToClassList("lg-text-muted");
-                ins.style.marginBottom = 8;
-                ins.style.whiteSpace = WhiteSpace.Normal;
-                _root.Add(ins);
-            }
-
-            _resetButton = new Button { text = "Ripristina" };
-            _resetButton.AddToClassList("lg-btn");
-            _resetButton.AddToClassList("lg-btn--secondary");
-            _resetButton.style.alignSelf = Align.FlexStart;
-            _resetButton.style.marginBottom = 12;
-            _resetButton.clicked += OnResetClicked;
-            _root.Add(_resetButton);
+            ToolkitStepUx.SetOptionalLabel(_captionLabel, captionLine, hideWhenEmpty: false);
+            ToolkitStepUx.SetOptionalLabel(_instructionLabel, dto.instruction?.Trim());
 
             foreach (var seg in dto.segments)
             {
@@ -135,8 +114,6 @@ namespace LanguageGame.Presentation.Steps
 
                 BuildSlotContent(id, seg);
             }
-
-            _root.Add(_chipsRow);
 
             if (_slotById.Count == 0)
             {
@@ -277,21 +254,18 @@ namespace LanguageGame.Presentation.Steps
 
         public void Teardown()
         {
+            if (_resetButton != null)
+                _resetButton.clicked -= OnResetClicked;
             ResetState();
             _context = null;
             _onRequest = null;
             _dto = null;
-            _root.RemoveFromHierarchy();
+            _root?.RemoveFromHierarchy();
         }
 
         private void ResetState()
         {
             _contentReady = false;
-            if (_resetButton != null)
-            {
-                _resetButton.clicked -= OnResetClicked;
-                _resetButton = null;
-            }
 
             _slotById.Clear();
             _selectedSegmentIds.Clear();

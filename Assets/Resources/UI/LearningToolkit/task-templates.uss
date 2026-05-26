@@ -1,0 +1,11 @@
+@import url("tokens-semantics.uss");
+
+/* Shared quest step template chrome (UI Builder–authored UXML under Templates/) */
+.lg-task-template-root {
+    flex-grow: 1;
+    flex-direction: column;
+    padding-top: var(--lg-space-16);
+    padding-bottom: var(--lg-space-16);
+    padding-left: var(--lg-space-16);
+    padding-right: var(--lg-space-16);
+}

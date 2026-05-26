@@ -38,39 +38,28 @@ namespace LanguageGame.Presentation.Steps
         private StepContext _context;
         private Action<StepCompletionRequest> _onRequest;
 
+        private readonly Label _promptLabel;
+        private readonly Label _subtitleLabel;
+
         public DragDropToolkitStep(VisualElement host, MonoBehaviour coroutineHost)
         {
             _coroutineHost = coroutineHost;
-            _root = new VisualElement();
-            _root.style.flexGrow = 1;
-            _root.AddToClassList("lg-muted-panel");
-            _root.style.paddingTop = 12;
-            _root.style.paddingBottom = 12;
-            _root.style.paddingLeft = 12;
-            _root.style.paddingRight = 12;
+            if (!ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.DragDropTask, "drag-drop-root", out _root))
+            {
+                _root = new VisualElement();
+                _root.style.flexGrow = 1;
+                host.Add(_root);
+            }
 
-            _bankHost = new VisualElement();
-            _bankHost.style.flexDirection = FlexDirection.Row;
-            _bankHost.style.flexWrap = Wrap.Wrap;
-            _bankHost.style.marginBottom = 12;
-
-            _targetsHost = new VisualElement();
-            _targetsHost.style.flexGrow = 1;
-            _targetsHost.style.flexDirection = FlexDirection.Column;
-
-            _dragLayer = new VisualElement { name = "drag-drop-float-layer" };
-            _dragLayer.pickingMode = PickingMode.Ignore;
-            _dragLayer.style.position = Position.Absolute;
-            _dragLayer.style.left = 0;
-            _dragLayer.style.right = 0;
-            _dragLayer.style.top = 0;
-            _dragLayer.style.bottom = 0;
-
-            _root.Add(_bankHost);
-            _root.Add(_targetsHost);
-            _root.Add(_dragLayer);
-
-            host.Add(_root);
+            _promptLabel = ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(DragDropToolkitStep));
+            _subtitleLabel = ToolkitStepUx.Query<Label>(_root, "task-subtitle", nameof(DragDropToolkitStep));
+            _bankHost = ToolkitStepUx.Query<VisualElement>(_root, "drag-drop-bank-host", nameof(DragDropToolkitStep))
+                        ?? _root;
+            _targetsHost = ToolkitStepUx.Query<VisualElement>(_root, "drag-drop-targets-host", nameof(DragDropToolkitStep))
+                           ?? _root;
+            _dragLayer = ToolkitStepUx.Query<VisualElement>(_root, "drag-drop-float-layer", nameof(DragDropToolkitStep));
+            if (_dragLayer != null)
+                _dragLayer.pickingMode = PickingMode.Ignore;
         }
 
         public void Bind(StepContext context, Action<StepCompletionRequest> onRequest)
@@ -80,7 +69,9 @@ namespace LanguageGame.Presentation.Steps
             StopImageLoads();
             _bankHost.Clear();
             _targetsHost.Clear();
-            _dragLayer.Clear();
+            _dragLayer?.Clear();
+            ToolkitStepUx.SetOptionalLabel(_promptLabel, null);
+            ToolkitStepUx.SetOptionalLabel(_subtitleLabel, null);
             _itemTiles.Clear();
             _targetInnerHosts.Clear();
             _occupant.Clear();
@@ -102,27 +93,14 @@ namespace LanguageGame.Presentation.Steps
             var isLines = string.Equals(mode, "lines", StringComparison.OrdinalIgnoreCase);
             _blocksMode = !isLines;
 
-            if (!string.IsNullOrWhiteSpace(dto.prompt))
-            {
-                var title = new Label(dto.prompt.Trim());
-                title.AddToClassList("lg-heading-screen");
-                title.style.marginBottom = 8;
-                title.style.whiteSpace = WhiteSpace.Normal;
-                _root.Insert(0, title);
-            }
+            ToolkitStepUx.SetOptionalLabel(_promptLabel, dto.prompt?.Trim());
 
             var sub = dto.subtitle?.Trim() ?? string.Empty;
             if (sub.Length == 0 && !isLines)
                 sub = DefaultBlocksInstruction;
-            if (sub.Length > 0)
-            {
-                var subLbl = new Label(sub);
-                subLbl.AddToClassList("lg-text-body");
-                subLbl.AddToClassList("lg-text-muted");
-                subLbl.style.whiteSpace = WhiteSpace.Normal;
-                subLbl.style.marginBottom = 8;
-                _root.Insert(_root.childCount >= 2 ? 1 : 0, subLbl);
-            }
+            ToolkitStepUx.SetOptionalLabel(_subtitleLabel, sub, hideWhenEmpty: isLines && sub.Length == 0);
+            if (!isLines && sub.Length > 0 && _subtitleLabel != null)
+                _subtitleLabel.style.display = DisplayStyle.Flex;
 
             if (isLines)
             {
@@ -179,7 +157,8 @@ namespace LanguageGame.Presentation.Steps
             if (!_contentReady)
                 context?.presentValidationMessage?.Invoke("Drag-and-drop task is incomplete.");
 
-            _root.Add(_dragLayer);
+            if (_dragLayer != null && _dragLayer.parent != _root)
+                _root.Add(_dragLayer);
         }
 
         public void SetInteractable(bool interactable)
@@ -623,9 +602,10 @@ namespace LanguageGame.Presentation.Steps
 
         internal void BeginTileDrag(VisualElement tile)
         {
-            if (tile == null)
+            if (tile == null || _dragLayer == null)
                 return;
-            _root.Add(_dragLayer);
+            if (_dragLayer.parent != _root)
+                _root.Add(_dragLayer);
             var worldTopLeft = tile.LocalToWorld(Vector2.zero);
             _dragLayer.Add(tile);
             tile.style.position = Position.Absolute;

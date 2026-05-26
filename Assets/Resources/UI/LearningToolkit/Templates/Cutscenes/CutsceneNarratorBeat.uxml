@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="cutscene-narrator-root" class="lg-cutscene-narrator">
+        <ui:Label name="beat-title" text="" class="lg-cutscene-narrator__title"
+            style="display: none; white-space: normal;" />
+        <ui:Label name="beat-subtitle" text="" class="lg-cutscene-narrator__subtitle"
+            style="display: none; white-space: normal;" />
+        <ui:Label name="beat-body" text="Placeholder narrator body" class="lg-cutscene-narrator__body"
+            style="white-space: normal;" />
+    </ui:VisualElement>
+</ui:UXML>

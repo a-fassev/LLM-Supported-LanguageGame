@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="cutscene-npc-root" class="lg-cutscene-npc lg-cutscene-npc--right"
+        style="flex-direction: row;">
+        <ui:VisualElement name="npc-portrait" class="lg-cutscene-npc__portrait" />
+        <ui:VisualElement name="npc-bubble-col" class="lg-cutscene-npc__bubble-col">
+            <ui:Label name="npc-name" text="" class="lg-cutscene-npc__name" style="display: none;" />
+            <ui:VisualElement name="npc-bubble" class="lg-cutscene-npc__bubble">
+                <ui:Label name="beat-body" text="Placeholder dialog" class="lg-cutscene-npc__body"
+                    style="white-space: normal;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

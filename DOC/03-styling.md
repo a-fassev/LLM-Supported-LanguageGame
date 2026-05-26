@@ -25,6 +25,8 @@ Layouts load from `Resources/UI/LearningToolkit/{ScreenName}` **without extensio
 | `QuestShellScreen.uxml` | [`QuestShellView`](../Assets/Scripts/Presentation/QuestShellView.cs) |
 | `AvatarShopScreen.uxml` | [`AvatarShopView`](../Assets/Scripts/Presentation/AvatarShopView.cs) |
 | `SpecialScreenHost.uxml` | Special screen composite step host |
+| `Templates/Tasks/*.uxml` | Per-task-type layouts (UI Builder) |
+| `Templates/Cutscenes/*.uxml` | Cutscene host + beat presentation layouts |
 | `ToolkitPreviewScreen.uxml` | Editor / preview tooling |
 
 ## USS layering (`Assets/Resources/UI/LearningToolkit/`)
@@ -40,6 +42,7 @@ Layouts load from `Resources/UI/LearningToolkit/{ScreenName}` **without extensio
 | [`components-overlays-empty.uss`](../Assets/Resources/UI/LearningToolkit/components-overlays-empty.uss) | Empty states / overlays |
 | [`components-hud.uss`](../Assets/Resources/UI/LearningToolkit/components-hud.uss) | Wallet / HUD chips |
 | [`special-screen-messenger.uss`](../Assets/Resources/UI/LearningToolkit/special-screen-messenger.uss) etc. | Special-screen chrome variants |
+| [`task-templates.uss`](../Assets/Resources/UI/LearningToolkit/task-templates.uss) | Shared quest step template chrome |
 
 `LearningMenusTheme.tss` should **@import** the USS stack — adjust there when adding new stylesheets.
 

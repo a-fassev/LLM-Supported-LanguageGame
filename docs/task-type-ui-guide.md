@@ -38,11 +38,28 @@ Steps that load remote images or audio (`imageUrl`, MultipleChoice `audioUrl`, e
 
 ---
 
+## UI Builder templates (quest steps)
+
+Task and cutscene layouts are authored as **UXML** under `Assets/Resources/UI/LearningToolkit/Templates/` and loaded at runtime via **`ToolkitStepUx`** (`Assets/Scripts/Presentation/Steps/ToolkitStepUx.cs`).
+
+| Pattern | Usage |
+|--------|--------|
+| Mount root template | `ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.…, "root-name", out _root)` |
+| Detached beat/panel | `ToolkitStepUx.Instantiate(path, "root-name")` |
+| Bind text slots | `ToolkitStepUx.SetOptionalLabel(label, text)` |
+| Query slots | `ToolkitStepUx.Query<T>(root, "element-name", nameof(YourStep))` |
+
+**Protected `name` attributes** in UXML must stay stable — C# queries them by name. Do not rename `task-prompt`, `mc-options-host`, `cutscene-beat-host`, etc., without updating the step class.
+
+Paths are centralized in **`ToolkitStepTemplatePaths`**. Styling uses **`lg-*`** USS classes (`task-templates.uss`, per-type USS). Dynamic lists (options, drag tiles, cloze gaps) are still created in C# inside named host slots.
+
+Reference host: **`SpecialScreenHost.uxml`** + **`SpecialScreenToolkitStep`**.
+
 ## Workflow for a new `taskType`
 
 1. Agree **`contentJson`** shape with whoever owns **`game_quest_steps`** / API.
 2. Add **`YourSomethingToolkitStep : IStepView`** (+ **`ISubmitFromShell`** if the shell submits it).
-3. Build UI with **`UnityEngine.UIElements`** under **`stepHost`** in **`Bind`**; **`Teardown`** removes what you added.
+3. Add **`Templates/Tasks/YourTaskTemplate.uxml`** and mount it in the step constructor; bind payload in **`Bind`**; **`Teardown`** removes the mounted root.
 4. Add **`case "YourTaskType":`** to **`ToolkitStepFactory`**.
 5. Prefer **`lg-*`** USS classes; avoid duplicating shell overlays inside the step.
 

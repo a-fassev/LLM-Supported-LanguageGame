@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="cloze-text-root" class="lg-muted-panel lg-task-template-root"
+        style="flex-grow: 1; flex-direction: column;">
+        <ui:Label name="task-prompt" text="" class="lg-heading-screen"
+            style="display: none; margin-bottom: 16px; white-space: normal;" />
+        <ui:VisualElement name="cloze-lines-host" style="flex-grow: 1;" />
+    </ui:VisualElement>
+</ui:UXML>

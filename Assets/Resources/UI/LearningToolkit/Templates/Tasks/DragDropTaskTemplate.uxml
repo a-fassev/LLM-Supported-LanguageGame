@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="drag-drop-root" class="lg-muted-panel lg-task-template-root"
+        style="flex-grow: 1; flex-direction: column; position: relative;">
+        <ui:Label name="task-prompt" text="" class="lg-heading-screen"
+            style="display: none; margin-bottom: 8px; white-space: normal;" />
+        <ui:Label name="task-subtitle" text="" class="lg-text-body lg-text-muted"
+            style="display: none; margin-bottom: 8px; white-space: normal;" />
+        <ui:VisualElement name="drag-drop-bank-host"
+            style="flex-direction: row; flex-wrap: wrap; margin-bottom: 12px;" />
+        <ui:VisualElement name="drag-drop-targets-host" style="flex-grow: 1; flex-direction: column;" />
+        <ui:VisualElement name="drag-drop-float-layer" picking-mode="Ignore"
+            style="position: absolute; left: 0; right: 0; top: 0; bottom: 0;" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -48,40 +48,20 @@ namespace LanguageGame.Presentation.Steps
         public FreitextLlmToolkitStep(VisualElement host, MonoBehaviour coroutineHost)
         {
             _coroutineHost = coroutineHost;
-            _root = new VisualElement();
-            _root.style.flexGrow = 1;
-            _root.AddToClassList("lg-muted-panel");
-            _root.style.paddingTop = 16;
-            _root.style.paddingBottom = 16;
-            _root.style.paddingLeft = 16;
-            _root.style.paddingRight = 16;
+            if (!ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.FreitextLlmTask, "freitext-llm-root", out _root))
+            {
+                _root = new VisualElement();
+                _root.style.flexGrow = 1;
+                host.Add(_root);
+            }
 
-            _promptLabel = new Label();
-            _promptLabel.AddToClassList("lg-heading-screen");
-            _promptLabel.style.whiteSpace = WhiteSpace.Normal;
-            _promptLabel.style.marginBottom = 10;
+            _promptLabel = ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(FreitextLlmToolkitStep));
+            _instructionLabel = ToolkitStepUx.Query<Label>(_root, "task-instruction", nameof(FreitextLlmToolkitStep));
+            _answerField = ToolkitStepUx.Query<TextField>(_root, "task-answer-field", nameof(FreitextLlmToolkitStep));
+            _statsLabel = ToolkitStepUx.Query<Label>(_root, "task-stats-label", nameof(FreitextLlmToolkitStep));
 
-            _instructionLabel = new Label();
-            _instructionLabel.AddToClassList("lg-text-body");
-            _instructionLabel.style.whiteSpace = WhiteSpace.Normal;
-            _instructionLabel.style.marginBottom = 12;
-
-            _answerField = new TextField { multiline = true };
-            _answerField.AddToClassList("lg-textfield");
-            _answerField.style.minHeight = 180;
-            _answerField.style.maxHeight = 420;
-            _answerField.RegisterValueChangedCallback(_ => RefreshStats());
-
-            _statsLabel = new Label();
-            _statsLabel.AddToClassList("lg-text-caption");
-            _statsLabel.style.marginTop = 8;
-
-            _root.Add(_promptLabel);
-            _root.Add(_instructionLabel);
-            _root.Add(_answerField);
-            _root.Add(_statsLabel);
-
-            host.Add(_root);
+            if (_answerField != null)
+                _answerField.RegisterValueChangedCallback(_ => RefreshStats());
         }
 
         public void Bind(StepContext context, Action<StepCompletionRequest> onRequest)
@@ -113,7 +93,7 @@ namespace LanguageGame.Presentation.Steps
 
             _dto = dto;
             ApplyAuthoringTexts(dto);
-            _answerField.SetValueWithoutNotify(string.Empty);
+            _answerField?.SetValueWithoutNotify(string.Empty);
 
             RefreshStats();
             _contentReady = true;
@@ -146,7 +126,7 @@ namespace LanguageGame.Presentation.Steps
         public void SetInteractable(bool interactable)
         {
             _interactable = interactable;
-            _answerField.SetEnabled(_interactable && !_evaluating);
+            _answerField?.SetEnabled(_interactable && !_evaluating);
         }
 
         public void Teardown()
@@ -243,20 +223,16 @@ namespace LanguageGame.Presentation.Steps
 
         private void ApplyAuthoringTexts(FreitextLlmContentDto dto)
         {
-            _promptLabel.text = string.IsNullOrWhiteSpace(dto.prompt)
+            var prompt = string.IsNullOrWhiteSpace(dto.prompt)
                 ? "Write freely using your own wording."
                 : dto.prompt.Trim();
+            if (_promptLabel != null)
+            {
+                _promptLabel.style.display = DisplayStyle.Flex;
+                _promptLabel.text = prompt;
+            }
 
-            if (!string.IsNullOrWhiteSpace(dto.instruction))
-            {
-                _instructionLabel.text = dto.instruction.Trim();
-                _instructionLabel.style.display = DisplayStyle.Flex;
-            }
-            else
-            {
-                _instructionLabel.text = string.Empty;
-                _instructionLabel.style.display = DisplayStyle.None;
-            }
+            ToolkitStepUx.SetOptionalLabel(_instructionLabel, dto.instruction?.Trim());
         }
 
         private void RefreshStats()

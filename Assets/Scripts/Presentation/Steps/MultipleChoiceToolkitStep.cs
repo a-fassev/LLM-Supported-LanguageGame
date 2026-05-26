@@ -45,51 +45,28 @@ namespace LanguageGame.Presentation.Steps
         public MultipleChoiceToolkitStep(VisualElement host, MonoBehaviour coroutineHost)
         {
             _coroutineHost = coroutineHost;
-            _root = new VisualElement();
-            _root.style.flexGrow = 1;
-            _root.AddToClassList("lg-muted-panel");
-            _root.style.paddingTop = 16;
-            _root.style.paddingBottom = 16;
-            _root.style.paddingLeft = 16;
-            _root.style.paddingRight = 16;
+            if (!ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.MultipleChoiceTask, "multiple-choice-root", out _root))
+            {
+                _root = new VisualElement();
+                _root.style.flexGrow = 1;
+                host.Add(_root);
+            }
 
-            _headerHost = new VisualElement();
-            _headerHost.style.flexGrow = 0;
-            _root.Add(_headerHost);
+            _headerHost = ToolkitStepUx.Query<VisualElement>(_root, "mc-header-host", nameof(MultipleChoiceToolkitStep))
+                          ?? _root;
+            _stemHost = ToolkitStepUx.Query<VisualElement>(_root, "mc-stem-host", nameof(MultipleChoiceToolkitStep))
+                        ?? _root;
+            _optionsHost = ToolkitStepUx.Query<VisualElement>(_root, "mc-options-host", nameof(MultipleChoiceToolkitStep))
+                           ?? _root;
+            _navHost = ToolkitStepUx.Query<VisualElement>(_root, "mc-nav-row", nameof(MultipleChoiceToolkitStep));
+            _prevButton = ToolkitStepUx.Query<Button>(_root, "mc-prev-button", nameof(MultipleChoiceToolkitStep));
+            _nextButton = ToolkitStepUx.Query<Button>(_root, "mc-next-button", nameof(MultipleChoiceToolkitStep));
+            _progressLabel = ToolkitStepUx.Query<Label>(_root, "mc-progress-label", nameof(MultipleChoiceToolkitStep));
 
-            _stemHost = new VisualElement();
-            _stemHost.style.flexGrow = 0;
-            _stemHost.style.marginBottom = 12;
-            _root.Add(_stemHost);
-
-            _optionsHost = new VisualElement();
-            _optionsHost.style.flexGrow = 1;
-            _root.Add(_optionsHost);
-
-            _navHost = new VisualElement();
-            _navHost.style.flexDirection = FlexDirection.Row;
-            _navHost.style.alignItems = Align.Center;
-            _navHost.style.justifyContent = Justify.Center;
-            _navHost.style.marginTop = 12;
-            _prevButton = new Button { text = "←" };
-            _prevButton.AddToClassList("lg-btn");
-            _prevButton.AddToClassList("lg-btn--secondary");
-            _progressLabel = new Label();
-            _progressLabel.AddToClassList("lg-text-caption");
-            _progressLabel.style.marginLeft = 12;
-            _progressLabel.style.marginRight = 12;
-            _nextButton = new Button { text = "→" };
-            _nextButton.AddToClassList("lg-btn");
-            _nextButton.AddToClassList("lg-btn--secondary");
-            _navHost.Add(_prevButton);
-            _navHost.Add(_progressLabel);
-            _navHost.Add(_nextButton);
-            _root.Add(_navHost);
-
-            _prevButton.clicked += OnPrevClicked;
-            _nextButton.clicked += OnNextClicked;
-
-            host.Add(_root);
+            if (_prevButton != null)
+                _prevButton.clicked += OnPrevClicked;
+            if (_nextButton != null)
+                _nextButton.clicked += OnNextClicked;
         }
 
         public void Bind(StepContext context, Action<StepCompletionRequest> onRequest)
@@ -297,8 +274,9 @@ namespace LanguageGame.Presentation.Steps
             BuildOptions(q);
 
             var showNav = _questions.Length > 1;
-            _navHost.style.display = showNav ? DisplayStyle.Flex : DisplayStyle.None;
-            if (showNav)
+            if (_navHost != null)
+                _navHost.style.display = showNav ? DisplayStyle.Flex : DisplayStyle.None;
+            if (showNav && _progressLabel != null)
                 _progressLabel.text = $"{_currentIndex + 1} / {_questions.Length}";
 
             RefreshNavInteractable();

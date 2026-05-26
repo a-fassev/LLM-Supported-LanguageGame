@@ -9,6 +9,8 @@ namespace LanguageGame.Presentation.Steps
     public sealed class ClozeTextToolkitStep : IStepView, ISubmitFromShell, ITaskAttemptPayloadProvider
     {
         private readonly VisualElement _root;
+        private readonly VisualElement _linesHost;
+        private readonly Label _promptLabel;
 
         private readonly List<(TextField field, string[] answers, bool caseInsensitive)> _gaps = new();
 
@@ -21,18 +23,17 @@ namespace LanguageGame.Presentation.Steps
         /// <param name="useMutedChrome">When false (e.g. embedded in <see cref="SpecialScreenToolkitStep"/>), skips outer panel styling to avoid stacked frames.</param>
         public ClozeTextToolkitStep(VisualElement host, bool useMutedChrome = true)
         {
-            _root = new VisualElement();
-            _root.style.flexGrow = 1;
-            if (useMutedChrome)
+            if (!ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.ClozeTextTask, "cloze-text-root", out _root))
             {
-                _root.AddToClassList("lg-muted-panel");
-                _root.style.paddingTop = 16;
-                _root.style.paddingBottom = 16;
-                _root.style.paddingLeft = 16;
-                _root.style.paddingRight = 16;
+                _root = new VisualElement();
+                _root.style.flexGrow = 1;
+                host.Add(_root);
             }
 
-            host.Add(_root);
+            ToolkitStepUx.ApplyMutedTaskChrome(_root, useMutedChrome);
+            _promptLabel = ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(ClozeTextToolkitStep));
+            _linesHost = ToolkitStepUx.Query<VisualElement>(_root, "cloze-lines-host", nameof(ClozeTextToolkitStep))
+                          ?? _root;
         }
 
         /// <summary>True after <see cref="Bind"/> produced interactive gaps.</summary>
@@ -44,7 +45,8 @@ namespace LanguageGame.Presentation.Steps
             _onRequest = onRequest;
             _gaps.Clear();
             _contentReady = false;
-            _root.Clear();
+            _linesHost?.Clear();
+            ToolkitStepUx.SetOptionalLabel(_promptLabel, null);
 
             if (!TryParseContentDto(context?.contentJson, out var dto, out var error))
             {
@@ -55,18 +57,7 @@ namespace LanguageGame.Presentation.Steps
                 return;
             }
 
-            if (!string.IsNullOrWhiteSpace(dto.prompt))
-            {
-                var prompt = new Label(dto.prompt.Trim());
-                prompt.AddToClassList("lg-heading-screen");
-                prompt.style.marginBottom = 16;
-                prompt.style.whiteSpace = WhiteSpace.Normal;
-                _root.Add(prompt);
-            }
-
-            var linesHost = new VisualElement();
-            linesHost.style.flexGrow = 1;
-            _root.Add(linesHost);
+            ToolkitStepUx.SetOptionalLabel(_promptLabel, dto.prompt?.Trim());
 
             var rootInsensitive = !dto.caseSensitive;
             foreach (var line in dto.lines)
@@ -119,7 +110,7 @@ namespace LanguageGame.Presentation.Steps
                 }
 
                 if (hasContent)
-                    linesHost.Add(row);
+                    _linesHost.Add(row);
             }
 
             if (_gaps.Count == 0)

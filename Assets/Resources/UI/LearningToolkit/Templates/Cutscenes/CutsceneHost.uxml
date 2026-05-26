@@ -1,0 +1,5 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="cutscene-root" class="lg-cutscene-root" style="flex-grow: 1; flex-direction: column;">
+        <ui:VisualElement name="cutscene-beat-host" style="flex-grow: 1;" />
+    </ui:VisualElement>
+</ui:UXML>

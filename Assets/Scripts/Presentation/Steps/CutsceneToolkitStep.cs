@@ -39,15 +39,21 @@ namespace LanguageGame.Presentation.Steps
 
         public CutsceneToolkitStep(VisualElement host)
         {
-            _root = new VisualElement();
-            _root.style.flexGrow = 1;
-            _root.AddToClassList("lg-cutscene-root");
+            if (!ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.CutsceneHost, "cutscene-root", out _root))
+            {
+                _root = new VisualElement { name = "cutscene-root" };
+                _root.AddToClassList("lg-cutscene-root");
+                _root.style.flexGrow = 1;
+                host.Add(_root);
+            }
 
-            _beatHost = new VisualElement();
-            _beatHost.style.flexGrow = 1;
-            _root.Add(_beatHost);
-
-            host.Add(_root);
+            _beatHost = ToolkitStepUx.Query<VisualElement>(_root, "cutscene-beat-host", nameof(CutsceneToolkitStep));
+            if (_beatHost == null)
+            {
+                _beatHost = new VisualElement();
+                _beatHost.style.flexGrow = 1;
+                _root.Add(_beatHost);
+            }
         }
 
         public void Bind(StepContext context, Action<StepCompletionRequest> onRequest)
@@ -171,10 +177,13 @@ namespace LanguageGame.Presentation.Steps
         private void RenderInvalid()
         {
             _beatHost.Clear();
-            var panel = CreateNarratorPanel();
-            SetLabelText(panel, "title", InvalidContentTitle);
-            SetLabelText(panel, "subtitle", string.Empty, hideWhenEmpty: true);
-            SetLabelText(panel, "body", InvalidContentBody);
+            var panel = InstantiateNarratorBeat();
+            if (panel == null)
+                return;
+
+            SetBeatLabel(panel, "beat-title", InvalidContentTitle);
+            SetBeatLabel(panel, "beat-subtitle", string.Empty, hideWhenEmpty: true);
+            SetBeatLabel(panel, "beat-body", InvalidContentBody);
             _beatHost.Add(panel);
         }
 
@@ -214,113 +223,71 @@ namespace LanguageGame.Presentation.Steps
 
         private VisualElement BuildNarratorPanel(CutsceneBeatDto beat)
         {
-            var panel = CreateNarratorPanel();
-            SetLabelText(panel, "title", beat.title, hideWhenEmpty: true);
-            SetLabelText(panel, "subtitle", beat.subtitle, hideWhenEmpty: true);
-            SetLabelText(panel, "body", beat.body?.Trim() ?? string.Empty);
+            var panel = InstantiateNarratorBeat();
+            if (panel == null)
+                return new VisualElement();
+
+            SetBeatLabel(panel, "beat-title", beat.title, hideWhenEmpty: true);
+            SetBeatLabel(panel, "beat-subtitle", beat.subtitle, hideWhenEmpty: true);
+            SetBeatLabel(panel, "beat-body", beat.body?.Trim() ?? string.Empty);
             return panel;
         }
 
         private VisualElement BuildThoughtPanel(CutsceneBeatDto beat)
         {
-            var panel = new VisualElement();
-            panel.AddToClassList("lg-cutscene-thought");
+            var panel = ToolkitStepUx.Instantiate(
+                ToolkitStepTemplatePaths.CutsceneInnerMonologueBeat,
+                "cutscene-thought-root");
+            if (panel == null)
+                return new VisualElement();
 
-            var bubble = new VisualElement();
-            bubble.AddToClassList("lg-cutscene-thought__bubble");
-
-            if (!string.IsNullOrWhiteSpace(beat.title))
-            {
-                var title = new Label(beat.title.Trim());
-                title.AddToClassList("lg-cutscene-thought__title");
-                bubble.Add(title);
-            }
-
-            var body = new Label(beat.body.Trim());
-            body.AddToClassList("lg-cutscene-thought__body");
-            body.style.whiteSpace = WhiteSpace.Normal;
-            bubble.Add(body);
-
-            panel.Add(bubble);
+            SetBeatLabel(panel, "beat-title", beat.title, hideWhenEmpty: true);
+            SetBeatLabel(panel, "beat-body", beat.body?.Trim() ?? string.Empty);
             return panel;
         }
 
         private VisualElement BuildGameInfoPanel(CutsceneBeatDto beat)
         {
-            var panel = new VisualElement();
-            panel.AddToClassList("lg-cutscene-gameinfo");
+            var panel = ToolkitStepUx.Instantiate(
+                ToolkitStepTemplatePaths.CutsceneGameInfoBeat,
+                "cutscene-gameinfo-root");
+            if (panel == null)
+                return new VisualElement();
 
-            var icon = new Label("i");
-            icon.AddToClassList("lg-cutscene-gameinfo__icon");
-            panel.Add(icon);
-
-            var textCol = new VisualElement();
-            textCol.AddToClassList("lg-cutscene-gameinfo__text");
-
-            if (!string.IsNullOrWhiteSpace(beat.title))
-            {
-                var title = new Label(beat.title.Trim());
-                title.AddToClassList("lg-cutscene-gameinfo__title");
-                textCol.Add(title);
-            }
-
-            var body = new Label(beat.body.Trim());
-            body.AddToClassList("lg-cutscene-gameinfo__body");
-            body.style.whiteSpace = WhiteSpace.Normal;
-            textCol.Add(body);
-
-            panel.Add(textCol);
+            SetBeatLabel(panel, "beat-title", beat.title, hideWhenEmpty: true);
+            SetBeatLabel(panel, "beat-body", beat.body?.Trim() ?? string.Empty);
             return panel;
         }
 
         private VisualElement BuildNpcDialog(CutsceneBeatDto beat)
         {
-            var row = new VisualElement();
-            row.AddToClassList("lg-cutscene-npc");
+            var row = ToolkitStepUx.Instantiate(
+                ToolkitStepTemplatePaths.CutsceneNpcDialogBeat,
+                "cutscene-npc-root");
+            if (row == null)
+                return new VisualElement();
 
             var cast = ResolveCast(beat.speakerId);
             var side = (cast?.side ?? "right").Trim().ToLowerInvariant();
             if (side != "left")
                 side = "right";
 
+            row.RemoveFromClassList("lg-cutscene-npc--left");
+            row.RemoveFromClassList("lg-cutscene-npc--right");
             row.AddToClassList(side == "left" ? "lg-cutscene-npc--left" : "lg-cutscene-npc--right");
+            row.style.flexDirection = side == "left" ? FlexDirection.Row : FlexDirection.RowReverse;
 
-            var portrait = new VisualElement();
-            portrait.AddToClassList("lg-cutscene-npc__portrait");
-            if (!string.IsNullOrWhiteSpace(cast?.portraitId))
+            var portrait = row.Q<VisualElement>("npc-portrait");
+            if (portrait != null && !string.IsNullOrWhiteSpace(cast?.portraitId))
                 portrait.tooltip = cast.portraitId;
 
-            var bubbleCol = new VisualElement();
-            bubbleCol.AddToClassList("lg-cutscene-npc__bubble-col");
-
-            if (!string.IsNullOrWhiteSpace(cast?.displayName))
-            {
-                var name = new Label(cast.displayName.Trim());
-                name.AddToClassList("lg-cutscene-npc__name");
-                bubbleCol.Add(name);
-            }
-
-            var bubble = new VisualElement();
-            bubble.AddToClassList("lg-cutscene-npc__bubble");
-            var body = new Label(beat.body.Trim());
-            body.AddToClassList("lg-cutscene-npc__body");
-            body.style.whiteSpace = WhiteSpace.Normal;
-            bubble.Add(body);
-            bubbleCol.Add(bubble);
-
-            if (side == "left")
-            {
-                row.Add(portrait);
-                row.Add(bubbleCol);
-            }
-            else
-            {
-                row.Add(bubbleCol);
-                row.Add(portrait);
-            }
-
+            SetBeatLabel(row, "npc-name", cast?.displayName, hideWhenEmpty: true);
+            SetBeatLabel(row, "beat-body", beat.body?.Trim() ?? string.Empty);
             return row;
         }
+
+        private static VisualElement InstantiateNarratorBeat() =>
+            ToolkitStepUx.Instantiate(ToolkitStepTemplatePaths.CutsceneNarratorBeat, "cutscene-narrator-root");
 
         private CutsceneNpcCastEntryDto ResolveCast(string speakerId)
         {
@@ -336,47 +303,10 @@ namespace LanguageGame.Presentation.Steps
             return null;
         }
 
-        private static VisualElement CreateNarratorPanel()
-        {
-            var panel = new VisualElement();
-            panel.AddToClassList("lg-cutscene-narrator");
-
-            var title = new Label();
-            title.name = "title";
-            title.AddToClassList("lg-cutscene-narrator__title");
-            title.style.display = DisplayStyle.None;
-            panel.Add(title);
-
-            var subtitle = new Label();
-            subtitle.name = "subtitle";
-            subtitle.AddToClassList("lg-cutscene-narrator__subtitle");
-            subtitle.style.display = DisplayStyle.None;
-            panel.Add(subtitle);
-
-            var body = new Label();
-            body.name = "body";
-            body.AddToClassList("lg-cutscene-narrator__body");
-            body.style.whiteSpace = WhiteSpace.Normal;
-            panel.Add(body);
-
-            return panel;
-        }
-
-        private static void SetLabelText(VisualElement panel, string name, string text, bool hideWhenEmpty = false)
+        private static void SetBeatLabel(VisualElement panel, string name, string text, bool hideWhenEmpty = false)
         {
             var label = panel.Q<Label>(name);
-            if (label == null)
-                return;
-
-            if (hideWhenEmpty && string.IsNullOrWhiteSpace(text))
-            {
-                label.style.display = DisplayStyle.None;
-                label.text = string.Empty;
-                return;
-            }
-
-            label.style.display = DisplayStyle.Flex;
-            label.text = text ?? string.Empty;
+            ToolkitStepUx.SetOptionalLabel(label, text, hideWhenEmpty);
         }
 
         private static bool ResolveQuestBlockBack(string questMetaJson)
