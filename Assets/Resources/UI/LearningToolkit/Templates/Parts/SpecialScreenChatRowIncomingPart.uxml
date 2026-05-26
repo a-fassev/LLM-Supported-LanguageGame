@@ -1,6 +1,11 @@
+<!-- UI Builder sample; runtime ClearHost on bubble then adds author/text. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="special-chat-row-incoming-part" class="lg-special-chat-row"
         style="flex-direction: row; width: 100%; justify-content: flex-start;">
-        <ui:VisualElement name="special-bubble-in-part" class="lg-special-bubble--in" />
+        <ui:VisualElement name="special-bubble-in-part" class="lg-special-bubble--in">
+            <ui:Label text="Chiara" class="lg-special-bubble__author lg-preview-sample" />
+            <ui:Label text="Ciao! Hai fatto i compiti?" class="lg-special-bubble__text lg-preview-sample"
+                style="white-space: normal;" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

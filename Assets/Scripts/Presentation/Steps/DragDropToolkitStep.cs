@@ -118,6 +118,7 @@ namespace LanguageGame.Presentation.Steps
                         out var bw))
                     return;
 
+                ToolkitStepUx.ClearHost(bw);
                 _bankHost.Add(bw);
             }
 
@@ -137,6 +138,7 @@ namespace LanguageGame.Presentation.Steps
                         out var wrap))
                     return;
 
+                ToolkitStepUx.ClearHost(wrap);
                 _bankHost.Add(wrap);
 
                 var tgtLabel = presentation.targetLabel?.Trim() ?? string.Empty;
@@ -427,6 +429,8 @@ namespace LanguageGame.Presentation.Steps
                         _context,
                         out var row))
                     return false;
+
+                ToolkitStepUx.ClearHost(row);
 
                 foreach (var seg in line.segments)
                 {

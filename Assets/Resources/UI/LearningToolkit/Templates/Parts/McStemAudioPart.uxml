@@ -1,3 +1,4 @@
+<!-- UI Builder sample; runtime wires audio URL to this button. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:Button name="mc-stem-audio-part" text="Ascolta" class="lg-btn lg-btn--secondary"
         style="margin-bottom: 8px;" />

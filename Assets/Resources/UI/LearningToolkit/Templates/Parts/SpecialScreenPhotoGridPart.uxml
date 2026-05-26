@@ -1,3 +1,17 @@
+<!-- UI Builder sample; runtime ClearHost then adds grid cells. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="special-photo-grid-part" class="lg-special-photo-grid" />
+    <ui:VisualElement name="special-photo-grid-part" class="lg-special-photo-grid"
+        style="flex-direction: row; flex-wrap: wrap;">
+        <ui:VisualElement class="lg-special-photo-cell lg-preview-sample"
+            style="width: 48%; margin: 1%; min-height: 100px;">
+            <ui:VisualElement class="lg-special-photo-cell__image" style="min-height: 80px;" />
+            <ui:Label text="Piazza Maggiore" class="lg-special-photo-caption--fixed"
+                style="white-space: normal;" />
+        </ui:VisualElement>
+        <ui:VisualElement class="lg-special-photo-cell lg-preview-sample"
+            style="width: 48%; margin: 1%; min-height: 100px;">
+            <ui:VisualElement class="lg-special-photo-cell__image" style="min-height: 80px;" />
+            <ui:Label text="Mercato" class="lg-special-photo-caption--fixed" style="white-space: normal;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
 </ui:UXML>

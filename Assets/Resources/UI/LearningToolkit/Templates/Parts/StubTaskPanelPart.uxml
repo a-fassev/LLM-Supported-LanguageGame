@@ -1,7 +1,9 @@
+<!-- UI Builder sample; runtime overwrites stub copy. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="stub-task-panel-part" style="padding-top: 8px; padding-bottom: 8px; flex-grow: 1;">
-        <ui:Label name="stub-headline" text="" class="lg-heading-screen"
-            style="white-space: normal; margin-bottom: 8px; display: none;" />
-        <ui:Label name="stub-body" text="" class="lg-text-body" style="white-space: normal;" />
+        <ui:Label name="stub-headline" text="Compito in arrivo" class="lg-heading-screen lg-preview-sample"
+            style="white-space: normal; margin-bottom: 8px;" />
+        <ui:Label name="stub-body" text="Questo tipo di compito non è ancora disponibile nell'app."
+            class="lg-text-body lg-preview-sample" style="white-space: normal;" />
     </ui:VisualElement>
 </ui:UXML>

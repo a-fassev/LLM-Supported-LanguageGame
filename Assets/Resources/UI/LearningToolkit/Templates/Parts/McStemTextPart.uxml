@@ -1,4 +1,5 @@
+<!-- UI Builder sample; runtime overwrites stem text. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Label name="mc-stem-text-part" text="" class="lg-text-body"
+    <ui:Label name="mc-stem-text-part" text="Quale parola significa «ciao»?" class="lg-text-body lg-preview-sample"
         style="white-space: normal; margin-bottom: 8px;" />
 </ui:UXML>

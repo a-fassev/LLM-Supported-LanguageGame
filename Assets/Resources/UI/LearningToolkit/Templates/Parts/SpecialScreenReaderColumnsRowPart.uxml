@@ -1,6 +1,15 @@
+<!-- UI Builder sample; runtime ClearHost on columns then adds body labels. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="special-reader-columns-row-part" class="lg-special-reader__columns-row">
-        <ui:VisualElement name="special-reader-column-first" class="lg-special-reader__column lg-special-reader__column--first" />
-        <ui:VisualElement name="special-reader-column-second" class="lg-special-reader__column lg-special-reader__column--second" />
+        <ui:VisualElement name="special-reader-column-first"
+            class="lg-special-reader__column lg-special-reader__column--first">
+            <ui:Label text="Il mercato è pieno di colori e profumi."
+                class="lg-text-body lg-special-reader__body lg-preview-sample" style="white-space: normal;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="special-reader-column-second"
+            class="lg-special-reader__column lg-special-reader__column--second">
+            <ui:Label text="Si comprano frutta, formaggio e pane fresco."
+                class="lg-text-body lg-special-reader__body lg-preview-sample" style="white-space: normal;" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

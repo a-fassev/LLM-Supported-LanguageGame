@@ -77,6 +77,8 @@ namespace LanguageGame.Presentation.Steps
                         out var row))
                     return;
 
+                ToolkitStepUx.ClearHost(row);
+
                 var hasContent = false;
                 foreach (var seg in line.segments)
                 {

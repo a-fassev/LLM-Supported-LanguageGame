@@ -1,4 +1,5 @@
+<!-- UI Builder sample; runtime overwrites text. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Label name="cloze-literal-part" text="" class="lg-text-body"
+    <ui:Label name="cloze-literal-part" text="Io " class="lg-text-body lg-preview-sample"
         style="white-space: normal; margin-right: 6px;" />
 </ui:UXML>

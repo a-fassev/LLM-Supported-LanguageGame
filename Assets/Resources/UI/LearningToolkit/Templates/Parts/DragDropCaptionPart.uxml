@@ -1,3 +1,4 @@
+<!-- UI Builder sample; runtime overwrites caption text. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Label name="drag-drop-caption-part" text="" class="lg-text-caption" />
+    <ui:Label name="drag-drop-caption-part" text="Parole da spostare" class="lg-text-caption lg-preview-sample" />
 </ui:UXML>

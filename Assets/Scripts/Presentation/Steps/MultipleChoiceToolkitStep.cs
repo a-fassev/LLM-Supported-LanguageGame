@@ -345,6 +345,7 @@ namespace LanguageGame.Presentation.Steps
                             _context,
                             out var imgVe))
                         return false;
+                    ToolkitStepUx.ClearHost(imgVe);
                     imgVe.style.height = MaxStemImageHeight;
                     imgVe.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
                     if (_coroutineHost != null)

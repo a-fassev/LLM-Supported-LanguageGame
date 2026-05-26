@@ -1,3 +1,4 @@
+<!-- UI Builder sample; runtime overwrites author name. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Label name="special-bubble-author-part" text="" class="lg-special-bubble__author" />
+    <ui:Label name="special-bubble-author-part" text="Chiara" class="lg-special-bubble__author lg-preview-sample" />
 </ui:UXML>

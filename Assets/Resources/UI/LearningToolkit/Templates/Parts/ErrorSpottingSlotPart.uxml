@@ -1,3 +1,6 @@
+<!-- UI Builder sample; runtime ClearHost then adds chip or field. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="error-spotting-slot-part" class="lg-error-spotting-slot" />
+    <ui:VisualElement name="error-spotting-slot-part" class="lg-error-spotting-slot">
+        <ui:Button text="casa" class="lg-error-spotting-chip lg-preview-sample" />
+    </ui:VisualElement>
 </ui:UXML>

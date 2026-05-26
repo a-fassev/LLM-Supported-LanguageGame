@@ -29,11 +29,18 @@ namespace LanguageGame.Presentation
         private GameQuestStepDto _boundStep;
         private string _boundQuestMetaJson;
 
+        private readonly EventCallback<ClickEvent> _onReferenceDocumentClicked;
+        private readonly EventCallback<ClickEvent> _onPauseMenuClicked;
+        private readonly EventCallback<ClickEvent> _onPrimaryChromeClicked;
+
         public TaskShellPresenter(MonoBehaviour host, QuestShellSharedRuntime shared, Action requestHostRefresh)
         {
             _host = host;
             _shared = shared;
             _requestHostRefresh = requestHostRefresh;
+            _onReferenceDocumentClicked = _ => OnReferenceDocumentClicked();
+            _onPauseMenuClicked = _ => OnPauseMenuClicked();
+            _onPrimaryChromeClicked = _ => OnPrimaryChromeClicked();
         }
 
         public bool IsMounted => _shellReady;
@@ -77,15 +84,16 @@ namespace LanguageGame.Presentation
             }
 
             _shared.AttachOverlays(overlay);
-            _tkReferenceDocument?.RegisterCallback<ClickEvent>(_ => OnReferenceDocumentClicked());
-            _tkPauseMenu.RegisterCallback<ClickEvent>(_ => OnPauseMenuClicked());
-            _tkPrimary.RegisterCallback<ClickEvent>(_ => OnPrimaryChromeClicked());
+            _tkReferenceDocument?.RegisterCallback(_onReferenceDocumentClicked);
+            _tkPauseMenu.RegisterCallback(_onPauseMenuClicked);
+            _tkPrimary.RegisterCallback(_onPrimaryChromeClicked);
             LearningToolkitNavigationFeedback.RegisterPresentationDocument(_toolkitDoc);
             _shellReady = true;
         }
 
         public void Unmount()
         {
+            UnregisterChromeCallbacks();
             if (_toolkitDoc != null)
                 LearningToolkitNavigationFeedback.UnregisterPresentationDocument(_toolkitDoc);
             TeardownBoundStep();
@@ -228,7 +236,7 @@ namespace LanguageGame.Presentation
         {
             if (request.requestBackToChapters)
             {
-                OnBackToChaptersClicked();
+                QuestShellNavigationUx.TryLeaveQuest(_shared, _activeStepView, nameof(TaskShellPresenter));
                 return;
             }
 
@@ -459,56 +467,14 @@ namespace LanguageGame.Presentation
             _shared.ReferenceDoc.Show(doc.title, doc.bodyText);
         }
 
-        private void OnPauseMenuClicked()
+        private void OnPauseMenuClicked() =>
+            QuestShellNavigationUx.ShowPauseMenu(_shared, _activeStepView);
+
+        private void UnregisterChromeCallbacks()
         {
-            if (_shared.Session.Submitting)
-                return;
-
-            _shared.PauseMenuModal.Show(
-                () => _shared.PauseMenuModal.Hide(),
-                OnPauseLeaveQuest,
-                leaveEnabled: !_shared.IsBackBlocked(_activeStepView),
-                LearningToolkitChromeUx.LeaveToChapterOverviewLabel);
-        }
-
-        private void OnPauseLeaveQuest()
-        {
-            _shared.PauseMenuModal.Hide();
-            OnBackToChaptersClicked();
-        }
-
-        private void OnBackToChaptersClicked()
-        {
-            var flow = GameFlowController.Instance;
-            if (flow == null)
-            {
-                Debug.LogError("[TaskShellPresenter] GameFlowController not found.");
-                return;
-            }
-
-            if (_shared.Session.Submitting || flow.IsSceneTransitionInProgress)
-                return;
-
-            if (_shared.IsBackBlocked(_activeStepView))
-                return;
-
-            if (flow.IsServerQuestActive)
-            {
-                if (flow.TryGetCurrentServerStep(out _))
-                {
-                    _shared.ShowBackConfirm(() => _shared.HideBackConfirm(), () =>
-                    {
-                        _shared.HideBackConfirm();
-                        flow.LoadChapterOverview();
-                    });
-                    return;
-                }
-
-                flow.LoadChapterOverview();
-                return;
-            }
-
-            flow.LoadChapterOverview();
+            _tkReferenceDocument?.UnregisterCallback(_onReferenceDocumentClicked);
+            _tkPauseMenu?.UnregisterCallback(_onPauseMenuClicked);
+            _tkPrimary?.UnregisterCallback(_onPrimaryChromeClicked);
         }
 
         private void UpdateWalletLabels()

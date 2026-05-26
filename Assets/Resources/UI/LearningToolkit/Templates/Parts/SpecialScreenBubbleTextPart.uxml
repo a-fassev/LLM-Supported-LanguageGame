@@ -1,4 +1,5 @@
+<!-- UI Builder sample; runtime overwrites message text. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Label name="special-bubble-text-part" text="" class="lg-special-bubble__text"
+    <ui:Label name="special-bubble-text-part" text="Ciao! Come stai?" class="lg-special-bubble__text lg-preview-sample"
         style="white-space: normal;" />
 </ui:UXML>

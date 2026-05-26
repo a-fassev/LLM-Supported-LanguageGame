@@ -1,4 +1,12 @@
+<!-- UI Builder sample; runtime ClearHost then rebuilds segments. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="cloze-line-row-part"
-        style="flex-direction: row; flex-wrap: wrap; align-items: center; margin-bottom: 10px;" />
+        style="flex-direction: row; flex-wrap: wrap; align-items: center; margin-bottom: 10px;">
+        <ui:Label text="Io " class="lg-text-body lg-preview-sample"
+            style="white-space: normal; margin-right: 6px;" />
+        <ui:TextField value="sono" class="lg-textfield lg-preview-sample"
+            style="min-width: 100px; margin-right: 6px;" />
+        <ui:Label text=" italiano." class="lg-text-body lg-preview-sample"
+            style="white-space: normal; margin-right: 6px;" />
+    </ui:VisualElement>
 </ui:UXML>

@@ -1,4 +1,14 @@
+<!-- UI Builder sample; runtime ClearHost then adds tiles. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="bank-wrap"
-        style="flex-direction: row; flex-wrap: wrap; margin-top: 4px;" />
+        style="flex-direction: row; flex-wrap: wrap; margin-top: 4px;">
+        <ui:VisualElement class="lg-btn lg-btn--secondary lg-preview-sample"
+            style="margin-right: 8px; margin-bottom: 8px; min-width: 80px; min-height: 44px; padding: 8px; justify-content: center;">
+            <ui:Label text="cane" class="lg-text-body" style="white-space: normal;" />
+        </ui:VisualElement>
+        <ui:VisualElement class="lg-btn lg-btn--secondary lg-preview-sample"
+            style="margin-right: 8px; margin-bottom: 8px; min-width: 80px; min-height: 44px; padding: 8px; justify-content: center;">
+            <ui:Label text="gatto" class="lg-text-body" style="white-space: normal;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
 </ui:UXML>

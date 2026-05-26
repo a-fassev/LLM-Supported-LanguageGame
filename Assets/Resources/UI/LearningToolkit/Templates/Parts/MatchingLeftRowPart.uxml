@@ -1,8 +1,14 @@
+<!-- UI Builder sample; runtime ClearHost on card host then adds card. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="matching-left-row-part"
         style="flex-direction: row; align-items: center; margin-bottom: 8px;">
-        <ui:VisualElement name="matching-left-card-host" style="flex-grow: 1;" />
-        <ui:Label name="matching-unpair" text="&#215;" tooltip="Rimuovi collegamento"
+        <ui:VisualElement name="matching-left-card-host" style="flex-grow: 1;">
+            <ui:VisualElement class="lg-btn lg-btn--secondary lg-preview-sample"
+                style="padding: 10px; flex-direction: column; align-items: flex-start;">
+                <ui:Label text="ciao" class="lg-text-body" style="white-space: normal;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Label name="matching-unpair" text="×" tooltip="Rimuovi collegamento"
             style="width: 28px; min-width: 28px; font-size: 20px; -unity-text-align: middle-center; display: none;" />
     </ui:VisualElement>
 </ui:UXML>

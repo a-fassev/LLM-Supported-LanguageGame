@@ -1,3 +1,9 @@
+<!-- Hidden at runtime until a special-screen block is bound. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="special-block-slot-part" style="flex-grow: 1; display: none;" />
+    <ui:VisualElement name="special-block-slot-part" style="flex-grow: 1; display: none;">
+        <ui:VisualElement class="lg-muted-panel lg-preview-sample" style="padding: 12px; display: flex;">
+            <ui:Label text="Slot per attività incorporata (anteprima UI Builder)"
+                class="lg-text-caption lg-text-muted" style="white-space: normal;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
 </ui:UXML>

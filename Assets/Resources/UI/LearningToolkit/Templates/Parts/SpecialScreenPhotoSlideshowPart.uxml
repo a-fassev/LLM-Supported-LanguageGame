@@ -1,15 +1,22 @@
+<!-- UI Builder sample; stage image host filled at runtime. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="special-photo-slideshow-part" class="lg-special-photo-slideshow">
         <ui:VisualElement name="special-photo-stage" class="lg-special-photo-slideshow__stage">
-            <ui:VisualElement name="special-photo-image-host" class="lg-special-photo-slideshow__image" />
+            <ui:VisualElement name="special-photo-image-host" class="lg-special-photo-slideshow__image"
+                style="min-height: 160px; justify-content: center; align-items: center;">
+                <ui:Label text="Foto (anteprima)" class="lg-text-caption lg-text-muted lg-preview-sample" />
+            </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="special-photo-nav" class="lg-special-photo-slideshow__nav"
             style="flex-direction: row; align-items: center; justify-content: space-between; margin-top: 8px;">
             <ui:Button name="special-photo-prev" text="←" class="lg-btn lg-btn--secondary" />
-            <ui:Label name="special-photo-index" text="1 / 1" class="lg-text-caption" />
+            <ui:Label name="special-photo-index" text="1 / 3" class="lg-text-caption" />
             <ui:Button name="special-photo-next" text="→" class="lg-btn lg-btn--secondary" />
         </ui:VisualElement>
         <ui:VisualElement name="special-photo-caption-host" class="lg-special-photo-slideshow__caption"
-            style="flex-direction: column; margin-top: 8px;" />
+            style="flex-direction: column; margin-top: 8px;">
+            <ui:Label text="Piazza Maggiore" class="lg-special-photo-caption--fixed lg-preview-sample"
+                style="white-space: normal;" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

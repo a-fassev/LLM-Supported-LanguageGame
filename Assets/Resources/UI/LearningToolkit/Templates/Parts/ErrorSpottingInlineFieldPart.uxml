@@ -1,4 +1,5 @@
+<!-- UI Builder sample; runtime sets value when segment is marked. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:TextField name="error-spotting-inline-field-part" class="lg-textfield lg-error-spotting-inline-field"
-        max-length="128" />
+    <ui:TextField name="error-spotting-inline-field-part" value="bella"
+        class="lg-textfield lg-error-spotting-inline-field lg-preview-sample" max-length="128" />
 </ui:UXML>

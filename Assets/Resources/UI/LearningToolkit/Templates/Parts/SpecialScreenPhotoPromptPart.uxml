@@ -1,4 +1,5 @@
+<!-- UI Builder sample; runtime overwrites prompt text. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Label name="special-photo-prompt-part" text="" class="lg-text-body"
-        style="white-space: normal; margin-bottom: 8px;" />
+    <ui:Label name="special-photo-prompt-part" text="Scrivi una didascalia per questa foto."
+        class="lg-text-body lg-preview-sample" style="white-space: normal; margin-bottom: 8px;" />
 </ui:UXML>

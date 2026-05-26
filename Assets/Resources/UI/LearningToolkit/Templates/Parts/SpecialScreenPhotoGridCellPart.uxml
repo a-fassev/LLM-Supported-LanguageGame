@@ -1,10 +1,11 @@
+<!-- UI Builder sample; runtime loads image and may show caption or learner field. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="special-photo-grid-cell-part" class="lg-special-photo-cell">
-        <ui:VisualElement name="special-photo-cell-image" class="lg-special-photo-cell__image" />
-        <ui:Label name="special-photo-cell-caption" text="" class="lg-special-photo-caption--fixed"
-            style="white-space: normal; display: none;" />
-        <!-- UI Builder sample (optional): clone SpecialScreenPhotoLearnerFieldPart structure here. -->
-        <ui:TextField name="special-photo-learner-field-part" class="lg-special-photo-field"
-            style="display: none;" />
+    <ui:VisualElement name="special-photo-grid-cell-part" class="lg-special-photo-cell lg-preview-sample">
+        <ui:VisualElement name="special-photo-cell-image" class="lg-special-photo-cell__image"
+            style="min-height: 80px;" />
+        <ui:Label name="special-photo-cell-caption" text="Piazza Maggiore"
+            class="lg-special-photo-caption--fixed lg-preview-sample" style="white-space: normal;" />
+        <ui:TextField name="special-photo-learner-field-part" value="La mia didascalia"
+            class="lg-special-photo-field lg-preview-sample" style="display: none;" />
     </ui:VisualElement>
 </ui:UXML>

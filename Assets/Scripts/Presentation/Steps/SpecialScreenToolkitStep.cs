@@ -661,6 +661,8 @@ namespace LanguageGame.Presentation.Steps
                     return false;
                 }
 
+                ToolkitStepUx.ClearHost(bubble);
+
                 if (!string.IsNullOrWhiteSpace(msgDto.author) &&
                     !AddMessengerBubbleAuthor(bubble, msgDto.author, parentContext))
                     return false;
@@ -675,6 +677,7 @@ namespace LanguageGame.Presentation.Steps
                             out var mechanicHost))
                         return false;
 
+                    ToolkitStepUx.ClearHost(mechanicHost);
                     bubble.Add(mechanicHost);
                     nested.Bind(mechanicHost, parentContext);
                     if (!nested.IsBinderReady)
@@ -1192,6 +1195,9 @@ namespace LanguageGame.Presentation.Steps
                 context?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
                 return false;
             }
+
+            ToolkitStepUx.ClearHost(left);
+            ToolkitStepUx.ClearHost(right);
 
             if (!ToolkitStepUx.TryInstantiatePart(
                     ToolkitStepTemplatePaths.SpecialScreenReaderBodyLabelPart,
@@ -2200,6 +2206,8 @@ namespace LanguageGame.Presentation.Steps
                         _bindContext,
                         out var grid))
                     return false;
+
+                ToolkitStepUx.ClearHost(grid);
 
                 var cellsAdded = 0;
                 for (var i = 0; i < items.Length; i++)

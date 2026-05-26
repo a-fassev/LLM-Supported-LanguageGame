@@ -1,43 +1,32 @@
-<!-- UI Builder: sample header rows and body block; runtime clears header/body hosts on bind. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="mail-chrome-root" class="lg-special-mail" style="flex-grow: 1;">
-        <ui:ScrollView name="mail-scroll" mode="Vertical" class="lg-special-mail__scroll"
-            style="flex-grow: 1; flex-shrink: 1; min-height: 0;">
+        <ui:ScrollView name="mail-scroll" mode="Vertical" class="lg-special-mail__scroll" style="flex-grow: 1; flex-shrink: 1; min-height: 0;">
             <ui:VisualElement name="mail-panel" class="lg-special-mail__panel">
                 <ui:VisualElement name="mail-header-host">
                     <ui:VisualElement class="lg-special-mail__row lg-preview-sample">
-                        <ui:Label text="Da:" class="lg-special-mail__row-caption" />
-                        <ui:Label text="prof.ricci@scuola.it" class="lg-text-body lg-special-mail__row-value"
-                            style="white-space: normal;" />
+                        <ui:Label text="Da:" class="lg-special-mail__row-caption"/>
+                        <ui:Label text="prof.ricci@scuola.it" class="lg-text-body lg-special-mail__row-value" style="white-space: normal;"/>
                     </ui:VisualElement>
                     <ui:VisualElement class="lg-special-mail__row lg-preview-sample">
-                        <ui:Label text="A:" class="lg-special-mail__row-caption" />
-                        <ui:Label text="tu@esempio.it" class="lg-text-body lg-special-mail__row-value"
-                            style="white-space: normal;" />
+                        <ui:Label text="A:" class="lg-special-mail__row-caption"/>
+                        <ui:Label text="tu@esempio.it" class="lg-text-body lg-special-mail__row-value" style="white-space: normal;"/>
                     </ui:VisualElement>
                     <ui:VisualElement class="lg-special-mail__row lg-preview-sample">
-                        <ui:Label text="Oggetto:" class="lg-special-mail__row-caption" />
-                        <ui:Label text="Compito di italiano" class="lg-text-body lg-special-mail__row-value"
-                            style="white-space: normal;" />
+                        <ui:Label text="Oggetto:" class="lg-special-mail__row-caption"/>
+                        <ui:Label text="Compito di italiano" class="lg-text-body lg-special-mail__row-value" style="white-space: normal;"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement name="mail-body-host" class="lg-special-mail__body"
-                    style="flex-grow: 0; flex-shrink: 0; min-height: 120px;">
+                <ui:VisualElement name="mail-body-host" class="lg-special-mail__body" style="flex-grow: 0; flex-shrink: 0; min-height: 120px;">
                     <ui:VisualElement class="lg-muted-panel lg-preview-sample" style="padding: 8px; margin-bottom: 8px;">
-                        <ui:Label text="Completa le lacune nel messaggio:" class="lg-text-body"
-                            style="white-space: normal; margin-bottom: 8px;" />
-                        <ui:Label text="Caro/a ___, grazie per la risposta." class="lg-text-body"
-                            style="white-space: normal;" />
+                        <ui:Label text="Completa le lacune nel messaggio:" class="lg-text-body" style="white-space: normal; margin-bottom: 8px;"/>
+                        <ui:Label text="Caro/a ___, grazie per la risposta." class="lg-text-body" style="white-space: normal;"/>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:Label name="mail-greeting" text="Ciao," class="lg-text-body lg-special-mail__greeting lg-preview-sample"
-                    style="white-space: normal;" />
-                <ui:Label name="mail-closing" text="A presto," class="lg-text-body lg-special-mail__closing lg-preview-sample"
-                    style="white-space: normal;" />
-                <ui:VisualElement name="mail-send-row" class="lg-special-mail__send-row">
-                    <ui:Button name="mail-send-button" text="Invia" class="lg-btn lg-btn--primary" />
-                    <ui:Label name="mail-send-ack" text="" class="lg-special-mail__send-ack lg-text-caption"
-                        style="display: none; white-space: normal;" />
+                <ui:Label name="mail-greeting" text="Ciao," class="lg-text-body lg-special-mail__greeting lg-preview-sample" style="white-space: normal;"/>
+                <ui:Label name="mail-closing" text="A presto," class="lg-text-body lg-special-mail__closing lg-preview-sample" style="white-space: normal;"/>
+                <ui:VisualElement name="mail-send-row" class="lg-special-mail__send-row" style="justify-content: flex-end;">
+                    <ui:Button name="mail-send-button" text="Invia" class="lg-btn lg-btn--primary"/>
+                    <ui:Label name="mail-send-ack" text="" class="lg-special-mail__send-ack lg-text-caption" style="display: none; white-space: normal;"/>
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:ScrollView>

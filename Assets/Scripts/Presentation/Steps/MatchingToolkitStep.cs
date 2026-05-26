@@ -666,6 +666,8 @@ namespace LanguageGame.Presentation.Steps
             if (cardHost == null)
                 return false;
 
+            ToolkitStepUx.ClearHost(cardHost);
+
             var card = BuildMatchingCard(def, itemId);
             if (card == null)
                 return false;
