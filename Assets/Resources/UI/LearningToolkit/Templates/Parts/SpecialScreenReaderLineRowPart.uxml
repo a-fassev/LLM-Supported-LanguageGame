@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="special-reader-line-row-part" class="lg-special-reader__line-row">
+        <ui:Label name="special-reader-line-num" text="" class="lg-text-caption lg-special-reader__line-num" />
+        <ui:Label name="special-reader-line-text" text="" class="lg-text-body lg-special-reader__line-text"
+            style="white-space: normal;" />
+    </ui:VisualElement>
+</ui:UXML>

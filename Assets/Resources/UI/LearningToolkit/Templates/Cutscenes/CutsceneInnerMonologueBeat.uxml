@@ -3,8 +3,8 @@
         <ui:VisualElement name="thought-bubble" class="lg-cutscene-thought__bubble">
             <ui:Label name="beat-title" text="" class="lg-cutscene-thought__title"
                 style="display: none; white-space: normal;" />
-            <ui:Label name="beat-body" text="Placeholder thought" class="lg-cutscene-thought__body"
-                style="white-space: normal;" />
+            <ui:Label name="beat-body" text="Forse dovrei alzare la mano… ma ho un po' di paura."
+                class="lg-cutscene-thought__body lg-preview-sample" style="white-space: normal;" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

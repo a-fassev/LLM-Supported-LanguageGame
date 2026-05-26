@@ -1,0 +1,3 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="error-spotting-slot-part" class="lg-error-spotting-slot" />
+</ui:UXML>

@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="special-photo-grid-cell-part" class="lg-special-photo-cell">
+        <ui:VisualElement name="special-photo-cell-image" class="lg-special-photo-cell__image" />
+        <ui:Label name="special-photo-cell-caption" text="" class="lg-special-photo-caption--fixed"
+            style="white-space: normal; display: none;" />
+    </ui:VisualElement>
+</ui:UXML>

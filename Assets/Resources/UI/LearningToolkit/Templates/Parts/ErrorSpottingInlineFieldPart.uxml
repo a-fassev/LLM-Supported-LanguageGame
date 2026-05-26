@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:TextField name="error-spotting-inline-field-part" class="lg-textfield lg-error-spotting-inline-field"
+        max-length="128" />
+</ui:UXML>

@@ -77,7 +77,7 @@ namespace LanguageGame.Presentation.Steps
             if (!ToolkitStepUx.GuardTemplateReady(_uiReady, context, _chipsRow, _resetButton))
                 return;
 
-            _chipsRow.Clear();
+            ToolkitStepUx.ClearHost(_chipsRow);
             ToolkitStepUx.SetOptionalLabel(_promptLabel, null);
             ToolkitStepUx.SetOptionalLabel(_captionLabel, null);
             ToolkitStepUx.SetOptionalLabel(_instructionLabel, null);
@@ -282,7 +282,7 @@ namespace LanguageGame.Presentation.Steps
             _correctionFields.Clear();
             _correctionDrafts.Clear();
             _trueErrorIds.Clear();
-            _chipsRow?.Clear();
+            ToolkitStepUx.ClearHost(_chipsRow);
         }
 
         private void OnResetClicked()
@@ -323,13 +323,16 @@ namespace LanguageGame.Presentation.Steps
         {
             if (!_slotById.TryGetValue(id, out var slot))
             {
-                slot = new VisualElement();
-                slot.AddToClassList("lg-error-spotting-slot");
+                slot = ToolkitStepUx.InstantiatePart(
+                    ToolkitStepTemplatePaths.ErrorSpottingSlotPart,
+                    "error-spotting-slot-part");
+                if (slot == null)
+                    return;
                 _slotById[id] = slot;
                 _chipsRow.Add(slot);
             }
 
-            slot.Clear();
+            ToolkitStepUx.ClearHost(slot);
             _correctionFields.Remove(id);
 
             slot.RemoveFromClassList("lg-error-spotting-slot--marked");
@@ -340,8 +343,12 @@ namespace LanguageGame.Presentation.Steps
 
             if (!_selectedSegmentIds.Contains(id))
             {
-                var btn = new Button { text = chipText };
-                btn.AddToClassList("lg-error-spotting-chip");
+                var btn = ToolkitStepUx.InstantiatePart(
+                    ToolkitStepTemplatePaths.ErrorSpottingChipPart,
+                    "error-spotting-chip-part") as Button;
+                if (btn == null)
+                    return;
+                btn.text = chipText;
                 btn.tooltip = seg.hint ?? string.Empty;
                 btn.clicked += () => OnChipClicked(id);
                 btn.SetEnabled(_interactable && _contentReady);
@@ -353,9 +360,14 @@ namespace LanguageGame.Presentation.Steps
             if (_correctionDrafts.TryGetValue(id, out var draft))
                 initial = draft;
 
-            var tf = new TextField { value = initial, maxLength = CorrectionMaxLength };
-            tf.AddToClassList("lg-textfield");
-            tf.AddToClassList("lg-error-spotting-inline-field");
+            var tf = ToolkitStepUx.InstantiatePart(
+                ToolkitStepTemplatePaths.ErrorSpottingInlineFieldPart,
+                "error-spotting-inline-field-part") as TextField;
+            if (tf == null)
+                return;
+
+            tf.SetValueWithoutNotify(initial);
+            tf.maxLength = CorrectionMaxLength;
             tf.tooltip = seg.hint ?? string.Empty;
             tf.SetEnabled(_interactable && _contentReady);
             tf.RegisterValueChangedCallback(ev =>

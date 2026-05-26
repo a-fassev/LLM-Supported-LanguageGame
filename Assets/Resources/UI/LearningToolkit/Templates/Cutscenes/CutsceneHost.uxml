@@ -1,5 +1,13 @@
+<!-- UI Builder: sample beat under cutscene-beat-host; runtime replaces on RenderCurrentBeat. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="cutscene-root" class="lg-cutscene-root" style="flex-grow: 1; flex-direction: column;">
-        <ui:VisualElement name="cutscene-beat-host" style="flex-grow: 1;" />
+        <ui:VisualElement name="cutscene-beat-host" style="flex-grow: 1;">
+            <ui:VisualElement class="lg-cutscene-narrator lg-preview-sample">
+                <ui:Label text="Benvenuto a Bologna" class="lg-cutscene-narrator__title"
+                    style="white-space: normal; margin-bottom: 4px;" />
+                <ui:Label text="La città si sveglia lentamente sotto il sole del mattino."
+                    class="lg-cutscene-narrator__body" style="white-space: normal;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

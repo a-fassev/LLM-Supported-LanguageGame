@@ -3,10 +3,10 @@
         style="flex-direction: row;">
         <ui:VisualElement name="npc-portrait" class="lg-cutscene-npc__portrait" />
         <ui:VisualElement name="npc-bubble-col" class="lg-cutscene-npc__bubble-col">
-            <ui:Label name="npc-name" text="" class="lg-cutscene-npc__name" style="display: none;" />
+            <ui:Label name="npc-name" text="Prof.ssa Ricci" class="lg-cutscene-npc__name lg-preview-sample" />
             <ui:VisualElement name="npc-bubble" class="lg-cutscene-npc__bubble">
-                <ui:Label name="beat-body" text="Placeholder dialog" class="lg-cutscene-npc__body"
-                    style="white-space: normal;" />
+                <ui:Label name="beat-body" text="Buongiorno a tutti! Oggi parliamo del cibo italiano."
+                    class="lg-cutscene-npc__body lg-preview-sample" style="white-space: normal;" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

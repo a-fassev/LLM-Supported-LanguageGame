@@ -1,15 +1,20 @@
+<!-- UI Builder: sample block in special-screen-block-area; runtime replaces per part. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="special-screen-root" class="lg-game-panel lg-panel-padded" style="flex-grow: 1; flex-direction: column;">
-        <ui:Label name="special-screen-title" class="lg-heading-screen"
+        <ui:Label name="special-screen-title" text="Schermata speciale" class="lg-heading-screen lg-preview-sample"
             style="white-space: normal; margin-bottom: 8px;" />
-        <ui:Label name="special-screen-subtitle" class="lg-text-body lg-text-muted"
-            style="white-space: normal; margin-bottom: 8px;" />
-        <!-- Block slots from SpecialScreenToolkitStep: generic sequential UI or per-part smartphone messenger chrome -->
-        <ui:VisualElement name="special-screen-block-area" style="flex-grow: 1; min-height: 120px;" />
+        <ui:Label name="special-screen-subtitle" text="Esempio di blocco incorporato"
+            class="lg-text-body lg-text-muted lg-preview-sample" style="white-space: normal; margin-bottom: 8px;" />
+        <ui:VisualElement name="special-screen-block-area" style="flex-grow: 1; min-height: 120px;">
+            <ui:VisualElement class="lg-muted-panel lg-preview-sample" style="padding: 12px; flex-grow: 1;">
+                <ui:Label text="Blocco di esempio (cloze / error spotting)" class="lg-text-body"
+                    style="white-space: normal;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
         <ui:VisualElement name="special-screen-nav-row"
             style="flex-direction: row; justify-content: center; align-items: center; flex-shrink: 0; margin-top: 12px;">
             <ui:Button name="special-screen-prev" text="&#8592;" class="lg-btn lg-btn--secondary" />
-            <ui:Label name="special-screen-progress" class="lg-text-caption"
+            <ui:Label name="special-screen-progress" text="Parte 1 di 2" class="lg-text-caption lg-preview-sample"
                 style="margin-left: 12px; margin-right: 12px;" />
             <ui:Button name="special-screen-next" text="&#8594;" class="lg-btn lg-btn--secondary" />
         </ui:VisualElement>

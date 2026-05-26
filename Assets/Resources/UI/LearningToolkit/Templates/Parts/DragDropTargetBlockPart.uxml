@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="drag-drop-target-block-part" class="lg-muted-panel"
+        style="margin-bottom: 10px; padding-left: 8px; padding-right: 8px; padding-top: 8px; padding-bottom: 8px;">
+        <ui:Label name="drag-drop-target-title" text="" class="lg-text-body"
+            style="unity-font-style-and-weight: bold; margin-bottom: 6px;" />
+        <ui:VisualElement name="drag-drop-drop-zone" class="lg-list-row-button" style="min-height: 100px;" />
+    </ui:VisualElement>
+</ui:UXML>

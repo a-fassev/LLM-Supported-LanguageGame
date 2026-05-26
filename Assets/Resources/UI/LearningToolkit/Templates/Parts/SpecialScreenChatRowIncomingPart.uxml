@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="special-chat-row-incoming-part" class="lg-special-chat-row"
+        style="flex-direction: row; width: 100%; justify-content: flex-start;">
+        <ui:VisualElement name="special-bubble-in-part" class="lg-special-bubble--in" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="drag-drop-tile-part" class="lg-btn lg-btn--secondary"
+        style="margin-right: 8px; margin-bottom: 8px; min-width: 80px; min-height: 44px; padding-left: 10px; padding-right: 10px; padding-top: 8px; padding-bottom: 8px; justify-content: center;">
+        <ui:Label name="drag-drop-tile-label" text="" class="lg-text-body" style="white-space: normal;" />
+        <ui:VisualElement name="drag-drop-tile-image" style="display: none; width: 72px; height: 72px; margin-top: 4px;" />
+    </ui:VisualElement>
+</ui:UXML>

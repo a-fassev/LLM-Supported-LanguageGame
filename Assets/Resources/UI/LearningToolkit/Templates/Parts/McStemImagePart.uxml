@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="mc-stem-image-part"
+        style="height: 200px; min-height: 120px; margin-bottom: 8px;" />
+</ui:UXML>

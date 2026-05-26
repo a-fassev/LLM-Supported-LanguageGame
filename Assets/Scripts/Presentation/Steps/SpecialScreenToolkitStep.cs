@@ -163,6 +163,8 @@ namespace LanguageGame.Presentation.Steps
                     return;
                 }
 
+                ToolkitStepUx.ClearHost(_blockArea);
+
                 foreach (var blockDto in blockList)
                 {
                     var slot = new VisualElement();
@@ -554,6 +556,8 @@ namespace LanguageGame.Presentation.Steps
 
         private bool BuildPhotoAndNestedMechanicSlots(SpecialScreenContentDto dto, StepContext context)
         {
+            ToolkitStepUx.ClearHost(_blockArea);
+
             var photoSlot = new VisualElement();
             photoSlot.style.flexGrow = 1;
             photoSlot.style.display = DisplayStyle.None;
@@ -634,6 +638,8 @@ namespace LanguageGame.Presentation.Steps
                 headerRow.style.display = DisplayStyle.None;
             }
 
+            ToolkitStepUx.ClearHost(scroll);
+
             var msgs = dto.smsChrome.messages;
             for (var mi = 0; mi < msgs.Length; mi++)
             {
@@ -650,28 +656,24 @@ namespace LanguageGame.Presentation.Steps
                 var embedHere = msgDto.hostsEmbeddedMechanic &&
                                 msgDto.embeddedMechanicBlockIndex == slotBlockIndex;
 
-                var row = new VisualElement();
-                row.AddToClassList("lg-special-chat-row");
-                row.style.flexDirection = FlexDirection.Row;
-                row.style.width = Length.Percent(100);
-                row.style.justifyContent = incoming ? Justify.FlexStart : Justify.FlexEnd;
+                var row = InstantiateMessengerChatRow(incoming);
+                if (row == null)
+                    continue;
 
-                var bubble = new VisualElement();
-                bubble.AddToClassList(incoming ? "lg-special-bubble--in" : "lg-special-bubble--out");
+                var bubble = GetMessengerBubbleFromRow(row, incoming);
+                if (bubble == null)
+                    continue;
 
                 if (!string.IsNullOrWhiteSpace(msgDto.author))
-                {
-                    var auth = new Label(msgDto.author.Trim());
-                    auth.AddToClassList("lg-special-bubble__author");
-                    bubble.Add(auth);
-                }
+                    AddMessengerBubbleAuthor(bubble, msgDto.author);
 
                 if (embedHere)
                 {
-                    var mechanicHost = new VisualElement();
-                    mechanicHost.AddToClassList("lg-special-bubble__mechanic");
-                    mechanicHost.style.flexGrow = 1;
-                    mechanicHost.style.flexShrink = 0;
+                    var mechanicHost = ToolkitStepUx.InstantiatePart(
+                        ToolkitStepTemplatePaths.SpecialScreenBubbleMechanicHostPart,
+                        "special-bubble-mechanic-host-part");
+                    if (mechanicHost == null)
+                        continue;
                     bubble.Add(mechanicHost);
                     nested.Bind(mechanicHost, parentContext);
                 }
@@ -679,26 +681,24 @@ namespace LanguageGame.Presentation.Steps
                 {
                     var txt = msgDto.text?.Trim() ?? string.Empty;
                     if (!string.IsNullOrEmpty(txt))
-                    {
-                        var body = new Label(txt);
-                        body.AddToClassList("lg-special-bubble__text");
-                        body.style.whiteSpace = WhiteSpace.Normal;
-                        bubble.Add(body);
-                    }
+                        AddMessengerBubbleText(bubble, txt);
                     else if (msgDto.hostsEmbeddedMechanic)
                     {
-                        var deferred = new Label(MessengerDeferredMechanicPlaceholder);
-                        deferred.AddToClassList("lg-special-bubble__text");
-                        deferred.AddToClassList("lg-text-muted");
-                        deferred.style.whiteSpace = WhiteSpace.Normal;
-                        bubble.Add(deferred);
+                        var deferred = ToolkitStepUx.InstantiatePart(
+                            ToolkitStepTemplatePaths.SpecialScreenBubbleTextPart,
+                            "special-bubble-text-part") as Label;
+                        if (deferred != null)
+                        {
+                            deferred.text = MessengerDeferredMechanicPlaceholder;
+                            deferred.AddToClassList("lg-text-muted");
+                            bubble.Add(deferred);
+                        }
                     }
                 }
 
                 if (bubble.childCount == 0)
                     continue;
 
-                row.Add(bubble);
                 scroll.Add(row);
             }
 
@@ -745,6 +745,8 @@ namespace LanguageGame.Presentation.Steps
             if (_blockArea == null)
                 return false;
 
+            ToolkitStepUx.ClearHost(_blockArea);
+
             var mail = dto.mailChrome ?? new SpecialScreenMailChromeDto();
             _mailSendSuccessText = mail.sendSuccessText;
             _mailSendButton = null;
@@ -787,6 +789,9 @@ namespace LanguageGame.Presentation.Steps
             var lf = string.IsNullOrWhiteSpace(mail.rowLabelFrom) ? "Da:" : mail.rowLabelFrom.Trim();
             var lt = string.IsNullOrWhiteSpace(mail.rowLabelTo) ? "A:" : mail.rowLabelTo.Trim();
             var ls = string.IsNullOrWhiteSpace(mail.rowLabelSubject) ? "Oggetto:" : mail.rowLabelSubject.Trim();
+
+            ToolkitStepUx.ClearHost(headerHost);
+            ToolkitStepUx.ClearHost(bodyHost);
 
             AddMailHeaderRow(headerHost, lf, fromVal);
             AddMailHeaderRow(headerHost, lt, toVal);
@@ -839,20 +844,52 @@ namespace LanguageGame.Presentation.Steps
 
         private static void AddMailHeaderRow(VisualElement parent, string caption, string value)
         {
-            var row = new VisualElement();
-            row.AddToClassList("lg-special-mail__row");
+            var row = ToolkitStepUx.InstantiatePart(
+                ToolkitStepTemplatePaths.SpecialScreenMailHeaderRowPart,
+                "special-mail-header-row-part");
+            if (row == null)
+                return;
 
-            var cap = new Label(caption);
-            cap.AddToClassList("lg-special-mail__row-caption");
+            var cap = row.Q<Label>("special-mail-row-caption");
+            var val = row.Q<Label>("special-mail-row-value");
+            if (cap != null)
+                cap.text = caption;
+            if (val != null)
+                val.text = value;
 
-            var val = new Label(value);
-            val.AddToClassList("lg-text-body");
-            val.AddToClassList("lg-special-mail__row-value");
-            val.style.whiteSpace = WhiteSpace.Normal;
-
-            row.Add(cap);
-            row.Add(val);
             parent.Add(row);
+        }
+
+        private static VisualElement InstantiateMessengerChatRow(bool incoming) =>
+            ToolkitStepUx.InstantiatePart(
+                incoming
+                    ? ToolkitStepTemplatePaths.SpecialScreenChatRowIncomingPart
+                    : ToolkitStepTemplatePaths.SpecialScreenChatRowOutgoingPart,
+                incoming ? "special-chat-row-incoming-part" : "special-chat-row-outgoing-part");
+
+        private static VisualElement GetMessengerBubbleFromRow(VisualElement row, bool incoming) =>
+            row?.Q<VisualElement>(incoming ? "special-bubble-in-part" : "special-bubble-out-part");
+
+        private static void AddMessengerBubbleAuthor(VisualElement bubble, string author)
+        {
+            var auth = ToolkitStepUx.InstantiatePart(
+                ToolkitStepTemplatePaths.SpecialScreenBubbleAuthorPart,
+                "special-bubble-author-part") as Label;
+            if (auth == null)
+                return;
+            auth.text = author.Trim();
+            bubble.Add(auth);
+        }
+
+        private static void AddMessengerBubbleText(VisualElement bubble, string text)
+        {
+            var body = ToolkitStepUx.InstantiatePart(
+                ToolkitStepTemplatePaths.SpecialScreenBubbleTextPart,
+                "special-bubble-text-part") as Label;
+            if (body == null)
+                return;
+            body.text = text;
+            bubble.Add(body);
         }
 
         private void OnMailSendClicked()
@@ -884,7 +921,7 @@ namespace LanguageGame.Presentation.Steps
         private bool BuildReaderLayout(SpecialScreenContentDto dto, StepContext context)
         {
             StopReaderRemoteLoads();
-            _blockArea.Clear();
+            ToolkitStepUx.ClearHost(_blockArea);
 
             if (!ToolkitStepUx.TryMount(
                     _blockArea,
@@ -947,7 +984,7 @@ namespace LanguageGame.Presentation.Steps
                 : dto.subtitle?.Trim() ?? string.Empty;
             ToolkitStepUx.SetOptionalLabel(subheadLabel, sub);
 
-            bodyHost.Clear();
+            ToolkitStepUx.ClearHost(bodyHost);
             if (rc.showLineNumbers)
             {
                 AddReaderLineNumberBlock(bodyHost, body);
@@ -986,20 +1023,19 @@ namespace LanguageGame.Presentation.Steps
             var lineNo = 1;
             foreach (var line in SplitLinesPreserveTrailing(body))
             {
-                var row = new VisualElement();
-                row.AddToClassList("lg-special-reader__line-row");
+                var row = ToolkitStepUx.InstantiatePart(
+                    ToolkitStepTemplatePaths.SpecialScreenReaderLineRowPart,
+                    "special-reader-line-row-part");
+                if (row == null)
+                    continue;
 
-                var num = new Label($"{lineNo}");
-                num.AddToClassList("lg-text-caption");
-                num.AddToClassList("lg-special-reader__line-num");
+                var num = row.Q<Label>("special-reader-line-num");
+                var txt = row.Q<Label>("special-reader-line-text");
+                if (num != null)
+                    num.text = $"{lineNo}";
+                if (txt != null)
+                    txt.text = line;
 
-                var txt = new Label(line);
-                txt.AddToClassList("lg-text-body");
-                txt.AddToClassList("lg-special-reader__line-text");
-                txt.style.whiteSpace = WhiteSpace.Normal;
-
-                row.Add(num);
-                row.Add(txt);
                 panel.Add(row);
                 lineNo++;
             }
@@ -1809,32 +1845,38 @@ namespace LanguageGame.Presentation.Steps
             {
                 _ready = false;
                 _slot = slot ?? throw new ArgumentNullException(nameof(slot));
-                _slot.Clear();
+                ToolkitStepUx.ClearHost(_slot);
 
-                var panel = new VisualElement();
-                panel.style.paddingTop = 8;
-                panel.style.paddingBottom = 8;
-                panel.style.flexGrow = 1;
+                var panel = ToolkitStepUx.InstantiatePart(
+                    ToolkitStepTemplatePaths.StubTaskPanelPart,
+                    "stub-task-panel-part");
+                if (panel == null)
+                {
+                    _ready = false;
+                    return;
+                }
 
                 var dto = _dto ?? new SpecialScreenStubBlockDto();
 
-                if (!string.IsNullOrWhiteSpace(dto.headline))
+                var headline = panel.Q<Label>("stub-headline");
+                if (headline != null)
                 {
-                    var h = new Label(dto.headline.Trim());
-                    h.AddToClassList("lg-heading-screen");
-                    h.style.whiteSpace = WhiteSpace.Normal;
-                    h.style.marginBottom = 8;
-                    panel.Add(h);
+                    if (!string.IsNullOrWhiteSpace(dto.headline))
+                    {
+                        headline.text = dto.headline.Trim();
+                        headline.style.display = DisplayStyle.Flex;
+                    }
+                    else
+                        headline.style.display = DisplayStyle.None;
                 }
 
-                var bodyText = string.IsNullOrWhiteSpace(dto.body)
-                    ? "Segnaposto — layout in arrivo."
-                    : dto.body.Trim();
-
-                var body = new Label(bodyText);
-                body.AddToClassList("lg-text-body");
-                body.style.whiteSpace = WhiteSpace.Normal;
-                panel.Add(body);
+                var body = panel.Q<Label>("stub-body");
+                if (body != null)
+                {
+                    body.text = string.IsNullOrWhiteSpace(dto.body)
+                        ? "Segnaposto — layout in arrivo."
+                        : dto.body.Trim();
+                }
 
                 _slot.Add(panel);
                 _ready = true;
@@ -1965,6 +2007,8 @@ namespace LanguageGame.Presentation.Steps
                 if (scroll == null)
                     return;
 
+                ToolkitStepUx.ClearHost(scroll);
+
                 var pv = _dto;
                 if (!string.IsNullOrWhiteSpace(pv.prompt))
                 {
@@ -2003,13 +2047,15 @@ namespace LanguageGame.Presentation.Steps
                     if (it == null)
                         continue;
 
-                    var cell = new VisualElement();
-                    cell.AddToClassList("lg-special-photo-cell");
+                    var cell = ToolkitStepUx.InstantiatePart(
+                        ToolkitStepTemplatePaths.SpecialScreenPhotoGridCellPart,
+                        "special-photo-grid-cell-part");
+                    if (cell == null)
+                        continue;
 
-                    var imgHost = new VisualElement();
-                    imgHost.AddToClassList("lg-special-photo-cell__image");
-                    StartLoad(it.imageUrl, imgHost, null);
-                    cell.Add(imgHost);
+                    var imgHost = cell.Q<VisualElement>("special-photo-cell-image");
+                    if (imgHost != null)
+                        StartLoad(it.imageUrl, imgHost, null);
 
                     if (it.requireLearnerCaption)
                     {
@@ -2021,10 +2067,12 @@ namespace LanguageGame.Presentation.Steps
                     else if (_dto.showCaptions)
                     {
                         var capText = it.caption?.Trim() ?? string.Empty;
-                        var cap = new Label(string.IsNullOrEmpty(capText) ? "\u2014" : capText);
-                        cap.AddToClassList("lg-special-photo-caption--fixed");
-                        cap.style.whiteSpace = WhiteSpace.Normal;
-                        cell.Add(cap);
+                        var cap = cell.Q<Label>("special-photo-cell-caption");
+                        if (cap != null)
+                        {
+                            cap.text = string.IsNullOrEmpty(capText) ? "\u2014" : capText;
+                            cap.style.display = DisplayStyle.Flex;
+                        }
                     }
 
                     grid.Add(cell);

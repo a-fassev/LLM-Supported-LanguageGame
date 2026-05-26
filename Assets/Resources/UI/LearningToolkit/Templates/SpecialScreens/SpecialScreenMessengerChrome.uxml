@@ -1,3 +1,4 @@
+<!-- UI Builder: sample bubbles under messenger-chat-scroll; runtime clears scroll on bind. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="messenger-phone-root" class="lg-special-phone" style="flex-grow: 1;">
         <ui:VisualElement name="messenger-status-row" class="lg-special-phone__status">
@@ -5,11 +6,42 @@
             <ui:Label name="messenger-status-signal" text="&#9679;&#9679;&#9679;&#9679;&#9679;"
                 class="lg-special-phone__status-signal" />
         </ui:VisualElement>
-        <ui:VisualElement name="messenger-header-row" class="lg-special-phone__header"
-            style="display: none;">
-            <ui:Label name="messenger-header-title" text="" class="lg-special-phone__header-title" />
+        <ui:VisualElement name="messenger-header-row" class="lg-special-phone__header">
+            <ui:Label name="messenger-header-title" text="Chiara" class="lg-special-phone__header-title lg-preview-sample" />
         </ui:VisualElement>
         <ui:ScrollView name="messenger-chat-scroll" mode="Vertical" class="lg-special-phone__scroll"
-            style="flex-grow: 1;" />
+            style="flex-grow: 1;">
+            <ui:VisualElement class="lg-special-chat-row lg-preview-sample"
+                style="flex-direction: row; width: 100%; justify-content: flex-start;">
+                <ui:VisualElement class="lg-special-bubble--in">
+                    <ui:Label text="Chiara" class="lg-special-bubble__author" />
+                    <ui:Label text="Ciao! Hai fatto i compiti?" class="lg-special-bubble__text"
+                        style="white-space: normal;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="lg-special-chat-row lg-preview-sample"
+                style="flex-direction: row; width: 100%; justify-content: flex-end;">
+                <ui:VisualElement class="lg-special-bubble--out">
+                    <ui:Label text="Sì, quasi finiti!" class="lg-special-bubble__text"
+                        style="white-space: normal;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="lg-special-chat-row lg-preview-sample"
+                style="flex-direction: row; width: 100%; justify-content: flex-start;">
+                <ui:VisualElement class="lg-special-bubble--in">
+                    <ui:VisualElement class="lg-special-bubble__mechanic" style="min-height: 48px;">
+                        <ui:Label text="…" class="lg-special-bubble__text lg-text-muted"
+                            style="white-space: normal;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="lg-special-chat-row lg-preview-sample"
+                style="flex-direction: row; width: 100%; justify-content: flex-end;">
+                <ui:VisualElement class="lg-special-bubble--out">
+                    <ui:Label text="A dopo in piazza!" class="lg-special-bubble__text"
+                        style="white-space: normal;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:ScrollView>
     </ui:VisualElement>
 </ui:UXML>

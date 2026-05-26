@@ -49,7 +49,7 @@ namespace LanguageGame.Presentation.Steps
             if (!ToolkitStepUx.GuardTemplateReady(_uiReady, context, _linesHost))
                 return;
 
-            _linesHost.Clear();
+            ToolkitStepUx.ClearHost(_linesHost);
             ToolkitStepUx.SetOptionalLabel(_promptLabel, null);
 
             if (!TryParseContentDto(context?.contentJson, out var dto, out var error))
@@ -69,11 +69,11 @@ namespace LanguageGame.Presentation.Steps
                 if (line?.segments == null || line.segments.Length == 0)
                     continue;
 
-                var row = new VisualElement();
-                row.style.flexDirection = FlexDirection.Row;
-                row.style.flexWrap = Wrap.Wrap;
-                row.style.alignItems = Align.Center;
-                row.style.marginBottom = 10;
+                var row = ToolkitStepUx.InstantiatePart(
+                    ToolkitStepTemplatePaths.ClozeLineRowPart,
+                    "cloze-line-row-part");
+                if (row == null)
+                    continue;
 
                 var hasContent = false;
                 foreach (var seg in line.segments)
@@ -86,12 +86,15 @@ namespace LanguageGame.Presentation.Steps
                     {
                         if (!string.IsNullOrEmpty(seg.text))
                         {
-                            var lit = new Label(seg.text);
-                            lit.AddToClassList("lg-text-body");
-                            lit.style.whiteSpace = WhiteSpace.Normal;
-                            lit.style.marginRight = 6;
-                            row.Add(lit);
-                            hasContent = true;
+                            var lit = ToolkitStepUx.InstantiatePart(
+                                ToolkitStepTemplatePaths.ClozeLiteralPart,
+                                "cloze-literal-part") as Label;
+                            if (lit != null)
+                            {
+                                lit.text = seg.text;
+                                row.Add(lit);
+                                hasContent = true;
+                            }
                         }
 
                         continue;
@@ -101,13 +104,16 @@ namespace LanguageGame.Presentation.Steps
                         continue;
 
                     var gapInsensitive = ResolveGapCaseInsensitive(rootInsensitive, seg.ignoreCase);
-                    var tf = new TextField { maxLength = seg.maxLength > 0 ? Mathf.Clamp(seg.maxLength, 1, 256) : -1 };
+                    var tf = ToolkitStepUx.InstantiatePart(
+                        ToolkitStepTemplatePaths.ClozeGapFieldPart,
+                        "cloze-gap-field-part") as TextField;
+                    if (tf == null)
+                        continue;
+
+                    if (seg.maxLength > 0)
+                        tf.maxLength = Mathf.Clamp(seg.maxLength, 1, 256);
                     if (!string.IsNullOrEmpty(seg.placeholder))
                         tf.tooltip = seg.placeholder;
-                    tf.AddToClassList("lg-textfield");
-                    tf.style.minWidth = 100;
-                    tf.style.marginRight = 6;
-                    tf.style.marginBottom = 4;
                     row.Add(tf);
                     _gaps.Add((tf, seg.correctAnswers ?? Array.Empty<string>(), gapInsensitive));
                     hasContent = true;

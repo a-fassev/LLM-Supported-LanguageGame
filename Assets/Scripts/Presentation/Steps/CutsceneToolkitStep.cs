@@ -183,7 +183,7 @@ namespace LanguageGame.Presentation.Steps
 
         private void TryShowBeatMessage(string title, string body)
         {
-            _beatHost.Clear();
+            ToolkitStepUx.ClearHost(_beatHost);
             var panel = InstantiateNarratorBeat();
             if (panel != null)
             {
@@ -199,7 +199,7 @@ namespace LanguageGame.Presentation.Steps
 
         private void RenderCurrentBeat()
         {
-            _beatHost.Clear();
+            ToolkitStepUx.ClearHost(_beatHost);
             if (_dto?.beats == null || _dto.beats.Length == 0)
             {
                 _isContentValid = false;

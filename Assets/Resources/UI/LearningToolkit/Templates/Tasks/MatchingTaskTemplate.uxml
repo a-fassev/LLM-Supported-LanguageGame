@@ -1,18 +1,53 @@
+<!-- UI Builder: sample cards in column hosts; runtime clears columns on Bind. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="matching-root" class="lg-muted-panel lg-task-template-root"
         style="flex-grow: 1; flex-direction: column;">
-        <ui:Label name="task-prompt" text="" class="lg-heading-screen"
-            style="display: none; margin-bottom: 8px; white-space: normal;" />
-        <ui:Label name="task-subtitle" text="" class="lg-text-body lg-text-muted"
-            style="display: none; margin-bottom: 8px; white-space: normal;" />
+        <ui:Label name="task-prompt" text="Collega ogni elemento a sinistra con quello giusto a destra."
+            class="lg-heading-screen lg-preview-sample" style="margin-bottom: 8px; white-space: normal;" />
+        <ui:Label name="task-subtitle" text="Trascina una linea o tocca due carte."
+            class="lg-text-body lg-text-muted lg-preview-sample" style="margin-bottom: 8px; white-space: normal;" />
         <ui:VisualElement name="matching-pairing-area"
             style="flex-grow: 1; min-height: 220px; position: relative;">
             <ui:VisualElement name="matching-columns-row"
                 style="flex-grow: 1; flex-direction: row; align-items: stretch;">
                 <ui:VisualElement name="matching-left-column"
-                    style="flex-grow: 1; flex-basis: 0; margin-right: 8px; flex-direction: column;" />
+                    style="flex-grow: 1; flex-basis: 0; margin-right: 8px; flex-direction: column;">
+                    <ui:Label text="Sinistra" class="lg-text-caption lg-preview-sample" style="margin-bottom: 6px;" />
+                    <ui:VisualElement class="lg-preview-sample"
+                        style="flex-direction: row; align-items: center; margin-bottom: 8px;">
+                        <ui:VisualElement class="lg-btn lg-btn--secondary" style="flex-grow: 1; padding: 10px;">
+                            <ui:Label text="Buongiorno" class="lg-text-body" style="white-space: normal;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="lg-preview-sample"
+                        style="flex-direction: row; align-items: center; margin-bottom: 8px;">
+                        <ui:VisualElement class="lg-btn lg-btn--secondary" style="flex-grow: 1; padding: 10px;">
+                            <ui:Label text="Grazie" class="lg-text-body" style="white-space: normal;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="lg-preview-sample"
+                        style="flex-direction: row; align-items: center; margin-bottom: 8px;">
+                        <ui:VisualElement class="lg-btn lg-btn--secondary" style="flex-grow: 1; padding: 10px;">
+                            <ui:Label text="Arrivederci" class="lg-text-body" style="white-space: normal;" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
                 <ui:VisualElement name="matching-right-column"
-                    style="flex-grow: 1; flex-basis: 0; margin-left: 8px; flex-direction: column;" />
+                    style="flex-grow: 1; flex-basis: 0; margin-left: 8px; flex-direction: column;">
+                    <ui:Label text="Destra" class="lg-text-caption lg-preview-sample" style="margin-bottom: 6px;" />
+                    <ui:VisualElement class="lg-btn lg-btn--secondary lg-preview-sample"
+                        style="margin-bottom: 8px; padding: 10px;">
+                        <ui:Label text="Good morning" class="lg-text-body" style="white-space: normal;" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="lg-btn lg-btn--secondary lg-preview-sample"
+                        style="margin-bottom: 8px; padding: 10px;">
+                        <ui:Label text="Thank you" class="lg-text-body" style="white-space: normal;" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="lg-btn lg-btn--secondary lg-preview-sample"
+                        style="margin-bottom: 8px; padding: 10px;">
+                        <ui:Label text="Goodbye" class="lg-text-body" style="white-space: normal;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="matching-line-layer-host" picking-mode="Ignore"
                 style="position: absolute; left: 0; top: 0; right: 0; bottom: 0;" />

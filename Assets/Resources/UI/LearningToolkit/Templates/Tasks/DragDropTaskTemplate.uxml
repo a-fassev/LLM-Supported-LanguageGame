@@ -1,13 +1,55 @@
+<!-- UI Builder: bank tiles and category drop zones under hosts; runtime clears hosts on Bind. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="drag-drop-root" class="lg-muted-panel lg-task-template-root"
         style="flex-grow: 1; flex-direction: column; position: relative;">
-        <ui:Label name="task-prompt" text="" class="lg-heading-screen"
-            style="display: none; margin-bottom: 8px; white-space: normal;" />
-        <ui:Label name="task-subtitle" text="" class="lg-text-body lg-text-muted"
-            style="display: none; margin-bottom: 8px; white-space: normal;" />
+        <ui:Label name="task-prompt" text="Trascina le parole nelle categorie giuste." class="lg-heading-screen lg-preview-sample"
+            style="margin-bottom: 8px; white-space: normal;" />
+        <ui:Label name="task-subtitle" text="Tocca una carta e trascinala nella zona corretta."
+            class="lg-text-body lg-text-muted lg-preview-sample" style="margin-bottom: 8px; white-space: normal;" />
         <ui:VisualElement name="drag-drop-bank-host"
-            style="flex-direction: row; flex-wrap: wrap; margin-bottom: 12px;" />
-        <ui:VisualElement name="drag-drop-targets-host" style="flex-grow: 1; flex-direction: column;" />
+            style="flex-direction: column; margin-bottom: 12px;">
+            <ui:Label text="Parole da spostare" class="lg-text-caption lg-preview-sample" />
+            <ui:VisualElement class="lg-preview-sample"
+                style="flex-direction: row; flex-wrap: wrap; margin-top: 4px;">
+                <ui:VisualElement class="lg-btn lg-btn--secondary"
+                    style="margin-right: 8px; margin-bottom: 8px; min-width: 80px; min-height: 44px; padding: 8px 10px; justify-content: center;">
+                    <ui:Label text="mela" class="lg-text-body" />
+                </ui:VisualElement>
+                <ui:VisualElement class="lg-btn lg-btn--secondary"
+                    style="margin-right: 8px; margin-bottom: 8px; min-width: 80px; min-height: 44px; padding: 8px 10px; justify-content: center;">
+                    <ui:Label text="cane" class="lg-text-body" />
+                </ui:VisualElement>
+                <ui:VisualElement class="lg-btn lg-btn--secondary"
+                    style="margin-right: 8px; margin-bottom: 8px; min-width: 80px; min-height: 44px; padding: 8px 10px; justify-content: center;">
+                    <ui:Label text="rosso" class="lg-text-body" />
+                </ui:VisualElement>
+                <ui:VisualElement class="lg-btn lg-btn--secondary"
+                    style="margin-right: 8px; margin-bottom: 8px; min-width: 80px; min-height: 44px; padding: 8px 10px; justify-content: center;">
+                    <ui:Label text="correre" class="lg-text-body" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="drag-drop-targets-host" style="flex-grow: 1; flex-direction: column;">
+            <ui:Label text="Trascina qui sotto nella categoria giusta" class="lg-text-caption lg-preview-sample"
+                style="margin-bottom: 6px;" />
+            <ui:VisualElement class="lg-muted-panel lg-preview-sample"
+                style="margin-bottom: 10px; padding: 8px;">
+                <ui:Label text="Frutta" class="lg-text-body" style="unity-font-style-and-weight: bold; margin-bottom: 6px;" />
+                <ui:VisualElement class="lg-list-row-button" style="min-height: 100px;">
+                    <ui:Label text="Trascina qui" class="lg-text-muted" style="unity-font-style-and-weight: italic;" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="lg-muted-panel lg-preview-sample"
+                style="margin-bottom: 10px; padding: 8px;">
+                <ui:Label text="Animali" class="lg-text-body" style="unity-font-style-and-weight: bold; margin-bottom: 6px;" />
+                <ui:VisualElement class="lg-list-row-button" style="min-height: 100px;">
+                    <ui:VisualElement class="lg-btn lg-btn--secondary"
+                        style="min-width: 80px; min-height: 44px; padding: 8px; justify-content: center;">
+                        <ui:Label text="cane" class="lg-text-body" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
         <ui:VisualElement name="drag-drop-float-layer" picking-mode="Ignore"
             style="position: absolute; left: 0; right: 0; top: 0; bottom: 0;" />
     </ui:VisualElement>

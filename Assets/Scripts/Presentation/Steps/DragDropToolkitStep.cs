@@ -75,9 +75,9 @@ namespace LanguageGame.Presentation.Steps
             if (!ToolkitStepUx.GuardTemplateReady(_uiReady, context, _bankHost, _targetsHost, _dragLayer))
                 return;
 
-            _bankHost.Clear();
-            _targetsHost.Clear();
-            _dragLayer?.Clear();
+            ToolkitStepUx.ClearHost(_bankHost);
+            ToolkitStepUx.ClearHost(_targetsHost);
+            ToolkitStepUx.ClearHost(_dragLayer);
             ToolkitStepUx.SetOptionalLabel(_promptLabel, null);
             ToolkitStepUx.SetOptionalLabel(_subtitleLabel, null);
             _itemTiles.Clear();
@@ -336,46 +336,39 @@ namespace LanguageGame.Presentation.Steps
                 return;
             var tid = t.id.Trim();
 
-            var block = new VisualElement();
-            block.AddToClassList("lg-muted-panel");
-            block.style.marginBottom = 10;
-            block.style.paddingLeft = 8;
-            block.style.paddingRight = 8;
-            block.style.paddingTop = 8;
-            block.style.paddingBottom = 8;
+            var block = ToolkitStepUx.InstantiatePart(
+                ToolkitStepTemplatePaths.DragDropTargetBlockPart,
+                "drag-drop-target-block-part");
+            if (block == null)
+                return;
 
-            var title = new Label(string.IsNullOrWhiteSpace(t.title) ? "Categoria" : t.title.Trim());
-            title.AddToClassList("lg-text-body");
-            title.style.unityFontStyleAndWeight = FontStyle.Bold;
-            title.style.marginBottom = 6;
-            block.Add(title);
+            var title = block.Q<Label>("drag-drop-target-title");
+            if (title != null)
+            {
+                title.text = string.IsNullOrWhiteSpace(t.title) ? "Categoria" : t.title.Trim();
+                title.style.unityFontStyleAndWeight = FontStyle.Bold;
+            }
 
-            var dropZone = new VisualElement();
-            dropZone.AddToClassList("lg-list-row-button");
-            dropZone.style.minHeight = 100;
+            var dropZone = block.Q<VisualElement>("drag-drop-drop-zone");
+            if (dropZone == null)
+                return;
+
             dropZone.style.backgroundColor = new Color(0.55f, 0.62f, 0.85f, 0.35f);
             dropZone.userData = tid;
             _pickupZones.Add(dropZone);
 
-            var inner = new VisualElement();
-            if (_blocksMode)
-                inner.style.flexDirection = FlexDirection.Row;
-            else
-                inner.style.flexDirection = FlexDirection.Row;
-            inner.style.flexWrap = Wrap.Wrap;
-            inner.style.flexGrow = 1;
-            inner.style.minHeight = 60;
-            inner.style.alignItems = Align.Center;
-            inner.style.justifyContent = _blocksMode ? Justify.FlexStart : Justify.Center;
+            var inner = ToolkitStepUx.InstantiatePart(
+                ToolkitStepTemplatePaths.DragDropDropZoneInnerPart,
+                "drag-drop-drop-zone-inner-part");
+            if (inner == null)
+                return;
 
-            var hint = new Label(DropZoneHintText);
-            hint.AddToClassList("lg-text-muted");
-            hint.name = "hint";
-            hint.style.unityFontStyleAndWeight = FontStyle.Italic;
-            inner.Add(hint);
+            inner.style.justifyContent = _blocksMode ? Justify.FlexStart : Justify.Center;
+            var hint = inner.Q<Label>("drag-drop-drop-hint");
+            if (hint != null)
+                hint.text = DropZoneHintText;
 
             dropZone.Add(inner);
-            block.Add(dropZone);
             _targetsHost.Add(block);
 
             _targetInnerHosts[tid] = inner;
@@ -415,29 +408,23 @@ namespace LanguageGame.Presentation.Steps
                     if (string.IsNullOrEmpty(slotId))
                         continue;
 
-                    var slot = new VisualElement();
-                    slot.AddToClassList("lg-list-row-button");
-                    slot.style.width = 96;
-                    slot.style.height = 56;
-                    slot.style.marginRight = 6;
-                    slot.style.justifyContent = Justify.Center;
-                    slot.style.alignItems = Align.Center;
+                    var slot = ToolkitStepUx.InstantiatePart(
+                        ToolkitStepTemplatePaths.DragDropLineSlotPart,
+                        "drag-drop-line-slot-part");
+                    if (slot == null)
+                        continue;
+
                     slot.userData = slotId;
                     _pickupZones.Add(slot);
 
-                    var inner = new VisualElement();
-                    inner.style.flexDirection = FlexDirection.Row;
-                    inner.style.alignItems = Align.Center;
-                    inner.style.justifyContent = Justify.Center;
-                    inner.style.flexGrow = 1;
+                    var inner = slot.Q<VisualElement>("drag-drop-line-slot-inner");
+                    if (inner == null)
+                        continue;
 
-                    var hint = new Label(DropZoneHintText);
-                    hint.name = "hint";
-                    hint.AddToClassList("lg-text-muted");
-                    hint.style.unityFontStyleAndWeight = FontStyle.Italic;
-                    inner.Add(hint);
+                    var hint = inner.Q<Label>("drag-drop-drop-hint");
+                    if (hint != null)
+                        hint.text = DropZoneHintText;
 
-                    slot.Add(inner);
                     row.Add(slot);
                     _targetInnerHosts[slotId] = inner;
                 }
@@ -449,38 +436,31 @@ namespace LanguageGame.Presentation.Steps
         private void CreateBankTile(DragDropItemDto def, VisualElement bankWrap)
         {
             var itemId = def.id.Trim();
-            var card = new VisualElement();
+            var card = ToolkitStepUx.InstantiatePart(
+                ToolkitStepTemplatePaths.DragDropTilePart,
+                "drag-drop-tile-part");
+            if (card == null)
+                return;
+
             card.name = $"tile_{itemId}";
             card.userData = itemId;
-            card.AddToClassList("lg-btn");
-            card.AddToClassList("lg-btn--secondary");
-            card.style.marginRight = 8;
-            card.style.marginBottom = 8;
-            card.style.minWidth = 80;
-            card.style.minHeight = 44;
-            card.style.paddingLeft = 10;
-            card.style.paddingRight = 10;
-            card.style.paddingTop = 8;
-            card.style.paddingBottom = 8;
-            card.style.justifyContent = Justify.Center;
 
             var text = string.IsNullOrWhiteSpace(def.label) ? itemId : def.label.Trim();
-            var lbl = new Label(text);
-            lbl.AddToClassList("lg-text-body");
-            lbl.style.whiteSpace = WhiteSpace.Normal;
-            card.Add(lbl);
+            var lbl = card.Q<Label>("drag-drop-tile-label");
+            if (lbl != null)
+                lbl.text = text;
 
             var url = (def.imageUrl ?? string.Empty).Trim();
-            if (!string.IsNullOrEmpty(url) && ToolkitStepHttpResourceUrl.IsAllowed(url, out _) && _coroutineHost != null)
+            var img = card.Q<VisualElement>("drag-drop-tile-image");
+            if (!string.IsNullOrEmpty(url) && ToolkitStepHttpResourceUrl.IsAllowed(url, out _) && _coroutineHost != null &&
+                img != null)
             {
-                var img = new VisualElement();
-                img.style.width = 72;
-                img.style.height = 72;
-                img.style.marginTop = 4;
+                img.style.display = DisplayStyle.Flex;
                 img.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Cover);
-                card.Add(img);
                 _imageLoads.Add(_coroutineHost.StartCoroutine(LoadImg(url, img)));
             }
+            else if (img != null)
+                img.style.display = DisplayStyle.None;
 
             card.AddManipulator(new TileDragManipulator(this, card));
             bankWrap.Add(card);

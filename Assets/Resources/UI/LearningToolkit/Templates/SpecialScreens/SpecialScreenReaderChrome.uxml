@@ -1,14 +1,28 @@
+<!-- UI Builder: sample hero and body lines under reader-body-host; runtime clears body host. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:ScrollView name="reader-scroll-root" mode="Vertical" class="lg-special-reader-scroll"
         style="flex-grow: 1;">
         <ui:VisualElement name="reader-panel" class="lg-special-reader-panel">
-            <ui:VisualElement name="reader-image-host" class="lg-special-reader__image"
-                style="display: none;" />
-            <ui:Label name="reader-headline" text="" class="lg-heading-screen lg-special-reader__headline"
-                style="display: none; white-space: normal;" />
-            <ui:Label name="reader-subhead" text="" class="lg-text-body lg-text-muted lg-special-reader__subhead"
-                style="display: none; white-space: normal;" />
-            <ui:VisualElement name="reader-body-host" />
+            <ui:VisualElement name="reader-image-host" class="lg-special-reader__image lg-preview-sample"
+                style="min-height: 120px; margin-bottom: 12px;" />
+            <ui:Label name="reader-headline" text="Il mercato di Bologna" class="lg-heading-screen lg-special-reader__headline lg-preview-sample"
+                style="white-space: normal;" />
+            <ui:Label name="reader-subhead" text="Una pagina dalla guida della città"
+                class="lg-text-body lg-text-muted lg-special-reader__subhead lg-preview-sample"
+                style="white-space: normal;" />
+            <ui:VisualElement name="reader-body-host">
+                <ui:VisualElement class="lg-special-reader__columns-row lg-preview-sample"
+                    style="flex-direction: row;">
+                    <ui:VisualElement class="lg-special-reader__column lg-special-reader__column--first" style="flex-grow: 1;">
+                        <ui:Label text="Il mercato è pieno di colori e profumi. I venditori chiamano i clienti con voce allegra."
+                            class="lg-text-body lg-special-reader__body" style="white-space: normal;" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="lg-special-reader__column lg-special-reader__column--second" style="flex-grow: 1;">
+                        <ui:Label text="Si comprano frutta, formaggio e pane fresco. È un buon posto per praticare l'italiano."
+                            class="lg-text-body lg-special-reader__body" style="white-space: normal;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:ScrollView>
 </ui:UXML>

@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Button name="mc-stem-audio-part" text="Ascolta" class="lg-btn lg-btn--secondary"
+        style="margin-bottom: 8px;" />
+</ui:UXML>

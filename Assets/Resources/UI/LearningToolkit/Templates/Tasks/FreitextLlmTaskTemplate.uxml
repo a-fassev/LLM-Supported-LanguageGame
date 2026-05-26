@@ -1,12 +1,13 @@
+<!-- UI Builder: sample prompt and answer; runtime overwrites labels and clears sample text on Bind. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="freitext-llm-root" class="lg-muted-panel lg-task-template-root"
         style="flex-grow: 1; flex-direction: column;">
-        <ui:Label name="task-prompt" text="" class="lg-heading-screen"
-            style="display: none; margin-bottom: 10px; white-space: normal;" />
-        <ui:Label name="task-instruction" text="" class="lg-text-body"
-            style="display: none; margin-bottom: 12px; white-space: normal;" />
-        <ui:TextField name="task-answer-field" multiline="true" class="lg-textfield"
-            style="min-height: 180px; max-height: 420px; flex-grow: 1;" />
-        <ui:Label name="task-stats-label" text="" class="lg-text-caption" style="margin-top: 8px;" />
+        <ui:Label name="task-prompt" text="Scrivi una breve risposta in italiano." class="lg-heading-screen lg-preview-sample"
+            style="margin-bottom: 10px; white-space: normal;" />
+        <ui:Label name="task-instruction" text="Usa almeno due frasi complete."
+            class="lg-text-body lg-preview-sample" style="margin-bottom: 12px; white-space: normal;" />
+        <ui:TextField name="task-answer-field" multiline="true" value="Mi piace imparare l'italiano perché è una lingua musicale."
+            class="lg-textfield lg-preview-sample" style="min-height: 180px; max-height: 420px; flex-grow: 1;" />
+        <ui:Label name="task-stats-label" text="" class="lg-text-caption" style="margin-top: 8px; display: none;" />
     </ui:VisualElement>
 </ui:UXML>

@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="drag-drop-drop-zone-inner-part"
+        style="flex-direction: row; flex-wrap: wrap; flex-grow: 1; min-height: 60px; align-items: center; justify-content: flex-start;">
+        <ui:Label name="drag-drop-drop-hint" text="Trascina qui" class="lg-text-muted"
+            style="unity-font-style-and-weight: italic;" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="special-mail-header-row-part" class="lg-special-mail__row">
+        <ui:Label name="special-mail-row-caption" text="" class="lg-special-mail__row-caption" />
+        <ui:Label name="special-mail-row-value" text="" class="lg-text-body lg-special-mail__row-value"
+            style="white-space: normal;" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -40,9 +40,16 @@ namespace LanguageGame.Presentation.Steps
             return true;
         }
 
+        /// <summary>Clears dynamic host children before runtime rebuild (removes UI Builder fixtures).</summary>
+        public static void ClearHost(VisualElement host) => host?.Clear();
+
         /// <summary>Instantiate a detached template root (e.g. cutscene beat panels).</summary>
         public static VisualElement Instantiate(string resourcesPath, string rootElementName) =>
             Instantiate(Resources.Load<VisualTreeAsset>(resourcesPath), resourcesPath, rootElementName);
+
+        /// <summary>Clone a shared part template under <c>Templates/Parts/</c>.</summary>
+        public static VisualElement InstantiatePart(string resourcesPath, string rootElementName) =>
+            Instantiate(resourcesPath, rootElementName);
 
         /// <summary>Instantiate from a cached <see cref="VisualTreeAsset"/> (avoids repeated Resources.Load).</summary>
         public static VisualElement Instantiate(

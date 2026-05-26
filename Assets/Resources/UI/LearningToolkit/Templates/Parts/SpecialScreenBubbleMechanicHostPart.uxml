@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="special-bubble-mechanic-host-part" class="lg-special-bubble__mechanic"
+        style="flex-grow: 1; flex-shrink: 0;" />
+</ui:UXML>

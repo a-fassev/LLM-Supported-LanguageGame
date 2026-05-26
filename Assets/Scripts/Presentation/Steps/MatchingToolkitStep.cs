@@ -110,8 +110,8 @@ namespace LanguageGame.Presentation.Steps
             ToolkitStepUx.SetOptionalLabel(_promptLabel, null);
             ToolkitStepUx.SetOptionalLabel(_subtitleLabel, null);
 
-            _leftColumn.Clear();
-            _rightColumn.Clear();
+            ToolkitStepUx.ClearHost(_leftColumn);
+            ToolkitStepUx.ClearHost(_rightColumn);
             _lineLayer.ClearSegments();
             _leftById.Clear();
             _rightById.Clear();
@@ -596,78 +596,84 @@ namespace LanguageGame.Presentation.Steps
             }).ExecuteLater(0);
         }
 
+        private VisualElement BuildMatchingCard(MatchingItemDto def, string itemId)
+        {
+            var card = ToolkitStepUx.InstantiatePart(
+                ToolkitStepTemplatePaths.MatchingCardPart,
+                "matching-card-part");
+            if (card == null)
+                return null;
+
+            var text = string.IsNullOrWhiteSpace(def.label) ? itemId : def.label.Trim();
+            var lbl = card.Q<Label>("matching-card-label");
+            if (lbl != null)
+                lbl.text = text;
+
+            var url = (def.imageUrl ?? string.Empty).Trim();
+            var img = card.Q<VisualElement>("matching-card-image");
+            if (!string.IsNullOrEmpty(url) && ToolkitStepHttpResourceUrl.IsAllowed(url, out _) && _coroutineHost != null &&
+                img != null)
+            {
+                img.style.display = DisplayStyle.Flex;
+                img.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Cover);
+                _imageLoads.Add(_coroutineHost.StartCoroutine(LoadImg(url, img)));
+            }
+            else if (img != null)
+                img.style.display = DisplayStyle.None;
+
+            return card;
+        }
+
         private void AddLeftTile(MatchingItemDto def)
         {
             var itemId = def.id.Trim();
 
-            var outer = new VisualElement();
+            var outer = ToolkitStepUx.InstantiatePart(
+                ToolkitStepTemplatePaths.MatchingLeftRowPart,
+                "matching-left-row-part");
+            if (outer == null)
+                return;
+
             outer.name = $"match_left_{itemId}";
-            outer.style.flexDirection = FlexDirection.Row;
-            outer.style.alignItems = Align.Center;
-            outer.style.marginBottom = 8;
             outer.userData = itemId;
 
-            var card = new VisualElement();
-            card.name = $"match_tile_{itemId}";
+            var cardHost = outer.Q<VisualElement>("matching-left-card-host");
+            if (cardHost == null)
+                return;
+
+            var card = BuildMatchingCard(def, itemId);
+            if (card == null)
+                return;
+
             card.style.flexGrow = 1;
-            card.userData = itemId;
-            card.AddToClassList("lg-btn");
-            card.AddToClassList("lg-btn--secondary");
-            card.style.paddingLeft = 10;
-            card.style.paddingRight = 10;
-            card.style.paddingTop = 10;
-            card.style.paddingBottom = 10;
-            card.style.flexDirection = FlexDirection.Column;
-            card.style.alignItems = Align.FlexStart;
             card.focusable = true;
+            cardHost.Add(card);
 
-            var text = string.IsNullOrWhiteSpace(def.label) ? itemId : def.label.Trim();
-            var lbl = new Label(text);
-            lbl.AddToClassList("lg-text-body");
-            lbl.style.whiteSpace = WhiteSpace.Normal;
-            card.Add(lbl);
-
-            var url = (def.imageUrl ?? string.Empty).Trim();
-            if (!string.IsNullOrEmpty(url) && ToolkitStepHttpResourceUrl.IsAllowed(url, out _) && _coroutineHost != null)
+            var unlink = outer.Q<Label>("matching-unpair");
+            if (unlink != null)
             {
-                var img = new VisualElement();
-                img.style.width = 72;
-                img.style.height = 72;
-                img.style.marginTop = 4;
-                img.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Cover);
-                card.Add(img);
-                _imageLoads.Add(_coroutineHost.StartCoroutine(LoadImg(url, img)));
+                unlink.tooltip = "Rimuovi collegamento";
+                unlink.style.display = DisplayStyle.None;
+                unlink.focusable = true;
+                unlink.RegisterCallback<PointerDownEvent>(evt =>
+                {
+                    if (!_interactable)
+                        return;
+                    evt.StopPropagation();
+                });
+                unlink.RegisterCallback<PointerUpEvent>(evt =>
+                {
+                    if (!_interactable)
+                        return;
+                    evt.StopPropagation();
+                    ClearPairForLeft(itemId);
+                });
             }
 
-            var unlink = new Label("×");
-            unlink.name = "matching-unpair";
-            unlink.tooltip = "Rimuovi collegamento";
-            unlink.style.width = 28;
-            unlink.style.minWidth = 28;
-            unlink.style.fontSize = 20;
-            unlink.style.unityTextAlign = TextAnchor.MiddleCenter;
-            unlink.style.color = new Color(0.42f, 0.45f, 0.52f, 1f);
-            unlink.style.display = DisplayStyle.None;
-            unlink.focusable = true;
-            unlink.RegisterCallback<PointerDownEvent>(evt =>
-            {
-                if (!_interactable)
-                    return;
-                evt.StopPropagation();
-            });
-            unlink.RegisterCallback<PointerUpEvent>(evt =>
-            {
-                if (!_interactable)
-                    return;
-                evt.StopPropagation();
-                ClearPairForLeft(itemId);
-            });
-
-            outer.Add(card);
-            outer.Add(unlink);
             _leftColumn.Add(outer);
             _leftById[itemId] = outer;
-            _unlinkByLeftId[itemId] = unlink;
+            if (unlink != null)
+                _unlinkByLeftId[itemId] = unlink;
 
             AttachLeftHandlers(card, itemId);
         }
@@ -675,37 +681,14 @@ namespace LanguageGame.Presentation.Steps
         private void AddRightTile(MatchingItemDto def)
         {
             var itemId = def.id.Trim();
-            var card = new VisualElement();
+            var card = BuildMatchingCard(def, itemId);
+            if (card == null)
+                return;
+
             card.name = $"match_tile_{itemId}";
             card.userData = itemId;
-            card.AddToClassList("lg-btn");
-            card.AddToClassList("lg-btn--secondary");
             card.style.marginBottom = 8;
-            card.style.paddingLeft = 10;
-            card.style.paddingRight = 10;
-            card.style.paddingTop = 10;
-            card.style.paddingBottom = 10;
-            card.style.flexDirection = FlexDirection.Column;
-            card.style.alignItems = Align.FlexStart;
             card.focusable = true;
-
-            var text = string.IsNullOrWhiteSpace(def.label) ? itemId : def.label.Trim();
-            var lbl = new Label(text);
-            lbl.AddToClassList("lg-text-body");
-            lbl.style.whiteSpace = WhiteSpace.Normal;
-            card.Add(lbl);
-
-            var url = (def.imageUrl ?? string.Empty).Trim();
-            if (!string.IsNullOrEmpty(url) && ToolkitStepHttpResourceUrl.IsAllowed(url, out _) && _coroutineHost != null)
-            {
-                var img = new VisualElement();
-                img.style.width = 72;
-                img.style.height = 72;
-                img.style.marginTop = 4;
-                img.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Cover);
-                card.Add(img);
-                _imageLoads.Add(_coroutineHost.StartCoroutine(LoadImg(url, img)));
-            }
 
             _rightColumn.Add(card);
             _rightById[itemId] = card;

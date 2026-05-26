@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="drag-drop-line-slot-part" class="lg-list-row-button"
+        style="width: 96px; height: 56px; margin-right: 6px; justify-content: center; align-items: center;">
+        <ui:VisualElement name="drag-drop-line-slot-inner"
+            style="flex-direction: row; align-items: center; justify-content: center; flex-grow: 1;">
+            <ui:Label name="drag-drop-drop-hint" text="Trascina qui" class="lg-text-muted"
+                style="unity-font-style-and-weight: italic;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

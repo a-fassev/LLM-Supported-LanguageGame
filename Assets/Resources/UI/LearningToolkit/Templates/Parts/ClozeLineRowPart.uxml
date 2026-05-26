@@ -1,0 +1,4 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="cloze-line-row-part"
+        style="flex-direction: row; flex-wrap: wrap; align-items: center; margin-bottom: 10px;" />
+</ui:UXML>

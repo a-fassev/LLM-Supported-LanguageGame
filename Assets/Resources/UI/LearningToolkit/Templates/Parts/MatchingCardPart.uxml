@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="matching-card-part" class="lg-btn lg-btn--secondary"
+        style="padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; flex-direction: column; align-items: flex-start;">
+        <ui:Label name="matching-card-label" text="" class="lg-text-body" style="white-space: normal;" />
+        <ui:VisualElement name="matching-card-image" style="display: none; width: 72px; height: 72px; margin-top: 4px;" />
+    </ui:VisualElement>
+</ui:UXML>

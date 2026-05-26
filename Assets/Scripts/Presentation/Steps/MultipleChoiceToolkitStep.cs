@@ -98,8 +98,8 @@ namespace LanguageGame.Presentation.Steps
 
             ToolkitStepUx.SetOptionalLabel(_promptLabel, null);
             ToolkitStepUx.SetOptionalLabel(_subtitleLabel, null);
-            _stemHost.Clear();
-            _optionsHost.Clear();
+            ToolkitStepUx.ClearHost(_stemHost);
+            ToolkitStepUx.ClearHost(_optionsHost);
             _activeToggles.Clear();
             _selections.Clear();
             _optionsDisplayOrder.Clear();
@@ -264,8 +264,8 @@ namespace LanguageGame.Presentation.Steps
             if (!_contentReady || _questions == null || _currentIndex < 0 || _currentIndex >= _questions.Length)
                 return;
 
-            _stemHost.Clear();
-            _optionsHost.Clear();
+            ToolkitStepUx.ClearHost(_stemHost);
+            ToolkitStepUx.ClearHost(_optionsHost);
             _activeToggles.Clear();
             _stemAudioPlayButtons.Clear();
             StopMediaLoads();
@@ -312,11 +312,15 @@ namespace LanguageGame.Presentation.Steps
                     var run = b.text?.Trim() ?? string.Empty;
                     if (run.Length == 0)
                         continue;
-                    var lbl = new Label(run);
-                    lbl.AddToClassList("lg-text-body");
-                    lbl.style.whiteSpace = WhiteSpace.Normal;
-                    lbl.style.marginBottom = 8;
-                    _stemHost.Add(lbl);
+                    var lblPart = ToolkitStepUx.InstantiatePart(
+                        ToolkitStepTemplatePaths.McStemTextPart,
+                        "mc-stem-text-part");
+                    if (lblPart is Label lbl)
+                    {
+                        lbl.text = run;
+                        _stemHost.Add(lbl);
+                    }
+
                     continue;
                 }
 
@@ -325,10 +329,12 @@ namespace LanguageGame.Presentation.Steps
                     var url = (b.imageUrl ?? string.Empty).Trim();
                     if (url.Length == 0 || !IsAllowedHttpMediaUrl(url, out _))
                         continue;
-                    var imgVe = new VisualElement();
+                    var imgVe = ToolkitStepUx.InstantiatePart(
+                        ToolkitStepTemplatePaths.McStemImagePart,
+                        "mc-stem-image-part");
+                    if (imgVe == null)
+                        continue;
                     imgVe.style.height = MaxStemImageHeight;
-                    imgVe.style.minHeight = 120;
-                    imgVe.style.marginBottom = 8;
                     imgVe.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
                     if (_coroutineHost != null)
                         _mediaLoads.Add(_coroutineHost.StartCoroutine(LoadRemoteTextureBg(url, imgVe)));
@@ -341,10 +347,11 @@ namespace LanguageGame.Presentation.Steps
                     var url = (b.audioUrl ?? string.Empty).Trim();
                     if (url.Length == 0 || !IsAllowedHttpMediaUrl(url, out _))
                         continue;
-                    var play = new Button { text = "Play audio" };
-                    play.AddToClassList("lg-btn");
-                    play.AddToClassList("lg-btn--secondary");
-                    play.style.marginBottom = 8;
+                    var play = ToolkitStepUx.InstantiatePart(
+                        ToolkitStepTemplatePaths.McStemAudioPart,
+                        "mc-stem-audio-part") as Button;
+                    if (play == null)
+                        continue;
                     play.SetEnabled(_interactable);
                     play.clicked += () =>
                     {
@@ -392,17 +399,16 @@ namespace LanguageGame.Presentation.Steps
                 return;
             var id = opt.id.Trim();
 
-            var row = new VisualElement();
-            row.style.flexDirection = FlexDirection.Row;
-            row.style.alignItems = Align.Center;
-            row.style.marginBottom = 10;
-            row.AddToClassList("lg-list-row-button");
-            row.style.paddingTop = 8;
-            row.style.paddingBottom = 8;
-            row.style.paddingLeft = 8;
-            row.style.paddingRight = 8;
+            var row = ToolkitStepUx.InstantiatePart(
+                ToolkitStepTemplatePaths.McOptionRowPart,
+                "mc-option-row-part");
+            if (row == null)
+                return;
 
-            var toggle = new Toggle();
+            var toggle = row.Q<Toggle>();
+            if (toggle == null)
+                return;
+
             toggle.value = SelectionSetFor(_currentIndex).Contains(id);
             toggle.SetEnabled(_interactable);
 
@@ -436,26 +442,22 @@ namespace LanguageGame.Presentation.Steps
             });
 
             _activeToggles.Add(toggle);
-            row.Add(toggle);
 
-            var label = new Label((opt.label ?? string.Empty).Trim());
-            label.AddToClassList("lg-text-body");
-            label.style.whiteSpace = WhiteSpace.Normal;
-            label.style.flexGrow = 1;
-            label.style.marginLeft = 8;
-            row.Add(label);
+            var label = row.Q<Label>("mc-option-label");
+            if (label != null)
+                label.text = (opt.label ?? string.Empty).Trim();
 
             var imgUrl = (opt.imageUrl ?? string.Empty).Trim();
-            if (!string.IsNullOrEmpty(imgUrl) && IsAllowedHttpMediaUrl(imgUrl, out _) && _coroutineHost != null)
+            var imgVe = row.Q<VisualElement>("mc-option-image");
+            if (!string.IsNullOrEmpty(imgUrl) && IsAllowedHttpMediaUrl(imgUrl, out _) && _coroutineHost != null &&
+                imgVe != null)
             {
-                var imgVe = new VisualElement();
-                imgVe.style.width = 96;
-                imgVe.style.height = 96;
-                imgVe.style.marginLeft = 8;
+                imgVe.style.display = DisplayStyle.Flex;
                 imgVe.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Cover);
                 _mediaLoads.Add(_coroutineHost.StartCoroutine(LoadRemoteTextureBg(imgUrl, imgVe)));
-                row.Add(imgVe);
             }
+            else if (imgVe != null)
+                imgVe.style.display = DisplayStyle.None;
 
             _optionsHost.Add(row);
         }
