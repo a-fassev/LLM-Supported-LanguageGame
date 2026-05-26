@@ -3,11 +3,12 @@
 
         <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
             <ui:VisualElement class="lg-page-header">
-                <ui:Button name="back-button" text="Main menu" class="lg-btn lg-btn--nav" />
                 <ui:VisualElement style="flex-grow: 1; align-items: center;">
                     <ui:Label name="title-label" text="Choose a chapter" class="lg-heading-screen" />
                 </ui:VisualElement>
-                <ui:Button name="avatar-shop-button" text="Avatar" class="lg-btn lg-btn--secondary" />
+                <ui:Button name="avatar-shop-button" text="Avatar" class="lg-btn lg-btn--secondary"
+                    style="margin-right: 8px;" />
+                <ui:Button name="pause-menu-button" text="Pause" class="lg-btn lg-btn--ghost" />
             </ui:VisualElement>
 
             <ui:VisualElement name="hud-strip" class="lg-hud-strip">

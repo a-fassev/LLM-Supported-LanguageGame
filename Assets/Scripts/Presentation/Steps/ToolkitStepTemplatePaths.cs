@@ -18,6 +18,13 @@ namespace LanguageGame.Presentation.Steps
         public const string DragDropTask = Root + "/Tasks/DragDropTaskTemplate";
         public const string MatchingTask = Root + "/Tasks/MatchingTaskTemplate";
 
+        private const string SpecialScreens = Root + "/SpecialScreens";
+
+        public const string SpecialScreenMessengerChrome = SpecialScreens + "/SpecialScreenMessengerChrome";
+        public const string SpecialScreenMailChrome = SpecialScreens + "/SpecialScreenMailChrome";
+        public const string SpecialScreenReaderChrome = SpecialScreens + "/SpecialScreenReaderChrome";
+        public const string SpecialScreenPhotoChrome = SpecialScreens + "/SpecialScreenPhotoChrome";
+
         public const string SpecialScreenHost = "UI/LearningToolkit/SpecialScreenHost";
     }
 }

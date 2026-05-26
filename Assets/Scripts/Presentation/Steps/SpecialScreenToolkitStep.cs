@@ -9,7 +9,7 @@ namespace LanguageGame.Presentation.Steps
 {
     /// <summary>
     /// Host step for <c>SpecialScreen*</c> tasks: outer chrome from <see cref="SpecialScreenHost"/> UXML; messenger / mail /
-    /// photo / reader device chrome is still built in C# (see <c>special-screen-*.uss</c>) until those layouts move to UXML templates.
+    /// reader / photo device shells from <c>Templates/SpecialScreens/*.uxml</c> (chat rows and photo grid cells stay dynamic in C#).
     /// Sequential embedded mechanics in <c>blocks[]</c> use «←» / «→»; shell primary <c>Controlla</c> completes after the last part.
     /// </summary>
     public sealed class SpecialScreenToolkitStep : IStepView, ISubmitFromShell, ITaskAttemptPayloadProvider
@@ -141,15 +141,18 @@ namespace LanguageGame.Presentation.Steps
 
             if (_readerDisplayOnly)
             {
-                BuildReaderLayout(dto, context);
+                if (!BuildReaderLayout(dto, context))
+                    return;
             }
             else if (_usePhotoChrome)
             {
-                BuildPhotoAndNestedMechanicSlots(dto, context);
+                if (!BuildPhotoAndNestedMechanicSlots(dto, context))
+                    return;
             }
             else if (_useMailChrome)
             {
-                BuildMailChromeLayout(dto, context);
+                if (!BuildMailChromeLayout(dto, context))
+                    return;
             }
             else
             {
@@ -173,9 +176,14 @@ namespace LanguageGame.Presentation.Steps
                 for (var i = 0; i < _blocks.Count; i++)
                 {
                     if (_useMessengerChrome)
-                        BuildMessengerChromeInSlot(_slots[i], dto, i, _blocks[i], context);
+                    {
+                        if (!BuildMessengerChromeInSlot(_slots[i], dto, i, _blocks[i], context))
+                            return;
+                    }
                     else
+                    {
                         _blocks[i].Bind(_slots[i], context);
+                    }
                 }
 
                 for (var i = 0; i < _blocks.Count; i++)
@@ -192,6 +200,9 @@ namespace LanguageGame.Presentation.Steps
                 if (_slots.Count > 0)
                     _slots[0].style.display = DisplayStyle.Flex;
             }
+
+            if (_root == null || _blockArea == null)
+                return;
 
             RefreshNavigationChrome();
             _contentReady = true;
@@ -455,7 +466,7 @@ namespace LanguageGame.Presentation.Steps
             if (ToolkitStepUx.TryMount(_host, HostUxmlResourcePath, "special-screen-root", out _))
             {
                 CacheChromeQueries();
-                if (_blockArea != null && _prevButton != null && _nextButton != null)
+                if (_blockArea != null && _prevButton != null && _nextButton != null && _progressLabel != null)
                 {
                     WireNavigationHandlers();
                     return true;
@@ -472,11 +483,11 @@ namespace LanguageGame.Presentation.Steps
         private void CacheChromeQueries()
         {
             _root = _host.Q<VisualElement>("special-screen-root") ?? _host;
-            _blockArea = _root.Q<VisualElement>("special-screen-block-area");
-            _navRow = _root.Q<VisualElement>("special-screen-nav-row");
-            _prevButton = _root.Q<Button>("special-screen-prev");
-            _nextButton = _root.Q<Button>("special-screen-next");
-            _progressLabel = _root.Q<Label>("special-screen-progress");
+            _blockArea = ToolkitStepUx.QueryRequired<VisualElement>(_root, "special-screen-block-area", nameof(SpecialScreenToolkitStep));
+            _navRow = ToolkitStepUx.QueryOptional<VisualElement>(_root, "special-screen-nav-row");
+            _prevButton = ToolkitStepUx.QueryRequired<Button>(_root, "special-screen-prev", nameof(SpecialScreenToolkitStep));
+            _nextButton = ToolkitStepUx.QueryRequired<Button>(_root, "special-screen-next", nameof(SpecialScreenToolkitStep));
+            _progressLabel = ToolkitStepUx.QueryRequired<Label>(_root, "special-screen-progress", nameof(SpecialScreenToolkitStep));
         }
 
         private void WireNavigationHandlers()
@@ -487,7 +498,7 @@ namespace LanguageGame.Presentation.Steps
             _nextButton.clicked += OnNextClicked;
         }
 
-        /// <summary>Applies USS classes; smartphone frame and chat rows are created in code (not yet UXML templates).</summary>
+        /// <summary>Applies USS classes on the host block area for messenger / reader / photo / mail layouts.</summary>
         private void ApplyMessengerChromeShell()
         {
             if (_blockArea == null)
@@ -541,7 +552,7 @@ namespace LanguageGame.Presentation.Steps
             }
         }
 
-        private void BuildPhotoAndNestedMechanicSlots(SpecialScreenContentDto dto, StepContext context)
+        private bool BuildPhotoAndNestedMechanicSlots(SpecialScreenContentDto dto, StepContext context)
         {
             var photoSlot = new VisualElement();
             photoSlot.style.flexGrow = 1;
@@ -575,18 +586,20 @@ namespace LanguageGame.Presentation.Steps
                 context?.presentValidationMessage?.Invoke(
                     $"La parte {i + 1} non è stata caricata correttamente.");
                 AbortIncompleteBind();
-                return;
+                return false;
             }
 
             if (_slots.Count > 0)
                 _slots[0].style.display = DisplayStyle.Flex;
+
+            return true;
         }
 
         /// <summary>
         /// Smartphone mockup + scroll transcript for one «part». The message list repeats for every block index;
         /// only the bubble matching <paramref name="slotBlockIndex"/> receives interactive mechanics.
         /// </summary>
-        private void BuildMessengerChromeInSlot(
+        private bool BuildMessengerChromeInSlot(
             VisualElement slot,
             SpecialScreenContentDto dto,
             int slotBlockIndex,
@@ -595,41 +608,31 @@ namespace LanguageGame.Presentation.Steps
         {
             slot.Clear();
 
-            var phone = new VisualElement();
-            phone.AddToClassList("lg-special-phone");
-            if (IsWhatsAppSkin(dto.screenVariant))
-                phone.AddToClassList("lg-special-phone--whatsapp");
+            if (!TryMountMessengerChrome(slot, IsWhatsAppSkin(dto.screenVariant), out _, out var scroll,
+                    out var timeLbl, out var sigLbl, out var headerRow, out var headerTitle))
+            {
+                Debug.LogError(
+                    $"[SpecialScreenToolkitStep] Missing messenger chrome at Resources/{ToolkitStepTemplatePaths.SpecialScreenMessengerChrome}.");
+                parentContext?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                AbortIncompleteBind();
+                return false;
+            }
 
             var sbDto = dto.smsChrome.statusBar ?? new SpecialScreenSmsStatusBarDto();
-            var statusRow = new VisualElement();
-            statusRow.AddToClassList("lg-special-phone__status");
-
-            var timeText = string.IsNullOrWhiteSpace(sbDto.timeText) ? "9:41" : sbDto.timeText.Trim();
-            var timeLbl = new Label(timeText);
-            timeLbl.AddToClassList("lg-special-phone__status-time");
-
-            var signalText = string.IsNullOrWhiteSpace(sbDto.signalHint) ? "●●●●●" : sbDto.signalHint.Trim();
-            var sigLbl = new Label(signalText);
-            sigLbl.AddToClassList("lg-special-phone__status-signal");
-
-            statusRow.Add(timeLbl);
-            statusRow.Add(sigLbl);
-            phone.Add(statusRow);
+            timeLbl.text = string.IsNullOrWhiteSpace(sbDto.timeText) ? "9:41" : sbDto.timeText.Trim();
+            sigLbl.text = string.IsNullOrWhiteSpace(sbDto.signalHint) ? "●●●●●" : sbDto.signalHint.Trim();
 
             var header = dto.smsChrome.chatHeaderTitle?.Trim();
             if (!string.IsNullOrEmpty(header))
             {
-                var headerRow = new VisualElement();
-                headerRow.AddToClassList("lg-special-phone__header");
-                var ht = new Label(header);
-                ht.AddToClassList("lg-special-phone__header-title");
-                headerRow.Add(ht);
-                phone.Add(headerRow);
+                headerTitle.text = header;
+                headerRow.style.display = DisplayStyle.Flex;
             }
-
-            var scroll = new ScrollView(ScrollViewMode.Vertical);
-            scroll.AddToClassList("lg-special-phone__scroll");
-            scroll.style.flexGrow = 1;
+            else
+            {
+                headerTitle.text = string.Empty;
+                headerRow.style.display = DisplayStyle.None;
+            }
 
             var msgs = dto.smsChrome.messages;
             for (var mi = 0; mi < msgs.Length; mi++)
@@ -699,19 +702,80 @@ namespace LanguageGame.Presentation.Steps
                 scroll.Add(row);
             }
 
-            phone.Add(scroll);
-            slot.Add(phone);
+            return true;
         }
 
-        private void BuildMailChromeLayout(SpecialScreenContentDto dto, StepContext context)
+        private static bool TryMountMessengerChrome(
+            VisualElement slot,
+            bool whatsAppSkin,
+            out VisualElement phone,
+            out ScrollView chatScroll,
+            out Label statusTime,
+            out Label statusSignal,
+            out VisualElement headerRow,
+            out Label headerTitle)
+        {
+            phone = null;
+            chatScroll = null;
+            statusTime = null;
+            statusSignal = null;
+            headerRow = null;
+            headerTitle = null;
+
+            if (!ToolkitStepUx.TryMount(
+                    slot,
+                    ToolkitStepTemplatePaths.SpecialScreenMessengerChrome,
+                    "messenger-phone-root",
+                    out phone))
+                return false;
+
+            if (whatsAppSkin)
+                phone.AddToClassList("lg-special-phone--whatsapp");
+
+            statusTime = ToolkitStepUx.QueryRequired<Label>(phone, "messenger-status-time", nameof(SpecialScreenToolkitStep));
+            statusSignal = ToolkitStepUx.QueryRequired<Label>(phone, "messenger-status-signal", nameof(SpecialScreenToolkitStep));
+            headerRow = ToolkitStepUx.QueryRequired<VisualElement>(phone, "messenger-header-row", nameof(SpecialScreenToolkitStep));
+            headerTitle = ToolkitStepUx.QueryRequired<Label>(phone, "messenger-header-title", nameof(SpecialScreenToolkitStep));
+            chatScroll = ToolkitStepUx.QueryRequired<ScrollView>(phone, "messenger-chat-scroll", nameof(SpecialScreenToolkitStep));
+            return statusTime != null && statusSignal != null && headerRow != null && headerTitle != null && chatScroll != null;
+        }
+
+        private bool BuildMailChromeLayout(SpecialScreenContentDto dto, StepContext context)
         {
             if (_blockArea == null)
-                return;
+                return false;
 
             var mail = dto.mailChrome ?? new SpecialScreenMailChromeDto();
             _mailSendSuccessText = mail.sendSuccessText;
             _mailSendButton = null;
             _mailSendAckLabel = null;
+
+            if (!ToolkitStepUx.TryMount(
+                    _blockArea,
+                    ToolkitStepTemplatePaths.SpecialScreenMailChrome,
+                    "mail-chrome-root",
+                    out var mailRoot))
+            {
+                Debug.LogError(
+                    $"[SpecialScreenToolkitStep] Missing mail chrome at Resources/{ToolkitStepTemplatePaths.SpecialScreenMailChrome}.");
+                context?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                AbortIncompleteBind();
+                return false;
+            }
+
+            var headerHost = ToolkitStepUx.QueryRequired<VisualElement>(mailRoot, "mail-header-host", nameof(SpecialScreenToolkitStep));
+            var bodyHost = ToolkitStepUx.QueryRequired<VisualElement>(mailRoot, "mail-body-host", nameof(SpecialScreenToolkitStep));
+            var greetingLabel = ToolkitStepUx.QueryOptional<Label>(mailRoot, "mail-greeting");
+            var closingLabel = ToolkitStepUx.QueryOptional<Label>(mailRoot, "mail-closing");
+            var sendBtn = ToolkitStepUx.QueryRequired<Button>(mailRoot, "mail-send-button", nameof(SpecialScreenToolkitStep));
+            var ack = ToolkitStepUx.QueryRequired<Label>(mailRoot, "mail-send-ack", nameof(SpecialScreenToolkitStep));
+
+            if (headerHost == null || bodyHost == null || sendBtn == null || ack == null)
+            {
+                context?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                AbortIncompleteBind();
+                return false;
+            }
 
             var fromVal = MailChromeString(mail.from, mail.fromText);
             var toVal = MailChromeString(mail.to, mail.toText);
@@ -719,35 +783,15 @@ namespace LanguageGame.Presentation.Steps
             var greetingVal = MailChromeString(mail.greeting, mail.greetingText);
             var closingVal = MailChromeString(mail.closing, mail.closingText);
 
-            var outer = new VisualElement();
-            outer.AddToClassList("lg-special-mail");
-            outer.style.flexGrow = 1;
-
-            var scroll = new ScrollView(ScrollViewMode.Vertical);
-            scroll.AddToClassList("lg-special-mail__scroll");
-            scroll.style.flexGrow = 1;
-            scroll.style.flexShrink = 1;
-            scroll.style.minHeight = 0;
-
-            var panel = new VisualElement();
-            panel.AddToClassList("lg-special-mail__panel");
-
             var showSubject = ShouldShowMailSubjectRow(mail, dto);
             var lf = string.IsNullOrWhiteSpace(mail.rowLabelFrom) ? "Da:" : mail.rowLabelFrom.Trim();
             var lt = string.IsNullOrWhiteSpace(mail.rowLabelTo) ? "A:" : mail.rowLabelTo.Trim();
             var ls = string.IsNullOrWhiteSpace(mail.rowLabelSubject) ? "Oggetto:" : mail.rowLabelSubject.Trim();
 
-            AddMailHeaderRow(panel, lf, fromVal);
-            AddMailHeaderRow(panel, lt, toVal);
+            AddMailHeaderRow(headerHost, lf, fromVal);
+            AddMailHeaderRow(headerHost, lt, toVal);
             if (showSubject)
-                AddMailHeaderRow(panel, ls, subjectVal);
-
-            var bodyHost = new VisualElement();
-            bodyHost.AddToClassList("lg-special-mail__body");
-            bodyHost.style.flexGrow = 0;
-            bodyHost.style.flexShrink = 0;
-            bodyHost.style.minHeight = 120;
-            panel.Add(bodyHost);
+                AddMailHeaderRow(headerHost, ls, subjectVal);
 
             var blockList = dto.blocks ?? Array.Empty<SpecialScreenBlockDto>();
             foreach (var blockDto in blockList)
@@ -761,47 +805,13 @@ namespace LanguageGame.Presentation.Steps
                 _blocks.Add(CreateNestedBlock(blockDto));
             }
 
-            if (!string.IsNullOrEmpty(greetingVal))
-            {
-                var gLabel = new Label(greetingVal);
-                gLabel.AddToClassList("lg-text-body");
-                gLabel.AddToClassList("lg-special-mail__greeting");
-                gLabel.style.whiteSpace = WhiteSpace.Normal;
-                panel.Add(gLabel);
-            }
-
-            var closing = closingVal;
-            if (!string.IsNullOrEmpty(closing))
-            {
-                var cLabel = new Label(closing);
-                cLabel.AddToClassList("lg-text-body");
-                cLabel.AddToClassList("lg-special-mail__closing");
-                cLabel.style.whiteSpace = WhiteSpace.Normal;
-                panel.Add(cLabel);
-            }
-
-            var sendRow = new VisualElement();
-            sendRow.AddToClassList("lg-special-mail__send-row");
+            ToolkitStepUx.SetOptionalLabel(greetingLabel, greetingVal);
+            ToolkitStepUx.SetOptionalLabel(closingLabel, closingVal);
 
             var sendBtnText = mail.sendButtonText?.Trim() ?? string.Empty;
-            var sendBtn = new Button();
             sendBtn.text = string.IsNullOrEmpty(sendBtnText) ? "Invia" : sendBtnText;
-            sendBtn.AddToClassList("lg-btn");
-            sendBtn.AddToClassList("lg-btn--primary");
-            sendRow.Add(sendBtn);
-
-            var ack = new Label(string.Empty);
-            ack.AddToClassList("lg-special-mail__send-ack");
-            ack.AddToClassList("lg-text-caption");
+            ack.text = string.Empty;
             ack.style.display = DisplayStyle.None;
-            ack.style.whiteSpace = WhiteSpace.Normal;
-            sendRow.Add(ack);
-
-            panel.Add(sendRow);
-
-            scroll.Add(panel);
-            outer.Add(scroll);
-            _blockArea.Add(outer);
 
             _mailSendButton = sendBtn;
             _mailSendAckLabel = ack;
@@ -818,11 +828,13 @@ namespace LanguageGame.Presentation.Steps
                 context?.presentValidationMessage?.Invoke(
                     $"La parte {i + 1} non è stata caricata correttamente.");
                 AbortIncompleteBind();
-                return;
+                return false;
             }
 
             if (_slots.Count > 0)
                 _slots[0].style.display = DisplayStyle.Flex;
+
+            return true;
         }
 
         private static void AddMailHeaderRow(VisualElement parent, string caption, string value)
@@ -869,72 +881,80 @@ namespace LanguageGame.Presentation.Steps
             _readerRemoteTextures.Clear();
         }
 
-        private void BuildReaderLayout(SpecialScreenContentDto dto, StepContext _)
+        private bool BuildReaderLayout(SpecialScreenContentDto dto, StepContext context)
         {
             StopReaderRemoteLoads();
             _blockArea.Clear();
+
+            if (!ToolkitStepUx.TryMount(
+                    _blockArea,
+                    ToolkitStepTemplatePaths.SpecialScreenReaderChrome,
+                    "reader-scroll-root",
+                    out var scrollRoot))
+            {
+                Debug.LogError(
+                    $"[SpecialScreenToolkitStep] Missing reader chrome at Resources/{ToolkitStepTemplatePaths.SpecialScreenReaderChrome}.");
+                context?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                AbortIncompleteBind();
+                return false;
+            }
+
+            var panel = ToolkitStepUx.QueryRequired<VisualElement>(scrollRoot, "reader-panel", nameof(SpecialScreenToolkitStep));
+            var hero = ToolkitStepUx.QueryOptional<VisualElement>(scrollRoot, "reader-image-host");
+            var headlineLabel = ToolkitStepUx.QueryOptional<Label>(scrollRoot, "reader-headline");
+            var subheadLabel = ToolkitStepUx.QueryOptional<Label>(scrollRoot, "reader-subhead");
+            var bodyHost = ToolkitStepUx.QueryRequired<VisualElement>(scrollRoot, "reader-body-host", nameof(SpecialScreenToolkitStep));
+
+            if (panel == null || bodyHost == null)
+            {
+                context?.presentValidationMessage?.Invoke(ToolkitStepUx.TemplateLoadFailedMessage);
+                AbortIncompleteBind();
+                return false;
+            }
 
             var rc = dto.readerChrome ?? new SpecialScreenReaderChromeDto();
             var rawBody = rc.bodyText ?? string.Empty;
             var body = rawBody.Replace("\r\n", "\n").Replace('\r', '\n');
 
-            var scroll = new ScrollView(ScrollViewMode.Vertical);
-            scroll.AddToClassList("lg-special-reader-scroll");
-            scroll.style.flexGrow = 1;
-
-            var panel = new VisualElement();
-            panel.AddToClassList("lg-special-reader-panel");
-            scroll.Add(panel);
-            _blockArea.Add(scroll);
-
             var imageUrl = rc.imageUrl?.Trim() ?? string.Empty;
-            if (!string.IsNullOrEmpty(imageUrl))
+            if (hero != null)
             {
-                var hero = new VisualElement();
-                hero.AddToClassList("lg-special-reader__image");
-                panel.Add(hero);
-
-                if (!ToolkitStepHttpResourceUrl.IsAllowed(imageUrl, out var errImg))
-                    Debug.LogWarning($"[SpecialScreenToolkitStep] Reader image URL skipped: {errImg}");
-                else if (_coroutineHost != null)
-                    _readerImageLoads.Add(_coroutineHost.StartCoroutine(LoadReaderImage(imageUrl, hero)));
+                if (string.IsNullOrEmpty(imageUrl))
+                {
+                    hero.style.display = DisplayStyle.None;
+                }
                 else
-                    Debug.LogWarning(
-                        "[SpecialScreenToolkitStep] Reader hero image skipped: no coroutine host for remote load.");
+                {
+                    hero.style.display = DisplayStyle.Flex;
+                    hero.Clear();
+                    if (!ToolkitStepHttpResourceUrl.IsAllowed(imageUrl, out var errImg))
+                        Debug.LogWarning($"[SpecialScreenToolkitStep] Reader image URL skipped: {errImg}");
+                    else if (_coroutineHost != null)
+                        _readerImageLoads.Add(_coroutineHost.StartCoroutine(LoadReaderImage(imageUrl, hero)));
+                    else
+                        Debug.LogWarning(
+                            "[SpecialScreenToolkitStep] Reader hero image skipped: no coroutine host for remote load.");
+                }
             }
 
             var headline = !(string.IsNullOrWhiteSpace(rc.headline))
                 ? rc.headline.Trim()
                 : dto.title?.Trim() ?? string.Empty;
-            if (!string.IsNullOrEmpty(headline))
-            {
-                var hl = new Label(headline);
-                hl.AddToClassList("lg-heading-screen");
-                hl.AddToClassList("lg-special-reader__headline");
-                hl.style.whiteSpace = WhiteSpace.Normal;
-                panel.Add(hl);
-            }
+            ToolkitStepUx.SetOptionalLabel(headlineLabel, headline);
 
             var sub = !(string.IsNullOrWhiteSpace(rc.subheadline))
                 ? rc.subheadline.Trim()
                 : dto.subtitle?.Trim() ?? string.Empty;
-            if (!string.IsNullOrEmpty(sub))
-            {
-                var sl = new Label(sub);
-                sl.AddToClassList("lg-text-body");
-                sl.AddToClassList("lg-text-muted");
-                sl.AddToClassList("lg-special-reader__subhead");
-                sl.style.whiteSpace = WhiteSpace.Normal;
-                panel.Add(sl);
-            }
+            ToolkitStepUx.SetOptionalLabel(subheadLabel, sub);
 
+            bodyHost.Clear();
             if (rc.showLineNumbers)
             {
-                AddReaderLineNumberBlock(panel, body);
+                AddReaderLineNumberBlock(bodyHost, body);
             }
             else if (EffectiveColumnCount(rc) >= 2)
             {
-                AddReaderTwoColumns(panel, body);
+                AddReaderTwoColumns(bodyHost, body);
             }
             else
             {
@@ -942,8 +962,10 @@ namespace LanguageGame.Presentation.Steps
                 single.AddToClassList("lg-text-body");
                 single.AddToClassList("lg-special-reader__body");
                 single.style.whiteSpace = WhiteSpace.Normal;
-                panel.Add(single);
+                bodyHost.Add(single);
             }
+
+            return true;
         }
 
         private static int EffectiveColumnCount(SpecialScreenReaderChromeDto rc)
@@ -1858,6 +1880,7 @@ namespace LanguageGame.Presentation.Steps
             private Label _slideshowIndexLabel;
             private Button _slideshowPrev;
             private Button _slideshowNext;
+            private bool _binderReady;
 
             public PhotoViewerNestedBlock(SpecialScreenPhotoViewerChromeDto dto, MonoBehaviour coroutineHost)
             {
@@ -1865,7 +1888,7 @@ namespace LanguageGame.Presentation.Steps
                 _coroutineHost = coroutineHost;
             }
 
-            public bool IsBinderReady => true;
+            public bool IsBinderReady => _binderReady;
 
             public void SetInteractable(bool interactable)
             {
@@ -1915,14 +1938,32 @@ namespace LanguageGame.Presentation.Steps
                 _slideshowImageHost = null;
                 _slideshowCaptionHost = null;
                 _slideshowIndexLabel = null;
+                _binderReady = false;
             }
 
-            public void Bind(VisualElement slot, StepContext _)
+            public void Bind(VisualElement slot, StepContext context)
             {
+                _ = context;
+                _binderReady = false;
                 slot.Clear();
-                var scroll = new ScrollView(ScrollViewMode.Vertical);
-                scroll.AddToClassList("lg-special-photo-scroll");
-                scroll.style.flexGrow = 1;
+
+                if (!ToolkitStepUx.TryMount(
+                        slot,
+                        ToolkitStepTemplatePaths.SpecialScreenPhotoChrome,
+                        "photo-chrome-root",
+                        out VisualElement _))
+                {
+                    Debug.LogError(
+                        $"[SpecialScreenToolkitStep] Missing photo chrome at Resources/{ToolkitStepTemplatePaths.SpecialScreenPhotoChrome}.");
+                    return;
+                }
+
+                var scroll = ToolkitStepUx.QueryRequired<ScrollView>(
+                    slot,
+                    "photo-scroll",
+                    nameof(SpecialScreenToolkitStep));
+                if (scroll == null)
+                    return;
 
                 var pv = _dto;
                 if (!string.IsNullOrWhiteSpace(pv.prompt))
@@ -1937,7 +1978,7 @@ namespace LanguageGame.Presentation.Steps
                 var items = pv.items;
                 if (items == null || items.Length == 0)
                 {
-                    slot.Add(scroll);
+                    _binderReady = true;
                     return;
                 }
 
@@ -1948,7 +1989,7 @@ namespace LanguageGame.Presentation.Steps
                 else
                     BuildGrid(scroll, items);
 
-                slot.Add(scroll);
+                _binderReady = true;
             }
 
             private void BuildGrid(ScrollView scroll, SpecialScreenPhotoItemDto[] items)

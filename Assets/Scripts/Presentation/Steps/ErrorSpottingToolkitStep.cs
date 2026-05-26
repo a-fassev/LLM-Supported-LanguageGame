@@ -46,19 +46,19 @@ namespace LanguageGame.Presentation.Steps
                 ToolkitStepUx.ApplyMutedTaskChrome(_root, useMutedChrome);
 
             _promptLabel = _uiReady
-                ? ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(ErrorSpottingToolkitStep))
+                ? ToolkitStepUx.QueryOptional<Label>(_root, "task-prompt")
                 : null;
             _captionLabel = _uiReady
-                ? ToolkitStepUx.Query<Label>(_root, "task-caption", nameof(ErrorSpottingToolkitStep))
+                ? ToolkitStepUx.QueryOptional<Label>(_root, "task-caption")
                 : null;
             _instructionLabel = _uiReady
-                ? ToolkitStepUx.Query<Label>(_root, "task-instruction", nameof(ErrorSpottingToolkitStep))
+                ? ToolkitStepUx.QueryOptional<Label>(_root, "task-instruction")
                 : null;
             _resetButton = _uiReady
-                ? ToolkitStepUx.Query<Button>(_root, "task-reset-button", nameof(ErrorSpottingToolkitStep))
+                ? ToolkitStepUx.QueryRequired<Button>(_root, "task-reset-button", nameof(ErrorSpottingToolkitStep))
                 : null;
             _chipsRow = _uiReady
-                ? ToolkitStepUx.Query<VisualElement>(_root, "error-spotting-chips-row", nameof(ErrorSpottingToolkitStep))
+                ? ToolkitStepUx.QueryRequired<VisualElement>(_root, "error-spotting-chips-row", nameof(ErrorSpottingToolkitStep))
                 : null;
 
             if (_resetButton != null)

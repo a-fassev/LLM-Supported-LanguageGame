@@ -51,16 +51,16 @@ namespace LanguageGame.Presentation.Steps
             _coroutineHost = coroutineHost;
             _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.FreitextLlmTask, "freitext-llm-root", out _root);
             _promptLabel = _uiReady
-                ? ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(FreitextLlmToolkitStep))
+                ? ToolkitStepUx.QueryOptional<Label>(_root, "task-prompt")
                 : null;
             _instructionLabel = _uiReady
-                ? ToolkitStepUx.Query<Label>(_root, "task-instruction", nameof(FreitextLlmToolkitStep))
+                ? ToolkitStepUx.QueryOptional<Label>(_root, "task-instruction")
                 : null;
             _answerField = _uiReady
-                ? ToolkitStepUx.Query<TextField>(_root, "task-answer-field", nameof(FreitextLlmToolkitStep))
+                ? ToolkitStepUx.QueryRequired<TextField>(_root, "task-answer-field", nameof(FreitextLlmToolkitStep))
                 : null;
             _statsLabel = _uiReady
-                ? ToolkitStepUx.Query<Label>(_root, "task-stats-label", nameof(FreitextLlmToolkitStep))
+                ? ToolkitStepUx.QueryRequired<Label>(_root, "task-stats-label", nameof(FreitextLlmToolkitStep))
                 : null;
 
             if (_answerField != null)

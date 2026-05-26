@@ -26,10 +26,10 @@ namespace LanguageGame.Presentation.Steps
         {
             _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.ClozeTextTask, "cloze-text-root", out _root);
             _promptLabel = _uiReady
-                ? ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(ClozeTextToolkitStep))
+                ? ToolkitStepUx.QueryOptional<Label>(_root, "task-prompt")
                 : null;
             _linesHost = _uiReady
-                ? ToolkitStepUx.Query<VisualElement>(_root, "cloze-lines-host", nameof(ClozeTextToolkitStep))
+                ? ToolkitStepUx.QueryRequired<VisualElement>(_root, "cloze-lines-host", nameof(ClozeTextToolkitStep))
                 : null;
 
             if (_uiReady)

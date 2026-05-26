@@ -6,7 +6,10 @@ namespace LanguageGame.Presentation.Steps
     /// <summary>Load UXML step templates, clone into hosts, and query protected named slots.</summary>
     internal static class ToolkitStepUx
     {
-        /// <summary>Shown when a required UXML template failed to load (no programmatic fallback UI).</summary>
+        /// <summary>
+        /// Shown when a required UXML template failed to load. Task steps have no fallback UI;
+        /// cutscenes may still show <see cref="TryMountBeatFailurePanel"/> when narrator beat UXML is missing.
+        /// </summary>
         public const string TemplateLoadFailedMessage =
             "Impossibile caricare l'interfaccia del compito. Aggiorna l'app o contatta il supporto.";
 
@@ -50,7 +53,8 @@ namespace LanguageGame.Presentation.Steps
                 ? LogMissingTemplate(resourcesPathForLogs)
                 : DetachTemplateRoot(template, resourcesPathForLogs, rootElementName);
 
-        public static T Query<T>(VisualElement root, string elementName, string ownerStepName)
+        /// <summary>Query a protected slot; logs an error when missing (use for guard-listed elements).</summary>
+        public static T QueryRequired<T>(VisualElement root, string elementName, string ownerStepName)
             where T : VisualElement
         {
             if (root == null)
@@ -59,13 +63,18 @@ namespace LanguageGame.Presentation.Steps
             var element = root.Q<T>(elementName);
             if (element == null)
             {
-                Debug.LogWarning(
+                Debug.LogError(
                     $"[{ownerStepName}] Template missing required element name='{elementName}'. " +
                     "Do not rename protected slots in UXML.");
             }
 
             return element;
         }
+
+        /// <summary>Query an optional slot (prompt, subtitle, progress, etc.) without logging.</summary>
+        public static T QueryOptional<T>(VisualElement root, string elementName)
+            where T : VisualElement =>
+            root?.Q<T>(elementName);
 
         public static void SetOptionalLabel(Label label, string text, bool hideWhenEmpty = true)
         {
@@ -106,6 +115,34 @@ namespace LanguageGame.Presentation.Steps
             return true;
         }
 
+        /// <summary>
+        /// Minimal cutscene beat panel when narrator UXML is unavailable (uses the same USS as narrator beats).
+        /// </summary>
+        public static bool TryMountBeatFailurePanel(VisualElement beatHost, string title, string body)
+        {
+            if (beatHost == null)
+                return false;
+
+            beatHost.Clear();
+
+            var panel = new VisualElement();
+            panel.AddToClassList("lg-cutscene-narrator");
+
+            var titleLabel = new Label { name = "beat-title", text = title ?? string.Empty };
+            titleLabel.AddToClassList("lg-cutscene-narrator__title");
+            titleLabel.style.whiteSpace = WhiteSpace.Normal;
+            titleLabel.style.display = string.IsNullOrWhiteSpace(title) ? DisplayStyle.None : DisplayStyle.Flex;
+            panel.Add(titleLabel);
+
+            var bodyLabel = new Label { name = "beat-body", text = body ?? string.Empty };
+            bodyLabel.AddToClassList("lg-cutscene-narrator__body");
+            bodyLabel.style.whiteSpace = WhiteSpace.Normal;
+            panel.Add(bodyLabel);
+
+            beatHost.Add(panel);
+            return true;
+        }
+
         public static void ApplyMutedTaskChrome(VisualElement root, bool useMutedChrome)
         {
             if (root == null)
@@ -128,17 +165,19 @@ namespace LanguageGame.Presentation.Steps
             string resourcesPathForLogs,
             string rootElementName)
         {
-            var wrapper = new VisualElement();
-            template.CloneTree(wrapper);
+            var container = template.Instantiate();
             var root = string.IsNullOrEmpty(rootElementName)
-                ? (wrapper.childCount > 0 ? wrapper[0] : null)
-                : wrapper.Q<VisualElement>(rootElementName);
+                ? (container.childCount > 0 ? container[0] as VisualElement : container)
+                : container.Q<VisualElement>(rootElementName);
 
             if (root != null)
             {
                 root.RemoveFromHierarchy();
+                container.RemoveFromHierarchy();
                 return root;
             }
+
+            container.RemoveFromHierarchy();
 
             Debug.LogError(
                 $"[ToolkitStepUx] Template '{resourcesPathForLogs}' has no root named '{rootElementName}'.");

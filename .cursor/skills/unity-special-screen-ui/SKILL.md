@@ -61,7 +61,7 @@ For purely visual chrome (SMS frame, mail headers): prefer branching on **`scree
 
 ## Chrome asset
 
-- **`Assets/Resources/UI/LearningToolkit/SpecialScreenHost.uxml`** — loaded via **`Resources.Load("UI/LearningToolkit/SpecialScreenHost")`**; host falls back to programmatic chrome if loading fails. Messenger chrome (phone + bubbles) is built in code inside each block slot when **`smsChrome`** + messenger mode apply.
+- **`Assets/Resources/UI/LearningToolkit/SpecialScreenHost.uxml`** — outer host; **`Templates/SpecialScreens/SpecialScreenMessengerChrome`**, **`SpecialScreenMailChrome`**, **`SpecialScreenReaderChrome`**, **`SpecialScreenPhotoChrome`** for device shells (chat bubbles and photo grid/slideshow cells stay dynamic in C#).
 
 ## Backend reminder
 

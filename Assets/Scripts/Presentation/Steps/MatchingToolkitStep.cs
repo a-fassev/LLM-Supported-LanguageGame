@@ -59,22 +59,22 @@ namespace LanguageGame.Presentation.Steps
 
             _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.MatchingTask, "matching-root", out _root);
             _promptLabel = _uiReady
-                ? ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(MatchingToolkitStep))
+                ? ToolkitStepUx.QueryOptional<Label>(_root, "task-prompt")
                 : null;
             _subtitleLabel = _uiReady
-                ? ToolkitStepUx.Query<Label>(_root, "task-subtitle", nameof(MatchingToolkitStep))
+                ? ToolkitStepUx.QueryOptional<Label>(_root, "task-subtitle")
                 : null;
             _pairingArea = _uiReady
-                ? ToolkitStepUx.Query<VisualElement>(_root, "matching-pairing-area", nameof(MatchingToolkitStep))
+                ? ToolkitStepUx.QueryRequired<VisualElement>(_root, "matching-pairing-area", nameof(MatchingToolkitStep))
                 : null;
             _columnsRow = _uiReady
-                ? ToolkitStepUx.Query<VisualElement>(_root, "matching-columns-row", nameof(MatchingToolkitStep))
+                ? ToolkitStepUx.QueryOptional<VisualElement>(_root, "matching-columns-row")
                 : null;
             _leftColumn = _uiReady
-                ? ToolkitStepUx.Query<VisualElement>(_root, "matching-left-column", nameof(MatchingToolkitStep))
+                ? ToolkitStepUx.QueryRequired<VisualElement>(_root, "matching-left-column", nameof(MatchingToolkitStep))
                 : null;
             _rightColumn = _uiReady
-                ? ToolkitStepUx.Query<VisualElement>(_root, "matching-right-column", nameof(MatchingToolkitStep))
+                ? ToolkitStepUx.QueryRequired<VisualElement>(_root, "matching-right-column", nameof(MatchingToolkitStep))
                 : null;
 
             _lineLayer = new MatchingLineLayer { name = "matching-line-layer" };
@@ -88,7 +88,7 @@ namespace LanguageGame.Presentation.Steps
             if (!_uiReady || _pairingArea == null)
                 return;
 
-            var lineHost = ToolkitStepUx.Query<VisualElement>(_root, "matching-line-layer-host", nameof(MatchingToolkitStep));
+            var lineHost = ToolkitStepUx.QueryOptional<VisualElement>(_root, "matching-line-layer-host");
             if (lineHost != null)
                 lineHost.Add(_lineLayer);
             else

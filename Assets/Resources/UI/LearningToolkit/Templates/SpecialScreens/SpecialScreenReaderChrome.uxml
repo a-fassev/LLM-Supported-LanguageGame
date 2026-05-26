@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:ScrollView name="reader-scroll-root" mode="Vertical" class="lg-special-reader-scroll"
+        style="flex-grow: 1;">
+        <ui:VisualElement name="reader-panel" class="lg-special-reader-panel">
+            <ui:VisualElement name="reader-image-host" class="lg-special-reader__image"
+                style="display: none;" />
+            <ui:Label name="reader-headline" text="" class="lg-heading-screen lg-special-reader__headline"
+                style="display: none; white-space: normal;" />
+            <ui:Label name="reader-subhead" text="" class="lg-text-body lg-text-muted lg-special-reader__subhead"
+                style="display: none; white-space: normal;" />
+            <ui:VisualElement name="reader-body-host" />
+        </ui:VisualElement>
+    </ui:ScrollView>
+</ui:UXML>

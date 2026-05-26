@@ -2,44 +2,32 @@
     <ui:VisualElement name="avatar-root" class="lg-fill-screen">
         <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
             <ui:VisualElement name="avatar-header" class="lg-page-header">
-                <ui:Button name="back-button" text="Back" class="lg-btn lg-btn--nav" />
-                <ui:VisualElement style="flex-grow: 1; align-items: center;">
-                    <ui:Label name="title-label" text="Avatar shop" class="lg-heading-screen" />
+                <ui:VisualElement style="flex-grow: 1; align-items: flex-start; align-self: auto;">
+                    <ui:Label name="title-label" text="Avatar shop" class="lg-heading-screen"/>
                 </ui:VisualElement>
-                <ui:VisualElement style="width: 72px;" />
+                <ui:VisualElement name="wallet-strip" class="lg-hud-strip" style="margin-top: 4px;">
+                    <ui:VisualElement class="lg-hud-badge lg-hud-badge--pizza" style="margin-bottom: 8px;">
+                        <ui:Label text="P" class="lg-hud-badge__icon lg-hud-badge__glyph--pizza"/>
+                        <ui:Label name="wallet-chip-pizza" text="" class="lg-hud-badge__value"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement class="lg-hud-badge lg-hud-badge--backpack" style="margin-bottom: 8px;">
+                        <ui:Label text="B" class="lg-hud-badge__icon lg-hud-badge__glyph--backpack"/>
+                        <ui:Label name="wallet-chip-backpack" text="" class="lg-hud-badge__value"/>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Button name="pause-menu-button" text="Pause" class="lg-btn lg-btn--ghost"/>
             </ui:VisualElement>
-
-            <ui:VisualElement name="wallet-strip" class="lg-hud-strip" style="margin-top: 4px;">
-                <ui:VisualElement class="lg-hud-badge lg-hud-badge--pizza" style="margin-bottom: 8px;">
-                    <ui:Label text="P" class="lg-hud-badge__icon lg-hud-badge__glyph--pizza" />
-                    <ui:Label name="wallet-chip-pizza" text="" class="lg-hud-badge__value" />
-                </ui:VisualElement>
-                <ui:VisualElement class="lg-hud-badge lg-hud-badge--backpack" style="margin-bottom: 8px;">
-                    <ui:Label text="B" class="lg-hud-badge__icon lg-hud-badge__glyph--backpack" />
-                    <ui:Label name="wallet-chip-backpack" text="" class="lg-hud-badge__value" />
-                </ui:VisualElement>
-            </ui:VisualElement>
-
             <ui:VisualElement name="avatar-body" style="flex-grow: 1; flex-direction: row; margin-top: 16px; min-height: 0;">
-                <ui:ScrollView name="avatar-catalog-pane" class="lg-list-scroll"
-                    style="flex-grow: 1; min-width: 160px; margin-right: 12px;">
-                    <ui:Label name="catalog-placeholder" text="More avatar items will appear here later."
-                        class="lg-text-body lg-text-muted" style="white-space: normal; padding: 8px;" />
-                </ui:ScrollView>
-                <ui:VisualElement name="avatar-preview-pane" class="lg-game-panel lg-panel-padded"
-                    style="flex-grow: 1; min-width: 160px;">
-                    <ui:Label name="preview-title" text="Preview" class="lg-heading-screen"
-                        style="margin-bottom: 8px;" />
-                    <ui:Label name="preview-hint" text="Pick an item from the list when it is available."
-                        class="lg-text-body lg-text-muted" style="white-space: normal;" />
+                <ui:VisualElement name="avatar-preview-pane" class="lg-game-panel lg-panel-padded" style="flex-grow: 1; min-width: 160px;">
+                    <ui:Label name="preview-title" text="Preview" class="lg-heading-screen" style="margin-bottom: 8px;"/>
+                    <ui:Label name="preview-hint" text="Pick an item from the list when it is available." class="lg-text-body lg-text-muted" style="white-space: normal;"/>
                 </ui:VisualElement>
             </ui:VisualElement>
-
             <ui:VisualElement name="avatar-actions" style="flex-direction: row; justify-content: flex-end; margin-top: 16px;">
-                <ui:Button name="equip-button" text="Equip" class="lg-btn lg-btn--secondary" style="margin-right: 8px;" />
-                <ui:Button name="purchase-button" text="Purchase" class="lg-btn lg-btn--primary" />
+                <ui:Button name="equip-button" text="Equip" class="lg-btn lg-btn--secondary" style="margin-right: 8px;"/>
+                <ui:Button name="purchase-button" text="Purchase" class="lg-btn lg-btn--primary"/>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="overlay-plane" class="lg-overlay-root" picking-mode="Ignore" />
+        <ui:VisualElement name="overlay-plane" picking-mode="Ignore" class="lg-overlay-root"/>
     </ui:VisualElement>
 </ui:UXML>

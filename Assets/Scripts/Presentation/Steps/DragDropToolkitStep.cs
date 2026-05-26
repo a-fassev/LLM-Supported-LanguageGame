@@ -47,19 +47,19 @@ namespace LanguageGame.Presentation.Steps
             _coroutineHost = coroutineHost;
             _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.DragDropTask, "drag-drop-root", out _root);
             _promptLabel = _uiReady
-                ? ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(DragDropToolkitStep))
+                ? ToolkitStepUx.QueryOptional<Label>(_root, "task-prompt")
                 : null;
             _subtitleLabel = _uiReady
-                ? ToolkitStepUx.Query<Label>(_root, "task-subtitle", nameof(DragDropToolkitStep))
+                ? ToolkitStepUx.QueryOptional<Label>(_root, "task-subtitle")
                 : null;
             _bankHost = _uiReady
-                ? ToolkitStepUx.Query<VisualElement>(_root, "drag-drop-bank-host", nameof(DragDropToolkitStep))
+                ? ToolkitStepUx.QueryRequired<VisualElement>(_root, "drag-drop-bank-host", nameof(DragDropToolkitStep))
                 : null;
             _targetsHost = _uiReady
-                ? ToolkitStepUx.Query<VisualElement>(_root, "drag-drop-targets-host", nameof(DragDropToolkitStep))
+                ? ToolkitStepUx.QueryRequired<VisualElement>(_root, "drag-drop-targets-host", nameof(DragDropToolkitStep))
                 : null;
             _dragLayer = _uiReady
-                ? ToolkitStepUx.Query<VisualElement>(_root, "drag-drop-float-layer", nameof(DragDropToolkitStep))
+                ? ToolkitStepUx.QueryRequired<VisualElement>(_root, "drag-drop-float-layer", nameof(DragDropToolkitStep))
                 : null;
 
             if (_dragLayer != null)

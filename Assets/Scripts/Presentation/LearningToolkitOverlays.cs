@@ -768,11 +768,11 @@ namespace LanguageGame.Presentation
             _card = new VisualElement();
             _card.AddToClassList("lg-modal-card");
 
-            var title = new Label("Pausieren");
+            var title = new Label(LearningToolkitChromeUx.PauseMenuTitle);
             title.AddToClassList("lg-heading-screen");
             title.style.marginBottom = 16;
 
-            _resumeButton = new Button { text = "Weiter" };
+            _resumeButton = new Button { text = LearningToolkitChromeUx.PauseResumeLabel };
             _resumeButton.AddToClassList("lg-btn");
             _resumeButton.AddToClassList("lg-btn--primary");
             _resumeButton.style.marginBottom = 8;
@@ -783,7 +783,7 @@ namespace LanguageGame.Presentation
                 resume?.Invoke();
             });
 
-            _leaveButton = new Button { text = "Zurück zu Kapiteln" };
+            _leaveButton = new Button();
             _leaveButton.AddToClassList("lg-btn");
             _leaveButton.AddToClassList("lg-btn--ghost");
             _leaveButton.RegisterCallback<ClickEvent>(_ =>
@@ -801,12 +801,19 @@ namespace LanguageGame.Presentation
             Hide();
         }
 
-        public void Show(UnityAction onResume, UnityAction onLeave, bool leaveEnabled)
+        public void Show(UnityAction onResume, UnityAction onLeave, bool leaveEnabled, string leaveButtonLabel)
         {
             _onResume = onResume;
             _onLeave = onLeave;
             if (_leaveButton != null)
+            {
+                _leaveButton.text = string.IsNullOrWhiteSpace(leaveButtonLabel)
+                    ? LearningToolkitChromeUx.LeaveToChapterOverviewLabel
+                    : leaveButtonLabel.Trim();
                 _leaveButton.SetEnabled(leaveEnabled);
+                _leaveButton.style.display = leaveEnabled ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+
             if (_scrim != null)
             {
                 _scrim.style.display = DisplayStyle.Flex;

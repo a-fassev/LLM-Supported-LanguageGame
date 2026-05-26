@@ -1,50 +1,36 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="root-shell" class="lg-fill-screen">
-
         <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
             <ui:VisualElement class="lg-page-header">
-                <ui:Button name="back-button" text="Back to chapters" class="lg-btn lg-btn--nav" />
-            </ui:VisualElement>
-
-            <ui:Label name="chapter-title-label" text="Chapter quests"
-                class="lg-heading-display" style="margin-top: 8px;" />
-
-            <ui:VisualElement name="hud-strip" class="lg-hud-strip">
-                <ui:VisualElement name="wallet-badge-pizza" class="lg-hud-badge lg-hud-badge--pizza">
-                    <ui:Label name="hud-pizza-icon" text="P" class="lg-hud-badge__icon lg-hud-badge__glyph--pizza" />
-                    <ui:Label name="wallet-pizza" text="0" class="lg-hud-badge__value" />
+                <ui:Label name="chapter-title-label" text="Chapter quests" class="lg-heading-display" style="margin-top: 8px;"/>
+                <ui:VisualElement style="flex-grow: 1;"/>
+                <ui:VisualElement name="hud-strip" class="lg-hud-strip" style="padding-bottom: 0;">
+                    <ui:VisualElement name="wallet-badge-pizza" class="lg-hud-badge lg-hud-badge--pizza">
+                        <ui:Label name="hud-pizza-icon" text="P" class="lg-hud-badge__icon lg-hud-badge__glyph--pizza"/>
+                        <ui:Label name="wallet-pizza" text="0" class="lg-hud-badge__value"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="wallet-badge-backpack" class="lg-hud-badge lg-hud-badge--backpack">
+                        <ui:Label name="hud-backpack-icon" text="B" class="lg-hud-badge__icon lg-hud-badge__glyph--backpack"/>
+                        <ui:Label name="wallet-backpack" text="0" class="lg-hud-badge__value"/>
+                    </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement name="wallet-badge-backpack" class="lg-hud-badge lg-hud-badge--backpack">
-                    <ui:Label name="hud-backpack-icon" text="B" class="lg-hud-badge__icon lg-hud-badge__glyph--backpack" />
-                    <ui:Label name="wallet-backpack" text="0" class="lg-hud-badge__value" />
-                </ui:VisualElement>
+                <ui:Button name="pause-menu-button" text="Pause" class="lg-btn lg-btn--ghost"/>
             </ui:VisualElement>
-
             <ui:ScrollView name="quest-scroll" class="lg-list-scroll" style="margin-top: 8px;">
-
                 <ui:Button name="quest-row-0" class="lg-list-row-button">
-                    <ui:Label name="quest-title-0" text=""
-                        class="lg-list-row-text lg-text-body-lg lg-text-muted" />
-                    <ui:Label name="quest-chip-0" text=""
-                        class="lg-chip lg-chip--lock lg-text-muted" />
+                    <ui:Label name="quest-title-0" text="" class="lg-list-row-text lg-text-body-lg lg-text-muted"/>
+                    <ui:Label name="quest-chip-0" text="" class="lg-chip lg-chip--lock lg-text-muted"/>
                 </ui:Button>
-
                 <ui:Button name="quest-row-1" class="lg-list-row-button">
-                    <ui:Label name="quest-title-1" text=""
-                        class="lg-list-row-text lg-text-body-lg lg-text-muted" />
-                    <ui:Label name="quest-chip-1" text=""
-                        class="lg-chip lg-chip--lock lg-text-muted" />
+                    <ui:Label name="quest-title-1" text="" class="lg-list-row-text lg-text-body-lg lg-text-muted"/>
+                    <ui:Label name="quest-chip-1" text="" class="lg-chip lg-chip--lock lg-text-muted"/>
                 </ui:Button>
-
                 <ui:Button name="quest-row-2" class="lg-list-row-button">
-                    <ui:Label name="quest-title-2" text=""
-                        class="lg-list-row-text lg-text-body-lg lg-text-muted" />
-                    <ui:Label name="quest-chip-2" text=""
-                        class="lg-chip lg-chip--lock lg-text-muted" />
+                    <ui:Label name="quest-title-2" text="" class="lg-list-row-text lg-text-body-lg lg-text-muted"/>
+                    <ui:Label name="quest-chip-2" text="" class="lg-chip lg-chip--lock lg-text-muted"/>
                 </ui:Button>
             </ui:ScrollView>
         </ui:VisualElement>
-
-        <ui:VisualElement name="overlay-plane" class="lg-overlay-root" picking-mode="Ignore" />
+        <ui:VisualElement name="overlay-plane" picking-mode="Ignore" class="lg-overlay-root"/>
     </ui:VisualElement>
 </ui:UXML>

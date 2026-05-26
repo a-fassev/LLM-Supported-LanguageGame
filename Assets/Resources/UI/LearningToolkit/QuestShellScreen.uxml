@@ -2,36 +2,29 @@
     <ui:VisualElement name="quest-root" class="lg-fill-screen">
         <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
             <ui:VisualElement class="lg-page-header">
-                <ui:Button name="back-to-chapters-button" text="Back to chapters" class="lg-btn lg-btn--nav" />
-                <ui:Label name="quest-title-label" text="" class="lg-heading-screen"
-                    style="flex-grow: 1; -unity-text-align: middle-center; white-space: normal;" />
-                <ui:Button name="reference-document-button" text="Broschüre" class="lg-btn lg-btn--ghost"
-                    style="display: none; margin-right: 4px;" />
-                <ui:Button name="pause-menu-button" text="Pausieren" class="lg-btn lg-btn--ghost" />
-            </ui:VisualElement>
-
-            <ui:VisualElement name="hud-strip" class="lg-hud-strip">
-                <ui:VisualElement name="wallet-badge-pizza" class="lg-hud-badge lg-hud-badge--pizza">
-                    <ui:Label name="hud-pizza-icon" text="P" class="lg-hud-badge__icon lg-hud-badge__glyph--pizza" />
-                    <ui:Label name="wallet-pizza" text="0" class="lg-hud-badge__value" />
+                <ui:Label name="quest-title-label" text="" class="lg-heading-screen" style="flex-grow: 1; -unity-text-align: middle-center; white-space: normal;"/>
+                <ui:Button name="reference-document-button" text="Broschüre" class="lg-btn lg-btn--ghost" style="display: none; margin-right: 4px;"/>
+                <ui:VisualElement name="hud-strip" class="lg-hud-strip" style="padding-bottom: 0;">
+                    <ui:VisualElement name="wallet-badge-pizza" class="lg-hud-badge lg-hud-badge--pizza">
+                        <ui:Label name="hud-pizza-icon" text="P" class="lg-hud-badge__icon lg-hud-badge__glyph--pizza"/>
+                        <ui:Label name="wallet-pizza" text="0" class="lg-hud-badge__value"/>
+                    </ui:VisualElement>
+                    <ui:VisualElement name="wallet-badge-backpack" class="lg-hud-badge lg-hud-badge--backpack">
+                        <ui:Label name="hud-backpack-icon" text="B" class="lg-hud-badge__icon lg-hud-badge__glyph--backpack"/>
+                        <ui:Label name="wallet-backpack" text="0" class="lg-hud-badge__value"/>
+                    </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:VisualElement name="wallet-badge-backpack" class="lg-hud-badge lg-hud-badge--backpack">
-                    <ui:Label name="hud-backpack-icon" text="B" class="lg-hud-badge__icon lg-hud-badge__glyph--backpack" />
-                    <ui:Label name="wallet-backpack" text="0" class="lg-hud-badge__value" />
-                </ui:VisualElement>
+                <ui:Button name="pause-menu-button" text="Pause" class="lg-btn lg-btn--ghost"/>
             </ui:VisualElement>
-
             <ui:VisualElement name="quest-step-panel" class="lg-game-panel lg-quest-step-panel">
                 <ui:ScrollView name="step-scroll" class="lg-list-scroll" style="flex-grow: 1; min-height: 180px;">
-                    <ui:VisualElement name="step-host" style="flex-grow: 1; min-height: 160px;" />
+                    <ui:VisualElement name="step-host" style="flex-grow: 1; min-height: 160px;"/>
                 </ui:ScrollView>
             </ui:VisualElement>
-
             <ui:VisualElement name="quest-footer" class="lg-quest-footer" style="flex-shrink: 0; margin-top: 12px;">
-                <ui:Button name="primary-action-button" text="Controlla" class="lg-btn lg-btn--primary"
-                    style="align-self: flex-end;" />
+                <ui:Button name="primary-action-button" text="Controlla" class="lg-btn lg-btn--primary" style="align-self: flex-end;"/>
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="overlay-plane" class="lg-overlay-root" picking-mode="Ignore" />
+        <ui:VisualElement name="overlay-plane" picking-mode="Ignore" class="lg-overlay-root"/>
     </ui:VisualElement>
 </ui:UXML>

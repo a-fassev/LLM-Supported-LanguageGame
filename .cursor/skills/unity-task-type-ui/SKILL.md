@@ -10,6 +10,8 @@ description: >-
 
 Quest steps render inside **`QuestShellScreen`** (`Assets/Resources/UI/LearningToolkit/QuestShellScreen.uxml`): the **`step-host`** `VisualElement` is cleared and populated at runtime.
 
+**Layout = UXML templates** under `Assets/Resources/UI/LearningToolkit/Templates/`; **content = `contentJson`** from the API. Use **`ToolkitStepUx.TryMount`** / **`Instantiate`** and stable **`name`** anchors (see **`ToolkitStepTemplatePaths`**). Do not add a second shell primary button in step UXML. Styling: [`DOC/03-styling.md`](DOC/03-styling.md).
+
 Full narrative and **`contentJson`** tables: **`docs/task-type-ui-guide.md`**.
 
 Composite **Special Screen** tasks (`SpecialScreen*`): see **`.cursor/skills/unity-special-screen-ui/SKILL.md`**.
@@ -29,17 +31,20 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 
 1. **`taskType`** string must match API / DB (`game_quest_steps.task_type`). **`ToolkitStepFactory`** uses a **`switch`** — casing must match server payloads. Keep **`Assets/Scripts/Application/GameProgressContracts.cs`** (and any **`apps/web`** payload validators) aligned when introducing or renaming a type.
 
-2. **Implement `IStepView`** (and **`ISubmitFromShell`** for tasks submitted by shell Controlla):
+2. **Add UXML template(s)** under `Assets/Resources/UI/LearningToolkit/Templates/Tasks/` (or `Cutscenes/` for beat layouts). Register path in **`ToolkitStepTemplatePaths`**. Every bindable control needs a stable **`name`**; document protected names in UXML comments.
+
+3. **Implement `IStepView`** (and **`ISubmitFromShell`** for tasks submitted by shell Controlla):
    - Place class under `Assets/Scripts/Presentation/Steps/` (e.g. `*ToolkitStep.cs`).
-   - **`Bind`**: parse **`context.contentJson`**, attach UI under **`stepHost`**, avoid duplicate listeners on re-bind.
-   - **`Teardown`**: **`RemoveFromHierarchy`** on roots you own; clear delegates / schedules.
+   - **Constructor**: **`ToolkitStepUx.TryMount(stepHost, path, rootName, out _root)`**; cache **`QueryRequired`** / **`QueryOptional`** results for hosts and labels.
+   - **`Bind`**: parse **`context.contentJson`**, fill template slots; build dynamic children only inside named host elements; avoid duplicate listeners on re-bind.
+   - **`Teardown`**: **`RemoveFromHierarchy`** on mounted root; clear delegates / schedules.
    - **`SetInteractable`**: disable inputs during **`CompleteServerTaskRoutine`** / **`AdvanceCutsceneRoutine`**.
 
-3. **Register in `ToolkitStepFactory`**: add a **`case "YourTaskType":`** returning your step class.
+4. **Register in `ToolkitStepFactory`**: add a **`case "YourTaskType":`** returning your step class.
 
-4. **Styling**: Prefer USS classes (`lg-*`) from `Assets/Resources/UI/LearningToolkit/`. Runtime **`UiThemeProvider`** / **`UiDesignTokens`** may supply palette data where needed.
+5. **Styling**: Prefer USS classes (`lg-*`) from `Assets/Resources/UI/LearningToolkit/` (`task-templates.uss` for shared step chrome). Runtime **`UiThemeProvider`** / **`UiDesignTokens`** only when USS cannot express the need.
 
-5. **Stub / placeholder**: Unimplemented types use **`StubToolkitTaskStep`** until a real mechanic exists.
+6. **Stub / placeholder**: Unimplemented types use **`StubToolkitTaskStep`** until a real mechanic exists.
 
 ## Cutscenes (`step_kind: cutscene`)
 
@@ -53,6 +58,7 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 
 ## Checklist
 
+- [ ] UXML template(s) + **`ToolkitStepTemplatePaths`** entry; protected **`name`** slots unchanged vs C# queries.
 - [ ] Stable **`contentJson`** aligned with backend.
 - [ ] **`ToolkitStepFactory`** **`case`** for **`taskType`**.
 - [ ] **`Bind` / `Teardown` / `SetInteractable`** correct; **`ISubmitFromShell`** for shell-driven submit.
@@ -68,5 +74,7 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 | Factory | `Assets/Scripts/Presentation/Steps/ToolkitStepFactory.cs` |
 | Contracts | `IStepView`, `ISubmitFromShell`, `ICutsceneBeatNavigator`, `StepContext`; `GameProgressContracts`, `QuestMetaPayloadDto` |
 | Cutscene USS | `Assets/Resources/UI/LearningToolkit/cutscene-narrative.uss` |
+| Step templates | `Assets/Resources/UI/LearningToolkit/Templates/` |
+| Template loader | `ToolkitStepUx.cs`, `ToolkitStepTemplatePaths.cs` |
 | UXML shell | `Assets/Resources/UI/LearningToolkit/QuestShellScreen.uxml` |
 | Theme | `Assets/Resources/UI/LearningToolkit/*.uss`, `LearningMenusTheme.tss` |

@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="photo-chrome-root" style="flex-grow: 1;">
+        <ui:ScrollView name="photo-scroll" mode="Vertical" class="lg-special-photo-scroll"
+            style="flex-grow: 1;" />
+    </ui:VisualElement>
+</ui:UXML>

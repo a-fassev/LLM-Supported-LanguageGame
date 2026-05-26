@@ -17,9 +17,9 @@ namespace LanguageGame.Presentation
 
         private Label _walletBackpack;
 
-        private Button _backButton;
-
         private Button _avatarShopButton;
+
+        private readonly LearningToolkitPauseChromeBinder _pauseChrome = new();
 
         private readonly Button[] _chapterButtons = new Button[VisibleChapterSlots];
 
@@ -53,10 +53,15 @@ namespace LanguageGame.Presentation
             _titleText = root.Q<Label>("title-label");
             _walletPizza = root.Q<Label>("wallet-pizza");
             _walletBackpack = root.Q<Label>("wallet-backpack");
-            _backButton = root.Q<Button>("back-button");
             _avatarShopButton = root.Q<Button>("avatar-shop-button");
 
-            _backButton?.RegisterCallback<ClickEvent>(_ => OnBackToMenuClicked());
+            if (!_pauseChrome.Bind(_doc, LearningToolkitChromeUx.LeaveToMainMenuLabel, OnLeaveToMainMenu))
+            {
+                Debug.LogError("[ChapterOverviewView] Pause chrome bind failed.");
+                enabled = false;
+                return;
+            }
+
             _avatarShopButton?.RegisterCallback<ClickEvent>(_ => OnAvatarShopClicked());
 
             for (var idx = 0; idx < VisibleChapterSlots; idx++)
@@ -271,7 +276,7 @@ namespace LanguageGame.Presentation
             flow.LoadQuestOverview();
         }
 
-        private static void OnBackToMenuClicked()
+        private static void OnLeaveToMainMenu()
         {
             GameFlowController.Instance?.LoadMainMenu();
         }
@@ -292,6 +297,7 @@ namespace LanguageGame.Presentation
         {
             if (_doc != null)
                 LearningToolkitNavigationFeedback.UnregisterPresentationDocument(_doc);
+            _pauseChrome.Destroy();
             _unlockModal.Destroy();
             _loadingOverlay.Destroy();
             _loadErrorBanner.Destroy();

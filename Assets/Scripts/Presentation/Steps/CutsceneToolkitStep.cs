@@ -47,7 +47,7 @@ namespace LanguageGame.Presentation.Steps
         {
             _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.CutsceneHost, "cutscene-root", out _root);
             _beatHost = _uiReady
-                ? ToolkitStepUx.Query<VisualElement>(_root, "cutscene-beat-host", nameof(CutsceneToolkitStep))
+                ? ToolkitStepUx.QueryRequired<VisualElement>(_root, "cutscene-beat-host", nameof(CutsceneToolkitStep))
                 : null;
         }
 
@@ -175,17 +175,26 @@ namespace LanguageGame.Presentation.Steps
             _autoAdvanceCoroutine = null;
         }
 
-        private void RenderInvalid()
+        private void RenderInvalid() =>
+            TryShowBeatMessage(InvalidContentTitle, InvalidContentBody);
+
+        private void RenderTemplateFailure() =>
+            TryShowBeatMessage("Szene nicht verfügbar", ToolkitStepUx.TemplateLoadFailedMessage);
+
+        private void TryShowBeatMessage(string title, string body)
         {
             _beatHost.Clear();
             var panel = InstantiateNarratorBeat();
-            if (panel == null)
+            if (panel != null)
+            {
+                SetBeatLabel(panel, "beat-title", title);
+                SetBeatLabel(panel, "beat-subtitle", string.Empty, hideWhenEmpty: true);
+                SetBeatLabel(panel, "beat-body", body);
+                _beatHost.Add(panel);
                 return;
+            }
 
-            SetBeatLabel(panel, "beat-title", InvalidContentTitle);
-            SetBeatLabel(panel, "beat-subtitle", string.Empty, hideWhenEmpty: true);
-            SetBeatLabel(panel, "beat-body", InvalidContentBody);
-            _beatHost.Add(panel);
+            ToolkitStepUx.TryMountBeatFailurePanel(_beatHost, title, body);
         }
 
         private void RenderCurrentBeat()
@@ -193,6 +202,7 @@ namespace LanguageGame.Presentation.Steps
             _beatHost.Clear();
             if (_dto?.beats == null || _dto.beats.Length == 0)
             {
+                _isContentValid = false;
                 RenderInvalid();
                 return;
             }
@@ -200,6 +210,7 @@ namespace LanguageGame.Presentation.Steps
             var beat = _dto.beats[Mathf.Clamp(_beatIndex, 0, _dto.beats.Length - 1)];
             if (beat == null || string.IsNullOrWhiteSpace(beat.body))
             {
+                _isContentValid = false;
                 RenderInvalid();
                 return;
             }
@@ -209,9 +220,11 @@ namespace LanguageGame.Presentation.Steps
                 _isContentValid = false;
                 return;
             }
+
+            _isContentValid = true;
         }
 
-        private static VisualElement BuildBeatPanel(CutsceneBeatDto beat)
+        private VisualElement BuildBeatPanel(CutsceneBeatDto beat)
         {
             var mode = (beat.presentationMode ?? "narrator").Trim();
             return mode.ToLowerInvariant() switch
@@ -231,7 +244,7 @@ namespace LanguageGame.Presentation.Steps
                 return true;
             }
 
-            RenderInvalid();
+            RenderTemplateFailure();
             return false;
         }
 

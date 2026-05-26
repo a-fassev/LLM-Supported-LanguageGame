@@ -9,7 +9,7 @@ namespace LanguageGame.Presentation
     {
         private UIDocument _doc;
 
-        private Button _backButton;
+        private readonly LearningToolkitPauseChromeBinder _pauseChrome = new();
 
         private Label _walletPizzaChip;
 
@@ -34,7 +34,6 @@ namespace LanguageGame.Presentation
             }
 
             var root = _doc.rootVisualElement;
-            _backButton = root.Q<Button>("back-button");
             _walletPizzaChip = root.Q<Label>("wallet-chip-pizza");
             _walletBackpackChip = root.Q<Label>("wallet-chip-backpack");
             _equipButton = root.Q<Button>("equip-button");
@@ -46,7 +45,12 @@ namespace LanguageGame.Presentation
 
             LearningToolkitNavigationFeedback.RegisterPresentationDocument(_doc);
 
-            _backButton?.RegisterCallback<ClickEvent>(_ => OnBackClicked());
+            if (!_pauseChrome.Bind(_doc, LearningToolkitChromeUx.LeaveToChapterOverviewLabel, OnLeaveToChapterOverview))
+            {
+                Debug.LogError("[AvatarShopView] Pause chrome bind failed.");
+                enabled = false;
+                return;
+            }
             _equipButton?.RegisterCallback<ClickEvent>(_ => ShowPlaceHolderToast("Nothing to equip yet."));
             _purchaseButton?.RegisterCallback<ClickEvent>(_ => ShowPlaceHolderToast("Purchasing will arrive with catalog content."));
 
@@ -87,7 +91,7 @@ namespace LanguageGame.Presentation
                 _walletBackpackChip.text = backpack.ToString();
         }
 
-        private void OnBackClicked()
+        private void OnLeaveToChapterOverview()
         {
             if (GameFlowController.Instance == null)
             {
@@ -103,6 +107,7 @@ namespace LanguageGame.Presentation
             _toastHideSchedule?.Pause();
             if (_doc != null)
                 LearningToolkitNavigationFeedback.UnregisterPresentationDocument(_doc);
+            _pauseChrome.Destroy();
             _infoBanner.Destroy();
             if (_doc != null)
                 Destroy(_doc.gameObject);

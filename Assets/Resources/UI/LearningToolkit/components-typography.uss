@@ -68,7 +68,7 @@ Label {
     width: 100%;
 }
 
-/* Top chrome row (back + title actions) */
+/* Top chrome row (title + header actions) */
 .lg-page-header {
     flex-direction: row;
     align-items: center;

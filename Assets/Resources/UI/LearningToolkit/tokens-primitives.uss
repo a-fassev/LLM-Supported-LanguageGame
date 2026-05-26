@@ -29,6 +29,7 @@
 
     /* Radii */
     --lg-radius-sm: 8px;
+    --lg-radius-button: 12px;
     --lg-radius-md: 14px;
     --lg-radius-lg: 22px;
     --lg-radius-pill: 999px;

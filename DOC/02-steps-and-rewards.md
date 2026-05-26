@@ -80,7 +80,7 @@ Validated leniently on read via [`questMetaPayloadSchema.ts`](../apps/web/lib/ga
 | Field | Notes |
 |-------|--------|
 | `referenceDocument` | `{ documentId?, title, bodyText, buttonLabel? }` — quest shell **Broschüre ansehen** modal on all steps |
-| `flow.blockBack` | When true, hide/disable **Back to chapters** and pause-menu leave |
+| `flow.blockBack` | When true, hide **leave quest** in the pause menu (no chapter exit) |
 | `flow.autoStartQuestSlug` | After quest finish, client starts this quest slug if unlocked (else quest overview) |
 
 ---

@@ -14,7 +14,6 @@ namespace LanguageGame.Presentation
     {
         private const string FinishQuestLabel = "Quest beenden";
         private const string ShellCutsceneDefaultCtaLabel = "Weiter";
-        private const string BackToChaptersLabel = "Zurück zu Kapiteln";
         private const string ShellTaskCheckLabel = "Controlla";
         private const string ValidationDismissLabel = "Verstanden";
 
@@ -37,7 +36,6 @@ namespace LanguageGame.Presentation
         private bool _shellReady;
         private VisualElement _toolkitStepHost;
         private VisualElement _questStepPanel;
-        private Button _tkBackToChapters;
         private Button _tkReferenceDocument;
         private Button _tkPauseMenu;
         private Button _tkPrimary;
@@ -49,7 +47,7 @@ namespace LanguageGame.Presentation
         private readonly LearningToolkitRewardModal _tkReward = new();
         private readonly LearningToolkitLoadErrorBanner _tkFinishError = new();
         private readonly LearningToolkitReferenceDocumentModal _tkReferenceDoc = new();
-        private readonly LearningToolkitPauseMenuModal _tkPauseMenu = new();
+        private readonly LearningToolkitPauseMenuModal _tkPauseMenuModal = new();
 
         private void Awake()
         {
@@ -72,9 +70,8 @@ namespace LanguageGame.Presentation
                 return;
 
             var root = _toolkitDoc.rootVisualElement;
-            _tkBackToChapters = root.Q<Button>("back-to-chapters-button");
             _tkReferenceDocument = root.Q<Button>("reference-document-button");
-            _tkPauseMenu = root.Q<Button>("pause-menu-button");
+            _tkPauseMenu = root.Q<Button>(LearningToolkitChromeUx.PauseMenuButtonName);
             _tkPrimary = root.Q<Button>("primary-action-button");
             _tkQuestTitle = root.Q<Label>("quest-title-label");
             _tkWalletPizza = root.Q<Label>("wallet-pizza");
@@ -82,9 +79,9 @@ namespace LanguageGame.Presentation
             _toolkitStepHost = root.Q<VisualElement>("step-host");
             _questStepPanel = root.Q<VisualElement>("quest-step-panel");
 
-            if (_tkBackToChapters == null || _tkPrimary == null || _toolkitStepHost == null)
+            if (_tkPauseMenu == null || _tkPrimary == null || _toolkitStepHost == null)
             {
-                Debug.LogError("[QuestShellView] QuestShellScreen UXML missing required elements (back, primary, step-host).");
+                Debug.LogError("[QuestShellView] QuestShellScreen UXML missing required elements (pause, primary, step-host).");
                 Destroy(_toolkitDoc.gameObject);
                 _toolkitDoc = null;
                 return;
@@ -99,9 +96,8 @@ namespace LanguageGame.Presentation
                 return;
             }
 
-            _tkBackToChapters.RegisterCallback<ClickEvent>(_ => OnBackToChaptersClicked());
             _tkReferenceDocument?.RegisterCallback<ClickEvent>(_ => OnReferenceDocumentClicked());
-            _tkPauseMenu?.RegisterCallback<ClickEvent>(_ => OnPauseMenuClicked());
+            _tkPauseMenu.RegisterCallback<ClickEvent>(_ => OnPauseMenuClicked());
             _tkPrimary.RegisterCallback<ClickEvent>(_ => OnPrimaryChromeClicked());
 
             _tkLoading.Attach(overlay);
@@ -109,7 +105,7 @@ namespace LanguageGame.Presentation
             _tkReward.Attach(overlay);
             _tkFinishError.Attach(overlay);
             _tkReferenceDoc.Attach(overlay);
-            _tkPauseMenu.Attach(overlay);
+            _tkPauseMenuModal.Attach(overlay);
 
             LearningToolkitNavigationFeedback.RegisterPresentationDocument(_toolkitDoc);
 
@@ -125,18 +121,6 @@ namespace LanguageGame.Presentation
             RefreshStepUi();
         }
 
-        private void ConfigureBackToChaptersButton(GameFlowController flow)
-        {
-            if (_tkBackToChapters == null)
-                return;
-
-            _tkBackToChapters.text = BackToChaptersLabel;
-            var blocked = IsBackBlocked();
-            _tkBackToChapters.style.display = blocked ? DisplayStyle.None : DisplayStyle.Flex;
-            var enabled = !blocked && flow != null && !_submitting && !flow.IsSceneTransitionInProgress;
-            _tkBackToChapters.SetEnabled(enabled);
-        }
-
         private void RefreshStepUi()
         {
             if (!_shellReady)
@@ -145,7 +129,6 @@ namespace LanguageGame.Presentation
             UpdateWalletLabels();
 
             var flow = GameFlowController.Instance;
-            ConfigureBackToChaptersButton(flow);
 
             if (flow == null)
             {
@@ -379,7 +362,7 @@ namespace LanguageGame.Presentation
                 return;
 
             ConfigureShellPrimaryChrome(_boundStep);
-            ConfigureBackToChaptersButton(flow);
+            ConfigureQuestShellChrome(flow);
         }
 
         private string ResolveCutsceneCtaLabel()
@@ -784,14 +767,18 @@ namespace LanguageGame.Presentation
             if (_submitting)
                 return;
 
-            _tkPauseMenu.Show(OnPauseResume, OnPauseLeaveQuest, leaveEnabled: !IsBackBlocked());
+            _tkPauseMenuModal.Show(
+                OnPauseResume,
+                OnPauseLeaveQuest,
+                leaveEnabled: !IsBackBlocked(),
+                LearningToolkitChromeUx.LeaveToChapterOverviewLabel);
         }
 
-        private void OnPauseResume() => _tkPauseMenu.Hide();
+        private void OnPauseResume() => _tkPauseMenuModal.Hide();
 
         private void OnPauseLeaveQuest()
         {
-            _tkPauseMenu.Hide();
+            _tkPauseMenuModal.Hide();
             OnBackToChaptersClicked();
         }
 
@@ -876,7 +863,8 @@ namespace LanguageGame.Presentation
                 var message = flow != null && flow.IsServerQuestActive
                     ? "Dein Fortschritt wird nach jedem Schritt gespeichert. Du kannst die Quest später in den Kapiteln fortsetzen. Jetzt verlassen?"
                     : "Wenn du jetzt gehst, geht der Fortschritt in dieser Quest verloren. Zurück zu den Kapiteln?";
-                _tkBackConfirm.Show("Quest verlassen?", message, "Bleiben", BackToChaptersLabel, OnBackConfirmCancel,
+                _tkBackConfirm.Show("Quest verlassen?", message, "Bleiben", LearningToolkitChromeUx.LeaveToChapterOverviewLabel,
+                    OnBackConfirmCancel,
                     OnBackConfirmLeave);
             }
             else
@@ -904,7 +892,7 @@ namespace LanguageGame.Presentation
             _tkReward.Destroy();
             _tkFinishError.Destroy();
             _tkReferenceDoc.Destroy();
-            _tkPauseMenu.Destroy();
+            _tkPauseMenuModal.Destroy();
             if (_toolkitDoc != null)
                 Destroy(_toolkitDoc.gameObject);
         }

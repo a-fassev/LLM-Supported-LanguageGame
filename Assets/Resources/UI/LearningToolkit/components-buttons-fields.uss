@@ -9,7 +9,7 @@ Button.lg-btn {
     min-height: 48px;
     padding-left: var(--lg-space-16);
     padding-right: var(--lg-space-16);
-    border-radius: var(--lg-radius-pill);
+    border-radius: var(--lg-radius-button);
     border-width: 0;
     font-size: var(--lg-font-body-lg);
     -unity-font-style: bold;

@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="messenger-phone-root" class="lg-special-phone" style="flex-grow: 1;">
+        <ui:VisualElement name="messenger-status-row" class="lg-special-phone__status">
+            <ui:Label name="messenger-status-time" text="9:41" class="lg-special-phone__status-time" />
+            <ui:Label name="messenger-status-signal" text="&#9679;&#9679;&#9679;&#9679;&#9679;"
+                class="lg-special-phone__status-signal" />
+        </ui:VisualElement>
+        <ui:VisualElement name="messenger-header-row" class="lg-special-phone__header"
+            style="display: none;">
+            <ui:Label name="messenger-header-title" text="" class="lg-special-phone__header-title" />
+        </ui:VisualElement>
+        <ui:ScrollView name="messenger-chat-scroll" mode="Vertical" class="lg-special-phone__scroll"
+            style="flex-grow: 1;" />
+    </ui:VisualElement>
+</ui:UXML>

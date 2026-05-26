@@ -49,28 +49,28 @@ namespace LanguageGame.Presentation.Steps
             _coroutineHost = coroutineHost;
             _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.MultipleChoiceTask, "multiple-choice-root", out _root);
             _promptLabel = _uiReady
-                ? ToolkitStepUx.Query<Label>(_root, "task-prompt", nameof(MultipleChoiceToolkitStep))
+                ? ToolkitStepUx.QueryOptional<Label>(_root, "task-prompt")
                 : null;
             _subtitleLabel = _uiReady
-                ? ToolkitStepUx.Query<Label>(_root, "task-subtitle", nameof(MultipleChoiceToolkitStep))
+                ? ToolkitStepUx.QueryOptional<Label>(_root, "task-subtitle")
                 : null;
             _stemHost = _uiReady
-                ? ToolkitStepUx.Query<VisualElement>(_root, "mc-stem-host", nameof(MultipleChoiceToolkitStep))
+                ? ToolkitStepUx.QueryRequired<VisualElement>(_root, "mc-stem-host", nameof(MultipleChoiceToolkitStep))
                 : null;
             _optionsHost = _uiReady
-                ? ToolkitStepUx.Query<VisualElement>(_root, "mc-options-host", nameof(MultipleChoiceToolkitStep))
+                ? ToolkitStepUx.QueryRequired<VisualElement>(_root, "mc-options-host", nameof(MultipleChoiceToolkitStep))
                 : null;
             _navHost = _uiReady
-                ? ToolkitStepUx.Query<VisualElement>(_root, "mc-nav-row", nameof(MultipleChoiceToolkitStep))
+                ? ToolkitStepUx.QueryRequired<VisualElement>(_root, "mc-nav-row", nameof(MultipleChoiceToolkitStep))
                 : null;
             _prevButton = _uiReady
-                ? ToolkitStepUx.Query<Button>(_root, "mc-prev-button", nameof(MultipleChoiceToolkitStep))
+                ? ToolkitStepUx.QueryRequired<Button>(_root, "mc-prev-button", nameof(MultipleChoiceToolkitStep))
                 : null;
             _nextButton = _uiReady
-                ? ToolkitStepUx.Query<Button>(_root, "mc-next-button", nameof(MultipleChoiceToolkitStep))
+                ? ToolkitStepUx.QueryRequired<Button>(_root, "mc-next-button", nameof(MultipleChoiceToolkitStep))
                 : null;
             _progressLabel = _uiReady
-                ? ToolkitStepUx.Query<Label>(_root, "mc-progress-label", nameof(MultipleChoiceToolkitStep))
+                ? ToolkitStepUx.QueryRequired<Label>(_root, "mc-progress-label", nameof(MultipleChoiceToolkitStep))
                 : null;
 
             if (_prevButton != null)
@@ -90,8 +90,10 @@ namespace LanguageGame.Presentation.Steps
                     context,
                     _stemHost,
                     _optionsHost,
+                    _navHost,
                     _prevButton,
-                    _nextButton))
+                    _nextButton,
+                    _progressLabel))
                 return;
 
             ToolkitStepUx.SetOptionalLabel(_promptLabel, null);
