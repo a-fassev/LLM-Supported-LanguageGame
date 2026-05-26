@@ -1,0 +1,21 @@
+<!-- UI Builder sample; success + validation modes. Protected: reward-message, reward-detail-rows, reward-pizza-line, reward-backpack-line, reward-back, reward-next -->
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="reward-modal-scrim" class="lg-modal-scrim">
+        <ui:VisualElement name="reward-modal-card" class="lg-modal-card">
+            <ui:Label name="reward-message" text="Tutto giusto!"
+                class="lg-heading-screen lg-reward-modal__headline lg-preview-sample" />
+            <ui:VisualElement name="reward-detail-rows" class="lg-reward-modal__details">
+                <ui:Label name="reward-pizza-line" text="Fette di pizza guadagnate: 2"
+                    class="lg-text-body lg-overlay-message-wrap lg-preview-sample" />
+                <ui:Label name="reward-backpack-line" text="Pezzi per lo zaino guadagnati: 1"
+                    class="lg-text-body lg-overlay-message-wrap lg-preview-sample" />
+            </ui:VisualElement>
+            <ui:VisualElement name="reward-actions-row" class="lg-modal-actions-row lg-modal-actions-row--spread">
+                <ui:Button name="reward-back" text="Indietro"
+                    class="lg-btn lg-btn--secondary lg-preview-sample" />
+                <ui:Button name="reward-next" text="Avanti"
+                    class="lg-btn lg-btn--primary lg-preview-sample" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,7 @@
+<!-- UI Builder sample; runtime replaces info-message. Protected: info-message -->
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="info-banner-root" class="lg-info-banner">
+        <ui:Label name="info-message" text="Salvato!"
+            class="lg-banner-message lg-text-body lg-overlay-message-wrap lg-preview-sample" />
+    </ui:VisualElement>
+</ui:UXML>

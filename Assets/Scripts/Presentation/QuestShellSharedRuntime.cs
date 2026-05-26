@@ -3,6 +3,7 @@ using System.Collections;
 using LanguageGame.Application;
 using LanguageGame.Presentation.Steps;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UIElements;
 
 namespace LanguageGame.Presentation
@@ -13,7 +14,7 @@ namespace LanguageGame.Presentation
         public const string FinishQuestLabel = "Quest beenden";
         public const string ShellCutsceneDefaultCtaLabel = "Weiter";
         public const string ShellTaskCheckLabel = "Controlla";
-        public const string ValidationDismissLabel = "Verstanden";
+        public const string ValidationDismissLabel = LearningToolkitChromeUx.ValidationDismissLabel;
 
         public readonly QuestShellSessionState Session = new();
 
@@ -54,12 +55,24 @@ namespace LanguageGame.Presentation
 
         public void DestroyOverlays()
         {
+            DismissTransientOverlays();
             Loading.Destroy();
             BackConfirm.Destroy();
             Reward.Destroy();
             FinishError.Destroy();
             ReferenceDoc.Destroy();
             PauseMenuModal.Destroy();
+        }
+
+        /// <summary>Hides modals before shell teardown/swap so UI state does not leak across UIDocuments.</summary>
+        public void DismissTransientOverlays()
+        {
+            Loading.Hide();
+            BackConfirm.Hide();
+            Reward.Hide();
+            FinishError.Hide();
+            ReferenceDoc.Hide();
+            PauseMenuModal.Hide();
         }
 
         public bool IsBackBlocked(IStepView activeStep)
@@ -75,7 +88,7 @@ namespace LanguageGame.Presentation
             return meta?.flow != null && meta.flow.blockBack;
         }
 
-        public void ShowBackConfirm(Action onCancel, Action onLeave)
+        public void ShowBackConfirm(UnityAction onCancel, UnityAction onLeave)
         {
             var flow = GameFlowController.Instance;
             var message = flow != null && flow.IsServerQuestActive
@@ -121,7 +134,7 @@ namespace LanguageGame.Presentation
         }
 
         public void ShowTaskRewardOverlay(int awardedSlices, int awardedBackpackPieces, int taskItemsCorrect,
-            int taskItemsTotal, Action onBackDismiss, Action onNextDismiss)
+            int taskItemsTotal, UnityAction onBackDismiss, UnityAction onNextDismiss)
         {
             Session.RewardOverlayValidationMode = false;
             Reward.ConfigureSuccessChrome();

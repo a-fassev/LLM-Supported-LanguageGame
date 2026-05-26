@@ -1,0 +1,13 @@
+<!-- UI Builder sample; runtime replaces title/message. Protected: unlock-title, unlock-message, unlock-confirm -->
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="unlock-modal-scrim" class="lg-modal-scrim">
+        <ui:VisualElement name="unlock-modal-card" class="lg-modal-card">
+            <ui:Label name="unlock-title" text="Nuova missione sbloccata!"
+                class="lg-heading-screen lg-modal-card__title lg-preview-sample" />
+            <ui:Label name="unlock-message"
+                text="Ora puoi iniziare «Il mercato di Bologna» dalla mappa delle missioni."
+                class="lg-text-body lg-modal-card__message lg-overlay-message-wrap lg-preview-sample" />
+            <ui:Button name="unlock-confirm" text="OK" class="lg-btn lg-btn--primary lg-modal-card__primary-stretch lg-preview-sample" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

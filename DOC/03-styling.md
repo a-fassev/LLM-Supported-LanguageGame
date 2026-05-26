@@ -28,7 +28,8 @@ Layouts load from `Resources/UI/LearningToolkit/{ScreenName}` **without extensio
 | `SpecialScreenHost.uxml` | Special screen composite step host |
 | `Templates/Tasks/*.uxml` | Per-task-type layouts (UI Builder) |
 | `Templates/Cutscenes/*.uxml` | Cutscene host + beat presentation layouts |
-| `ToolkitPreviewScreen.uxml` | Editor / preview tooling |
+| `Templates/Overlays/*.uxml` | Shared modals/banners (pause, reward, loading, …) — open each file in UI Builder; Italian/German `lg-preview-sample` copy |
+| `ToolkitPreviewScreen.uxml` | Editor / preview tooling (button theme swatch only) |
 
 ## USS layering (`Assets/Resources/UI/LearningToolkit/`)
 
@@ -56,3 +57,4 @@ Layouts load from `Resources/UI/LearningToolkit/{ScreenName}` **without extensio
 1. Change **USS** → verify via affected `*Screen.uxml` in Play Mode.
 2. Add **global class** (e.g. `lg-text-body`) in typography/components USS, reuse in UXML / C# `AddToClassList`.
 3. Keep Special Screen chrome styles in the dedicated `special-screen-*.uss` files to isolate composite layouts.
+4. **Overlays:** edit layout/sample copy in `Templates/Overlays/*.uxml` (fixture text uses `lg-preview-sample`); runtime loads via `Presentation/Overlays/LearningToolkit*.cs` + `ToolkitOverlayTemplatePaths`. Do not rebuild overlay DOM in C#.

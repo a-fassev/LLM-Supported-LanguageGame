@@ -10,7 +10,7 @@ description: >-
 
 Task steps render inside **`TaskShellScreen`** (`Assets/Resources/UI/LearningToolkit/TaskShellScreen.uxml`); cutscenes use **`CutShellScreen.uxml`**. **`QuestStepShellHost`** swaps shells in the **`Quest`** scene. The **`step-host`** `VisualElement` is cleared and populated at runtime.
 
-**Layout = UXML templates** under `Assets/Resources/UI/LearningToolkit/Templates/`; **content = `contentJson`** from the API. Use **`ToolkitStepUx.TryMount`** / **`Instantiate`** and stable **`name`** anchors (see **`ToolkitStepTemplatePaths`**). Do not add a second shell primary button in step UXML. Styling: [`DOC/03-styling.md`](DOC/03-styling.md).
+**Layout = UXML templates** under `Assets/Resources/UI/LearningToolkit/Templates/`; **content = `contentJson`** from the API. Use **`ToolkitStepUx.TryMount`** / **`Instantiate`** and stable **`name`** anchors (see **`ToolkitStepTemplatePaths`**). **Shell overlays** (pause, reward, loading, …): `Templates/Overlays/*.uxml` + `ToolkitOverlayTemplatePaths` + classes under `Assets/Scripts/Presentation/Overlays/` — same Option B fixtures; do not rebuild overlay DOM in C#. Do not add a second shell primary button in step UXML. Styling: [`DOC/03-styling.md`](DOC/03-styling.md).
 
 **UI Builder fixtures (Option B):** production task/cutscene templates may include Italian sample children under named **hosts** so designers style real structure in UI Builder. On **`Bind`**, call **`ToolkitStepUx.ClearHost(host)`** on every dynamic host first, then rebuild with **`ToolkitStepUx.InstantiatePart`** from **`Templates/Parts/*.uxml`** (register paths in **`ToolkitStepTemplatePaths`**). Runtime output must mirror fixture hierarchy and **`lg-*`** USS—do not hand-build divergent trees. Optional `lg-preview-sample` is editor-only; separate `*Preview.uxml` is not the default path.
 
@@ -18,11 +18,20 @@ Full narrative and **`contentJson`** tables: **`docs/task-type-ui-guide.md`**.
 
 Composite **Special Screen** tasks (`SpecialScreen*`): see **`.cursor/skills/unity-special-screen-ui/SKILL.md`**.
 
+## Shell routing (`Quest` scene)
+
+| Shell | When | UXML | Presenter |
+|-------|------|------|-----------|
+| Task | `step.isTask`, pending quest finish, or no current step | `TaskShellScreen.uxml` | `TaskShellPresenter` |
+| Cut | `step_kind = cutscene` | `CutShellScreen.uxml` | `CutsceneShellPresenter` |
+
+`QuestStepShellHost` tears down one `UIDocument` and mounts the other when the active step type changes. **`QuestShellSharedRuntime`** owns shared overlays and session flags (`PendingFinishRunId`, reward pending advance); overlays attach to the active shell’s `overlay-plane` on each mount.
+
 ## Flow
 
 1. **`QuestStepShellHost`** routes to **`TaskShellPresenter`** or **`CutsceneShellPresenter`** → **`ToolkitStepFactory.Create(step, stepHost, coroutineHost)`** → **`IStepView.Bind(StepContext, …)`**.
    - **Cutscene** shell → **`CutsceneToolkitStep`**. **Task** shell → **`switch (taskType)`** to a concrete `*ToolkitStep`; unknown types → **`StubToolkitTaskStep`**.
-2. Shell owns **Back**, **primary** (**Next** / **Controlla** / **Finish quest**), loading overlay, validation overlay, reward overlay (`LearningToolkitOverlays`).
+2. Shell owns **Back**, **primary** (**Next** / **Controlla** / **Finish quest**), loading overlay, validation overlay, reward overlay (`Presentation/Overlays/`).
 3. Tasks submit via **`ISubmitFromShell.SubmitFromShell()`** when the learner taps **Controlla**. Cutscenes use shell **Weiter** (default label; beat/root `primaryCtaLabel` overrides)—see **Cutscenes** below.
 4. Client validation uses **`StepContext.presentValidationMessage`** only (shell reward modal validation mode).
 5. **Slow operations** (server round-trips, LLM gates): use **`StepContext.presentBusyOverlay(message)`** / **`dismissBusyOverlay()`** (injected by the shell from the same overlay as quest loading). Always **`dismiss`** on error and early exit. Do not add a second loading UI stack inside the step.
@@ -80,7 +89,9 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 | Contracts | `IStepView`, `ISubmitFromShell`, `ICutsceneBeatNavigator`, `StepContext`; `GameProgressContracts`, `QuestMetaPayloadDto` |
 | Cutscene USS | `Assets/Resources/UI/LearningToolkit/cutscene-narrative.uss` |
 | Step templates | `Assets/Resources/UI/LearningToolkit/Templates/` |
+| Overlay templates | `Assets/Resources/UI/LearningToolkit/Templates/Overlays/` |
 | Template loader | `ToolkitStepUx.cs`, `ToolkitStepTemplatePaths.cs` |
+| Overlay loader | `ToolkitOverlayUx.cs`, `ToolkitOverlayTemplatePaths.cs`, `Presentation/Overlays/*.cs` |
 | UXML task shell | `Assets/Resources/UI/LearningToolkit/TaskShellScreen.uxml` |
 | UXML cut shell | `Assets/Resources/UI/LearningToolkit/CutShellScreen.uxml` |
 | Theme | `Assets/Resources/UI/LearningToolkit/*.uss`, `LearningMenusTheme.tss` |
