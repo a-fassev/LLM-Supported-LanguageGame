@@ -2,11 +2,15 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="cutscene-root" class="lg-cutscene-root" style="flex-grow: 1; flex-direction: column;">
         <ui:VisualElement name="cutscene-beat-host" style="flex-grow: 1;">
-            <ui:VisualElement class="lg-cutscene-narrator lg-preview-sample">
-                <ui:Label text="Benvenuto a Bologna" class="lg-cutscene-narrator__title"
-                    style="white-space: normal; margin-bottom: 4px;" />
-                <ui:Label text="La città si sveglia lentamente sotto il sole del mattino."
-                    class="lg-cutscene-narrator__body" style="white-space: normal;" />
+            <ui:VisualElement class="lg-cutscene-beat-row lg-cutscene-beat-row--npcRight lg-preview-sample">
+                <ui:VisualElement class="lg-cutscene-bubble-col">
+                    <ui:Label text="Prof.ssa Ricci" class="lg-cutscene-npc__name" />
+                    <ui:VisualElement class="lg-cutscene-npc__bubble lg-cutscene-speech-bubble lg-cutscene-speech-bubble--speech">
+                        <ui:VisualElement class="lg-cutscene-speech-bubble__tail lg-cutscene-speech-bubble__tail--right" />
+                        <ui:Label text="Buongiorno a tutti!" class="lg-cutscene-npc__body" style="white-space: normal;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="lg-cutscene-avatar-slot lg-cutscene-avatar-slot--placeholder" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

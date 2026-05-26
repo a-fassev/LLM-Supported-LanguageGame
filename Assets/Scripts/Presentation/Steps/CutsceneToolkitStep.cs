@@ -269,6 +269,10 @@ namespace LanguageGame.Presentation.Steps
             if (panel == null)
                 return null;
 
+            var avatarSlot = panel.Q<VisualElement>("avatar-slot");
+            if (avatarSlot != null)
+                CutsceneAvatarSlotBinder.BindPlayerSlot(avatarSlot);
+
             SetBeatLabel(panel, "beat-title", beat.title, hideWhenEmpty: true);
             SetBeatLabel(panel, "beat-body", beat.body?.Trim() ?? string.Empty);
             return panel;
@@ -298,18 +302,9 @@ namespace LanguageGame.Presentation.Steps
                 return null;
 
             var cast = ResolveCast(beat.speakerId);
-            var side = (cast?.side ?? "right").Trim().ToLowerInvariant();
-            if (side != "left")
-                side = "right";
-
-            row.RemoveFromClassList("lg-cutscene-npc--left");
-            row.RemoveFromClassList("lg-cutscene-npc--right");
-            row.AddToClassList(side == "left" ? "lg-cutscene-npc--left" : "lg-cutscene-npc--right");
-            row.style.flexDirection = side == "left" ? FlexDirection.Row : FlexDirection.RowReverse;
-
-            var portrait = row.Q<VisualElement>("npc-portrait");
-            if (portrait != null && !string.IsNullOrWhiteSpace(cast?.portraitId))
-                portrait.tooltip = cast.portraitId;
+            var avatarSlot = row.Q<VisualElement>("avatar-slot");
+            if (avatarSlot != null)
+                CutsceneAvatarSlotBinder.BindNpcSlot(avatarSlot, cast?.portraitId);
 
             SetBeatLabel(row, "npc-name", cast?.displayName, hideWhenEmpty: true);
             SetBeatLabel(row, "beat-body", beat.body?.Trim() ?? string.Empty);

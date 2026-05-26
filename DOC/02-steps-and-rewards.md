@@ -45,6 +45,16 @@ DTO: **`CutsceneContentDto`** ([`ToolkitStepContentDtos.cs`](../Assets/Scripts/P
 | `npcCast` | no | `{ id, displayName, portraitId?, side? }` for `speakerId` on beats |
 | `navigation` | no | `{ blockBack?, primaryCtaLabel? }` cutscene-level shell defaults |
 
+**Unity layout (avatar beats):**
+
+| `presentationMode` | Layout | Portraits |
+| ------------------ | ------ | --------- |
+| `innerMonologue` | Player avatar **left** (~25%), thought bubble **right** (~75%) | Player only — **not** in JSON; client loads `Resources/UI/CutscenePortraits/Player/current` (equipped avatar hook later) |
+| `npcDialog` | Speech bubble **left** (~75%), NPC avatar **right** (~25%) | `npcCast[].portraitId` → `Resources/UI/CutscenePortraits/Npc/{portraitId}` (Sprite/Texture2D); missing asset → USS placeholder |
+| `narrator`, `gameInfo` | Unchanged centered / info panels | No portrait slots |
+
+`npcCast.side` remains in schema for backward compatibility but **does not affect layout** in Unity (NPC is always on the right); it may later drive sprite facing only. `portraitId` must be alphanumeric plus `_` / `-` (invalid ids fall back to placeholder).
+
 ### Per beat
 
 | Field | Required | Notes |
@@ -60,7 +70,7 @@ Example:
 
 ```json
 {
-  "npcCast": [{ "id": "ricci", "displayName": "Prof.ssa Ricci", "side": "right" }],
+  "npcCast": [{ "id": "ricci", "displayName": "Prof.ssa Ricci", "portraitId": "ricci", "side": "right" }],
   "beats": [
     { "presentationMode": "narrator", "body": "Du betrittst das Klassenzimmer." },
     { "presentationMode": "npcDialog", "speakerId": "ricci", "body": "Guten Morgen!" }

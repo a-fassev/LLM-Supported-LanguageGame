@@ -61,6 +61,7 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 
 - **Payload:** `contentJson` is **`beats[]`** only (Zod: `apps/web/lib/game/schemas/cutsceneContentSchema.ts`). Each beat: required **`presentationMode`** + **`body`**; optional `title`, `subtitle`, `speakerId`, `autoAdvanceMs`, `primaryCtaLabel`. Root optional **`npcCast[]`**, **`navigation`** (`blockBack`, `primaryCtaLabel`). No legacy root `title`/`body`.
 - **Implementation:** `CutsceneToolkitStep` + **`ICutsceneBeatNavigator`**. **`CutsceneShellPresenter`** calls **`TryAdvanceBeat()`** on **Weiter** until the last beat, then **`AdvanceCutsceneRoutine`** / advance RPC. When **`IsContentValid`** is false, **Weiter** is disabled and the server step must not advance.
+- **Avatar beats:** `innerMonologue` / `npcDialog` use **`CutsceneInnerMonologueBeat.uxml`** / **`CutsceneNpcDialogBeat.uxml`** — stable anchors **`avatar-slot`**, **`bubble-col`**, **`beat-body`** (and **`npc-name`** on NPC). Option B Italian fixtures in UXML; on bind, **`CutsceneToolkitStep`** overwrites labels and **`CutsceneAvatarSlotBinder.BindPlayerSlot` / `BindNpcSlot`** after **`ClearHost(avatar-slot)`**. Portraits: `Resources/UI/CutscenePortraits/Player/current` (player, client-only); `Npc/{portraitId}` from **`npcCast`**. Do not drive row order from **`npcCast.side`** (fixed NPC-right layout). USS: **`cutscene-narrative.uss`** (`lg-cutscene-beat-row`, placeholders).
 - **Client validation:** `TryDeserialize` mirrors web Zod (`presentationMode` enum, `npcDialog` + `speakerId`, cast membership when `npcCast` is non-empty).
 - **`onCutsceneBeatChanged`:** `StepContext` callback — shell refreshes CTA / back chrome after local beat changes (incl. auto-advance).
 - **`autoAdvanceMs`:** Beat auto-continues via coroutine on **`StepContext.coroutineHost`** (quest shell). Cancel on manual **Weiter** / teardown.
@@ -88,6 +89,10 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 | Factory | `Assets/Scripts/Presentation/Steps/ToolkitStepFactory.cs` |
 | Contracts | `IStepView`, `ISubmitFromShell`, `ICutsceneBeatNavigator`, `StepContext`; `GameProgressContracts`, `QuestMetaPayloadDto` |
 | Cutscene USS | `Assets/Resources/UI/LearningToolkit/cutscene-narrative.uss` |
+| Cutscene step | `Assets/Scripts/Presentation/Steps/CutsceneToolkitStep.cs` |
+| Avatar bind | `Assets/Scripts/Presentation/Steps/CutsceneAvatarSlotBinder.cs`, `CutscenePlayerPortraitProvider.cs` |
+| Avatar beats UXML | `Templates/Cutscenes/CutsceneInnerMonologueBeat.uxml`, `CutsceneNpcDialogBeat.uxml` |
+| Portrait sprites | `Assets/Resources/UI/CutscenePortraits/Player/`, `Npc/` |
 | Step templates | `Assets/Resources/UI/LearningToolkit/Templates/` |
 | Overlay templates | `Assets/Resources/UI/LearningToolkit/Templates/Overlays/` |
 | Template loader | `ToolkitStepUx.cs`, `ToolkitStepTemplatePaths.cs` |

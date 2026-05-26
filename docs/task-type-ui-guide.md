@@ -570,6 +570,8 @@ Cutscenes are **presentation-only**: learners tap shell **Weiter** to page throu
 
 **Unity:** `JsonUtility` + guards. Invalid payload → Italian placeholder, **`IsContentValid == false`**, primary **Weiter** disabled (no server advance).
 
+**Beat templates (UI Builder Option B):** `Templates/Cutscenes/CutsceneInnerMonologueBeat.uxml` and `CutsceneNpcDialogBeat.uxml` use a fixed **25% `avatar-slot` + 75% `bubble-col`** row (`lg-cutscene-beat-row--playerLeft` / `--npcRight`). Production UXML includes Italian **fixture** labels (`lg-preview-sample`); Play Mode **`CutsceneToolkitStep`** overwrites text and **`CutsceneAvatarSlotBinder`** clears/binds `avatar-slot` from Resources. USS: `cutscene-narrative.uss`. Portraits: `Assets/Resources/UI/CutscenePortraits/Player/current`, `Npc/{portraitId}`.
+
 | Root field | Required | Notes |
 | ---------- | -------- | ----- |
 | **`beats`** | yes (min 1) | Ordered narrative beats |
@@ -599,7 +601,7 @@ Example (NPC dialog):
 
 ```json
 {
-  "npcCast": [{ "id": "tonio", "displayName": "Tonio", "side": "right" }],
+  "npcCast": [{ "id": "tonio", "displayName": "Tonio", "portraitId": "tonio", "side": "right" }],
   "beats": [
     { "presentationMode": "narrator", "body": "Entri nel bar." },
     { "presentationMode": "npcDialog", "speakerId": "tonio", "body": "Ciao!" }
