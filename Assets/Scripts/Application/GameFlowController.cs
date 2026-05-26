@@ -24,6 +24,7 @@ namespace LanguageGame.Application
         private string _serverRunId;
         private string _serverQuestId;
         private string _serverQuestDisplayName;
+        private string _serverQuestMetaJson;
         private GameQuestStepDto[] _serverSteps;
         private int _serverStepOrderIndex;
         private int _serverTaskOrderIndex;
@@ -136,6 +137,7 @@ namespace LanguageGame.Application
 
         /// <summary>Opens the game scene for a server-backed quest run (steps + progression from API).</summary>
         public void BeginServerQuest(string runId, string questId, string displayName,
+            string questMetaJson,
             GameQuestStepDto[] steps, int currentStepOrderIndex, int currentTaskOrderIndex,
             int totalPizzaSlices, int totalBackpackPieces)
         {
@@ -152,6 +154,7 @@ namespace LanguageGame.Application
             _serverRunId = runId;
             _serverQuestId = questId;
             _serverQuestDisplayName = displayName;
+            _serverQuestMetaJson = questMetaJson ?? string.Empty;
             _serverSteps = steps;
             _serverStepOrderIndex = Mathf.Clamp(currentStepOrderIndex, 0, steps.Length - 1);
             _serverTaskOrderIndex = Mathf.Max(0, currentTaskOrderIndex);
@@ -178,6 +181,10 @@ namespace LanguageGame.Application
 
         public string ServerRunId => _serverRunId;
         public string ServerQuestId => _serverQuestId;
+
+        public string ServerQuestMetaJson => _serverQuestMetaJson ?? string.Empty;
+
+        public QuestMetaPayloadDto ServerQuestMeta => QuestMetaPayloadParser.Parse(ServerQuestMetaJson);
 
         public void ApplyServerTaskProgress(int newStepOrderIndex, int newTaskOrderIndex,
             int totalSlices, int totalBackpackPieces, bool questComplete)
@@ -248,6 +255,7 @@ namespace LanguageGame.Application
             _serverRunId = null;
             _serverQuestId = null;
             _serverQuestDisplayName = null;
+            _serverQuestMetaJson = null;
             _serverSteps = null;
             _serverStepOrderIndex = 0;
             _serverTaskOrderIndex = 0;

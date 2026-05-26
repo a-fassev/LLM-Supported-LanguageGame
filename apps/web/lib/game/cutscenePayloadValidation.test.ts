@@ -16,13 +16,13 @@ describe("parseCutsceneStepContent", () => {
   it("validates cutscene rows", () => {
     const ok = parseCutsceneStepContent({
       step_kind: "cutscene",
-      content_payload: { title: "A", body: "B" },
+      content_payload: { beats: [{ presentationMode: "narrator", body: "B" }] },
     });
     expect(ok.ok).toBe(true);
 
     const bad = parseCutsceneStepContent({
       step_kind: "cutscene",
-      content_payload: { title: "Only title" },
+      content_payload: { beats: [] },
     });
     expect(bad.ok).toBe(false);
   });
@@ -42,13 +42,13 @@ describe("collectCutscenePayloadErrors", () => {
             id: "s1",
             step_kind: "cutscene" as const,
             template_key: "cutscene.intro",
-            content_payload: { title: "T", body: "ok" },
+            content_payload: { beats: [{ presentationMode: "narrator", body: "ok" }] },
           },
           {
             id: "s2",
             step_kind: "cutscene" as const,
             template_key: "cutscene.bad",
-            content_payload: { title: "no-body" },
+            content_payload: { beats: [{ presentationMode: "narrator", body: "" }] },
           },
         ],
       ],
@@ -59,7 +59,10 @@ describe("collectCutscenePayloadErrors", () => {
             id: "s3",
             step_kind: "cutscene" as const,
             template_key: "cutscene.other",
-            content_payload: { typo: true, title: "x", body: "y" },
+            content_payload: {
+              beats: [{ presentationMode: "narrator", body: "y" }],
+              typo: true,
+            },
           },
         ],
       ],

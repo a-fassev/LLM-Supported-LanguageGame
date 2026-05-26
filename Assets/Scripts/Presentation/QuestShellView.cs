@@ -13,7 +13,7 @@ namespace LanguageGame.Presentation
     public class QuestShellView : MonoBehaviour
     {
         private const string FinishQuestLabel = "Finish quest";
-        private const string ShellCutsceneNextLabel = "Next";
+        private const string ShellCutsceneDefaultCtaLabel = "Weiter";
         private const string BackToChaptersLabel = "Back to chapters";
         private const string ShellTaskCheckLabel = "Controlla";
         private const string ValidationDismissLabel = "OK";
@@ -37,6 +37,8 @@ namespace LanguageGame.Presentation
         private VisualElement _toolkitStepHost;
         private VisualElement _questStepPanel;
         private Button _tkBackToChapters;
+        private Button _tkReferenceDocument;
+        private Button _tkPauseMenu;
         private Button _tkPrimary;
         private Label _tkQuestTitle;
         private Label _tkWalletPizza;
@@ -45,6 +47,8 @@ namespace LanguageGame.Presentation
         private readonly LearningToolkitConfirmModal _tkBackConfirm = new();
         private readonly LearningToolkitRewardModal _tkReward = new();
         private readonly LearningToolkitLoadErrorBanner _tkFinishError = new();
+        private readonly LearningToolkitReferenceDocumentModal _tkReferenceDoc = new();
+        private readonly LearningToolkitPauseMenuModal _tkPauseMenu = new();
 
         private void Awake()
         {
@@ -68,6 +72,8 @@ namespace LanguageGame.Presentation
 
             var root = _toolkitDoc.rootVisualElement;
             _tkBackToChapters = root.Q<Button>("back-to-chapters-button");
+            _tkReferenceDocument = root.Q<Button>("reference-document-button");
+            _tkPauseMenu = root.Q<Button>("pause-menu-button");
             _tkPrimary = root.Q<Button>("primary-action-button");
             _tkQuestTitle = root.Q<Label>("quest-title-label");
             _tkWalletPizza = root.Q<Label>("wallet-pizza");
@@ -93,12 +99,16 @@ namespace LanguageGame.Presentation
             }
 
             _tkBackToChapters.RegisterCallback<ClickEvent>(_ => OnBackToChaptersClicked());
+            _tkReferenceDocument?.RegisterCallback<ClickEvent>(_ => OnReferenceDocumentClicked());
+            _tkPauseMenu?.RegisterCallback<ClickEvent>(_ => OnPauseMenuClicked());
             _tkPrimary.RegisterCallback<ClickEvent>(_ => OnPrimaryChromeClicked());
 
             _tkLoading.Attach(overlay);
             _tkBackConfirm.Attach(overlay);
             _tkReward.Attach(overlay);
             _tkFinishError.Attach(overlay);
+            _tkReferenceDoc.Attach(overlay);
+            _tkPauseMenu.Attach(overlay);
 
             LearningToolkitNavigationFeedback.RegisterPresentationDocument(_toolkitDoc);
 
@@ -120,7 +130,9 @@ namespace LanguageGame.Presentation
                 return;
 
             _tkBackToChapters.text = BackToChaptersLabel;
-            var enabled = flow != null && !_submitting && !flow.IsSceneTransitionInProgress;
+            var blocked = IsBackBlocked();
+            _tkBackToChapters.style.display = blocked ? DisplayStyle.None : DisplayStyle.Flex;
+            var enabled = !blocked && flow != null && !_submitting && !flow.IsSceneTransitionInProgress;
             _tkBackToChapters.SetEnabled(enabled);
         }
 
@@ -189,6 +201,7 @@ namespace LanguageGame.Presentation
 
             BindStep(step, flow);
             ConfigureShellPrimaryChrome(step);
+            ConfigureQuestShellChrome(flow);
             ApplyQuestShellDifficultyChrome(step);
         }
 
@@ -236,6 +249,8 @@ namespace LanguageGame.Presentation
                 taskId = step.id,
                 questId = flow.ServerQuestId,
                 questDisplayName = flow.ServerQuestDisplayName,
+                questMetaJson = flow.ServerQuestMetaJson,
+                coroutineHost = this,
                 stepKind = step.stepKind,
                 taskType = step.taskType,
                 templateKey = step.templateKey,
@@ -311,6 +326,16 @@ namespace LanguageGame.Presentation
                 return;
             }
 
+            if (_activeStepView is ICutsceneBeatNavigator cutsceneNav)
+            {
+                cutsceneNav.OnShellPrimaryPressed();
+                if (cutsceneNav.TryAdvanceBeat())
+                {
+                    ConfigureShellPrimaryChrome(_boundStep);
+                    return;
+                }
+            }
+
             OnStepRequest(new StepCompletionRequest { requestComplete = true });
         }
 
@@ -327,9 +352,63 @@ namespace LanguageGame.Presentation
                 return;
             }
 
-            _tkPrimary.text = ShellCutsceneNextLabel;
+            _tkPrimary.text = ResolveCutsceneCtaLabel();
             _tkPrimary.SetEnabled(!_submitting && _gameApi != null);
             _tkPrimary.style.display = DisplayStyle.Flex;
+        }
+
+        private string ResolveCutsceneCtaLabel()
+        {
+            if (_activeStepView is ICutsceneBeatNavigator nav)
+            {
+                var label = nav.GetPrimaryCtaLabel();
+                if (!string.IsNullOrWhiteSpace(label))
+                    return label.Trim();
+            }
+
+            return ShellCutsceneDefaultCtaLabel;
+        }
+
+        private void ConfigureQuestShellChrome(GameFlowController flow)
+        {
+            if (!_shellReady)
+                return;
+
+            var meta = flow != null ? flow.ServerQuestMeta : null;
+            var hasReference = QuestMetaPayloadParser.HasReferenceDocument(meta);
+
+            if (_tkReferenceDocument != null)
+            {
+                if (hasReference)
+                {
+                    var label = meta.referenceDocument.buttonLabel;
+                    _tkReferenceDocument.text = string.IsNullOrWhiteSpace(label)
+                        ? "Broschüre ansehen"
+                        : label.Trim();
+                    _tkReferenceDocument.style.display = DisplayStyle.Flex;
+                    _tkReferenceDocument.SetEnabled(!_submitting);
+                }
+                else
+                {
+                    _tkReferenceDocument.style.display = DisplayStyle.None;
+                }
+            }
+
+            if (_tkPauseMenu != null)
+                _tkPauseMenu.SetEnabled(!_submitting && flow != null && flow.IsServerQuestActive);
+        }
+
+        private bool IsBackBlocked()
+        {
+            if (_activeStepView is ICutsceneBeatNavigator cutsceneNav && cutsceneNav.IsCutsceneBlockBack())
+                return true;
+
+            var flow = GameFlowController.Instance;
+            if (flow == null)
+                return false;
+
+            var meta = flow.ServerQuestMeta;
+            return meta?.flow != null && meta.flow.blockBack;
         }
 
         private static bool TemplateKeyImpliesHard(string templateKey)
@@ -600,10 +679,21 @@ namespace LanguageGame.Presentation
 
             _pendingFinishRunId = null;
             _submitting = false;
-            GameFlowController.Instance?.SetTotalPizzaSlices(finishResult.totalSlices);
-            GameFlowController.Instance?.SetTotalBackpackPieces(finishResult.totalBackpackPieces);
-            GameFlowController.Instance?.ClearServerQuestState();
-            GameFlowController.Instance?.LoadQuestOverview();
+
+            var flow = GameFlowController.Instance;
+            if (flow == null)
+                yield break;
+
+            flow.SetTotalPizzaSlices(finishResult.totalSlices);
+            flow.SetTotalBackpackPieces(finishResult.totalBackpackPieces);
+
+            var autoStartSlug = flow.ServerQuestMeta?.flow?.autoStartQuestSlug;
+            flow.ClearServerQuestState();
+
+            if (!string.IsNullOrWhiteSpace(autoStartSlug))
+                StartCoroutine(AutoStartQuestBySlugRoutine(autoStartSlug.Trim()));
+            else
+                flow.LoadQuestOverview();
         }
 
         private void OnBackToChaptersClicked()
@@ -619,6 +709,9 @@ namespace LanguageGame.Presentation
                 return;
 
             if (flow.IsSceneTransitionInProgress)
+                return;
+
+            if (IsBackBlocked())
                 return;
 
             if (flow.IsServerQuestActive)
@@ -643,6 +736,108 @@ namespace LanguageGame.Presentation
         {
             SetBackConfirmVisible(false);
             GameFlowController.Instance?.LoadChapterOverview();
+        }
+
+        private void OnReferenceDocumentClicked()
+        {
+            if (_submitting)
+                return;
+
+            var flow = GameFlowController.Instance;
+            if (flow == null)
+                return;
+
+            var doc = flow.ServerQuestMeta?.referenceDocument;
+            if (doc == null || string.IsNullOrWhiteSpace(doc.bodyText))
+                return;
+
+            _tkReferenceDoc.Show(doc.title, doc.bodyText);
+        }
+
+        private void OnPauseMenuClicked()
+        {
+            if (_submitting)
+                return;
+
+            _tkPauseMenu.Show(OnPauseResume, OnPauseLeaveQuest, leaveEnabled: !IsBackBlocked());
+        }
+
+        private void OnPauseResume() => _tkPauseMenu.Hide();
+
+        private void OnPauseLeaveQuest()
+        {
+            _tkPauseMenu.Hide();
+            OnBackToChaptersClicked();
+        }
+
+        private IEnumerator AutoStartQuestBySlugRoutine(string questSlug)
+        {
+            var flow = GameFlowController.Instance;
+            if (flow == null || _gameApi == null || string.IsNullOrEmpty(questSlug))
+            {
+                flow?.LoadQuestOverview();
+                yield break;
+            }
+
+            var quests = flow.SelectedChapterQuests;
+            if (quests == null || quests.Length == 0)
+            {
+                flow.LoadQuestOverview();
+                yield break;
+            }
+
+            GameQuestBootstrapDto target = null;
+            for (var i = 0; i < quests.Length; i++)
+            {
+                var q = quests[i];
+                if (q != null && string.Equals(q.slug, questSlug, StringComparison.Ordinal))
+                {
+                    target = q;
+                    break;
+                }
+            }
+
+            if (target == null || !target.isUnlocked)
+            {
+                Debug.LogWarning($"[QuestShellView] Auto-start quest '{questSlug}' unavailable; showing overview.");
+                flow.LoadQuestOverview();
+                yield break;
+            }
+
+            _tkLoading.Show("Heading into your quest…");
+
+            var useCase = new StartQuestRunUseCase(_gameApi);
+            GameStartQuestEnvelope started = null;
+            var err = string.Empty;
+            yield return useCase.Run(target.id, s => started = s, m => err = m);
+
+            _tkLoading.Hide();
+
+            if (started == null || !started.ok)
+            {
+                if (GameProgressApiClient.LooksLikeSessionAuthFailure(err))
+                {
+                    flow.LoadAuth();
+                    yield break;
+                }
+
+                Debug.LogWarning($"[QuestShellView] Auto-start quest failed: {err}");
+                flow.LoadQuestOverview();
+                yield break;
+            }
+
+            flow.SetTotalPizzaSlices(started.totalSlices);
+            flow.SetTotalBackpackPieces(started.totalBackpackPieces);
+            flow.BeginServerQuest(
+                started.runId,
+                started.questId,
+                started.displayName,
+                started.metaJson,
+                started.steps,
+                started.currentStepOrderIndex,
+                started.currentTaskOrderIndex,
+                started.totalSlices,
+                started.totalBackpackPieces);
         }
 
         private void SetBackConfirmVisible(bool visible)
@@ -683,6 +878,8 @@ namespace LanguageGame.Presentation
             _tkBackConfirm.Destroy();
             _tkReward.Destroy();
             _tkFinishError.Destroy();
+            _tkReferenceDoc.Destroy();
+            _tkPauseMenu.Destroy();
             if (_toolkitDoc != null)
                 Destroy(_toolkitDoc.gameObject);
         }
@@ -772,6 +969,9 @@ namespace LanguageGame.Presentation
 
         private void TeardownBoundStep()
         {
+            if (_activeStepView is ICutsceneBeatNavigator cutsceneNav)
+                cutsceneNav.TeardownBeatNavigation();
+
             ClearQuestDifficultyChrome();
             _activeStepView?.Teardown();
             _activeStepView = null;

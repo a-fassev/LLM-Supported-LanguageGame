@@ -31,6 +31,7 @@ import {
   type CutscenePayloadErrorDetail,
   type CutscenePayloadInvalidApiDetails,
 } from "@/lib/game/cutscenePayloadValidation";
+import { parseQuestMetaPayload, serializeQuestMetaJson } from "@/lib/game/schemas/questMetaPayloadSchema";
 
 export type { CutscenePayloadErrorDetail };
 
@@ -72,6 +73,8 @@ export type GameQuestClientDto = {
   isUnlocked: boolean;
   hasCompletedAnyRun: boolean;
   unlockHint: string;
+  /** Stringified quest `meta_payload` (reference document, flow flags). */
+  metaJson: string;
   steps: GameQuestStepDto[];
 };
 
@@ -120,6 +123,7 @@ export type StartQuestResult =
       questId: string;
       questSlug: string;
       displayName: string;
+      metaJson: string;
       totalSlices: number;
       totalBackpackPieces: number;
       steps: GameQuestStepDto[];
@@ -660,6 +664,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
         isUnlocked: unlocked,
         hasCompletedAnyRun: completedQuestSet.has(quest.id),
         unlockHint,
+        metaJson: serializeQuestMetaJson(parseQuestMetaPayload(quest.meta_payload)),
         steps: stepsSnapshot,
       });
     }
@@ -772,6 +777,7 @@ export async function startOrResumeQuest(accountId: string, questId: string): Pr
     questId: quest.id,
     questSlug: quest.slug,
     displayName: quest.display_name,
+    metaJson: serializeQuestMetaJson(parseQuestMetaPayload(quest.meta_payload)),
     totalSlices: wallet.totalSlices,
     totalBackpackPieces: wallet.totalBackpackPieces,
     steps: mappedSteps.steps,

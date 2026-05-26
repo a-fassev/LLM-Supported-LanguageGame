@@ -1,24 +1,51 @@
 import { z } from "zod";
 
-/**
- * Cutscene `content_payload` / Unity `contentJson` for `step_kind = 'cutscene'`.
- * Strict: unknown keys are rejected (matches authoring discipline in docs).
- */
-export const cutsceneContentSchema = z
+export const cutscenePresentationModeSchema = z.enum([
+  "narrator",
+  "npcDialog",
+  "innerMonologue",
+  "gameInfo",
+]);
+
+export const cutsceneBeatSchema = z
   .object({
-    /** Only version `1` is defined; omit to default authoring to v1 semantics. */
-    schemaVersion: z.literal(1).optional(),
-    title: z.string().min(1),
+    presentationMode: cutscenePresentationModeSchema,
     body: z.string().min(1),
+    title: z.string().optional(),
     subtitle: z.string().optional(),
-    illustrationId: z.string().optional(),
-    tone: z.string().optional(),
-    ariaNote: z.string().optional(),
+    speakerId: z.string().optional(),
+    autoAdvanceMs: z.number().int().positive().optional(),
     primaryCtaLabel: z.string().optional(),
   })
   .strict();
 
+export const cutsceneNpcCastEntrySchema = z
+  .object({
+    id: z.string().min(1),
+    displayName: z.string().min(1),
+    portraitId: z.string().optional(),
+    side: z.enum(["left", "right"]).optional(),
+  })
+  .strict();
+
+export const cutsceneNavigationSchema = z
+  .object({
+    blockBack: z.boolean().optional(),
+    primaryCtaLabel: z.string().optional(),
+  })
+  .strict();
+
+/** Cutscene `content_payload` / Unity `contentJson` for `step_kind = cutscene`. */
+export const cutsceneContentSchema = z
+  .object({
+    beats: z.array(cutsceneBeatSchema).min(1),
+    npcCast: z.array(cutsceneNpcCastEntrySchema).optional(),
+    navigation: cutsceneNavigationSchema.optional(),
+  })
+  .strict();
+
 export type CutsceneContentParsed = z.infer<typeof cutsceneContentSchema>;
+export type CutsceneBeatParsed = z.infer<typeof cutsceneBeatSchema>;
 
 export function parseCutsceneContent(raw: unknown):
   | { ok: true; value: CutsceneContentParsed }

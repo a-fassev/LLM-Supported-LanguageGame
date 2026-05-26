@@ -204,19 +204,41 @@ namespace LanguageGame.Presentation.Steps
     }
 
     /// <summary>
-    /// Cutscene step payload: mirrors v1 <c>contentJson</c> for <c>step_kind = cutscene</c>.
-    /// Optional fields may be empty; <see cref="CutsceneToolkitStep"/> hides unused UI slots.
+    /// Cutscene step payload: <c>beats[]</c> narrative contract for <c>step_kind = cutscene</c>.
     /// </summary>
     [Serializable]
     public sealed class CutsceneContentDto
     {
-        public int schemaVersion;
-        public string title;
+        public CutsceneBeatDto[] beats;
+        public CutsceneNpcCastEntryDto[] npcCast;
+        public CutsceneNavigationDto navigation;
+    }
+
+    [Serializable]
+    public sealed class CutsceneBeatDto
+    {
+        public string presentationMode;
         public string body;
+        public string title;
         public string subtitle;
-        public string illustrationId;
-        public string tone;
-        public string ariaNote;
+        public string speakerId;
+        public int autoAdvanceMs;
+        public string primaryCtaLabel;
+    }
+
+    [Serializable]
+    public sealed class CutsceneNpcCastEntryDto
+    {
+        public string id;
+        public string displayName;
+        public string portraitId;
+        public string side;
+    }
+
+    [Serializable]
+    public sealed class CutsceneNavigationDto
+    {
+        public bool blockBack;
         public string primaryCtaLabel;
     }
 

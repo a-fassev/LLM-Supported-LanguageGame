@@ -17,6 +17,7 @@ export type GameQuestRow = {
   display_name: string;
   order_index: number;
   unlock_rules: Record<string, unknown>;
+  meta_payload: Record<string, unknown>;
   is_active: boolean;
 };
 
@@ -148,7 +149,7 @@ export async function listActiveQuestsByChapterIds(chapterIds: string[]): Promis
   if (chapterIds.length === 0) return [];
   const { data, error } = await admin()
     .from("game_quests")
-    .select("id, chapter_id, slug, display_name, order_index, unlock_rules, is_active")
+    .select("id, chapter_id, slug, display_name, order_index, unlock_rules, meta_payload, is_active")
     .in("chapter_id", chapterIds)
     .eq("is_active", true)
     .order("chapter_id", { ascending: true })
@@ -220,7 +221,7 @@ export function bucketStepsByQuestId(rows: GameQuestStepRow[]): Map<string, Game
 export async function getQuestById(questId: string): Promise<GameQuestRow | null> {
   const { data, error } = await admin()
     .from("game_quests")
-    .select("id, chapter_id, slug, display_name, order_index, unlock_rules, is_active")
+    .select("id, chapter_id, slug, display_name, order_index, unlock_rules, meta_payload, is_active")
     .eq("id", questId)
     .maybeSingle();
 

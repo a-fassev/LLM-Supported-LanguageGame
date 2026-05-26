@@ -73,7 +73,7 @@ begin
     null,
     'cutscene.outro',
     null,
-    '{"schemaVersion":1,"title":"Ottimo","body":"Hai finito la prima quest."}'::jsonb,
+    '{"beats":[{"presentationMode":"narrator","title":"Ottimo","body":"Hai finito la prima quest."}]}'::jsonb,
     '{}'::jsonb,
     true
   );

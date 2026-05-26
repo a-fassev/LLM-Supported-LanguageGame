@@ -292,6 +292,7 @@ namespace LanguageGame.Presentation
                 started.runId,
                 started.questId,
                 started.displayName,
+                started.metaJson,
                 started.steps,
                 started.currentStepOrderIndex,
                 started.currentTaskOrderIndex,

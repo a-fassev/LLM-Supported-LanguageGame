@@ -659,4 +659,178 @@ namespace LanguageGame.Presentation
             _message = null;
         }
     }
+
+    /// <summary>Scrollable in-quest reference document (e.g. brochure).</summary>
+    public sealed class LearningToolkitReferenceDocumentModal
+    {
+        private VisualElement _scrim;
+        private VisualElement _card;
+        private Label _title;
+        private ScrollView _scroll;
+        private Label _body;
+        private Button _closeButton;
+
+        private bool Attached => _scrim != null && _scrim.parent != null;
+
+        public void Attach(VisualElement overlayPlane)
+        {
+            if (overlayPlane == null || Attached)
+                return;
+
+            _scrim = new VisualElement();
+            _scrim.AddToClassList("lg-modal-scrim");
+
+            _card = new VisualElement();
+            _card.AddToClassList("lg-modal-card");
+            _card.style.maxWidth = 520;
+
+            _title = new Label();
+            _title.AddToClassList("lg-heading-screen");
+            _title.style.marginBottom = 8;
+            _title.style.whiteSpace = WhiteSpace.Normal;
+
+            _scroll = new ScrollView(ScrollViewMode.Vertical);
+            _scroll.style.maxHeight = 360;
+            _scroll.style.marginBottom = 12;
+
+            _body = new Label();
+            _body.AddToClassList("lg-text-body");
+            _body.AddToClassList("lg-reference-doc-modal__body");
+            _body.style.whiteSpace = WhiteSpace.Normal;
+            _scroll.Add(_body);
+
+            _closeButton = new Button { text = "Schließen" };
+            _closeButton.AddToClassList("lg-btn");
+            _closeButton.AddToClassList("lg-btn--primary");
+            _closeButton.RegisterCallback<ClickEvent>(_ => Hide());
+
+            _card.Add(_title);
+            _card.Add(_scroll);
+            _card.Add(_closeButton);
+            _scrim.Add(_card);
+            overlayPlane.Add(_scrim);
+            Hide();
+        }
+
+        public void Show(string title, string bodyText)
+        {
+            if (_title != null)
+                _title.text = string.IsNullOrWhiteSpace(title) ? "Dokument" : title.Trim();
+            if (_body != null)
+                _body.text = bodyText ?? string.Empty;
+            if (_scrim != null)
+            {
+                _scrim.style.display = DisplayStyle.Flex;
+                _scrim.BringToFront();
+            }
+        }
+
+        public void Hide()
+        {
+            if (_scrim != null)
+                _scrim.style.display = DisplayStyle.None;
+        }
+
+        public void Destroy()
+        {
+            if (_scrim == null)
+                return;
+            _scrim.RemoveFromHierarchy();
+            _scrim = null;
+            _card = null;
+            _title = null;
+            _scroll = null;
+            _body = null;
+            _closeButton = null;
+        }
+    }
+
+    /// <summary>Quest pause menu overlay.</summary>
+    public sealed class LearningToolkitPauseMenuModal
+    {
+        private VisualElement _scrim;
+        private VisualElement _card;
+        private Button _resumeButton;
+        private Button _leaveButton;
+        private UnityAction _onResume;
+        private UnityAction _onLeave;
+
+        private bool Attached => _scrim != null && _scrim.parent != null;
+
+        public void Attach(VisualElement overlayPlane)
+        {
+            if (overlayPlane == null || Attached)
+                return;
+
+            _scrim = new VisualElement();
+            _scrim.AddToClassList("lg-modal-scrim");
+
+            _card = new VisualElement();
+            _card.AddToClassList("lg-modal-card");
+
+            var title = new Label("Pause");
+            title.AddToClassList("lg-heading-screen");
+            title.style.marginBottom = 16;
+
+            _resumeButton = new Button { text = "Weiter" };
+            _resumeButton.AddToClassList("lg-btn");
+            _resumeButton.AddToClassList("lg-btn--primary");
+            _resumeButton.style.marginBottom = 8;
+            _resumeButton.RegisterCallback<ClickEvent>(_ =>
+            {
+                var resume = _onResume;
+                Hide();
+                resume?.Invoke();
+            });
+
+            _leaveButton = new Button { text = "Zurück zu Kapiteln" };
+            _leaveButton.AddToClassList("lg-btn");
+            _leaveButton.AddToClassList("lg-btn--ghost");
+            _leaveButton.RegisterCallback<ClickEvent>(_ =>
+            {
+                var leave = _onLeave;
+                Hide();
+                leave?.Invoke();
+            });
+
+            _card.Add(title);
+            _card.Add(_resumeButton);
+            _card.Add(_leaveButton);
+            _scrim.Add(_card);
+            overlayPlane.Add(_scrim);
+            Hide();
+        }
+
+        public void Show(UnityAction onResume, UnityAction onLeave, bool leaveEnabled)
+        {
+            _onResume = onResume;
+            _onLeave = onLeave;
+            if (_leaveButton != null)
+                _leaveButton.SetEnabled(leaveEnabled);
+            if (_scrim != null)
+            {
+                _scrim.style.display = DisplayStyle.Flex;
+                _scrim.BringToFront();
+            }
+        }
+
+        public void Hide()
+        {
+            if (_scrim != null)
+                _scrim.style.display = DisplayStyle.None;
+            _onResume = null;
+            _onLeave = null;
+        }
+
+        public void Destroy()
+        {
+            if (_scrim == null)
+                return;
+            _scrim.RemoveFromHierarchy();
+            _scrim = null;
+            _card = null;
+            _resumeButton = null;
+            _leaveButton = null;
+        }
+    }
 }

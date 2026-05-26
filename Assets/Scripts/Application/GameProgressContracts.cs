@@ -33,6 +33,8 @@ namespace LanguageGame.Application
         public bool hasCompletedAnyRun;
         /// <summary>Non-empty when locked; UX overlay text.</summary>
         public string unlockHint;
+        /// <summary>Stringified quest meta_payload (reference document, flow flags).</summary>
+        public string metaJson;
         public GameQuestStepDto[] steps;
     }
 
@@ -83,6 +85,8 @@ namespace LanguageGame.Application
         public string questId;
         public string questSlug;
         public string displayName;
+        /// <summary>Stringified quest meta_payload for active run.</summary>
+        public string metaJson;
         public int totalSlices;
         public int totalBackpackPieces;
         public GameQuestStepDto[] steps;

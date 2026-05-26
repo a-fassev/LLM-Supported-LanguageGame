@@ -192,26 +192,26 @@ seed_steps as (
   from quest_refs qr
   join (
     values
-      ('quest-01', 0, 'cutscene', null::text, 'cutscene.intro', null::text, '{"schemaVersion":1,"title":"Benvenuto nella città","subtitle":"Iniziamo insieme","body":"Siamo in Italia per una piccola missione linguistica: ascolta, leggi e rispondi con calma. Quando sei pronto, premi Avanti per entrare nel primo compito.","tone":"neutral","illustrationId":"city-street-soft"}', '{}'),
+      ('quest-01', 0, 'cutscene', null::text, 'cutscene.intro', null::text, '{"beats":[{"presentationMode":"narrator","title":"Benvenuto nella città","subtitle":"Iniziamo insieme","body":"Siamo in Italia per una piccola missione linguistica: ascolta, leggi e rispondi con calma. Quando sei pronto, premi Avanti per entrare nel primo compito."}]}', '{}'),
       ('quest-01', 1, 'task', 'ErrorSpotting', 'task.error-spotting', 'quest-01-task-01', '{"prompt":"Trova gli errori."}', '{"pizza":{"mode":"flat","value":2},"backpack":{"mode":"first_completion","value":1}}'),
       ('quest-01', 2, 'task', 'ClozeText', 'task.cloze-text', 'quest-01-task-02', '{"prompt":"Completa il testo."}', '{"pizza":{"mode":"flat","value":2},"backpack":{"mode":"first_completion","value":1}}'),
-      ('quest-01', 3, 'cutscene', null::text, 'cutscene.outro', null::text, '{"schemaVersion":1,"title":"Ottimo","body":"Hai finito la prima quest."}', '{}'),
+      ('quest-01', 3, 'cutscene', null::text, 'cutscene.outro', null::text, '{"beats":[{"presentationMode":"narrator","title":"Ottimo","body":"Hai finito la prima quest."}]}', '{}'),
 
-      ('quest-02', 0, 'cutscene', null::text, 'cutscene.intro', null::text, '{"schemaVersion":1,"title":"Mercato","body":"Andiamo al mercato."}', '{}'),
+      ('quest-02', 0, 'cutscene', null::text, 'cutscene.intro', null::text, '{"beats":[{"presentationMode":"narrator","title":"Mercato","body":"Andiamo al mercato."}]}', '{}'),
       ('quest-02', 1, 'task', 'DragDrop', 'task.drag-drop', 'quest-02-task-01', '{"prompt":"Ordina gli elementi."}', '{"pizza":{"mode":"flat","value":2},"backpack":{"mode":"first_completion","value":1}}'),
       ('quest-02', 2, 'task', 'Matching', 'task.matching', 'quest-02-task-02', '{"prompt":"Abbina le coppie."}', '{"pizza":{"mode":"flat","value":2},"backpack":{"mode":"first_completion","value":1}}'),
       ('quest-02', 3, 'task', 'MultipleChoice', 'task.multiple-choice', 'quest-02-task-03', '{"prompt":"Scegli la risposta corretta.","stem":[{"kind":"text","text":"Quanto fa 2 + 2?"}],"options":[{"id":"a","label":"3"},{"id":"b","label":"4"},{"id":"c","label":"5"}],"correctOptionIds":["b"]}', '{"pizza":{"mode":"flat","value":3},"backpack":{"mode":"first_completion","value":1}}'),
 
-      ('quest-03', 0, 'cutscene', null::text, 'cutscene.intro', null::text, '{"schemaVersion":1,"title":"Scuola","body":"Entriamo in classe."}', '{}'),
+      ('quest-03', 0, 'cutscene', null::text, 'cutscene.intro', null::text, '{"beats":[{"presentationMode":"narrator","title":"Scuola","body":"Entriamo in classe."}]}', '{}'),
       ('quest-03', 1, 'task', 'FreeText', 'task.free-text', 'quest-03-task-01', '{"prompt":"Scrivi una frase."}', '{"pizza":{"mode":"flat","value":3},"backpack":{"mode":"first_completion","value":1}}'),
       ('quest-03', 2, 'task', 'RelativeClause', 'task.relative-clause', 'quest-03-task-02', '{"prompt":"Completa la frase relativa."}', '{"pizza":{"mode":"flat","value":3},"backpack":{"mode":"first_completion","value":1}}'),
-      ('quest-03', 3, 'cutscene', null::text, 'cutscene.bridge', null::text, '{"schemaVersion":1,"title":"Continua","body":"Quasi alla fine."}', '{}'),
+      ('quest-03', 3, 'cutscene', null::text, 'cutscene.bridge', null::text, '{"beats":[{"presentationMode":"narrator","title":"Continua","body":"Quasi alla fine."}]}', '{}'),
       ('quest-03', 4, 'task', 'ErrorSpotting', 'task.error-spotting', 'quest-03-task-03', '{"prompt":"Correggi il testo."}', '{"pizza":{"mode":"flat","value":2},"backpack":{"mode":"first_completion","value":1}}'),
 
-      ('quest-04', 0, 'cutscene', null::text, 'cutscene.intro', null::text, '{"schemaVersion":1,"title":"Esame","body":"Ultima prova."}', '{}'),
+      ('quest-04', 0, 'cutscene', null::text, 'cutscene.intro', null::text, '{"beats":[{"presentationMode":"narrator","title":"Esame","body":"Ultima prova."}]}', '{}'),
       ('quest-04', 1, 'task', 'ClozeText', 'task.cloze-text', 'quest-04-task-01', '{"prompt":"Riempi gli spazi."}', '{"pizza":{"mode":"flat","value":4},"backpack":{"mode":"first_completion","value":1}}'),
       ('quest-04', 2, 'task', 'MultipleChoice', 'task.multiple-choice', 'quest-04-task-02', '{"prompt":"Scegli bene.","subtitle":"Solo una risposta è corretta.","stem":[{"kind":"text","text":"Quale parola è un sostantivo?"}],"options":[{"id":"x","label":"corre"},{"id":"y","label":"casa"},{"id":"z","label":"velocemente"}],"correctOptionIds":["y"]}', '{"pizza":{"mode":"flat","value":4},"backpack":{"mode":"first_completion","value":1}}'),
-      ('quest-04', 3, 'cutscene', null::text, 'cutscene.outro', null::text, '{"schemaVersion":1,"title":"Complimenti","body":"Hai completato il chapter!"}', '{}')
+      ('quest-04', 3, 'cutscene', null::text, 'cutscene.outro', null::text, '{"beats":[{"presentationMode":"narrator","title":"Complimenti","body":"Hai completato il chapter!"}]}', '{}')
   ) as s(quest_slug, order_index, step_kind, task_type, template_key, logical_task_key, content_payload, reward_rules)
     on s.quest_slug = qr.slug
 )

@@ -1,0 +1,153 @@
+@import url("tokens-semantics.uss");
+
+.lg-cutscene-root {
+    flex-grow: 1;
+    justify-content: center;
+}
+
+.lg-cutscene-narrator {
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+    padding: 16px 20px;
+    background-color: var(--lg-surface-muted);
+    border-radius: var(--lg-radius-md);
+}
+
+.lg-cutscene-narrator__title {
+    -unity-font-style: bold;
+    font-size: var(--lg-font-size-heading);
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 8px;
+}
+
+.lg-cutscene-narrator__subtitle {
+    font-size: var(--lg-font-size-body);
+    opacity: 0.85;
+    -unity-text-align: middle-center;
+    white-space: normal;
+    margin-bottom: 12px;
+}
+
+.lg-cutscene-narrator__body {
+    font-size: var(--lg-font-size-body);
+    -unity-font-style: italic;
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.lg-cutscene-npc {
+    flex-direction: row;
+    align-items: flex-end;
+    padding: 12px 8px;
+    flex-grow: 1;
+}
+
+.lg-cutscene-npc--left {
+    justify-content: flex-start;
+}
+
+.lg-cutscene-npc--right {
+    justify-content: flex-end;
+}
+
+.lg-cutscene-npc__portrait {
+    width: 56px;
+    height: 56px;
+    border-radius: 28px;
+    background-color: var(--lg-surface-muted);
+    margin-left: 8px;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.lg-cutscene-npc__bubble-col {
+    flex-shrink: 1;
+    max-width: 75%;
+}
+
+.lg-cutscene-npc__name {
+    font-size: var(--lg-font-size-caption);
+    opacity: 0.9;
+    margin-bottom: 4px;
+}
+
+.lg-cutscene-npc__bubble {
+    background-color: var(--lg-surface-elevated);
+    border-radius: var(--lg-radius-md);
+    padding: 12px 14px;
+}
+
+.lg-cutscene-npc__body {
+    white-space: normal;
+}
+
+.lg-cutscene-thought {
+    flex-grow: 1;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+}
+
+.lg-cutscene-thought__bubble {
+    max-width: 85%;
+    background-color: var(--lg-surface-muted);
+    border-radius: var(--lg-radius-lg);
+    border-width: 1px;
+    border-color: var(--lg-border-subtle);
+    padding: 14px 16px;
+}
+
+.lg-cutscene-thought__title {
+    -unity-font-style: bold;
+    margin-bottom: 6px;
+    white-space: normal;
+}
+
+.lg-cutscene-thought__body {
+    -unity-font-style: italic;
+    white-space: normal;
+}
+
+.lg-cutscene-gameinfo {
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 14px 16px;
+    background-color: var(--lg-surface-muted);
+    border-radius: var(--lg-radius-md);
+    border-left-width: 4px;
+    border-left-color: var(--lg-accent-primary);
+}
+
+.lg-cutscene-gameinfo__icon {
+    width: 28px;
+    height: 28px;
+    -unity-text-align: middle-center;
+    -unity-font-style: bold;
+    background-color: var(--lg-accent-primary);
+    color: var(--lg-text-on-accent);
+    border-radius: 14px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.lg-cutscene-gameinfo__text {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.lg-cutscene-gameinfo__title {
+    -unity-font-style: bold;
+    margin-bottom: 6px;
+    white-space: normal;
+}
+
+.lg-cutscene-gameinfo__body {
+    white-space: normal;
+}
+
+.lg-reference-doc-modal__body {
+    white-space: normal;
+    max-height: 360px;
+}

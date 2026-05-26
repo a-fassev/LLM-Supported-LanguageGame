@@ -1,5 +1,6 @@
 using System;
 using LanguageGame.Application;
+using UnityEngine;
 
 namespace LanguageGame.Presentation.Steps
 {
@@ -11,6 +12,8 @@ namespace LanguageGame.Presentation.Steps
         public string taskId;
         public string questId;
         public string questDisplayName;
+        /// <summary>Stringified quest meta_payload for shell chrome (reference doc, flow).</summary>
+        public string questMetaJson;
         public string stepKind;
         public string taskType;
         public string templateKey;
@@ -37,6 +40,9 @@ namespace LanguageGame.Presentation.Steps
 
         /// <summary>Optional: shell-injected HTTP client so steps avoid global lookup.</summary>
         public GameProgressApiClient gameProgressApi;
+
+        /// <summary>Optional: host for cutscene auto-advance coroutines.</summary>
+        public MonoBehaviour coroutineHost;
 
         public bool IsTask => string.Equals(stepKind, "task", StringComparison.OrdinalIgnoreCase);
         public int StepNumberOneBased => stepIndexZeroBased + 1;

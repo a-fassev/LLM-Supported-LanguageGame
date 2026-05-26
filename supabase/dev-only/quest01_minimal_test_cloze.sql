@@ -62,8 +62,14 @@ select
   'cutscene.intro',
   null,
   jsonb_build_object(
-    'title', 'Benvenuto',
-    'body', 'Un breve testo: dopo questa schermata c''è un compito.'
+    'beats',
+    jsonb_build_array(
+      jsonb_build_object(
+        'presentationMode', 'narrator',
+        'title', 'Benvenuto',
+        'body', 'Un breve testo: dopo questa schermata c''è un compito.'
+      )
+    )
   ),
   '{}'::jsonb,
   true

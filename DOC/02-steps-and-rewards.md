@@ -35,17 +35,53 @@ Implemented in Postgres **`complete_quest_step_task`** (see migration [`20260530
 
 ## Cutscene (`step_kind: cutscene`, `isTask: false`)
 
-DTO: **`CutsceneContentDto`** ([`ToolkitStepContentDtos.cs`](../Assets/Scripts/Presentation/Steps/ToolkitStepContentDtos.cs)).
+DTO: **`CutsceneContentDto`** ([`ToolkitStepContentDtos.cs`](../Assets/Scripts/Presentation/Steps/ToolkitStepContentDtos.cs)). Validated by [`cutsceneContentSchema.ts`](../apps/web/lib/game/schemas/cutsceneContentSchema.ts) (strict; unknown keys rejected).
+
+### Root
+
+| Field | Required | Notes |
+|-------|----------|--------|
+| `beats` | yes (min 1) | Ordered narrative beats; one-beat cutscene = single narrator line |
+| `npcCast` | no | `{ id, displayName, portraitId?, side? }` for `speakerId` on beats |
+| `navigation` | no | `{ blockBack?, primaryCtaLabel? }` cutscene-level shell defaults |
+
+### Per beat
+
+| Field | Required | Notes |
+|-------|----------|--------|
+| `presentationMode` | yes | `narrator` \| `npcDialog` \| `innerMonologue` \| `gameInfo` |
+| `body` | yes | Plain text |
+| `title`, `subtitle` | no | Optional headline lines |
+| `speakerId` | no | References `npcCast[].id` when `presentationMode` is `npcDialog` |
+| `autoAdvanceMs` | no | Positive ms; shell auto-advances beat (tap still works) |
+| `primaryCtaLabel` | no | Overrides shell CTA for this beat (default **Weiter**) |
+
+Example:
+
+```json
+{
+  "npcCast": [{ "id": "ricci", "displayName": "Prof.ssa Ricci", "side": "right" }],
+  "beats": [
+    { "presentationMode": "narrator", "body": "Du betrittst das Klassenzimmer." },
+    { "presentationMode": "npcDialog", "speakerId": "ricci", "body": "Guten Morgen!" }
+  ],
+  "navigation": { "blockBack": false }
+}
+```
+
+Rewards: cutscene advance uses empty `{}` `reward_rules` in seeds; RPC awards no pizza/backpack.
+
+---
+
+## Quest meta (`game_quests.meta_payload` → API `metaJson`)
+
+Validated leniently on read via [`questMetaPayloadSchema.ts`](../apps/web/lib/game/schemas/questMetaPayloadSchema.ts). Unity: [`QuestMetaPayloadDto`](../Assets/Scripts/Application/QuestMetaPayloadDto.cs).
 
 | Field | Notes |
 |-------|--------|
-| `schemaVersion` | Use **`0`** or **`1`**; other values rejected client-side ([`CutsceneToolkitStep`](../Assets/Scripts/Presentation/Steps/CutsceneToolkitStep.cs)) |
-| `title`, `body` | **Required** non-empty (Unity + bootstrap validation) |
-| `subtitle`, `illustrationId`, `tone`, `ariaNote`, `primaryCtaLabel` | Optional / UX hints |
-
-**Text:** `title`, `subtitle`, `body` are plain `Label` text (`WhiteSpace.Normal`). No markup parsing documented — treat as plain text (literal newlines in JSON strings display).
-
-Rewards: configure via **`reward_rules`** same table fields if applicable (game logic defines whether cutscene completion triggers RPC rewards).
+| `referenceDocument` | `{ documentId?, title, bodyText, buttonLabel? }` — quest shell **Broschüre ansehen** modal on all steps |
+| `flow.blockBack` | When true, hide/disable **Back to chapters** and pause-menu leave |
+| `flow.autoStartQuestSlug` | After quest finish, client starts this quest slug if unlocked (else quest overview) |
 
 ---
 

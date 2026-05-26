@@ -1,4 +1,4 @@
--- Cutscene content_json v1 (title + body required; optional schemaVersion, subtitle, etc.).
+-- Cutscene beats[] payload: refresh quest-01 intro and append endcap cutscene.
 -- Quest-01: refresh intro copy and append an example closing cutscene after all existing steps.
 -- Idempotent: endcap skipped when template_key cutscene.quest01.endcap already exists.
 
@@ -6,12 +6,14 @@
 update public.game_quest_steps s
 set
   content_payload = $intro${
-    "schemaVersion": 1,
-    "title": "Benvenuto nella città",
-    "subtitle": "Iniziamo insieme",
-    "body": "Siamo in Italia per una piccola missione linguistica: ascolta, leggi e rispondi con calma. Quando sei pronto, premi Avanti per entrare nel primo compito.",
-    "tone": "neutral",
-    "illustrationId": "city-street-soft"
+    "beats": [
+      {
+        "presentationMode": "narrator",
+        "title": "Benvenuto nella città",
+        "subtitle": "Iniziamo insieme",
+        "body": "Siamo in Italia per una piccola missione linguistica: ascolta, leggi e rispondi con calma. Quando sei pronto, premi Avanti per entrare nel primo compito."
+      }
+    ]
   }$intro$::jsonb,
   updated_at = now()
 from public.game_quests q
@@ -82,12 +84,15 @@ begin
     'cutscene.quest01.endcap',
     null,
     $cap${
-      "schemaVersion": 1,
-      "title": "Hai quasi finito questa demo",
-      "subtitle": "Un ultimo saluto",
-      "body": "Complimenti: hai visto introduzione, compiti e piccole ricompense. Torna quando vuoi dalla mappa per continuare il capitolo — premi Avanti per chiudere questo passaggio.",
-      "tone": "celebratory",
-      "primaryCtaLabel": "Avanti"
+      "beats": [
+        {
+          "presentationMode": "narrator",
+          "title": "Hai quasi finito questa demo",
+          "subtitle": "Un ultimo saluto",
+          "body": "Complimenti: hai visto introduzione, compiti e piccole ricompense. Torna quando vuoi dalla mappa per continuare il capitolo — premi Avanti per chiudere questo passaggio."
+        }
+      ],
+      "navigation": { "primaryCtaLabel": "Avanti" }
     }$cap$::jsonb,
     '{}'::jsonb,
     true

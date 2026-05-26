@@ -17,8 +17,15 @@
 | `logical_task_key` | `logicalTaskKey` | Backpack dedupe key (fallback to step id in RPC) |
 | `template_key` | `templateKey` | Opaque authoring label |
 | Chapter `theme_json` | `themeJson` | Chapter-level payload (shape not enforced here) |
+| Quest `meta_payload` (jsonb) | `metaJson` | Reference document + flow flags; see [02-steps-and-rewards.md](02-steps-and-rewards.md) |
 
 Cutscene payloads are validated when mapping steps ([`mapQuestStepRowsWithCutsceneValidation`](../apps/web/lib/game/services/game-progress-service.ts)); malformed cutscenes fail quest bootstrap/start.
+
+### Story authoring convention (Chapter 1)
+
+- **Akt 1** → one `game_chapters` row (e.g. `chapter-01`).
+- **Akt 1.x** → one `game_quests` row per story beat (quest slug), ordered by `order_index`.
+- Cutscene dialog with multiple NPCs → one cutscene step with multiple `beats[]` entries (not one DB row per line).
 
 ## Bootstrap objects (partial)
 

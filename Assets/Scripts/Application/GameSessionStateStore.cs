@@ -196,6 +196,7 @@ namespace LanguageGame.Application
                     isUnlocked = quest.isUnlocked,
                     hasCompletedAnyRun = quest.hasCompletedAnyRun,
                     unlockHint = quest.unlockHint,
+                    metaJson = quest.metaJson,
                     steps = CloneSteps(quest.steps),
                 };
             }
