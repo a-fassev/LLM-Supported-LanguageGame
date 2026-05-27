@@ -567,7 +567,7 @@ Cutscenes are **presentation-only**: learners tap shell **Weiter** to page throu
 
 **Strict authoring (Next.js):** [`cutsceneContentSchema.ts`](../apps/web/lib/game/schemas/cutsceneContentSchema.ts) — **`.strict()`**, no legacy root `title`/`body`.
 
-**Server error convention:** malformed cutscene JSON → HTTP **502** `payload_invalid` / `Malformed Cutscene content payload` (bootstrap may list **`details.cutscenePayloadErrors`**).
+**Server error convention:** malformed step JSON → HTTP **502** `payload_invalid` / `Malformed step content payload` (bootstrap may list **`details.stepPayloadErrors`**; start/get-run return one flat detail object with `taskType` when applicable).
 
 **Unity:** `JsonUtility` + guards. Invalid payload → Italian placeholder, **`IsContentValid == false`**, primary **Weiter** disabled (no server advance).
 

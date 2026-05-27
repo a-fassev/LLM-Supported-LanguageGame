@@ -255,8 +255,7 @@ namespace LanguageGame.Presentation
                 _emptyLabel.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
-        private static string FormatTeamLabel(string team) =>
-            team == "blue" ? "Team Blue" : team == "red" ? "Team Red" : team ?? string.Empty;
+        private static string FormatTeamLabel(string team) => LearningToolkitChromeUx.FormatTeamDisplayLabel(team);
 
         private void RefreshInteractable(bool idle)
         {

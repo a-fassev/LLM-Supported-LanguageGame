@@ -24,5 +24,8 @@ namespace LanguageGame.Presentation
         public const string ValidationDismissLabel = "Capito";
 
         public const string ReferenceDocumentTitleFallback = "Documento";
+
+        public static string FormatTeamDisplayLabel(string team) =>
+            team == "blue" ? "Squadra Blu" : team == "red" ? "Squadra Rossa" : team ?? string.Empty;
     }
 }

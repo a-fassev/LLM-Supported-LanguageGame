@@ -1,6 +1,6 @@
 import { parseCutsceneContent } from "@/lib/game/schemas/cutsceneContentSchema";
 
-/** Single cutscene authoring problem (operator-facing; logged and returned on 502). */
+/** @deprecated Prefer {@link StepPayloadErrorDetail} from stepContentValidation.ts */
 export type CutscenePayloadErrorDetail = {
   questSlug: string;
   questId: string;
@@ -10,11 +10,15 @@ export type CutscenePayloadErrorDetail = {
 };
 
 /**
- * Shape of `details` when `code === "payload_invalid"` for cutscene schema failures.
- * Bootstrap returns batched `cutscenePayloadErrors`; start/get-run return one flat detail object.
+ * Legacy cutscene-only helpers. Bootstrap/start/resume now use
+ * {@link collectStepPayloadErrors} / {@link parseStepContent} in stepContentValidation.ts.
+ *
+ * Shape of `details` when `code === "payload_invalid"`:
+ * - Bootstrap batch: `{ stepPayloadErrors: StepPayloadErrorDetail[] }`
+ * - Start/get-run: one flat `StepPayloadErrorDetail`
  */
 export type CutscenePayloadInvalidApiDetails =
-  | { cutscenePayloadErrors: CutscenePayloadErrorDetail[] }
+  | { stepPayloadErrors: CutscenePayloadErrorDetail[] }
   | CutscenePayloadErrorDetail;
 
 export type QuestStepCutsceneRowInput = {

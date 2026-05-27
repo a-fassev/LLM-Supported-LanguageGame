@@ -4,7 +4,7 @@
             class="lg-leaderboard-team-dot lg-leaderboard-team-dot--visible lg-leaderboard-team-dot--blue" />
         <ui:Label name="rank-label" text="#1" class="lg-leaderboard-player-row__rank lg-text-body-lg" />
         <ui:VisualElement name="team-info-col" class="lg-leaderboard-team-summary__info">
-            <ui:Label name="team-name-label" text="Team Blue"
+            <ui:Label name="team-name-label" text="Squadra Blu"
                 class="lg-leaderboard-player-row__name lg-list-row-text lg-text-body-lg" />
             <ui:Label name="team-meta-label" text="8 giocatori"
                 class="lg-leaderboard-team-summary__meta lg-text-body lg-text-muted" />

@@ -38,6 +38,15 @@
     -unity-background-scale-mode: scale-and-crop;
 }
 
+.lg-quest-shell-root,
+.lg-scene-bg-root {
+    position: relative;
+}
+
+.lg-game-panel--over-scene {
+    background-color: var(--lg-task-bg-over-scene);
+}
+
 .lg-matching-columns-row {
     flex-grow: 1;
     flex-direction: row;

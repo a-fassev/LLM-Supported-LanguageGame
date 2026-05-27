@@ -1,6 +1,6 @@
 <!-- UI Builder: quest overview header inlined (title-label runtime overwrite); wallet via components-hud.uss. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="root-shell" class="lg-fill-screen">
+    <ui:VisualElement name="root-shell" class="lg-fill-screen lg-scene-bg-root">
         <ui:VisualElement name="scene-background-host" class="lg-scene-background-host" picking-mode="Ignore" />
         <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
             <ui:VisualElement name="navigation-page-header-part" class="lg-page-header">

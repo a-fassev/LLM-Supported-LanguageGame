@@ -34,6 +34,27 @@ describe("parseStepContent", () => {
     });
     expect(r.ok).toBe(false);
   });
+
+  it("rejects empty special screen payload", () => {
+    const r = parseStepContent({
+      step_kind: "task",
+      task_type: "SpecialScreen",
+      content_payload: { title: "only title" },
+    });
+    expect(r.ok).toBe(false);
+  });
+
+  it("rejects reader chrome combined with blocks", () => {
+    const r = parseStepContent({
+      step_kind: "task",
+      task_type: "SpecialScreenReader",
+      content_payload: {
+        readerChrome: { bodyText: "Ciao." },
+        blocks: [{ blockType: "stub" }],
+      },
+    });
+    expect(r.ok).toBe(false);
+  });
 });
 
 describe("collectStepPayloadErrors", () => {

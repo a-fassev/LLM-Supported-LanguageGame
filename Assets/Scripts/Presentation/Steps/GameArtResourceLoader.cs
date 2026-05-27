@@ -72,7 +72,7 @@ namespace LanguageGame.Presentation.Steps
             if (!string.IsNullOrEmpty(key))
             {
                 var primary = GameArtAssetKeys.ToResourcesPath(key);
-                if (LoadSprite(primary) != null)
+                if (ResourceSpriteOrTextureExists(primary))
                     return primary;
             }
 
@@ -82,10 +82,21 @@ namespace LanguageGame.Presentation.Steps
         public static string ResolvePlayerPortraitResourcesPath()
         {
             var primary = GameArtAssetKeys.ToResourcesPath(GameArtAssetKeys.DefaultPlayerPortraitKey);
-            if (LoadSprite(primary) != null)
+            if (ResourceSpriteOrTextureExists(primary))
                 return primary;
 
             return CutscenePlayerPortraitProvider.LegacyDefaultPlayerPortraitPath;
+        }
+
+        private static bool ResourceSpriteOrTextureExists(string resourcePath)
+        {
+            if (string.IsNullOrWhiteSpace(resourcePath))
+                return false;
+
+            if (Resources.Load<Sprite>(resourcePath) != null)
+                return true;
+
+            return Resources.Load<Texture2D>(resourcePath) != null;
         }
 
         internal static bool TrySanitizeAssetKeySegment(string raw, out string safe)

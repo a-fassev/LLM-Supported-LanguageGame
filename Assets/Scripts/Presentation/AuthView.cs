@@ -105,13 +105,13 @@ namespace LanguageGame.Presentation
         {
             if (apiClient == null)
             {
-                SetStatus("AuthApiClient is missing. Wire it on the GameFlow GameObject.");
+                SetStatus("AuthApiClient mancante. Collegalo al GameObject GameFlow.");
                 return;
             }
 
             if (GameFlowController.Instance == null)
             {
-                SetStatus("GameFlowController is missing.");
+                SetStatus("GameFlowController mancante.");
                 return;
             }
 
@@ -129,7 +129,7 @@ namespace LanguageGame.Presentation
         private IEnumerator TryResumeSession()
         {
             PushAuthBusyScope();
-            _loading.Show("Checking session…");
+            _loading.Show("Controllo sessione…");
 
             yield return StartCoroutine(apiClient.ValidateSession(
                 onValid: () => { GameFlowController.Instance?.LoadMainMenu(); },
@@ -137,7 +137,7 @@ namespace LanguageGame.Presentation
                 {
                     GameSessionStateStore.Clear();
                     AuthSessionStore.Clear();
-                    SetStatus("Your session expired. Sign in again.");
+                    SetStatus("La sessione è scaduta. Accedi di nuovo.");
                 }));
 
             _loading.Hide();
@@ -182,7 +182,7 @@ namespace LanguageGame.Presentation
                     if (_generatedUsernameLabel != null)
                         _generatedUsernameLabel.text = u;
                 },
-                err => SetStatus("Could not get a learner name suggestion: " + err)));
+                err => SetStatus("Impossibile suggerire un nome: " + err)));
 
             PopAuthBusyScope();
         }
@@ -197,7 +197,7 @@ namespace LanguageGame.Presentation
 
             if (string.IsNullOrEmpty(_suggestedUsername))
             {
-                SetStatus("Wait until a learner name is suggested.");
+                SetStatus("Attendi un nome giocatore suggerito.");
                 return;
             }
 
@@ -206,17 +206,17 @@ namespace LanguageGame.Presentation
 
             if (a != b)
             {
-                SetStatus("The passwords don't match.");
+                SetStatus("Le password non coincidono.");
                 return;
             }
 
             if (a.Length < 8)
             {
-                SetStatus("Choose a password of at least 8 characters.");
+                SetStatus("Scegli una password di almeno 8 caratteri.");
                 return;
             }
 
-            SetStatus("Creating your account…");
+            SetStatus("Creazione account…");
             StartCoroutine(RegisterCoroutine(_suggestedUsername, a, b));
         }
 
@@ -229,8 +229,8 @@ namespace LanguageGame.Presentation
                 {
                     var teamNote = string.IsNullOrEmpty(team)
                         ? string.Empty
-                        : $" You are on {FormatTeamLabel(team)}.";
-                    SetStatus($"Account ready: {u} — you can sign in now!{teamNote}");
+                        : $" Sei nella {LearningToolkitChromeUx.FormatTeamDisplayLabel(team)}.";
+                    SetStatus($"Account pronto: {u} — ora puoi accedere!{teamNote}");
                     ShowRegisterFlow(false);
 
                     if (_loginUsername != null)
@@ -254,11 +254,11 @@ namespace LanguageGame.Presentation
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(pwd))
             {
-                SetStatus("Enter both username and password.");
+                SetStatus("Inserisci nome utente e password.");
                 return;
             }
 
-            SetStatus("Signing you in…");
+            SetStatus("Accesso in corso…");
             StartCoroutine(LoginCoroutine(username, pwd));
         }
 
@@ -324,8 +324,7 @@ namespace LanguageGame.Presentation
             _registerPasswordConfirm?.SetEnabled(fieldsIdle);
         }
 
-        private static string FormatTeamLabel(string team) =>
-            team == "blue" ? "Team Blue" : team == "red" ? "Team Red" : team ?? string.Empty;
+        private static string FormatTeamLabel(string team) => LearningToolkitChromeUx.FormatTeamDisplayLabel(team);
 
         private void OnDestroy()
         {

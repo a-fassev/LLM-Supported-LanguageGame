@@ -84,8 +84,7 @@ namespace LanguageGame.Presentation
                 label.text = text ?? string.Empty;
         }
 
-        private static string FormatTeam(string team) =>
-            team == "blue" ? "Team Blue" : team == "red" ? "Team Red" : team ?? string.Empty;
+        private static string FormatTeam(string team) => LearningToolkitChromeUx.FormatTeamDisplayLabel(team);
 
         private static string FormatTeamMemberCount(int memberCount) =>
             memberCount == 1 ? "1 giocatore" : $"{memberCount} giocatori";

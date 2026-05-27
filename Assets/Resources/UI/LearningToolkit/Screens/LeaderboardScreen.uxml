@@ -6,16 +6,22 @@
         src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Leaderboard/LeaderboardPlayerRowPart.uxml?fileID=9197481963319205126&amp;guid=04b93c554fb8c40ac8c4fab9fe2a67f4&amp;type=3#LeaderboardPlayerRowPart" />
     <ui:Template name="NavigationPageHeaderMinimalPart"
         src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Navigation/NavigationPageHeaderMinimalPart.uxml?fileID=9197481963319205126&amp;guid=38a72ed0c8fc4fe3b476f342d17cb8dc&amp;type=3#NavigationPageHeaderMinimalPart" />
-    <ui:VisualElement name="root-shell" class="lg-fill-screen">
+    <ui:Template name="NavigationIconButtonPart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Navigation/Buttons/NavigationIconButtonPart.uxml?fileID=9197481963319205126&amp;guid=f3c4d5e6f7a84901b2c3d4e5f6a7b8c9&amp;type=3#NavigationIconButtonPart" />
+    <ui:Template name="NavigationPrimaryButtonPart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Navigation/Buttons/NavigationPrimaryButtonPart.uxml?fileID=9197481963319205126&amp;guid=f1a2b3c4d5e6478990ab1cd2e3f4a5b6&amp;type=3#NavigationPrimaryButtonPart" />
+    <ui:Template name="NavigationSecondaryButtonPart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Navigation/Buttons/NavigationSecondaryButtonPart.uxml?fileID=9197481963319205126&amp;guid=f2b3c4d5e6f74890a1b2c3d4e5f6a7b8&amp;type=3#NavigationSecondaryButtonPart" />
+    <ui:VisualElement name="root-shell" class="lg-fill-screen lg-scene-bg-root">
         <ui:VisualElement name="scene-background-host" class="lg-scene-background-host" picking-mode="Ignore" />
         <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen lg-shell--flex-min">
             <ui:Instance template="NavigationPageHeaderMinimalPart">
                 <ui:VisualElement name="header-actions-host" class="lg-header-actions-host">
-                    <ui:Button name="refresh-button" text="Aggiorna"
+                    <ui:Instance template="NavigationIconButtonPart" name="refresh-button" text="Aggiorna"
                         class="lg-btn lg-btn--nav lg-btn--secondary" />
-                    <ui:Button name="mode-overall-button" text="Generale"
+                    <ui:Instance template="NavigationPrimaryButtonPart" name="mode-overall-button" text="Generale"
                         class="lg-btn lg-btn--nav lg-btn--primary" />
-                    <ui:Button name="mode-team-button" text="Squadre"
+                    <ui:Instance template="NavigationSecondaryButtonPart" name="mode-team-button" text="Squadre"
                         class="lg-btn lg-btn--nav lg-btn--secondary lg-header-actions-host__btn--trailing" />
                 </ui:VisualElement>
             </ui:Instance>
@@ -25,7 +31,7 @@
                     <ui:VisualElement name="team-dot"
                         class="lg-leaderboard-team-dot lg-leaderboard-team-dot--visible lg-leaderboard-team-dot--blue" />
                     <ui:Label name="rank-label" text="#1" class="lg-leaderboard-player-row__rank lg-text-body-lg" />
-                    <ui:Label name="team-name-label" text="Team Blue"
+                    <ui:Label name="team-name-label" text="Squadra Blu"
                         class="lg-leaderboard-player-row__name lg-list-row-text lg-text-body-lg" />
                     <ui:Label name="team-meta-label" text="8 giocatori"
                         class="lg-leaderboard-team-summary__meta lg-text-body lg-text-muted" />
@@ -37,7 +43,7 @@
                     <ui:VisualElement name="team-dot"
                         class="lg-leaderboard-team-dot lg-leaderboard-team-dot--visible lg-leaderboard-team-dot--red" />
                     <ui:Label name="rank-label" text="#2" class="lg-leaderboard-player-row__rank lg-text-body-lg" />
-                    <ui:Label name="team-name-label" text="Team Red"
+                    <ui:Label name="team-name-label" text="Squadra Rossa"
                         class="lg-leaderboard-player-row__name lg-list-row-text lg-text-body-lg" />
                     <ui:Label name="team-meta-label" text="7 giocatori"
                         class="lg-leaderboard-team-summary__meta lg-text-body lg-text-muted" />

@@ -48,6 +48,7 @@ def main() -> None:
         print(f"  {rel}.png <- {MASTERS[master_key].name}")
 
     print(f"Created/updated {created} placeholder sprites under {GAME_ART.relative_to(REPO)}")
+    print("Run scripts/generate-gameart-meta.py to create Unity .meta files for new PNGs.")
 
 
 if __name__ == "__main__":
