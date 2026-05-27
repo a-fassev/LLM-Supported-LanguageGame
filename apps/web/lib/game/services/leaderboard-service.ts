@@ -20,6 +20,7 @@ export type LeaderboardTeamClientDto = {
   rank: number;
   team: StudentTeamColor;
   totalSlices: number;
+  totalBackpackPieces: number;
   memberCount: number;
 };
 
@@ -60,6 +61,7 @@ function mapTeamRows(rows: LeaderboardTeamAggregateRow[]): LeaderboardTeamClient
     rank: index + 1,
     team: row.team,
     totalSlices: row.totalSlices,
+    totalBackpackPieces: row.totalBackpackPieces,
     memberCount: row.memberCount,
   }));
 }

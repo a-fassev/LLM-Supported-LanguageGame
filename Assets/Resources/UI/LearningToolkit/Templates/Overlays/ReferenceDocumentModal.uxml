@@ -9,7 +9,7 @@
                     text="Benvenuto in città! Qui trovi parole utili per il mercato, i saluti e le domande semplici. Leggi con calma prima di iniziare la missione."
                     class="lg-text-body lg-reference-doc-modal__body lg-overlay-message-wrap lg-preview-sample" />
             </ui:ScrollView>
-            <ui:Button name="reference-close" text="Schließen"
+            <ui:Button name="reference-close" text="Chiudi"
                 class="lg-btn lg-btn--primary lg-preview-sample" />
         </ui:VisualElement>
     </ui:VisualElement>

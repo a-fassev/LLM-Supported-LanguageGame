@@ -5,11 +5,9 @@
         <ui:VisualElement name="reader-panel" class="lg-special-reader-panel">
             <ui:VisualElement name="reader-image-host" class="lg-special-reader__image lg-preview-sample"
                 style="min-height: 120px; margin-bottom: 12px;" />
-            <ui:Label name="reader-headline" text="Il mercato di Bologna" class="lg-heading-screen lg-special-reader__headline lg-preview-sample"
-                style="white-space: normal;" />
+            <ui:Label name="reader-headline" text="Il mercato di Bologna" class="lg-task-prompt lg-special-reader__headline lg-preview-sample" />
             <ui:Label name="reader-subhead" text="Una pagina dalla guida della città"
-                class="lg-text-body lg-text-muted lg-special-reader__subhead lg-preview-sample"
-                style="white-space: normal;" />
+                class="lg-task-meta lg-special-reader__subhead lg-preview-sample" />
             <ui:VisualElement name="reader-body-host">
                 <ui:VisualElement class="lg-special-reader__columns-row lg-preview-sample"
                     style="flex-direction: row;">

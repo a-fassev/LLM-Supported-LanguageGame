@@ -40,8 +40,8 @@
 
 .lg-special-photo-caption--fixed {
     margin-top: 6px;
-    font-size: 12px;
-    color: var(--lg-text-muted);
+    font-size: var(--lg-font-body);
+    color: var(--lg-text-soft);
     white-space: normal;
 }
 

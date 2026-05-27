@@ -1,10 +1,10 @@
 <!-- UI Builder: sample block in special-screen-block-area; runtime replaces per part. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="special-screen-root" class="lg-game-panel lg-panel-padded" style="flex-grow: 1; flex-direction: column;">
-        <ui:Label name="special-screen-title" text="Schermata speciale" class="lg-heading-screen lg-preview-sample"
-            style="white-space: normal; margin-bottom: 8px;" />
+    <ui:VisualElement name="special-screen-root" class="lg-special-screen-host lg-game-panel lg-panel-padded" style="flex-grow: 1; flex-direction: column;">
+        <ui:Label name="special-screen-title" text="Schermata speciale" class="lg-task-prompt lg-preview-sample"
+            style="margin-bottom: 8px;" />
         <ui:Label name="special-screen-subtitle" text="Esempio di blocco incorporato"
-            class="lg-text-body lg-text-muted lg-preview-sample" style="white-space: normal; margin-bottom: 8px;" />
+            class="lg-task-meta lg-preview-sample" style="margin-bottom: 8px;" />
         <ui:VisualElement name="special-screen-block-area" style="flex-grow: 1; min-height: 120px;">
             <ui:VisualElement class="lg-muted-panel lg-preview-sample" style="padding: 12px; flex-grow: 1;">
                 <ui:Label text="Blocco di esempio (cloze / error spotting)" class="lg-text-body"

@@ -632,17 +632,19 @@ namespace LanguageGame.Presentation.Steps
             if (lbl != null)
                 lbl.text = text;
 
-            var url = (def.imageUrl ?? string.Empty).Trim();
             var img = card.Q<VisualElement>("matching-card-image");
-            if (!string.IsNullOrEmpty(url) && ToolkitStepHttpResourceUrl.IsAllowed(url, out _) && _coroutineHost != null &&
-                img != null)
+            if (img != null)
             {
-                img.style.display = DisplayStyle.Flex;
-                img.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Cover);
-                _imageLoads.Add(_coroutineHost.StartCoroutine(LoadImg(url, img)));
+                if (!ToolkitStepMediaBinder.TryApplyImageFromAssetId(img, def.assetId))
+                {
+                    var url = (def.imageUrl ?? string.Empty).Trim();
+                    if (!string.IsNullOrEmpty(url) && ToolkitStepHttpResourceUrl.IsAllowed(url, out _) &&
+                        _coroutineHost != null)
+                        _imageLoads.Add(_coroutineHost.StartCoroutine(LoadImg(url, img)));
+                    else
+                        img.style.display = DisplayStyle.None;
+                }
             }
-            else if (img != null)
-                img.style.display = DisplayStyle.None;
 
             return card;
         }
@@ -869,11 +871,15 @@ namespace LanguageGame.Presentation.Steps
                     return false;
                 }
 
-                if (string.IsNullOrWhiteSpace(it.label) && string.IsNullOrWhiteSpace(it.imageUrl))
+                if (string.IsNullOrWhiteSpace(it.label) && string.IsNullOrWhiteSpace(it.assetId) &&
+                    string.IsNullOrWhiteSpace(it.imageUrl))
                 {
-                    error = "Each left item needs a label and/or imageUrl.";
+                    error = "Each left item needs a label and/or assetId/imageUrl.";
                     return false;
                 }
+
+                if (!string.IsNullOrWhiteSpace(it.assetId))
+                    continue;
 
                 if (!string.IsNullOrWhiteSpace(it.imageUrl) && !ToolkitStepHttpResourceUrl.IsAllowed(it.imageUrl, out var imgErr))
                 {
@@ -898,11 +904,15 @@ namespace LanguageGame.Presentation.Steps
                     return false;
                 }
 
-                if (string.IsNullOrWhiteSpace(it.label) && string.IsNullOrWhiteSpace(it.imageUrl))
+                if (string.IsNullOrWhiteSpace(it.label) && string.IsNullOrWhiteSpace(it.assetId) &&
+                    string.IsNullOrWhiteSpace(it.imageUrl))
                 {
-                    error = "Each right item needs a label and/or imageUrl.";
+                    error = "Each right item needs a label and/or assetId/imageUrl.";
                     return false;
                 }
+
+                if (!string.IsNullOrWhiteSpace(it.assetId))
+                    continue;
 
                 if (!string.IsNullOrWhiteSpace(it.imageUrl) && !ToolkitStepHttpResourceUrl.IsAllowed(it.imageUrl, out var imgErr))
                 {
@@ -966,40 +976,6 @@ namespace LanguageGame.Presentation.Steps
             return true;
         }
 
-        [Serializable]
-        private sealed class MatchingContentDto
-        {
-            public string prompt;
-            public string subtitle;
-            public MatchingItemDto[] leftItems;
-            public MatchingItemDto[] rightItems;
-            public MatchingPairDto[] correctPairs;
-            public MatchingPresentationDto presentation;
-        }
-
-        [Serializable]
-        private sealed class MatchingItemDto
-        {
-            public string id;
-            public string label;
-            public string imageUrl;
-        }
-
-        [Serializable]
-        private sealed class MatchingPairDto
-        {
-            public string leftItemId;
-            public string rightItemId;
-        }
-
-        [Serializable]
-        private sealed class MatchingPresentationDto
-        {
-            public string leftLabel;
-            public string rightLabel;
-            public bool shuffleRightOrder;
-        }
-
         /// <summary>Draws committed segments plus optional rubber-band line during drag.</summary>
         private sealed class MatchingLineLayer : VisualElement
         {
@@ -1035,7 +1011,7 @@ namespace LanguageGame.Presentation.Steps
                 var painter = ctx.painter2D;
                 var stroke = new Color(0.28f, 0.42f, 0.92f, 0.9f);
                 painter.strokeColor = stroke;
-                painter.lineWidth = 3f;
+                painter.lineWidth = 5f;
                 DrawSegments(painter, _segments);
                 if (_rubberA.HasValue && _rubberB.HasValue)
                 {

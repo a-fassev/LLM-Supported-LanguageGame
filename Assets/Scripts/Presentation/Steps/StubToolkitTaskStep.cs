@@ -49,19 +49,19 @@ namespace LanguageGame.Presentation.Steps
             _root = new VisualElement();
             _root.style.flexGrow = 1;
             _root.AddToClassList("lg-muted-panel");
+            _root.AddToClassList("lg-task-template-root");
             _root.style.paddingTop = 16;
             _root.style.paddingBottom = 16;
             _root.style.paddingLeft = 16;
             _root.style.paddingRight = 16;
 
             var title = new Label(titleText ?? "Task");
-            title.AddToClassList("lg-heading-screen");
+            title.AddToClassList("lg-task-prompt");
             title.style.marginBottom = 12;
             _root.Add(title);
 
             var body = new Label(bodyText ?? DefaultStubBody);
-            body.AddToClassList("lg-text-body");
-            body.AddToClassList("lg-text-muted");
+            body.AddToClassList("lg-task-meta");
             body.style.whiteSpace = WhiteSpace.Normal;
             _root.Add(body);
 

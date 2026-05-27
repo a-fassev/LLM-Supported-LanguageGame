@@ -9,14 +9,17 @@ namespace LanguageGame.Presentation.Steps
     /// </summary>
     internal static class CutscenePlayerPortraitProvider
     {
-        public const string DefaultPlayerPortraitPath = "UI/CutscenePortraits/Player/current";
+        public const string LegacyDefaultPlayerPortraitPath = "UI/CutscenePortraits/Player/current";
 
         public static Sprite GetCurrentPlayerPortraitSprite() =>
-            CutscenePortraitResourceLoader.LoadSprite(DefaultPlayerPortraitPath);
+            GameArtResourceLoader.LoadSprite(GameArtResourceLoader.ResolvePlayerPortraitResourcesPath());
 
         /// <summary>Call when equipped avatar changes so the next cutscene beat reloads the portrait.</summary>
-        public static void InvalidateEquippedPortraitCache() =>
-            CutscenePortraitResourceLoader.Invalidate(DefaultPlayerPortraitPath);
+        public static void InvalidateEquippedPortraitCache()
+        {
+            GameArtResourceLoader.Invalidate(GameArtAssetKeys.ToResourcesPath(GameArtAssetKeys.DefaultPlayerPortraitKey));
+            CutscenePortraitResourceLoader.Invalidate(LegacyDefaultPlayerPortraitPath);
+        }
     }
 
     internal static class CutscenePortraitResourceLoader

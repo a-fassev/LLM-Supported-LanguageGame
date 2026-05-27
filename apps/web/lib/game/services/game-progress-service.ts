@@ -25,15 +25,15 @@ import {
   type GameQuestStepRow,
   type PlayerQuestRunRow,
 } from "@/lib/game/repositories/game-progress-repository";
+import type { CutscenePayloadErrorDetail, CutscenePayloadInvalidApiDetails } from "@/lib/game/cutscenePayloadValidation";
 import {
-  collectCutscenePayloadErrors,
-  parseCutsceneStepContent,
-  type CutscenePayloadErrorDetail,
-  type CutscenePayloadInvalidApiDetails,
-} from "@/lib/game/cutscenePayloadValidation";
+  collectStepPayloadErrors,
+  parseStepContent,
+  type StepPayloadErrorDetail,
+} from "@/lib/game/stepContentValidation";
 import { parseQuestMetaPayload, serializeQuestMetaJson } from "@/lib/game/schemas/questMetaPayloadSchema";
 
-export type { CutscenePayloadErrorDetail };
+export type { CutscenePayloadErrorDetail, StepPayloadErrorDetail };
 
 import { evaluateTaskAttempt } from "@/lib/game/scoring/evaluateTaskAttempt";
 import { meetsScoredPizzaMinimum, parsePizzaRewardRules, slicesFromRatio } from "@/lib/game/scoring/pizzaReward";
@@ -205,7 +205,7 @@ type MapQuestStepsResult =
       status: 502;
       error: string;
       code: "payload_invalid";
-      details: CutscenePayloadErrorDetail;
+      details: StepPayloadErrorDetail;
     };
 
 function mapQuestStepRowsWithCutsceneValidation(
@@ -213,20 +213,21 @@ function mapQuestStepRowsWithCutsceneValidation(
   questRef: { id: string; slug: string },
 ): MapQuestStepsResult {
   for (const row of rows) {
-    const parsed = parseCutsceneStepContent(row);
+    const parsed = parseStepContent(row);
     if (!parsed.ok) {
-      const detail: CutscenePayloadErrorDetail = {
+      const detail: StepPayloadErrorDetail = {
         questSlug: questRef.slug,
         questId: questRef.id,
         stepId: row.id,
         templateKey: row.template_key ?? "",
+        taskType: row.task_type,
         issues: parsed.issues,
       };
-      console.error("[game-progress] Malformed Cutscene content payload", detail);
+      console.error("[game-progress] Malformed step content payload", detail);
       return {
         ok: false,
         status: 502,
-        error: "Malformed Cutscene content payload",
+        error: "Malformed step content payload",
         code: "payload_invalid",
         details: detail,
       };
@@ -596,15 +597,15 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
   const questsByChapter = bucketQuestsByChapterId(quests);
   const stepsByQuest = bucketStepsByQuestId(allSteps);
 
-  const cutscenePayloadErrors = collectCutscenePayloadErrors(quests, stepsByQuest);
-  if (cutscenePayloadErrors.length > 0) {
-    console.error("[game-progress] Malformed Cutscene content payload(s)", cutscenePayloadErrors);
+  const stepPayloadErrors = collectStepPayloadErrors(quests, stepsByQuest);
+  if (stepPayloadErrors.length > 0) {
+    console.error("[game-progress] Malformed step content payload(s)", stepPayloadErrors);
     return {
       ok: false,
       status: 502,
-      error: "Malformed Cutscene content payload",
+      error: "Malformed step content payload",
       code: "payload_invalid",
-      details: { cutscenePayloadErrors },
+      details: { stepPayloadErrors },
     };
   }
 

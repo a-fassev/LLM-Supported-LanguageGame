@@ -1,3 +1,4 @@
+using LanguageGame.Presentation.Steps;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -29,6 +30,13 @@ namespace LanguageGame.Presentation
                 Debug.LogError("[WalletHudBinder] Missing wallet-pizza or wallet-backpack label.");
                 return false;
             }
+
+            ToolkitSceneBackgroundBinder.ApplyGameArtKey(
+                root.Q<VisualElement>("wallet-badge-pizza"),
+                "static/hud/ph-st-hud-pizza-icon");
+            ToolkitSceneBackgroundBinder.ApplyGameArtKey(
+                root.Q<VisualElement>("wallet-badge-backpack"),
+                "static/hud/ph-st-hud-backpack-icon");
 
             return true;
         }

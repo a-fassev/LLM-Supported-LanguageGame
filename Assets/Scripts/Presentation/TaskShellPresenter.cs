@@ -18,6 +18,7 @@ namespace LanguageGame.Presentation
         private bool _shellReady;
         private VisualElement _toolkitStepHost;
         private VisualElement _questStepPanel;
+        private VisualElement _sceneBackgroundHost;
         private Button _tkReferenceDocument;
         private Button _tkPauseMenu;
         private Button _tkPrimary;
@@ -65,6 +66,7 @@ namespace LanguageGame.Presentation
             _tkQuestTitle = root.Q<Label>("title-label");
             _toolkitStepHost = root.Q<VisualElement>("step-host");
             _questStepPanel = root.Q<VisualElement>("quest-step-panel");
+            _sceneBackgroundHost = root.Q<VisualElement>(ToolkitSceneBackgroundBinder.SceneBackgroundHostName);
 
             if (_tkPauseMenu == null || _tkPrimary == null || _toolkitStepHost == null)
             {
@@ -176,9 +178,17 @@ namespace LanguageGame.Presentation
                     $"{flow.ServerQuestDisplayName} — Step {flow.ServerCurrentStepNumberOneBased}/{flow.ServerStepCount}";
 
             BindStep(step, flow);
+            ApplySceneBackground(step);
             ConfigurePrimaryChrome();
             ConfigureTaskShellChrome(flow);
             ApplyQuestShellDifficultyChrome(step);
+        }
+
+        private void ApplySceneBackground(GameQuestStepDto step)
+        {
+            if (_sceneBackgroundHost == null || step == null)
+                return;
+            ToolkitSceneBackgroundBinder.BindFromContentJson(_sceneBackgroundHost, step.contentJson, isCutsceneStep: false);
         }
 
         private void BindStep(GameQuestStepDto step, GameFlowController flow)
@@ -205,6 +215,7 @@ namespace LanguageGame.Presentation
 
             _activeStepView.Bind(BuildStepContext(flow, step), OnStepRequest);
             _activeStepView.SetInteractable(!_shared.Session.Submitting);
+            ApplySceneBackground(step);
 
             _shared.ResetRewardOverlayToRewardLayout();
             _shared.HideRewardOverlay();

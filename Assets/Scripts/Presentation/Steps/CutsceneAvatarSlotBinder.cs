@@ -23,8 +23,8 @@ namespace LanguageGame.Presentation.Steps
                 return;
 
             ToolkitStepUx.ClearHost(slot);
-            var path = CutscenePortraitResourceLoader.NpcPortraitPath(portraitId);
-            var sprite = path != null ? CutscenePortraitResourceLoader.LoadSprite(path) : null;
+            var path = GameArtResourceLoader.ResolveNpcPortraitResourcesPath(portraitId);
+            var sprite = path != null ? GameArtResourceLoader.LoadSprite(path) : null;
             ApplyPortrait(slot, sprite);
         }
 

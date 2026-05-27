@@ -335,9 +335,6 @@ namespace LanguageGame.Presentation.Steps
 
                 if (string.Equals(kind, "image", StringComparison.OrdinalIgnoreCase))
                 {
-                    var url = (b.imageUrl ?? string.Empty).Trim();
-                    if (url.Length == 0 || !IsAllowedHttpMediaUrl(url, out _))
-                        continue;
                     if (!ToolkitStepUx.TryInstantiatePart(
                             ToolkitStepTemplatePaths.McStemImagePart,
                             "mc-stem-image-part",
@@ -348,8 +345,15 @@ namespace LanguageGame.Presentation.Steps
                     ToolkitStepUx.ClearHost(imgVe);
                     imgVe.style.height = MaxStemImageHeight;
                     imgVe.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Contain);
-                    if (_coroutineHost != null)
-                        _mediaLoads.Add(_coroutineHost.StartCoroutine(LoadRemoteTextureBg(url, imgVe)));
+                    if (!ToolkitStepMediaBinder.TryApplyImageFromAssetId(imgVe, b.assetId))
+                    {
+                        var url = (b.imageUrl ?? string.Empty).Trim();
+                        if (url.Length == 0 || !IsAllowedHttpMediaUrl(url, out _))
+                            continue;
+                        if (_coroutineHost != null)
+                            _mediaLoads.Add(_coroutineHost.StartCoroutine(LoadRemoteTextureBg(url, imgVe)));
+                    }
+
                     _stemHost.Add(imgVe);
                     continue;
                 }
@@ -477,17 +481,18 @@ namespace LanguageGame.Presentation.Steps
             if (label != null)
                 label.text = (opt.label ?? string.Empty).Trim();
 
-            var imgUrl = (opt.imageUrl ?? string.Empty).Trim();
             var imgVe = row.Q<VisualElement>("mc-option-image");
-            if (!string.IsNullOrEmpty(imgUrl) && IsAllowedHttpMediaUrl(imgUrl, out _) && _coroutineHost != null &&
-                imgVe != null)
+            if (imgVe != null)
             {
-                imgVe.style.display = DisplayStyle.Flex;
-                imgVe.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Cover);
-                _mediaLoads.Add(_coroutineHost.StartCoroutine(LoadRemoteTextureBg(imgUrl, imgVe)));
+                if (!ToolkitStepMediaBinder.TryApplyImageFromAssetId(imgVe, opt.assetId))
+                {
+                    var imgUrl = (opt.imageUrl ?? string.Empty).Trim();
+                    if (!string.IsNullOrEmpty(imgUrl) && IsAllowedHttpMediaUrl(imgUrl, out _) && _coroutineHost != null)
+                        _mediaLoads.Add(_coroutineHost.StartCoroutine(LoadRemoteTextureBg(imgUrl, imgVe)));
+                    else
+                        imgVe.style.display = DisplayStyle.None;
+                }
             }
-            else if (imgVe != null)
-                imgVe.style.display = DisplayStyle.None;
 
             _optionsHost.Add(row);
             return true;

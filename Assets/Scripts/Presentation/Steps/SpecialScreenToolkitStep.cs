@@ -1030,24 +1030,25 @@ namespace LanguageGame.Presentation.Steps
             var rawBody = rc.bodyText ?? string.Empty;
             var body = rawBody.Replace("\r\n", "\n").Replace('\r', '\n');
 
-            var imageUrl = rc.imageUrl?.Trim() ?? string.Empty;
             if (hero != null)
             {
-                if (string.IsNullOrEmpty(imageUrl))
+                hero.Clear();
+                if (!ToolkitStepMediaBinder.TryApplyImageFromAssetId(hero, rc.assetId))
                 {
-                    hero.style.display = DisplayStyle.None;
-                }
-                else
-                {
-                    hero.style.display = DisplayStyle.Flex;
-                    hero.Clear();
-                    if (!ToolkitStepHttpResourceUrl.IsAllowed(imageUrl, out var errImg))
-                        Debug.LogWarning($"[SpecialScreenToolkitStep] Reader image URL skipped: {errImg}");
-                    else if (_coroutineHost != null)
-                        _readerImageLoads.Add(_coroutineHost.StartCoroutine(LoadReaderImage(imageUrl, hero)));
+                    var imageUrl = rc.imageUrl?.Trim() ?? string.Empty;
+                    if (string.IsNullOrEmpty(imageUrl))
+                        hero.style.display = DisplayStyle.None;
                     else
-                        Debug.LogWarning(
-                            "[SpecialScreenToolkitStep] Reader hero image skipped: no coroutine host for remote load.");
+                    {
+                        hero.style.display = DisplayStyle.Flex;
+                        if (!ToolkitStepHttpResourceUrl.IsAllowed(imageUrl, out var errImg))
+                            Debug.LogWarning($"[SpecialScreenToolkitStep] Reader image URL skipped: {errImg}");
+                        else if (_coroutineHost != null)
+                            _readerImageLoads.Add(_coroutineHost.StartCoroutine(LoadReaderImage(imageUrl, hero)));
+                        else
+                            Debug.LogWarning(
+                                "[SpecialScreenToolkitStep] Reader hero image skipped: no coroutine host for remote load.");
+                    }
                 }
             }
 
@@ -1435,14 +1436,15 @@ namespace LanguageGame.Presentation.Steps
                     return false;
                 }
 
+                var assetId = it.assetId?.Trim() ?? string.Empty;
                 var url = it.imageUrl?.Trim() ?? string.Empty;
-                if (string.IsNullOrEmpty(url))
+                if (string.IsNullOrEmpty(assetId) && string.IsNullOrEmpty(url))
                 {
-                    error = $"Elemento foto {i + 1}: imageUrl mancante.";
+                    error = $"Elemento foto {i + 1}: serve assetId o imageUrl.";
                     return false;
                 }
 
-                if (!ToolkitStepHttpResourceUrl.IsAllowed(url, out _))
+                if (string.IsNullOrEmpty(assetId) && !ToolkitStepHttpResourceUrl.IsAllowed(url, out _))
                 {
                     error = $"Elemento foto {i + 1}: URL dell'immagine non consentito (usa https pubblico).";
                     return false;
@@ -2226,7 +2228,7 @@ namespace LanguageGame.Presentation.Steps
 
                     var imgHost = cell.Q<VisualElement>("special-photo-cell-image");
                     if (imgHost != null)
-                        StartLoad(it.imageUrl, imgHost, null);
+                        ApplyPhotoItemImage(it, imgHost, null);
 
                     if (it.requireLearnerCaption && !TryInstantiateLearnerCaptionField(i, out _, cell))
                         return false;
@@ -2343,7 +2345,7 @@ namespace LanguageGame.Presentation.Steps
                 _slideshowImageHost.Clear();
                 _slideshowImageHost.style.backgroundImage = StyleKeyword.None;
 
-                StartLoad(it.imageUrl, _slideshowImageHost, gen);
+                ApplyPhotoItemImage(it, _slideshowImageHost, gen);
 
                 _slideshowCaptionHost.Clear();
                 if (it.requireLearnerCaption)
@@ -2389,6 +2391,20 @@ namespace LanguageGame.Presentation.Steps
                         _bindContext,
                         out var errPart))
                     target.Add(errPart);
+            }
+
+            private void ApplyPhotoItemImage(SpecialScreenPhotoItemDto item, VisualElement target, int? slideshowGeneration)
+            {
+                if (item == null || target == null)
+                    return;
+
+                target.Clear();
+                target.style.backgroundImage = StyleKeyword.None;
+
+                if (ToolkitStepMediaBinder.TryApplyImageFromAssetId(target, item.assetId))
+                    return;
+
+                StartLoad(item.imageUrl, target, slideshowGeneration);
             }
 
             private void StartLoad(string url, VisualElement target, int? slideshowGeneration)

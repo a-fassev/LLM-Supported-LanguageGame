@@ -10,10 +10,10 @@ namespace LanguageGame.Presentation.Steps
     /// <summary>Cutscene beats in UI Toolkit; local beat pager then quest shell advance RPC.</summary>
     public sealed class CutsceneToolkitStep : IStepView, ICutsceneBeatNavigator
     {
-        private const string DefaultCtaLabel = "Weiter";
+        private const string DefaultCtaLabel = "Avanti";
         private const string InvalidContentBody =
             "Inhalt fehlerhaft. Fortschritt ist blockiert, bis die Szene korrekt geladen ist.";
-        private const string InvalidContentTitle = "Szene nicht verfügbar";
+        private const string InvalidContentTitle = "Scena non disponibile";
 
         private static readonly HashSet<string> ValidPresentationModes = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -179,7 +179,7 @@ namespace LanguageGame.Presentation.Steps
             TryShowBeatMessage(InvalidContentTitle, InvalidContentBody);
 
         private void RenderTemplateFailure() =>
-            TryShowBeatMessage("Szene nicht verfügbar", ToolkitStepUx.TemplateLoadFailedMessage);
+            TryShowBeatMessage("Scena non disponibile", ToolkitStepUx.TemplateLoadFailedMessage);
 
         private void TryShowBeatMessage(string title, string body)
         {

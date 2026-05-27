@@ -58,6 +58,7 @@ namespace LanguageGame.Presentation
             LearningToolkitNavigationFeedback.RegisterPresentationDocument(_doc);
 
             VisualElement root = _doc.rootVisualElement;
+            ToolkitNavigationScreenBinder.ApplyQuestOverviewScreen(root);
             _chapterTitleText = root.Q<Label>("title-label");
             if (!_walletHud.Bind(_doc))
             {

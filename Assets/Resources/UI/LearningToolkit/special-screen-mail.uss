@@ -44,8 +44,9 @@
     flex-shrink: 0;
     width: 88px;
     margin-right: 8px;
+    font-size: var(--lg-font-body);
     -unity-font-style: bold;
-    color: var(--lg-text-muted);
+    color: var(--lg-text-soft);
 }
 
 .lg-special-mail__row-value {
@@ -53,6 +54,7 @@
     flex-shrink: 1;
     flex-basis: 0;
     min-width: 0;
+    font-size: var(--lg-font-body);
     white-space: normal;
     color: var(--lg-text-main);
 }
@@ -60,6 +62,7 @@
 .lg-special-mail__greeting {
     margin-top: 12px;
     margin-bottom: 8px;
+    font-size: var(--lg-font-body);
     white-space: normal;
     -unity-font-style: italic;
     color: var(--lg-text-main);
@@ -84,6 +87,7 @@
 .lg-special-mail__closing {
     margin-top: 0;
     margin-bottom: 12px;
+    font-size: var(--lg-font-body);
     white-space: normal;
     color: var(--lg-text-main);
 }

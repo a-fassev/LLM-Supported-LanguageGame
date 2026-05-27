@@ -1,12 +1,27 @@
-<!-- UI Builder: navigation header via part instance. -->
+<!-- UI Builder: avatar shop header inlined (fixed title); wallet via components-hud.uss. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Template name="NavigationPageHeaderWithWalletPart"
-        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Navigation/NavigationPageHeaderWithWalletPart.uxml?fileID=9197481963319205126&amp;guid=2131fd26008943dea8b88c77d6e6587f&amp;type=3#NavigationPageHeaderWithWalletPart" />
     <ui:VisualElement name="avatar-root" class="lg-fill-screen">
+        <ui:VisualElement name="scene-background-host" class="lg-scene-background-host" picking-mode="Ignore" />
         <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
-            <ui:Instance template="NavigationPageHeaderWithWalletPart">
-                <ui:Label name="title-label" text="Avatar shop" class="lg-heading-screen" />
-            </ui:Instance>
+            <ui:VisualElement name="navigation-page-header-part" class="lg-page-header">
+                <ui:VisualElement name="title-host" style="flex-grow: 1;">
+                    <ui:Label name="title-label" text="Negozio avatar" class="lg-heading-screen" />
+                </ui:VisualElement>
+                <ui:VisualElement name="header-actions-host" />
+                <ui:VisualElement name="navigation-wallet-hud-part">
+                    <ui:VisualElement name="hud-strip" class="lg-hud-strip lg-hud-strip--in-header">
+                        <ui:VisualElement name="wallet-badge-pizza" class="lg-hud-badge lg-hud-badge--pizza">
+                            <ui:Label name="hud-pizza-icon" text="P" class="lg-hud-badge__icon lg-hud-badge__glyph--pizza" />
+                            <ui:Label name="wallet-pizza" text="0" class="lg-hud-badge__value" />
+                        </ui:VisualElement>
+                        <ui:VisualElement name="wallet-badge-backpack" class="lg-hud-badge lg-hud-badge--backpack">
+                            <ui:Label name="hud-backpack-icon" text="B" class="lg-hud-badge__icon lg-hud-badge__glyph--backpack" />
+                            <ui:Label name="wallet-backpack" text="0" class="lg-hud-badge__value" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:Button name="pause-menu-button" text="Pausa" class="lg-btn lg-btn--ghost" />
+            </ui:VisualElement>
             <ui:VisualElement name="avatar-body" style="flex-grow: 1; flex-direction: row; margin-top: 16px; min-height: 0;">
                 <ui:VisualElement name="avatar-preview-pane" class="lg-game-panel lg-panel-padded" style="flex-grow: 1; min-width: 160px;">
                     <ui:Label name="preview-title" text="Preview" class="lg-heading-screen" style="margin-bottom: 8px;"/>

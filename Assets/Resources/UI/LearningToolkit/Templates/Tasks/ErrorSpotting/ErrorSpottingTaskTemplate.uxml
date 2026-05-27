@@ -6,12 +6,12 @@
         src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/ErrorSpotting/ErrorSpottingSlotMarkedPart.uxml?fileID=9197481963319205126&amp;guid=f4206c7d0b0a4fa99384c06658ce1ea4&amp;type=3#ErrorSpottingSlotMarkedPart" />
     <ui:VisualElement name="error-spotting-root" class="lg-muted-panel lg-task-template-root"
         style="flex-grow: 1; flex-direction: column;">
-        <ui:Label name="task-prompt" text="Trova e correggi gli errori nel testo." class="lg-heading-screen lg-preview-sample"
-            style="margin-bottom: 8px; white-space: normal;" />
+        <ui:Label name="task-prompt" text="Trova e correggi gli errori nel testo." class="lg-task-prompt lg-preview-sample"
+            style="margin-bottom: 8px;" />
         <ui:Label name="task-caption" text="Nel testo ci sono 2 errori. Trovali tutti e correggili."
-            class="lg-text-caption lg-preview-sample" style="margin-bottom: 8px; white-space: normal;" />
+            class="lg-task-meta lg-preview-sample" style="margin-bottom: 8px;" />
         <ui:Label name="task-instruction" text="Tocca una parola per segnalarla come errore."
-            class="lg-text-body lg-text-muted lg-preview-sample" style="margin-bottom: 8px; white-space: normal;" />
+            class="lg-task-meta lg-preview-sample" style="margin-bottom: 8px;" />
         <ui:Button name="task-reset-button" text="Ripristina" class="lg-btn lg-btn--secondary"
             style="align-self: flex-start; margin-bottom: 12px;" />
         <ui:VisualElement name="error-spotting-chips-row" class="lg-error-spotting-row" style="flex-grow: 0;">

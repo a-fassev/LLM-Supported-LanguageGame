@@ -9,15 +9,12 @@
     <ui:VisualElement name="matching-root" class="lg-muted-panel lg-task-template-root"
         style="flex-grow: 1; flex-direction: column;">
         <ui:Label name="task-prompt" text="Collega ogni elemento a sinistra con quello giusto a destra."
-            class="lg-heading-screen lg-preview-sample" style="margin-bottom: 8px; white-space: normal;" />
+            class="lg-task-prompt lg-preview-sample" style="margin-bottom: 8px;" />
         <ui:Label name="task-subtitle" text="Trascina una linea o tocca due carte."
-            class="lg-text-body lg-text-muted lg-preview-sample" style="margin-bottom: 8px; white-space: normal;" />
-        <ui:VisualElement name="matching-pairing-area"
-            style="flex-grow: 1; min-height: 220px; position: relative;">
-            <ui:VisualElement name="matching-columns-row"
-                style="flex-grow: 1; flex-direction: row; align-items: stretch;">
-                <ui:VisualElement name="matching-left-column"
-                    style="flex-grow: 1; flex-basis: 0; margin-right: 8px; flex-direction: column;">
+            class="lg-task-meta lg-preview-sample" style="margin-bottom: 8px;" />
+        <ui:VisualElement name="matching-pairing-area" class="lg-matching-pairing-area">
+            <ui:VisualElement name="matching-columns-row" class="lg-matching-columns-row">
+                <ui:VisualElement name="matching-left-column" class="lg-matching-left-column">
                     <ui:Instance template="MatchingColumnHeaderPart" />
                     <ui:Instance template="MatchingLeftRowPart">
                         <ui:VisualElement name="matching-left-card-host">
@@ -41,8 +38,7 @@
                         </ui:VisualElement>
                     </ui:Instance>
                 </ui:VisualElement>
-                <ui:VisualElement name="matching-right-column"
-                    style="flex-grow: 1; flex-basis: 0; margin-left: 8px; flex-direction: column;">
+                <ui:VisualElement name="matching-right-column" class="lg-matching-right-column">
                     <ui:Instance template="MatchingColumnHeaderPart" text="Destra" />
                     <ui:Instance template="MatchingCardPart">
                         <ui:Label name="matching-card-label" text="Good morning" />

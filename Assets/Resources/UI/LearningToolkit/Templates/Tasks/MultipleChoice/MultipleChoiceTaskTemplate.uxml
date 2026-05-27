@@ -6,10 +6,10 @@
         src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/MultipleChoice/McOptionRowPart.uxml?fileID=9197481963319205126&amp;guid=6e710f0406f44f38956fb88b97cc5f24&amp;type=3#McOptionRowPart" />
     <ui:VisualElement name="multiple-choice-root" class="lg-muted-panel lg-task-template-root"
         style="flex-grow: 1; flex-direction: column;">
-        <ui:Label name="task-prompt" text="Scegli la risposta corretta." class="lg-heading-screen lg-preview-sample"
-            style="margin-bottom: 8px; white-space: normal;" />
-        <ui:Label name="task-subtitle" text="Leggi bene la domanda." class="lg-text-body lg-text-muted lg-preview-sample"
-            style="margin-bottom: 12px; white-space: normal;" />
+        <ui:Label name="task-prompt" text="Scegli la risposta corretta." class="lg-task-prompt lg-preview-sample"
+            style="margin-bottom: 8px;" />
+        <ui:Label name="task-subtitle" text="Leggi bene la domanda." class="lg-task-meta lg-preview-sample"
+            style="margin-bottom: 12px;" />
         <ui:VisualElement name="mc-stem-host" style="flex-grow: 0; margin-bottom: 12px;">
             <ui:Instance template="McStemTextPart" />
         </ui:VisualElement>

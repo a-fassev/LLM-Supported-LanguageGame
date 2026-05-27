@@ -8,8 +8,8 @@
         src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/ClozeText/ClozeLineRowPart.uxml?fileID=9197481963319205126&amp;guid=5b44797661174f6c941fcec870032503&amp;type=3#ClozeLineRowPart" />
     <ui:VisualElement name="cloze-text-root" class="lg-muted-panel lg-task-template-root"
         style="flex-grow: 1; flex-direction: column;">
-        <ui:Label name="task-prompt" text="Completa le lacune con la parola giusta." class="lg-heading-screen lg-preview-sample"
-            style="margin-bottom: 16px; white-space: normal;" />
+        <ui:Label name="task-prompt" text="Completa le lacune con la parola giusta." class="lg-task-prompt lg-preview-sample"
+            style="margin-bottom: 12px;" />
         <ui:VisualElement name="cloze-lines-host" style="flex-grow: 1;">
             <ui:Instance template="ClozeLineRowPart">
                 <ui:Instance template="ClozeLiteralPart">

@@ -43,6 +43,7 @@ namespace LanguageGame.Presentation
             LearningToolkitNavigationFeedback.RegisterPresentationDocument(_doc);
 
             VisualElement root = _doc.rootVisualElement;
+            ToolkitNavigationScreenBinder.ApplyMainMenuScreen(root);
 
             root.Q<Button>("play-button")?.RegisterCallback<ClickEvent>(_ => OnPlayClicked());
             root.Q<Button>("leaderboard-button")?.RegisterCallback<ClickEvent>(_ => OnLeaderboardClicked());

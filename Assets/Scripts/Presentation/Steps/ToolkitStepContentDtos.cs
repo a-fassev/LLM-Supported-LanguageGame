@@ -11,6 +11,7 @@ namespace LanguageGame.Presentation.Steps
     [Serializable]
     public sealed class ClozeTextContentDto
     {
+        public string sceneBackgroundAsset;
         public string prompt;
         public bool caseSensitive;
         public ClozeLineDto[] lines;
@@ -36,6 +37,7 @@ namespace LanguageGame.Presentation.Steps
     [Serializable]
     public sealed class MultipleChoiceContentDto
     {
+        public string sceneBackgroundAsset;
         public string prompt;
         public string subtitle;
         public string selectionMode;
@@ -62,6 +64,7 @@ namespace LanguageGame.Presentation.Steps
     {
         public string id;
         public string label;
+        public string assetId;
         public string imageUrl;
     }
 
@@ -70,13 +73,16 @@ namespace LanguageGame.Presentation.Steps
     {
         public string kind;
         public string text;
+        public string assetId;
         public string imageUrl;
+        public string audioAssetId;
         public string audioUrl;
     }
 
     [Serializable]
     public sealed class DragDropContentDto
     {
+        public string sceneBackgroundAsset;
         public string prompt;
         public string subtitle;
         public DragDropItemDto[] items;
@@ -108,6 +114,7 @@ namespace LanguageGame.Presentation.Steps
     {
         public string id;
         public string label;
+        public string assetId;
         public string imageUrl;
     }
 
@@ -129,6 +136,7 @@ namespace LanguageGame.Presentation.Steps
     [Serializable]
     public sealed class FreitextLlmContentDto
     {
+        public string sceneBackgroundAsset;
         public string prompt;
         public string instruction;
         public string targetLanguage;
@@ -167,6 +175,7 @@ namespace LanguageGame.Presentation.Steps
     [Serializable]
     public sealed class ErrorSpottingContentDto
     {
+        public string sceneBackgroundAsset;
         public string prompt;
         public string instruction;
 
@@ -209,6 +218,7 @@ namespace LanguageGame.Presentation.Steps
     [Serializable]
     public sealed class CutsceneContentDto
     {
+        public string sceneBackgroundAsset;
         public CutsceneBeatDto[] beats;
         public CutsceneNpcCastEntryDto[] npcCast;
         public CutsceneNavigationDto navigation;
@@ -249,6 +259,7 @@ namespace LanguageGame.Presentation.Steps
     [Serializable]
     public sealed class SpecialScreenContentDto
     {
+        public string sceneBackgroundAsset;
         /// <summary>
         /// Authoring hint for frame/layout variants (e.g. sms, mail, photo, reader); UI-specific skins may branch on this.</summary>
         public string screenVariant;
@@ -366,7 +377,9 @@ namespace LanguageGame.Presentation.Steps
     {
         public string id;
 
-        /// <summary>Absolute http(s) URL — same allowlist as other toolkit steps.</summary>
+        public string assetId;
+
+        /// <summary>Absolute http(s) URL — legacy fallback.</summary>
         public string imageUrl;
 
         /// <summary>Fixed caption shown under the image when <see cref="SpecialScreenPhotoViewerChromeDto.showCaptions"/> is true.</summary>
@@ -386,7 +399,9 @@ namespace LanguageGame.Presentation.Steps
     [Serializable]
     public sealed class SpecialScreenReaderChromeDto
     {
-        /// <summary>Optional hero image (absolute http/https).</summary>
+        public string assetId;
+
+        /// <summary>Optional hero image (absolute http/https legacy fallback).</summary>
         public string imageUrl;
 
         /// <summary>Article title inside the reader panel (optional; falls back to root <c>title</c>).</summary>
@@ -481,5 +496,41 @@ namespace LanguageGame.Presentation.Steps
     {
         public string headline;
         public string body;
+    }
+
+    [Serializable]
+    public sealed class MatchingContentDto
+    {
+        public string sceneBackgroundAsset;
+        public string prompt;
+        public string subtitle;
+        public MatchingItemDto[] leftItems;
+        public MatchingItemDto[] rightItems;
+        public MatchingPairDto[] correctPairs;
+        public MatchingPresentationDto presentation;
+    }
+
+    [Serializable]
+    public sealed class MatchingItemDto
+    {
+        public string id;
+        public string label;
+        public string assetId;
+        public string imageUrl;
+    }
+
+    [Serializable]
+    public sealed class MatchingPairDto
+    {
+        public string leftItemId;
+        public string rightItemId;
+    }
+
+    [Serializable]
+    public sealed class MatchingPresentationDto
+    {
+        public string leftLabel;
+        public string rightLabel;
+        public bool shuffleRightOrder;
     }
 }

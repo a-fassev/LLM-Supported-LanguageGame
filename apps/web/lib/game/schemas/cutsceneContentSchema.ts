@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { optionalSceneBackgroundAssetSchema } from "@/lib/game/schemas/gameArtAssetSchema";
 
 export const cutscenePresentationModeSchema = z.enum([
   "narrator",
@@ -38,6 +39,7 @@ export const cutsceneNavigationSchema = z
 /** Cutscene `content_payload` / Unity `contentJson` for `step_kind = cutscene`. */
 export const cutsceneContentSchema = z
   .object({
+    sceneBackgroundAsset: optionalSceneBackgroundAssetSchema,
     beats: z.array(cutsceneBeatSchema).min(1),
     npcCast: z.array(cutsceneNpcCastEntrySchema).optional(),
     navigation: cutsceneNavigationSchema.optional(),

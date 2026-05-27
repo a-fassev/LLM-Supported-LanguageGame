@@ -8,6 +8,6 @@
         </ui:VisualElement>
         <ui:VisualElement name="header-actions-host" />
         <ui:Instance template="NavigationWalletHudPart" />
-        <ui:Button name="pause-menu-button" text="Pause" class="lg-btn lg-btn--ghost" />
+        <ui:Button name="pause-menu-button" text="Pausa" class="lg-btn lg-btn--ghost" />
     </ui:VisualElement>
 </ui:UXML>

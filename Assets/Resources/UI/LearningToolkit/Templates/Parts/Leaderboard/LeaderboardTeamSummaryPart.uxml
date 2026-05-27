@@ -1,6 +1,27 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="leaderboard-team-summary-card" class="lg-game-panel lg-panel-padded">
-        <ui:Label name="team-title-label" text="Team Blue · Rank #1" class="lg-text-body-lg" />
-        <ui:Label name="team-body-label" text="42 team slices · 8 players" class="lg-text-body lg-text-muted" />
+    <ui:VisualElement name="leaderboard-team-summary-card" class="lg-leaderboard-player-row">
+        <ui:VisualElement name="team-dot"
+            class="lg-leaderboard-team-dot lg-leaderboard-team-dot--visible lg-leaderboard-team-dot--blue" />
+        <ui:Label name="rank-label" text="#1" class="lg-leaderboard-player-row__rank lg-text-body-lg" />
+        <ui:VisualElement name="team-info-col" class="lg-leaderboard-team-summary__info">
+            <ui:Label name="team-name-label" text="Team Blue"
+                class="lg-leaderboard-player-row__name lg-list-row-text lg-text-body-lg" />
+            <ui:Label name="team-meta-label" text="8 giocatori"
+                class="lg-leaderboard-team-summary__meta lg-text-body lg-text-muted" />
+        </ui:VisualElement>
+        <ui:VisualElement name="wallet-stats-host" class="lg-leaderboard-wallet-stats">
+            <ui:VisualElement name="pizza-wallet-badge"
+                class="lg-leaderboard-wallet-badge lg-hud-badge lg-hud-badge--pizza">
+                <ui:Label name="pizza-wallet-icon" text="P"
+                    class="lg-hud-badge__icon lg-hud-badge__glyph--pizza" />
+                <ui:Label name="pizza-wallet-value" text="42" class="lg-hud-badge__value" />
+            </ui:VisualElement>
+            <ui:VisualElement name="backpack-wallet-badge"
+                class="lg-leaderboard-wallet-badge lg-leaderboard-wallet-badge--trailing lg-hud-badge lg-hud-badge--backpack">
+                <ui:Label name="backpack-wallet-icon" text="B"
+                    class="lg-hud-badge__icon lg-hud-badge__glyph--backpack" />
+                <ui:Label name="backpack-wallet-value" text="18" class="lg-hud-badge__value" />
+            </ui:VisualElement>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

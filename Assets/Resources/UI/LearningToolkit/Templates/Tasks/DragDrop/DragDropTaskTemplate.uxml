@@ -8,10 +8,10 @@
         src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/DragDrop/DragDropTargetBlockPart.uxml?fileID=9197481963319205126&amp;guid=5d061df3627b41f3b4d68f7cf495c788&amp;type=3#DragDropTargetBlockPart" />
     <ui:VisualElement name="drag-drop-root" class="lg-muted-panel lg-task-template-root"
         style="flex-grow: 1; flex-direction: column; position: relative;">
-        <ui:Label name="task-prompt" text="Trascina le parole nelle categorie giuste." class="lg-heading-screen lg-preview-sample"
-            style="margin-bottom: 8px; white-space: normal;" />
+        <ui:Label name="task-prompt" text="Trascina le parole nelle categorie giuste." class="lg-task-prompt lg-preview-sample"
+            style="margin-bottom: 8px;" />
         <ui:Label name="task-subtitle" text="Tocca una carta e trascinala nella zona corretta."
-            class="lg-text-body lg-text-muted lg-preview-sample" style="margin-bottom: 8px; white-space: normal;" />
+            class="lg-task-meta lg-preview-sample" style="margin-bottom: 8px;" />
         <ui:VisualElement name="drag-drop-bank-host" style="flex-direction: column; margin-bottom: 12px;">
             <ui:Instance template="DragDropCaptionPart" />
             <ui:Instance template="DragDropBankWrapPart" />

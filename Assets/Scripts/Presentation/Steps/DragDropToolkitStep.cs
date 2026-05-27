@@ -512,17 +512,19 @@ namespace LanguageGame.Presentation.Steps
             if (lbl != null)
                 lbl.text = text;
 
-            var url = (def.imageUrl ?? string.Empty).Trim();
             var img = card.Q<VisualElement>("drag-drop-tile-image");
-            if (!string.IsNullOrEmpty(url) && ToolkitStepHttpResourceUrl.IsAllowed(url, out _) && _coroutineHost != null &&
-                img != null)
+            if (img != null)
             {
-                img.style.display = DisplayStyle.Flex;
-                img.style.backgroundSize = new BackgroundSize(BackgroundSizeType.Cover);
-                _imageLoads.Add(_coroutineHost.StartCoroutine(LoadImg(url, img)));
+                if (!ToolkitStepMediaBinder.TryApplyImageFromAssetId(img, def.assetId))
+                {
+                    var url = (def.imageUrl ?? string.Empty).Trim();
+                    if (!string.IsNullOrEmpty(url) && ToolkitStepHttpResourceUrl.IsAllowed(url, out _) &&
+                        _coroutineHost != null)
+                        _imageLoads.Add(_coroutineHost.StartCoroutine(LoadImg(url, img)));
+                    else
+                        img.style.display = DisplayStyle.None;
+                }
             }
-            else if (img != null)
-                img.style.display = DisplayStyle.None;
 
             card.AddManipulator(new TileDragManipulator(this, card));
             bankWrap.Add(card);
@@ -839,14 +841,18 @@ namespace LanguageGame.Presentation.Steps
                 }
 
                 var hasText = !string.IsNullOrWhiteSpace(it.label);
-                var hasImg = !string.IsNullOrWhiteSpace(it.imageUrl);
+                var hasImg = !string.IsNullOrWhiteSpace(it.assetId) || !string.IsNullOrWhiteSpace(it.imageUrl);
                 if (!hasText && !hasImg)
                 {
-                    error = "Each item needs a label and/or imageUrl.";
+                    error = "Each item needs a label and/or assetId/imageUrl.";
                     return false;
                 }
 
-                if (hasImg && !ToolkitStepHttpResourceUrl.IsAllowed(it.imageUrl, out var urlError))
+                if (!string.IsNullOrWhiteSpace(it.assetId))
+                    continue;
+
+                if (!string.IsNullOrWhiteSpace(it.imageUrl) &&
+                    !ToolkitStepHttpResourceUrl.IsAllowed(it.imageUrl, out var urlError))
                 {
                     error = urlError;
                     return false;

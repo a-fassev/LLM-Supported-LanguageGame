@@ -7,40 +7,54 @@
     <ui:Template name="NavigationPageHeaderMinimalPart"
         src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Navigation/NavigationPageHeaderMinimalPart.uxml?fileID=9197481963319205126&amp;guid=38a72ed0c8fc4fe3b476f342d17cb8dc&amp;type=3#NavigationPageHeaderMinimalPart" />
     <ui:VisualElement name="root-shell" class="lg-fill-screen">
-        <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen"
-            style="min-height: 0;">
+        <ui:VisualElement name="scene-background-host" class="lg-scene-background-host" picking-mode="Ignore" />
+        <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen lg-shell--flex-min">
             <ui:Instance template="NavigationPageHeaderMinimalPart">
                 <ui:VisualElement name="header-actions-host" class="lg-header-actions-host">
-                    <ui:Button name="refresh-button" text="Refresh"
+                    <ui:Button name="refresh-button" text="Aggiorna"
                         class="lg-btn lg-btn--nav lg-btn--secondary" />
-                    <ui:Button name="mode-overall-button" text="Overall"
+                    <ui:Button name="mode-overall-button" text="Generale"
                         class="lg-btn lg-btn--nav lg-btn--primary" />
-                    <ui:Button name="mode-team-button" text="Teams"
+                    <ui:Button name="mode-team-button" text="Squadre"
                         class="lg-btn lg-btn--nav lg-btn--secondary lg-header-actions-host__btn--trailing" />
                 </ui:VisualElement>
             </ui:Instance>
 
             <ui:VisualElement name="team-summary-host" class="lg-stack" style="margin-top: 12px; display: none;">
-                <ui:Instance template="LeaderboardTeamSummaryPart"
-                    class="lg-preview-sample lg-leaderboard-team--blue">
-                    <ui:Label name="team-title-label" text="Team Blue · Rank #1" class="lg-text-body-lg" />
-                    <ui:Label name="team-body-label" text="42 team slices · 8 players"
-                        class="lg-text-body lg-text-muted" />
+                <ui:Instance template="LeaderboardTeamSummaryPart" class="lg-preview-sample">
+                    <ui:VisualElement name="team-dot"
+                        class="lg-leaderboard-team-dot lg-leaderboard-team-dot--visible lg-leaderboard-team-dot--blue" />
+                    <ui:Label name="rank-label" text="#1" class="lg-leaderboard-player-row__rank lg-text-body-lg" />
+                    <ui:Label name="team-name-label" text="Team Blue"
+                        class="lg-leaderboard-player-row__name lg-list-row-text lg-text-body-lg" />
+                    <ui:Label name="team-meta-label" text="8 giocatori"
+                        class="lg-leaderboard-team-summary__meta lg-text-body lg-text-muted" />
+                    <ui:Label name="pizza-wallet-value" text="42" class="lg-hud-badge__value" />
+                    <ui:Label name="backpack-wallet-value" text="18" class="lg-hud-badge__value" />
                 </ui:Instance>
-                <ui:Instance template="LeaderboardTeamSummaryPart"
-                    class="lg-preview-sample lg-leaderboard-team--red" style="margin-top: 8px;">
-                    <ui:Label name="team-title-label" text="Team Red · Rank #2" class="lg-text-body-lg" />
-                    <ui:Label name="team-body-label" text="38 team slices · 7 players"
-                        class="lg-text-body lg-text-muted" />
+                <ui:Instance template="LeaderboardTeamSummaryPart" class="lg-preview-sample"
+                    style="margin-top: 8px;">
+                    <ui:VisualElement name="team-dot"
+                        class="lg-leaderboard-team-dot lg-leaderboard-team-dot--visible lg-leaderboard-team-dot--red" />
+                    <ui:Label name="rank-label" text="#2" class="lg-leaderboard-player-row__rank lg-text-body-lg" />
+                    <ui:Label name="team-name-label" text="Team Red"
+                        class="lg-leaderboard-player-row__name lg-list-row-text lg-text-body-lg" />
+                    <ui:Label name="team-meta-label" text="7 giocatori"
+                        class="lg-leaderboard-team-summary__meta lg-text-body lg-text-muted" />
+                    <ui:Label name="pizza-wallet-value" text="38" class="lg-hud-badge__value" />
+                    <ui:Label name="backpack-wallet-value" text="14" class="lg-hud-badge__value" />
                 </ui:Instance>
             </ui:VisualElement>
 
             <ui:VisualElement name="leaderboard-rows-panel"
                 class="lg-leaderboard-rows-panel lg-game-panel lg-panel-padded lg-preview-sample">
-                <ui:ScrollView name="leaderboard-scroll" class="lg-list-scroll lg-leaderboard-list-scroll">
-                    <ui:VisualElement name="leaderboard-list-host" class="lg-leaderboard-list-host" />
-                    <ui:VisualElement name="leaderboard-ui-builder-preview"
-                        class="lg-leaderboard-ui-builder-preview">
+                <ui:VisualElement name="leaderboard-scroll-host" class="lg-leaderboard-scroll-host">
+                    <ui:ScrollView name="leaderboard-scroll" class="lg-list-scroll">
+                        <ui:VisualElement name="leaderboard-scroll-content"
+                            class="lg-leaderboard-scroll-content">
+                            <ui:VisualElement name="leaderboard-list-host" class="lg-leaderboard-list-host" />
+                            <ui:VisualElement name="leaderboard-ui-builder-preview"
+                                class="lg-leaderboard-ui-builder-preview">
                         <ui:Instance template="LeaderboardPlayerRowPart" class="lg-preview-sample" />
                         <ui:VisualElement name="leaderboard-preview-row-2"
                             class="lg-leaderboard-player-row lg-preview-sample">
@@ -88,8 +102,10 @@
                                 </ui:VisualElement>
                             </ui:VisualElement>
                         </ui:VisualElement>
-                    </ui:VisualElement>
-                </ui:ScrollView>
+                            </ui:VisualElement>
+                        </ui:VisualElement>
+                    </ui:ScrollView>
+                </ui:VisualElement>
             </ui:VisualElement>
 
             <ui:Label name="empty-label" text="No rankings yet." class="lg-text-body lg-text-muted"

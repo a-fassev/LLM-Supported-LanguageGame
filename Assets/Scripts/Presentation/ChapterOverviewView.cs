@@ -44,6 +44,7 @@ namespace LanguageGame.Presentation
             LearningToolkitNavigationFeedback.RegisterPresentationDocument(_doc);
 
             VisualElement root = _doc.rootVisualElement;
+            ToolkitNavigationScreenBinder.ApplyChapterOverviewScreen(root);
 
             if (!_walletHud.Bind(_doc))
             {

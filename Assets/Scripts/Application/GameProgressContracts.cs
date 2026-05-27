@@ -198,6 +198,7 @@ namespace LanguageGame.Application
         public int rank;
         public string team;
         public int totalSlices;
+        public int totalBackpackPieces;
         public int memberCount;
     }
 

@@ -152,6 +152,23 @@
     white-space: normal;
 }
 
+.lg-leaderboard-team-summary__info {
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.lg-leaderboard-team-summary__info .lg-leaderboard-player-row__name {
+    flex-grow: 0;
+    flex-shrink: 0;
+}
+
+.lg-leaderboard-team-summary__meta {
+    flex-shrink: 0;
+    margin-left: var(--lg-space-8);
+}
+
 .lg-leaderboard-wallet-stats {
     flex-direction: row;
     align-items: center;

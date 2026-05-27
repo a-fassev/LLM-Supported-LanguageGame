@@ -1,19 +1,20 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="root-shell" class="lg-fill-screen">
+        <ui:VisualElement name="scene-background-host" class="lg-scene-background-host" picking-mode="Ignore" />
 
         <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
             <ui:VisualElement name="main-hero">
                 <ui:Label text="Menu" class="lg-heading-display" />
-                <ui:Label text="Continue your language adventure" class="lg-text-body lg-text-muted"
+                <ui:Label text="Continua la tua avventura linguistica" class="lg-text-body lg-text-muted"
                     style="margin-top: 8px;" />
             </ui:VisualElement>
 
             <ui:VisualElement name="main-spacer" class="lg-stack-flex-grow" />
 
             <ui:VisualElement name="main-actions" class="lg-main-actions">
-                <ui:Button name="play-button" text="Continue" class="lg-btn lg-btn--primary" />
-                <ui:Button name="leaderboard-button" text="Leaderboard" class="lg-btn lg-btn--secondary lg-mt-12" />
-                <ui:Button name="logout-button" text="Sign out" class="lg-btn lg-btn--secondary lg-mt-12" />
+                <ui:Button name="play-button" text="Continua" class="lg-btn lg-btn--primary" />
+                <ui:Button name="leaderboard-button" text="Classifica" class="lg-btn lg-btn--secondary lg-mt-12" />
+                <ui:Button name="logout-button" text="Esci" class="lg-btn lg-btn--secondary lg-mt-12" />
             </ui:VisualElement>
         </ui:VisualElement>
 

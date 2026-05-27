@@ -53,7 +53,7 @@
 }
 
 .lg-special-phone__header-title {
-    font-size: 14px;
+    font-size: var(--lg-font-body);
     color: var(--lg-text-main);
     -unity-font-style: bold;
     -unity-text-align: middle-center;
@@ -98,8 +98,9 @@
 }
 
 .lg-special-bubble__text {
-    font-size: 13px;
+    font-size: var(--lg-font-body);
     color: var(--lg-text-main);
+    white-space: normal;
 }
 
 .lg-special-bubble__mechanic {

@@ -59,6 +59,7 @@ namespace LanguageGame.Presentation
                 return;
             }
             BindUi();
+            ToolkitNavigationScreenBinder.ApplyAuthScreen(_doc.rootVisualElement);
             AttachLoadingChrome();
             LearningToolkitNavigationFeedback.RegisterPresentationDocument(_doc);
         }

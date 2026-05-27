@@ -642,6 +642,7 @@ export type LeaderboardPlayerRow = {
 export type LeaderboardTeamAggregateRow = {
   team: StudentTeamColor;
   totalSlices: number;
+  totalBackpackPieces: number;
   memberCount: number;
 };
 
@@ -703,13 +704,14 @@ export function computeLeaderboardTeamAggregates(
   players: LeaderboardPlayerRow[],
 ): LeaderboardTeamAggregateRow[] {
   const byTeam: Record<StudentTeamColor, LeaderboardTeamAggregateRow> = {
-    blue: { team: "blue", totalSlices: 0, memberCount: 0 },
-    red: { team: "red", totalSlices: 0, memberCount: 0 },
+    blue: { team: "blue", totalSlices: 0, totalBackpackPieces: 0, memberCount: 0 },
+    red: { team: "red", totalSlices: 0, totalBackpackPieces: 0, memberCount: 0 },
   };
 
   for (const player of players) {
     const bucket = byTeam[player.team];
     bucket.totalSlices += player.totalSlices;
+    bucket.totalBackpackPieces += player.totalBackpackPieces;
     bucket.memberCount += 1;
   }
 

@@ -43,7 +43,7 @@ namespace LanguageGame.Presentation
 
         private bool _fetchInFlight;
 
-        private const string RefreshButtonLabel = "Refresh";
+        private const string RefreshButtonLabel = "Aggiorna";
 
         private void Awake()
         {
@@ -59,6 +59,7 @@ namespace LanguageGame.Presentation
             LearningToolkitNavigationFeedback.RegisterPresentationDocument(_doc);
 
             VisualElement root = _doc.rootVisualElement;
+            ToolkitNavigationScreenBinder.ApplyLeaderboardScreen(root);
             _teamSummaryHost = root.Q<VisualElement>("team-summary-host");
             _listHost = root.Q<VisualElement>("leaderboard-list-host");
             _emptyLabel = root.Q<Label>("empty-label");

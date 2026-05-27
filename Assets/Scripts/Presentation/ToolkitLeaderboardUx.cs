@@ -54,15 +54,14 @@ namespace LanguageGame.Presentation
             if (!ToolkitStepUx.TryMount(host, TeamSummaryPath, "leaderboard-team-summary-card", out var root))
                 return false;
 
-            SetLabel(root, "team-title-label", $"{FormatTeam(row.team)} · Rank #{row.rank}");
-            SetLabel(root, "team-body-label", $"{row.totalSlices} team slices · {row.memberCount} players");
+            SetLabel(root, "rank-label", $"#{row.rank}");
+            SetLabel(root, "team-name-label", FormatTeam(row.team));
+            SetLabel(root, "team-meta-label", FormatTeamMemberCount(row.memberCount));
+            SetLabel(root, "pizza-wallet-value", row.totalSlices.ToString());
+            SetLabel(root, "backpack-wallet-value", row.totalBackpackPieces.ToString());
 
-            if (row.team == "blue")
-                root.AddToClassList("lg-leaderboard-team--blue");
-            else if (row.team == "red")
-                root.AddToClassList("lg-leaderboard-team--red");
+            BindTeamDot(root, row.team);
 
-            root.style.marginBottom = 8;
             return true;
         }
 
@@ -87,5 +86,8 @@ namespace LanguageGame.Presentation
 
         private static string FormatTeam(string team) =>
             team == "blue" ? "Team Blue" : team == "red" ? "Team Red" : team ?? string.Empty;
+
+        private static string FormatTeamMemberCount(int memberCount) =>
+            memberCount == 1 ? "1 giocatore" : $"{memberCount} giocatori";
     }
 }

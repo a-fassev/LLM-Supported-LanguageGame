@@ -35,11 +35,15 @@
 .lg-special-reader__headline {
     margin-bottom: 6px;
     white-space: normal;
+    font-size: var(--lg-font-body);
+    color: var(--lg-text-main);
 }
 
 .lg-special-reader__subhead {
     margin-bottom: 12px;
     white-space: normal;
+    font-size: var(--lg-font-body);
+    color: var(--lg-text-soft);
 }
 
 .lg-special-reader__columns-row {
@@ -68,6 +72,11 @@
 
 .lg-special-reader__body {
     white-space: normal;
+    font-size: var(--lg-font-body);
+}
+
+.lg-special-reader__line-text {
+    font-size: var(--lg-font-body);
 }
 
 /* Line-numbered excerpts */

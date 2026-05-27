@@ -17,6 +17,7 @@ namespace LanguageGame.Presentation
         private UIDocument _toolkitDoc;
         private bool _shellReady;
         private VisualElement _stepHost;
+        private VisualElement _sceneBackgroundHost;
         private Button _tkPauseMenu;
         private Button _tkPrimary;
 
@@ -52,6 +53,7 @@ namespace LanguageGame.Presentation
             _tkPauseMenu = root.Q<Button>(LearningToolkitChromeUx.PauseMenuButtonName);
             _tkPrimary = root.Q<Button>("primary-action-button");
             _stepHost = root.Q<VisualElement>("step-host");
+            _sceneBackgroundHost = root.Q<VisualElement>(ToolkitSceneBackgroundBinder.SceneBackgroundHostName);
 
             if (_tkPauseMenu == null || _tkPrimary == null || _stepHost == null)
             {
@@ -107,6 +109,7 @@ namespace LanguageGame.Presentation
                 _tkPauseMenu.SetEnabled(!_shared.Session.Submitting && flow.IsServerQuestActive);
 
             BindStep(step, flow);
+            ApplySceneBackground(step);
             ConfigurePrimaryChrome();
         }
 
@@ -134,6 +137,14 @@ namespace LanguageGame.Presentation
 
             _activeStepView.Bind(BuildStepContext(flow, step), OnStepRequest);
             _activeStepView.SetInteractable(!_shared.Session.Submitting);
+            ApplySceneBackground(step);
+        }
+
+        private void ApplySceneBackground(GameQuestStepDto step)
+        {
+            if (_sceneBackgroundHost == null || step == null)
+                return;
+            ToolkitSceneBackgroundBinder.BindFromContentJson(_sceneBackgroundHost, step.contentJson, isCutsceneStep: true);
         }
 
         private StepContext BuildStepContext(GameFlowController flow, GameQuestStepDto step) =>

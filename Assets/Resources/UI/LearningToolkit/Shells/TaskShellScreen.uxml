@@ -2,13 +2,14 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:Template name="NavigationPageHeaderWithWalletPart"
         src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Navigation/NavigationPageHeaderWithWalletPart.uxml?fileID=9197481963319205126&amp;guid=2131fd26008943dea8b88c77d6e6587f&amp;type=3#NavigationPageHeaderWithWalletPart" />
-    <ui:VisualElement name="quest-root" class="lg-fill-screen">
+    <ui:VisualElement name="quest-shell-root" class="lg-fill-screen">
         <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
+            <ui:VisualElement name="scene-background-host" class="lg-scene-background-host" picking-mode="Ignore"/>
             <ui:Instance template="NavigationPageHeaderWithWalletPart">
                 <ui:Label name="title-label" text="" class="lg-heading-screen"
                     style="flex-grow: 1; -unity-text-align: middle-center; white-space: normal;" />
                 <ui:VisualElement name="header-actions-host">
-                    <ui:Button name="reference-document-button" text="Broschüre" class="lg-btn lg-btn--ghost"
+                    <ui:Button name="reference-document-button" text="Documento" class="lg-btn lg-btn--ghost"
                         style="display: none; margin-right: 4px;" />
                 </ui:VisualElement>
             </ui:Instance>

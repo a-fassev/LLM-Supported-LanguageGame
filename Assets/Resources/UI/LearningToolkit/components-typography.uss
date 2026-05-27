@@ -61,6 +61,11 @@ Label {
     max-width: none;
 }
 
+/* Flex column shells that must shrink (e.g. leaderboard scroll area). */
+.lg-shell--flex-min {
+    min-height: 0;
+}
+
 /* Narrow centered column for auth/forms */
 .lg-shell--form {
     max-width: 440px;

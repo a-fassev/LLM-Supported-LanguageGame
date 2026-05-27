@@ -11,8 +11,8 @@ namespace LanguageGame.Presentation
     /// <summary>Shared overlays, progression coroutines, and session state for task/cutscene shells.</summary>
     public sealed class QuestShellSharedRuntime
     {
-        public const string FinishQuestLabel = "Quest beenden";
-        public const string ShellCutsceneDefaultCtaLabel = "Weiter";
+        public const string FinishQuestLabel = "Fine missione";
+        public const string ShellCutsceneDefaultCtaLabel = "Avanti";
         public const string ShellTaskCheckLabel = "Controlla";
         public const string ValidationDismissLabel = LearningToolkitChromeUx.ValidationDismissLabel;
 
@@ -174,8 +174,8 @@ namespace LanguageGame.Presentation
                 }
 
                 var message = string.IsNullOrEmpty(finishErr)
-                    ? "Quest konnte nicht abgeschlossen werden. Tippe auf Quest beenden, um es erneut zu versuchen."
-                    : $"Quest konnte nicht abgeschlossen werden: {finishErr}";
+                    ? "Non è stato possibile completare la missione. Tocca Fine missione per riprovare."
+                    : $"Non è stato possibile completare la missione: {finishErr}";
                 Debug.LogWarning("[QuestShell] " + message);
 
                 FinishError.Show(message, () =>

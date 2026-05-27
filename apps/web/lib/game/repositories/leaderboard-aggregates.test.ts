@@ -4,12 +4,22 @@ import { computeLeaderboardTeamAggregates } from "./game-progress-repository";
 describe("computeLeaderboardTeamAggregates", () => {
   it("sums slices and members per team", () => {
     const aggregates = computeLeaderboardTeamAggregates([
-      { accountId: "1", username: "a", team: "blue", totalSlices: 3, totalBackpackPieces: 0 },
-      { accountId: "2", username: "b", team: "red", totalSlices: 10, totalBackpackPieces: 0 },
-      { accountId: "3", username: "c", team: "blue", totalSlices: 2, totalBackpackPieces: 0 },
+      { accountId: "1", username: "a", team: "blue", totalSlices: 3, totalBackpackPieces: 2 },
+      { accountId: "2", username: "b", team: "red", totalSlices: 10, totalBackpackPieces: 4 },
+      { accountId: "3", username: "c", team: "blue", totalSlices: 2, totalBackpackPieces: 1 },
     ]);
 
-    expect(aggregates[0]).toMatchObject({ team: "red", totalSlices: 10, memberCount: 1 });
-    expect(aggregates[1]).toMatchObject({ team: "blue", totalSlices: 5, memberCount: 2 });
+    expect(aggregates[0]).toMatchObject({
+      team: "red",
+      totalSlices: 10,
+      totalBackpackPieces: 4,
+      memberCount: 1,
+    });
+    expect(aggregates[1]).toMatchObject({
+      team: "blue",
+      totalSlices: 5,
+      totalBackpackPieces: 3,
+      memberCount: 2,
+    });
   });
 });
