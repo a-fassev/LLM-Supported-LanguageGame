@@ -1,0 +1,22 @@
+<!-- UI Builder: chapter overview header (fixed title). Wallet DOM mirrors NavigationWalletHudPart; look via components-hud.uss (.lg-hud-badge). -->
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="navigation-page-header-part" class="lg-page-header">
+        <ui:VisualElement name="title-host" style="flex-grow: 1;">
+            <ui:Label name="title-label" text="Choose a chapter" class="lg-heading-screen" />
+        </ui:VisualElement>
+        <ui:VisualElement name="header-actions-host" />
+        <ui:VisualElement name="navigation-wallet-hud-part">
+            <ui:VisualElement name="hud-strip" class="lg-hud-strip lg-hud-strip--in-header">
+                <ui:VisualElement name="wallet-badge-pizza" class="lg-hud-badge lg-hud-badge--pizza">
+                    <ui:Label name="hud-pizza-icon" text="P" class="lg-hud-badge__icon lg-hud-badge__glyph--pizza" />
+                    <ui:Label name="wallet-pizza" text="0" class="lg-hud-badge__value" />
+                </ui:VisualElement>
+                <ui:VisualElement name="wallet-badge-backpack" class="lg-hud-badge lg-hud-badge--backpack">
+                    <ui:Label name="hud-backpack-icon" text="B" class="lg-hud-badge__icon lg-hud-badge__glyph--backpack" />
+                    <ui:Label name="wallet-backpack" text="0" class="lg-hud-badge__value" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Button name="pause-menu-button" text="Pause" class="lg-btn lg-btn--ghost" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -90,12 +90,13 @@
     margin-top: var(--lg-space-12);
 }
 
-.lg-leaderboard-list-scroll {
+.lg-leaderboard-scroll-host {
     flex-grow: 1;
     flex-shrink: 1;
     min-height: 0;
 }
 
+.lg-leaderboard-scroll-content,
 .lg-leaderboard-list-host,
 .lg-leaderboard-ui-builder-preview {
     flex-direction: column;
@@ -125,11 +126,11 @@
     height: 12px;
     margin-right: var(--lg-space-8);
     border-radius: 50%;
-    display: none;
+    opacity: 0;
 }
 
 .lg-leaderboard-team-dot--visible {
-    display: flex;
+    opacity: 1;
 }
 
 .lg-leaderboard-team-dot--blue {
@@ -227,7 +228,7 @@ Button.lg-list-row-button > Label.lg-chip {
 
 .lg-chip {
     flex-shrink: 0;
-    border-radius: var(--lg-radius-pill);
+    border-radius: var(--lg-radius-button);
     padding-left: var(--lg-space-12);
     padding-right: var(--lg-space-12);
     padding-top: var(--lg-space-4);

@@ -11,10 +11,6 @@ namespace LanguageGame.Presentation
 
         private UIDocument _doc;
 
-        private Label _titleText;
-
-        private Button _avatarShopButton;
-
         private readonly WalletHudBinder _walletHud = new();
 
         private readonly LearningToolkitPauseChromeBinder _pauseChrome = new();
@@ -48,8 +44,6 @@ namespace LanguageGame.Presentation
             LearningToolkitNavigationFeedback.RegisterPresentationDocument(_doc);
 
             VisualElement root = _doc.rootVisualElement;
-            _titleText = root.Q<Label>("title-label");
-            _avatarShopButton = root.Q<Button>("avatar-shop-button");
 
             if (!_walletHud.Bind(_doc))
             {
@@ -64,8 +58,6 @@ namespace LanguageGame.Presentation
                 enabled = false;
                 return;
             }
-
-            _avatarShopButton?.RegisterCallback<ClickEvent>(_ => OnAvatarShopClicked());
 
             for (var idx = 0; idx < VisibleChapterSlots; idx++)
             {
@@ -153,9 +145,6 @@ namespace LanguageGame.Presentation
 
         private void RefreshUi()
         {
-            if (_titleText != null)
-                _titleText.text = "Choose a chapter";
-
             _walletHud.Refresh();
 
             if (GameFlowController.Instance == null)
@@ -273,18 +262,6 @@ namespace LanguageGame.Presentation
         private static void OnLeaveToMainMenu()
         {
             GameFlowController.Instance?.LoadMainMenu();
-        }
-
-        private void OnAvatarShopClicked()
-        {
-            GameFlowController flow = GameFlowController.Instance;
-            if (flow == null)
-            {
-                Debug.LogError("[ChapterOverviewView] GameFlowController missing.");
-                return;
-            }
-
-            flow.LoadAvatarShopFromChapterOverview();
         }
 
         private void OnDestroy()

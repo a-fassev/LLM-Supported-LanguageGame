@@ -18,10 +18,9 @@
     flex-direction: row;
     align-items: center;
     background-color: var(--lg-hud-bg);
-    border-radius: var(--lg-radius-pill);
+    border-radius: var(--lg-radius-button);
     border-width: var(--lg-stroke-2);
     border-color: var(--lg-hud-border);
-    border-top-color: var(--lg-hud-highlight);
     padding-left: var(--lg-space-12);
     padding-right: var(--lg-space-12);
     padding-top: var(--lg-space-4);
@@ -55,10 +54,8 @@
 
 .lg-hud-badge--pizza {
     border-color: var(--lg-terra-450);
-    border-top-color: var(--lg-hud-highlight);
 }
 
 .lg-hud-badge--backpack {
     border-color: var(--lg-sea-500);
-    border-top-color: var(--lg-hud-highlight);
 }

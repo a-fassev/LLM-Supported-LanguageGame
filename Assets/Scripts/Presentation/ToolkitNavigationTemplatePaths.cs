@@ -9,6 +9,9 @@ namespace LanguageGame.Presentation
 
         public const string NavigationPageHeaderWithWalletPart = Parts + "/Navigation/NavigationPageHeaderWithWalletPart";
 
+        public const string NavigationPageHeaderChapterOverviewPart =
+            Parts + "/Navigation/NavigationPageHeaderChapterOverviewPart";
+
         public const string NavigationPageHeaderMinimalPart = Parts + "/Navigation/NavigationPageHeaderMinimalPart";
     }
 }

@@ -75,6 +75,16 @@ Button.lg-btn--ghost {
     border-width: 0;
 }
 
+Button.lg-btn--ghost#pause-menu-button {
+    border-width: var(--lg-stroke-1);
+    border-color: var(--lg-border-soft);
+}
+
+Button.lg-btn--ghost#pause-menu-button:hover {
+    background-color: rgba(43, 128, 168, 0.08);
+    border-color: var(--lg-sea-500);
+}
+
 Button.lg-btn--tertiary {
     background-color: transparent;
     color: var(--lg-terra-520);
