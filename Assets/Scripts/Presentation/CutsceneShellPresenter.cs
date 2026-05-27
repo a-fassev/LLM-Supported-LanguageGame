@@ -71,6 +71,7 @@ namespace LanguageGame.Presentation
             }
 
             _shared.AttachOverlays(overlay);
+            ToolkitNavigationScreenBinder.ApplyCutsceneShellDefaults(root);
             _tkPauseMenu.RegisterCallback(_onPauseMenuClicked);
             _tkPrimary.RegisterCallback(_onPrimaryChromeClicked);
             LearningToolkitNavigationFeedback.RegisterPresentationDocument(_toolkitDoc);
@@ -137,7 +138,6 @@ namespace LanguageGame.Presentation
 
             _activeStepView.Bind(BuildStepContext(flow, step), OnStepRequest);
             _activeStepView.SetInteractable(!_shared.Session.Submitting);
-            ApplySceneBackground(step);
         }
 
         private void ApplySceneBackground(GameQuestStepDto step)

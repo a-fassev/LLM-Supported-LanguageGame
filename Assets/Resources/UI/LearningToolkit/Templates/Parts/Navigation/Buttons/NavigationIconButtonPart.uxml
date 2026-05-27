@@ -1,4 +1,0 @@
-<!-- Compact icon-style nav control (e.g. refresh); override name/text on ui:Instance. -->
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Button name="navigation-icon-button" text="↻" class="lg-btn lg-btn--nav lg-btn--secondary" />
-</ui:UXML>

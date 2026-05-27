@@ -1,4 +1,0 @@
-<!-- Reusable secondary navigation button; override text on ui:Instance. -->
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Button name="navigation-secondary-button" text="Indietro" class="lg-btn lg-btn--secondary" />
-</ui:UXML>

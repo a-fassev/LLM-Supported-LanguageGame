@@ -23,6 +23,8 @@ namespace LanguageGame.EditorTools
 
         private const string PanelSettingsAssetPath = "Assets/Resources/UI/LearningMenusPanelSettings.asset";
 
+        private const string MenusThemeAssetPath = "Assets/Resources/UI/LearningToolkit/LearningMenusTheme.tss";
+
         static LearningMenusToolkitTextBootstrap()
         {
             EditorApplication.delayCall += () => EnsureMenusTextAssets(forceRegenerateFont: false);
@@ -77,6 +79,7 @@ namespace LanguageGame.EditorTools
 
             EnsureFontReferences(panelText, sourceFont, fontAsset);
             EnsurePanelSettingsReferencesTextSettings(panelText);
+            EnsurePanelSettingsReferencesTheme();
 
             EditorUtility.SetDirty(panelText);
             AssetDatabase.SaveAssets();
@@ -227,6 +230,47 @@ namespace LanguageGame.EditorTools
 
             EditorUtility.SetDirty(panelSettings);
             so.Update();
+        }
+
+        /// <summary>
+        /// UI Builder and the PanelSettings preview need the menus theme (imports theme-learn + GameArt USS).
+        /// </summary>
+        private static void EnsurePanelSettingsReferencesTheme()
+        {
+            var panelSettings = AssetDatabase.LoadAssetAtPath<PanelSettings>(PanelSettingsAssetPath);
+            var theme = AssetDatabase.LoadAssetAtPath<ThemeStyleSheet>(MenusThemeAssetPath);
+            if (panelSettings == null)
+            {
+                Debug.LogWarning(
+                    $"[LearningMenusToolkitTextBootstrap] Missing PanelSettings at {PanelSettingsAssetPath}.");
+                return;
+            }
+
+            if (theme == null)
+            {
+                Debug.LogWarning(
+                    $"[LearningMenusToolkitTextBootstrap] Missing ThemeStyleSheet at {MenusThemeAssetPath}.");
+                return;
+            }
+
+            var so = new SerializedObject(panelSettings);
+            SerializedProperty themeProp = so.FindProperty("themeStyleSheet")
+                ?? so.FindProperty("themeUss")
+                ?? so.FindProperty("m_ThemeStyleSheet");
+            if (themeProp != null)
+            {
+                if (themeProp.objectReferenceValue == theme)
+                    return;
+
+                themeProp.objectReferenceValue = theme;
+                so.ApplyModifiedPropertiesWithoutUndo();
+            }
+            else if (panelSettings.themeStyleSheet != theme)
+            {
+                panelSettings.themeStyleSheet = theme;
+            }
+
+            EditorUtility.SetDirty(panelSettings);
         }
 
         private static void EnsureFolderHierarchy(params string[] segments)

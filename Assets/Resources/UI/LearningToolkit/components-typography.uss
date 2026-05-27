@@ -46,6 +46,12 @@ Label {
     flex-direction: column;
 }
 
+/* Content column over scene-background-host: layout only, no opaque wash. */
+.lg-fill-screen--transparent {
+    flex-grow: 1;
+    flex-direction: column;
+}
+
 .lg-shell {
     padding-left: var(--lg-safe-inset-h);
     padding-right: var(--lg-safe-inset-h);

@@ -61,7 +61,7 @@ namespace LanguageGame.Presentation.Steps
 
         public static string NpcPortraitGameArtKey(string portraitId)
         {
-            if (!TrySanitizeAssetKeySegment(portraitId, out var safeId))
+            if (!GameArtAssetKeys.TryNormalizeGameArtKey(portraitId, out var safeId))
                 return null;
             return $"{GameArtAssetKeys.NpcPortraitKeyPrefix}{safeId}";
         }
@@ -69,23 +69,17 @@ namespace LanguageGame.Presentation.Steps
         public static string ResolveNpcPortraitResourcesPath(string portraitId)
         {
             var key = NpcPortraitGameArtKey(portraitId);
-            if (!string.IsNullOrEmpty(key))
-            {
-                var primary = GameArtAssetKeys.ToResourcesPath(key);
-                if (ResourceSpriteOrTextureExists(primary))
-                    return primary;
-            }
+            if (string.IsNullOrEmpty(key))
+                return null;
 
-            return CutscenePortraitResourceLoader.NpcPortraitPath(portraitId);
+            var path = GameArtAssetKeys.ToResourcesPath(key);
+            return ResourceSpriteOrTextureExists(path) ? path : null;
         }
 
         public static string ResolvePlayerPortraitResourcesPath()
         {
-            var primary = GameArtAssetKeys.ToResourcesPath(GameArtAssetKeys.DefaultPlayerPortraitKey);
-            if (ResourceSpriteOrTextureExists(primary))
-                return primary;
-
-            return CutscenePlayerPortraitProvider.LegacyDefaultPlayerPortraitPath;
+            var path = GameArtAssetKeys.ToResourcesPath(GameArtAssetKeys.DefaultPlayerPortraitKey);
+            return ResourceSpriteOrTextureExists(path) ? path : null;
         }
 
         private static bool ResourceSpriteOrTextureExists(string resourcePath)
@@ -97,26 +91,6 @@ namespace LanguageGame.Presentation.Steps
                 return true;
 
             return Resources.Load<Texture2D>(resourcePath) != null;
-        }
-
-        internal static bool TrySanitizeAssetKeySegment(string raw, out string safe)
-        {
-            safe = null;
-            if (string.IsNullOrWhiteSpace(raw))
-                return false;
-
-            var trimmed = raw.Trim();
-            if (trimmed.Length == 0)
-                return false;
-
-            foreach (var c in trimmed)
-            {
-                if (!char.IsLetterOrDigit(c) && c != '_' && c != '-' && c != '/')
-                    return false;
-            }
-
-            safe = trimmed;
-            return true;
         }
 
         /// <summary>Prefer <paramref name="assetId"/>; optional legacy HTTP URL handled by caller.</summary>

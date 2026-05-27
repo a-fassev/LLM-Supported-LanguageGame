@@ -2,7 +2,7 @@ namespace LanguageGame.Presentation.Steps
 {
     /// <summary>
     /// Resources paths (no extension) for quest step UXML templates under LearningToolkit/Templates.
-    /// Cutscene portraits (sprites): UI/CutscenePortraits/Player/current and UI/CutscenePortraits/Npc/{portraitId}.
+    /// Cutscene portraits (sprites): UI/GameArt/portraits/player/current and UI/GameArt/portraits/npc/{portraitId}.
     /// </summary>
     internal static class ToolkitStepTemplatePaths
     {

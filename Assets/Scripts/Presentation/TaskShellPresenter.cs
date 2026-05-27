@@ -91,6 +91,7 @@ namespace LanguageGame.Presentation
             }
 
             _shared.AttachOverlays(overlay);
+            ToolkitNavigationScreenBinder.ApplyTaskShellDefaults(root);
             _tkReferenceDocument?.RegisterCallback(_onReferenceDocumentClicked);
             _tkPauseMenu.RegisterCallback(_onPauseMenuClicked);
             _tkPrimary.RegisterCallback(_onPrimaryChromeClicked);
@@ -215,7 +216,6 @@ namespace LanguageGame.Presentation
 
             _activeStepView.Bind(BuildStepContext(flow, step), OnStepRequest);
             _activeStepView.SetInteractable(!_shared.Session.Submitting);
-            ApplySceneBackground(step);
 
             _shared.ResetRewardOverlayToRewardLayout();
             _shared.HideRewardOverlay();

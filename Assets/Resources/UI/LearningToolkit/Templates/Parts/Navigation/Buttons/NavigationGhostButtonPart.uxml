@@ -1,4 +1,0 @@
-<!-- Ghost-style nav control (pause, back links). Override name/text on ui:Instance. -->
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Button name="navigation-ghost-button" text="Pausa" class="lg-btn lg-btn--ghost" />
-</ui:UXML>

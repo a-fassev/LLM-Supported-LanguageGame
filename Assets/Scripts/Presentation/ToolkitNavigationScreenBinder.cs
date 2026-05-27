@@ -3,54 +3,74 @@ using UnityEngine.UIElements;
 
 namespace LanguageGame.Presentation
 {
-    /// <summary>Applies static GameArt backgrounds to navigation screens at runtime (UI Builder preview uses same keys).</summary>
+    /// <summary>Applies static GameArt backgrounds to navigation screens at runtime (USS provides UI Builder preview).</summary>
     internal static class ToolkitNavigationScreenBinder
     {
         public static void ApplyAuthScreen(VisualElement root)
         {
-            ApplyKey(root, ToolkitSceneBackgroundBinder.SceneBackgroundHostName,
-                "static/navigation/backgrounds/ph-st-nav-auth-bg");
-            ApplyKey(root, "login-panel", "static/navigation/backgrounds/ph-st-nav-auth-login-panel");
-            ApplyKey(root, "register-panel", "static/navigation/backgrounds/ph-st-nav-auth-register-panel");
+            ApplySceneKey(root, GameArtAssetKeys.NavAuthSceneBackgroundKey);
+            ApplyDecorKey(root, "login-panel", GameArtAssetKeys.NavAuthLoginPanelBackgroundKey);
+            ApplyDecorKey(root, "register-panel", GameArtAssetKeys.NavAuthRegisterPanelBackgroundKey);
         }
 
         public static void ApplyMainMenuScreen(VisualElement root)
         {
-            ApplyKey(root, ToolkitSceneBackgroundBinder.SceneBackgroundHostName,
-                "static/navigation/backgrounds/ph-st-nav-mainmenu-bg");
+            ApplySceneKey(root, GameArtAssetKeys.NavMainMenuSceneBackgroundKey);
         }
 
         public static void ApplyLeaderboardScreen(VisualElement root)
         {
-            ApplyKey(root, ToolkitSceneBackgroundBinder.SceneBackgroundHostName,
-                "static/navigation/backgrounds/ph-st-nav-leaderboard-bg");
-            ApplyKey(root, "refresh-button", "static/navigation/buttons/ph-st-nav-refresh-btn");
+            ApplySceneKey(root, GameArtAssetKeys.NavLeaderboardSceneBackgroundKey);
+            ApplyDecorKey(root, "refresh-button", GameArtAssetKeys.NavRefreshButtonBackgroundKey);
         }
 
         public static void ApplyChapterOverviewScreen(VisualElement root)
         {
-            ApplyKey(root, ToolkitSceneBackgroundBinder.SceneBackgroundHostName,
-                "static/navigation/backgrounds/ph-st-nav-chapter-bg");
+            ApplySceneKey(root, GameArtAssetKeys.NavChapterSceneBackgroundKey);
         }
 
         public static void ApplyQuestOverviewScreen(VisualElement root)
         {
-            ApplyKey(root, ToolkitSceneBackgroundBinder.SceneBackgroundHostName,
-                "static/navigation/backgrounds/ph-st-nav-quest-bg");
+            ApplySceneKey(root, GameArtAssetKeys.NavQuestSceneBackgroundKey);
         }
 
         public static void ApplyAvatarShopScreen(VisualElement root)
         {
-            ApplyKey(root, ToolkitSceneBackgroundBinder.SceneBackgroundHostName,
-                "static/navigation/backgrounds/ph-st-nav-avatar-shop-bg");
+            ApplySceneKey(root, GameArtAssetKeys.NavAvatarShopSceneBackgroundKey);
         }
 
-        private static void ApplyKey(VisualElement root, string elementName, string gameArtKey)
+        public static void ApplyTaskShellDefaults(VisualElement root)
         {
-            var host = root.Q<VisualElement>(elementName);
+            ApplySceneKey(root, GameArtAssetKeys.DefaultTaskSceneBackgroundKey);
+        }
+
+        public static void ApplyCutsceneShellDefaults(VisualElement root)
+        {
+            ApplySceneKey(root, GameArtAssetKeys.DefaultCutsceneSceneBackgroundKey);
+        }
+
+        private static void ApplySceneKey(VisualElement root, string gameArtKey)
+        {
+            if (root == null)
+                return;
+
+            var host = root.Q<VisualElement>(ToolkitSceneBackgroundBinder.SceneBackgroundHostName);
             if (host == null)
                 return;
-            ToolkitSceneBackgroundBinder.ApplyGameArtKey(host, gameArtKey);
+
+            ToolkitSceneBackgroundBinder.ApplySceneBackground(host, gameArtKey, syncSceneRoot: true);
+        }
+
+        private static void ApplyDecorKey(VisualElement root, string elementName, string gameArtKey)
+        {
+            if (root == null)
+                return;
+
+            var target = root.Q<VisualElement>(elementName);
+            if (target == null)
+                return;
+
+            ToolkitSceneBackgroundBinder.ApplyGameArtKey(target, gameArtKey);
         }
     }
 }

@@ -25,6 +25,7 @@ namespace LanguageGame.Presentation
             SetLabel(root, "backpack-wallet-value", row.totalBackpackPieces.ToString());
 
             BindTeamDot(root, row.team);
+            WalletHudBinder.ApplyHudBadgesIn(root);
 
             return true;
         }
@@ -61,6 +62,7 @@ namespace LanguageGame.Presentation
             SetLabel(root, "backpack-wallet-value", row.totalBackpackPieces.ToString());
 
             BindTeamDot(root, row.team);
+            WalletHudBinder.ApplyHudBadgesIn(root);
 
             return true;
         }

@@ -107,7 +107,39 @@ namespace LanguageGame.Presentation
             doc.visualTreeAsset = vta;
             doc.sortingOrder = short.MaxValue;
 
+            RegisterRootStretchCallbacks(doc);
+
             return doc;
+        }
+
+        private static void RegisterRootStretchCallbacks(UIDocument doc)
+        {
+            VisualElement root = doc?.rootVisualElement;
+            if (root == null)
+                return;
+
+            EventCallback<GeometryChangedEvent> onGeometryChanged = null;
+            onGeometryChanged = _ =>
+            {
+                StretchRootToPanel(doc);
+                if (root.resolvedStyle.width > 0.5f && root.resolvedStyle.height > 0.5f)
+                    root.UnregisterCallback(onGeometryChanged);
+            };
+
+            root.RegisterCallback(onGeometryChanged);
+            root.RegisterCallback<DetachFromPanelEvent>(_ => root.UnregisterCallback(onGeometryChanged));
+            StretchRootToPanel(doc);
+        }
+
+        private static void StretchRootToPanel(UIDocument doc)
+        {
+            VisualElement root = doc?.rootVisualElement;
+            if (root == null)
+                return;
+
+            root.style.flexGrow = 1;
+            root.style.width = Length.Percent(100);
+            root.style.height = Length.Percent(100);
         }
 
         internal static VisualElement ResolveOverlayPlane(UIDocument doc)

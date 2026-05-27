@@ -1,4 +1,0 @@
-<!-- Reusable primary navigation CTA; override text on ui:Instance. -->
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Button name="navigation-primary-button" text="Continua" class="lg-btn lg-btn--primary" />
-</ui:UXML>

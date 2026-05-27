@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="cut-shell-root" class="lg-fill-screen lg-cut-shell">
-        <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen lg-cut-shell__column">
+    <ui:VisualElement name="cut-shell-root" class="lg-fill-screen lg-cut-shell lg-scene-bg-root lg-gameart-bg--cutscene">
+        <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen--transparent lg-cut-shell__column">
             <ui:VisualElement name="cut-shell-header" class="lg-cut-shell__header">
                 <ui:VisualElement class="lg-stack-flex-grow"/>
                 <ui:Button name="pause-menu-button" text="Pausa" class="lg-btn lg-btn--ghost"/>

@@ -41,6 +41,15 @@
 .lg-quest-shell-root,
 .lg-scene-bg-root {
     position: relative;
+    flex-grow: 1;
+    align-self: stretch;
+    width: 100%;
+    height: 100%;
+}
+
+/* Let GameArt USS / scene-background-host show through (not --lg-bg-app sand). */
+.lg-scene-bg-root.lg-fill-screen {
+    background-color: rgba(0, 0, 0, 0);
 }
 
 .lg-game-panel--over-scene {
