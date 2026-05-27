@@ -21,18 +21,29 @@ namespace LanguageGame.Presentation
 
             SetLabel(root, "rank-label", $"#{row.rank}");
             SetLabel(root, "username-label", row.username ?? string.Empty);
-            SetLabel(root, "team-label", FormatTeam(row.team));
-            SetLabel(root, "score-label", row.totalSlices.ToString());
+            SetLabel(root, "pizza-wallet-value", row.totalSlices.ToString());
+            SetLabel(root, "backpack-wallet-value", row.totalBackpackPieces.ToString());
 
-            if (row.isSelf)
-                root.AddToClassList("lg-leaderboard-row--self");
-
-            if (row.team == "blue")
-                root.AddToClassList("lg-leaderboard-row--blue");
-            else if (row.team == "red")
-                root.AddToClassList("lg-leaderboard-row--red");
+            BindTeamDot(root, row.team);
 
             return true;
+        }
+
+        private static void BindTeamDot(VisualElement rowRoot, string team)
+        {
+            var dot = rowRoot.Q<VisualElement>("team-dot");
+            if (dot == null)
+                return;
+
+            dot.RemoveFromClassList("lg-leaderboard-team-dot--visible");
+            dot.RemoveFromClassList("lg-leaderboard-team-dot--blue");
+            dot.RemoveFromClassList("lg-leaderboard-team-dot--red");
+
+            dot.AddToClassList("lg-leaderboard-team-dot--visible");
+            if (team == "blue")
+                dot.AddToClassList("lg-leaderboard-team-dot--blue");
+            else if (team == "red")
+                dot.AddToClassList("lg-leaderboard-team-dot--red");
         }
 
         public static bool TryAddTeamSummaryCard(VisualElement host, GameLeaderboardTeamEntryDto row)

@@ -43,7 +43,15 @@ namespace LanguageGame.Presentation.Steps
         }
 
         /// <summary>Clears dynamic host children before runtime rebuild (removes UI Builder fixtures).</summary>
-        public static void ClearHost(VisualElement host) => host?.Clear();
+        public static void ClearHost(VisualElement host)
+        {
+            if (host == null)
+                return;
+
+            // RemoveAt loop: ui:Instance TemplateContainers can survive host.Clear() in some UITK versions.
+            while (host.childCount > 0)
+                host.RemoveAt(0);
+        }
 
         /// <summary>Instantiate a detached template root (e.g. cutscene beat panels).</summary>
         public static VisualElement Instantiate(string resourcesPath, string rootElementName) =>

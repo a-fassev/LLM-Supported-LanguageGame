@@ -636,6 +636,7 @@ export type LeaderboardPlayerRow = {
   username: string;
   team: StudentTeamColor;
   totalSlices: number;
+  totalBackpackPieces: number;
 };
 
 export type LeaderboardTeamAggregateRow = {
@@ -651,6 +652,7 @@ export type LeaderboardAccountSelfContext = {
   username: string;
   team: StudentTeamColor;
   totalSlices: number;
+  totalBackpackPieces: number;
 };
 
 /** Account profile + wallet slices in one query for leaderboard self context. */
@@ -659,7 +661,7 @@ export async function getStudentAccountLeaderboardSelfContext(
 ): Promise<LeaderboardAccountSelfContext | null> {
   const { data: account, error: accountError } = await admin()
     .from("student_accounts")
-    .select("username, team, player_wallets(total_slices)")
+    .select("username, team, player_wallets(total_slices, total_backpack_pieces)")
     .eq("id", accountId)
     .maybeSingle();
 
@@ -672,19 +674,27 @@ export async function getStudentAccountLeaderboardSelfContext(
     return null;
   }
 
-  const walletRaw = (account as { player_wallets?: { total_slices?: number } | { total_slices?: number }[] | null })
-    .player_wallets;
+  const walletRaw = (account as {
+    player_wallets?:
+      | { total_slices?: number; total_backpack_pieces?: number }
+      | { total_slices?: number; total_backpack_pieces?: number }[]
+      | null;
+  }).player_wallets;
   let totalSlices = 0;
+  let totalBackpackPieces = 0;
   if (Array.isArray(walletRaw)) {
     totalSlices = coerceNumber(walletRaw[0]?.total_slices, 0);
+    totalBackpackPieces = coerceNumber(walletRaw[0]?.total_backpack_pieces, 0);
   } else if (walletRaw && typeof walletRaw === "object") {
     totalSlices = coerceNumber(walletRaw.total_slices, 0);
+    totalBackpackPieces = coerceNumber(walletRaw.total_backpack_pieces, 0);
   }
 
   return {
     username: account.username as string,
     team: account.team as StudentTeamColor,
     totalSlices,
+    totalBackpackPieces,
   };
 }
 
@@ -717,7 +727,7 @@ export async function listLeaderboardPlayerRows(
 ): Promise<LeaderboardPlayerRow[] | null> {
   const { data, error } = await admin()
     .from("student_accounts")
-    .select("id, username, team, player_wallets(total_slices)")
+    .select("id, username, team, player_wallets(total_slices, total_backpack_pieces)")
     .in("team", ["blue", "red"]);
 
   if (error) {
@@ -731,16 +741,22 @@ export async function listLeaderboardPlayerRows(
       id?: string;
       username?: string;
       team?: string;
-      player_wallets?: { total_slices?: number } | { total_slices?: number }[] | null;
+      player_wallets?:
+        | { total_slices?: number; total_backpack_pieces?: number }
+        | { total_slices?: number; total_backpack_pieces?: number }[]
+        | null;
     };
     if (!row.id || !row.username || (row.team !== "blue" && row.team !== "red")) continue;
 
     let slices = 0;
+    let backpackPieces = 0;
     const walletRaw = row.player_wallets;
     if (Array.isArray(walletRaw)) {
       slices = coerceNumber(walletRaw[0]?.total_slices, 0);
+      backpackPieces = coerceNumber(walletRaw[0]?.total_backpack_pieces, 0);
     } else if (walletRaw && typeof walletRaw === "object") {
       slices = coerceNumber(walletRaw.total_slices, 0);
+      backpackPieces = coerceNumber(walletRaw.total_backpack_pieces, 0);
     }
 
     rows.push({
@@ -748,6 +764,7 @@ export async function listLeaderboardPlayerRows(
       username: row.username,
       team: row.team,
       totalSlices: slices,
+      totalBackpackPieces: backpackPieces,
     });
   }
 

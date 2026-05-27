@@ -177,6 +177,7 @@ namespace LanguageGame.Application
         public string username;
         public string team;
         public int totalSlices;
+        public int totalBackpackPieces;
         public int overallRank;
     }
 
@@ -187,6 +188,7 @@ namespace LanguageGame.Application
         public string username;
         public string team;
         public int totalSlices;
+        public int totalBackpackPieces;
         public bool isSelf;
     }
 

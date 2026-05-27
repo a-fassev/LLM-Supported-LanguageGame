@@ -1,8 +1,24 @@
+<!-- Runtime row part; UI Builder preview #1 uses ui:Instance (rows #2/#3 inline in LeaderboardScreen). -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="leaderboard-player-row" class="lg-list-row-button">
-        <ui:Label name="rank-label" text="#1" class="lg-text-body-lg" style="min-width: 36px;" />
-        <ui:Label name="username-label" text="player" class="lg-list-row-text lg-text-body-lg" style="flex-grow: 1;" />
-        <ui:Label name="team-label" text="Team Blue" class="lg-chip" />
-        <ui:Label name="score-label" text="0" class="lg-text-body-lg" style="min-width: 40px; -unity-text-align: middle-right;" />
+    <ui:VisualElement name="leaderboard-player-row" class="lg-leaderboard-player-row">
+        <ui:VisualElement name="team-dot"
+            class="lg-leaderboard-team-dot lg-leaderboard-team-dot--visible lg-leaderboard-team-dot--blue" />
+        <ui:Label name="rank-label" text="#1" class="lg-leaderboard-player-row__rank lg-text-body-lg" />
+        <ui:Label name="username-label" text="learner-alpha"
+            class="lg-leaderboard-player-row__name lg-list-row-text lg-text-body-lg" />
+        <ui:VisualElement name="wallet-stats-host" class="lg-leaderboard-wallet-stats">
+            <ui:VisualElement name="pizza-wallet-badge"
+                class="lg-leaderboard-wallet-badge lg-hud-badge lg-hud-badge--pizza">
+                <ui:Label name="pizza-wallet-icon" text="P"
+                    class="lg-hud-badge__icon lg-hud-badge__glyph--pizza" />
+                <ui:Label name="pizza-wallet-value" text="15" class="lg-hud-badge__value" />
+            </ui:VisualElement>
+            <ui:VisualElement name="backpack-wallet-badge"
+                class="lg-leaderboard-wallet-badge lg-leaderboard-wallet-badge--trailing lg-hud-badge lg-hud-badge--backpack">
+                <ui:Label name="backpack-wallet-icon" text="B"
+                    class="lg-hud-badge__icon lg-hud-badge__glyph--backpack" />
+                <ui:Label name="backpack-wallet-value" text="6" class="lg-hud-badge__value" />
+            </ui:VisualElement>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

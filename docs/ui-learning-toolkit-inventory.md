@@ -244,7 +244,7 @@ Pfade: `ToolkitOverlayTemplatePaths.cs`.
 | `Navigation/NavigationWalletHudPart.uxml` | Pizza + Backpack (HUD) |
 | `Navigation/NavigationPageHeaderWithWalletPart.uxml` | Header + Wallet (Chapter/Quest/Task/Shop) |
 | `Navigation/NavigationPageHeaderMinimalPart.uxml` | Header ohne Wallet (Leaderboard) |
-| `Leaderboard/LeaderboardPlayerRowPart.uxml` | Spielerzeile |
+| `Leaderboard/LeaderboardPlayerRowPart.uxml` | Spielerzeile (runtime + UI Builder preview #1 via `ui:Instance`) |
 | `Leaderboard/LeaderboardTeamSummaryPart.uxml` | Team-Summe |
 | `Leaderboard/LeaderboardTeamSectionHeaderPart.uxml` | Abschnittsüberschrift Teams |
 

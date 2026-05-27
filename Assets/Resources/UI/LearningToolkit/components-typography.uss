@@ -77,6 +77,21 @@ Label {
     margin-bottom: var(--lg-space-8);
 }
 
+.lg-header-actions-host {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.lg-header-actions-host > Button.lg-btn--nav {
+    flex-shrink: 0;
+    margin-right: var(--lg-space-8);
+}
+
+.lg-header-actions-host > Button.lg-btn--nav.lg-header-actions-host__btn--trailing {
+    margin-right: 0;
+}
+
 /* Push footer actions to bottom of a column shell */
 .lg-stack-flex-grow {
     flex-grow: 1;

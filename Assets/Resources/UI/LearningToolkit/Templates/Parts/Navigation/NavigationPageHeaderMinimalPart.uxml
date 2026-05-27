@@ -2,9 +2,9 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="navigation-page-header-minimal-part" class="lg-page-header">
         <ui:VisualElement name="title-host" style="flex-grow: 1;">
-            <ui:Label name="title-label" text="" class="lg-heading-screen" />
+            <ui:Label name="title-label" text="Leaderboard" class="lg-heading-screen" />
         </ui:VisualElement>
-        <ui:VisualElement name="header-actions-host" />
+        <ui:VisualElement name="header-actions-host" class="lg-header-actions-host" />
         <ui:Button name="pause-menu-button" text="Pause" class="lg-btn lg-btn--ghost" />
     </ui:VisualElement>
 </ui:UXML>

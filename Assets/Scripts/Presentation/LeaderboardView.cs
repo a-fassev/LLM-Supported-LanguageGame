@@ -23,8 +23,6 @@ namespace LanguageGame.Presentation
 
         private VisualElement _listHost;
 
-        private Label _selfSummaryLabel;
-
         private Label _emptyLabel;
 
         private Button _modeOverallButton;
@@ -63,7 +61,6 @@ namespace LanguageGame.Presentation
             VisualElement root = _doc.rootVisualElement;
             _teamSummaryHost = root.Q<VisualElement>("team-summary-host");
             _listHost = root.Q<VisualElement>("leaderboard-list-host");
-            _selfSummaryLabel = root.Q<Label>("self-summary-label");
             _emptyLabel = root.Q<Label>("empty-label");
             _modeOverallButton = root.Q<Button>("mode-overall-button");
             _modeTeamButton = root.Q<Button>("mode-team-button");
@@ -79,6 +76,11 @@ namespace LanguageGame.Presentation
             _modeOverallButton?.RegisterCallback<ClickEvent>(_ => SetMode(LeaderboardMode.Overall));
             _modeTeamButton?.RegisterCallback<ClickEvent>(_ => SetMode(LeaderboardMode.Team));
             _refreshButton?.RegisterCallback<ClickEvent>(_ => OnRefreshClicked());
+
+            // Drop UI Builder fixtures before the first API bind (panel chrome stays).
+            ToolkitStepUx.ClearHost(_teamSummaryHost);
+            ToolkitStepUx.ClearHost(_listHost);
+            root.Q<VisualElement>("leaderboard-ui-builder-preview")?.RemoveFromHierarchy();
         }
 
         private void Start()
@@ -177,19 +179,8 @@ namespace LanguageGame.Presentation
             }
 
             _latest = env;
-            BindSelfSummary(env.self);
             BindTeamSummary(env.teams);
             RebindVisibleLists();
-        }
-
-        private void BindSelfSummary(GameLeaderboardSelfDto self)
-        {
-            if (_selfSummaryLabel == null || self == null)
-                return;
-
-            var teamLabel = FormatTeamLabel(self.team);
-            _selfSummaryLabel.text =
-                $"You: {self.username} · {teamLabel} · {self.totalSlices} slices · Rank #{self.overallRank}";
         }
 
         private void BindTeamSummary(GameLeaderboardTeamEntryDto[] teams)

@@ -29,10 +29,11 @@ describe("getLeaderboardState", () => {
       username: "me",
       team: "blue",
       totalSlices: 5,
+      totalBackpackPieces: 1,
     });
     mocks.listLeaderboardPlayerRows.mockResolvedValue([
-      { accountId: otherId, username: "top", team: "red", totalSlices: 10 },
-      { accountId, username: "me", team: "blue", totalSlices: 5 },
+      { accountId: otherId, username: "top", team: "red", totalSlices: 10, totalBackpackPieces: 3 },
+      { accountId, username: "me", team: "blue", totalSlices: 5, totalBackpackPieces: 1 },
     ]);
 
     const result = await getLeaderboardState(accountId);
@@ -41,10 +42,24 @@ describe("getLeaderboardState", () => {
 
     expect(mocks.listLeaderboardPlayerRows).toHaveBeenCalledTimes(1);
     expect(mocks.getStudentAccountLeaderboardSelfContext).toHaveBeenCalledTimes(1);
-    expect(result.overall[0]).toMatchObject({ rank: 1, username: "top", isSelf: false });
-    expect(result.overall[1]).toMatchObject({ rank: 2, username: "me", isSelf: true });
+    expect(result.overall[0]).toMatchObject({
+      rank: 1,
+      username: "top",
+      isSelf: false,
+      totalBackpackPieces: 3,
+    });
+    expect(result.overall[1]).toMatchObject({
+      rank: 2,
+      username: "me",
+      isSelf: true,
+      totalBackpackPieces: 1,
+    });
     expect(result.teams[0]).toMatchObject({ rank: 1, team: "red", totalSlices: 10, memberCount: 1 });
-    expect(result.self).toMatchObject({ overallRank: 2, totalSlices: 5 });
+    expect(result.self).toMatchObject({
+      overallRank: 2,
+      totalSlices: 5,
+      totalBackpackPieces: 1,
+    });
   });
 
   it("ranks self below the list when account is not in the capped player rows", async () => {
@@ -52,9 +67,10 @@ describe("getLeaderboardState", () => {
       username: "late",
       team: "red",
       totalSlices: 0,
+      totalBackpackPieces: 0,
     });
     mocks.listLeaderboardPlayerRows.mockResolvedValue([
-      { accountId: otherId, username: "top", team: "blue", totalSlices: 1 },
+      { accountId: otherId, username: "top", team: "blue", totalSlices: 1, totalBackpackPieces: 0 },
     ]);
 
     const result = await getLeaderboardState(accountId);

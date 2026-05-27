@@ -12,6 +12,7 @@ export type LeaderboardPlayerClientDto = {
   username: string;
   team: StudentTeamColor;
   totalSlices: number;
+  totalBackpackPieces: number;
   isSelf: boolean;
 };
 
@@ -26,6 +27,7 @@ export type LeaderboardSelfClientDto = {
   username: string;
   team: StudentTeamColor;
   totalSlices: number;
+  totalBackpackPieces: number;
   overallRank: number;
 };
 
@@ -38,6 +40,7 @@ export type LeaderboardResult =
     }
   | { ok: false; status: number; error: string; code?: string };
 
+/** Overall rank uses pizza (`totalSlices`); backpack totals are display-only on player rows. */
 function mapOverallRows(
   rows: LeaderboardPlayerRow[],
   accountId: string,
@@ -47,6 +50,7 @@ function mapOverallRows(
     username: row.username,
     team: row.team,
     totalSlices: row.totalSlices,
+    totalBackpackPieces: row.totalBackpackPieces,
     isSelf: row.accountId === accountId,
   }));
 }
@@ -78,6 +82,10 @@ export async function getLeaderboardState(accountId: string): Promise<Leaderboar
   const overallRank = selfIndex >= 0 ? selfIndex + 1 : playerRows.length + 1;
   const totalSlices =
     selfIndex >= 0 ? playerRows[selfIndex].totalSlices : selfContext.totalSlices;
+  const totalBackpackPieces =
+    selfIndex >= 0
+      ? playerRows[selfIndex].totalBackpackPieces
+      : selfContext.totalBackpackPieces;
 
   const teamAggregates = computeLeaderboardTeamAggregates(playerRows);
 
@@ -87,6 +95,7 @@ export async function getLeaderboardState(accountId: string): Promise<Leaderboar
       username: selfContext.username,
       team: selfContext.team,
       totalSlices,
+      totalBackpackPieces,
       overallRank,
     },
     overall: mapOverallRows(playerRows, accountId),
