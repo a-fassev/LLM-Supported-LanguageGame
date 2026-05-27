@@ -14,7 +14,7 @@ const photoItemSchema = z
 
 const smsChromeSchema = z
   .object({
-    messages: z.array(z.object({}).passthrough()).optional(),
+    messages: z.array(z.object({ direction: z.string().optional() }).passthrough()).optional(),
   })
   .passthrough();
 
@@ -60,6 +60,13 @@ const MAIL_CONTENT_KEYS = [
   "sendSuccessText",
 ] as const;
 
+export type SpecialScreenModeFlags = {
+  useReader: boolean;
+  useMail: boolean;
+  usePhoto: boolean;
+  useMessenger: boolean;
+};
+
 function mailChromeHasAuthoringContent(mail: unknown): boolean {
   if (mail == null || typeof mail !== "object" || Array.isArray(mail)) return false;
   const record = mail as Record<string, unknown>;
@@ -67,6 +74,43 @@ function mailChromeHasAuthoringContent(mail: unknown): boolean {
     const value = record[key];
     return typeof value === "string" && value.trim().length > 0;
   });
+}
+
+function isMessengerVariant(screenVariant: string | undefined): boolean {
+  const v = screenVariant?.trim().toLowerCase() ?? "";
+  return v === "sms" || v === "whatsapp";
+}
+
+export function resolveSpecialScreenModes(
+  data: {
+    screenVariant?: string;
+    smsChrome?: { messages?: unknown[] };
+    readerChrome?: { bodyText?: string };
+    photoViewerChrome?: { items?: unknown[] };
+    mailChrome?: unknown;
+    blocks?: unknown[];
+  },
+  taskType: string | null | undefined,
+): SpecialScreenModeFlags {
+  const tt = taskType?.trim() ?? "";
+  const sv = data.screenVariant?.trim().toLowerCase() ?? "";
+  const smsCount = data.smsChrome?.messages?.length ?? 0;
+
+  const useReader = tt === "SpecialScreenReader" || sv === "reader";
+  const useMail =
+    !useReader &&
+    (tt === "SpecialScreenMailEditor" || sv === "mail" || sv === "letter");
+  const usePhoto =
+    !useReader &&
+    !useMail &&
+    (tt === "SpecialScreenPhotoViewer" || sv === "photo");
+  const useMessenger =
+    !useReader &&
+    !usePhoto &&
+    smsCount > 0 &&
+    (tt === "SpecialScreenSms" || isMessengerVariant(data.screenVariant));
+
+  return { useReader, useMail, usePhoto, useMessenger };
 }
 
 export const specialScreenContentSchema = z
@@ -88,41 +132,121 @@ export const specialScreenContentSchema = z
     mailChrome: mailChromeSchema.optional(),
     blocks: z.array(z.object({ blockType: z.string().optional() }).passthrough()).optional(),
   })
-  .passthrough()
-  .superRefine((data, ctx) => {
-    const blockCount = data.blocks?.length ?? 0;
-    const photoItems = data.photoViewerChrome?.items?.length ?? 0;
-    const readerBody = data.readerChrome?.bodyText?.trim() ?? "";
-    const smsMessages = data.smsChrome?.messages?.length ?? 0;
-    const hasMail = mailChromeHasAuthoringContent(data.mailChrome);
+  .passthrough();
 
-    if (readerBody.length > 0 && blockCount > 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["blocks"],
-        message: "readerChrome.bodyText cannot be combined with blocks[]",
-      });
-    }
+function refineSpecialScreenByTaskType(
+  data: z.infer<typeof specialScreenContentSchema>,
+  taskType: string | null | undefined,
+  ctx: z.RefinementCtx,
+): void {
+  const blockCount = data.blocks?.length ?? 0;
+  const photoItems = data.photoViewerChrome?.items?.length ?? 0;
+  const readerBody = data.readerChrome?.bodyText?.trim() ?? "";
+  const smsMessages = data.smsChrome?.messages?.length ?? 0;
+  const hasMailContent = mailChromeHasAuthoringContent(data.mailChrome);
+  const modes = resolveSpecialScreenModes(data, taskType);
 
-    if (blockCount > 0 || photoItems > 0 || readerBody.length > 0 || smsMessages > 0 || hasMail) {
-      return;
-    }
-
+  if (readerBody.length > 0 && blockCount > 0) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["blocks"],
-      message:
-        "special screen requires blocks[], photoViewerChrome.items, readerChrome.bodyText, smsChrome.messages, or mailChrome content",
+      message: "readerChrome.bodyText cannot be combined with blocks[]",
     });
-  });
+  }
 
-export function parseSpecialScreenContent(raw: unknown):
-  | { ok: true; value: z.infer<typeof specialScreenContentSchema> }
-  | { ok: false; issues: string } {
+  if (modes.useReader) {
+    if (!readerBody) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["readerChrome", "bodyText"],
+        message: "readerChrome.bodyText is required for reader mode",
+      });
+    }
+    return;
+  }
+
+  if (modes.usePhoto) {
+    if (photoItems < 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["photoViewerChrome", "items"],
+        message: "photoViewerChrome.items is required for photo mode",
+      });
+    }
+    if (smsMessages > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["smsChrome", "messages"],
+        message: "smsChrome.messages cannot be combined with photo mode",
+      });
+    }
+    return;
+  }
+
+  if (modes.useMail) {
+    if (smsMessages > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["smsChrome", "messages"],
+        message: "smsChrome.messages cannot be combined with mail mode",
+      });
+    }
+    if (!hasMailContent) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["mailChrome"],
+        message: "mailChrome requires at least one authored field",
+      });
+    }
+    if (blockCount < 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["blocks"],
+        message: "blocks[] is required for mail editor mode",
+      });
+    }
+    return;
+  }
+
+  if (!modes.useReader && blockCount < 1 && photoItems < 1) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["blocks"],
+      message: "special screen requires blocks[], photoViewerChrome.items, or readerChrome.bodyText",
+    });
+    return;
+  }
+
+  if (modes.useMessenger && blockCount < 1) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["blocks"],
+      message: "blocks[] is required for SMS/messenger mode",
+    });
+  }
+}
+
+export function parseSpecialScreenContent(
+  raw: unknown,
+  taskType?: string | null,
+): { ok: true; value: z.infer<typeof specialScreenContentSchema> } | { ok: false; issues: string } {
   const parsed = specialScreenContentSchema.safeParse(raw);
   if (!parsed.success) {
     const issues = parsed.error.issues.map((i) => `${i.path.join(".") || "root"}: ${i.message}`).join("; ");
     return { ok: false, issues: issues || "invalid special screen payload" };
   }
+
+  const issues: z.ZodIssue[] = [];
+  const ctx: z.RefinementCtx = {
+    addIssue: (issue) => issues.push(issue),
+    path: [],
+  };
+  refineSpecialScreenByTaskType(parsed.data, taskType, ctx);
+
+  if (issues.length > 0) {
+    const message = issues.map((i) => `${i.path.join(".") || "root"}: ${i.message}`).join("; ");
+    return { ok: false, issues: message || "invalid special screen payload" };
+  }
+
   return { ok: true, value: parsed.data };
 }

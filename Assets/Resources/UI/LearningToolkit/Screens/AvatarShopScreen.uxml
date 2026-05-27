@@ -1,5 +1,7 @@
 <!-- UI Builder: avatar shop header inlined (fixed title); wallet via components-hud.uss. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Template name="NavigationGhostButtonPart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Navigation/Buttons/NavigationGhostButtonPart.uxml?fileID=9197481963319205126&amp;guid=e4f5a6b7c8d9402a1b2c3d4e5f607193&amp;type=3#NavigationGhostButtonPart" />
     <ui:VisualElement name="avatar-root" class="lg-fill-screen lg-scene-bg-root">
         <ui:VisualElement name="scene-background-host" class="lg-scene-background-host" picking-mode="Ignore" />
         <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
@@ -20,7 +22,8 @@
                         </ui:VisualElement>
                     </ui:VisualElement>
                 </ui:VisualElement>
-                <ui:Button name="pause-menu-button" text="Pausa" class="lg-btn lg-btn--ghost" />
+                <ui:Instance template="NavigationGhostButtonPart" name="pause-menu-button" text="Pausa"
+                    class="lg-btn lg-btn--ghost" />
             </ui:VisualElement>
             <ui:VisualElement name="avatar-body" style="flex-grow: 1; flex-direction: row; margin-top: 16px; min-height: 0;">
                 <ui:VisualElement name="avatar-preview-pane" class="lg-game-panel lg-panel-padded" style="flex-grow: 1; min-width: 160px;">

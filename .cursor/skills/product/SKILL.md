@@ -34,7 +34,7 @@ Canonical **technical** contracts live in `AGENTS.md`; **task-type orientation**
 
 ### Teams and classroom competition
 
-- On **first account creation**, each learner is placed automatically on **Team Blue** or **Team Red**—they **do not pick** a side; the game keeps teams **roughly equal** in size.
+- On **first account creation**, each learner is placed automatically on **Squadra Blu** or **Squadra Rossa**—they **do not pick** a side; the game keeps teams **roughly equal** in size.
 - Copy after signup can name their team once (friendly, not political); leaderboard **Teams** view is where class rivalry should feel visible.
 - Team assignment is **not** a gate for quests—children can always continue the story; teams mainly frame **leaderboard** motivation.
 

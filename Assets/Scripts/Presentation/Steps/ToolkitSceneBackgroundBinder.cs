@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -6,6 +7,10 @@ namespace LanguageGame.Presentation.Steps
     internal static class ToolkitSceneBackgroundBinder
     {
         public const string SceneBackgroundHostName = "scene-background-host";
+
+        private static readonly Regex SceneBackgroundAssetRegex = new(
+            "\"sceneBackgroundAsset\"\\s*:\\s*\"([^\"]+)\"",
+            RegexOptions.Compiled);
 
         public static void BindFromContentJson(VisualElement host, string contentJson, bool isCutsceneStep)
         {
@@ -52,7 +57,11 @@ namespace LanguageGame.Presentation.Steps
                 return null;
 
             var probe = JsonUtility.FromJson<SceneBackgroundProbeDto>(contentJson);
-            return probe?.sceneBackgroundAsset?.Trim();
+            if (!string.IsNullOrWhiteSpace(probe?.sceneBackgroundAsset))
+                return probe.sceneBackgroundAsset.Trim();
+
+            var match = SceneBackgroundAssetRegex.Match(contentJson);
+            return match.Success ? match.Groups[1].Value.Trim() : null;
         }
 
         [System.Serializable]

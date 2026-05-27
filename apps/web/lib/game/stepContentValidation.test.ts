@@ -18,9 +18,20 @@ describe("parseStepContent", () => {
       step_kind: "task",
       task_type: "ClozeText",
       content_payload: {
-        sceneBackgroundAsset: "static/task-scene-backgrounds/ph-st-task-bg-default",
+        sceneBackgroundAsset: "Static/Task-Scene-Backgrounds/ph-st-task-bg-default",
         prompt: "Completa.",
         lines: [{ segments: [{ kind: "literal", text: "Ciao " }, { kind: "gap", correctAnswers: ["mondo"] }] }],
+      },
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it("accepts special screen reader mode", () => {
+    const r = parseStepContent({
+      step_kind: "task",
+      task_type: "SpecialScreenReader",
+      content_payload: {
+        readerChrome: { bodyText: "Ciao mondo." },
       },
     });
     expect(r.ok).toBe(true);
@@ -51,6 +62,17 @@ describe("parseStepContent", () => {
       content_payload: {
         readerChrome: { bodyText: "Ciao." },
         blocks: [{ blockType: "stub" }],
+      },
+    });
+    expect(r.ok).toBe(false);
+  });
+
+  it("rejects mail editor without blocks", () => {
+    const r = parseStepContent({
+      step_kind: "task",
+      task_type: "SpecialScreenMailEditor",
+      content_payload: {
+        mailChrome: { greeting: "Ciao" },
       },
     });
     expect(r.ok).toBe(false);

@@ -64,7 +64,7 @@ function parseTaskContent(taskType: string, payload: unknown): { ok: true } | { 
   }
 
   if (SPECIAL_SCREEN_TASK_TYPES.has(t)) {
-    const r = parseSpecialScreenContent(payload);
+    const r = parseSpecialScreenContent(payload, t);
     return r.ok ? { ok: true } : { ok: false, issues: r.issues };
   }
 

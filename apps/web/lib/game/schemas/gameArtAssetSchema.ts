@@ -5,7 +5,8 @@ export const gameArtAssetKeySchema = z
   .string()
   .trim()
   .min(1)
-  .regex(/^[a-z0-9/_-]+$/, "invalid GameArt asset key (use lowercase path segments)");
+  .transform((value) => value.toLowerCase())
+  .refine((value) => /^[a-z0-9/_-]+$/.test(value), "invalid GameArt asset key (use lowercase path segments)");
 
 export const optionalSceneBackgroundAssetSchema = gameArtAssetKeySchema.optional();
 
