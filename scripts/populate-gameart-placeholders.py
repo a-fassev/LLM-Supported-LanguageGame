@@ -31,6 +31,16 @@ TARGETS: list[tuple[str, str]] = [
     ("accent", "portraits/player/current"),
     ("light", "portraits/npc/ricci"),
     ("light", "portraits/npc/chiara"),
+    ("light", "portraits/npc/tonio"),
+    # Chapter 1 — cutscene backgrounds (replace PNG only; keep DB asset keys)
+    ("dark", "static/cutscene-backgrounds/chapter-01/ph-cs-bedroom"),
+    ("light", "static/cutscene-backgrounds/chapter-01/ph-cs-classroom"),
+    ("light", "static/cutscene-backgrounds/chapter-01/ph-cs-school-exterior"),
+    ("light", "static/cutscene-backgrounds/chapter-01/ph-cs-bar-interior"),
+    # Chapter 1 — task backgrounds
+    ("light", "static/task-scene-backgrounds/chapter-01/ph-ts-classroom"),
+    ("light", "static/task-scene-backgrounds/chapter-01/ph-ts-school-exterior"),
+    ("light", "static/task-scene-backgrounds/chapter-01/ph-ts-bar-interior"),
 ]
 
 
