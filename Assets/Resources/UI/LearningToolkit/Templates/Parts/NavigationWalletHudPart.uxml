@@ -1,0 +1,15 @@
+<!-- UI Builder: single source for navigation wallet HUD; instanced in header part and screens. -->
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="navigation-wallet-hud-part">
+        <ui:VisualElement name="hud-strip" class="lg-hud-strip lg-hud-strip--in-header">
+            <ui:VisualElement name="wallet-badge-pizza" class="lg-hud-badge lg-hud-badge--pizza">
+                <ui:Label name="hud-pizza-icon" text="P" class="lg-hud-badge__icon lg-hud-badge__glyph--pizza" />
+                <ui:Label name="wallet-pizza" text="0" class="lg-hud-badge__value" />
+            </ui:VisualElement>
+            <ui:VisualElement name="wallet-badge-backpack" class="lg-hud-badge lg-hud-badge--backpack">
+                <ui:Label name="hud-backpack-icon" text="B" class="lg-hud-badge__icon lg-hud-badge__glyph--backpack" />
+                <ui:Label name="wallet-backpack" text="0" class="lg-hud-badge__value" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,13 @@
+<!-- UI Builder: page header row with title slot, actions host, wallet instance, pause. -->
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Template name="NavigationWalletHudPart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/NavigationWalletHudPart.uxml?fileID=9197481963319205126&amp;guid=f8e7d6c5b4a3948271605f4e3d2c1b0a&amp;type=3#NavigationWalletHudPart" />
+    <ui:VisualElement name="navigation-page-header-part" class="lg-page-header">
+        <ui:VisualElement name="title-host" style="flex-grow: 1;">
+            <ui:Label name="title-label" text="" class="lg-heading-screen" />
+        </ui:VisualElement>
+        <ui:VisualElement name="header-actions-host" />
+        <ui:Instance template="NavigationWalletHudPart" />
+        <ui:Button name="pause-menu-button" text="Pause" class="lg-btn lg-btn--ghost" />
+    </ui:VisualElement>
+</ui:UXML>

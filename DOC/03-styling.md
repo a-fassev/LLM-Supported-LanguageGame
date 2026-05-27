@@ -31,6 +31,22 @@ Layouts load from `Resources/UI/LearningToolkit/{ScreenName}` **without extensio
 | `Templates/Overlays/*.uxml` | Shared modals/banners (pause, reward, loading, …) — open each file in UI Builder; Italian/German `lg-preview-sample` copy |
 | `ToolkitPreviewScreen.uxml` | Editor / preview tooling (button theme swatch only) |
 
+## Navigation chrome parts (single source)
+
+Recurring map / shell header chrome lives in **`Templates/Parts/`** and is composed into `*Screen.uxml` with **`ui:Template` + `ui:Instance`** (same pattern as task templates — see [`docs/task-type-ui-guide.md`](../docs/task-type-ui-guide.md)):
+
+| Part | Role |
+|------|------|
+| `NavigationWalletHudPart.uxml` | Pizza + backpack badges (`wallet-pizza`, `wallet-backpack`) |
+| `NavigationPageHeaderWithWalletPart.uxml` | `lg-page-header` + `title-label` + `header-actions-host` + wallet instance + `pause-menu-button` |
+| `NavigationPageHeaderMinimalPart.uxml` | Header without wallet (e.g. Leaderboard) |
+
+**Styling:** edit the part in UI Builder (USS `lg-*` on part nodes, especially `components-hud.uss`). Screen-specific buttons (Avatar, Refresh, Broschüre) go in **`header-actions-host`** via instance overrides on the screen UXML.
+
+**Runtime:** screens load once via `UIDocument` — no `ClearHost` for chrome. Wallet values: [`WalletHudBinder`](../Assets/Scripts/Presentation/WalletHudBinder.cs) + [`WalletUiTotals`](../Assets/Scripts/Presentation/WalletUiTotals.cs). Pause: [`LearningToolkitPauseChromeBinder`](../Assets/Scripts/Presentation/LearningToolkitPauseChromeBinder.cs) (quest shell uses [`QuestShellSharedRuntime`](../Assets/Scripts/Presentation/QuestShellSharedRuntime.cs)).
+
+Paths: [`ToolkitNavigationTemplatePaths`](../Assets/Scripts/Presentation/ToolkitNavigationTemplatePaths.cs). After moving parts: **Tools → Learning Toolkit → Validate UXML Template GUIDs**.
+
 ## USS layering (`Assets/Resources/UI/LearningToolkit/`)
 
 | File | Role |

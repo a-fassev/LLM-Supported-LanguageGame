@@ -11,9 +11,7 @@ namespace LanguageGame.Presentation
 
         private readonly LearningToolkitPauseChromeBinder _pauseChrome = new();
 
-        private Label _walletPizzaChip;
-
-        private Label _walletBackpackChip;
+        private readonly WalletHudBinder _walletHud = new();
 
         private Button _equipButton;
 
@@ -34,10 +32,15 @@ namespace LanguageGame.Presentation
             }
 
             var root = _doc.rootVisualElement;
-            _walletPizzaChip = root.Q<Label>("wallet-chip-pizza");
-            _walletBackpackChip = root.Q<Label>("wallet-chip-backpack");
             _equipButton = root.Q<Button>("equip-button");
             _purchaseButton = root.Q<Button>("purchase-button");
+
+            if (!_walletHud.Bind(_doc))
+            {
+                Debug.LogError("[AvatarShopView] Wallet HUD bind failed.");
+                enabled = false;
+                return;
+            }
 
             VisualElement overlay = LearningToolkitBootstrap.ResolveOverlayPlane(_doc);
             if (overlay != null)
@@ -62,7 +65,7 @@ namespace LanguageGame.Presentation
 
         private void OnEnable()
         {
-            RefreshWalletLabels();
+            _walletHud.Refresh();
         }
 
         private void ShowPlaceHolderToast(string message)
@@ -79,16 +82,6 @@ namespace LanguageGame.Presentation
                         _infoBanner.Hide();
                 })
                 .StartingIn(2200);
-        }
-
-        private void RefreshWalletLabels()
-        {
-            var slices = WalletUiTotals.GetDisplayedPizzaSlices();
-            var backpack = WalletUiTotals.GetDisplayedBackpackPieces();
-            if (_walletPizzaChip != null)
-                _walletPizzaChip.text = slices.ToString();
-            if (_walletBackpackChip != null)
-                _walletBackpackChip.text = backpack.ToString();
         }
 
         private void OnLeaveToChapterOverview()

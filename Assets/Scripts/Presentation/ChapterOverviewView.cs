@@ -13,11 +13,9 @@ namespace LanguageGame.Presentation
 
         private Label _titleText;
 
-        private Label _walletPizza;
-
-        private Label _walletBackpack;
-
         private Button _avatarShopButton;
+
+        private readonly WalletHudBinder _walletHud = new();
 
         private readonly LearningToolkitPauseChromeBinder _pauseChrome = new();
 
@@ -51,9 +49,14 @@ namespace LanguageGame.Presentation
 
             VisualElement root = _doc.rootVisualElement;
             _titleText = root.Q<Label>("title-label");
-            _walletPizza = root.Q<Label>("wallet-pizza");
-            _walletBackpack = root.Q<Label>("wallet-backpack");
             _avatarShopButton = root.Q<Button>("avatar-shop-button");
+
+            if (!_walletHud.Bind(_doc))
+            {
+                Debug.LogError("[ChapterOverviewView] Wallet HUD bind failed.");
+                enabled = false;
+                return;
+            }
 
             if (!_pauseChrome.Bind(_doc, LearningToolkitChromeUx.LeaveToMainMenuLabel, OnLeaveToMainMenu))
             {
@@ -153,7 +156,7 @@ namespace LanguageGame.Presentation
             if (_titleText != null)
                 _titleText.text = "Choose a chapter";
 
-            RefreshWallet();
+            _walletHud.Refresh();
 
             if (GameFlowController.Instance == null)
             {
@@ -195,15 +198,6 @@ namespace LanguageGame.Presentation
 
                 ToggleChip(idx, DisplayStyle.None, string.Empty);
             }
-        }
-
-        private void RefreshWallet()
-        {
-            if (_walletPizza != null)
-                _walletPizza.text = WalletUiTotals.GetDisplayedPizzaSlices().ToString();
-
-            if (_walletBackpack != null)
-                _walletBackpack.text = WalletUiTotals.GetDisplayedBackpackPieces().ToString();
         }
 
         private void ApplyChapterSlot(int idx, GameChapterBootstrapDto[] chapters)

@@ -1,22 +1,12 @@
+<!-- UI Builder: navigation header via part instance. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Template name="NavigationPageHeaderWithWalletPart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/NavigationPageHeaderWithWalletPart.uxml?fileID=9197481963319205126&amp;guid=e7d6c5b4a3928171605f4e3d2c1b0a99&amp;type=3#NavigationPageHeaderWithWalletPart" />
     <ui:VisualElement name="avatar-root" class="lg-fill-screen">
         <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
-            <ui:VisualElement name="avatar-header" class="lg-page-header">
-                <ui:VisualElement style="flex-grow: 1; align-items: flex-start; align-self: auto;">
-                    <ui:Label name="title-label" text="Avatar shop" class="lg-heading-screen"/>
-                </ui:VisualElement>
-                <ui:VisualElement name="wallet-strip" class="lg-hud-strip" style="margin-top: 4px;">
-                    <ui:VisualElement class="lg-hud-badge lg-hud-badge--pizza" style="margin-bottom: 8px;">
-                        <ui:Label text="P" class="lg-hud-badge__icon lg-hud-badge__glyph--pizza"/>
-                        <ui:Label name="wallet-chip-pizza" text="" class="lg-hud-badge__value"/>
-                    </ui:VisualElement>
-                    <ui:VisualElement class="lg-hud-badge lg-hud-badge--backpack" style="margin-bottom: 8px;">
-                        <ui:Label text="B" class="lg-hud-badge__icon lg-hud-badge__glyph--backpack"/>
-                        <ui:Label name="wallet-chip-backpack" text="" class="lg-hud-badge__value"/>
-                    </ui:VisualElement>
-                </ui:VisualElement>
-                <ui:Button name="pause-menu-button" text="Pause" class="lg-btn lg-btn--ghost"/>
-            </ui:VisualElement>
+            <ui:Instance template="NavigationPageHeaderWithWalletPart">
+                <ui:Label name="title-label" text="Avatar shop" class="lg-heading-screen" />
+            </ui:Instance>
             <ui:VisualElement name="avatar-body" style="flex-grow: 1; flex-direction: row; margin-top: 16px; min-height: 0;">
                 <ui:VisualElement name="avatar-preview-pane" class="lg-game-panel lg-panel-padded" style="flex-grow: 1; min-width: 160px;">
                     <ui:Label name="preview-title" text="Preview" class="lg-heading-screen" style="margin-bottom: 8px;"/>

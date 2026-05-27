@@ -9,6 +9,10 @@
     padding-bottom: var(--lg-space-8);
 }
 
+.lg-hud-strip--in-header {
+    padding-bottom: 0;
+}
+
 /* Resource capsule: icon glyph + bold value */
 .lg-hud-badge {
     flex-direction: row;

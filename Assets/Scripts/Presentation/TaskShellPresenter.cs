@@ -22,8 +22,8 @@ namespace LanguageGame.Presentation
         private Button _tkPauseMenu;
         private Button _tkPrimary;
         private Label _tkQuestTitle;
-        private Label _tkWalletPizza;
-        private Label _tkWalletBackpack;
+
+        private readonly WalletHudBinder _walletHud = new();
 
         private IStepView _activeStepView;
         private GameQuestStepDto _boundStep;
@@ -62,15 +62,20 @@ namespace LanguageGame.Presentation
             _tkReferenceDocument = root.Q<Button>("reference-document-button");
             _tkPauseMenu = root.Q<Button>(LearningToolkitChromeUx.PauseMenuButtonName);
             _tkPrimary = root.Q<Button>("primary-action-button");
-            _tkQuestTitle = root.Q<Label>("quest-title-label");
-            _tkWalletPizza = root.Q<Label>("wallet-pizza");
-            _tkWalletBackpack = root.Q<Label>("wallet-backpack");
+            _tkQuestTitle = root.Q<Label>("title-label");
             _toolkitStepHost = root.Q<VisualElement>("step-host");
             _questStepPanel = root.Q<VisualElement>("quest-step-panel");
 
             if (_tkPauseMenu == null || _tkPrimary == null || _toolkitStepHost == null)
             {
                 Debug.LogError("[TaskShellPresenter] TaskShellScreen UXML missing required elements.");
+                DestroyDocument();
+                return;
+            }
+
+            if (!_walletHud.Bind(root))
+            {
+                Debug.LogError("[TaskShellPresenter] Wallet HUD bind failed.");
                 DestroyDocument();
                 return;
             }
@@ -106,7 +111,7 @@ namespace LanguageGame.Presentation
             if (!_shellReady)
                 return;
 
-            UpdateWalletLabels();
+            _walletHud.Refresh();
 
             var flow = GameFlowController.Instance;
             if (flow == null)
@@ -424,7 +429,7 @@ namespace LanguageGame.Presentation
             _shared.Session.PendingQuestComplete = done.questComplete;
             flow.SetTotalPizzaSlices(done.totalSlices);
             flow.SetTotalBackpackPieces(done.totalBackpackPieces);
-            UpdateWalletLabels();
+            _walletHud.Refresh();
             _shared.ShowTaskRewardOverlay(done.awardedSlices, done.awardedBackpackPieces, done.taskItemsCorrect,
                 done.taskItemsTotal, OnToolkitRewardBackDismiss, OnToolkitRewardNextDismiss);
             _activeStepView?.SetInteractable(false);
@@ -477,17 +482,6 @@ namespace LanguageGame.Presentation
             _tkPrimary?.UnregisterCallback(_onPrimaryChromeClicked);
         }
 
-        private void UpdateWalletLabels()
-        {
-            var slices = WalletUiTotals.GetDisplayedPizzaSlices();
-            var backpack = WalletUiTotals.GetDisplayedBackpackPieces();
-
-            if (_tkWalletPizza != null)
-                _tkWalletPizza.text = slices.ToString();
-            if (_tkWalletBackpack != null)
-                _tkWalletBackpack.text = backpack.ToString();
-        }
-
         private void TeardownBoundStep()
         {
             ClearQuestDifficultyChrome();
@@ -510,8 +504,6 @@ namespace LanguageGame.Presentation
             _tkPauseMenu = null;
             _tkPrimary = null;
             _tkQuestTitle = null;
-            _tkWalletPizza = null;
-            _tkWalletBackpack = null;
         }
 
         private static bool TemplateKeyImpliesHard(string templateKey)
