@@ -54,7 +54,7 @@ namespace LanguageGame.Presentation
             if (_shared.GameApi == null)
                 Debug.LogWarning("[TaskShellPresenter] GameProgressApiClient missing; online progression unavailable.");
 
-            _toolkitDoc = LearningToolkitBootstrap.SpawnUiDocument(_host, "TaskShellScreen");
+            _toolkitDoc = LearningToolkitBootstrap.SpawnUiDocument(_host, "Shells/TaskShellScreen");
             if (_toolkitDoc == null)
                 return;
 

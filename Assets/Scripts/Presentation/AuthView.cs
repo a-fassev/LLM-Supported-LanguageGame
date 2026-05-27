@@ -51,7 +51,7 @@ namespace LanguageGame.Presentation
             if (apiClient == null)
                 apiClient = FindAnyObjectByType<AuthApiClient>();
 
-            _doc = LearningToolkitBootstrap.SpawnUiDocument(this, "AuthScreen");
+            _doc = LearningToolkitBootstrap.SpawnUiDocument(this, "Screens/AuthScreen");
             if (_doc == null)
             {
                 Debug.LogError("[AuthView] UI Toolkit bootstrap failed — check Resources paths and PanelSettings.");

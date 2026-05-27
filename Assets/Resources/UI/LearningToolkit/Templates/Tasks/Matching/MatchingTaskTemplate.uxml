@@ -1,5 +1,11 @@
-<!-- UI Builder: fixtures mirror Templates/Parts; runtime clears column hosts on Bind. -->
+<!-- UI Builder: part instances for preview; runtime clears column hosts on Bind. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Template name="MatchingColumnHeaderPart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Matching/MatchingColumnHeaderPart.uxml?fileID=9197481963319205126&amp;guid=e1a4bf1374cf747dfa7ff6d52714a3b6&amp;type=3#MatchingColumnHeaderPart" />
+    <ui:Template name="MatchingLeftRowPart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Matching/MatchingLeftRowPart.uxml?fileID=9197481963319205126&amp;guid=200c3e97156544c4801fc9a6a99bf93d&amp;type=3#MatchingLeftRowPart" />
+    <ui:Template name="MatchingCardPart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Matching/MatchingCardPart.uxml?fileID=9197481963319205126&amp;guid=e5a4e30071e8413494412ac08a447b74&amp;type=3#MatchingCardPart" />
     <ui:VisualElement name="matching-root" class="lg-muted-panel lg-task-template-root"
         style="flex-grow: 1; flex-direction: column;">
         <ui:Label name="task-prompt" text="Collega ogni elemento a sinistra con quello giusto a destra."
@@ -12,58 +18,41 @@
                 style="flex-grow: 1; flex-direction: row; align-items: stretch;">
                 <ui:VisualElement name="matching-left-column"
                     style="flex-grow: 1; flex-basis: 0; margin-right: 8px; flex-direction: column;">
-                    <ui:Label name="matching-column-header-part" text="Sinistra" class="lg-text-caption lg-preview-sample"
-                        style="margin-bottom: 6px;" />
-                    <ui:VisualElement name="matching-left-row-part" class="lg-preview-sample"
-                        style="flex-direction: row; align-items: center; margin-bottom: 8px;">
-                        <ui:VisualElement name="matching-left-card-host" style="flex-grow: 1;">
-                            <ui:VisualElement name="matching-card-part" class="lg-btn lg-btn--secondary"
-                                style="padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; flex-direction: column; align-items: flex-start;">
-                                <ui:Label name="matching-card-label" text="Buongiorno" class="lg-text-body"
-                                    style="white-space: normal;" />
-                            </ui:VisualElement>
+                    <ui:Instance template="MatchingColumnHeaderPart" />
+                    <ui:Instance template="MatchingLeftRowPart">
+                        <ui:VisualElement name="matching-left-card-host">
+                            <ui:Instance template="MatchingCardPart">
+                                <ui:Label name="matching-card-label" text="Buongiorno" />
+                            </ui:Instance>
                         </ui:VisualElement>
-                    </ui:VisualElement>
-                    <ui:VisualElement name="matching-left-row-part" class="lg-preview-sample"
-                        style="flex-direction: row; align-items: center; margin-bottom: 8px;">
-                        <ui:VisualElement name="matching-left-card-host" style="flex-grow: 1;">
-                            <ui:VisualElement name="matching-card-part" class="lg-btn lg-btn--secondary"
-                                style="padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; flex-direction: column; align-items: flex-start;">
-                                <ui:Label name="matching-card-label" text="Grazie" class="lg-text-body"
-                                    style="white-space: normal;" />
-                            </ui:VisualElement>
+                    </ui:Instance>
+                    <ui:Instance template="MatchingLeftRowPart">
+                        <ui:VisualElement name="matching-left-card-host">
+                            <ui:Instance template="MatchingCardPart">
+                                <ui:Label name="matching-card-label" text="Grazie" />
+                            </ui:Instance>
                         </ui:VisualElement>
-                    </ui:VisualElement>
-                    <ui:VisualElement name="matching-left-row-part" class="lg-preview-sample"
-                        style="flex-direction: row; align-items: center; margin-bottom: 8px;">
-                        <ui:VisualElement name="matching-left-card-host" style="flex-grow: 1;">
-                            <ui:VisualElement name="matching-card-part" class="lg-btn lg-btn--secondary"
-                                style="padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; flex-direction: column; align-items: flex-start;">
-                                <ui:Label name="matching-card-label" text="Arrivederci" class="lg-text-body"
-                                    style="white-space: normal;" />
-                            </ui:VisualElement>
+                    </ui:Instance>
+                    <ui:Instance template="MatchingLeftRowPart">
+                        <ui:VisualElement name="matching-left-card-host">
+                            <ui:Instance template="MatchingCardPart">
+                                <ui:Label name="matching-card-label" text="Arrivederci" />
+                            </ui:Instance>
                         </ui:VisualElement>
-                    </ui:VisualElement>
+                    </ui:Instance>
                 </ui:VisualElement>
                 <ui:VisualElement name="matching-right-column"
                     style="flex-grow: 1; flex-basis: 0; margin-left: 8px; flex-direction: column;">
-                    <ui:Label name="matching-column-header-part" text="Destra" class="lg-text-caption lg-preview-sample"
-                        style="margin-bottom: 6px;" />
-                    <ui:VisualElement name="matching-card-part" class="lg-btn lg-btn--secondary lg-preview-sample"
-                        style="margin-bottom: 8px; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; flex-direction: column; align-items: flex-start;">
-                        <ui:Label name="matching-card-label" text="Good morning" class="lg-text-body"
-                            style="white-space: normal;" />
-                    </ui:VisualElement>
-                    <ui:VisualElement name="matching-card-part" class="lg-btn lg-btn--secondary lg-preview-sample"
-                        style="margin-bottom: 8px; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; flex-direction: column; align-items: flex-start;">
-                        <ui:Label name="matching-card-label" text="Thank you" class="lg-text-body"
-                            style="white-space: normal;" />
-                    </ui:VisualElement>
-                    <ui:VisualElement name="matching-card-part" class="lg-btn lg-btn--secondary lg-preview-sample"
-                        style="margin-bottom: 8px; padding-left: 10px; padding-right: 10px; padding-top: 10px; padding-bottom: 10px; flex-direction: column; align-items: flex-start;">
-                        <ui:Label name="matching-card-label" text="Goodbye" class="lg-text-body"
-                            style="white-space: normal;" />
-                    </ui:VisualElement>
+                    <ui:Instance template="MatchingColumnHeaderPart" text="Destra" />
+                    <ui:Instance template="MatchingCardPart">
+                        <ui:Label name="matching-card-label" text="Good morning" />
+                    </ui:Instance>
+                    <ui:Instance template="MatchingCardPart">
+                        <ui:Label name="matching-card-label" text="Thank you" />
+                    </ui:Instance>
+                    <ui:Instance template="MatchingCardPart">
+                        <ui:Label name="matching-card-label" text="Goodbye" />
+                    </ui:Instance>
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="matching-line-layer-host" picking-mode="Ignore"

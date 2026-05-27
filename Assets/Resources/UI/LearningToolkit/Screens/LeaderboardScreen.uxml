@@ -1,11 +1,11 @@
 <!-- UI Builder: part instances for preview; runtime ClearHost + ToolkitLeaderboardUx. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:Template name="LeaderboardTeamSummaryPart"
-        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/LeaderboardTeamSummaryPart.uxml?fileID=9197481963319205126&amp;guid=d4e5f6a7b8c94990b2c3d4e5f6071829&amp;type=3#LeaderboardTeamSummaryPart" />
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Leaderboard/LeaderboardTeamSummaryPart.uxml?fileID=9197481963319205126&amp;guid=d4e5f6a7b8c94990b2c3d4e5f6071829&amp;type=3#LeaderboardTeamSummaryPart" />
     <ui:Template name="LeaderboardPlayerRowPart"
-        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/LeaderboardPlayerRowPart.uxml?fileID=9197481963319205126&amp;guid=04b93c554fb8c40ac8c4fab9fe2a67f4&amp;type=3#LeaderboardPlayerRowPart" />
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Leaderboard/LeaderboardPlayerRowPart.uxml?fileID=9197481963319205126&amp;guid=04b93c554fb8c40ac8c4fab9fe2a67f4&amp;type=3#LeaderboardPlayerRowPart" />
     <ui:Template name="NavigationPageHeaderMinimalPart"
-        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/NavigationPageHeaderMinimalPart.uxml?fileID=9197481963319205126&amp;guid=d6c5b4a3928171605f4e3d2c1b0a9888&amp;type=3#NavigationPageHeaderMinimalPart" />
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Navigation/NavigationPageHeaderMinimalPart.uxml?fileID=9197481963319205126&amp;guid=38a72ed0c8fc4fe3b476f342d17cb8dc&amp;type=3#NavigationPageHeaderMinimalPart" />
     <ui:VisualElement name="root-shell" class="lg-fill-screen">
         <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
             <ui:Instance template="NavigationPageHeaderMinimalPart">

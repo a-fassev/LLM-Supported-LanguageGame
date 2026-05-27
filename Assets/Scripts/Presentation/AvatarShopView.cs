@@ -23,7 +23,7 @@ namespace LanguageGame.Presentation
 
         private void Awake()
         {
-            _doc = LearningToolkitBootstrap.SpawnUiDocument(this, "AvatarShopScreen");
+            _doc = LearningToolkitBootstrap.SpawnUiDocument(this, "Screens/AvatarShopScreen");
             if (_doc == null)
             {
                 Debug.LogError("[AvatarShopView] UITK bootstrap failed — missing AvatarShopScreen or PanelSettings.");

@@ -1,37 +1,49 @@
-<!-- UI Builder: fixtures mirror Templates/Parts; runtime clears cloze-lines-host on Bind. -->
+<!-- UI Builder: part instances for preview; runtime clears cloze-lines-host on Bind. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Template name="ClozeLiteralPart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/ClozeText/ClozeLiteralPart.uxml?fileID=9197481963319205126&amp;guid=3175ba584f4041268b221bb31fce7e4e&amp;type=3#ClozeLiteralPart" />
+    <ui:Template name="ClozeGapFieldPart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/ClozeText/ClozeGapFieldPart.uxml?fileID=9197481963319205126&amp;guid=e29cb1b71f1f4502a1d0ed1ea40ccc21&amp;type=3#ClozeGapFieldPart" />
+    <ui:Template name="ClozeLineRowPart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/ClozeText/ClozeLineRowPart.uxml?fileID=9197481963319205126&amp;guid=5b44797661174f6c941fcec870032503&amp;type=3#ClozeLineRowPart" />
     <ui:VisualElement name="cloze-text-root" class="lg-muted-panel lg-task-template-root"
         style="flex-grow: 1; flex-direction: column;">
         <ui:Label name="task-prompt" text="Completa le lacune con la parola giusta." class="lg-heading-screen lg-preview-sample"
             style="margin-bottom: 16px; white-space: normal;" />
         <ui:VisualElement name="cloze-lines-host" style="flex-grow: 1;">
-            <ui:VisualElement name="cloze-line-row-part" class="lg-preview-sample"
-                style="flex-direction: row; flex-wrap: wrap; align-items: center; margin-bottom: 10px;">
-                <ui:Label name="cloze-literal-part" text="Io " class="lg-text-body"
-                    style="white-space: normal; margin-right: 6px;" />
-                <ui:TextField name="cloze-gap-field-part" value="sono" class="lg-textfield"
-                    style="min-width: 100px; margin-right: 6px;" />
-                <ui:Label name="cloze-literal-part" text=" italiano." class="lg-text-body"
-                    style="white-space: normal; margin-right: 6px;" />
-            </ui:VisualElement>
-            <ui:VisualElement name="cloze-line-row-part" class="lg-preview-sample"
-                style="flex-direction: row; flex-wrap: wrap; align-items: center; margin-bottom: 10px;">
-                <ui:Label name="cloze-literal-part" text="La pizza " class="lg-text-body"
-                    style="white-space: normal; margin-right: 6px;" />
-                <ui:TextField name="cloze-gap-field-part" value="è" class="lg-textfield"
-                    style="min-width: 80px; margin-right: 6px;" />
-                <ui:Label name="cloze-literal-part" text=" buonissima." class="lg-text-body"
-                    style="white-space: normal; margin-right: 6px;" />
-            </ui:VisualElement>
-            <ui:VisualElement name="cloze-line-row-part" class="lg-preview-sample"
-                style="flex-direction: row; flex-wrap: wrap; align-items: center; margin-bottom: 10px;">
-                <ui:Label name="cloze-literal-part" text="Domani " class="lg-text-body"
-                    style="white-space: normal; margin-right: 6px;" />
-                <ui:TextField name="cloze-gap-field-part" value="andiamo" class="lg-textfield"
-                    style="min-width: 120px; margin-right: 6px;" />
-                <ui:Label name="cloze-literal-part" text=" al mercato." class="lg-text-body"
-                    style="white-space: normal; margin-right: 6px;" />
-            </ui:VisualElement>
+            <ui:Instance template="ClozeLineRowPart">
+                <ui:Instance template="ClozeLiteralPart">
+                    <ui:Label name="cloze-literal-part" text="Io " />
+                </ui:Instance>
+                <ui:Instance template="ClozeGapFieldPart">
+                    <ui:TextField name="cloze-gap-field-part" value="sono" />
+                </ui:Instance>
+                <ui:Instance template="ClozeLiteralPart">
+                    <ui:Label name="cloze-literal-part" text=" italiano." />
+                </ui:Instance>
+            </ui:Instance>
+            <ui:Instance template="ClozeLineRowPart">
+                <ui:Instance template="ClozeLiteralPart">
+                    <ui:Label name="cloze-literal-part" text="La pizza " />
+                </ui:Instance>
+                <ui:Instance template="ClozeGapFieldPart">
+                    <ui:TextField name="cloze-gap-field-part" value="è" />
+                </ui:Instance>
+                <ui:Instance template="ClozeLiteralPart">
+                    <ui:Label name="cloze-literal-part" text=" buonissima." />
+                </ui:Instance>
+            </ui:Instance>
+            <ui:Instance template="ClozeLineRowPart">
+                <ui:Instance template="ClozeLiteralPart">
+                    <ui:Label name="cloze-literal-part" text="Domani " />
+                </ui:Instance>
+                <ui:Instance template="ClozeGapFieldPart">
+                    <ui:TextField name="cloze-gap-field-part" value="andiamo" />
+                </ui:Instance>
+                <ui:Instance template="ClozeLiteralPart">
+                    <ui:Label name="cloze-literal-part" text=" al mercato." />
+                </ui:Instance>
+            </ui:Instance>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

@@ -49,7 +49,7 @@ namespace LanguageGame.Presentation
 
         private void Awake()
         {
-            _doc = LearningToolkitBootstrap.SpawnUiDocument(this, "LeaderboardScreen");
+            _doc = LearningToolkitBootstrap.SpawnUiDocument(this, "Screens/LeaderboardScreen");
             if (_doc == null)
             {
                 Debug.LogError("[LeaderboardView] UI Toolkit bootstrap failed.");

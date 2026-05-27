@@ -61,7 +61,7 @@ For purely visual chrome (SMS frame, mail headers): prefer branching on **`scree
 
 ## Chrome asset
 
-- **`Assets/Resources/UI/LearningToolkit/SpecialScreenHost.uxml`** — outer host; **`Templates/SpecialScreens/SpecialScreenMessengerChrome`**, **`SpecialScreenMailChrome`**, **`SpecialScreenReaderChrome`**, **`SpecialScreenPhotoChrome`** for device shells.
+- **`Assets/Resources/UI/LearningToolkit/Templates/SpecialScreens/SpecialScreenHost.uxml`** — outer host; **`Templates/SpecialScreens/SpecialScreenMessengerChrome`**, **`SpecialScreenMailChrome`**, **`SpecialScreenReaderChrome`**, **`SpecialScreenPhotoChrome`** for device shells.
 - **Option B fixtures + parts:** chrome UXML includes Italian sample rows/cells under named hosts for UI Builder; **`Bind`** calls **`ToolkitStepUx.ClearHost`** on chat/grid/header/body hosts, then **`InstantiatePart`** from **`Templates/Parts/`** (e.g. **`SpecialScreenChatRowIncomingPart`**, **`SpecialScreenPhotoGridCellPart`**, **`StubTaskPanelPart`** — see **`ToolkitStepTemplatePaths`**). Match fixture **`lg-*`** / **`name`** anchors in runtime builds; embedded cloze/error still use their task step classes inside bubble/block slots.
 
 ## Backend reminder
@@ -85,7 +85,7 @@ For purely visual chrome (SMS frame, mail headers): prefer branching on **`scree
 | Host step | `Assets/Scripts/Presentation/Steps/SpecialScreenToolkitStep.cs` |
 | DTOs | `Assets/Scripts/Presentation/Steps/ToolkitStepContentDtos.cs` |
 | Factory | `Assets/Scripts/Presentation/Steps/ToolkitStepFactory.cs` |
-| Chrome UXML | `Assets/Resources/UI/LearningToolkit/SpecialScreenHost.uxml` |
+| Chrome UXML | `Assets/Resources/UI/LearningToolkit/Templates/SpecialScreens/SpecialScreenHost.uxml` |
 | Messenger USS | `Assets/Resources/UI/LearningToolkit/special-screen-messenger.uss` (via `theme-learn.uss`) |
 | Reader USS | `Assets/Resources/UI/LearningToolkit/special-screen-reader.uss` (via `theme-learn.uss`) |
 | Photo USS | `Assets/Resources/UI/LearningToolkit/special-screen-photo-viewer.uss` (via `theme-learn.uss`) |

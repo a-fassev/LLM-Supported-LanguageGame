@@ -1,12 +1,11 @@
-<!-- UI Builder sample; runtime ClearHost on card host then adds card. -->
+<!-- UI Builder sample; runtime ClearHost on card host then adds card part. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="matching-left-row-part"
+    <ui:Template name="MatchingCardPart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Matching/MatchingCardPart.uxml?fileID=9197481963319205126&amp;guid=e5a4e30071e8413494412ac08a447b74&amp;type=3#MatchingCardPart" />
+    <ui:VisualElement name="matching-left-row-part" class="lg-preview-sample"
         style="flex-direction: row; align-items: center; margin-bottom: 8px;">
         <ui:VisualElement name="matching-left-card-host" style="flex-grow: 1;">
-            <ui:VisualElement class="lg-btn lg-btn--secondary lg-preview-sample"
-                style="padding: 10px; flex-direction: column; align-items: flex-start;">
-                <ui:Label text="ciao" class="lg-text-body" style="white-space: normal;" />
-            </ui:VisualElement>
+            <ui:Instance template="MatchingCardPart" />
         </ui:VisualElement>
         <ui:Label name="matching-unpair" text="×" tooltip="Rimuovi collegamento"
             style="width: 28px; min-width: 28px; font-size: 20px; -unity-text-align: middle-center; display: none;" />

@@ -1,5 +1,9 @@
-<!-- UI Builder: fixtures mirror Templates/Parts; runtime ClearHost + InstantiatePart. -->
+<!-- UI Builder: part instances for preview; runtime ClearHost + InstantiatePart. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Template name="McStemTextPart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/MultipleChoice/McStemTextPart.uxml?fileID=9197481963319205126&amp;guid=063c9db25e87492396477cd6f7cbc42c&amp;type=3#McStemTextPart" />
+    <ui:Template name="McOptionRowPart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/MultipleChoice/McOptionRowPart.uxml?fileID=9197481963319205126&amp;guid=6e710f0406f44f38956fb88b97cc5f24&amp;type=3#McOptionRowPart" />
     <ui:VisualElement name="multiple-choice-root" class="lg-muted-panel lg-task-template-root"
         style="flex-grow: 1; flex-direction: column;">
         <ui:Label name="task-prompt" text="Scegli la risposta corretta." class="lg-heading-screen lg-preview-sample"
@@ -7,38 +11,21 @@
         <ui:Label name="task-subtitle" text="Leggi bene la domanda." class="lg-text-body lg-text-muted lg-preview-sample"
             style="margin-bottom: 12px; white-space: normal;" />
         <ui:VisualElement name="mc-stem-host" style="flex-grow: 0; margin-bottom: 12px;">
-            <ui:Label name="mc-stem-text-part" text="Quale parola significa «ciao»?" class="lg-text-body lg-preview-sample"
-                style="white-space: normal; margin-bottom: 8px;" />
+            <ui:Instance template="McStemTextPart" />
         </ui:VisualElement>
         <ui:VisualElement name="mc-options-host" style="flex-grow: 1;">
-            <ui:VisualElement name="mc-option-row-part" class="lg-list-row-button lg-preview-sample"
-                style="flex-direction: row; align-items: center; margin-bottom: 10px; padding-top: 8px; padding-bottom: 8px; padding-left: 8px; padding-right: 8px;">
-                <ui:Toggle />
-                <ui:Label name="mc-option-label" text="Ciao" class="lg-text-body"
-                    style="flex-grow: 1; margin-left: 8px; white-space: normal;" />
-                <ui:VisualElement name="mc-option-image" style="display: none; width: 96px; height: 96px; margin-left: 8px;" />
-            </ui:VisualElement>
-            <ui:VisualElement name="mc-option-row-part" class="lg-list-row-button lg-preview-sample"
-                style="flex-direction: row; align-items: center; margin-bottom: 10px; padding-top: 8px; padding-bottom: 8px; padding-left: 8px; padding-right: 8px;">
-                <ui:Toggle />
-                <ui:Label name="mc-option-label" text="Grazie" class="lg-text-body"
-                    style="flex-grow: 1; margin-left: 8px; white-space: normal;" />
-                <ui:VisualElement name="mc-option-image" style="display: none; width: 96px; height: 96px; margin-left: 8px;" />
-            </ui:VisualElement>
-            <ui:VisualElement name="mc-option-row-part" class="lg-list-row-button lg-preview-sample"
-                style="flex-direction: row; align-items: center; margin-bottom: 10px; padding-top: 8px; padding-bottom: 8px; padding-left: 8px; padding-right: 8px;">
-                <ui:Toggle />
-                <ui:Label name="mc-option-label" text="Arrivederci" class="lg-text-body"
-                    style="flex-grow: 1; margin-left: 8px; white-space: normal;" />
-                <ui:VisualElement name="mc-option-image" style="display: none; width: 96px; height: 96px; margin-left: 8px;" />
-            </ui:VisualElement>
-            <ui:VisualElement name="mc-option-row-part" class="lg-list-row-button lg-preview-sample"
-                style="flex-direction: row; align-items: center; margin-bottom: 10px; padding-top: 8px; padding-bottom: 8px; padding-left: 8px; padding-right: 8px;">
-                <ui:Toggle />
-                <ui:Label name="mc-option-label" text="Per favore" class="lg-text-body"
-                    style="flex-grow: 1; margin-left: 8px; white-space: normal;" />
-                <ui:VisualElement name="mc-option-image" style="display: none; width: 96px; height: 96px; margin-left: 8px;" />
-            </ui:VisualElement>
+            <ui:Instance template="McOptionRowPart">
+                <ui:Label name="mc-option-label" text="Ciao" />
+            </ui:Instance>
+            <ui:Instance template="McOptionRowPart">
+                <ui:Label name="mc-option-label" text="Grazie" />
+            </ui:Instance>
+            <ui:Instance template="McOptionRowPart">
+                <ui:Label name="mc-option-label" text="Arrivederci" />
+            </ui:Instance>
+            <ui:Instance template="McOptionRowPart">
+                <ui:Label name="mc-option-label" text="Per favore" />
+            </ui:Instance>
         </ui:VisualElement>
         <ui:VisualElement name="mc-nav-row"
             style="flex-direction: row; justify-content: center; align-items: center; flex-shrink: 0; margin-top: 12px;">

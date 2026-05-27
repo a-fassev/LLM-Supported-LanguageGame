@@ -105,7 +105,7 @@ namespace LanguageGame.Presentation
 
             if (_fatalOverlayDoc == null)
             {
-                _fatalOverlayDoc = LearningToolkitBootstrap.SpawnUiDocument(this, "CutShellScreen");
+                _fatalOverlayDoc = LearningToolkitBootstrap.SpawnUiDocument(this, "Shells/CutShellScreen");
                 if (_fatalOverlayDoc == null)
                     return false;
             }

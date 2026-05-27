@@ -1,14 +1,20 @@
 <!-- UI Builder sample; runtime ClearHost then adds tiles. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="bank-wrap"
+    <ui:Template name="DragDropTilePart"
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/DragDrop/DragDropTilePart.uxml?fileID=9197481963319205126&amp;guid=2ce09d4e5a6b42b79adb2139106ddb10&amp;type=3#DragDropTilePart" />
+    <ui:VisualElement name="bank-wrap" class="lg-preview-sample"
         style="flex-direction: row; flex-wrap: wrap; margin-top: 4px;">
-        <ui:VisualElement class="lg-btn lg-btn--secondary lg-preview-sample"
-            style="margin-right: 8px; margin-bottom: 8px; min-width: 80px; min-height: 44px; padding: 8px; justify-content: center;">
-            <ui:Label text="cane" class="lg-text-body" style="white-space: normal;" />
-        </ui:VisualElement>
-        <ui:VisualElement class="lg-btn lg-btn--secondary lg-preview-sample"
-            style="margin-right: 8px; margin-bottom: 8px; min-width: 80px; min-height: 44px; padding: 8px; justify-content: center;">
-            <ui:Label text="gatto" class="lg-text-body" style="white-space: normal;" />
-        </ui:VisualElement>
+        <ui:Instance template="DragDropTilePart">
+            <ui:Label name="drag-drop-tile-label" text="mela" />
+        </ui:Instance>
+        <ui:Instance template="DragDropTilePart">
+            <ui:Label name="drag-drop-tile-label" text="cane" />
+        </ui:Instance>
+        <ui:Instance template="DragDropTilePart">
+            <ui:Label name="drag-drop-tile-label" text="rosso" />
+        </ui:Instance>
+        <ui:Instance template="DragDropTilePart">
+            <ui:Label name="drag-drop-tile-label" text="correre" />
+        </ui:Instance>
     </ui:VisualElement>
 </ui:UXML>

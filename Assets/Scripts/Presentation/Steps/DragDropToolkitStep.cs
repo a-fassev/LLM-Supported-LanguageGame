@@ -394,6 +394,8 @@ namespace LanguageGame.Presentation.Steps
             dropZone.userData = tid;
             _pickupZones.Add(dropZone);
 
+            ToolkitStepUx.ClearHost(dropZone);
+
             if (!ToolkitStepUx.TryInstantiatePart(
                     ToolkitStepTemplatePaths.DragDropDropZoneInnerPart,
                     "drag-drop-drop-zone-inner-part",

@@ -1,6 +1,6 @@
 # Building task-specific UI (Unity, UI Toolkit)
 
-Per-task screens run **inside the task shell** (`TaskShellScreen.uxml`); cutscenes use **`CutShellScreen.uxml`**. **`QuestStepShellHost`** in the **`Quest`** scene swaps shells by `step_kind`. Each shell clears **`step-host`** and **`ToolkitStepFactory`** builds an **`IStepView`** for the active server step.
+Per-task screens run **inside the task shell** (`Shells/TaskShellScreen.uxml`); cutscenes use **`Shells/CutShellScreen.uxml`**. **`QuestStepShellHost`** in the **`Quest`** scene swaps shells by `step_kind`. Each shell clears **`step-host`** and **`ToolkitStepFactory`** builds an **`IStepView`** for the active server step.
 
 Legacy **uGUI**, **`StepTemplateCatalog`**, and step **prefabs** were removed; do not follow older prefab/catalog workflows.
 
@@ -48,8 +48,9 @@ Task and cutscene layouts are authored as **UXML** under `Assets/Resources/UI/Le
 |--------|--------|
 | Mount root template | `ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.…, "root-name", out _root)` |
 | Detached beat/panel | `ToolkitStepUx.Instantiate(path, "root-name")` |
-| Clear dynamic host (removes UI Builder fixtures) | `ToolkitStepUx.ClearHost(host)` — call at start of bind on every runtime-cleared host |
+| Clear dynamic host (removes UI Builder preview children) | `ToolkitStepUx.ClearHost(host)` — call at start of bind on every runtime-cleared host |
 | Clone shared row/card/bubble | `ToolkitStepUx.InstantiatePart(ToolkitStepTemplatePaths.…Part, "root-name")` from `Templates/Parts/` |
+| UI Builder preview in task UXML | `ui:Template` + `ui:Instance` referencing the same `Templates/Parts/{domain}/*.uxml` assets (GUID from each part `.meta`) — do not copy duplicate fixture trees inline |
 | Bind text slots | `ToolkitStepUx.SetOptionalLabel(label, text)` |
 | Query slots | `ToolkitStepUx.QueryRequired` / `QueryOptional` (see `ToolkitStepUx.cs`) |
 
@@ -57,7 +58,7 @@ Task and cutscene layouts are authored as **UXML** under `Assets/Resources/UI/Le
 
 Paths are centralized in **`ToolkitStepTemplatePaths`** (`Tasks/`, `Cutscenes/`, `Parts/`, `SpecialScreens/`). Styling uses **`lg-*`** USS classes (`task-templates.uss`, per-type USS).
 
-**UI Builder fixtures (Option B):** production templates may include Italian sample trees under named hosts so designers style real structure without separate `*Preview.uxml`. On bind, **`ClearHost`** then rebuild dynamic lists from **`contentJson`** using **`InstantiatePart`** so runtime DOM matches fixture hierarchy and classes. Fixture children must live only inside hosts that bind clears.
+**Single source for recurring UI:** each row/card/bubble lives only in **`Templates/Parts/{domain}/*.uxml`** (e.g. `Parts/MultipleChoice/McOptionRowPart.uxml`). Task templates under **`Templates/Tasks/{taskType}/`** compose full-task UI Builder previews with **`ui:Template`** (`src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/{domain}/{Part}.uxml?fileID=9197481963319205126&amp;guid={from .meta}&amp;type=3#{Part}"` (hash matches the part asset name, e.g. `#McOptionRowPart`; runtime C# still queries element `name=` anchors inside the part)) and **`ui:Instance template="…"`** inside named hosts — never duplicate the same subtree inline. Nested parts (e.g. a line row part instancing literal/gap parts) follow the same rule. On bind, **`ClearHost`** on every dynamic host, then rebuild from **`contentJson`** via **`InstantiatePart`**. When a part used at runtime includes preview children (e.g. drop-zone inner inside target block), the binder must **`ClearHost`** that container before adding the runtime clone. Preview sample counts stay manual in the task template; JSON drives runtime counts. Label-root parts may override preview copy on **`ui:Instance`** (e.g. `text="Destra"`). If you move or rename a part asset, update `ui:Template` `src` GUIDs in parent UXML, then run **Tools → Learning Toolkit → Validate UXML Template References** in the Unity Editor (imports under `LearningToolkit/` also log errors automatically). Separate `*Preview.uxml` is not the default workflow.
 
 Reference host: **`SpecialScreenHost.uxml`** + **`SpecialScreenToolkitStep`**.
 
@@ -65,7 +66,7 @@ Reference host: **`SpecialScreenHost.uxml`** + **`SpecialScreenToolkitStep`**.
 
 1. Agree **`contentJson`** shape with whoever owns **`game_quest_steps`** / API.
 2. Add **`YourSomethingToolkitStep : IStepView`** (+ **`ISubmitFromShell`** if the shell submits it).
-3. Add **`Templates/Tasks/YourTaskTemplate.uxml`** and mount it in the step constructor; bind payload in **`Bind`**; **`Teardown`** removes the mounted root.
+3. Add **`Templates/Parts/{domain}/`** for repeating rows/cards, then **`Templates/Tasks/{YourTaskType}/YourTaskTemplate.uxml`** with **`ui:Template`** / **`ui:Instance`** previews under hosts that **`ClearHost`** clears; mount the task template in the step constructor; bind payload in **`Bind`**; **`Teardown`** removes the mounted root.
 4. Add **`case "YourTaskType":`** to **`ToolkitStepFactory`**.
 5. Prefer **`lg-*`** USS classes; avoid duplicating shell overlays inside the step.
 
@@ -214,7 +215,7 @@ Behaviour summary:
 
 **Learner-facing validation copy** for special screens and for embedded **`ClozeText`** / **`ErrorSpotting`** blocks is **Italian** (aligned with standalone error-spotting tasks).
 
-Chrome loads from **`SpecialScreenHost`** (`Assets/Resources/UI/LearningToolkit/SpecialScreenHost.uxml`) with a **programmatic fallback** if Resources loading fails.
+Chrome loads from **`SpecialScreenHost`** (`Assets/Resources/UI/LearningToolkit/Templates/SpecialScreens/SpecialScreenHost.uxml`) with a **programmatic fallback** if Resources loading fails.
 
 DTO types live beside other payloads in **`ToolkitStepContentDtos.cs`** (`SpecialScreenContentDto`, `SpecialScreenMailChromeDto`, `SpecialScreenReaderChromeDto`, `SpecialScreenPhotoViewerChromeDto`, `SpecialScreenPhotoItemDto`, `SpecialScreenSmsChromeDto`, `SpecialScreenChatMessageDto`, `SpecialScreenBlockDto`, `SpecialScreenStubBlockDto`).
 
@@ -570,7 +571,7 @@ Cutscenes are **presentation-only**: learners tap shell **Weiter** to page throu
 
 **Unity:** `JsonUtility` + guards. Invalid payload → Italian placeholder, **`IsContentValid == false`**, primary **Weiter** disabled (no server advance).
 
-**Beat templates (UI Builder Option B):** `Templates/Cutscenes/CutsceneInnerMonologueBeat.uxml` and `CutsceneNpcDialogBeat.uxml` use a fixed **25% `avatar-slot` + 75% `bubble-col`** row (`lg-cutscene-beat-row--playerLeft` / `--npcRight`). Production UXML includes Italian **fixture** labels (`lg-preview-sample`); Play Mode **`CutsceneToolkitStep`** overwrites text and **`CutsceneAvatarSlotBinder`** clears/binds `avatar-slot` from Resources. USS: `cutscene-narrative.uss`. Portraits: `Assets/Resources/UI/CutscenePortraits/Player/current`, `Npc/{portraitId}`.
+**Cutscene beat templates (inline fixtures):** Cutscene beats are one-off layouts under `Templates/Cutscenes/` (not shared `Parts/` rows). `CutsceneInnerMonologueBeat.uxml` and `CutsceneNpcDialogBeat.uxml` use a fixed **25% `avatar-slot` + 75% `bubble-col`** row (`lg-cutscene-beat-row--playerLeft` / `--npcRight`). Italian **fixture** labels (`lg-preview-sample`) live in the beat UXML; Play Mode **`CutsceneToolkitStep`** overwrites text and **`CutsceneAvatarSlotBinder`** clears/binds `avatar-slot` from Resources. Task templates use **`ui:Template` / `ui:Instance`** from `Templates/Parts/` instead—do not mix the two preview patterns on task rows. USS: `cutscene-narrative.uss`. Portraits: `Assets/Resources/UI/CutscenePortraits/Player/current`, `Npc/{portraitId}`.
 
 | Root field | Required | Notes |
 | ---------- | -------- | ----- |

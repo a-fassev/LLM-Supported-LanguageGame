@@ -44,7 +44,7 @@ namespace LanguageGame.Presentation
                 return;
 
             _shared.ResolveGameApi();
-            _toolkitDoc = LearningToolkitBootstrap.SpawnUiDocument(_host, "CutShellScreen");
+            _toolkitDoc = LearningToolkitBootstrap.SpawnUiDocument(_host, "Shells/CutShellScreen");
             if (_toolkitDoc == null)
                 return;
 

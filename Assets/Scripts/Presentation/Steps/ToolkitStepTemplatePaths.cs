@@ -14,59 +14,59 @@ namespace LanguageGame.Presentation.Steps
         public const string CutsceneInnerMonologueBeat = Root + "/Cutscenes/CutsceneInnerMonologueBeat";
         public const string CutsceneGameInfoBeat = Root + "/Cutscenes/CutsceneGameInfoBeat";
 
-        public const string ClozeTextTask = Root + "/Tasks/ClozeTextTaskTemplate";
-        public const string ErrorSpottingTask = Root + "/Tasks/ErrorSpottingTaskTemplate";
-        public const string FreitextLlmTask = Root + "/Tasks/FreitextLlmTaskTemplate";
-        public const string MultipleChoiceTask = Root + "/Tasks/MultipleChoiceTaskTemplate";
-        public const string DragDropTask = Root + "/Tasks/DragDropTaskTemplate";
-        public const string MatchingTask = Root + "/Tasks/MatchingTaskTemplate";
+        public const string ClozeTextTask = Root + "/Tasks/ClozeText/ClozeTextTaskTemplate";
+        public const string ErrorSpottingTask = Root + "/Tasks/ErrorSpotting/ErrorSpottingTaskTemplate";
+        public const string FreitextLlmTask = Root + "/Tasks/FreitextLlm/FreitextLlmTaskTemplate";
+        public const string MultipleChoiceTask = Root + "/Tasks/MultipleChoice/MultipleChoiceTaskTemplate";
+        public const string DragDropTask = Root + "/Tasks/DragDrop/DragDropTaskTemplate";
+        public const string MatchingTask = Root + "/Tasks/Matching/MatchingTaskTemplate";
 
         private const string Parts = Root + "/Parts";
 
-        public const string McOptionRowPart = Parts + "/McOptionRowPart";
-        public const string McStemTextPart = Parts + "/McStemTextPart";
-        public const string McStemImagePart = Parts + "/McStemImagePart";
-        public const string McStemAudioPart = Parts + "/McStemAudioPart";
+        public const string McOptionRowPart = Parts + "/MultipleChoice/McOptionRowPart";
+        public const string McStemTextPart = Parts + "/MultipleChoice/McStemTextPart";
+        public const string McStemImagePart = Parts + "/MultipleChoice/McStemImagePart";
+        public const string McStemAudioPart = Parts + "/MultipleChoice/McStemAudioPart";
 
-        public const string ClozeLineRowPart = Parts + "/ClozeLineRowPart";
-        public const string ClozeLiteralPart = Parts + "/ClozeLiteralPart";
-        public const string ClozeGapFieldPart = Parts + "/ClozeGapFieldPart";
+        public const string ClozeLineRowPart = Parts + "/ClozeText/ClozeLineRowPart";
+        public const string ClozeLiteralPart = Parts + "/ClozeText/ClozeLiteralPart";
+        public const string ClozeGapFieldPart = Parts + "/ClozeText/ClozeGapFieldPart";
 
-        public const string ErrorSpottingSlotPart = Parts + "/ErrorSpottingSlotPart";
-        public const string ErrorSpottingChipPart = Parts + "/ErrorSpottingChipPart";
-        public const string ErrorSpottingInlineFieldPart = Parts + "/ErrorSpottingInlineFieldPart";
+        public const string ErrorSpottingSlotPart = Parts + "/ErrorSpotting/ErrorSpottingSlotPart";
+        public const string ErrorSpottingChipPart = Parts + "/ErrorSpotting/ErrorSpottingChipPart";
+        public const string ErrorSpottingInlineFieldPart = Parts + "/ErrorSpotting/ErrorSpottingInlineFieldPart";
 
-        public const string DragDropTilePart = Parts + "/DragDropTilePart";
-        public const string DragDropTargetBlockPart = Parts + "/DragDropTargetBlockPart";
-        public const string DragDropDropZoneInnerPart = Parts + "/DragDropDropZoneInnerPart";
-        public const string DragDropLineSlotPart = Parts + "/DragDropLineSlotPart";
+        public const string DragDropTilePart = Parts + "/DragDrop/DragDropTilePart";
+        public const string DragDropTargetBlockPart = Parts + "/DragDrop/DragDropTargetBlockPart";
+        public const string DragDropDropZoneInnerPart = Parts + "/DragDrop/DragDropDropZoneInnerPart";
+        public const string DragDropLineSlotPart = Parts + "/DragDrop/DragDropLineSlotPart";
 
-        public const string MatchingCardPart = Parts + "/MatchingCardPart";
-        public const string MatchingLeftRowPart = Parts + "/MatchingLeftRowPart";
-        public const string MatchingColumnHeaderPart = Parts + "/MatchingColumnHeaderPart";
+        public const string MatchingCardPart = Parts + "/Matching/MatchingCardPart";
+        public const string MatchingLeftRowPart = Parts + "/Matching/MatchingLeftRowPart";
+        public const string MatchingColumnHeaderPart = Parts + "/Matching/MatchingColumnHeaderPart";
 
-        public const string DragDropCaptionPart = Parts + "/DragDropCaptionPart";
-        public const string DragDropBankWrapPart = Parts + "/DragDropBankWrapPart";
-        public const string DragDropLineRowPart = Parts + "/DragDropLineRowPart";
+        public const string DragDropCaptionPart = Parts + "/DragDrop/DragDropCaptionPart";
+        public const string DragDropBankWrapPart = Parts + "/DragDrop/DragDropBankWrapPart";
+        public const string DragDropLineRowPart = Parts + "/DragDrop/DragDropLineRowPart";
 
-        public const string SpecialScreenChatRowIncomingPart = Parts + "/SpecialScreenChatRowIncomingPart";
-        public const string SpecialScreenChatRowOutgoingPart = Parts + "/SpecialScreenChatRowOutgoingPart";
-        public const string SpecialScreenBubbleAuthorPart = Parts + "/SpecialScreenBubbleAuthorPart";
-        public const string SpecialScreenBubbleTextPart = Parts + "/SpecialScreenBubbleTextPart";
-        public const string SpecialScreenBubbleMechanicHostPart = Parts + "/SpecialScreenBubbleMechanicHostPart";
-        public const string SpecialScreenMailHeaderRowPart = Parts + "/SpecialScreenMailHeaderRowPart";
-        public const string SpecialScreenReaderLineRowPart = Parts + "/SpecialScreenReaderLineRowPart";
-        public const string SpecialScreenPhotoGridCellPart = Parts + "/SpecialScreenPhotoGridCellPart";
-        public const string SpecialScreenPhotoGridPart = Parts + "/SpecialScreenPhotoGridPart";
-        public const string SpecialScreenPhotoSlideshowPart = Parts + "/SpecialScreenPhotoSlideshowPart";
-        public const string SpecialScreenPhotoPromptPart = Parts + "/SpecialScreenPhotoPromptPart";
-        public const string SpecialScreenPhotoCaptionFixedPart = Parts + "/SpecialScreenPhotoCaptionFixedPart";
-        public const string SpecialScreenPhotoLoadErrorPart = Parts + "/SpecialScreenPhotoLoadErrorPart";
-        public const string SpecialScreenPhotoLearnerFieldPart = Parts + "/SpecialScreenPhotoLearnerFieldPart";
-        public const string SpecialScreenBlockSlotPart = Parts + "/SpecialScreenBlockSlotPart";
-        public const string SpecialScreenReaderBodyLabelPart = Parts + "/SpecialScreenReaderBodyLabelPart";
-        public const string SpecialScreenReaderColumnsRowPart = Parts + "/SpecialScreenReaderColumnsRowPart";
-        public const string StubTaskPanelPart = Parts + "/StubTaskPanelPart";
+        public const string SpecialScreenChatRowIncomingPart = Parts + "/SpecialScreen/SpecialScreenChatRowIncomingPart";
+        public const string SpecialScreenChatRowOutgoingPart = Parts + "/SpecialScreen/SpecialScreenChatRowOutgoingPart";
+        public const string SpecialScreenBubbleAuthorPart = Parts + "/SpecialScreen/SpecialScreenBubbleAuthorPart";
+        public const string SpecialScreenBubbleTextPart = Parts + "/SpecialScreen/SpecialScreenBubbleTextPart";
+        public const string SpecialScreenBubbleMechanicHostPart = Parts + "/SpecialScreen/SpecialScreenBubbleMechanicHostPart";
+        public const string SpecialScreenMailHeaderRowPart = Parts + "/SpecialScreen/SpecialScreenMailHeaderRowPart";
+        public const string SpecialScreenReaderLineRowPart = Parts + "/SpecialScreen/SpecialScreenReaderLineRowPart";
+        public const string SpecialScreenPhotoGridCellPart = Parts + "/SpecialScreen/SpecialScreenPhotoGridCellPart";
+        public const string SpecialScreenPhotoGridPart = Parts + "/SpecialScreen/SpecialScreenPhotoGridPart";
+        public const string SpecialScreenPhotoSlideshowPart = Parts + "/SpecialScreen/SpecialScreenPhotoSlideshowPart";
+        public const string SpecialScreenPhotoPromptPart = Parts + "/SpecialScreen/SpecialScreenPhotoPromptPart";
+        public const string SpecialScreenPhotoCaptionFixedPart = Parts + "/SpecialScreen/SpecialScreenPhotoCaptionFixedPart";
+        public const string SpecialScreenPhotoLoadErrorPart = Parts + "/SpecialScreen/SpecialScreenPhotoLoadErrorPart";
+        public const string SpecialScreenPhotoLearnerFieldPart = Parts + "/SpecialScreen/SpecialScreenPhotoLearnerFieldPart";
+        public const string SpecialScreenBlockSlotPart = Parts + "/SpecialScreen/SpecialScreenBlockSlotPart";
+        public const string SpecialScreenReaderBodyLabelPart = Parts + "/SpecialScreen/SpecialScreenReaderBodyLabelPart";
+        public const string SpecialScreenReaderColumnsRowPart = Parts + "/SpecialScreen/SpecialScreenReaderColumnsRowPart";
+        public const string StubTaskPanelPart = Parts + "/Common/StubTaskPanelPart";
 
         private const string SpecialScreens = Root + "/SpecialScreens";
 
@@ -75,6 +75,6 @@ namespace LanguageGame.Presentation.Steps
         public const string SpecialScreenReaderChrome = SpecialScreens + "/SpecialScreenReaderChrome";
         public const string SpecialScreenPhotoChrome = SpecialScreens + "/SpecialScreenPhotoChrome";
 
-        public const string SpecialScreenHost = "UI/LearningToolkit/SpecialScreenHost";
+        public const string SpecialScreenHost = "UI/LearningToolkit/Templates/SpecialScreens/SpecialScreenHost";
     }
 }

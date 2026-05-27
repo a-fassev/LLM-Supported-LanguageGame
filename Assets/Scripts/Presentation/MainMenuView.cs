@@ -30,7 +30,7 @@ namespace LanguageGame.Presentation
 
         private void Awake()
         {
-            _doc = LearningToolkitBootstrap.SpawnUiDocument(this, "MainMenuScreen");
+            _doc = LearningToolkitBootstrap.SpawnUiDocument(this, "Screens/MainMenuScreen");
             if (_doc == null)
             {
                 Debug.LogError("[MainMenuView] UI Toolkit bootstrap failed — check Resources paths and PanelSettings.");

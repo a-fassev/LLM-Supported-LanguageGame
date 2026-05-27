@@ -1,7 +1,7 @@
 <!-- UI Builder: navigation header via part instance; wallet in NavigationWalletHudPart. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:Template name="NavigationPageHeaderWithWalletPart"
-        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/NavigationPageHeaderWithWalletPart.uxml?fileID=9197481963319205126&amp;guid=e7d6c5b4a3928171605f4e3d2c1b0a99&amp;type=3#NavigationPageHeaderWithWalletPart" />
+        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Navigation/NavigationPageHeaderWithWalletPart.uxml?fileID=9197481963319205126&amp;guid=2131fd26008943dea8b88c77d6e6587f&amp;type=3#NavigationPageHeaderWithWalletPart" />
     <ui:VisualElement name="root-shell" class="lg-fill-screen">
         <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
             <ui:Instance template="NavigationPageHeaderWithWalletPart">

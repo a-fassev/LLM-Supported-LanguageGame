@@ -35,7 +35,7 @@ namespace LanguageGame.Presentation
 
         private void Awake()
         {
-            _doc = LearningToolkitBootstrap.SpawnUiDocument(this, "QuestOverviewScreen");
+            _doc = LearningToolkitBootstrap.SpawnUiDocument(this, "Screens/QuestOverviewScreen");
             if (_doc == null)
             {
                 Debug.LogError("[QuestOverviewView] UI Toolkit bootstrap failed — check Resources paths and PanelSettings.");

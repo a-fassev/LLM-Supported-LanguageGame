@@ -8,11 +8,11 @@ description: >-
 
 # Unity task-type step UI (UI Toolkit)
 
-Task steps render inside **`TaskShellScreen`** (`Assets/Resources/UI/LearningToolkit/TaskShellScreen.uxml`); cutscenes use **`CutShellScreen.uxml`**. **`QuestStepShellHost`** swaps shells in the **`Quest`** scene. The **`step-host`** `VisualElement` is cleared and populated at runtime.
+Task steps render inside **`TaskShellScreen`** (`Assets/Resources/UI/LearningToolkit/Shells/TaskShellScreen.uxml`); cutscenes use **`CutShellScreen.uxml`**. **`QuestStepShellHost`** swaps shells in the **`Quest`** scene. The **`step-host`** `VisualElement` is cleared and populated at runtime.
 
 **Layout = UXML templates** under `Assets/Resources/UI/LearningToolkit/Templates/`; **content = `contentJson`** from the API. Use **`ToolkitStepUx.TryMount`** / **`Instantiate`** and stable **`name`** anchors (see **`ToolkitStepTemplatePaths`**). **Shell overlays** (pause, reward, loading, …): `Templates/Overlays/*.uxml` + `ToolkitOverlayTemplatePaths` + classes under `Assets/Scripts/Presentation/Overlays/` — same Option B fixtures; do not rebuild overlay DOM in C#. Do not add a second shell primary button in step UXML. Styling: [`DOC/03-styling.md`](DOC/03-styling.md).
 
-**UI Builder fixtures (Option B):** production task/cutscene templates may include Italian sample children under named **hosts** so designers style real structure in UI Builder. On **`Bind`**, call **`ToolkitStepUx.ClearHost(host)`** on every dynamic host first, then rebuild with **`ToolkitStepUx.InstantiatePart`** from **`Templates/Parts/*.uxml`** (register paths in **`ToolkitStepTemplatePaths`**). Runtime output must mirror fixture hierarchy and **`lg-*`** USS—do not hand-build divergent trees. Optional `lg-preview-sample` is editor-only; separate `*Preview.uxml` is not the default path.
+**Single-source parts + UI Builder preview:** recurring row/card/bubble markup lives only in **`Templates/Parts/{domain}/*.uxml`** (e.g. `Parts/MultipleChoice/McOptionRowPart.uxml`). Task templates under **`Templates/Tasks/{taskType}/`** compose previews with **`ui:Template`** ( `src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/{domain}/{Part}.uxml?fileID=9197481963319205126&amp;guid={from .meta}&amp;type=3#{Part}"` (hash = filename without `.uxml`, not the element `name=` anchor) ) and **`ui:Instance template="..."`** inside named **hosts**—never duplicate the same subtree inline. Nested parts (e.g. `ClozeLineRowPart` instancing literal/gap parts) use the same pattern. On **`Bind`**, **`ToolkitStepUx.ClearHost(host)`** on every dynamic host (and on nested containers inside instantiated parts before adding runtime children, e.g. drag-drop **`drag-drop-drop-zone`**), then rebuild with **`ToolkitStepUx.InstantiatePart`** from the same part paths (**`ToolkitStepTemplatePaths`**). Preview sample counts are manual in the task template; JSON drives runtime counts. Label-root parts: override preview copy on **`ui:Instance`** (e.g. `text="Destra"`). Error Spotting marked-slot preview uses **`ErrorSpottingSlotMarkedPart.uxml`** (slot + inline-field instances). Editor menu **Tools → Learning Toolkit → Validate UXML Template References** checks `ui:Template` `src` GUIDs against part `.meta` files and that each `ui:Instance template="…"` is declared in the same UXML; imports under `LearningToolkit/` log failures automatically. Optional `lg-preview-sample` is editor-only; separate `*Preview.uxml` is not the default path.
 
 Full narrative and **`contentJson`** tables: **`docs/task-type-ui-guide.md`**.
 
@@ -42,12 +42,12 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 
 1. **`taskType`** string must match API / DB (`game_quest_steps.task_type`). **`ToolkitStepFactory`** uses a **`switch`** — casing must match server payloads. Keep **`Assets/Scripts/Application/GameProgressContracts.cs`** (and any **`apps/web`** payload validators) aligned when introducing or renaming a type.
 
-2. **Add UXML template(s)** under `Assets/Resources/UI/LearningToolkit/Templates/Tasks/` (or `Cutscenes/` for beat layouts). Put repeating rows/cards in **`Templates/Parts/`** when the same subtree is used for fixtures and runtime. Register paths in **`ToolkitStepTemplatePaths`**. Every bindable control needs a stable **`name`**; document protected names in UXML comments. Fixture samples belong **only** under hosts that **`ClearHost`** clears.
+2. **Add UXML template(s)** under `Assets/Resources/UI/LearningToolkit/Templates/Tasks/` (or `Cutscenes/` for beat layouts). Put repeating rows/cards in **`Templates/Parts/`**; reference them from the task template via **`ui:Template`** + **`ui:Instance`** for UI Builder preview (do not copy inline duplicates). Register part paths in **`ToolkitStepTemplatePaths`**. Every bindable control needs a stable **`name`**; document protected names in UXML comments. Preview instances belong **only** under hosts that **`ClearHost`** clears.
 
 3. **Implement `IStepView`** (and **`ISubmitFromShell`** for tasks submitted by shell Controlla):
    - Place class under `Assets/Scripts/Presentation/Steps/` (e.g. `*ToolkitStep.cs`).
    - **Constructor**: **`ToolkitStepUx.TryMount(stepHost, path, rootName, out _root)`**; cache **`QueryRequired`** / **`QueryOptional`** results for hosts and labels.
-   - **`Bind`**: parse **`context.contentJson`**; **`ClearHost`** on dynamic hosts; fill static slots; clone dynamic children with **`InstantiatePart`** (or structure-identical markup); avoid duplicate listeners on re-bind.
+   - **`Bind`**: parse **`context.contentJson`**; **`ClearHost`** on every dynamic host **and** on nested containers inside instantiated parts before adding runtime children (Part UXML with **`ui:Instance`** previews clones those children in Play Mode — missing nested **`ClearHost`** causes duplicate hints/tiles); fill static slots; clone with **`InstantiatePart`**; avoid duplicate listeners on re-bind.
    - **`Teardown`**: **`RemoveFromHierarchy`** on mounted root; clear delegates / schedules.
    - **`SetInteractable`**: disable inputs during **`CompleteServerTaskRoutine`** / **`AdvanceCutsceneRoutine`**.
 
@@ -70,7 +70,9 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 
 ## Checklist
 
-- [ ] UXML template(s) + **`Templates/Parts/`** where needed + **`ToolkitStepTemplatePaths`** entries; protected **`name`** slots unchanged vs C# queries; fixtures only under **`ClearHost`** targets.
+- [ ] UXML template(s) + **`Templates/Parts/`** where needed + **`ToolkitStepTemplatePaths`** entries; task template previews use **`ui:Template`** / **`ui:Instance`** (no inline duplicate part trees); protected **`name`** slots unchanged vs C# queries; preview instances only under **`ClearHost`** targets.
+- [ ] After nesting **`ui:Instance`** inside **`Templates/Parts/`**, audit **`*ToolkitStep.cs`** binders: **`ClearHost`** every container that gets runtime **`InstantiatePart`** children (not only top-level hosts like **`cloze-lines-host`** / **`bank-wrap`**).
+- [ ] After moving/renaming parts: **Tools → Learning Toolkit → Validate UXML Template References** (`Assets/Editor/LearningToolkitUxmlTemplateGuidValidator.cs`; import hook **`LearningToolkitUxmlTemplateImportValidator.cs`**).
 - [ ] Stable **`contentJson`** aligned with backend.
 - [ ] **`ToolkitStepFactory`** **`case`** for **`taskType`**.
 - [ ] **`Bind` / `Teardown` / `SetInteractable`** correct; **`ISubmitFromShell`** for shell-driven submit.
@@ -96,7 +98,8 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 | Step templates | `Assets/Resources/UI/LearningToolkit/Templates/` |
 | Overlay templates | `Assets/Resources/UI/LearningToolkit/Templates/Overlays/` |
 | Template loader | `ToolkitStepUx.cs`, `ToolkitStepTemplatePaths.cs` |
+| UXML template validator | `Assets/Editor/LearningToolkitUxmlTemplateGuidValidator.cs`, `LearningToolkitUxmlTemplateImportValidator.cs` |
 | Overlay loader | `ToolkitOverlayUx.cs`, `ToolkitOverlayTemplatePaths.cs`, `Presentation/Overlays/*.cs` |
-| UXML task shell | `Assets/Resources/UI/LearningToolkit/TaskShellScreen.uxml` |
-| UXML cut shell | `Assets/Resources/UI/LearningToolkit/CutShellScreen.uxml` |
+| UXML task shell | `Assets/Resources/UI/LearningToolkit/Shells/TaskShellScreen.uxml` |
+| UXML cut shell | `Assets/Resources/UI/LearningToolkit/Shells/CutShellScreen.uxml` |
 | Theme | `Assets/Resources/UI/LearningToolkit/*.uss`, `LearningMenusTheme.tss` |

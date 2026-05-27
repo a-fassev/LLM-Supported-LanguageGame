@@ -12,40 +12,40 @@ Navigation + quest shell use **UI Toolkit** only — see [AGENTS.md](../AGENTS.m
 | Theme stylesheet | `Resources/UI/LearningToolkit/LearningMenusTheme` | Imports **default unity-theme + app USS** |
 | Text settings | `Resources/UI/LearningMenusPanelTextSettings` | Fonts / text defaults |
 
-Layouts load from `Resources/UI/LearningToolkit/{ScreenName}` **without extension**.
+Layouts load from `Resources/UI/LearningToolkit/{path}` **without extension** (e.g. `Screens/MainMenuScreen`, `Shells/TaskShellScreen`).
 
 ## UXML screens
 
 | File | Loaded by |
 |------|-----------|
-| `AuthScreen.uxml` | [`AuthView`](../Assets/Scripts/Presentation/AuthView.cs) |
-| `MainMenuScreen.uxml` | [`MainMenuView`](../Assets/Scripts/Presentation/MainMenuView.cs) |
-| `ChapterOverviewScreen.uxml` | [`ChapterOverviewView`](../Assets/Scripts/Presentation/ChapterOverviewView.cs) |
-| `QuestOverviewScreen.uxml` | [`QuestOverviewView`](../Assets/Scripts/Presentation/QuestOverviewView.cs) |
-| `TaskShellScreen.uxml` | [`TaskShellPresenter`](../Assets/Scripts/Presentation/TaskShellPresenter.cs) via [`QuestStepShellHost`](../Assets/Scripts/Presentation/QuestStepShellHost.cs) |
-| `CutShellScreen.uxml` | [`CutsceneShellPresenter`](../Assets/Scripts/Presentation/CutsceneShellPresenter.cs) via [`QuestStepShellHost`](../Assets/Scripts/Presentation/QuestStepShellHost.cs) |
-| `AvatarShopScreen.uxml` | [`AvatarShopView`](../Assets/Scripts/Presentation/AvatarShopView.cs) |
-| `SpecialScreenHost.uxml` | Special screen composite step host |
-| `Templates/Tasks/*.uxml` | Per-task-type layouts (UI Builder) |
+| `Screens/AuthScreen.uxml` | [`AuthView`](../Assets/Scripts/Presentation/AuthView.cs) |
+| `Screens/MainMenuScreen.uxml` | [`MainMenuView`](../Assets/Scripts/Presentation/MainMenuView.cs) |
+| `Screens/ChapterOverviewScreen.uxml` | [`ChapterOverviewView`](../Assets/Scripts/Presentation/ChapterOverviewView.cs) |
+| `Screens/QuestOverviewScreen.uxml` | [`QuestOverviewView`](../Assets/Scripts/Presentation/QuestOverviewView.cs) |
+| `Shells/TaskShellScreen.uxml` | [`TaskShellPresenter`](../Assets/Scripts/Presentation/TaskShellPresenter.cs) via [`QuestStepShellHost`](../Assets/Scripts/Presentation/QuestStepShellHost.cs) |
+| `Shells/CutShellScreen.uxml` | [`CutsceneShellPresenter`](../Assets/Scripts/Presentation/CutsceneShellPresenter.cs) via [`QuestStepShellHost`](../Assets/Scripts/Presentation/QuestStepShellHost.cs) |
+| `Screens/AvatarShopScreen.uxml` | [`AvatarShopView`](../Assets/Scripts/Presentation/AvatarShopView.cs) |
+| `Templates/SpecialScreens/SpecialScreenHost.uxml` | Special screen composite step host |
+| `Templates/Tasks/{taskType}/*.uxml` | Per-task-type layouts (UI Builder) |
 | `Templates/Cutscenes/*.uxml` | Cutscene host + beat presentation layouts |
 | `Templates/Overlays/*.uxml` | Shared modals/banners (pause, reward, loading, …) — open each file in UI Builder; Italian/German `lg-preview-sample` copy |
-| `ToolkitPreviewScreen.uxml` | Editor / preview tooling (button theme swatch only) |
+| `Screens/ToolkitPreviewScreen.uxml` | Editor / preview tooling (button theme swatch only) |
 
 ## Navigation chrome parts (single source)
 
-Recurring map / shell header chrome lives in **`Templates/Parts/`** and is composed into `*Screen.uxml` with **`ui:Template` + `ui:Instance`** (same pattern as task templates — see [`docs/task-type-ui-guide.md`](../docs/task-type-ui-guide.md)):
+Recurring map / shell header chrome lives in **`Templates/Parts/Navigation/`** and is composed into `*Screen.uxml` with **`ui:Template` + `ui:Instance`** (same pattern as task templates — see [`docs/task-type-ui-guide.md`](../docs/task-type-ui-guide.md)):
 
 | Part | Role |
 |------|------|
-| `NavigationWalletHudPart.uxml` | Pizza + backpack badges (`wallet-pizza`, `wallet-backpack`) |
-| `NavigationPageHeaderWithWalletPart.uxml` | `lg-page-header` + `title-label` + `header-actions-host` + wallet instance + `pause-menu-button` |
-| `NavigationPageHeaderMinimalPart.uxml` | Header without wallet (e.g. Leaderboard) |
+| `Navigation/NavigationWalletHudPart.uxml` | Pizza + backpack badges (`wallet-pizza`, `wallet-backpack`) |
+| `Navigation/NavigationPageHeaderWithWalletPart.uxml` | `lg-page-header` + `title-label` + `header-actions-host` + wallet instance + `pause-menu-button` |
+| `Navigation/NavigationPageHeaderMinimalPart.uxml` | Header without wallet (e.g. Leaderboard) |
 
 **Styling:** edit the part in UI Builder (USS `lg-*` on part nodes, especially `components-hud.uss`). Screen-specific buttons (Avatar, Refresh, Broschüre) go in **`header-actions-host`** via instance overrides on the screen UXML.
 
 **Runtime:** screens load once via `UIDocument` — no `ClearHost` for chrome. Wallet values: [`WalletHudBinder`](../Assets/Scripts/Presentation/WalletHudBinder.cs) + [`WalletUiTotals`](../Assets/Scripts/Presentation/WalletUiTotals.cs). Pause: [`LearningToolkitPauseChromeBinder`](../Assets/Scripts/Presentation/LearningToolkitPauseChromeBinder.cs) (quest shell uses [`QuestShellSharedRuntime`](../Assets/Scripts/Presentation/QuestShellSharedRuntime.cs)).
 
-Paths: [`ToolkitNavigationTemplatePaths`](../Assets/Scripts/Presentation/ToolkitNavigationTemplatePaths.cs). After moving parts: **Tools → Learning Toolkit → Validate UXML Template GUIDs**.
+Paths: [`ToolkitNavigationTemplatePaths`](../Assets/Scripts/Presentation/ToolkitNavigationTemplatePaths.cs). After moving parts: **Tools → Learning Toolkit → Validate UXML Template References**.
 
 ## USS layering (`Assets/Resources/UI/LearningToolkit/`)
 

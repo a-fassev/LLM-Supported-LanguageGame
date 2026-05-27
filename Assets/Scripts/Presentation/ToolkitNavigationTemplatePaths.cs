@@ -5,10 +5,10 @@ namespace LanguageGame.Presentation
     {
         private const string Parts = "UI/LearningToolkit/Templates/Parts";
 
-        public const string NavigationWalletHudPart = Parts + "/NavigationWalletHudPart";
+        public const string NavigationWalletHudPart = Parts + "/Navigation/NavigationWalletHudPart";
 
-        public const string NavigationPageHeaderWithWalletPart = Parts + "/NavigationPageHeaderWithWalletPart";
+        public const string NavigationPageHeaderWithWalletPart = Parts + "/Navigation/NavigationPageHeaderWithWalletPart";
 
-        public const string NavigationPageHeaderMinimalPart = Parts + "/NavigationPageHeaderMinimalPart";
+        public const string NavigationPageHeaderMinimalPart = Parts + "/Navigation/NavigationPageHeaderMinimalPart";
     }
 }

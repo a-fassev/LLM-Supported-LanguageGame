@@ -6,10 +6,10 @@ namespace LanguageGame.Presentation
 {
     internal static class ToolkitLeaderboardUx
     {
-        private const string PlayerRowPath = "UI/LearningToolkit/Templates/Parts/LeaderboardPlayerRowPart";
-        private const string TeamSummaryPath = "UI/LearningToolkit/Templates/Parts/LeaderboardTeamSummaryPart";
+        private const string PlayerRowPath = "UI/LearningToolkit/Templates/Parts/Leaderboard/LeaderboardPlayerRowPart";
+        private const string TeamSummaryPath = "UI/LearningToolkit/Templates/Parts/Leaderboard/LeaderboardTeamSummaryPart";
         private const string TeamSectionHeaderPath =
-            "UI/LearningToolkit/Templates/Parts/LeaderboardTeamSectionHeaderPart";
+            "UI/LearningToolkit/Templates/Parts/Leaderboard/LeaderboardTeamSectionHeaderPart";
 
         public static bool TryAddPlayerRow(VisualElement host, GameLeaderboardPlayerEntryDto row)
         {
