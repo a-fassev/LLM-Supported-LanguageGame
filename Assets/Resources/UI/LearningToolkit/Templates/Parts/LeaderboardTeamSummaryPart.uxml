@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="leaderboard-team-summary-card" class="lg-game-panel lg-panel-padded">
+        <ui:Label name="team-title-label" text="Team Blue · Rank #1" class="lg-text-body-lg" />
+        <ui:Label name="team-body-label" text="42 team slices · 8 players" class="lg-text-body lg-text-muted" />
+    </ui:VisualElement>
+</ui:UXML>

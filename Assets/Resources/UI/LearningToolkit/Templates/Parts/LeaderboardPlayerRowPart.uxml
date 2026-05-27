@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="leaderboard-player-row" class="lg-list-row-button">
+        <ui:Label name="rank-label" text="#1" class="lg-text-body-lg" style="min-width: 36px;" />
+        <ui:Label name="username-label" text="player" class="lg-list-row-text lg-text-body-lg" style="flex-grow: 1;" />
+        <ui:Label name="team-label" text="Team Blue" class="lg-chip" />
+        <ui:Label name="score-label" text="0" class="lg-text-body-lg" style="min-width: 40px; -unity-text-align: middle-right;" />
+    </ui:VisualElement>
+</ui:UXML>

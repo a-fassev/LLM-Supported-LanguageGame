@@ -1,0 +1,56 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="root-shell" class="lg-fill-screen">
+        <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen">
+            <ui:VisualElement class="lg-page-header">
+                <ui:Label text="Leaderboard" class="lg-heading-screen" />
+                <ui:Button name="refresh-button" text="Refresh" class="lg-btn lg-btn--secondary" style="margin-right: 8px;" />
+                <ui:Button name="pause-menu-button" text="Pause" class="lg-btn lg-btn--ghost" />
+            </ui:VisualElement>
+
+            <ui:Label name="self-summary-label" text="You: …" class="lg-text-body lg-text-muted" style="margin-top: 8px;" />
+
+            <ui:VisualElement name="mode-toggle-row" style="flex-direction: row; margin-top: 12px;">
+                <ui:Button name="mode-overall-button" text="Overall" class="lg-btn lg-btn--primary" style="margin-right: 8px;" />
+                <ui:Button name="mode-team-button" text="Teams" class="lg-btn lg-btn--secondary" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="team-summary-host" class="lg-stack" style="margin-top: 12px; display: none;">
+                <ui:VisualElement name="leaderboard-team-summary-card"
+                    class="lg-game-panel lg-panel-padded lg-preview-sample lg-leaderboard-team--blue">
+                    <ui:Label name="team-title-label" text="Team Blue · Rank #1" class="lg-text-body-lg" />
+                    <ui:Label name="team-body-label" text="42 team slices · 8 players"
+                        class="lg-text-body lg-text-muted" />
+                </ui:VisualElement>
+                <ui:VisualElement name="leaderboard-team-summary-card"
+                    class="lg-game-panel lg-panel-padded lg-preview-sample lg-leaderboard-team--red"
+                    style="margin-top: 8px;">
+                    <ui:Label name="team-title-label" text="Team Red · Rank #2" class="lg-text-body-lg" />
+                    <ui:Label name="team-body-label" text="38 team slices · 7 players"
+                        class="lg-text-body lg-text-muted" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:ScrollView name="leaderboard-scroll" class="lg-list-scroll" style="margin-top: 12px; flex-grow: 1;">
+                <ui:VisualElement name="leaderboard-list-host">
+                    <ui:VisualElement name="leaderboard-player-row" class="lg-list-row-button lg-preview-sample lg-leaderboard-row--blue">
+                        <ui:Label name="rank-label" text="#1" class="lg-text-body-lg" style="min-width: 36px;" />
+                        <ui:Label name="username-label" text="learner-alpha" class="lg-list-row-text lg-text-body-lg" style="flex-grow: 1;" />
+                        <ui:Label name="team-label" text="Team Blue" class="lg-chip" />
+                        <ui:Label name="score-label" text="12" class="lg-text-body-lg" style="min-width: 40px; -unity-text-align: middle-right;" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="leaderboard-player-row" class="lg-list-row-button lg-preview-sample lg-leaderboard-row--red lg-leaderboard-row--self">
+                        <ui:Label name="rank-label" text="#2" class="lg-text-body-lg" style="min-width: 36px;" />
+                        <ui:Label name="username-label" text="you" class="lg-list-row-text lg-text-body-lg" style="flex-grow: 1;" />
+                        <ui:Label name="team-label" text="Team Red" class="lg-chip" />
+                        <ui:Label name="score-label" text="9" class="lg-text-body-lg" style="min-width: 40px; -unity-text-align: middle-right;" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:ScrollView>
+
+            <ui:Label name="empty-label" text="No rankings yet." class="lg-text-body lg-text-muted"
+                style="display: none; margin-top: 16px;" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="overlay-plane" picking-mode="Ignore" class="lg-overlay-root" />
+    </ui:VisualElement>
+</ui:UXML>

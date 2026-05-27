@@ -92,6 +92,24 @@ namespace LanguageGame.Application
         public string ApiBaseUrl =>
             authApiClient != null ? authApiClient.ApiBaseUrl : "http://127.0.0.1:3000";
 
+        public IEnumerator GetLeaderboard(Action<GameLeaderboardEnvelope> onOk, Action<string> onError)
+        {
+            yield return AuthorizedGet(
+                "/api/game/leaderboard",
+                text =>
+                {
+                    var env = JsonUtility.FromJson<GameLeaderboardEnvelope>(text);
+                    if (env != null && env.ok && env.self != null)
+                    {
+                        onOk?.Invoke(env);
+                        return;
+                    }
+
+                    onError?.Invoke(ParseErrorMessage(text, "Invalid leaderboard response"));
+                },
+                onError);
+        }
+
         public IEnumerator GetBootstrap(Action<GameBootstrapEnvelope> onOk, Action<string> onError)
         {
             yield return AuthorizedGet(

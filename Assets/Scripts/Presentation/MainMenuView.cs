@@ -45,6 +45,7 @@ namespace LanguageGame.Presentation
             VisualElement root = _doc.rootVisualElement;
 
             root.Q<Button>("play-button")?.RegisterCallback<ClickEvent>(_ => OnPlayClicked());
+            root.Q<Button>("leaderboard-button")?.RegisterCallback<ClickEvent>(_ => OnLeaderboardClicked());
             root.Q<Button>("logout-button")?.RegisterCallback<ClickEvent>(_ => OnLogoutClicked());
 
             if (GameSessionStateStore.TryGetLatestTotalSlices(out var cachedSlices))
@@ -167,6 +168,24 @@ namespace LanguageGame.Presentation
                 if (_bootstrapReloadRequested && _gameApi != null)
                     StartCoroutine(LoadPizzaRoutine(_gameApi, showBlockingOverlay: false));
             }
+        }
+
+        private void OnLeaderboardClicked()
+        {
+            if (_bootstrapState == BootstrapLoadState.Loading)
+                return;
+
+            GameFlowController flow = GameFlowController.Instance;
+            if (flow == null)
+            {
+                Debug.LogError("[MainMenuView] GameFlowController not found.");
+                _loadErrorBanner.Show(
+                    "Navigation is not wired correctly. Check GameFlowController on the bootstrap object.",
+                    RetryAfterFlowNavigationMissing);
+                return;
+            }
+
+            flow.LoadLeaderboard();
         }
 
         private void OnPlayClicked()

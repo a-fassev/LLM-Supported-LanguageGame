@@ -25,10 +25,18 @@ Canonical **technical** contracts live in `AGENTS.md`; **task-type orientation**
 
 ### World and flow
 
+- **Main menu** offers **Continue** into the chapter map and a **Leaderboard** entry (rankings are optional motivation, not required to progress).
 - **Chapter overview** as the main hub—not a free-roam character hub.
 - **Chapter cards/buttons** drive progression visibility via unlock rules.
 - **Tap a chapter** to open quest overview, then start a **quest**; quests **chain** (finishing one unlocks the next).
+- **Leaderboard:** children can compare progress by **total pizza slices**—**Overall** (all learners) or **Teams** (blue vs red standings). They can **refresh** the list to see updated ranks after playing. Their own row should feel findable (rank / highlight), without shaming low scores.
 - **Inside a quest**, children move through **steps** in one **`Quest` scene**, but the UI switches between two modes: **task mode** (exercise chrome: quest title, **pizza/backpack** totals, optional **brochure** button, **«Controlla»**) and **story mode** (full-screen narrative: **Pause** + **«Weiter»** only—no wallet or quest title so the scene feels like one continuous story card). Cutscenes can show several beats in one row (Erzähler, NPC speech, inner thoughts, game-info hints) before the next task. **Story beats with characters:** the learner’s thoughts appear as a **thought bubble on the right** with their **avatar on the left**; **NPC dialogue** uses a **speech bubble on the left** and the **NPC portrait on the right** (placeholders until portrait art ships). **Pause** is available in both modes; the **brochure** appears only during **tasks**, not during pure story beats. Some quests may **block leaving** or **continue straight into the next quest** when the story requires it; otherwise **back to chapters** stays available so children do not feel trapped in homework mode.
+
+### Teams and classroom competition
+
+- On **first account creation**, each learner is placed automatically on **Team Blue** or **Team Red**—they **do not pick** a side; the game keeps teams **roughly equal** in size.
+- Copy after signup can name their team once (friendly, not political); leaderboard **Teams** view is where class rivalry should feel visible.
+- Team assignment is **not** a gate for quests—children can always continue the story; teams mainly frame **leaderboard** motivation.
 
 ### Mascot and motivation
 
@@ -36,7 +44,7 @@ Canonical **technical** contracts live in `AGENTS.md`; **task-type orientation**
 - **Rewards (reference: Essen project)** — distinct roles for children and copy:
   - **Pizza slices:** **Practice / encouragement** loot—shows **how well the step went** in the moment (often **whole slices**, sometimes **fewer slices** when the child only got part of the exercise right). The **game server** applies the teacher-authored rules so the same answers **always** produce the same slice count—play stays **fair** and predictable. Slices support unlocking **mascot skins** in the avatar shop and can recur on **replay** so repetition still feels supported.
   - **Backpack pieces:** **Milestone / mastery** loot—conceptually tied to **first-time success on a distinct task**, not infinite grinding on repeats. Messaging and tutorials must not imply endless backpack gains from redoing one activity forever.
-  - **Where totals appear:** show balances on **ChapterOverview**, during **task steps inside a quest** (not on cutscene/story-only beats), and in **AvatarShop**; keep the **main menu** visually light (players land there to continue—full wallet HUD belongs with exploration/customization flows).
+  - **Where totals appear:** show balances on **ChapterOverview**, during **task steps inside a quest** (not on cutscene/story-only beats), and in **AvatarShop**; keep the **main menu** visually light (players land there to continue—full wallet HUD belongs with exploration/customization flows). **Leaderboard** uses pizza totals as the **ranking score** (not backpack pieces).
   - **Composite special screens:** a step may mix **real exercises** (e.g. gaps, error spotting) with **story-only** pieces; children should still feel **one quest**, but **pizza** should only reflect **actual language work**—**stub** / layout blocks alone should not feel like “jackpot” pizza.
   - Optional **expressions** by situation remain nice-to-have.
 - **Visual direction** (not final): e.g. **lion** (Bologna) or neutral **boy/girl** school-trip style.

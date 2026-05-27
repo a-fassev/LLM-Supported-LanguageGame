@@ -628,3 +628,133 @@ export async function deleteFreitextLlmEvaluationGate(accountId: string, gateTok
   }
   return true;
 }
+
+export type StudentTeamColor = "blue" | "red";
+
+export type LeaderboardPlayerRow = {
+  accountId: string;
+  username: string;
+  team: StudentTeamColor;
+  totalSlices: number;
+};
+
+export type LeaderboardTeamAggregateRow = {
+  team: StudentTeamColor;
+  totalSlices: number;
+  memberCount: number;
+};
+
+/** Max players returned in leaderboard lists (global rank beyond this cap is estimated for self). */
+export const LEADERBOARD_MAX_PLAYERS = 100;
+
+export type LeaderboardAccountSelfContext = {
+  username: string;
+  team: StudentTeamColor;
+  totalSlices: number;
+};
+
+/** Account profile + wallet slices in one query for leaderboard self context. */
+export async function getStudentAccountLeaderboardSelfContext(
+  accountId: string,
+): Promise<LeaderboardAccountSelfContext | null> {
+  const { data: account, error: accountError } = await admin()
+    .from("student_accounts")
+    .select("username, team, player_wallets(total_slices)")
+    .eq("id", accountId)
+    .maybeSingle();
+
+  if (accountError) {
+    console.error("[game-repo] getStudentAccountLeaderboardSelfContext", accountError);
+    return null;
+  }
+
+  if (!account?.username || (account.team !== "blue" && account.team !== "red")) {
+    return null;
+  }
+
+  const walletRaw = (account as { player_wallets?: { total_slices?: number } | { total_slices?: number }[] | null })
+    .player_wallets;
+  let totalSlices = 0;
+  if (Array.isArray(walletRaw)) {
+    totalSlices = coerceNumber(walletRaw[0]?.total_slices, 0);
+  } else if (walletRaw && typeof walletRaw === "object") {
+    totalSlices = coerceNumber(walletRaw.total_slices, 0);
+  }
+
+  return {
+    username: account.username as string,
+    team: account.team as StudentTeamColor,
+    totalSlices,
+  };
+}
+
+/** Derived in memory from a single player list fetch (see leaderboard-service). */
+export function computeLeaderboardTeamAggregates(
+  players: LeaderboardPlayerRow[],
+): LeaderboardTeamAggregateRow[] {
+  const byTeam: Record<StudentTeamColor, LeaderboardTeamAggregateRow> = {
+    blue: { team: "blue", totalSlices: 0, memberCount: 0 },
+    red: { team: "red", totalSlices: 0, memberCount: 0 },
+  };
+
+  for (const player of players) {
+    const bucket = byTeam[player.team];
+    bucket.totalSlices += player.totalSlices;
+    bucket.memberCount += 1;
+  }
+
+  const aggregates = [byTeam.blue, byTeam.red];
+  aggregates.sort((a, b) => {
+    if (b.totalSlices !== a.totalSlices) return b.totalSlices - a.totalSlices;
+    return a.team.localeCompare(b.team);
+  });
+
+  return aggregates;
+}
+
+export async function listLeaderboardPlayerRows(
+  limit = LEADERBOARD_MAX_PLAYERS,
+): Promise<LeaderboardPlayerRow[] | null> {
+  const { data, error } = await admin()
+    .from("student_accounts")
+    .select("id, username, team, player_wallets(total_slices)")
+    .in("team", ["blue", "red"]);
+
+  if (error) {
+    console.error("[game-repo] listLeaderboardPlayerRows", error);
+    return null;
+  }
+
+  const rows: LeaderboardPlayerRow[] = [];
+  for (const raw of data ?? []) {
+    const row = raw as {
+      id?: string;
+      username?: string;
+      team?: string;
+      player_wallets?: { total_slices?: number } | { total_slices?: number }[] | null;
+    };
+    if (!row.id || !row.username || (row.team !== "blue" && row.team !== "red")) continue;
+
+    let slices = 0;
+    const walletRaw = row.player_wallets;
+    if (Array.isArray(walletRaw)) {
+      slices = coerceNumber(walletRaw[0]?.total_slices, 0);
+    } else if (walletRaw && typeof walletRaw === "object") {
+      slices = coerceNumber(walletRaw.total_slices, 0);
+    }
+
+    rows.push({
+      accountId: row.id,
+      username: row.username,
+      team: row.team,
+      totalSlices: slices,
+    });
+  }
+
+  rows.sort((a, b) => {
+    if (b.totalSlices !== a.totalSlices) return b.totalSlices - a.totalSlices;
+    return a.username.localeCompare(b.username);
+  });
+
+  return rows.slice(0, Math.max(1, limit));
+}

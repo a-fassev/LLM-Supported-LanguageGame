@@ -224,9 +224,12 @@ namespace LanguageGame.Presentation
             PushAuthBusyScope();
 
             yield return StartCoroutine(apiClient.Register(username, pwd, pwdConfirm,
-                u =>
+                (u, team) =>
                 {
-                    SetStatus($"Account ready: {u} — you can sign in now!");
+                    var teamNote = string.IsNullOrEmpty(team)
+                        ? string.Empty
+                        : $" You are on {FormatTeamLabel(team)}.";
+                    SetStatus($"Account ready: {u} — you can sign in now!{teamNote}");
                     ShowRegisterFlow(false);
 
                     if (_loginUsername != null)
@@ -319,6 +322,9 @@ namespace LanguageGame.Presentation
             _registerPassword?.SetEnabled(fieldsIdle);
             _registerPasswordConfirm?.SetEnabled(fieldsIdle);
         }
+
+        private static string FormatTeamLabel(string team) =>
+            team == "blue" ? "Team Blue" : team == "red" ? "Team Red" : team ?? string.Empty;
 
         private void OnDestroy()
         {

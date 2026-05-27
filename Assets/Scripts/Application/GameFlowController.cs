@@ -20,6 +20,7 @@ namespace LanguageGame.Application
         private const string SceneQuestOverview = "QuestOverview";
         private const string SceneQuest = "Quest";
         private const string SceneAvatarShop = "AvatarShop";
+        private const string SceneLeaderboard = "Leaderboard";
 
         private string _serverRunId;
         private string _serverQuestId;
@@ -94,6 +95,15 @@ namespace LanguageGame.Application
 
             ClearAllQuestState();
             BeginSceneTransition(SceneChapterOverview);
+        }
+
+        public void LoadLeaderboard()
+        {
+            if (!TryBeginTransitionOrNotify())
+                return;
+
+            ClearAllQuestState();
+            BeginSceneTransition(SceneLeaderboard);
         }
 
         public void LoadQuestOverview()

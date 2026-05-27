@@ -170,4 +170,42 @@ namespace LanguageGame.Application
 
         public string error;
     }
+
+    [Serializable]
+    public class GameLeaderboardSelfDto
+    {
+        public string username;
+        public string team;
+        public int totalSlices;
+        public int overallRank;
+    }
+
+    [Serializable]
+    public class GameLeaderboardPlayerEntryDto
+    {
+        public int rank;
+        public string username;
+        public string team;
+        public int totalSlices;
+        public bool isSelf;
+    }
+
+    [Serializable]
+    public class GameLeaderboardTeamEntryDto
+    {
+        public int rank;
+        public string team;
+        public int totalSlices;
+        public int memberCount;
+    }
+
+    [Serializable]
+    public class GameLeaderboardEnvelope
+    {
+        public bool ok;
+        public GameLeaderboardSelfDto self;
+        public GameLeaderboardPlayerEntryDto[] overall;
+        public GameLeaderboardTeamEntryDto[] teams;
+        public string error;
+    }
 }

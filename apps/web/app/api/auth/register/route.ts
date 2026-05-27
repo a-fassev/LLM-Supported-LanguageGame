@@ -75,11 +75,16 @@ export async function POST(request: Request) {
     const { data, error } = await supabase
       .from("student_accounts")
       .insert({ username, password_hash: passwordHash })
-      .select("username")
+      .select("username, team")
       .single();
 
     if (!error && data?.username) {
-      return jsonOk({ username: data.username });
+      const team =
+        data.team === "blue" || data.team === "red" ? data.team : undefined;
+      return jsonOk({
+        username: data.username,
+        ...(team ? { team } : {}),
+      });
     }
 
     lastError = error;

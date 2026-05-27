@@ -41,7 +41,7 @@ export async function GET(request: Request) {
 
   const { data: account, error: accountError } = await supabase
     .from("student_accounts")
-    .select("username")
+    .select("username, team")
     .eq("id", session.account_id)
     .maybeSingle();
 
@@ -49,8 +49,12 @@ export async function GET(request: Request) {
     return jsonError(401, "Invalid or expired session", "invalid_session");
   }
 
+  const team =
+    account.team === "blue" || account.team === "red" ? account.team : undefined;
+
   return jsonOk({
     username: account.username,
     expiresAt: session.expires_at,
+    ...(team ? { team } : {}),
   });
 }

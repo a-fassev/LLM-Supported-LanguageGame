@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="leaderboard-team-section-header">
+        <ui:Label name="team-section-title-label" text="Team Blue"
+            class="lg-text-body-lg lg-text-muted lg-leaderboard-team-section-header" />
+    </ui:VisualElement>
+</ui:UXML>

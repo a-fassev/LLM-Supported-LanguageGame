@@ -38,7 +38,7 @@ namespace LanguageGame.Application
         }
 
         public IEnumerator Register(string username, string password, string passwordConfirm,
-            Action<string> onSuccess, Action<string> onError)
+            Action<string, string> onSuccess, Action<string> onError)
         {
             var body = JsonUtility.ToJson(new RegisterRequest
             {
@@ -61,10 +61,10 @@ namespace LanguageGame.Application
             }
 
             var text = req.downloadHandler.text;
-            var ok = JsonUtility.FromJson<OkUsername>(text);
+            var ok = JsonUtility.FromJson<OkRegister>(text);
             if (ok != null && ok.ok && !string.IsNullOrEmpty(ok.username))
             {
-                onSuccess?.Invoke(ok.username);
+                onSuccess?.Invoke(ok.username, ok.team ?? string.Empty);
                 yield break;
             }
 
@@ -190,6 +190,14 @@ namespace LanguageGame.Application
         {
             public bool ok;
             public string username;
+        }
+
+        [Serializable]
+        private class OkRegister
+        {
+            public bool ok;
+            public string username;
+            public string team;
         }
 
         [Serializable]
