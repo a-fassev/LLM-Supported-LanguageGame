@@ -1,5 +1,7 @@
 -- Idempotent review fixes for chapter-01 narrative content (already-deployed DBs).
--- Mirrors corrections in 20260527160000_chapter_01_act1_content.sql.
+-- KEEP IN SYNC: any content edit in 20260527160000_chapter_01_act1_content.sql for
+-- tags q1s2, q2s2, q3s1, q3s6 or chapter theme_payload must be mirrored here.
+-- CI guard: apps/web/lib/game/chapter01MigrationPayloads.test.ts
 
 update public.game_chapters
 set

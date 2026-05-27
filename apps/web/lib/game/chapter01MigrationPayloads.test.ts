@@ -4,10 +4,24 @@ import { describe, expect, it } from "vitest";
 import { parseStepContent } from "@/lib/game/stepContentValidation";
 import { parseQuestMetaPayloadStrict } from "@/lib/game/schemas/questMetaPayloadSchema";
 
-const migrationPath = path.resolve(
-  __dirname,
-  "../../../../supabase/migrations/20260527160000_chapter_01_act1_content.sql",
+const repoRoot = path.resolve(__dirname, "../../../..");
+const mainMigrationPath = path.join(
+  repoRoot,
+  "supabase/migrations/20260527160000_chapter_01_act1_content.sql",
 );
+const followUpMigrationPath = path.join(
+  repoRoot,
+  "supabase/migrations/20260527170000_chapter_01_review_fixes.sql",
+);
+
+/** Dollar-quote tags duplicated in the follow-up migration — keep payloads identical. */
+const FOLLOW_UP_STEP_TAGS = ["q1s2", "q2s2", "q3s1", "q3s6"] as const;
+
+const EXPECTED_CHAPTER_THEME = {
+  background: "static/navigation/backgrounds/ph-st-nav-chapter-bg",
+  music: "chapter1-theme",
+  paletteKey: "chapter1",
+};
 
 type StepMeta = {
   kind: "cutscene" | "task";
@@ -15,11 +29,21 @@ type StepMeta = {
   logical: string;
 };
 
-function loadMigrationSql(): string {
-  return fs.readFileSync(migrationPath, "utf8");
+function loadMigrationSql(filePath: string): string {
+  return fs.readFileSync(filePath, "utf8");
 }
 
-function collectStepPayloads(sql: string): Array<{ meta: StepMeta; payload: unknown }> {
+/** Extract JSON payloads from SQL dollar-quoted blocks keyed by tag name. */
+function extractPayloadsByTag(sql: string): Map<string, unknown> {
+  const payloadRe = /\$(\w+)\$(\{[\s\S]*?\})\$\1\$/g;
+  const byTag = new Map<string, unknown>();
+  for (const m of sql.matchAll(payloadRe)) {
+    byTag.set(m[1], JSON.parse(m[2]));
+  }
+  return byTag;
+}
+
+function collectStepPayloads(sql: string): Array<{ tag: string; meta: StepMeta; payload: unknown }> {
   const rowRe =
     /\(\s*'chapter-01-quest-[^']+',\s*(\d+),\s*'(cutscene|task)',\s*(?:'([^']*)'|null)(?:::text)?,\s*'([^']+)',\s*'([^']+)',\s*\$(\w+)\$/gs;
   const tags = new Map<string, StepMeta>();
@@ -31,39 +55,88 @@ function collectStepPayloads(sql: string): Array<{ meta: StepMeta; payload: unkn
     });
   }
 
-  const payloadRe = /\$(\w+)\$(\{[\s\S]*?\})\$\1\$/g;
-  const rows: Array<{ meta: StepMeta; payload: unknown }> = [];
-  for (const m of sql.matchAll(payloadRe)) {
-    const meta = tags.get(m[1]);
+  const rows: Array<{ tag: string; meta: StepMeta; payload: unknown }> = [];
+  for (const [tag, payload] of extractPayloadsByTag(sql)) {
+    const meta = tags.get(tag);
     if (!meta) continue;
-    rows.push({ meta, payload: JSON.parse(m[2]) });
+    rows.push({ tag, meta, payload });
   }
   return rows;
 }
 
-describe("chapter-01 migration payloads", () => {
-  it("validates all 16 step content_payload objects", () => {
-    const sql = loadMigrationSql();
-    const rows = collectStepPayloads(sql);
-    expect(rows).toHaveLength(16);
-
-    const failures: string[] = [];
-    for (const { meta, payload } of rows) {
-      const result = parseStepContent({
-        step_kind: meta.kind,
-        task_type: meta.taskType,
-        content_payload: payload,
-      });
-      if (!result.ok) {
-        failures.push(`${meta.logical}: ${result.issues}`);
-      }
+function validateStepPayloads(
+  rows: Array<{ meta: StepMeta; payload: unknown }>,
+): string[] {
+  const failures: string[] = [];
+  for (const { meta, payload } of rows) {
+    const result = parseStepContent({
+      step_kind: meta.kind,
+      task_type: meta.taskType,
+      content_payload: payload,
+    });
+    if (!result.ok) {
+      failures.push(`${meta.logical}: ${result.issues}`);
     }
-    expect(failures, failures.join("\n")).toEqual([]);
+  }
+  return failures;
+}
+
+function extractChapterThemeFromMainMigration(sql: string): typeof EXPECTED_CHAPTER_THEME {
+  const match = sql.match(
+    /insert into public\.game_chapters[\s\S]*?values \(\s*'chapter-01',[\s\S]*?'(\{[\s\S]*?\})'::jsonb/s,
+  );
+  expect(match).not.toBeNull();
+  return JSON.parse(match![1]) as typeof EXPECTED_CHAPTER_THEME;
+}
+
+function extractChapterThemeFromFollowUpMigration(sql: string): typeof EXPECTED_CHAPTER_THEME {
+  const match = sql.match(
+    /theme_payload = '(\{[^']+\})'::jsonb/s,
+  );
+  expect(match).not.toBeNull();
+  return JSON.parse(match![1]) as typeof EXPECTED_CHAPTER_THEME;
+}
+
+describe("chapter-01 migration payloads", () => {
+  const mainSql = loadMigrationSql(mainMigrationPath);
+  const followUpSql = loadMigrationSql(followUpMigrationPath);
+  const mainSteps = collectStepPayloads(mainSql);
+  const mainByTag = extractPayloadsByTag(mainSql);
+  const followUpByTag = extractPayloadsByTag(followUpSql);
+
+  it("validates all 16 step content_payload objects in the main migration", () => {
+    expect(mainSteps).toHaveLength(16);
+    expect(validateStepPayloads(mainSteps), validateStepPayloads(mainSteps).join("\n")).toEqual([]);
+  });
+
+  it("validates follow-up migration step payloads and retires demo quests", () => {
+    expect(followUpSql).toContain("and q.slug in ('quest-01', 'quest-02')");
+
+    const followUpRows = FOLLOW_UP_STEP_TAGS.flatMap((tag) => {
+      const mainRow = mainSteps.find((row) => row.tag === tag);
+      expect(mainRow, `main migration missing tag ${tag}`).toBeDefined();
+      return mainRow ? [mainRow] : [];
+    });
+
+    expect(followUpRows).toHaveLength(FOLLOW_UP_STEP_TAGS.length);
+    expect(validateStepPayloads(followUpRows), validateStepPayloads(followUpRows).join("\n")).toEqual([]);
+  });
+
+  it("keeps follow-up migration payloads in sync with the main migration", () => {
+    for (const tag of FOLLOW_UP_STEP_TAGS) {
+      expect(followUpByTag.has(tag), `follow-up migration missing tag ${tag}`).toBe(true);
+      expect(mainByTag.has(tag), `main migration missing tag ${tag}`).toBe(true);
+      expect(followUpByTag.get(tag)).toEqual(mainByTag.get(tag));
+    }
+  });
+
+  it("keeps chapter theme_payload in sync across both migrations", () => {
+    expect(extractChapterThemeFromMainMigration(mainSql)).toEqual(EXPECTED_CHAPTER_THEME);
+    expect(extractChapterThemeFromFollowUpMigration(followUpSql)).toEqual(EXPECTED_CHAPTER_THEME);
   });
 
   it("does not accept invalid cloze answers for the vacation task", () => {
-    const sql = loadMigrationSql();
-    const vacation = collectStepPayloads(sql).find((r) => r.meta.logical === "chapter-01-q1-cloze-vacation");
+    const vacation = mainSteps.find((r) => r.meta.logical === "chapter-01-q1-cloze-vacation");
     expect(vacation).toBeDefined();
     const payload = vacation!.payload as {
       lines: Array<{ segments: Array<{ kind: string; correctAnswers?: string[] }> }>;
@@ -74,8 +147,7 @@ describe("chapter-01 migration payloads", () => {
   });
 
   it("validates bar quest meta_payload including referenceDocument", () => {
-    const sql = loadMigrationSql();
-    const metaMatch = sql.match(/\$bar_meta\$(\{[\s\S]*?\})\$bar_meta\$/);
+    const metaMatch = mainSql.match(/\$bar_meta\$(\{[\s\S]*?\})\$bar_meta\$/);
     expect(metaMatch).not.toBeNull();
     const parsed = parseQuestMetaPayloadStrict(JSON.parse(metaMatch![1]));
     expect(parsed.ok).toBe(true);
@@ -84,10 +156,5 @@ describe("chapter-01 migration payloads", () => {
       expect(parsed.value.flow?.blockBack).toBe(false);
       expect(parsed.value.flow?.autoStartQuestSlug).toBeUndefined();
     }
-  });
-
-  it("retires greenfield demo quests in the same migration", () => {
-    const sql = loadMigrationSql();
-    expect(sql).toContain("and q.slug in ('quest-01', 'quest-02')");
   });
 });
