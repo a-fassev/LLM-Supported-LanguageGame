@@ -7,7 +7,7 @@ values (
   'chapter-01',
   'Capitolo 1: Bologna',
   0,
-  '{"background":"chapter1-bg","music":"chapter1-theme","paletteKey":"chapter1"}'::jsonb,
+  '{"background":"static/navigation/backgrounds/ph-st-nav-chapter-bg","music":"chapter1-theme","paletteKey":"chapter1"}'::jsonb,
   true
 )
 on conflict (slug) do update
@@ -164,7 +164,7 @@ seed_steps as (
             {
               "segments": [
                 { "kind": "text", "text": "Quest'estate " },
-                { "kind": "gap", "placeholder": "…", "maxLength": 24, "correctAnswers": ["sono andato", "sono andata", "son andato", "son andata"] },
+                { "kind": "gap", "placeholder": "…", "maxLength": 24, "correctAnswers": ["sono andato", "sono andata"] },
                 { "kind": "text", "text": " in campeggio con la mia famiglia al Lago di Garda. " },
                 { "kind": "gap", "placeholder": "…", "maxLength": 12, "correctAnswers": ["Era", "era"] },
                 { "kind": "text", "text": " la prima volta che " },
@@ -359,7 +359,7 @@ seed_steps as (
           "sceneBackgroundAsset": "static/cutscene-backgrounds/chapter-01/ph-cs-school-exterior",
           "beats": [
             { "presentationMode": "innerMonologue", "body": "Matteo non cambia mai. Gli rispondo più tardi, adesso ho voglia di esplorare un po' Bologna. È la mia prima vera giornata libera in città." },
-            { "presentationMode": "narrator", "body": "Rimetti il telefono in tasca. La città ti aspetta. Sulla mappa di Bologna si illuminano tre nuovi posti: un bar, il museo della città e la casa della famiglia Ferrari." }
+            { "presentationMode": "narrator", "body": "Rimetti il telefono in tasca. La città ti aspetta. Sulla mappa di Bologna compaiono tre nuovi luoghi. Per ora puoi visitare il bar in centro — museo e casa Ferrari arriveranno più avanti nella storia." }
           ],
           "navigation": { "blockBack": true }
         }$q2s2$,
@@ -418,7 +418,7 @@ seed_steps as (
             { "id": "t-profondo", "title": "(agg.) profondo", "correctItemIds": ["w-profondita"] },
             { "id": "t-largo", "title": "(agg.) largo", "correctItemIds": ["w-larghezza"] },
             { "id": "t-umido", "title": "(agg.) umido", "correctItemIds": ["w-umidita"] },
-            { "id": "t-durante", "title": "(prep.) durante", "correctItemIds": ["w-durata"] },
+            { "id": "t-durata", "title": "(sost.) durata", "correctItemIds": ["w-durata"] },
             { "id": "t-parzialita", "title": "(sost.) parzialità", "correctItemIds": ["w-parziale"] },
             { "id": "t-lungo", "title": "(agg.) lungo", "correctItemIds": ["w-lunghezza"] }
           ],
@@ -558,7 +558,7 @@ seed_steps as (
           ],
           "beats": [
             { "presentationMode": "npcDialog", "speakerId": "tonio", "body": "Grandissimo/a! Mi hai aiutato tanto, grazie! Tieni, il caffè te lo offro io. E se torni in Puglia un giorno, passa a trovarmi al mio paese, eh!" },
-            { "presentationMode": "gameInfo", "body": "Hai guadagnato una fetta di pizza!" },
+            { "presentationMode": "gameInfo", "body": "Hai completato tutte le attività al bar!" },
             { "presentationMode": "innerMonologue", "body": "Che tipo simpatico, Tonio. Bologna mi piace già. Ora però è ora di andare: voglio ancora vedere qualcos'altro prima di sera." },
             { "presentationMode": "narrator", "body": "Esci dal bar. Sulla mappa restano ancora due luoghi da visitare: il museo della città e la casa della famiglia Ferrari." }
           ]
@@ -609,3 +609,19 @@ set
   reward_rules = excluded.reward_rules,
   is_active = excluded.is_active,
   updated_at = now();
+
+-- Retire greenfield/demo quests so chapter overview shows only narrative Act 1 rows.
+update public.game_quest_steps s
+set is_active = false, updated_at = now()
+from public.game_quests q
+join public.game_chapters c on c.id = q.chapter_id
+where s.quest_id = q.id
+  and c.slug = 'chapter-01'
+  and q.slug in ('quest-01', 'quest-02');
+
+update public.game_quests q
+set is_active = false, updated_at = now()
+from public.game_chapters c
+where q.chapter_id = c.id
+  and c.slug = 'chapter-01'
+  and q.slug in ('quest-01', 'quest-02');
