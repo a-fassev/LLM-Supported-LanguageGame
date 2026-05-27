@@ -14,6 +14,8 @@ namespace LanguageGame.Presentation.Steps
         public string sceneBackgroundAsset;
         public string prompt;
         public bool caseSensitive;
+        /// <summary>When true, all gaps empty skips validation; partial fill must be fully correct.</summary>
+        public bool optional;
         public ClozeLineDto[] lines;
     }
 
@@ -107,6 +109,8 @@ namespace LanguageGame.Presentation.Steps
         public string id;
         public string title;
         public string[] correctItemIds;
+        /// <summary>"one" = pick one item (OR in correctItemIds); "all" = place every listed item (bucket).</summary>
+        public string matchMode;
     }
 
     [Serializable]

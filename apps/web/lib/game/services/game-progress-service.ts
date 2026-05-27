@@ -25,6 +25,7 @@ import {
   type GameQuestStepRow,
   type PlayerQuestRunRow,
 } from "@/lib/game/repositories/game-progress-repository";
+import { allChapterQuestsEarnedMarks } from "@/lib/game/chapterUnlockProgress";
 import type { CutscenePayloadErrorDetail, CutscenePayloadInvalidApiDetails } from "@/lib/game/cutscenePayloadValidation";
 import {
   collectStepPayloadErrors,
@@ -545,11 +546,6 @@ function buildQuestUnlockHint(
   return lines.join("\n");
 }
 
-function allChapterQuestsEarnedMarks(chapterQuests: GameQuestRow[], completedQuestIds: Set<string>): boolean {
-  if (chapterQuests.length === 0) return true;
-  return chapterQuests.every((q) => completedQuestIds.has(q.id));
-}
-
 function rpcFailureStatus(code: string): number {
   if (code === "run_not_found") return 404;
   if (code === "rpc_transport_error") return 503;
@@ -626,7 +622,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
     const chapterUnlockHint =
       chapterUnlocked
         ? ""
-        : `Complete every quest in "${chaptersSorted[chIdx - 1]?.display_name ?? "the previous chapter"}" to unlock this chapter.`;
+        : `Complete the main story quests in "${chaptersSorted[chIdx - 1]?.display_name ?? "the previous chapter"}" to unlock this chapter (bonus quests are optional).`;
 
     const questDtos: GameQuestClientDto[] = [];
     for (const quest of chapterQuestsSorted) {

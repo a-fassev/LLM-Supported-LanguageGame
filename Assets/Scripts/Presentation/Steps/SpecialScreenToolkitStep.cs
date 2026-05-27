@@ -71,6 +71,12 @@ namespace LanguageGame.Presentation.Steps
 
             bool TryValidate(out string message);
 
+            /// <summary>When true, this block is an optional cloze identikit (may be skipped if empty).</summary>
+            bool IsOptionalClozeBlock { get; }
+
+            /// <summary>When true, block is an optional cloze identikit that was fully completed.</summary>
+            bool IsOptionalClozeFullyCompleted { get; }
+
             /// <summary>JSON value for <c>specialScreen.blocks[]</c> (object or <c>null</c> literal).</summary>
             bool TryExportBlockAttemptJson(out string jsonFragment, out string error);
 
@@ -236,20 +242,20 @@ namespace LanguageGame.Presentation.Steps
                 return;
             }
 
+            if (!TryEnsureAllBlocksVisited(out var pagingMsg))
+            {
+                _context?.presentValidationMessage?.Invoke(pagingMsg);
+                return;
+            }
+
+            if (!TryValidateBlocksForSubmit(out var validateMsg))
+            {
+                _context?.presentValidationMessage?.Invoke(validateMsg);
+                return;
+            }
+
             if (_context != null && QuestScoringPolicy.ServerScoresPizza(_context.rewardRulesJson))
             {
-                if (!_readerDisplayOnly)
-                {
-                    if (_blocks.Count > 0 && _currentIndex != _blocks.Count - 1)
-                    {
-                        var msg = _useMailChrome
-                            ? "Completa tutte le parti con «→» prima di premere Controlla o Invia."
-                            : "Completa tutte le parti con «→» prima di premere Controlla.";
-                        _context?.presentValidationMessage?.Invoke(msg);
-                        return;
-                    }
-                }
-
                 if (!TryBuildTaskAttemptJson(out var json, out var aerr))
                 {
                     if (!string.IsNullOrEmpty(aerr))
@@ -259,27 +265,6 @@ namespace LanguageGame.Presentation.Steps
 
                 _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true, taskAttemptJson = json });
                 return;
-            }
-
-            if (!_readerDisplayOnly)
-            {
-                if (_blocks.Count > 0 && _currentIndex != _blocks.Count - 1)
-                {
-                    var msg = _useMailChrome
-                        ? "Completa tutte le parti con «→» prima di premere Controlla o Invia."
-                        : "Completa tutte le parti con «→» prima di premere Controlla.";
-                    _context?.presentValidationMessage?.Invoke(msg);
-                    return;
-                }
-            }
-
-            foreach (var block in _blocks)
-            {
-                if (!block.TryValidate(out var msg))
-                {
-                    _context?.presentValidationMessage?.Invoke(msg);
-                    return;
-                }
             }
 
             if (_useMailChrome)
@@ -306,6 +291,53 @@ namespace LanguageGame.Presentation.Steps
             }
 
             _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true });
+        }
+
+        private bool TryEnsureAllBlocksVisited(out string message)
+        {
+            message = null;
+            if (_readerDisplayOnly)
+                return true;
+
+            if (_blocks.Count > 0 && _currentIndex != _blocks.Count - 1)
+            {
+                message = _useMailChrome
+                    ? "Completa tutte le parti con «→» prima di premere Controlla o Invia."
+                    : "Completa tutte le parti con «→» prima di premere Controlla.";
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool TryValidateBlocksForSubmit(out string message)
+        {
+            message = null;
+            foreach (var block in _blocks)
+            {
+                if (!block.TryValidate(out message))
+                    return false;
+            }
+
+            var optionalClozeBlocks = 0;
+            var optionalClozeCompleted = 0;
+            foreach (var block in _blocks)
+            {
+                if (!block.IsOptionalClozeBlock)
+                    continue;
+
+                optionalClozeBlocks++;
+                if (block.IsOptionalClozeFullyCompleted)
+                    optionalClozeCompleted++;
+            }
+
+            if (optionalClozeBlocks > 0 && optionalClozeCompleted == 0)
+            {
+                message = "Completa almeno un identikit prima di continuare.";
+                return false;
+            }
+
+            return true;
         }
 
         public bool TryBuildTaskAttemptJson(out string attemptJson, out string validationMessage)
@@ -360,6 +392,13 @@ namespace LanguageGame.Presentation.Steps
 
             if (QuestScoringPolicy.ServerScoresPizza(_context.rewardRulesJson))
             {
+                if (!TryValidateBlocksForSubmit(out var validateMsg))
+                {
+                    if (!string.IsNullOrEmpty(validateMsg))
+                        _context?.presentValidationMessage?.Invoke(validateMsg);
+                    return;
+                }
+
                 if (!TryBuildTaskAttemptJson(out var json, out _))
                     return;
                 _onRequest?.Invoke(new StepCompletionRequest { requestComplete = true, taskAttemptJson = json });
@@ -1892,6 +1931,11 @@ namespace LanguageGame.Presentation.Steps
                 return _step.TryValidateLocally(out message);
             }
 
+            public bool IsOptionalClozeBlock => _dto != null && _dto.optional;
+
+            public bool IsOptionalClozeFullyCompleted =>
+                IsOptionalClozeBlock && _step != null && _step.IsFullyCompletedAndCorrect();
+
             public bool TryExportBlockAttemptJson(out string jsonFragment, out string error)
             {
                 jsonFragment = null;
@@ -1943,6 +1987,10 @@ namespace LanguageGame.Presentation.Steps
 
                 return _step.TryValidateLocally(out message);
             }
+
+            public bool IsOptionalClozeBlock => false;
+
+            public bool IsOptionalClozeFullyCompleted => false;
 
             public bool TryExportBlockAttemptJson(out string jsonFragment, out string error)
             {
@@ -2021,6 +2069,10 @@ namespace LanguageGame.Presentation.Steps
                 message = null;
                 return true;
             }
+
+            public bool IsOptionalClozeBlock => false;
+
+            public bool IsOptionalClozeFullyCompleted => false;
 
             public bool TryExportBlockAttemptJson(out string jsonFragment, out string error)
             {
@@ -2548,6 +2600,10 @@ namespace LanguageGame.Presentation.Steps
 
                 return true;
             }
+
+            public bool IsOptionalClozeBlock => false;
+
+            public bool IsOptionalClozeFullyCompleted => false;
 
             public bool TryExportBlockAttemptJson(out string jsonFragment, out string error)
             {

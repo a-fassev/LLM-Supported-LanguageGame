@@ -13,6 +13,38 @@ describe("parseStepContent", () => {
     expect(r.ok).toBe(true);
   });
 
+  it("accepts drag-drop targets with matchMode all", () => {
+    const r = parseStepContent({
+      step_kind: "task",
+      task_type: "DragDrop",
+      content_payload: {
+        sceneBackgroundAsset: "static/task-scene-backgrounds/ph-st-task-bg-default",
+        items: [{ id: "a", label: "A" }],
+        targets: [
+          {
+            id: "bucket",
+            matchMode: "all",
+            correctItemIds: ["a", "b"],
+          },
+        ],
+      },
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it("rejects drag-drop targets with invalid matchMode", () => {
+    const r = parseStepContent({
+      step_kind: "task",
+      task_type: "DragDrop",
+      content_payload: {
+        sceneBackgroundAsset: "static/task-scene-backgrounds/ph-st-task-bg-default",
+        items: [{ id: "a", label: "A" }],
+        targets: [{ id: "t1", matchMode: "alll", correctItemIds: ["a"] }],
+      },
+    });
+    expect(r.ok).toBe(false);
+  });
+
   it("accepts cloze task with scene background", () => {
     const r = parseStepContent({
       step_kind: "task",

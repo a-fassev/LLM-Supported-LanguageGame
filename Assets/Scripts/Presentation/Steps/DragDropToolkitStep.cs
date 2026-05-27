@@ -220,9 +220,22 @@ namespace LanguageGame.Presentation.Steps
 
         private bool Validate()
         {
+            if (!TryValidate(out var message))
+            {
+                if (!string.IsNullOrEmpty(message))
+                    _context?.presentValidationMessage?.Invoke(message);
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool TryValidate(out string message)
+        {
+            message = null;
             if (!_contentReady || _dto == null)
             {
-                _context?.presentValidationMessage?.Invoke("This task is not ready yet. Check the lesson content.");
+                message = "This task is not ready yet. Check the lesson content.";
                 return false;
             }
 
@@ -231,47 +244,16 @@ namespace LanguageGame.Presentation.Steps
                 if (t == null || string.IsNullOrWhiteSpace(t.id))
                     continue;
                 var tid = t.id.Trim();
-                if (!_occupant.TryGetValue(tid, out var placed) || placed == null)
+                if (!_occupant.TryGetValue(tid, out var placed) || placed == null || placed.Count == 0)
                 {
-                    _context?.presentValidationMessage?.Invoke("Fill every drop zone.");
+                    message = "Fill every drop zone.";
                     return false;
                 }
 
-                if (_blocksMode)
+                if (!TargetPlacementMatches(t, placed))
                 {
-                    var expected = BuildExpectedItemSet(t.correctItemIds);
-                    if (expected.Count > 0 && placed.Count == 0)
-                    {
-                        _context?.presentValidationMessage?.Invoke("Fill every drop zone.");
-                        return false;
-                    }
-
-                    if (!placed.SetEquals(expected))
-                    {
-                        _context?.presentValidationMessage?.Invoke("Not quite — check your matches.");
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (placed.Count == 0)
-                    {
-                        _context?.presentValidationMessage?.Invoke("Fill every drop zone.");
-                        return false;
-                    }
-
-                    if (placed.Count != 1)
-                    {
-                        _context?.presentValidationMessage?.Invoke("Not quite — check your matches.");
-                        return false;
-                    }
-
-                    var only = FirstOf(placed);
-                    if (string.IsNullOrEmpty(only) || !MatchesCorrect(only, t.correctItemIds))
-                    {
-                        _context?.presentValidationMessage?.Invoke("Not quite — check your matches.");
-                        return false;
-                    }
+                    message = "Not quite — check your matches.";
+                    return false;
                 }
             }
 
@@ -291,7 +273,7 @@ namespace LanguageGame.Presentation.Steps
 
                     if (!placedAnywhere)
                     {
-                        _context?.presentValidationMessage?.Invoke("Place every card.");
+                        message = "Place every card.";
                         return false;
                     }
                 }
@@ -304,7 +286,10 @@ namespace LanguageGame.Presentation.Steps
         {
             attemptJson = null;
             validationMessage = null;
-            if (!_contentReady || _dto == null)
+            if (!TryValidate(out validationMessage))
+                return false;
+
+            if (_dto == null)
             {
                 validationMessage = "This task is not ready yet.";
                 return false;
@@ -759,20 +744,6 @@ namespace LanguageGame.Presentation.Steps
             }
         }
 
-        private static HashSet<string> BuildExpectedItemSet(string[] correctItemIds)
-        {
-            var s = new HashSet<string>(StringComparer.Ordinal);
-            if (correctItemIds == null)
-                return s;
-            foreach (var c in correctItemIds)
-            {
-                if (!string.IsNullOrWhiteSpace(c))
-                    s.Add(c.Trim());
-            }
-
-            return s;
-        }
-
         private static string FirstOf(HashSet<string> set)
         {
             if (set == null)
@@ -782,17 +753,55 @@ namespace LanguageGame.Presentation.Steps
             return null;
         }
 
-        private static bool MatchesCorrect(string itemId, string[] correct)
+        private static bool TargetPlacementMatches(DragDropTargetDto target, HashSet<string> placed)
         {
-            if (correct == null || correct.Length == 0)
+            var expected = BuildExpectedItemIdSet(target?.correctItemIds);
+            if (expected.Count == 0)
                 return false;
-            foreach (var c in correct)
+
+            if (IsAllMatchMode(target))
+                return SetsEqual(placed, expected);
+
+            if (placed.Count != 1)
+                return false;
+
+            var only = FirstOf(placed);
+            return !string.IsNullOrEmpty(only) && expected.Contains(only);
+        }
+
+        private static bool IsAllMatchMode(DragDropTargetDto target)
+        {
+            var mode = (target?.matchMode ?? string.Empty).Trim();
+            return string.Equals(mode, "all", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static HashSet<string> BuildExpectedItemIdSet(string[] correctItemIds)
+        {
+            var expected = new HashSet<string>(StringComparer.Ordinal);
+            if (correctItemIds == null)
+                return expected;
+            foreach (var c in correctItemIds)
             {
-                if (!string.IsNullOrWhiteSpace(c) && string.Equals(c.Trim(), itemId, StringComparison.Ordinal))
-                    return true;
+                if (!string.IsNullOrWhiteSpace(c))
+                    expected.Add(c.Trim());
             }
 
-            return false;
+            return expected;
+        }
+
+        private static bool SetsEqual(HashSet<string> a, HashSet<string> b)
+        {
+            if (a == null || b == null)
+                return false;
+            if (a.Count != b.Count)
+                return false;
+            foreach (var id in a)
+            {
+                if (!b.Contains(id))
+                    return false;
+            }
+
+            return true;
         }
 
         private static bool TryDeserialize(string json, out DragDropContentDto dto, out string error)

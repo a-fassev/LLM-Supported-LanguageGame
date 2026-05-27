@@ -112,6 +112,124 @@ describe("evaluateTaskAttempt", () => {
     expect(r.ratio).toBe(0.5);
   });
 
+  it("scores dragdrop blocks mode with alternative correctItemIds (OR per target)", () => {
+    const content = {
+      presentation: { targetMode: "blocks" },
+      targets: [{ id: "t1", correctItemIds: ["a", "b", "c"] }],
+    };
+    const attempt = {
+      taskType: "DragDrop" as const,
+      dragDrop: { assignments: { t1: ["b"] } },
+    };
+    const r = evaluateDragDrop(content, attempt);
+    expect(r.ok).toBe(true);
+    if (!r.ok) throw new Error("fail");
+    expect(r.ratio).toBe(1);
+  });
+
+  it("rejects dragdrop blocks mode when multiple items are placed on one target", () => {
+    const content = {
+      presentation: { targetMode: "blocks" },
+      targets: [{ id: "t1", correctItemIds: ["a", "b"] }],
+    };
+    const attempt = {
+      taskType: "DragDrop" as const,
+      dragDrop: { assignments: { t1: ["a", "b"] } },
+    };
+    const r = evaluateDragDrop(content, attempt);
+    expect(r.ok).toBe(true);
+    if (!r.ok) throw new Error("fail");
+    expect(r.ratio).toBe(0);
+  });
+
+  it("scores dragdrop matchMode all when every listed item is in the bucket", () => {
+    const content = {
+      presentation: { targetMode: "blocks" },
+      targets: [
+        {
+          id: "city-torino",
+          matchMode: "all",
+          correctItemIds: ["prod-gianduiotto", "prod-fiat", "prod-pinguino"],
+        },
+      ],
+    };
+    const attempt = {
+      taskType: "DragDrop" as const,
+      dragDrop: {
+        assignments: {
+          "city-torino": ["prod-gianduiotto", "prod-fiat", "prod-pinguino"],
+        },
+      },
+    };
+    const r = evaluateDragDrop(content, attempt);
+    expect(r.ok).toBe(true);
+    if (!r.ok) throw new Error("fail");
+    expect(r.ratio).toBe(1);
+  });
+
+  it("special screen optional cloze blocks can be skipped when all empty", () => {
+    const content = {
+      blocks: [
+        { blockType: "stub" },
+        {
+          blockType: "cloze_text",
+          clozeText: {
+            optional: true,
+            prompt: "Identikit",
+            lines: [{ segments: [{ kind: "gap", correctAnswers: ["x"] }] }],
+          },
+        },
+      ],
+    };
+    const attempt = {
+      taskType: "SpecialScreen" as const,
+      specialScreen: {
+        blocks: [
+          { taskType: "Stub" as const },
+          { taskType: "ClozeText" as const, clozeText: { answers: [""] } },
+        ],
+      },
+    };
+    const r = evaluateSpecialScreen(content, attempt);
+    expect(r.ok).toBe(false);
+    if (r.ok) throw new Error("expected fail");
+    expect(r.code).toBe("attempt_invalid");
+  });
+
+  it("special screen requires at least one completed optional cloze block", () => {
+    const clozePayload = {
+      optional: true,
+      prompt: "Identikit",
+      lines: [{ segments: [{ kind: "gap", correctAnswers: ["Roberto Saviano"] }] }],
+    };
+    const content = {
+      blocks: [
+        { blockType: "cloze_text", clozeText: clozePayload },
+        {
+          blockType: "cloze_text",
+          clozeText: {
+            optional: true,
+            prompt: "Other",
+            lines: [{ segments: [{ kind: "gap", correctAnswers: ["y"] }] }],
+          },
+        },
+      ],
+    };
+    const attempt = {
+      taskType: "SpecialScreen" as const,
+      specialScreen: {
+        blocks: [
+          { taskType: "ClozeText" as const, clozeText: { answers: ["Roberto Saviano"] } },
+          { taskType: "ClozeText" as const, clozeText: { answers: [""] } },
+        ],
+      },
+    };
+    const r = evaluateSpecialScreen(content, attempt);
+    expect(r.ok).toBe(true);
+    if (!r.ok) throw new Error("fail");
+    expect(r.ratio).toBe(1);
+  });
+
   it("scores matching pairs", () => {
     const content = {
       correctPairs: [

@@ -10,13 +10,23 @@ const dragDropItemSchema = z
   })
   .passthrough();
 
+/** "one" = single item per target (OR in correctItemIds); "all" = every listed item (bucket). */
+export const dragDropTargetSchema = z
+  .object({
+    id: z.string().min(1),
+    title: z.string().optional(),
+    matchMode: z.enum(["one", "all"]).optional(),
+    correctItemIds: z.array(z.string().min(1)).optional(),
+  })
+  .passthrough();
+
 export const dragDropContentSchema = z
   .object({
     ...taskContentCommonFields,
     prompt: z.string().optional(),
     subtitle: z.string().optional(),
     items: z.array(dragDropItemSchema).min(1),
-    targets: z.array(z.object({ id: z.string().min(1) }).passthrough()).optional(),
+    targets: z.array(dragDropTargetSchema).optional(),
     presentation: z.object({ targetMode: z.string().optional() }).passthrough().optional(),
     lines: z.array(z.object({}).passthrough()).optional(),
     shuffleItemOrder: z.boolean().optional(),

@@ -20,6 +20,7 @@ namespace LanguageGame.Presentation.Steps
         private Action<StepCompletionRequest> _onRequest;
 
         private bool _contentReady;
+        private bool _optionalBlock;
 
         /// <param name="useMutedChrome">When false (e.g. embedded in <see cref="SpecialScreenToolkitStep"/>), skips outer panel styling to avoid stacked frames.</param>
         public ClozeTextToolkitStep(VisualElement host, bool useMutedChrome = true)
@@ -38,6 +39,9 @@ namespace LanguageGame.Presentation.Steps
 
         /// <summary>True after <see cref="Bind"/> produced interactive gaps.</summary>
         public bool IsBinderReady => _contentReady;
+
+        /// <summary>When true, empty gaps skip validation (used by optional identikit blocks).</summary>
+        public bool IsOptionalBlock => _optionalBlock;
 
         public void Bind(StepContext context, Action<StepCompletionRequest> onRequest)
         {
@@ -62,6 +66,7 @@ namespace LanguageGame.Presentation.Steps
             }
 
             ToolkitStepUx.SetOptionalLabel(_promptLabel, dto.prompt?.Trim());
+            _optionalBlock = dto.optional;
 
             var rootInsensitive = !dto.caseSensitive;
             foreach (var line in dto.lines)
@@ -195,6 +200,35 @@ namespace LanguageGame.Presentation.Steps
                 return false;
             }
 
+            if (_optionalBlock)
+                return TryValidateLocallyOptional(out message);
+
+            return TryValidateLocallyRequired(out message);
+        }
+
+        /// <summary>True when every gap is filled and matches an accepted answer.</summary>
+        public bool IsFullyCompletedAndCorrect()
+        {
+            if (!_contentReady || _gaps.Count == 0)
+                return false;
+
+            foreach (var slot in _gaps)
+            {
+                if (slot.field == null)
+                    continue;
+                var typed = (slot.field.value ?? string.Empty).Trim();
+                if (typed.Length == 0)
+                    return false;
+                if (!MatchesAnyAnswer(typed, slot.answers, slot.caseInsensitive))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private bool TryValidateLocallyRequired(out string message)
+        {
+            message = null;
             foreach (var slot in _gaps)
             {
                 if (slot.field == null)
@@ -214,6 +248,35 @@ namespace LanguageGame.Presentation.Steps
             }
 
             return true;
+        }
+
+        private bool TryValidateLocallyOptional(out string message)
+        {
+            message = null;
+            var anyFilled = false;
+            var anyEmpty = false;
+
+            foreach (var slot in _gaps)
+            {
+                if (slot.field == null)
+                    continue;
+                var typed = (slot.field.value ?? string.Empty).Trim();
+                if (typed.Length == 0)
+                    anyEmpty = true;
+                else
+                    anyFilled = true;
+            }
+
+            if (!anyFilled)
+                return true;
+
+            if (anyEmpty)
+            {
+                message = "Compila tutti i buchi di questo identikit oppure lascialo vuoto.";
+                return false;
+            }
+
+            return TryValidateLocallyRequired(out message);
         }
 
         public bool TryBuildTaskAttemptJson(out string attemptJson, out string validationMessage)

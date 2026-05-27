@@ -41,6 +41,44 @@ TARGETS: list[tuple[str, str]] = [
     ("light", "static/task-scene-backgrounds/chapter-01/ph-ts-classroom"),
     ("light", "static/task-scene-backgrounds/chapter-01/ph-ts-school-exterior"),
     ("light", "static/task-scene-backgrounds/chapter-01/ph-ts-bar-interior"),
+    # Chapter 2 — NPC portraits
+    ("light", "portraits/npc/dario"),
+    ("light", "portraits/npc/marini"),
+    # Chapter 2 — cutscene backgrounds
+    ("dark", "static/cutscene-backgrounds/chapter-02/ph-cs-bedroom-morning"),
+    ("light", "static/cutscene-backgrounds/chapter-02/ph-cs-nutelleria-interior"),
+    ("light", "static/cutscene-backgrounds/chapter-02/ph-cs-desk-home"),
+    ("light", "static/cutscene-backgrounds/chapter-02/ph-cs-restaurant-interior"),
+    ("dark", "static/cutscene-backgrounds/chapter-02/ph-cs-bonus-neutral"),
+    # Chapter 2 — task backgrounds
+    ("light", "static/task-scene-backgrounds/chapter-02/ph-ts-nutelleria-interior"),
+    ("light", "static/task-scene-backgrounds/chapter-02/ph-ts-desk-home"),
+    ("light", "static/task-scene-backgrounds/chapter-02/ph-ts-restaurant-interior"),
+    ("dark", "static/task-scene-backgrounds/chapter-02/ph-ts-bonus-neutral"),
+    # Chapter 2 — famous Italians (profiles + quiz)
+    ("light", "static/chapter-02/famous/saviano"),
+    ("light", "static/chapter-02/famous/del-piero"),
+    ("light", "static/chapter-02/famous/ferragni"),
+    ("light", "static/chapter-02/famous/montessori"),
+    ("light", "static/chapter-02/famous/colombo"),
+    ("light", "static/chapter-02/famous/verdi"),
+    ("light", "static/chapter-02/famous/michelangelo"),
+    ("dark", "static/chapter-02/famous/ferrante"),
+    ("light", "static/chapter-02/famous/da-vinci"),
+    # Chapter 3 — NPC portraits
+    ("light", "portraits/npc/valentina"),
+    ("light", "portraits/npc/lorenzo"),
+    # Chapter 3 — cutscene backgrounds
+    ("dark", "static/cutscene-backgrounds/chapter-03/ph-cs-bedroom-morning"),
+    ("light", "static/cutscene-backgrounds/chapter-03/ph-cs-museum-interior"),
+    ("light", "static/cutscene-backgrounds/chapter-03/ph-cs-museum-side-room"),
+    ("light", "static/cutscene-backgrounds/chapter-03/ph-cs-piazza-maggiore"),
+    ("dark", "static/cutscene-backgrounds/chapter-03/ph-cs-bonus-neutral"),
+    # Chapter 3 — task backgrounds
+    ("light", "static/task-scene-backgrounds/chapter-03/ph-ts-museum-interior"),
+    ("light", "static/task-scene-backgrounds/chapter-03/ph-ts-museum-side-room"),
+    ("light", "static/task-scene-backgrounds/chapter-03/ph-ts-piazza-maggiore"),
+    ("dark", "static/task-scene-backgrounds/chapter-03/ph-ts-bonus-neutral"),
 ]
 
 

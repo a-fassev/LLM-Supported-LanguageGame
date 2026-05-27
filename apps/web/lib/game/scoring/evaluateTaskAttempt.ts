@@ -147,6 +147,33 @@ export function evaluateCloze(
   return { ok: true, ratio: correct / specs.length, itemsCorrect: correct, itemsTotal: specs.length };
 }
 
+function clozeAnswersAllEmpty(answers: string[]): boolean {
+  return answers.every((raw) => (typeof raw === "string" ? raw : "").trim().length === 0);
+}
+
+function clozeAnswersAnyEmpty(answers: string[]): boolean {
+  return answers.some((raw) => (typeof raw === "string" ? raw : "").trim().length === 0);
+}
+
+function evaluateOptionalClozeBlock(
+  payload: Record<string, unknown>,
+  attempt: z.infer<typeof clozeAttemptSchema>,
+): TaskAttemptEvalResult | { ok: true; skipped: true } {
+  const answers = attempt.clozeText.answers;
+  if (clozeAnswersAllEmpty(answers)) {
+    return { ok: true, skipped: true };
+  }
+  if (clozeAnswersAnyEmpty(answers)) {
+    return err(400, "Optional cloze block must be fully completed or left empty", "attempt_invalid");
+  }
+  const scored = evaluateCloze(payload, attempt);
+  if (!scored.ok) return scored;
+  if (scored.ratio < 1) {
+    return err(400, "Optional cloze block has incorrect answers", "attempt_invalid");
+  }
+  return scored;
+}
+
 function normIdSet(ids: unknown): Set<string> {
   const out = new Set<string>();
   if (!Array.isArray(ids)) return out;
@@ -233,13 +260,31 @@ function normalizeAssignmentMap(raw: Record<string, string | string[]>): Map<str
   return m;
 }
 
+function dragDropTargetMatchMode(target: Record<string, unknown>): "one" | "all" {
+  const raw = typeof target.matchMode === "string" ? target.matchMode.trim().toLowerCase() : "";
+  return raw === "all" ? "all" : "one";
+}
+
+function dragDropTargetMatches(
+  placed: Set<string>,
+  expected: Set<string>,
+  mode: "one" | "all",
+): boolean {
+  if (expected.size === 0) return false;
+  if (mode === "all") return setsEqual(placed, expected);
+  if (placed.size !== 1) return false;
+  const only = placed.values().next().value;
+  return typeof only === "string" && expected.has(only);
+}
+
 export function evaluateDragDrop(
   content: Record<string, unknown>,
   attempt: z.infer<typeof dragAttemptSchema>,
 ): TaskAttemptEvalResult {
   const pres = (content.presentation ?? {}) as Record<string, unknown>;
-  const mode = typeof pres.targetMode === "string" ? pres.targetMode.trim().toLowerCase() : "";
-  if (mode === "lines") {
+  const presentationMode =
+    typeof pres.targetMode === "string" ? pres.targetMode.trim().toLowerCase() : "";
+  if (presentationMode === "lines") {
     return err(501, "DragDrop lines mode scoring is not implemented on the server yet.", "unsupported_dragdrop_mode");
   }
   const targets = Array.isArray(content.targets) ? (content.targets as Record<string, unknown>[]) : [];
@@ -257,7 +302,8 @@ export function evaluateDragDrop(
     }
     const placed = assignments.get(tid) ?? new Set<string>();
     if (expected.size === 0) continue;
-    if (setsEqual(placed, expected)) correct++;
+    const targetMatchMode = dragDropTargetMatchMode(t);
+    if (dragDropTargetMatches(placed, expected, targetMatchMode)) correct++;
   }
   const denom = targets.filter((t) => {
     const ids = Array.isArray(t.correctItemIds) ? t.correctItemIds : [];
@@ -365,6 +411,8 @@ export function evaluateSpecialScreen(
   let weight = 0;
   let itemsCorrectSum = 0;
   let itemsTotalSum = 0;
+  let optionalClozeBlocks = 0;
+  let optionalClozeCompleted = 0;
 
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
@@ -398,21 +446,35 @@ export function evaluateSpecialScreen(
       );
     }
 
-    weight += 1;
-    let inner: TaskAttemptEvalResult;
+    let inner: TaskAttemptEvalResult | { ok: true; skipped: true };
     if (bt === "ClozeText" && att.taskType === "ClozeText") {
-      inner = evaluateCloze(payload, att as z.infer<typeof clozeAttemptSchema>);
+      const isOptional = payload.optional === true;
+      if (isOptional) {
+        optionalClozeBlocks += 1;
+        inner = evaluateOptionalClozeBlock(payload, att as z.infer<typeof clozeAttemptSchema>);
+        if ("skipped" in inner && inner.skipped) {
+          continue;
+        }
+        optionalClozeCompleted += 1;
+      } else {
+        inner = evaluateCloze(payload, att as z.infer<typeof clozeAttemptSchema>);
+      }
     } else if (bt === "ErrorSpotting" && att.taskType === "ErrorSpotting") {
       inner = evaluateErrorSpotting(payload, att as z.infer<typeof errorSpottingAttemptSchema>);
     } else {
       return err(400, `Special screen block ${i + 1} attempt type mismatch`, "attempt_mismatch");
     }
     if (!inner.ok) return inner;
+    weight += 1;
     weighted += inner.ratio;
-    if (inner.itemsTotal != null && inner.itemsTotal > 0) {
+    if ("itemsTotal" in inner && inner.itemsTotal != null && inner.itemsTotal > 0) {
       itemsCorrectSum += Math.max(0, inner.itemsCorrect ?? 0);
       itemsTotalSum += inner.itemsTotal;
     }
+  }
+
+  if (optionalClozeBlocks > 0 && optionalClozeCompleted === 0) {
+    return err(400, "Complete at least one optional identikit block", "attempt_invalid");
   }
 
   // No scorable blocks: full completion credit, no pizza (avoid minting slices on empty screens).

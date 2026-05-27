@@ -9,7 +9,10 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:chapter01-migration": "vitest run chapter01MigrationPayloads.test.ts"
+    "test:chapter01-migration": "vitest run chapter01MigrationPayloads.test.ts",
+    "test:chapter02-migration": "vitest run chapter02MigrationPayloads.test.ts",
+    "test:chapter-unlock": "vitest run chapterUnlockProgress.test.ts",
+    "test:bootstrap-chapter-unlock": "vitest run game-progress-service.bootstrapChapterUnlock.test.ts"
   },
   "dependencies": {
     "@langchain/core": "^1.1.46",

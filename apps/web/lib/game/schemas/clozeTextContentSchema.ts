@@ -21,6 +21,7 @@ export const clozeTextContentSchema = z
     ...taskContentCommonFields,
     prompt: z.string().min(1),
     caseSensitive: z.boolean().optional(),
+    optional: z.boolean().optional(),
     lines: z.array(clozeLineSchema).min(1),
   })
   .passthrough();
