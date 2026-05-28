@@ -5,9 +5,7 @@
     <ui:VisualElement name="root-shell" class="lg-fill-screen lg-scene-bg-root lg-gameart-bg--quest">
         <ui:VisualElement name="scene-background-host" class="lg-scene-background-host" picking-mode="Ignore" />
         <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen--transparent">
-            <ui:Instance template="NavigationPageHeaderWithWalletPart">
-                <ui:Label name="title-label" text="Atto 1: La città" class="lg-heading-screen" />
-            </ui:Instance>
+            <ui:Instance template="NavigationPageHeaderWithWalletPart" />
             <ui:ScrollView name="quest-scroll" class="lg-list-scroll" style="margin-top: 8px; flex-grow: 1; min-height: 0;">
                 <ui:VisualElement name="quest-list-host" style="flex-grow: 1; flex-direction: column;" />
             </ui:ScrollView>

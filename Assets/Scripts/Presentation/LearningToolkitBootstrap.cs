@@ -41,9 +41,16 @@ namespace LanguageGame.Presentation
                 _runtimeMenusPanel.textSettings = textOverride;
 
             if (_runtimeMenusPanel.textSettings == null)
+            {
                 Debug.LogError(
                     "[LearningToolkitBootstrap] UITK Text Settings asset missing — expected Resources/UI/LearningMenusPanelTextSettings. " +
                     "Open the Unity Editor once (auto-import creates it) or use menu Language Game/UITK/Ensure menus text settings.");
+            }
+            else if (_runtimeMenusPanel.textSettings.defaultFontAsset == null)
+            {
+                Debug.LogError(
+                    "[LearningToolkitBootstrap] Panel text settings have no default font — run Language Game/UITK/Regenerate menus font asset in the Editor.");
+            }
 
             return _runtimeMenusPanel;
         }

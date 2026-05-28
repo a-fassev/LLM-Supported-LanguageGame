@@ -28,5 +28,17 @@ namespace LanguageGame.Presentation
 
         public static string FormatTeamDisplayLabel(string team) =>
             team == "blue" ? "Squadra Blu" : team == "red" ? "Squadra Rossa" : team ?? string.Empty;
+
+        /// <summary>Single-line shell header: chapter and active quest (middle dot separator).</summary>
+        public static string FormatChapterQuestHeaderTitle(string chapterDisplayName, string questDisplayName)
+        {
+            var chapter = chapterDisplayName?.Trim();
+            var quest = questDisplayName?.Trim();
+            if (string.IsNullOrEmpty(quest))
+                return chapter ?? string.Empty;
+            if (string.IsNullOrEmpty(chapter))
+                return quest;
+            return $"{chapter} · {quest}";
+        }
     }
 }

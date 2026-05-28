@@ -23,16 +23,15 @@
 
 .lg-cloze-line-row {
     flex-direction: row;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     align-items: center;
     margin-bottom: var(--lg-space-12);
-    overflow-x: auto;
 }
 
 .lg-cloze-line-row > Label {
     flex-grow: 0;
-    flex-shrink: 1;
-    min-width: 0;
+    flex-shrink: 0;
+    white-space: normal;
 }
 
 .lg-cloze-lines-host {

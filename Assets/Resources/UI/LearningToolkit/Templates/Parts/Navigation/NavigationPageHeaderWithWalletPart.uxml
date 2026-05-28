@@ -4,7 +4,7 @@
         src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Navigation/NavigationWalletHudPart.uxml?fileID=9197481963319205126&amp;guid=20fc8e3d80554607a29faf35549ac435&amp;type=3#NavigationWalletHudPart" />
     <ui:VisualElement name="navigation-page-header-part" class="lg-page-header">
         <ui:VisualElement name="title-host" style="flex-grow: 1;">
-            <ui:Label name="title-label" text="" class="lg-heading-screen" />
+            <ui:Label name="title-label" text="" class="lg-heading-screen lg-page-header-title-single" />
         </ui:VisualElement>
         <ui:VisualElement name="header-actions-host" />
         <ui:Instance template="NavigationWalletHudPart" />

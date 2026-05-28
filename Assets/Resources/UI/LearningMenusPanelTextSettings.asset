@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.PanelTextSettings
   m_Version: 
   m_DefaultFontAsset: {fileID: 11400000, guid: 37f365feb91a946978122328fd252dea, type: 2}
-  m_DefaultFontAssetPath: Fonts & Materials/
+  m_DefaultFontAssetPath: UI/Fonts/
   m_FallbackFontAssets: []
   m_FallbackOSFontAssets: []
   m_MatchMaterialPreset: 0

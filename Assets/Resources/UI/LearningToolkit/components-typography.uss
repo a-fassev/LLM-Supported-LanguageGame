@@ -111,6 +111,8 @@ Label {
     min-width: 0;
 }
 
+/* Navigation header: one combined title on a single line (quest overview, quest shell). */
+.lg-page-header-title-single,
 .lg-quest-shell-title-label {
     flex-grow: 1;
     flex-shrink: 1;

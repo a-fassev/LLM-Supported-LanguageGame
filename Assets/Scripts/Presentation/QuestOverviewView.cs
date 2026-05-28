@@ -12,7 +12,7 @@ namespace LanguageGame.Presentation
     {
         private UIDocument _doc;
 
-        private Label _chapterTitleText;
+        private Label _pageTitleText;
 
         private VisualElement _questListHost;
 
@@ -68,7 +68,14 @@ namespace LanguageGame.Presentation
 
             VisualElement root = _doc.rootVisualElement;
             ToolkitNavigationScreenBinder.ApplyQuestOverviewScreen(root);
-            _chapterTitleText = root.Q<Label>("title-label");
+            _pageTitleText = ToolkitNavigationScreenBinder.ResolveNavigationPageTitleLabel(root);
+            if (_pageTitleText == null)
+            {
+                Debug.LogError("[QuestOverviewView] title-label missing in UI definition.");
+                enabled = false;
+                return;
+            }
+
             _questListHost = root.Q<VisualElement>("quest-list-host");
             if (_questListHost == null)
             {
@@ -222,12 +229,7 @@ namespace LanguageGame.Presentation
 
             _loadErrorBanner.Hide();
 
-            if (_chapterTitleText != null)
-            {
-                _chapterTitleText.text = string.IsNullOrEmpty(flow.SelectedChapterDisplayName)
-                    ? "Missioni del capitolo"
-                    : flow.SelectedChapterDisplayName;
-            }
+            ApplyPageTitle(flow.SelectedChapterDisplayName);
 
             _walletHud.Refresh();
 
@@ -245,10 +247,19 @@ namespace LanguageGame.Presentation
 
         private void DisableQuestSlots(string placeholderTitle)
         {
-            if (_chapterTitleText != null)
-                _chapterTitleText.text = placeholderTitle ?? "Missioni";
-
+            ApplyPageTitle(placeholderTitle);
             ClearQuestList();
+        }
+
+        private void ApplyPageTitle(string chapterDisplayName)
+        {
+            if (_pageTitleText == null)
+                return;
+
+            var chapter = chapterDisplayName?.Trim();
+            _pageTitleText.text = string.IsNullOrEmpty(chapter) || chapter == "—"
+                ? "Missioni del capitolo"
+                : chapter;
         }
 
         private void ClearQuestList()

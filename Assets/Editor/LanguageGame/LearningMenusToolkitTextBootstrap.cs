@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -25,9 +26,38 @@ namespace LanguageGame.EditorTools
 
         private const string MenusThemeAssetPath = "Assets/Resources/UI/LearningToolkit/LearningMenusTheme.tss";
 
+        /// <summary>Must match <see cref="PanelTextSettings"/> default font path and Resources layout.</summary>
+        private const string DefaultFontAssetResourcesPath = "UI/Fonts/";
+
         static LearningMenusToolkitTextBootstrap()
         {
-            EditorApplication.delayCall += () => EnsureMenusTextAssets(forceRegenerateFont: false);
+            EditorApplication.delayCall += HealMenusTextOnEditorLoad;
+        }
+
+        private static void HealMenusTextOnEditorLoad()
+        {
+            bool forceRegenerate = !IsCommittedMenusFontAssetUsable();
+            EnsureMenusTextAssets(forceRegenerate);
+        }
+
+        /// <summary>
+        /// Unity batch entry (regenerates font). Example:
+        /// Unity -batchmode -quit -projectPath &lt;repo&gt;
+        /// -executeMethod LanguageGame.EditorTools.LearningMenusToolkitTextBootstrap.RunBatchModeEnsureMenusText
+        /// </summary>
+        public static void RunBatchModeEnsureMenusText()
+        {
+            if (!EnsureMenusTextAssets(forceRegenerateFont: true))
+            {
+                Debug.LogError(
+                    "[LearningMenusToolkitTextBootstrap] Batch ensure failed — see errors above (TTF missing or font build failed).");
+                EditorApplication.Exit(1);
+                return;
+            }
+
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            EditorApplication.Exit(0);
         }
 
         [MenuItem("Language Game/UITK/Ensure menus text settings")]
@@ -42,7 +72,24 @@ namespace LanguageGame.EditorTools
             EnsureMenusTextAssets(forceRegenerateFont: true);
         }
 
-        internal static void EnsureMenusTextAssets(bool forceRegenerateFont)
+        /// <summary>
+        /// Run font/text wiring after asset import only when menus text assets changed or the font is broken.
+        /// </summary>
+        internal static bool ShouldEnsureMenusTextAfterImport(IReadOnlyCollection<string> changedAssetPaths)
+        {
+            if (changedAssetPaths != null)
+            {
+                foreach (string path in changedAssetPaths)
+                {
+                    if (IsMenusTextRelatedAssetPath(path))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        internal static bool EnsureMenusTextAssets(bool forceRegenerateFont)
         {
             EnsureFolderHierarchy("Assets/Resources/UI/Fonts");
 
@@ -52,14 +99,14 @@ namespace LanguageGame.EditorTools
             {
                 Debug.LogError(
                     $"[LearningMenusToolkitTextBootstrap] Missing TTF font at {TtfAssetPath}. Re-import or restore Roboto-Regular.");
-                return;
+                return false;
             }
 
             FontAsset fontAsset = EnsureFontAsset(sourceFont, forceRegenerateFont);
             if (fontAsset == null)
             {
                 Debug.LogError("[LearningMenusToolkitTextBootstrap] Could not build LearningMenusUIFont.");
-                return;
+                return false;
             }
 
             PanelTextSettings panelText = AssetDatabase.LoadAssetAtPath<PanelTextSettings>(PanelTextAssetPath);
@@ -77,6 +124,7 @@ namespace LanguageGame.EditorTools
                 AssignDefaultFontReflection(panelText, fontAsset);
             }
 
+            EnsureDefaultFontAssetPath(panelText);
             EnsureFontReferences(panelText, sourceFont, fontAsset);
             EnsurePanelSettingsReferencesTextSettings(panelText);
             EnsurePanelSettingsReferencesTheme();
@@ -88,6 +136,27 @@ namespace LanguageGame.EditorTools
                 $"[LearningMenusToolkitTextBootstrap] UITK menus text wiring ready ({PanelTextAssetPath}, {FontAssetOutputPath}).");
 
             EditorGUIUtility.PingObject(panelText);
+            return true;
+        }
+
+        private static bool IsCommittedMenusFontAssetUsable()
+        {
+            FontAsset fontAsset = AssetDatabase.LoadAssetAtPath<FontAsset>(FontAssetOutputPath);
+            return IsFontAssetUsable(fontAsset);
+        }
+
+        private static bool IsMenusTextRelatedAssetPath(string assetPath)
+        {
+            if (string.IsNullOrEmpty(assetPath))
+                return false;
+
+            if (assetPath == TtfAssetPath ||
+                assetPath == FontAssetOutputPath ||
+                assetPath == PanelTextAssetPath ||
+                assetPath == PanelSettingsAssetPath)
+                return true;
+
+            return assetPath.StartsWith("Assets/Resources/UI/Fonts/");
         }
 
         private static FontAsset EnsureFontAsset(Font sourceFont, bool forceRegenerate)
@@ -96,8 +165,11 @@ namespace LanguageGame.EditorTools
                 AssetDatabase.DeleteAsset(FontAssetOutputPath);
 
             FontAsset existing = AssetDatabase.LoadAssetAtPath<FontAsset>(FontAssetOutputPath);
-            if (!forceRegenerate && existing != null)
+            if (!forceRegenerate && IsFontAssetUsable(existing))
                 return existing;
+
+            if (existing != null)
+                AssetDatabase.DeleteAsset(FontAssetOutputPath);
 
             FontAsset created = FontAsset.CreateFontAsset(
                 sourceFont,
@@ -110,7 +182,66 @@ namespace LanguageGame.EditorTools
 
             created.name = "LearningMenusUIFont";
             AssetDatabase.CreateAsset(created, FontAssetOutputPath);
+            PersistFontAssetSubAssets(created);
             return created;
+        }
+
+        private static bool IsFontAssetUsable(FontAsset fontAsset)
+        {
+            if (fontAsset == null)
+                return false;
+
+            if (fontAsset.material == null)
+                return false;
+
+            if (fontAsset.atlasTextures == null || fontAsset.atlasTextures.Length == 0)
+                return false;
+
+            if (fontAsset.atlasTextures[0] == null)
+                return false;
+
+            // Dynamic SDF fonts keep a minimal atlas on disk until glyphs render; broken imports miss material/atlas wiring.
+            if (fontAsset.atlasPopulationMode == AtlasPopulationMode.Dynamic)
+                return fontAsset.atlasWidth >= 256 && fontAsset.atlasHeight >= 256;
+
+            Texture2D atlas = fontAsset.atlasTextures[0];
+            return atlas.width > 1 && atlas.height > 1;
+        }
+
+        private static void PersistFontAssetSubAssets(FontAsset fontAsset)
+        {
+            if (fontAsset == null)
+                return;
+
+            if (fontAsset.material != null && !AssetDatabase.IsSubAsset(fontAsset.material))
+                AssetDatabase.AddObjectToAsset(fontAsset.material, fontAsset);
+
+            if (fontAsset.atlasTextures == null)
+                return;
+
+            foreach (Texture2D atlas in fontAsset.atlasTextures)
+            {
+                if (atlas != null && !AssetDatabase.IsSubAsset(atlas))
+                    AssetDatabase.AddObjectToAsset(atlas, fontAsset);
+            }
+
+            EditorUtility.SetDirty(fontAsset);
+            AssetDatabase.SaveAssets();
+        }
+
+        private static void EnsureDefaultFontAssetPath(PanelTextSettings panelText)
+        {
+            if (panelText == null)
+                return;
+
+            var so = new SerializedObject(panelText);
+            SerializedProperty pathProp = so.FindProperty("m_DefaultFontAssetPath");
+            if (pathProp == null || pathProp.stringValue == DefaultFontAssetResourcesPath)
+                return;
+
+            pathProp.stringValue = DefaultFontAssetResourcesPath;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(panelText);
         }
 
         private static bool AssignDefaultFontAsset(PanelTextSettings panelText, FontAsset fontAsset)

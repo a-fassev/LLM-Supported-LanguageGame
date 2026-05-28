@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -10,6 +11,8 @@ public sealed class LearningToolkitUxmlTemplateImportValidator : AssetPostproces
 {
     private static bool _validationQueued;
 
+    private static readonly HashSet<string> PendingChangedPaths = new();
+
     private static void OnPostprocessAllAssets(
         string[] importedAssets,
         string[] deletedAssets,
@@ -19,11 +22,29 @@ public sealed class LearningToolkitUxmlTemplateImportValidator : AssetPostproces
         if (!ShouldValidate(importedAssets, deletedAssets, movedAssets, movedFromAssetPaths))
             return;
 
+        RecordChangedPaths(importedAssets);
+        RecordChangedPaths(deletedAssets);
+        RecordChangedPaths(movedAssets);
+        RecordChangedPaths(movedFromAssetPaths);
+
         if (_validationQueued)
             return;
 
         _validationQueued = true;
         EditorApplication.delayCall += RunQueuedValidation;
+    }
+
+    private static void RecordChangedPaths(string[] assetPaths)
+    {
+        if (assetPaths == null || assetPaths.Length == 0)
+            return;
+
+        for (var i = 0; i < assetPaths.Length; i++)
+        {
+            string path = assetPaths[i];
+            if (!string.IsNullOrEmpty(path))
+                PendingChangedPaths.Add(path);
+        }
     }
 
     private static bool ShouldValidate(
@@ -61,6 +82,14 @@ public sealed class LearningToolkitUxmlTemplateImportValidator : AssetPostproces
         var issues = LearningToolkitUxmlTemplateGuidValidator.ValidateAll(out var referenceCount);
         if (issues.Count > 0)
             LearningToolkitUxmlTemplateGuidValidator.ReportIssues(issues, referenceCount, logSuccess: false);
+
+        if (LanguageGame.EditorTools.LearningMenusToolkitTextBootstrap.ShouldEnsureMenusTextAfterImport(
+                PendingChangedPaths))
+        {
+            LanguageGame.EditorTools.LearningMenusToolkitTextBootstrap.EnsureMenusTextAssets(forceRegenerateFont: false);
+        }
+
+        PendingChangedPaths.Clear();
     }
 }
 #endif

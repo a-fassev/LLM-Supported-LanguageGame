@@ -345,9 +345,9 @@ Sentence-style cloze (one `lines[]` row = one horizontal sentence):
 
 | Rule | USS / structure |
 |------|------------------|
-| Keep literals + gaps on one logical line | `.lg-cloze-line-row`: `flex-wrap: nowrap`, `align-items: center` |
-| Narrow viewports | `overflow-x: auto` on the row (horizontal scroll beats wrapping every gap to its own line) |
-| Not the same as Error Spotting | Error rows may use `flex-wrap: wrap`; cloze rows should **not** copy that |
+| One `lines[]` row = one flex row | `.lg-cloze-line-row`: `flex-wrap: wrap`, `align-items: center`; row labels `flex-shrink: 0`, `white-space: normal` |
+| Narrow / tall tasks | `cloze-lines-scroll` (`ScrollView`, vertical) wraps `#cloze-lines-host` — UITK has no `overflow-x` |
+| Not the same as Error Spotting | Error rows may use `flex-wrap: wrap` for chips; cloze must **not** use `nowrap` + shrinking labels (collapses to one-character columns on long single-line payloads) |
 | Inline gaps | `lg-cloze-gap-inline` with `margin-bottom: 0` (override `lg-textfield` form spacing) |
 | Tall tasks | `#cloze-lines-host` / `.lg-cloze-lines-host`: `flex-grow: 1`, `min-height: 0` inside task template |
 | Authoring | Prefer **multiple `lines[]` entries** over `\n` inside a single text segment when dialogue has many gaps |

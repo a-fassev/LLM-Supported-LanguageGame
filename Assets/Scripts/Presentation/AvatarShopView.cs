@@ -33,6 +33,7 @@ namespace LanguageGame.Presentation
 
             var root = _doc.rootVisualElement;
             ToolkitNavigationScreenBinder.ApplyAvatarShopScreen(root);
+            ToolkitNavigationScreenBinder.PruneDuplicateNavigationHeaderTitleLabels(root);
             _equipButton = root.Q<Button>("equip-button");
             _purchaseButton = root.Q<Button>("purchase-button");
 

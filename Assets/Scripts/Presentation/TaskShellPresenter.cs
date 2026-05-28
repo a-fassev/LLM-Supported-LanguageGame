@@ -64,7 +64,7 @@ namespace LanguageGame.Presentation
             _tkReferenceDocument = root.Q<Button>("reference-document-button");
             _tkPauseMenu = root.Q<Button>(LearningToolkitChromeUx.PauseMenuButtonName);
             _tkPrimary = root.Q<Button>("primary-action-button");
-            _tkQuestTitle = root.Q<Label>("title-label");
+            _tkQuestTitle = ToolkitNavigationScreenBinder.ResolveNavigationPageTitleLabel(root);
             _toolkitStepHost = root.Q<VisualElement>("step-host");
             _questStepPanel = root.Q<VisualElement>("quest-step-panel");
             _sceneBackgroundHost = root.Q<VisualElement>(ToolkitSceneBackgroundBinder.SceneBackgroundHostName);
@@ -176,7 +176,9 @@ namespace LanguageGame.Presentation
             }
 
             if (_tkQuestTitle != null)
-                _tkQuestTitle.text = flow.ServerQuestDisplayName ?? string.Empty;
+                _tkQuestTitle.text = LearningToolkitChromeUx.FormatChapterQuestHeaderTitle(
+                    flow.SelectedChapterDisplayName,
+                    flow.ServerQuestDisplayName);
 
             BindStep(step, flow);
             ApplySceneBackground(step);

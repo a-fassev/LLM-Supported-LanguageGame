@@ -32,6 +32,7 @@
     flex-shrink: 1;
     min-height: 0;
     margin-top: var(--lg-space-12);
+    margin-bottom: var(--lg-space-12);
     padding: var(--lg-space-8);
 }
 
