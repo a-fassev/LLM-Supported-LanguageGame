@@ -12,7 +12,7 @@ description: >-
 
 Special Screens are **normal tasks** (`game_quest_steps.step_kind = task`): progression stays **`complete_quest_step_task`** / shell **Controlla**, not cutscene advance.
 
-One server row usually hosts **several mechanics** as **`blocks[]`**, sequenced with **←** / **→** (same arrow chrome as multiple-choice paging) inside [`SpecialScreenToolkitStep.cs`](Assets/Scripts/Presentation/Steps/SpecialScreenToolkitStep.cs). Shell **Controlla** only on the **last** part; it re-validates **every** block. **Display-only readers** (**`SpecialScreenReader`** / **`screenVariant` `reader`** with empty **`blocks`**) hide paging; **Controlla** submits immediately once the chrome is loaded. **Photo-only** (**`SpecialScreenPhotoViewer`** / **`screenVariant` `photo`**, **`photoViewerChrome`** only, no learner captions) hides paging the same way; mixed **photo + `blocks[]`** uses part 1 for the gallery.
+One server row usually hosts **several mechanics** as **`blocks[]`**, sequenced with **←** / **→** (same arrow chrome as multiple-choice paging) inside [`SpecialScreenToolkitStep.cs`](Assets/Scripts/Presentation/Steps/SpecialScreenToolkitStep.cs). Shell **Controlla** only on the **last** part; it re-validates **every** block. **Display-only readers** (**`SpecialScreenReader`** / **`screenVariant` `reader`** with empty **`blocks`**) hide paging; **Controlla** submits immediately once the chrome is loaded. **Photo-only** (**`screenVariant` `photo`**, **`photoViewerChrome`**, **`blocks: []`**, **`showCaptions: true`** when items have captions) hides paging the same way; mixed **photo + `blocks[]`** uses part 1 for the gallery. **When to split instead:** long profile text + multiple identikits → photo-only step + standalone **`ClozeText`** steps with **`referenceDocument`** (DB exemplar: `chapter-02-q3-*` split migration)—not stub blocks duplicating the same prose inside one composite screen.
 
 Contract tables and server scoring: [`docs/authoring/02-steps-and-rewards.md`](../../docs/authoring/02-steps-and-rewards.md) (Special Screen section).
 
@@ -46,6 +46,7 @@ Authoritative pizza for **`SpecialScreen*`** steps uses the same **`complete`** 
 
 ## Embedded mechanics
 
+- **`TryCreateBlockSlot`** must call **`ToolkitStepUx.ClearHost(slot)`** immediately after instantiating **`SpecialScreenBlockSlotPart`** (before nested **`Bind`** / **`TryMount`**). The part ships UI Builder fixture labels (`lg-preview-sample`); **`TryMount` appends** and does not clear—without **`ClearHost`**, learners see strings like “Slot per attività incorporata…”.
 - Reuse **`ClozeTextToolkitStep`** / **`ErrorSpottingToolkitStep`** with **`stripTemplateOuterChrome: true`** so template outer chrome does not stack inside the host chrome.
 - **`TryValidateLocally`** on those steps is the single validation source for composite submit (never duplicate gap/error rules in the host).
 - When cloning **`StepContext`** for nested blocks, **forward** **`presentBusyOverlay`** and **`dismissBusyOverlay`** from the parent context so embedded mechanics (e.g. **Freitext** / LLM-heavy flows) use the same shell loading overlay as standalone tasks.

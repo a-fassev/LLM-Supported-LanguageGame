@@ -46,6 +46,12 @@
     margin-top: auto;
 }
 
+.lg-task-content-scroll {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+}
+
 /* In-task copy: shell header already shows quest title — keep prompts body-sized. */
 .lg-task-prompt {
     font-size: var(--lg-font-body);

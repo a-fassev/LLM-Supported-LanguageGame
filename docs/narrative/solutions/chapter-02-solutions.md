@@ -91,16 +91,23 @@ Benissimo → farò → avrai → mancano → studierò → daranno → buoni �
 | Step | Kind | Task type | Action |
 |------|------|-----------|--------|
 | 0 | Cutscene | — | Open school portal at home; continue. |
-| 1 | Task | SpecialScreen | Read three profiles (photo grid); complete **one** identikit cloze (all three keys below). |
-| 2 | Cutscene | — | Bridge to quiz; continue. |
-| 3 | Task | MultipleChoice | Six questions — grammar option, then famous person (12 selections total). |
-| 4 | Cutscene | — | Homework saved; map points to restaurant. |
+| 1 | Task | SpecialScreen | Photo grid — read all three profiles (`chapter-02-q3-profiles-photo`); no pizza. |
+| 2 | Task | ClozeText | Identikit: Roberto Saviano (`chapter-02-q3-identikit-saviano`). |
+| 3 | Task | ClozeText | Identikit: Alessandro Del Piero (`chapter-02-q3-identikit-del-piero`). |
+| 4 | Task | ClozeText | Identikit: Chiara Ferragni (`chapter-02-q3-identikit-ferragni`; backpack on first completion). |
+| 5 | Cutscene | — | Bridge to quiz; continue. |
+| 6 | Task | MultipleChoice | Six questions — grammar option, then famous person (12 selections total). |
+| 7 | Cutscene | — | Homework saved; map points to restaurant. |
 
-### Step 1 — Identikit cloze (`chapter-02-q3-profiles-identikit`)
+### Step 1 — Photo profiles (`chapter-02-q3-profiles-photo`)
 
-Read profiles via the photo cards, then fill **one** of the three optional identikit blocks. Each block has six gaps.
+Open each card in the grid and read the captions. Use **→** to move between people. Continue when you have read all three.
 
-#### Roberto Saviano
+### Steps 2–4 — Identikit cloze (required)
+
+Each step has six gaps. Use **Leggi il profilo** on that step for the full reference text.
+
+#### Step 2 — Roberto Saviano (`chapter-02-q3-identikit-saviano`)
 
 | Field | Accepted answers (any one) |
 |-------|---------------------------|
@@ -111,7 +118,7 @@ Read profiles via the photo cards, then fill **one** of the three optional ident
 | È famoso/a perché … | ha scritto il libro Gomorra · ha scritto il libro "Gomorra" · ha scritto Gomorra · ha scritto Gomorra sulla Camorra |
 | particolarità | vive con la scorta della polizia · vive con la scorta |
 
-#### Alessandro Del Piero
+#### Step 3 — Alessandro Del Piero (`chapter-02-q3-identikit-del-piero`)
 
 | Field | Accepted answers (any one) |
 |-------|---------------------------|
@@ -122,7 +129,7 @@ Read profiles via the photo cards, then fill **one** of the three optional ident
 | È famoso/a perché … | ha giocato diciannove anni nella Juventus · ha vinto la Coppa del Mondo nel 2006 · ha giocato nella Juventus per diciannove anni |
 | particolarità | ha una fondazione per giovani calciatori · fondazione per giovani calciatori |
 
-#### Chiara Ferragni
+#### Step 4 — Chiara Ferragni (`chapter-02-q3-identikit-ferragni`)
 
 | Field | Accepted answers (any one) |
 |-------|---------------------------|
@@ -133,7 +140,7 @@ Read profiles via the photo cards, then fill **one** of the three optional ident
 | È famoso/a perché … | ha aperto il blog The Blonde Salad · è una delle influencer più conosciute al mondo · The Blonde Salad |
 | particolarità | ha la sua linea di moda Chiara Ferragni Collection · Chiara Ferragni Collection |
 
-### Step 3 — Quiz: relative pronouns + famous Italians (`chapter-02-q3-quiz-famous-italians`)
+### Step 6 — Quiz: relative pronouns + famous Italians (`chapter-02-q3-quiz-famous-italians`)
 
 For each numbered item, pick the **grammar** option first, then the **person**.
 
@@ -243,8 +250,11 @@ Connect left (Italian) → right (English):
 |-------|------|----------|------|--------------|
 | 2.1 Nutelleria | 1 | `chapter-02-q2-cloze-archeologo` | ClozeText | 2 |
 | 2.1 Nutelleria | 3 | `chapter-02-q2-freitext-professions` | FreitextLlm | 2 |
-| 2.2 School | 1 | `chapter-02-q3-profiles-identikit` | SpecialScreen | 2 |
-| 2.2 School | 3 | `chapter-02-q3-quiz-famous-italians` | MultipleChoice | 2 |
+| 2.2 School | 1 | `chapter-02-q3-profiles-photo` | SpecialScreen | — |
+| 2.2 School | 2 | `chapter-02-q3-identikit-saviano` | ClozeText | 1 |
+| 2.2 School | 3 | `chapter-02-q3-identikit-del-piero` | ClozeText | 1 |
+| 2.2 School | 4 | `chapter-02-q3-identikit-ferragni` | ClozeText | 1 (+ backpack) |
+| 2.2 School | 6 | `chapter-02-q3-quiz-famous-italians` | MultipleChoice | 2 |
 | 2.3 Restaurant | 1 | `chapter-02-q4-dragdrop-motivation-letter` | DragDrop | 2 |
 | 2.3 Restaurant | 3 | `chapter-02-q4-freitext-menu` | FreitextLlm | 2 |
 | Bonus | 1 | `chapter-02-q5-matching-vocab` | Matching | 3 |

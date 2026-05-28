@@ -105,6 +105,10 @@ UPDATE game_quests SET is_active = false ...;
 
 **ClozeText / embedded cloze:** segment `kind`: **`text`** (Unity accepts this; not only `literal`). For dialogue with many gaps, use **multiple `lines[]` rows** (one row per speaker turn or short beat)—not one mega-line with `\n` in text segments; gap order must stay stable across rows. Example follow-up: **`20260628160000_chapter_02_nutelleria_cloze_lines.sql`**.
 
+**Profiles + identikit (prefer split steps):** When learners read several bios then fill identikits, avoid one `SpecialScreen` with stub profile blocks + embedded optional clozes. Prefer: (1) **photo-only** `SpecialScreen` — `photoViewerChrome` with **`showCaptions: true`**, **`blocks: []`**; (2) **one `ClozeText` step per person** with full bio in **`content_payload.referenceDocument`** (step-level when text differs). Delta pattern: shift `order_index` for trailing steps, deactivate old `logical_task_key`, upsert new rows — exemplar **`20260629120000_chapter_02_q3_split_profiles.sql`** + **`chapter02MigrationPayloads.test.ts`**.
+
+**Multi-statement quest deltas:** Repeat `with quest_ref as (select q.id …)` **before each** semicolon-separated statement. A single leading CTE does **not** apply to later `UPDATE`/`INSERT` lines (`relation "quest_ref" does not exist`). Supabase MCP: `apply_migration` per file when possible; otherwise **`execute_sql`** per statement.
+
 **VALUES row shape:** cutscene uses `null::text` for `task_type`; tasks use `'ClozeText',` **without** `::text`.
 
 **Rewards (placeholder until content team):** `'{"pizza":{"mode":"flat","value":2},"backpack":{"mode":"first_completion","value":1}}'`. Narrative chapters may follow up with **`scored`** pizza migrations for partial slices (see `docs/authoring/02-steps-and-rewards.md`).

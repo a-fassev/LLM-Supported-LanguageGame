@@ -332,12 +332,25 @@ Paths are under `Assets/Resources/UI/LearningToolkit/`. **79** UXML files total.
 | `Navigation/` | 4 | Wallet, headers |
 | `Leaderboard/` | 3 | Player row, team summary, section header |
 | `MultipleChoice/` | 4 | Option row, stem text/image/audio |
-| `ClozeText/` | 3 | Line row, literal, gap field |
+| `ClozeText/` | 3 | Line row, literal, gap field (see **Cloze row layout** below) |
 | `DragDrop/` | 8 | Tile, drop zone, line row, bank wrap, … |
 | `Matching/` | 3 | Card, column header, left row |
 | `ErrorSpotting/` | 5 | Slot, chip, inline field; `ErrorSpottingSlotMarkedPart` = **preview only** |
 | `SpecialScreen/` | 18 | Chat rows, bubbles, photo grid, reader lines, … |
 | `Common/` | 1 | Stub task panel |
+
+### Cloze row layout (`task-templates.uss`)
+
+Sentence-style cloze (one `lines[]` row = one horizontal sentence):
+
+| Rule | USS / structure |
+|------|------------------|
+| Keep literals + gaps on one logical line | `.lg-cloze-line-row`: `flex-wrap: nowrap`, `align-items: center` |
+| Narrow viewports | `overflow-x: auto` on the row (horizontal scroll beats wrapping every gap to its own line) |
+| Not the same as Error Spotting | Error rows may use `flex-wrap: wrap`; cloze rows should **not** copy that |
+| Inline gaps | `lg-cloze-gap-inline` with `margin-bottom: 0` (override `lg-textfield` form spacing) |
+| Tall tasks | `#cloze-lines-host` / `.lg-cloze-lines-host`: `flex-grow: 1`, `min-height: 0` inside task template |
+| Authoring | Prefer **multiple `lines[]` entries** over `\n` inside a single text segment when dialogue has many gaps |
 
 ---
 

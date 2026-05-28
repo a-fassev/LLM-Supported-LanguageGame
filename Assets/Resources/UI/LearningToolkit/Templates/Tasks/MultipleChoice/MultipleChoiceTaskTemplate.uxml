@@ -13,7 +13,8 @@
         <ui:VisualElement name="mc-stem-host" style="flex-grow: 0; margin-bottom: 12px;">
             <ui:Instance template="McStemTextPart" />
         </ui:VisualElement>
-        <ui:VisualElement name="mc-options-host" style="flex-grow: 1;">
+        <ui:ScrollView name="mc-options-scroll" class="lg-task-content-scroll lg-list-scroll">
+            <ui:VisualElement name="mc-options-host">
             <ui:Instance template="McOptionRowPart">
                 <ui:Label name="mc-option-label" text="Ciao" />
             </ui:Instance>
@@ -26,7 +27,8 @@
             <ui:Instance template="McOptionRowPart">
                 <ui:Label name="mc-option-label" text="Per favore" />
             </ui:Instance>
-        </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:ScrollView>
         <ui:VisualElement name="mc-nav-row" class="lg-task-template-footer"
             style="flex-direction: row; justify-content: center; align-items: center;">
             <ui:Button name="mc-prev-button" text="←" class="lg-btn lg-btn--secondary" />

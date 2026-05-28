@@ -10,6 +10,7 @@
         style="flex-grow: 1; flex-direction: column;">
         <ui:Label name="task-prompt" text="Completa le lacune con la parola giusta." class="lg-task-prompt lg-preview-sample"
             style="margin-bottom: 12px;" />
+        <ui:ScrollView name="cloze-lines-scroll" class="lg-task-content-scroll lg-list-scroll">
         <ui:VisualElement name="cloze-lines-host" class="lg-cloze-lines-host">
             <ui:Instance template="ClozeLineRowPart">
                 <ui:Instance template="ClozeLiteralPart">
@@ -45,5 +46,6 @@
                 </ui:Instance>
             </ui:Instance>
         </ui:VisualElement>
+        </ui:ScrollView>
     </ui:VisualElement>
 </ui:UXML>

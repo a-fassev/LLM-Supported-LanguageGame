@@ -12,7 +12,7 @@
             class="lg-task-prompt lg-preview-sample" style="margin-bottom: 8px;" />
         <ui:Label name="task-subtitle" text="Trascina una linea o tocca due carte."
             class="lg-task-meta lg-preview-sample" style="margin-bottom: 8px;" />
-        <ui:VisualElement name="matching-pairing-area" class="lg-matching-pairing-area">
+        <ui:VisualElement name="matching-pairing-area" class="lg-matching-pairing-area lg-task-content-scroll">
             <ui:VisualElement name="matching-columns-row" class="lg-matching-columns-row">
                 <ui:VisualElement name="matching-left-column" class="lg-matching-left-column">
                     <ui:Instance template="MatchingColumnHeaderPart" />

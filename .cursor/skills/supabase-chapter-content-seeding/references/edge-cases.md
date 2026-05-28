@@ -21,6 +21,8 @@ Catalog of issues encountered seeding `chapter-01`. Re-check when seeding `chapt
 | task_type in VALUES | Cutscene: `null::text`; task: `'ClozeText',` without `::text` | Match greenfield pattern; tests parsing SQL must allow optional `::text` |
 | Invalid JSON in MCP hand-minify | Insert fails | Copy from migration file verbatim |
 | Large payloads via MCP | Truncation / timeout | Apply full migration file, not pasted fragments |
+| `WITH quest_ref` once, many statements | `relation "quest_ref" does not exist` on 2nd statement | Repeat the same `with quest_ref as (...)` before **each** `UPDATE`/`INSERT` |
+| Monolithic profile SpecialScreen | Triple placeholder captions, 7-part paging, `/complete` risk on scored | Split: photo-only screen + `ClozeText` + `referenceDocument` per person (`20260629120000_chapter_02_q3_split_profiles.sql`) |
 
 ## Payload & schema
 

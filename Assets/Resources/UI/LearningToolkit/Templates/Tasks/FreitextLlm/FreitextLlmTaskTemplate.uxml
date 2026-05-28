@@ -7,7 +7,7 @@
         <ui:Label name="task-instruction" text="Usa almeno due frasi complete."
             class="lg-task-meta lg-preview-sample" style="margin-bottom: 12px;" />
         <ui:TextField name="task-answer-field" multiline="true" value="Mi piace imparare l'italiano perché è una lingua musicale."
-            class="lg-textfield lg-preview-sample" style="min-height: 180px; max-height: 420px; flex-grow: 1;" />
+            class="lg-textfield lg-preview-sample lg-task-content-scroll" style="min-height: 120px; max-height: 420px; flex-grow: 1; flex-shrink: 1;" />
         <ui:Label name="task-stats-label" text="" class="lg-text-caption" style="margin-top: 8px; display: none;" />
     </ui:VisualElement>
 </ui:UXML>

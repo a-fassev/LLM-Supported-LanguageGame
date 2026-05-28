@@ -14,7 +14,8 @@
             class="lg-task-meta lg-preview-sample" style="margin-bottom: 8px;" />
         <ui:Button name="task-reset-button" text="Ripristina" class="lg-btn lg-btn--secondary"
             style="align-self: flex-start; margin-bottom: 12px;" />
-        <ui:VisualElement name="error-spotting-chips-row" class="lg-error-spotting-row" style="flex-grow: 0;">
+        <ui:ScrollView name="error-spotting-scroll" class="lg-task-content-scroll lg-list-scroll">
+        <ui:VisualElement name="error-spotting-chips-row" class="lg-error-spotting-row">
             <ui:Instance template="ErrorSpottingSlotPart" />
             <ui:Instance template="ErrorSpottingSlotPart" />
             <ui:Instance template="ErrorSpottingSlotPart" />
@@ -22,5 +23,6 @@
             <ui:Instance template="ErrorSpottingSlotPart" />
             <ui:Instance template="ErrorSpottingSlotMarkedPart" />
         </ui:VisualElement>
+        </ui:ScrollView>
     </ui:VisualElement>
 </ui:UXML>

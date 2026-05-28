@@ -1,62 +1,84 @@
 -- Chapter 2 Akt 2.2: split monolithic profiles+identikit SpecialScreen into photo grid + three ClozeText steps.
 -- KEEP IN SYNC: q3s1_photo, q3s2_saviano, q3s3_delpiero, q3s4_ferragni must match 20260627150000 chapter-02 quest-03 rows.
+-- APPLY ONCE: idempotent — skips when chapter-02-q3-identikit-saviano is already active.
+-- order_index shift runs only while legacy chapter-02-q3-profiles-identikit is active; recovery applies -7 when any step is temporarily >= 10.
+-- Players mid-run on deactivated chapter-02-q3-profiles-identikit must restart the quest after apply.
 
-with quest_ref as (
-  select q.id as quest_id
-  from public.game_quests q
-  join public.game_chapters c on c.id = q.chapter_id
-  where c.slug = 'chapter-02'
-    and q.slug = 'chapter-02-quest-03-school-project'
-)
--- Free order_index 2–4 and move bridge/quiz/outro to 5–7.
-update public.game_quest_steps s
-set order_index = s.order_index + 10, updated_at = now()
-from quest_ref qr
-where s.quest_id = qr.quest_id
-  and s.order_index >= 2;
+DO $chapter_02_q3_split$
+DECLARE
+  v_quest_id uuid;
+  v_legacy_identikit_active boolean;
+  v_pending_shift_down boolean;
+BEGIN
+  SELECT q.id INTO v_quest_id
+  FROM public.game_quests q
+  JOIN public.game_chapters c ON c.id = q.chapter_id
+  WHERE c.slug = 'chapter-02'
+    AND q.slug = 'chapter-02-quest-03-school-project';
 
-with quest_ref as (
-  select q.id as quest_id
-  from public.game_quests q
-  join public.game_chapters c on c.id = q.chapter_id
-  where c.slug = 'chapter-02'
-    and q.slug = 'chapter-02-quest-03-school-project'
-)
-update public.game_quest_steps s
-set order_index = s.order_index - 7, updated_at = now()
-from quest_ref qr
-where s.quest_id = qr.quest_id
-  and s.order_index >= 10;
+  IF v_quest_id IS NULL THEN
+    RAISE NOTICE 'chapter_02_q3_split_profiles: quest not found, skipping';
+    RETURN;
+  END IF;
 
--- Retire legacy combined SpecialScreen step (replaced by photo + identikit tasks).
-with quest_ref as (
-  select q.id as quest_id
-  from public.game_quests q
-  join public.game_chapters c on c.id = q.chapter_id
-  where c.slug = 'chapter-02'
-    and q.slug = 'chapter-02-quest-03-school-project'
-)
-update public.game_quest_steps s
-set is_active = false, updated_at = now()
-from quest_ref qr
-where s.quest_id = qr.quest_id
-  and s.logical_task_key = 'chapter-02-q3-profiles-identikit';
+  IF EXISTS (
+    SELECT 1
+    FROM public.game_quest_steps s
+    WHERE s.quest_id = v_quest_id
+      AND s.logical_task_key = 'chapter-02-q3-identikit-saviano'
+      AND s.is_active = true
+  ) THEN
+    RAISE NOTICE 'chapter_02_q3_split_profiles: already applied, skipping';
+    RETURN;
+  END IF;
 
--- Photo profiles (order 1): replace payload on same slot if row still uses old logical key, else upsert via conflict.
-with quest_ref as (
-  select q.id as quest_id
-  from public.game_quests q
-  join public.game_chapters c on c.id = q.chapter_id
-  where c.slug = 'chapter-02'
-    and q.slug = 'chapter-02-quest-03-school-project'
-)
-update public.game_quest_steps s
-set
-  step_kind = 'task',
-  task_type = 'SpecialScreen',
-  template_key = 'task.special-screen.profiles-photo',
-  logical_task_key = 'chapter-02-q3-profiles-photo',
-  content_payload = $q3s1_photo${
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.game_quest_steps s
+    WHERE s.quest_id = v_quest_id
+      AND s.logical_task_key = 'chapter-02-q3-profiles-identikit'
+      AND s.is_active = true
+  ) INTO v_legacy_identikit_active;
+
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.game_quest_steps s
+    WHERE s.quest_id = v_quest_id
+      AND s.is_active = true
+      AND s.order_index >= 10
+  ) INTO v_pending_shift_down;
+
+  -- Free order_index 2–4 and move bridge/quiz/outro to 5–7 (pre-split layout only).
+  IF v_legacy_identikit_active AND NOT v_pending_shift_down THEN
+    UPDATE public.game_quest_steps s
+    SET order_index = s.order_index + 10, updated_at = now()
+    WHERE s.quest_id = v_quest_id
+      AND s.order_index >= 2;
+
+    v_pending_shift_down := true;
+  END IF;
+
+  IF v_pending_shift_down THEN
+    UPDATE public.game_quest_steps s
+    SET order_index = s.order_index - 7, updated_at = now()
+    WHERE s.quest_id = v_quest_id
+      AND s.order_index >= 10;
+  END IF;
+
+  -- Retire legacy combined SpecialScreen step (replaced by photo + identikit tasks).
+  UPDATE public.game_quest_steps s
+  SET is_active = false, updated_at = now()
+  WHERE s.quest_id = v_quest_id
+    AND s.logical_task_key = 'chapter-02-q3-profiles-identikit';
+
+  -- Photo profiles (order 1): blocks [] + flat/no pizza — display-only; do not switch to scored without adding blocks[].
+  UPDATE public.game_quest_steps s
+  SET
+    step_kind = 'task',
+    task_type = 'SpecialScreen',
+    template_key = 'task.special-screen.profiles-photo',
+    logical_task_key = 'chapter-02-q3-profiles-photo',
+    content_payload = $q3s1_photo${
     "sceneBackgroundAsset": "static/task-scene-backgrounds/chapter-02/ph-ts-desk-home",
     "screenVariant": "photo",
     "title": "Italiani famosi",
@@ -72,51 +94,42 @@ set
     },
     "blocks": []
   }$q3s1_photo$::jsonb,
-  reward_rules = '{}'::jsonb,
-  is_active = true,
-  updated_at = now()
-from quest_ref qr
-where s.quest_id = qr.quest_id
-  and s.order_index = 1;
+    reward_rules = '{}'::jsonb,
+    is_active = true,
+    updated_at = now()
+  WHERE s.quest_id = v_quest_id
+    AND s.order_index = 1;
 
-with quest_ref as (
-  select q.id as quest_id
-  from public.game_quests q
-  join public.game_chapters c on c.id = q.chapter_id
-  where c.slug = 'chapter-02'
-    and q.slug = 'chapter-02-quest-03-school-project'
-)
-insert into public.game_quest_steps (
-  quest_id,
-  order_index,
-  step_kind,
-  task_type,
-  template_key,
-  logical_task_key,
-  content_payload,
-  reward_rules,
-  is_active
-)
-select
-  qr.quest_id,
-  v.order_index,
-  v.step_kind,
-  v.task_type,
-  v.template_key,
-  v.logical_task_key,
-  v.content_payload::jsonb,
-  v.reward_rules::jsonb,
-  true
-from quest_ref qr
-cross join (
-  values
-    (
-      2,
-      'task',
-      'ClozeText',
-      'task.cloze-text',
-      'chapter-02-q3-identikit-saviano',
-      $q3s2_saviano${
+  INSERT INTO public.game_quest_steps (
+    quest_id,
+    order_index,
+    step_kind,
+    task_type,
+    template_key,
+    logical_task_key,
+    content_payload,
+    reward_rules,
+    is_active
+  )
+  SELECT
+    v_quest_id,
+    v.order_index,
+    v.step_kind,
+    v.task_type,
+    v.template_key,
+    v.logical_task_key,
+    v.content_payload::jsonb,
+    v.reward_rules::jsonb,
+    true
+  FROM (
+    VALUES
+      (
+        2,
+        'task',
+        'ClozeText',
+        'task.cloze-text',
+        'chapter-02-q3-identikit-saviano',
+        $q3s2_saviano${
         "sceneBackgroundAsset": "static/task-scene-backgrounds/chapter-02/ph-ts-desk-home",
         "prompt": "Identikit: Roberto Saviano — completa con le informazioni del profilo.",
         "referenceDocument": {
@@ -135,15 +148,15 @@ cross join (
           { "segments": [{ "kind": "text", "text": "particolarità: " }, { "kind": "gap", "placeholder": "…", "maxLength": 80, "correctAnswers": ["vive con la scorta della polizia", "vive con la scorta"] }] }
         ]
       }$q3s2_saviano$,
-      '{"pizza":{"mode":"flat","value":1}}'
-    ),
-    (
-      3,
-      'task',
-      'ClozeText',
-      'task.cloze-text',
-      'chapter-02-q3-identikit-del-piero',
-      $q3s3_delpiero${
+        '{"pizza":{"mode":"flat","value":1}}'
+      ),
+      (
+        3,
+        'task',
+        'ClozeText',
+        'task.cloze-text',
+        'chapter-02-q3-identikit-del-piero',
+        $q3s3_delpiero${
         "sceneBackgroundAsset": "static/task-scene-backgrounds/chapter-02/ph-ts-desk-home",
         "prompt": "Identikit: Alessandro Del Piero — completa con le informazioni del profilo.",
         "referenceDocument": {
@@ -162,15 +175,15 @@ cross join (
           { "segments": [{ "kind": "text", "text": "particolarità: " }, { "kind": "gap", "placeholder": "…", "maxLength": 80, "correctAnswers": ["ha una fondazione per giovani calciatori", "fondazione per giovani calciatori"] }] }
         ]
       }$q3s3_delpiero$,
-      '{"pizza":{"mode":"flat","value":1}}'
-    ),
-    (
-      4,
-      'task',
-      'ClozeText',
-      'task.cloze-text',
-      'chapter-02-q3-identikit-ferragni',
-      $q3s4_ferragni${
+        '{"pizza":{"mode":"flat","value":1}}'
+      ),
+      (
+        4,
+        'task',
+        'ClozeText',
+        'task.cloze-text',
+        'chapter-02-q3-identikit-ferragni',
+        $q3s4_ferragni${
         "sceneBackgroundAsset": "static/task-scene-backgrounds/chapter-02/ph-ts-desk-home",
         "prompt": "Identikit: Chiara Ferragni — completa con le informazioni del profilo.",
         "referenceDocument": {
@@ -189,24 +202,26 @@ cross join (
           { "segments": [{ "kind": "text", "text": "particolarità: " }, { "kind": "gap", "placeholder": "…", "maxLength": 80, "correctAnswers": ["ha la sua linea di moda Chiara Ferragni Collection", "Chiara Ferragni Collection"] }] }
         ]
       }$q3s4_ferragni$,
-      '{"pizza":{"mode":"flat","value":1},"backpack":{"mode":"first_completion","value":1}}'
-    )
-) as v(
-  order_index,
-  step_kind,
-  task_type,
-  template_key,
-  logical_task_key,
-  content_payload,
-  reward_rules
-)
-on conflict (quest_id, order_index) do update
-set
-  step_kind = excluded.step_kind,
-  task_type = excluded.task_type,
-  template_key = excluded.template_key,
-  logical_task_key = excluded.logical_task_key,
-  content_payload = excluded.content_payload,
-  reward_rules = excluded.reward_rules,
-  is_active = excluded.is_active,
-  updated_at = now();
+        '{"pizza":{"mode":"flat","value":1},"backpack":{"mode":"first_completion","value":1}}'
+      )
+  ) AS v(
+    order_index,
+    step_kind,
+    task_type,
+    template_key,
+    logical_task_key,
+    content_payload,
+    reward_rules
+  )
+  ON CONFLICT (quest_id, order_index) DO UPDATE
+  SET
+    step_kind = excluded.step_kind,
+    task_type = excluded.task_type,
+    template_key = excluded.template_key,
+    logical_task_key = excluded.logical_task_key,
+    content_payload = excluded.content_payload,
+    reward_rules = excluded.reward_rules,
+    is_active = excluded.is_active,
+    updated_at = now();
+END
+$chapter_02_q3_split$;

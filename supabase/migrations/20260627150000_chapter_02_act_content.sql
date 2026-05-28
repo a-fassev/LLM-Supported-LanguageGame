@@ -322,6 +322,7 @@ seed_steps as (
         }$q3s0$,
         '{}'
       ),
+      -- Photo step (order 1): blocks [] + reward_rules {} — display-only; do not enable scored pizza without blocks[].
       (
         'chapter-02-quest-03-school-project',
         1,

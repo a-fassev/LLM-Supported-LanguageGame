@@ -57,7 +57,7 @@ Canonical **technical** contracts live in `AGENTS.md`; **task-type orientation**
 - Task types are **modular** (e.g. drag-and-drop): swap **texts and content** without rebuilding core mechanics.
 - **Pedagogical preference:** **little free-text** input where possible, for clearer scoring and control.
 - **LLM use** is **intentionally narrow**—today that means **short Italian writing checked against clear criteria**; most tasks are **fixed, deterministic** checks on the server.
-- **Special screens** dress several small mechanics inside **one believable frame** (e.g. **phone chat**, **email/letter**, **photo strip**, **magazine-style reader**). Learners may tap **«→»** to move between parts, then **«Controlla»** (and sometimes an in-frame **send** on mail) so pacing still feels like **one quest**, not a pile of worksheets.
+- **Special screens** dress several small mechanics inside **one believable frame** (e.g. **phone chat**, **email/letter**, **photo strip**, **magazine-style reader**). Learners may tap **«→»** to move between parts, then **«Controlla»** (and sometimes an in-frame **send** on mail) so pacing still feels like **one quest**, not a pile of worksheets. When the job is **“look at three profile cards, then fill three identikits”**, the product often works better as **one short photo step** (names under the pictures) followed by **separate identikit exercises** with a **documento** button to reopen the full bio—instead of paging through the same text again inside one long composite screen.
 
 ## Task categories (what kids do)
 
@@ -67,7 +67,7 @@ Canonical **technical** contracts live in `AGENTS.md`; **task-type orientation**
 |----------|------------------------|
 | Error spotting | Find/fix a deliberate mistake; mark segments and confirm corrections. |
 | Drag & drop | Order fragments, fill gaps, match pronouns/referents, sort into categories. |
-| Cloze | Fill gaps in **readable dialogue rows** (speaker lines should not collapse into one cramped strip); typically **closed answers** / accepted solutions. |
+| Cloze | Fill gaps in **readable dialogue rows**—each line should read like a sentence, not a stack of broken chips; typically **closed answers** / accepted solutions. Long passages use **more rows**, not tiny fragments wrapped line by line. |
 | Matching | Pair columns (words/meanings, clauses, pictures/terms, etc.). |
 | Multiple choice | Choose correct option(s) from stems that can mix **text**, **image**, and **audio**. |
 | Special screen (composite) | **Chat**, **mail/letter**, **photo gallery/slideshow**, or **reader** chrome wrapping the same core mechanics (e.g. cloze / error spotting) in a story context; often **multi-part** with clear arrows between parts. |

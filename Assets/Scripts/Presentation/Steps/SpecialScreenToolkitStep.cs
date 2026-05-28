@@ -46,6 +46,7 @@ namespace LanguageGame.Presentation.Steps
         private bool _readerDisplayOnly;
         private bool _usePhotoChrome;
         private bool _photoDisplayOnly;
+        private bool _contentMechanicsBlocksEmpty;
         private bool _useMailChrome;
 
         private Button _mailSendButton;
@@ -108,6 +109,7 @@ namespace LanguageGame.Presentation.Steps
             _readerDisplayOnly = false;
             _usePhotoChrome = false;
             _photoDisplayOnly = false;
+            _contentMechanicsBlocksEmpty = false;
             _useMailChrome = false;
             _mailSendButton = null;
             _mailSendAckLabel = null;
@@ -132,6 +134,7 @@ namespace LanguageGame.Presentation.Steps
             _usePhotoChrome = ShouldUsePhotoViewerChrome(dto, tt) && !useReaderChromeForLayout && !_useMailChrome;
             _useMessengerChrome = ShouldUseMessengerChrome(dto, tt) && !_useMailChrome;
             var readerWithoutMechanicsBlocks = dto.blocks == null || dto.blocks.Length == 0;
+            _contentMechanicsBlocksEmpty = readerWithoutMechanicsBlocks;
             _readerDisplayOnly = useReaderChromeForLayout && readerWithoutMechanicsBlocks;
             _photoDisplayOnly = _usePhotoChrome && readerWithoutMechanicsBlocks &&
                                 !PhotoChromeRequiresLearnerCaption(dto.photoViewerChrome);
@@ -351,7 +354,8 @@ namespace LanguageGame.Presentation.Steps
             }
 
             var tt = string.IsNullOrWhiteSpace(_context.taskType) ? "SpecialScreen" : _context.taskType.Trim();
-            if (_blocks.Count == 0)
+            if (_blocks.Count == 0 ||
+                (_contentMechanicsBlocksEmpty && (_usePhotoChrome || _readerDisplayOnly)))
             {
                 attemptJson =
                     "{\"taskType\":" +
@@ -431,6 +435,7 @@ namespace LanguageGame.Presentation.Steps
             _readerDisplayOnly = false;
             _usePhotoChrome = false;
             _photoDisplayOnly = false;
+            _contentMechanicsBlocksEmpty = false;
             _useMailChrome = false;
             _mailSendAckLabel = null;
             _mailSendSuccessText = null;
@@ -458,6 +463,7 @@ namespace LanguageGame.Presentation.Steps
             _readerDisplayOnly = false;
             _usePhotoChrome = false;
             _photoDisplayOnly = false;
+            _contentMechanicsBlocksEmpty = false;
             _useMailChrome = false;
             _mailSendAckLabel = null;
             _mailSendSuccessText = null;
@@ -485,6 +491,7 @@ namespace LanguageGame.Presentation.Steps
             _readerDisplayOnly = false;
             _usePhotoChrome = false;
             _photoDisplayOnly = false;
+            _contentMechanicsBlocksEmpty = false;
             _useMailChrome = false;
             _mailSendAckLabel = null;
             _mailSendSuccessText = null;
