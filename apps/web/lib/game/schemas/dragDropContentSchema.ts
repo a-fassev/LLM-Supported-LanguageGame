@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { optionalAssetIdSchema, taskContentCommonFields } from "@/lib/game/schemas/gameArtAssetSchema";
+import { referenceDocumentSchema } from "@/lib/game/schemas/referenceDocumentSchema";
 
 const dragDropItemSchema = z
   .object({
@@ -25,6 +26,7 @@ export const dragDropContentSchema = z
     ...taskContentCommonFields,
     prompt: z.string().optional(),
     subtitle: z.string().optional(),
+    referenceDocument: referenceDocumentSchema.optional(),
     items: z.array(dragDropItemSchema).min(1),
     targets: z.array(dragDropTargetSchema).optional(),
     presentation: z.object({ targetMode: z.string().optional() }).passthrough().optional(),

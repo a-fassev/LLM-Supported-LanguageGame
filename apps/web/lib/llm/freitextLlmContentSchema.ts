@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { optionalSceneBackgroundAssetSchema } from "@/lib/game/schemas/gameArtAssetSchema";
+import { referenceDocumentSchema } from "@/lib/game/schemas/referenceDocumentSchema";
 
 const scoringPolicySchema = z.enum(["strict_binary", "partial_points", "threshold_pass"]);
 
@@ -18,6 +19,7 @@ const evaluationSchema = z.object({
 export const freitextLlmStepContentSchema = z.object({
   sceneBackgroundAsset: optionalSceneBackgroundAssetSchema,
   prompt: z.string().min(1),
+  referenceDocument: referenceDocumentSchema.optional(),
   instruction: z.string().optional(),
   /** BCP-like tag for pedagogy framing (Italian, German, ...) */
   targetLanguage: z.string().optional(),

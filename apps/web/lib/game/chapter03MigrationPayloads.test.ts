@@ -12,6 +12,10 @@ const dragDropFollowUpPath = path.join(
   repoRoot,
   "supabase/migrations/20260627180200_chapter_03_dragdrop_match_mode.sql",
 );
+const stepReferenceFollowUpPath = path.join(
+  repoRoot,
+  "supabase/migrations/20260528090421_chapter_03_step_reference_documents_sync.sql",
+);
 
 const EXPECTED_CHAPTER_THEME = {
   background: "static/navigation/backgrounds/ph-st-nav-chapter-bg",
@@ -124,9 +128,31 @@ describe("chapter-03 migration payloads", () => {
     expect(mainSql).toContain('"buttonLabel": "Vedi il volantino"');
   });
 
-  it("includes Made in Italy reference document on cioccoshow quest", () => {
-    expect(mainSql).toContain('"documentId": "rivista-made-in-italy"');
-    expect(mainSql).toContain('"buttonLabel": "Vedi la rivista"');
+  it("keeps cioccoshow quest meta without a shared reference document", () => {
+    const cioccoshowMetaMatch = mainSql.match(
+      /'chapter-03-quest-04-cioccoshow'[\s\S]*?\$rivista_meta\$(\{[\s\S]*?\})\$rivista_meta\$/,
+    );
+    expect(cioccoshowMetaMatch).not.toBeNull();
+    const cioccoshowMeta = JSON.parse(cioccoshowMetaMatch![1]) as Record<string, unknown>;
+    expect(cioccoshowMeta.referenceDocument).toBeUndefined();
+    expect(cioccoshowMeta.flow).toEqual({ blockBack: false });
+  });
+
+  it("stores step-level reference docs for cioccoshow quiz and drag-drop", () => {
+    const quizStep = mainSteps.find((row) => row.meta.logical === "chapter-03-q4-quiz-torino");
+    const dragDropStep = mainSteps.find(
+      (row) => row.meta.logical === "chapter-03-q4-dragdrop-made-in-italy",
+    );
+    expect(quizStep).toBeDefined();
+    expect(dragDropStep).toBeDefined();
+
+    const quizDoc = (quizStep!.payload as { referenceDocument?: { documentId?: string } })
+      .referenceDocument;
+    const dragDropDoc = (dragDropStep!.payload as { referenceDocument?: { documentId?: string } })
+      .referenceDocument;
+
+    expect(quizDoc?.documentId).toBe("lorenzo-torino-racconto");
+    expect(dragDropDoc?.documentId).toBe("rivista-made-in-italy");
   });
 
   it("uses matchMode all on Made in Italy drag-drop city buckets", () => {
@@ -152,6 +178,31 @@ describe("chapter-03 migration payloads", () => {
     const followUpTargets = JSON.parse(match![1]) as unknown;
     expect(followUpTargets).toEqual(
       (dragDrop!.payload as { targets: unknown }).targets,
+    );
+  });
+
+  it("keeps step-level reference docs follow-up in sync with main migration", () => {
+    const quizStep = mainSteps.find((row) => row.meta.logical === "chapter-03-q4-quiz-torino");
+    const dragDropStep = mainSteps.find(
+      (row) => row.meta.logical === "chapter-03-q4-dragdrop-made-in-italy",
+    );
+    expect(quizStep).toBeDefined();
+    expect(dragDropStep).toBeDefined();
+
+    const followUpSql = loadMigrationSql(stepReferenceFollowUpPath);
+    const docs = [
+      ...followUpSql.matchAll(
+        /\{referenceDocument\}',\s*'(\{[\s\S]*?"documentId":"[^"]+"[\s\S]*?\})'::jsonb/g,
+      ),
+    ].map((m) => JSON.parse(m[1].replaceAll("''", "'")) as { documentId?: string });
+    const quizFollowUpDoc = docs.find((d) => d.documentId === "lorenzo-torino-racconto");
+    const dragFollowUpDoc = docs.find((d) => d.documentId === "rivista-made-in-italy");
+
+    expect(quizFollowUpDoc).toEqual(
+      (quizStep!.payload as { referenceDocument?: unknown }).referenceDocument,
+    );
+    expect(dragFollowUpDoc).toEqual(
+      (dragDropStep!.payload as { referenceDocument?: unknown }).referenceDocument,
     );
   });
 });

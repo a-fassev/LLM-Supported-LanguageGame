@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { taskContentCommonFields } from "@/lib/game/schemas/gameArtAssetSchema";
+import { referenceDocumentSchema } from "@/lib/game/schemas/referenceDocumentSchema";
 
 const clozeSegmentSchema = z
   .object({
@@ -20,6 +21,7 @@ export const clozeTextContentSchema = z
   .object({
     ...taskContentCommonFields,
     prompt: z.string().min(1),
+    referenceDocument: referenceDocumentSchema.optional(),
     caseSensitive: z.boolean().optional(),
     optional: z.boolean().optional(),
     lines: z.array(clozeLineSchema).min(1),

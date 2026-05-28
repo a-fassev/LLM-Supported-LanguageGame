@@ -76,12 +76,6 @@ join (
       3,
       '{"requiredTotalSlices":0,"prerequisiteQuestSlugs":["chapter-03-quest-03-valentina"],"prerequisiteLogicalTaskKeys":[]}',
       $rivista_meta${
-        "referenceDocument": {
-          "documentId": "rivista-made-in-italy",
-          "title": "Made in Italy — I prodotti delle nostre città",
-          "bodyText": "Conoscete il vero Made in Italy? In questa edizione vi presentiamo i prodotti più famosi e da dove vengono davvero. Attenzione: alcuni «classici italiani» che troverete all'estero non sono italiani per niente!\n\nTorino (Piemonte): il gianduiotto; la FIAT 500; il «Pinguino» (gelato su stecco, inventato nel 1939 a Torino).\n\nBologna (Emilia-Romagna): i tortellini; il ragù alla bolognese; la mortadella.\n\nAlba (Piemonte): la Nutella (dal 1964).\n\nNapoli (Campania): la pizza Margherita (patrimonio UNESCO dal 2017).\n\nParma (Emilia-Romagna): il parmigiano reggiano; il prosciutto di Parma.\n\nNON sono italiani: Spaghetti Bolognese; Caesar Salad; Hawaiian Pizza (con ananas).",
-          "buttonLabel": "Vedi la rivista"
-        },
         "flow": {
           "blockBack": false
         }
@@ -533,6 +527,12 @@ seed_steps as (
           "sceneBackgroundAsset": "static/task-scene-backgrounds/chapter-03/ph-ts-piazza-maggiore",
           "prompt": "La storia di Lorenzo: Torino, la mia città",
           "subtitle": "Leggi il racconto di Lorenzo, poi rispondi alle domande.",
+          "referenceDocument": {
+            "documentId": "lorenzo-torino-racconto",
+            "title": "La storia di Lorenzo: Torino, la mia città",
+            "bodyText": "Io sono Lorenzo e sono nato a Torino. A casa mia il cioccolato è quasi una religione: i gianduiotti sono il simbolo della città e a novembre c'è anche il festival CioccolaTò. Per preparare il gianduiotto servono cacao, zucchero e nocciole piemontesi, e il sapore è davvero speciale. Se invece parliamo di crema da spalmare, la Nutella è nata ad Alba nel 1964: non proprio a Torino, ma sempre qui in Piemonte.\n\nTorino però non è solo dolci. Qui si mangiano anche i grissini e, quando si parla di calcio, quasi tutti tifano Juventus, la «Vecchia Signora». Dalla città si vedono bene le Alpi e in centro c'è la Mole Antonelliana: dentro puoi visitare il Museo Nazionale del Cinema. E poi c'è il Lingotto, uno dei luoghi storici della FIAT, perché Torino è famosa anche per le automobili.\n\nInsomma, Torino è una città piena di gusto, sport, cultura e storia industriale.",
+            "buttonLabel": "Leggi il racconto"
+          },
           "instruction": "Lorenzo ti racconta: a Torino si ama il buon cioccolato (Gianduiotti, CioccolaTò). La Nutella nasce ad Alba nel 1964. Si mangiano i grissini, si tifa per la Juventus («Vecchia Signora»). Si vedono le Alpi e la Mole Antonelliana con il Museo del Cinema. Si producono automobili FIAT (Lingotto).",
           "questions": [
             {
@@ -655,6 +655,12 @@ seed_steps as (
           "sceneBackgroundAsset": "static/task-scene-backgrounds/chapter-03/ph-ts-piazza-maggiore",
           "prompt": "Made in Italy: i prodotti delle città",
           "subtitle": "Trascina ogni prodotto sulla città giusta. I falsi italiani vanno in «Non italiano».",
+          "referenceDocument": {
+            "documentId": "rivista-made-in-italy",
+            "title": "Made in Italy — I prodotti delle nostre città",
+            "bodyText": "Conoscete il vero Made in Italy? In questa edizione vi presentiamo i prodotti più famosi e da dove vengono davvero. Attenzione: alcuni «classici italiani» che troverete all'estero non sono italiani per niente!\n\nTorino (Piemonte): il gianduiotto; la FIAT 500; il «Pinguino» (gelato su stecco, inventato nel 1939 a Torino).\n\nBologna (Emilia-Romagna): i tortellini; il ragù alla bolognese; la mortadella.\n\nAlba (Piemonte): la Nutella (dal 1964).\n\nNapoli (Campania): la pizza Margherita (patrimonio UNESCO dal 2017).\n\nParma (Emilia-Romagna): il parmigiano reggiano; il prosciutto di Parma.\n\nNON sono italiani: Spaghetti Bolognese; Caesar Salad; Hawaiian Pizza (con ananas).",
+            "buttonLabel": "Vedi la rivista"
+          },
           "shuffleItemOrder": true,
           "requireBankEmpty": true,
           "items": [

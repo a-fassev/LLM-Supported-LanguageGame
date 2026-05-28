@@ -1,13 +1,6 @@
 import { z } from "zod";
-
-export const questReferenceDocumentSchema = z
-  .object({
-    documentId: z.string().optional(),
-    title: z.string().min(1),
-    bodyText: z.string().min(1),
-    buttonLabel: z.string().optional(),
-  })
-  .strict();
+import { referenceDocumentSchema } from "@/lib/game/schemas/referenceDocumentSchema";
+export const questReferenceDocumentSchema = referenceDocumentSchema;
 
 export const questFlowMetaSchema = z
   .object({

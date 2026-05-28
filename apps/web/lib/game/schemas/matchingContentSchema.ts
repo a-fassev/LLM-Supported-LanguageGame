@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { optionalAssetIdSchema, taskContentCommonFields } from "@/lib/game/schemas/gameArtAssetSchema";
+import { referenceDocumentSchema } from "@/lib/game/schemas/referenceDocumentSchema";
 
 const matchingItemSchema = z
   .object({
@@ -15,6 +16,7 @@ export const matchingContentSchema = z
     ...taskContentCommonFields,
     prompt: z.string().optional(),
     subtitle: z.string().optional(),
+    referenceDocument: referenceDocumentSchema.optional(),
     leftItems: z.array(matchingItemSchema).min(1),
     rightItems: z.array(matchingItemSchema).min(1),
     correctPairs: z

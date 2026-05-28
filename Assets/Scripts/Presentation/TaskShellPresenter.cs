@@ -29,6 +29,7 @@ namespace LanguageGame.Presentation
         private IStepView _activeStepView;
         private GameQuestStepDto _boundStep;
         private string _boundQuestMetaJson;
+        private QuestReferenceDocumentDto _resolvedReferenceDocument;
 
         private readonly EventCallback<ClickEvent> _onReferenceDocumentClicked;
         private readonly EventCallback<ClickEvent> _onPauseMenuClicked;
@@ -313,14 +314,14 @@ namespace LanguageGame.Presentation
 
         private void ConfigureTaskShellChrome(GameFlowController flow)
         {
-            var meta = flow?.ServerQuestMeta;
-            var hasReference = QuestMetaPayloadParser.HasReferenceDocument(meta);
+            _resolvedReferenceDocument = ResolveReferenceDocument(flow);
+            var hasReference = StepReferenceDocumentParser.IsValid(_resolvedReferenceDocument);
 
             if (_tkReferenceDocument != null)
             {
                 if (hasReference)
                 {
-                    var label = meta.referenceDocument.buttonLabel;
+                    var label = _resolvedReferenceDocument.buttonLabel;
                     _tkReferenceDocument.text = string.IsNullOrWhiteSpace(label)
                         ? "Broschüre ansehen"
                         : label.Trim();
@@ -476,11 +477,24 @@ namespace LanguageGame.Presentation
             if (flow == null)
                 return;
 
-            var doc = flow.ServerQuestMeta?.referenceDocument;
-            if (doc == null || string.IsNullOrWhiteSpace(doc.bodyText))
+            var doc = _resolvedReferenceDocument ?? ResolveReferenceDocument(flow);
+            if (!StepReferenceDocumentParser.IsValid(doc))
                 return;
 
             _shared.ReferenceDoc.Show(doc.title, doc.bodyText);
+        }
+
+        private QuestReferenceDocumentDto ResolveReferenceDocument(GameFlowController flow)
+        {
+            if (_boundStep != null && _boundStep.isTask)
+            {
+                var stepDoc = StepReferenceDocumentParser.Parse(_boundStep.contentJson);
+                if (StepReferenceDocumentParser.IsValid(stepDoc))
+                    return stepDoc;
+            }
+
+            var questDoc = flow?.ServerQuestMeta?.referenceDocument;
+            return StepReferenceDocumentParser.IsValid(questDoc) ? questDoc : null;
         }
 
         private void OnPauseMenuClicked() =>
@@ -500,6 +514,7 @@ namespace LanguageGame.Presentation
             _activeStepView = null;
             _boundStep = null;
             _boundQuestMetaJson = null;
+            _resolvedReferenceDocument = null;
             if (_shellReady && _toolkitStepHost != null)
                 _toolkitStepHost.Clear();
         }

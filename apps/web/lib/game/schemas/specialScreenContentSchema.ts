@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { optionalAssetIdSchema, taskContentCommonFields } from "@/lib/game/schemas/gameArtAssetSchema";
+import { referenceDocumentSchema } from "@/lib/game/schemas/referenceDocumentSchema";
 
 const photoItemSchema = z
   .object({
@@ -119,6 +120,7 @@ export const specialScreenContentSchema = z
     screenVariant: z.string().optional(),
     title: z.string().optional(),
     subtitle: z.string().optional(),
+    referenceDocument: referenceDocumentSchema.optional(),
     smsChrome: smsChromeSchema.optional(),
     readerChrome: readerChromeSchema.optional(),
     photoViewerChrome: z

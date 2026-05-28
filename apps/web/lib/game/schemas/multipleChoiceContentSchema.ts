@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { optionalAssetIdSchema, taskContentCommonFields } from "@/lib/game/schemas/gameArtAssetSchema";
+import { referenceDocumentSchema } from "@/lib/game/schemas/referenceDocumentSchema";
 
 const mcOptionSchema = z
   .object({
@@ -27,6 +28,7 @@ export const multipleChoiceContentSchema = z
     prompt: z.string().optional(),
     subtitle: z.string().optional(),
     selectionMode: z.string().optional(),
+    referenceDocument: referenceDocumentSchema.optional(),
     preserveOptionOrder: z.boolean().optional(),
     stem: z.array(stemBlockSchema).optional(),
     options: z.array(mcOptionSchema).optional(),

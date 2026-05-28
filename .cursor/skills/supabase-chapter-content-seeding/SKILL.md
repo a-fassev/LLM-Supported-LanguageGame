@@ -50,8 +50,9 @@ Map **one spoken scene** ≠ one DB row: multi-line dialog in one scene = **`bea
 Produce a table (in chat or plan, not a new doc unless asked):
 
 - **`game_chapters`:** `slug`, `display_name`, `order_index`, `theme_payload` (`background` = GameArt nav key or default, `paletteKey` → `Resources/UI/{paletteKey}.asset`)
-- **`game_quests`:** slug pattern `chapter-NN-quest-XX-{short-name}`, `unlock_rules.prerequisiteQuestSlugs`, `meta_payload.flow` (`blockBack`, `autoStartQuestSlug`), optional **`referenceDocument`** (brochure on task shell)
+- **`game_quests`:** slug pattern `chapter-NN-quest-XX-{short-name}`, `unlock_rules.prerequisiteQuestSlugs`, `meta_payload.flow` (`blockBack`, `autoStartQuestSlug`), optional shared **`referenceDocument`** (task-shell brochure fallback)
 - **`game_quest_steps`:** per row: `order_index`, `step_kind`, `task_type`, `template_key`, **`logical_task_key`** (globally unique), task/cutscene JSON shape, `reward_rules`, **`sceneBackgroundAsset`**
+- **Reference documents authoring rule:** if one reading doc is shared intentionally across several task steps, keep it at quest meta (`meta_payload.referenceDocument`). If different steps need different docs in one quest, author step-level **`content_payload.referenceDocument`** on those task rows (same shape: `documentId?`, `title`, `bodyText`, `buttonLabel?`) and avoid a mixed quest relying on only quest-level meta.
 
 Validate each task type against:
 

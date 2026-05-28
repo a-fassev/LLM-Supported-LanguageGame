@@ -13,7 +13,8 @@ Use with `.cursor/skills/supabase-chapter-content-seeding/SKILL.md`.
 
 - [ ] Chapter slug (`chapter-NN`) and display name
 - [ ] Quest slugs, order_index, unlock_rules
-- [ ] meta_payload per quest (flow, referenceDocument if any)
+- [ ] meta_payload per quest (flow, shared referenceDocument only when one doc is intentional across steps)
+- [ ] step-level `content_payload.referenceDocument` added on task rows where documents differ by step
 - [ ] Step list: kind, task_type, template_key, logical_task_key
 - [ ] Each payload reviewed against Zod + Unity factory
 - [ ] Gap report drafted (schema / placeholder / client)
@@ -39,7 +40,7 @@ Use with `.cursor/skills/supabase-chapter-content-seeding/SKILL.md`.
 - [ ] Active quest count matches narrative scope only
 - [ ] 16 (or expected) active steps; contiguous order_index
 - [ ] Payload test passes (`npm run test:chapterNN-migration`)
-- [ ] Spot-check: autoStartQuestSlug, prerequisites, referenceDocument
+- [ ] Spot-check: autoStartQuestSlug, prerequisites, quest/shared vs step-specific referenceDocument placement
 
 ## Post-deploy fix (if needed)
 

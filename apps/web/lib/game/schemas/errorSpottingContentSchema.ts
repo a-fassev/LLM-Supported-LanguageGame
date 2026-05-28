@@ -1,10 +1,12 @@
 import { z } from "zod";
 import { taskContentCommonFields } from "@/lib/game/schemas/gameArtAssetSchema";
+import { referenceDocumentSchema } from "@/lib/game/schemas/referenceDocumentSchema";
 
 export const errorSpottingContentSchema = z
   .object({
     ...taskContentCommonFields,
     prompt: z.string().optional(),
+    referenceDocument: referenceDocumentSchema.optional(),
     instruction: z.string().optional(),
     counterCaption: z.string().optional(),
     expectedErrorRange: z
