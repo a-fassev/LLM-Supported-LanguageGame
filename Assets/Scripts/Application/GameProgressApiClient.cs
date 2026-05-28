@@ -21,7 +21,7 @@ namespace LanguageGame.Application
         /// </summary>
         public static bool LooksLikeSessionAuthFailure(string message, long httpStatusCode = 0)
         {
-            if (httpStatusCode == 401 || httpStatusCode == 403)
+            if (httpStatusCode == 401)
                 return true;
 
             if (string.IsNullOrWhiteSpace(message))
@@ -31,6 +31,8 @@ namespace LanguageGame.Application
             if (trimmed.Length > 0 && trimmed[0] == '{')
             {
                 var env = JsonUtility.FromJson<GameApiErrorEnvelope>(trimmed);
+                if (env != null && ErrorCodeIndicatesBusinessRule(env.code))
+                    return false;
                 if (env != null && ErrorCodeIndicatesSessionFailure(env.code))
                     return true;
                 if (!string.IsNullOrEmpty(env?.error))
@@ -39,10 +41,15 @@ namespace LanguageGame.Application
 
             if (trimmed.Equals("Unauthorized", StringComparison.OrdinalIgnoreCase))
                 return true;
-            if (trimmed.Equals("Forbidden", StringComparison.OrdinalIgnoreCase))
-                return true;
+
+            if (TryExtractTrailingErrorCode(trimmed, out var trailingCode) &&
+                ErrorCodeIndicatesBusinessRule(trailingCode))
+                return false;
 
             var lower = trimmed.ToLowerInvariant();
+            if (lower.Contains("quest_already_completed") || lower.Contains("quest_locked") ||
+                lower.Contains("chapter_locked"))
+                return false;
             string[] phrases =
             {
                 "not logged in",
@@ -58,9 +65,10 @@ namespace LanguageGame.Application
                 "missing authorization",
                 "authorization required",
                 "invalid session",
+                "invalid_session",
+                "missing_token",
                 "auth required",
                 "\"code\":401",
-                "\"code\":403",
             };
 
             foreach (var phrase in phrases)
@@ -78,12 +86,40 @@ namespace LanguageGame.Application
             if (string.IsNullOrWhiteSpace(code))
                 return false;
             var c = code.Trim();
-            if (c.Equals("401", StringComparison.Ordinal) || c.Equals("403", StringComparison.Ordinal))
+            if (c.Equals("401", StringComparison.Ordinal))
                 return true;
             return c.Equals("UNAUTHORIZED", StringComparison.OrdinalIgnoreCase)
-                   || c.Equals("FORBIDDEN", StringComparison.OrdinalIgnoreCase)
                    || c.Equals("SESSION_EXPIRED", StringComparison.OrdinalIgnoreCase)
-                   || c.Equals("INVALID_TOKEN", StringComparison.OrdinalIgnoreCase);
+                   || c.Equals("INVALID_TOKEN", StringComparison.OrdinalIgnoreCase)
+                   || c.Equals("INVALID_SESSION", StringComparison.OrdinalIgnoreCase)
+                   || c.Equals("MISSING_TOKEN", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static bool ErrorCodeIndicatesBusinessRule(string code)
+        {
+            if (string.IsNullOrWhiteSpace(code))
+                return false;
+            var c = code.Trim();
+            return c.Equals("quest_already_completed", StringComparison.OrdinalIgnoreCase)
+                   || c.Equals("quest_locked", StringComparison.OrdinalIgnoreCase)
+                   || c.Equals("chapter_locked", StringComparison.OrdinalIgnoreCase)
+                   || c.Equals("payload_invalid", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>API errors often append <c>(code)</c> after the human message.</summary>
+        private static bool TryExtractTrailingErrorCode(string message, out string code)
+        {
+            code = null;
+            if (string.IsNullOrEmpty(message))
+                return false;
+
+            var close = message.LastIndexOf(')');
+            var open = close > 0 ? message.LastIndexOf('(', close - 1) : -1;
+            if (open < 0 || close <= open)
+                return false;
+
+            code = message.Substring(open + 1, close - open - 1).Trim();
+            return code.Length > 0;
         }
 
         private void Awake()
@@ -272,7 +308,7 @@ namespace LanguageGame.Application
 
                 var message = env != null && !string.IsNullOrEmpty(env.error)
                     ? env.error
-                    : ParseErrorMessage(text, GameClientMessages.FreitextScorerFailed));
+                    : ParseErrorMessage(text, GameClientMessages.FreitextScorerFailed);
 
                 if (env != null && !string.IsNullOrEmpty(env.code))
                     message = $"{message} ({env.code})";
@@ -332,13 +368,8 @@ namespace LanguageGame.Application
             req.SetRequestHeader("Authorization", $"Bearer {token}");
             yield return req.SendWebRequest();
 
-            var statusCode = req.responseCode;
-            if (statusCode == 401 || statusCode == 403)
-            {
-                ClearSessionAfterUnauthorized();
-                onError?.Invoke(GameClientMessages.SessionExpiredSignInAgain);
+            if (TryHandleAuthResponse(req, onError))
                 yield break;
-            }
 
             if (req.result != UnityWebRequest.Result.Success)
             {
@@ -366,13 +397,8 @@ namespace LanguageGame.Application
             req.SetRequestHeader("Content-Type", "application/json");
             yield return req.SendWebRequest();
 
-            var statusCode = req.responseCode;
-            if (statusCode == 401 || statusCode == 403)
-            {
-                ClearSessionAfterUnauthorized();
-                onError?.Invoke(GameClientMessages.SessionExpiredSignInAgain);
+            if (TryHandleAuthResponse(req, onError))
                 yield break;
-            }
 
             if (req.result != UnityWebRequest.Result.Success)
             {
@@ -403,13 +429,8 @@ namespace LanguageGame.Application
             req.SetRequestHeader("Content-Type", "application/json");
             yield return req.SendWebRequest();
 
-            var statusCode = req.responseCode;
-            if (statusCode == 401 || statusCode == 403)
-            {
-                ClearSessionAfterUnauthorized();
-                onError?.Invoke(GameClientMessages.SessionExpiredSignInAgain);
+            if (TryHandleAuthResponse(req, onError))
                 yield break;
-            }
 
             if (req.result != UnityWebRequest.Result.Success)
             {
@@ -419,6 +440,48 @@ namespace LanguageGame.Application
             }
 
             onBody?.Invoke(req.downloadHandler.text);
+        }
+
+        /// <summary>
+        /// Handles 401 (session cleared) and business 403 (body forwarded, session kept).
+        /// Returns true when the request must not continue to success handling.
+        /// </summary>
+        private static bool TryHandleAuthResponse(UnityWebRequest req, Action<string> onError)
+        {
+            var statusCode = req.responseCode;
+            var text = req.downloadHandler != null ? req.downloadHandler.text : string.Empty;
+
+            if (statusCode == 401)
+            {
+                ClearSessionAfterUnauthorized();
+                onError?.Invoke(GameClientMessages.SessionExpiredSignInAgain);
+                return true;
+            }
+
+            if (statusCode != 403)
+                return false;
+
+            if (!string.IsNullOrEmpty(text))
+            {
+                var env = JsonUtility.FromJson<GameApiErrorEnvelope>(text);
+                if (env != null && ErrorCodeIndicatesSessionFailure(env.code))
+                {
+                    ClearSessionAfterUnauthorized();
+                    onError?.Invoke(GameClientMessages.SessionExpiredSignInAgain);
+                    return true;
+                }
+
+                var message = !string.IsNullOrEmpty(env?.error)
+                    ? env.error
+                    : ParseErrorMessage(text, "Forbidden");
+                if (!string.IsNullOrEmpty(env?.code))
+                    message = $"{message} ({env.code})";
+                onError?.Invoke(message);
+                return true;
+            }
+
+            onError?.Invoke("Forbidden");
+            return true;
         }
 
         private static void ClearSessionAfterUnauthorized()

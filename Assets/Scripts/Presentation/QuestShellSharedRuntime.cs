@@ -210,9 +210,21 @@ namespace LanguageGame.Presentation
         public IEnumerator AutoStartQuestBySlugRoutine(string questSlug)
         {
             var flow = GameFlowController.Instance;
+            ResolveGameApi();
             if (flow == null || GameApi == null || string.IsNullOrEmpty(questSlug))
             {
                 flow?.LoadQuestOverview();
+                yield break;
+            }
+
+            var refreshOk = false;
+            yield return RefreshSelectedChapterFromBootstrap(flow, ok => refreshOk = ok);
+            if (!refreshOk)
+            {
+                Debug.LogWarning("[QuestShell] Auto-start skipped: could not refresh chapter quests from bootstrap.");
+                GameSessionStateStore.SetPendingQuestOverviewNotice(
+                    "Non è stato possibile aggiornare l'elenco missioni. Scegli una missione dalla lista.");
+                flow.LoadQuestOverview();
                 yield break;
             }
 
@@ -234,9 +246,29 @@ namespace LanguageGame.Presentation
                 }
             }
 
-            if (target == null || !target.isUnlocked)
+            if (target == null)
             {
-                Debug.LogWarning($"[QuestShell] Auto-start quest '{questSlug}' unavailable; showing overview.");
+                Debug.LogWarning($"[QuestShell] Auto-start quest '{questSlug}' not found; showing overview.");
+                flow.LoadQuestOverview();
+                yield break;
+            }
+
+            if (target.hasCompletedAnyRun)
+            {
+                flow.LoadQuestOverview();
+                yield break;
+            }
+
+            if (!target.isUnlocked)
+            {
+                if (IsBonusVocabQuestSlug(questSlug))
+                {
+                    var hint = string.IsNullOrEmpty(target.unlockHint)
+                        ? "Completa le altre missioni del capitolo per sbloccare il bonus."
+                        : target.unlockHint;
+                    GameSessionStateStore.SetPendingQuestOverviewNotice(hint);
+                }
+
                 flow.LoadQuestOverview();
                 yield break;
             }
@@ -275,6 +307,66 @@ namespace LanguageGame.Presentation
                 started.currentTaskOrderIndex,
                 started.totalSlices,
                 started.totalBackpackPieces);
+        }
+
+        private static bool IsBonusVocabQuestSlug(string questSlug) =>
+            !string.IsNullOrEmpty(questSlug) &&
+            questSlug.IndexOf("bonus-vocab", StringComparison.OrdinalIgnoreCase) >= 0;
+
+        private IEnumerator RefreshSelectedChapterFromBootstrap(GameFlowController flow, Action<bool> onComplete)
+        {
+            var ok = false;
+            if (onComplete == null)
+                yield break;
+
+            if (flow == null || GameApi == null)
+            {
+                onComplete(false);
+                yield break;
+            }
+
+            bool needBootstrap =
+                !GameSessionStateStore.HasBootstrapSnapshot ||
+                !GameSessionStateStore.IsBootstrapFresh(GameSessionStateStore.DefaultBootstrapFreshSeconds);
+
+            if (needBootstrap)
+            {
+                var useCase = new LoadGameBootstrapUseCase(GameApi);
+                GameBootstrapEnvelope env = null;
+                yield return useCase.Run(e => env = e, _ => { });
+                if (env == null || !env.ok)
+                {
+                    onComplete(false);
+                    yield break;
+                }
+            }
+
+            if (!GameSessionStateStore.TryGetBootstrapSnapshot(out var bootstrap) || bootstrap?.chapters == null)
+            {
+                onComplete(false);
+                yield break;
+            }
+
+            var chapterId = flow.SelectedChapterId;
+            if (string.IsNullOrEmpty(chapterId))
+            {
+                onComplete(false);
+                yield break;
+            }
+
+            foreach (GameChapterBootstrapDto chapter in bootstrap.chapters)
+            {
+                if (chapter == null || chapter.id != chapterId)
+                    continue;
+
+                flow.SetSelectedChapter(chapter);
+                if (!string.IsNullOrEmpty(chapter.themeJson))
+                    ChapterThemeRuntime.Apply(chapter.themeJson);
+                ok = true;
+                break;
+            }
+
+            onComplete(ok);
         }
 
         public void ApplyPendingAdvanceAndContinue(Action refreshUi)

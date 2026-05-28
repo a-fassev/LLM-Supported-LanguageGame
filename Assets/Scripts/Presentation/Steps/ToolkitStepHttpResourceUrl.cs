@@ -235,7 +235,7 @@ namespace LanguageGame.Presentation.Steps
 
                 if (b[0] == 0)
                 {
-                    error = "Invalid URL address.";
+                    error = LearningToolkitStepValidationUx.InvalidUrlAddress;
                     return true;
                 }
             }

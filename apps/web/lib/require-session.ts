@@ -2,6 +2,7 @@ import type { NextResponse } from "next/server";
 import { hashToken } from "@/lib/session-token";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { jsonError } from "@/lib/http";
+import { authClientMessages as authMsg } from "@/lib/game/clientMessages";
 
 export type SessionAccount = {
   accountId: string;
@@ -19,7 +20,7 @@ export async function requireSessionAccount(
 ): Promise<{ ok: true; accountId: string } | { ok: false; response: NextResponse }> {
   const token = extractBearer(request);
   if (!token) {
-    return { ok: false, response: jsonError(401, "Missing token", "missing_token") };
+    return { ok: false, response: jsonError(401, authMsg.missingToken, "missing_token") };
   }
 
   const supabase = getSupabaseAdmin();
@@ -34,11 +35,11 @@ export async function requireSessionAccount(
 
   if (sessionError) {
     console.error("[require-session] lookup", sessionError);
-    return { ok: false, response: jsonError(500, "Impossibile verificare la sessione.") };
+    return { ok: false, response: jsonError(500, authMsg.couldNotValidateSession) };
   }
 
   if (!session || session.revoked_at != null || session.expires_at <= nowIso) {
-    return { ok: false, response: jsonError(401, "Invalid or expired session", "invalid_session") };
+    return { ok: false, response: jsonError(401, authMsg.invalidSession, "invalid_session") };
   }
 
   return { ok: true, accountId: session.account_id as string };

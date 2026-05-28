@@ -13,5 +13,7 @@ namespace LanguageGame.Presentation
             Parts + "/Navigation/NavigationPageHeaderChapterOverviewPart";
 
         public const string NavigationPageHeaderMinimalPart = Parts + "/Navigation/NavigationPageHeaderMinimalPart";
+
+        public const string NavigationQuestRowPart = Parts + "/Navigation/NavigationQuestRowPart";
     }
 }

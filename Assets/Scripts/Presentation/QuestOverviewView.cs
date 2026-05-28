@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using LanguageGame.Application;
+using LanguageGame.Presentation.Steps;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -8,21 +10,17 @@ namespace LanguageGame.Presentation
 {
     public sealed class QuestOverviewView : MonoBehaviour
     {
-        private const int VisibleQuestSlots = 3;
-
         private UIDocument _doc;
 
         private Label _chapterTitleText;
+
+        private VisualElement _questListHost;
 
         private readonly WalletHudBinder _walletHud = new();
 
         private readonly LearningToolkitPauseChromeBinder _pauseChrome = new();
 
-        private readonly Button[] _questButtons = new Button[VisibleQuestSlots];
-
-        private readonly Label[] _questTitles = new Label[VisibleQuestSlots];
-
-        private readonly Label[] _questChips = new Label[VisibleQuestSlots];
+        private readonly List<QuestRowUi> _questRows = new();
 
         private GameProgressApiClient _gameApi;
 
@@ -33,6 +31,16 @@ namespace LanguageGame.Presentation
         private readonly LearningToolkitUnlockModal _unlockModal = new LearningToolkitUnlockModal();
 
         private bool _startingQuest;
+
+        private bool _bootstrapRefreshInFlight;
+
+        private sealed class QuestRowUi
+        {
+            public Button Button;
+            public Label Title;
+            public Label Chip;
+            public GameQuestBootstrapDto Quest;
+        }
 
         private void Awake()
         {
@@ -61,6 +69,14 @@ namespace LanguageGame.Presentation
             VisualElement root = _doc.rootVisualElement;
             ToolkitNavigationScreenBinder.ApplyQuestOverviewScreen(root);
             _chapterTitleText = root.Q<Label>("title-label");
+            _questListHost = root.Q<VisualElement>("quest-list-host");
+            if (_questListHost == null)
+            {
+                Debug.LogError("[QuestOverviewView] quest-list-host missing in UI definition.");
+                enabled = false;
+                return;
+            }
+
             if (!_walletHud.Bind(_doc))
             {
                 Debug.LogError("[QuestOverviewView] Wallet HUD bind failed.");
@@ -74,15 +90,6 @@ namespace LanguageGame.Presentation
                 enabled = false;
                 return;
             }
-
-            for (var idx = 0; idx < VisibleQuestSlots; idx++)
-            {
-                int slot = idx;
-                _questButtons[idx] = root.Q<Button>($"quest-row-{idx}");
-                _questTitles[idx] = root.Q<Label>($"quest-title-{idx}");
-                _questChips[idx] = root.Q<Label>($"quest-chip-{idx}");
-                _questButtons[idx]?.RegisterCallback<ClickEvent>(_ => OnQuestClicked(slot));
-            }
         }
 
         private void Start()
@@ -92,12 +99,111 @@ namespace LanguageGame.Presentation
                 ChapterThemeRuntime.Apply(flow.SelectedChapterThemeJson);
 
             _gameApi = FindAnyObjectByType<GameProgressApiClient>();
-            RefreshQuestSlots();
+            StartCoroutine(EnsureBootstrapThenRefresh());
         }
 
         private void OnEnable()
         {
             _walletHud.Refresh();
+
+            if (_bootstrapRefreshInFlight || _doc == null || !enabled)
+                return;
+
+            if (_gameApi == null)
+                _gameApi = FindAnyObjectByType<GameProgressApiClient>();
+
+            if (_gameApi == null)
+                return;
+
+            if (!GameSessionStateStore.IsBootstrapFresh(GameSessionStateStore.DefaultBootstrapFreshSeconds))
+                StartCoroutine(EnsureBootstrapThenRefresh());
+        }
+
+        private IEnumerator EnsureBootstrapThenRefresh()
+        {
+            if (_bootstrapRefreshInFlight)
+                yield break;
+
+            _bootstrapRefreshInFlight = true;
+
+            if (_gameApi == null)
+            {
+                Debug.LogWarning("[QuestOverviewView] GameProgressApiClient not found.");
+
+                _loadErrorBanner.Show(
+                    "GameProgressApiClient non trovato nella scena — aggiungilo a GameFlow o riprova.",
+                    RestartBootstrapRoutine);
+                _bootstrapRefreshInFlight = false;
+                yield break;
+            }
+
+            bool hasSnapshot = GameSessionStateStore.TryGetBootstrapSnapshot(out _);
+            bool needBootstrap =
+                !hasSnapshot || !GameSessionStateStore.IsBootstrapFresh(GameSessionStateStore.DefaultBootstrapFreshSeconds);
+
+            if (needBootstrap)
+            {
+                var useCase = new LoadGameBootstrapUseCase(_gameApi);
+                GameBootstrapEnvelope env = null;
+                string err = string.Empty;
+
+                _loadingOverlay.Show("Caricamento missioni…");
+                yield return useCase.Run(e => env = e, m => err = m);
+                _loadingOverlay.Hide();
+
+                if (env == null || !env.ok)
+                {
+                    if (GameProgressApiClient.LooksLikeSessionAuthFailure(err))
+                    {
+                        GameFlowController.Instance?.LoadAuth();
+                        _bootstrapRefreshInFlight = false;
+                        yield break;
+                    }
+
+                    _loadErrorBanner.Show(
+                        string.IsNullOrEmpty(err) ? "Impossibile caricare le missioni." : err,
+                        RestartBootstrapRoutine);
+                    _bootstrapRefreshInFlight = false;
+                    yield break;
+                }
+
+                _loadErrorBanner.Hide();
+            }
+
+            SyncSelectedChapterFromBootstrap();
+            RefreshQuestSlots();
+            _bootstrapRefreshInFlight = false;
+        }
+
+        private void RestartBootstrapRoutine()
+        {
+            _gameApi = FindAnyObjectByType<GameProgressApiClient>();
+            StartCoroutine(EnsureBootstrapThenRefresh());
+        }
+
+        private static void SyncSelectedChapterFromBootstrap()
+        {
+            GameFlowController flow = GameFlowController.Instance;
+            if (flow == null)
+                return;
+
+            if (!GameSessionStateStore.TryGetBootstrapSnapshot(out var bootstrap) || bootstrap?.chapters == null)
+                return;
+
+            var chapterId = flow.SelectedChapterId;
+            if (string.IsNullOrEmpty(chapterId))
+                return;
+
+            foreach (GameChapterBootstrapDto chapter in bootstrap.chapters)
+            {
+                if (chapter == null || chapter.id != chapterId)
+                    continue;
+
+                flow.SetSelectedChapter(chapter);
+                if (!string.IsNullOrEmpty(chapter.themeJson))
+                    ChapterThemeRuntime.Apply(chapter.themeJson);
+                return;
+            }
         }
 
         private void RefreshQuestSlots()
@@ -125,9 +231,16 @@ namespace LanguageGame.Presentation
 
             _walletHud.Refresh();
 
-            GameQuestBootstrapDto[] quests = flow.SelectedChapterQuests;
-            for (var idx = 0; idx < VisibleQuestSlots; idx++)
-                ApplyQuestSlot(idx, quests);
+            RebuildQuestList(flow.SelectedChapterQuests);
+            ShowPendingQuestOverviewNoticeIfAny();
+        }
+
+        private void ShowPendingQuestOverviewNoticeIfAny()
+        {
+            if (!GameSessionStateStore.TryConsumeQuestOverviewNotice(out var notice))
+                return;
+
+            _unlockModal.Show("Missioni del capitolo", notice);
         }
 
         private void DisableQuestSlots(string placeholderTitle)
@@ -135,55 +248,118 @@ namespace LanguageGame.Presentation
             if (_chapterTitleText != null)
                 _chapterTitleText.text = placeholderTitle ?? "Missioni";
 
-            for (var idx = 0; idx < VisibleQuestSlots; idx++)
+            ClearQuestList();
+        }
+
+        private void ClearQuestList()
+        {
+            _questRows.Clear();
+            if (_questListHost != null)
+                ToolkitStepUx.ClearHost(_questListHost);
+        }
+
+        private void RebuildQuestList(GameQuestBootstrapDto[] quests)
+        {
+            ClearQuestList();
+            if (_questListHost == null)
+                return;
+
+            if (quests == null || quests.Length == 0)
+                return;
+
+            for (var idx = 0; idx < quests.Length; idx++)
             {
-                if (_questButtons[idx] != null)
-                    _questButtons[idx].SetEnabled(false);
+                GameQuestBootstrapDto quest = quests[idx];
+                if (quest == null)
+                    continue;
 
-                if (_questTitles[idx] != null)
-                    _questTitles[idx].text = "—";
-
-                ToggleChip(idx, DisplayStyle.None, string.Empty);
+                QuestRowUi row = CreateQuestRow(quest, idx);
+                _questRows.Add(row);
+                _questListHost.Add(row.Button);
             }
         }
 
-        private void ApplyQuestSlot(int idx, GameQuestBootstrapDto[] quests)
+        private QuestRowUi CreateQuestRow(GameQuestBootstrapDto quest, int idx)
         {
-            Button button = _questButtons[idx];
-            if (button == null)
+            if (!TryInstantiateQuestRowPart(idx, out Button btn, out Label title, out Label chip))
+                return BuildQuestRowFallback(quest, idx);
+
+            var row = new QuestRowUi { Button = btn, Title = title, Chip = chip, Quest = quest };
+            ApplyQuestRowState(row);
+            btn.clicked += () => OnQuestClicked(quest);
+            return row;
+        }
+
+        private static bool TryInstantiateQuestRowPart(int idx, out Button btn, out Label title, out Label chip)
+        {
+            btn = null;
+            title = null;
+            chip = null;
+
+            VisualElement root = ToolkitStepUx.InstantiatePart(
+                ToolkitNavigationTemplatePaths.NavigationQuestRowPart,
+                "navigation-quest-row-button");
+            if (root is not Button partButton)
+                return false;
+
+            btn = partButton;
+            btn.name = $"quest-row-{idx}";
+            title = btn.Q<Label>("quest-title-label");
+            chip = btn.Q<Label>("quest-chip-label");
+            return title != null && chip != null;
+        }
+
+        private QuestRowUi BuildQuestRowFallback(GameQuestBootstrapDto quest, int idx)
+        {
+            var btn = new Button { name = $"quest-row-{idx}" };
+            btn.AddToClassList("lg-list-row-button");
+
+            var title = new Label { name = $"quest-title-{idx}" };
+            title.AddToClassList("lg-list-row-text");
+            title.AddToClassList("lg-text-body-lg");
+            title.AddToClassList("lg-text-muted");
+
+            var chip = new Label { name = $"quest-chip-{idx}" };
+            chip.AddToClassList("lg-chip");
+            chip.AddToClassList("lg-chip--lock");
+            chip.AddToClassList("lg-text-muted");
+            chip.style.display = DisplayStyle.None;
+
+            btn.Add(title);
+            btn.Add(chip);
+
+            var row = new QuestRowUi { Button = btn, Title = title, Chip = chip, Quest = quest };
+            ApplyQuestRowState(row);
+            btn.clicked += () => OnQuestClicked(quest);
+            return row;
+        }
+
+        private void ApplyQuestRowState(QuestRowUi row)
+        {
+            if (row?.Button == null || row.Quest == null)
                 return;
 
-            if (quests == null || idx < 0 || idx >= quests.Length || quests[idx] == null)
-            {
-                button.SetEnabled(false);
-                if (_questTitles[idx] != null)
-                    _questTitles[idx].text = "—";
-
-                ToggleChip(idx, DisplayStyle.None, string.Empty);
-                return;
-            }
-
-            GameQuestBootstrapDto quest = quests[idx];
+            GameQuestBootstrapDto quest = row.Quest;
             var isCompleted = quest.hasCompletedAnyRun;
             var canStart = !_startingQuest && quest.isUnlocked && !isCompleted;
-            button.SetEnabled(canStart);
+            row.Button.SetEnabled(canStart);
 
-            if (_questTitles[idx] != null)
-                _questTitles[idx].text = quest.displayName ?? string.Empty;
+            if (row.Title != null)
+                row.Title.text = quest.displayName ?? string.Empty;
 
             if (isCompleted)
             {
-                ToggleChip(idx, DisplayStyle.Flex, "Fatto");
+                SetChip(row.Chip, DisplayStyle.Flex, "Fatto");
                 return;
             }
 
-            ToggleChip(idx, quest.isUnlocked ? DisplayStyle.None : DisplayStyle.Flex,
+            SetChip(row.Chip,
+                quest.isUnlocked ? DisplayStyle.None : DisplayStyle.Flex,
                 quest.isUnlocked ? string.Empty : "Presto");
         }
 
-        private void ToggleChip(int idx, DisplayStyle visibility, string text)
+        private static void SetChip(Label chip, DisplayStyle visibility, string text)
         {
-            Label chip = _questChips[idx];
             if (chip == null)
                 return;
 
@@ -191,9 +367,15 @@ namespace LanguageGame.Presentation
             chip.style.display = visibility;
         }
 
-        private void OnQuestClicked(int idx)
+        private void RefreshQuestRowStates()
         {
-            if (_startingQuest)
+            for (var i = 0; i < _questRows.Count; i++)
+                ApplyQuestRowState(_questRows[i]);
+        }
+
+        private void OnQuestClicked(GameQuestBootstrapDto quest)
+        {
+            if (_startingQuest || quest == null)
                 return;
 
             GameFlowController flow = GameFlowController.Instance;
@@ -202,14 +384,6 @@ namespace LanguageGame.Presentation
                 RefreshQuestSlots();
                 return;
             }
-
-            GameQuestBootstrapDto[] quests = flow.SelectedChapterQuests;
-            if (quests == null || idx < 0 || idx >= quests.Length)
-                return;
-
-            GameQuestBootstrapDto quest = quests[idx];
-            if (quest == null)
-                return;
 
             if (quest.hasCompletedAnyRun)
             {
@@ -237,7 +411,6 @@ namespace LanguageGame.Presentation
                 _loadErrorBanner.Show(
                     "GameProgressApiClient mancante — aggiungilo a GameFlow e riprova.",
                     RetryFindApiThenRefreshSlots);
-
                 return;
             }
 
@@ -253,7 +426,7 @@ namespace LanguageGame.Presentation
         private IEnumerator StartQuestRoutine(GameQuestBootstrapDto quest)
         {
             _startingQuest = true;
-            RefreshQuestSlots();
+            RefreshQuestRowStates();
 
             _loadingOverlay.Show("Avvio missione…");
 
@@ -267,7 +440,7 @@ namespace LanguageGame.Presentation
             if (started == null || !started.ok)
             {
                 _startingQuest = false;
-                RefreshQuestSlots();
+                RefreshQuestRowStates();
                 string message = string.IsNullOrEmpty(err)
                     ? "Impossibile avviare questa missione."
                     : err;
@@ -276,6 +449,7 @@ namespace LanguageGame.Presentation
                     err.IndexOf("quest_already_completed", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     _unlockModal.Show("Missione già completata", "Questa missione può essere giocata una sola volta.");
+                    yield return RefreshAfterQuestStateChange();
                     yield break;
                 }
 
@@ -297,7 +471,7 @@ namespace LanguageGame.Presentation
                 Debug.LogError("[QuestOverviewView] Quest bootstrap succeeded but GameFlowController is missing.");
 
                 _startingQuest = false;
-                RefreshQuestSlots();
+                RefreshQuestRowStates();
 
                 _loadErrorBanner.Show(
                     "Dati missione ricevuti, ma la navigazione manca — torna ai capitoli e riprova.",
@@ -321,7 +495,27 @@ namespace LanguageGame.Presentation
                 started.totalSlices,
                 started.totalBackpackPieces);
 
-            RefreshQuestSlots();
+            RefreshQuestRowStates();
+        }
+
+        /// <summary>Reload bootstrap after a quest state change so list chips reflect server truth.</summary>
+        private IEnumerator RefreshAfterQuestStateChange()
+        {
+            if (_gameApi == null)
+            {
+                RefreshQuestSlots();
+                yield break;
+            }
+
+            var useCase = new LoadGameBootstrapUseCase(_gameApi);
+            GameBootstrapEnvelope env = null;
+            yield return useCase.Run(e => env = e, _ => { });
+
+            if (env != null && env.ok)
+            {
+                SyncSelectedChapterFromBootstrap();
+                RefreshQuestSlots();
+            }
         }
 
         private static void OnLeaveToChapterOverview()

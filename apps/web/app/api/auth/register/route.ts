@@ -12,7 +12,7 @@ const bodySchema = z
       .string()
       .min(3)
       .max(40)
-      .regex(/^[a-z0-9-]+$/, "Invalid username characters")
+      .regex(/^[a-z0-9-]+$/, authMsg.invalidUsernameCharacters)
       .optional(),
     password: z.string().min(8).max(128),
     passwordConfirm: z.string().min(8).max(128),

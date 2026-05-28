@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { scoringClientMessages as scoreMsg } from "@/lib/game/clientMessages";
 
 const clozeAttemptSchema = z.object({
   taskType: z.literal("ClozeText"),
@@ -132,16 +133,16 @@ export function evaluateCloze(
   attempt: z.infer<typeof clozeAttemptSchema>,
 ): TaskAttemptEvalResult {
   const specs = clozeGapSpecs(content);
-  if (specs.length === 0) return err(502, "Cloze payload has no gaps", "payload_invalid");
+  if (specs.length === 0) return err(502, scoreMsg.clozePayloadNoGaps, "payload_invalid");
   const answers = attempt.clozeText.answers;
   if (answers.length !== specs.length) {
-    return err(400, "Cloze attempt gap count mismatch", "attempt_mismatch");
+    return err(400, scoreMsg.clozeGapCountMismatch, "attempt_mismatch");
   }
   let correct = 0;
   for (let i = 0; i < specs.length; i++) {
     const spec = specs[i];
     const raw = answers[i] ?? "";
-    if (typeof raw !== "string") return err(400, "Invalid cloze answer", "attempt_invalid");
+    if (typeof raw !== "string") return err(400, scoreMsg.invalidClozeAnswer, "attempt_invalid");
     if (matchesAnswer(raw, spec.answers, spec.insensitive)) correct++;
   }
   return { ok: true, ratio: correct / specs.length, itemsCorrect: correct, itemsTotal: specs.length };
@@ -164,12 +165,12 @@ function evaluateOptionalClozeBlock(
     return { ok: true, skipped: true };
   }
   if (clozeAnswersAnyEmpty(answers)) {
-    return err(400, "Optional cloze block must be fully completed or left empty", "attempt_invalid");
+    return err(400, scoreMsg.optionalClozeAllOrNothing, "attempt_invalid");
   }
   const scored = evaluateCloze(payload, attempt);
   if (!scored.ok) return scored;
   if (scored.ratio < 1) {
-    return err(400, "Optional cloze block has incorrect answers", "attempt_invalid");
+    return err(400, scoreMsg.optionalClozeIncorrect, "attempt_invalid");
   }
   return scored;
 }
@@ -218,7 +219,7 @@ export function evaluateMultipleChoice(
   const questions = mcQuestions(content);
   const sel = attempt.multipleChoice.selections;
   if (sel.length !== questions.length) {
-    return err(400, "Multiple-choice attempt length mismatch", "attempt_mismatch");
+    return err(400, scoreMsg.mcAttemptLengthMismatch, "attempt_mismatch");
   }
   let correct = 0;
   for (let i = 0; i < questions.length; i++) {
@@ -285,10 +286,10 @@ export function evaluateDragDrop(
   const presentationMode =
     typeof pres.targetMode === "string" ? pres.targetMode.trim().toLowerCase() : "";
   if (presentationMode === "lines") {
-    return err(501, "DragDrop lines mode scoring is not implemented on the server yet.", "unsupported_dragdrop_mode");
+    return err(501, scoreMsg.dragDropLinesNotImplemented, "unsupported_dragdrop_mode");
   }
   const targets = Array.isArray(content.targets) ? (content.targets as Record<string, unknown>[]) : [];
-  if (targets.length === 0) return err(502, "DragDrop has no targets", "payload_invalid");
+  if (targets.length === 0) return err(502, scoreMsg.dragDropNoTargets, "payload_invalid");
 
   const assignments = normalizeAssignmentMap(attempt.dragDrop.assignments);
   let correct = 0;
@@ -309,7 +310,7 @@ export function evaluateDragDrop(
     const ids = Array.isArray(t.correctItemIds) ? t.correctItemIds : [];
     return ids.length > 0;
   }).length;
-  if (denom === 0) return err(502, "DragDrop targets missing correctItemIds", "payload_invalid");
+  if (denom === 0) return err(502, scoreMsg.dragDropMissingCorrectIds, "payload_invalid");
   return { ok: true, ratio: correct / denom, itemsCorrect: correct, itemsTotal: denom };
 }
 
@@ -324,7 +325,7 @@ export function evaluateMatching(
     const r = typeof p.rightItemId === "string" ? p.rightItemId.trim() : "";
     if (l && r) expected.set(l, r);
   }
-  if (expected.size === 0) return err(502, "Matching has no correct pairs", "payload_invalid");
+  if (expected.size === 0) return err(502, scoreMsg.matchingNoPairs, "payload_invalid");
   const got = attempt.matching.pairs;
   let correct = 0;
   for (const [l, r] of expected) {
@@ -357,7 +358,7 @@ export function evaluateErrorSpotting(
   attempt: z.infer<typeof errorSpottingAttemptSchema>,
 ): TaskAttemptEvalResult {
   const errors = errorSegmentIds(content);
-  if (errors.length === 0) return err(502, "ErrorSpotting has no errors", "payload_invalid");
+  if (errors.length === 0) return err(502, scoreMsg.errorSpottingNoErrors, "payload_invalid");
 
   const trueIds = new Set(errors.map((e) => e.id));
   const selected = new Set(
@@ -404,7 +405,7 @@ export function evaluateSpecialScreen(
   const blocks = Array.isArray(content.blocks) ? (content.blocks as Record<string, unknown>[]) : [];
   const attempts = attempt.specialScreen.blocks;
   if (attempts.length !== blocks.length) {
-    return err(400, "Special screen block attempt length mismatch", "attempt_mismatch");
+    return err(400, scoreMsg.specialScreenBlockLengthMismatch, "attempt_mismatch");
   }
 
   let weighted = 0;
@@ -425,13 +426,13 @@ export function evaluateSpecialScreen(
     if (bt === "Unknown") {
       return err(
         502,
-        `Special screen block ${i + 1} uses an unsupported blockType for server scoring (got "${rawBlockType.trim() || "(missing)"}"). Supported: stub, cloze_text/ClozeText, error_spotting/ErrorSpotting.`,
+        scoreMsg.specialScreenUnsupportedBlockType(i + 1, rawBlockType.trim() || "(mancante)"),
         "unsupported_special_screen_block",
       );
     }
 
     if (att == null) {
-      return err(400, `Special screen block ${i + 1} is missing an attempt entry`, "attempt_mismatch");
+      return err(400, scoreMsg.specialScreenBlockMissingAttempt(i + 1), "attempt_mismatch");
     }
 
     const payload =
@@ -441,7 +442,7 @@ export function evaluateSpecialScreen(
     if (!payload || typeof payload !== "object") {
       return err(
         502,
-        `Special screen block ${i + 1} (${bt}) is missing nested content in content_payload`,
+        scoreMsg.specialScreenBlockMissingContent(i + 1, bt),
         "payload_invalid",
       );
     }
@@ -462,7 +463,7 @@ export function evaluateSpecialScreen(
     } else if (bt === "ErrorSpotting" && att.taskType === "ErrorSpotting") {
       inner = evaluateErrorSpotting(payload, att as z.infer<typeof errorSpottingAttemptSchema>);
     } else {
-      return err(400, `Special screen block ${i + 1} attempt type mismatch`, "attempt_mismatch");
+      return err(400, scoreMsg.specialScreenBlockTypeMismatch(i + 1), "attempt_mismatch");
     }
     if (!inner.ok) return inner;
     weight += 1;
@@ -474,7 +475,7 @@ export function evaluateSpecialScreen(
   }
 
   if (optionalClozeBlocks > 0 && optionalClozeCompleted === 0) {
-    return err(400, "Complete at least one optional identikit block", "attempt_invalid");
+    return err(400, scoreMsg.specialScreenCompleteOneIdentikit, "attempt_invalid");
   }
 
   // No scorable blocks: full completion credit, no pizza (avoid minting slices on empty screens).
@@ -497,11 +498,11 @@ export function evaluateTaskAttempt(
 ): TaskAttemptEvalResult {
   const parsed = taskAttemptSchema.safeParse(attemptRaw);
   if (!parsed.success) {
-    return err(400, "Invalid task attempt payload", "attempt_invalid");
+    return err(400, scoreMsg.invalidTaskAttemptPayload, "attempt_invalid");
   }
   const attempt = parsed.data;
   if (attempt.taskType !== taskType) {
-    return err(400, "Attempt taskType does not match step", "attempt_task_mismatch");
+    return err(400, scoreMsg.attemptTaskTypeMismatch, "attempt_task_mismatch");
   }
 
   switch (attempt.taskType) {
@@ -522,6 +523,6 @@ export function evaluateTaskAttempt(
     case "SpecialScreenReader":
       return evaluateSpecialScreen(contentPayload, attempt);
     default:
-      return err(400, "Unsupported task type", "unsupported_task");
+      return err(400, scoreMsg.unsupportedTaskType, "unsupported_task");
   }
 }

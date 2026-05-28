@@ -38,6 +38,7 @@
                         </ui:VisualElement>
                     </ui:Instance>
                 </ui:VisualElement>
+                <ui:VisualElement name="matching-center-gap" class="lg-matching-center-gap" picking-mode="Ignore" />
                 <ui:VisualElement name="matching-right-column" class="lg-matching-right-column">
                     <ui:Instance template="MatchingColumnHeaderPart" text="Destra" />
                     <ui:Instance template="MatchingCardPart">

@@ -1,0 +1,7 @@
+<!-- Runtime quest row for QuestOverview; list host cleared and rebuilt from bootstrap quests. -->
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Button name="navigation-quest-row-button" class="lg-list-row-button">
+        <ui:Label name="quest-title-label" text="" class="lg-list-row-text lg-text-body-lg lg-text-muted" />
+        <ui:Label name="quest-chip-label" text="" class="lg-chip lg-chip--lock lg-text-muted" style="display: none;" />
+    </ui:Button>
+</ui:UXML>

@@ -12,6 +12,7 @@ namespace LanguageGame.Presentation
         public const string LeaveToChapterOverviewLabel = "Capitoli";
 
         public const string LoadingFallbackMessage = "Un momento…";
+        public const string FreitextReviewingBusyMessage = "Sto leggendo il tuo testo…";
         public const string ErrorBannerRetryLabel = "Riprova";
 
         public const string ConfirmSecondaryFallbackLabel = "Resta";

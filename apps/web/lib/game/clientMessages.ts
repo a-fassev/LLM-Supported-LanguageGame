@@ -54,6 +54,7 @@ export const authClientMessages = {
   usernameTaken: "Nome utente già in uso.",
   passwordsDoNotMatch: "Le password non coincidono.",
   missingTokenBody: "Token mancante.",
+  invalidUsernameCharacters: "Caratteri nome utente non validi (solo a-z, 0-9, -).",
 } as const;
 
 /** Shared HTTP route copy returned before service layer. */
@@ -68,4 +69,32 @@ export const apiRouteMessages = {
   tooManyEvaluations: "Troppe valutazioni per questa sessione.",
   tooManyEvaluationRequests: "Troppe richieste di valutazione.",
   tooManyCompletions: "Troppi completamenti per questa sessione.",
+} as const;
+
+/** Server-side task attempt scoring errors (Italian). */
+export const scoringClientMessages = {
+  clozePayloadNoGaps: "Il payload Cloze non ha lacune.",
+  clozeGapCountMismatch: "Il numero di risposte Cloze non corrisponde.",
+  invalidClozeAnswer: "Risposta Cloze non valida.",
+  optionalClozeAllOrNothing: "Il blocco Cloze opzionale va completato per intero o lasciato vuoto.",
+  optionalClozeIncorrect: "Il blocco Cloze opzionale ha risposte errate.",
+  mcAttemptLengthMismatch: "Il numero di risposte a scelta multipla non corrisponde.",
+  dragDropLinesNotImplemented: "La valutazione DragDrop in modalità righe non è ancora implementata sul server.",
+  dragDropNoTargets: "DragDrop non ha bersagli.",
+  dragDropMissingCorrectIds: "I bersagli DragDrop non hanno correctItemIds.",
+  matchingNoPairs: "Abbinamento senza coppie corrette.",
+  errorSpottingNoErrors: "Error spotting senza errori definiti.",
+  specialScreenBlockLengthMismatch: "Il numero di tentativi nei blocchi non corrisponde.",
+  specialScreenBlockMissingAttempt: (blockIndex: number) =>
+    `Manca il tentativo per il blocco ${blockIndex}.`,
+  specialScreenUnsupportedBlockType: (blockIndex: number, blockType: string) =>
+    `Il blocco ${blockIndex} usa un blockType non supportato per la valutazione («${blockType}»).`,
+  specialScreenBlockMissingContent: (blockIndex: number, blockType: string) =>
+    `Il blocco ${blockIndex} (${blockType}) non ha contenuto annidato in content_payload.`,
+  specialScreenBlockTypeMismatch: (blockIndex: number) =>
+    `Il tipo di tentativo del blocco ${blockIndex} non corrisponde.`,
+  specialScreenCompleteOneIdentikit: "Completa almeno un blocco identikit opzionale.",
+  invalidTaskAttemptPayload: "Payload del tentativo non valido.",
+  attemptTaskTypeMismatch: "Il taskType del tentativo non corrisponde al passo.",
+  unsupportedTaskType: "Tipo di attività non supportato.",
 } as const;

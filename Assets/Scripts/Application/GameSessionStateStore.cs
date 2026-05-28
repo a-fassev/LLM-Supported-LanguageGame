@@ -18,6 +18,7 @@ namespace LanguageGame.Application
         private static int _latestTotalBackpackPieces;
         private static bool _hasLatestWalletTotals;
         private static string _lastInvalidationReason;
+        private static string _pendingQuestOverviewNotice;
 
         public static bool HasBootstrapSnapshot => _bootstrap != null;
 
@@ -55,6 +56,21 @@ namespace LanguageGame.Application
         {
             _bootstrapInvalidated = true;
             _lastInvalidationReason = reason;
+        }
+
+        /// <summary>One-shot learner-facing copy shown when the quest overview screen opens next.</summary>
+        public static void SetPendingQuestOverviewNotice(string message)
+        {
+            if (string.IsNullOrWhiteSpace(message))
+                return;
+            _pendingQuestOverviewNotice = message.Trim();
+        }
+
+        public static bool TryConsumeQuestOverviewNotice(out string message)
+        {
+            message = _pendingQuestOverviewNotice;
+            _pendingQuestOverviewNotice = null;
+            return !string.IsNullOrEmpty(message);
         }
 
         public static void SetLatestWalletTotals(int totalSlices, int totalBackpackPieces)
@@ -131,6 +147,7 @@ namespace LanguageGame.Application
             _latestTotalBackpackPieces = 0;
             _hasLatestWalletTotals = false;
             _lastInvalidationReason = null;
+            _pendingQuestOverviewNotice = null;
         }
 
         private static GameBootstrapEnvelope CloneBootstrap(GameBootstrapEnvelope source)

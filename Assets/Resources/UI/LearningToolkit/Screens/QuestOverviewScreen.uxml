@@ -8,19 +8,8 @@
             <ui:Instance template="NavigationPageHeaderWithWalletPart">
                 <ui:Label name="title-label" text="Atto 1: La città" class="lg-heading-screen" />
             </ui:Instance>
-            <ui:ScrollView name="quest-scroll" class="lg-list-scroll" style="margin-top: 8px;">
-                <ui:Button name="quest-row-0" class="lg-list-row-button">
-                    <ui:Label name="quest-title-0" text="Missione 1: L'arrivo" class="lg-list-row-text lg-text-body-lg lg-text-muted"/>
-                    <ui:Label name="quest-chip-0" text="" class="lg-chip lg-chip--lock lg-text-muted" style="display: none;" />
-                </ui:Button>
-                <ui:Button name="quest-row-1" class="lg-list-row-button">
-                    <ui:Label name="quest-title-1" text="Missione 2: Il mercato" class="lg-list-row-text lg-text-body-lg lg-text-muted"/>
-                    <ui:Label name="quest-chip-1" text="" class="lg-chip lg-chip--lock lg-text-muted" style="display: none;" />
-                </ui:Button>
-                <ui:Button name="quest-row-2" class="lg-list-row-button">
-                    <ui:Label name="quest-title-2" text="Missione 3: La classe" class="lg-list-row-text lg-text-body-lg lg-text-muted"/>
-                    <ui:Label name="quest-chip-2" text="Presto" class="lg-chip lg-chip--lock lg-text-muted" style="display: flex;" />
-                </ui:Button>
+            <ui:ScrollView name="quest-scroll" class="lg-list-scroll" style="margin-top: 8px; flex-grow: 1; min-height: 0;">
+                <ui:VisualElement name="quest-list-host" style="flex-grow: 1; flex-direction: column;" />
             </ui:ScrollView>
         </ui:VisualElement>
         <ui:VisualElement name="overlay-plane" picking-mode="Ignore" class="lg-overlay-root"/>
