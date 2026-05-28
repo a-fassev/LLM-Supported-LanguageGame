@@ -94,6 +94,7 @@ namespace LanguageGame.Application
         public int currentStepOrderIndex;
         /// <summary>Count of fully completed task steps; not bumped by cutscene advance.</summary>
         public int currentTaskOrderIndex;
+        public string code;
         public string error;
     }
 

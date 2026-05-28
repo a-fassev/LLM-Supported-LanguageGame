@@ -138,9 +138,17 @@ namespace LanguageGame.Application
                     onOk?.Invoke(env);
                     return;
                 }
-                onError?.Invoke(!string.IsNullOrEmpty(env?.error)
-                    ? env.error
-                    : ParseErrorMessage(text, "Could not start quest"));
+                if (!string.IsNullOrEmpty(env?.error))
+                {
+                    var message = env.error;
+                    if (!string.IsNullOrEmpty(env.code))
+                        message = $"{message} ({env.code})";
+                    onError?.Invoke(message);
+                }
+                else
+                {
+                    onError?.Invoke(ParseErrorMessage(text, "Could not start quest"));
+                }
             }, onError);
         }
 

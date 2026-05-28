@@ -51,6 +51,16 @@ export type WalletTotals = {
   totalBackpackPieces: number;
 };
 
+export type PlayerStepMaterializationRow = {
+  id: string;
+  account_id: string;
+  run_id: string;
+  step_id: string;
+  materialized_content_payload: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+};
+
 export type RpcCompleteQuestStepTaskResult =
   | {
       ok: true;
@@ -408,6 +418,71 @@ export async function listCompletedQuestIds(accountId: string): Promise<string[]
     set.add((row as { quest_id: string }).quest_id);
   }
   return [...set];
+}
+
+export async function hasCompletedQuest(accountId: string, questId: string): Promise<boolean | null> {
+  const { data, error } = await admin()
+    .from("player_quest_runs")
+    .select("id")
+    .eq("account_id", accountId)
+    .eq("quest_id", questId)
+    .eq("status", "completed")
+    .limit(1);
+
+  if (error) {
+    console.error("[game-repo] hasCompletedQuest", error);
+    return null;
+  }
+  return Array.isArray(data) && data.length > 0;
+}
+
+export async function getStepMaterialization(
+  runId: string,
+  stepId: string,
+): Promise<PlayerStepMaterializationRow | null> {
+  const { data, error } = await admin()
+    .from("player_step_materializations")
+    .select("id, account_id, run_id, step_id, materialized_content_payload, created_at, updated_at")
+    .eq("run_id", runId)
+    .eq("step_id", stepId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[game-repo] getStepMaterialization", error);
+    return null;
+  }
+  if (!data) return null;
+  return data as PlayerStepMaterializationRow;
+}
+
+export async function upsertStepMaterialization(
+  accountId: string,
+  runId: string,
+  stepId: string,
+  materializedContentPayload: Record<string, unknown>,
+): Promise<PlayerStepMaterializationRow | null> {
+  const nowIso = new Date().toISOString();
+  const { data, error } = await admin()
+    .from("player_step_materializations")
+    .upsert(
+      {
+        account_id: accountId,
+        run_id: runId,
+        step_id: stepId,
+        materialized_content_payload: materializedContentPayload,
+        updated_at: nowIso,
+      },
+      { onConflict: "run_id,step_id" },
+    )
+    .select("id, account_id, run_id, step_id, materialized_content_payload, created_at, updated_at")
+    .single();
+
+  if (error) {
+    console.error("[game-repo] upsertStepMaterialization", error);
+    return null;
+  }
+
+  return data as PlayerStepMaterializationRow;
 }
 
 export async function listCompletedLogicalTaskKeys(accountId: string): Promise<string[] | null> {

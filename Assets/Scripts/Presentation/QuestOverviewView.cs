@@ -163,10 +163,18 @@ namespace LanguageGame.Presentation
             }
 
             GameQuestBootstrapDto quest = quests[idx];
-            button.SetEnabled(!_startingQuest);
+            var isCompleted = quest.hasCompletedAnyRun;
+            var canStart = !_startingQuest && quest.isUnlocked && !isCompleted;
+            button.SetEnabled(canStart);
 
             if (_questTitles[idx] != null)
                 _questTitles[idx].text = quest.displayName ?? string.Empty;
+
+            if (isCompleted)
+            {
+                ToggleChip(idx, DisplayStyle.Flex, "Fatto");
+                return;
+            }
 
             ToggleChip(idx, quest.isUnlocked ? DisplayStyle.None : DisplayStyle.Flex,
                 quest.isUnlocked ? string.Empty : "Soon…");
@@ -201,6 +209,12 @@ namespace LanguageGame.Presentation
             GameQuestBootstrapDto quest = quests[idx];
             if (quest == null)
                 return;
+
+            if (quest.hasCompletedAnyRun)
+            {
+                _unlockModal.Show("Quest already completed", "This quest can only be played once.");
+                return;
+            }
 
             if (!quest.isUnlocked)
             {
@@ -256,6 +270,13 @@ namespace LanguageGame.Presentation
                 string message = string.IsNullOrEmpty(err)
                     ? "Could not start this quest."
                     : err;
+
+                if (!string.IsNullOrEmpty(err) &&
+                    err.IndexOf("quest_already_completed", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    _unlockModal.Show("Quest already completed", "This quest can only be played once.");
+                    yield break;
+                }
 
                 if (GameProgressApiClient.LooksLikeSessionAuthFailure(err))
                 {

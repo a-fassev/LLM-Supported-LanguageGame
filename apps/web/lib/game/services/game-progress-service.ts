@@ -5,6 +5,7 @@ import {
   deleteFreitextLlmEvaluationGate,
   fetchFreitextLlmEvaluationGate,
   ensureWalletRow,
+  getStepMaterialization,
   findInProgressRun,
   findLatestInProgressRunForAccount,
   getQuestById,
@@ -21,6 +22,7 @@ import {
   rpcAdvanceQuestCutsceneStep,
   updateRunProgress,
   upsertFreitextLlmEvaluationGate,
+  upsertStepMaterialization,
   type GameQuestRow,
   type GameQuestStepRow,
   type PlayerQuestRunRow,
@@ -197,6 +199,141 @@ function buildQuestStepDto(row: GameQuestStepRow): GameQuestStepDto {
     isTask: row.step_kind === "task",
     difficulty: extractDifficultyFromPayload(payload),
   };
+}
+
+type MatchingPoolPair = {
+  id: string;
+  leftLabel: string;
+  rightLabel: string;
+};
+
+type MatchingMaterializationSource = {
+  sceneBackgroundAsset?: unknown;
+  prompt?: unknown;
+  subtitle?: unknown;
+  referenceDocument?: unknown;
+  presentation?: unknown;
+  sampleSize?: unknown;
+  poolPairs?: unknown;
+};
+
+function normalizeMatchingPoolPairs(raw: unknown): MatchingPoolPair[] {
+  if (!Array.isArray(raw)) return [];
+  const out: MatchingPoolPair[] = [];
+  const ids = new Set<string>();
+  for (const entry of raw) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) continue;
+    const row = entry as Record<string, unknown>;
+    const id = typeof row.id === "string" ? row.id.trim() : "";
+    const leftLabel = typeof row.leftLabel === "string" ? row.leftLabel.trim() : "";
+    const rightLabel = typeof row.rightLabel === "string" ? row.rightLabel.trim() : "";
+    if (!id || !leftLabel || !rightLabel || ids.has(id)) continue;
+    ids.add(id);
+    out.push({ id, leftLabel, rightLabel });
+  }
+  return out;
+}
+
+function shuffleInPlace<T>(arr: T[]): void {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = crypto.getRandomValues(new Uint32Array(1))[0]! % (i + 1);
+    [arr[i], arr[j]] = [arr[j]!, arr[i]!];
+  }
+}
+
+function materializeMatchingPoolPayload(source: MatchingMaterializationSource): Record<string, unknown> | null {
+  const poolPairs = normalizeMatchingPoolPairs(source.poolPairs);
+  if (poolPairs.length === 0) return null;
+
+  const rawSample = typeof source.sampleSize === "number" ? Math.trunc(source.sampleSize) : 0;
+  const sampleSize = Math.max(1, Math.min(rawSample || 10, poolPairs.length));
+
+  const sample = [...poolPairs];
+  shuffleInPlace(sample);
+  const picked = sample.slice(0, sampleSize);
+
+  const leftItems = picked.map((pair) => ({
+    id: `left_${pair.id}`,
+    label: pair.leftLabel,
+  }));
+  const rightItems = picked.map((pair) => ({
+    id: `right_${pair.id}`,
+    label: pair.rightLabel,
+  }));
+  const correctPairs = picked.map((pair) => ({
+    leftItemId: `left_${pair.id}`,
+    rightItemId: `right_${pair.id}`,
+  }));
+
+  return {
+    sceneBackgroundAsset: source.sceneBackgroundAsset,
+    prompt: source.prompt,
+    subtitle: source.subtitle,
+    referenceDocument: source.referenceDocument,
+    leftItems,
+    rightItems,
+    correctPairs,
+    presentation: source.presentation,
+  };
+}
+
+async function materializeQuestStepsForRun(
+  accountId: string,
+  runId: string,
+  rows: GameQuestStepRow[],
+): Promise<GameQuestStepRow[] | null> {
+  const out: GameQuestStepRow[] = [];
+
+  for (const row of rows) {
+    if (
+      row.step_kind !== "task" ||
+      row.task_type !== "Matching" ||
+      !row.content_payload ||
+      typeof row.content_payload !== "object" ||
+      Array.isArray(row.content_payload)
+    ) {
+      out.push(row);
+      continue;
+    }
+
+    const payload = row.content_payload as MatchingMaterializationSource;
+    const hasPoolAuthoring = Array.isArray(payload.poolPairs) && payload.poolPairs.length > 0;
+    const hasConcrete =
+      Array.isArray((payload as { leftItems?: unknown }).leftItems) &&
+      Array.isArray((payload as { rightItems?: unknown }).rightItems) &&
+      Array.isArray((payload as { correctPairs?: unknown }).correctPairs);
+
+    if (!hasPoolAuthoring || hasConcrete) {
+      out.push(row);
+      continue;
+    }
+
+    const existing = await getStepMaterialization(runId, row.id);
+    if (existing?.materialized_content_payload) {
+      out.push({
+        ...row,
+        content_payload: existing.materialized_content_payload,
+      });
+      continue;
+    }
+
+    const materialized = materializeMatchingPoolPayload(payload);
+    if (!materialized) {
+      return null;
+    }
+
+    const saved = await upsertStepMaterialization(accountId, runId, row.id, materialized);
+    if (!saved?.materialized_content_payload) {
+      return null;
+    }
+
+    out.push({
+      ...row,
+      content_payload: saved.materialized_content_payload,
+    });
+  }
+
+  return out;
 }
 
 type MapQuestStepsResult =
@@ -505,6 +642,22 @@ function isUnlockedForPlayer(
   return true;
 }
 
+function isSequentiallyAvailableInChapter(
+  quest: GameQuestRow,
+  questsByChapter: Map<string, GameQuestRow[]>,
+  completedQuestIds: Set<string>,
+): boolean {
+  const chapterQuests = (questsByChapter.get(quest.chapter_id) ?? []).sort((a, b) => a.order_index - b.order_index);
+  const targetIndex = chapterQuests.findIndex((q) => q.id === quest.id);
+  if (targetIndex <= 0) return true;
+  for (let i = 0; i < targetIndex; i++) {
+    const previous = chapterQuests[i];
+    if (!previous) continue;
+    if (!completedQuestIds.has(previous.id)) return false;
+  }
+  return true;
+}
+
 function formatQuestTitles(slugs: string[], questsBySlug: Map<string, GameQuestRow>): string {
   return slugs
     .map((s) => questsBySlug.get(s)?.display_name ?? s)
@@ -607,6 +760,8 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
 
   const chaptersSorted = [...chapters].sort((a, b) => a.order_index - b.order_index);
 
+  const activeRunRow = await findLatestInProgressRunForAccount(accountId);
+
   const chapterDtos: GameChapterClientDto[] = [];
   for (let chIdx = 0; chIdx < chaptersSorted.length; chIdx++) {
     const chapter = chaptersSorted[chIdx];
@@ -627,7 +782,20 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
     const questDtos: GameQuestClientDto[] = [];
     for (const quest of chapterQuestsSorted) {
       const stepRows = stepsByQuest.get(quest.id) ?? [];
-      const stepsSnapshot = stepRows.map(buildQuestStepDto);
+      const hasCompletedAnyRun = completedQuestSet.has(quest.id);
+
+      let effectiveRows = stepRows;
+      const runRow =
+        activeRunRow && activeRunRow.quest_id === quest.id ? activeRunRow : null;
+      if (runRow) {
+        const materialized = await materializeQuestStepsForRun(accountId, runRow.id, stepRows);
+        if (!materialized) {
+          return { ok: false, status: 500, error: "Could not materialize matching payloads" };
+        }
+        effectiveRows = materialized;
+      }
+
+      const stepsSnapshot = effectiveRows.map(buildQuestStepDto);
 
       const gatesOk = isUnlockedForPlayer(
         quest,
@@ -636,11 +804,15 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
         completedTaskKeySet,
         wallet.totalSlices,
       );
-      const unlocked = chapterUnlocked && gatesOk;
+      const sequentialOk = isSequentiallyAvailableInChapter(quest, questsByChapter, completedQuestSet);
+      const unlocked = chapterUnlocked && gatesOk && sequentialOk && !hasCompletedAnyRun;
 
       let unlockHint = "";
       if (!chapterUnlocked) {
         unlockHint = chapterUnlockHint;
+      }
+      else if (hasCompletedAnyRun) {
+        unlockHint = "Quest already completed.";
       }
       else if (!gatesOk) {
         unlockHint = buildQuestUnlockHint(
@@ -651,6 +823,9 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
           wallet.totalSlices,
         );
       }
+      else if (!sequentialOk) {
+        unlockHint = "Complete the previous quest first.";
+      }
 
       questDtos.push({
         id: quest.id,
@@ -659,7 +834,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
         displayName: quest.display_name,
         orderIndex: quest.order_index,
         isUnlocked: unlocked,
-        hasCompletedAnyRun: completedQuestSet.has(quest.id),
+        hasCompletedAnyRun,
         unlockHint,
         metaJson: serializeQuestMetaJson(parseQuestMetaPayload(quest.meta_payload)),
         steps: stepsSnapshot,
@@ -679,7 +854,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
   }
 
   let activeRun: ActiveQuestRunClientDto | null = null;
-  const runRow = await findLatestInProgressRunForAccount(accountId);
+  const runRow = activeRunRow;
   if (runRow) {
     const questMeta = quests.find((q) => q.id === runRow.quest_id);
     if (questMeta) {
@@ -744,6 +919,14 @@ export async function startOrResumeQuest(accountId: string, questId: string): Pr
     return { ok: false, status: 403, error: "Quest is locked", code: "quest_locked" };
   }
 
+  if (!isSequentiallyAvailableInChapter(quest, questsByChapter, completedSet)) {
+    return { ok: false, status: 403, error: "Quest is locked", code: "quest_locked" };
+  }
+
+  if (completedSet.has(questId)) {
+    return { ok: false, status: 403, error: "Quest already completed", code: "quest_already_completed" };
+  }
+
   let run = await findInProgressRun(accountId, questId);
   if (!run) {
     const abandoned = await abandonAllInProgressRunsForAccount(accountId);
@@ -756,7 +939,12 @@ export async function startOrResumeQuest(accountId: string, questId: string): Pr
   if (!stepRows || stepRows.length === 0)
     return { ok: false, status: 500, error: "Quest has no steps" };
 
-  const mappedSteps = mapQuestStepRowsWithCutsceneValidation(stepRows, { id: quest.id, slug: quest.slug });
+  const materializedRows = await materializeQuestStepsForRun(accountId, run.id, stepRows);
+  if (!materializedRows) {
+    return { ok: false, status: 500, error: "Could not materialize matching payloads" };
+  }
+
+  const mappedSteps = mapQuestStepRowsWithCutsceneValidation(materializedRows, { id: quest.id, slug: quest.slug });
   if (!mappedSteps.ok) {
     return {
       ok: false,
@@ -846,7 +1034,14 @@ export async function completeQuestStepTask(
         code: "attempt_required",
       };
     }
-    const content = (expected.content_payload ?? {}) as Record<string, unknown>;
+    let content = (expected.content_payload ?? {}) as Record<string, unknown>;
+    if (tt === "Matching") {
+      const materialized = await materializeQuestStepsForRun(accountId, runId, [expected]);
+      if (!materialized || materialized.length === 0) {
+        return { ok: false, status: 500, error: "Could not materialize matching payloads", code: "materialization_failed" };
+      }
+      content = (materialized[0]!.content_payload ?? {}) as Record<string, unknown>;
+    }
     const ev = evaluateTaskAttempt(tt, content, options.attempt);
     if (!ev.ok) {
       return { ok: false, status: ev.status, error: ev.error, code: ev.code };
@@ -987,7 +1182,12 @@ export async function getGameRun(accountId: string, runId: string): Promise<GetR
   const wallet = await getWalletTotals(accountId);
   if (wallet === null) return { ok: false, status: 500, error: "Could not load wallet" };
 
-  const mappedSteps = mapQuestStepRowsWithCutsceneValidation(stepsRows, { id: quest.id, slug: quest.slug });
+  const materializedRows = await materializeQuestStepsForRun(accountId, run.id, stepsRows);
+  if (!materializedRows) {
+    return { ok: false, status: 500, error: "Could not materialize matching payloads" };
+  }
+
+  const mappedSteps = mapQuestStepRowsWithCutsceneValidation(materializedRows, { id: quest.id, slug: quest.slug });
   if (!mappedSteps.ok) {
     return {
       ok: false,

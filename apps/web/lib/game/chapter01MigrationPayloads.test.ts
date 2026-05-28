@@ -13,6 +13,10 @@ const followUpMigrationPath = path.join(
   repoRoot,
   "supabase/migrations/20260527170000_chapter_01_review_fixes.sql",
 );
+const bonusMigrationPath = path.join(
+  repoRoot,
+  "supabase/migrations/20260628110000_chapter_01_bonus_vocab.sql",
+);
 
 /** Dollar-quote tags duplicated in the follow-up migration — keep payloads identical. */
 const FOLLOW_UP_STEP_TAGS = ["q1s2", "q2s2", "q3s1", "q3s6"] as const;
@@ -100,13 +104,40 @@ function extractChapterThemeFromFollowUpMigration(sql: string): typeof EXPECTED_
 describe("chapter-01 migration payloads", () => {
   const mainSql = loadMigrationSql(mainMigrationPath);
   const followUpSql = loadMigrationSql(followUpMigrationPath);
+  const bonusSql = loadMigrationSql(bonusMigrationPath);
   const mainSteps = collectStepPayloads(mainSql);
   const mainByTag = extractPayloadsByTag(mainSql);
   const followUpByTag = extractPayloadsByTag(followUpSql);
+  const bonusByTag = extractPayloadsByTag(bonusSql);
 
   it("validates all 16 step content_payload objects in the main migration", () => {
     expect(mainSteps).toHaveLength(16);
     expect(validateStepPayloads(mainSteps), validateStepPayloads(mainSteps).join("\n")).toEqual([]);
+  });
+
+  it("validates chapter-01 bonus migration payloads", () => {
+    const bonusRows = [
+      {
+        meta: {
+          kind: "cutscene" as const,
+          taskType: null,
+          logical: "chapter-01-q4-cutscene-bonus-intro",
+        },
+        payload: bonusByTag.get("q4s0"),
+      },
+      {
+        meta: {
+          kind: "task" as const,
+          taskType: "Matching",
+          logical: "chapter-01-q4-matching-vocab",
+        },
+        payload: bonusByTag.get("q4s1"),
+      },
+    ].filter((row) => !!row.payload) as Array<{ meta: StepMeta; payload: unknown }>;
+    expect(bonusRows).toHaveLength(2);
+    expect(validateStepPayloads(bonusRows), validateStepPayloads(bonusRows).join("\n")).toEqual([]);
+    expect(bonusSql).toContain('"prerequisiteQuestSlugs":["chapter-01-quest-03-bar"]');
+    expect(bonusSql).toContain('"sampleSize": 10');
   });
 
   it("validates follow-up migration step payloads and retires demo quests", () => {

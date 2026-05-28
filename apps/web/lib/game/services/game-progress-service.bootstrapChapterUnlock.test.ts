@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   listActiveQuestsByChapterIds: vi.fn(),
   listStepsForQuests: vi.fn(),
   findLatestInProgressRunForAccount: vi.fn(),
+  findInProgressRun: vi.fn(),
 }));
 
 vi.mock("@/lib/game/repositories/game-progress-repository", async (importOriginal) => {
@@ -23,6 +24,7 @@ vi.mock("@/lib/game/repositories/game-progress-repository", async (importOrigina
     listActiveQuestsByChapterIds: mocks.listActiveQuestsByChapterIds,
     listStepsForQuests: mocks.listStepsForQuests,
     findLatestInProgressRunForAccount: mocks.findLatestInProgressRunForAccount,
+    findInProgressRun: mocks.findInProgressRun,
   };
 });
 
@@ -114,6 +116,7 @@ function seedBootstrapFixtures(completedQuestIds: string[]) {
   mocks.listActiveQuestsByChapterIds.mockResolvedValue(quests);
   mocks.listStepsForQuests.mockResolvedValue(steps);
   mocks.findLatestInProgressRunForAccount.mockResolvedValue(null);
+  mocks.findInProgressRun.mockResolvedValue(null);
 }
 
 describe("bootstrapGameState chapter unlock", () => {

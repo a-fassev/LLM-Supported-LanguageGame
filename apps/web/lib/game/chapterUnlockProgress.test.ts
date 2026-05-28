@@ -17,10 +17,11 @@ describe("chapterUnlockProgress", () => {
 
   it("excludes optional quests from chapter unlock requirements", () => {
     const quests = [
+      { id: "pre", slug: "chapter-01-quest-04-bonus-vocab" },
       { id: "a", slug: "chapter-02-quest-02-nutelleria" },
       { id: "b", slug: "chapter-02-quest-05-bonus-vocab" },
     ];
-    expect(questsRequiredForChapterUnlock(quests)).toEqual([quests[0]]);
+    expect(questsRequiredForChapterUnlock(quests)).toEqual([quests[1]]);
   });
 
   it("unlocks when all required quests are complete, ignoring bonus", () => {
