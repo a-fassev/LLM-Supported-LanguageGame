@@ -8,7 +8,7 @@ Authoritative **game content** lives in **Supabase** (`game_chapters`, `game_que
 |-----|----------|----------|
 | [01-game-configuration.md](authoring/01-game-configuration.md) | Everyone | Hierarchy chapter → quest → step; API fields; progress indices; task-type overview |
 | [02-steps-and-rewards.md](authoring/02-steps-and-rewards.md) | Authors + dev | `content_payload` / `contentJson` per step kind; `reward_rules`; limits |
-| [03-styling.md](authoring/03-styling.md) | UI dev | UI Toolkit USS theme, UXML screens, tokens |
+| [03-styling.md](authoring/03-styling.md) | UI dev | Beginner styling guide: USS design system, Parts/Templates, GameArt, full UI inventory, recommended order |
 
 Code anchors: [`GameProgressContracts.cs`](../Assets/Scripts/Application/GameProgressContracts.cs), [`ToolkitStepContentDtos.cs`](../Assets/Scripts/Presentation/Steps/ToolkitStepContentDtos.cs), [`ToolkitStepFactory.cs`](../Assets/Scripts/Presentation/Steps/ToolkitStepFactory.cs), [`pizzaReward.ts`](../apps/web/lib/game/scoring/pizzaReward.ts), [`evaluateTaskAttempt.ts`](../apps/web/lib/game/scoring/evaluateTaskAttempt.ts).
 

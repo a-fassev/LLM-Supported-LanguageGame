@@ -410,7 +410,7 @@ Hilfen: `ToolkitStepUx`, `ToolkitStepTemplatePaths`, `ToolkitStepContentDtos`, `
 |----------|--------|
 | [`.cursor/skills/unity-task-type-ui/SKILL.md`](../../.cursor/skills/unity-task-type-ui/SKILL.md) | Neues Task-UI anlegen |
 | [`docs/authoring/02-steps-and-rewards.md`](../authoring/02-steps-and-rewards.md) | `content_json`, Rewards, Cutscenes |
-| [`docs/authoring/03-styling.md`](../authoring/03-styling.md) | Styling-Konventionen |
+| [`docs/authoring/03-styling.md`](../authoring/03-styling.md) | Styling guide (USS, Parts, assets, workflow order) — start here for styling |
 | [`AGENTS.md`](../../AGENTS.md) | Navigation, Shells, Parts-Single-Source |
 
 ---
