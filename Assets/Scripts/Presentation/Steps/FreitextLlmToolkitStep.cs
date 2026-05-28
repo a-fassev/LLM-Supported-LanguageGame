@@ -49,7 +49,12 @@ namespace LanguageGame.Presentation.Steps
         public FreitextLlmToolkitStep(VisualElement host, MonoBehaviour coroutineHost)
         {
             _coroutineHost = coroutineHost;
-            _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.FreitextLlmTask, "freitext-llm-root", out _root);
+            _uiReady = ToolkitStepUx.TryMount(
+                host,
+                ToolkitStepTemplatePaths.FreitextLlmTask,
+                "freitext-llm-root",
+                out _root,
+                stripTemplateOuterChrome: true);
             _promptLabel = _uiReady
                 ? ToolkitStepUx.QueryOptional<Label>(_root, "task-prompt")
                 : null;
@@ -86,7 +91,7 @@ namespace LanguageGame.Presentation.Steps
             {
                 Debug.LogWarning($"[FreitextLlmToolkitStep] Invalid contentJson: {dtoError ?? "unknown"}");
                 context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(dtoError)
-                    ? "Invalid FreitextLlm content."
+                    ? LearningToolkitStepValidationUx.InvalidFreitextContent
                     : dtoError);
                 return;
             }
@@ -165,13 +170,13 @@ namespace LanguageGame.Presentation.Steps
             {
                 if (_gameApi == null || _context == null)
                 {
-                    _context?.presentValidationMessage?.Invoke("Game API not available.");
+                    _context?.presentValidationMessage?.Invoke(LearningToolkitStepValidationUx.GameApiNotAvailable);
                     yield break;
                 }
 
                 _evaluating = true;
                 SetInteractableSafe(false);
-                _context.presentBusyOverlay?.Invoke("Reviewing your writing…");
+                _context.presentBusyOverlay?.Invoke(LearningToolkitChromeUx.FreitextReviewingBusyMessage);
 
                 GameFreitextLlmEvaluateEnvelope envelope = null;
                 var error = string.Empty;
@@ -213,7 +218,7 @@ namespace LanguageGame.Presentation.Steps
                 {
                     _context.dismissBusyOverlay?.Invoke();
                     SetInteractableSafe(true);
-                    _context?.presentValidationMessage?.Invoke("Server did not release a progression token.");
+                    _context?.presentValidationMessage?.Invoke(LearningToolkitStepValidationUx.ServerNoProgressionToken);
                     yield break;
                 }
 

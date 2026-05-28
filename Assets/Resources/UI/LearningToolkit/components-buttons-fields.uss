@@ -102,6 +102,27 @@ TextField.lg-textfield > Label {
     color: var(--lg-text-soft);
 }
 
+TextField.lg-error-spotting-inline-field > Label {
+    display: none;
+    min-width: 0;
+    width: 0;
+    margin: 0;
+    padding: 0;
+}
+
+TextField.lg-cloze-gap-inline {
+    min-height: 32px;
+    margin-bottom: var(--lg-space-4);
+}
+
+TextField.lg-cloze-gap-inline > Label {
+    display: none;
+    min-width: 0;
+    width: 0;
+    margin: 0;
+    padding: 0;
+}
+
 TextField.lg-textfield > TextInput {
     background-color: var(--lg-bg-muted);
     border-radius: var(--lg-radius-sm);

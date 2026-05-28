@@ -6,8 +6,8 @@
         <ui:VisualElement name="scene-background-host" class="lg-scene-background-host" picking-mode="Ignore"/>
         <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen--transparent">
             <ui:Instance template="NavigationPageHeaderWithWalletPart">
-                <ui:Label name="title-label" text="" class="lg-heading-screen"
-                    style="flex-grow: 1; -unity-text-align: middle-center; white-space: normal;" />
+                <ui:Label name="title-label" text="" class="lg-heading-screen lg-quest-shell-title-label"
+                    style="-unity-text-align: middle-center;" />
                 <ui:VisualElement name="header-actions-host">
                     <ui:Button name="reference-document-button" text="Documento" class="lg-btn lg-btn--ghost"
                         style="display: none; margin-right: 4px;" />
@@ -15,7 +15,7 @@
             </ui:Instance>
             <ui:VisualElement name="quest-step-panel" class="lg-game-panel lg-game-panel--over-scene lg-quest-step-panel">
                 <ui:ScrollView name="step-scroll" class="lg-list-scroll" style="flex-grow: 1; min-height: 180px;">
-                    <ui:VisualElement name="step-host" style="flex-grow: 1; min-height: 160px;"/>
+                    <ui:VisualElement name="step-host" style="flex-grow: 1; min-height: 0; flex-shrink: 1;"/>
                 </ui:ScrollView>
             </ui:VisualElement>
             <ui:VisualElement name="quest-footer" class="lg-quest-footer" style="flex-shrink: 0; margin-top: 12px;">

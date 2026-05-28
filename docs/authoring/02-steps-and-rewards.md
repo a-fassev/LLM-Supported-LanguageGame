@@ -15,7 +15,7 @@ Parsed server-side by [`parsePizzaRewardRules`](../../apps/web/lib/game/scoring/
 | `flat` | Fixed slices (`value` or `slices`, clamped 0–5) | RPC credits pizza from **stored rules**; `p_awarded_slices` from API layer does **not** override pizza |
 | `scored` | `maxSlices` + optional `minRatioToComplete` + `rounding` + `mapping` (`linear` or `bands`) | Server computes ratio from learner **`attempt`** (or Freitext gate); derives slices via [`slicesFromRatio`](../../apps/web/lib/game/scoring/pizzaReward.ts); must pass [`meetsScoredPizzaMinimum`](../../apps/web/lib/game/scoring/pizzaReward.ts) |
 
-**`minRatioToComplete`:** defaults to **1** when omitted on scored pizza rules. Use **`0`** when learners may complete with partial correctness and receive proportional slices via `mapping` (e.g. `linear` with `maxSlices: 2` → 50% ratio awards 1 slice with `rounding: floor`).
+**`minRatioToComplete`:** defaults to **1** when omitted on scored pizza rules. Use a small positive value (e.g. **`0.01`**) when learners may complete with partial correctness and receive proportional slices via `mapping`—this blocks completion at 0% while still allowing partial pizza (e.g. `linear` with `maxSlices: 2` and 50% ratio → 1 slice with `rounding: floor`).
 
 **Partial credit example (narrative chapters):**
 
@@ -146,6 +146,8 @@ Match **`task_type`** and optional **`screenVariant`** (see XML doc comments on 
 ## Task: ClozeText
 
 DTO **`ClozeTextContentDto`**: `prompt`, `caseSensitive`, `lines[]` → `segments[]`.
+
+**Layout authoring:** Unity renders **one horizontal/wrapping row per `lines[]` item**. Do not put an entire multi-speaker dialogue in a single `lines[]` row with many gaps—split at speaker turns (`Tu:` / `Dario:` / …) into **several `lines[]` entries** while keeping **gap order** unchanged for scoring. Newlines inside a **`text`** segment are label line breaks only, not separate layout rows.
 
 Segment **`kind`**:
 

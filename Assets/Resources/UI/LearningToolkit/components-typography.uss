@@ -105,6 +105,21 @@ Label {
     margin-bottom: var(--lg-space-8);
 }
 
+.lg-page-header #title-host {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.lg-quest-shell-title-label {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    -unity-text-overflow: ellipsis;
+}
+
 .lg-header-actions-host {
     flex-direction: row;
     align-items: center;
@@ -205,10 +220,24 @@ Label {
 
 .lg-error-spotting-inline-field {
     flex-grow: 0;
-    flex-shrink: 1;
+    flex-shrink: 0;
     min-width: 48px;
-    max-width: 220px;
+    max-width: 280px;
     margin: 0;
+    font-size: var(--lg-font-body);
+    padding-left: var(--lg-space-4);
+    padding-right: var(--lg-space-4);
+}
+
+.lg-cloze-gap-inline {
+    flex-grow: 0;
+    flex-shrink: 0;
+    min-width: 72px;
+    max-width: 220px;
+    min-height: 32px;
+    margin-top: 0;
+    margin-bottom: var(--lg-space-4);
+    margin-right: var(--lg-space-6);
     font-size: var(--lg-font-body);
     padding-left: var(--lg-space-4);
     padding-right: var(--lg-space-4);

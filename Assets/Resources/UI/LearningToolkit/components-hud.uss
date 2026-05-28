@@ -10,7 +10,16 @@
 }
 
 .lg-hud-strip--in-header {
+    flex-wrap: nowrap;
     padding-bottom: 0;
+}
+
+.lg-page-header #navigation-wallet-hud-part {
+    flex-shrink: 0;
+}
+
+.lg-page-header #pause-menu-button {
+    flex-shrink: 0;
 }
 
 /* Resource capsule: icon glyph + bold value */

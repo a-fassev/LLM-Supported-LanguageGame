@@ -47,7 +47,12 @@ namespace LanguageGame.Presentation.Steps
         public MultipleChoiceToolkitStep(VisualElement host, MonoBehaviour coroutineHost)
         {
             _coroutineHost = coroutineHost;
-            _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.MultipleChoiceTask, "multiple-choice-root", out _root);
+            _uiReady = ToolkitStepUx.TryMount(
+                host,
+                ToolkitStepTemplatePaths.MultipleChoiceTask,
+                "multiple-choice-root",
+                out _root,
+                stripTemplateOuterChrome: true);
             _promptLabel = _uiReady
                 ? ToolkitStepUx.QueryOptional<Label>(_root, "task-prompt")
                 : null;
@@ -111,7 +116,7 @@ namespace LanguageGame.Presentation.Steps
             if (!TryDeserialize(context?.contentJson, out var dto, out var error))
             {
                 Debug.LogWarning($"[MultipleChoiceToolkitStep] Invalid contentJson: {error ?? "unknown"}");
-                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? "Invalid multiple-choice content." : error);
+                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? LearningToolkitStepValidationUx.InvalidMultipleChoiceContent : error);
                 return;
             }
 
@@ -120,7 +125,7 @@ namespace LanguageGame.Presentation.Steps
             if (!string.IsNullOrEmpty(error) || !ValidateQuestions(_questions, out error))
             {
                 Debug.LogWarning($"[MultipleChoiceToolkitStep] Invalid contentJson: {error ?? "unknown"}");
-                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? "Invalid multiple-choice content." : error);
+                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? LearningToolkitStepValidationUx.InvalidMultipleChoiceContent : error);
                 _questions = null;
                 return;
             }
@@ -157,7 +162,7 @@ namespace LanguageGame.Presentation.Steps
         {
             if (!_contentReady || _questions == null)
             {
-                _context?.presentValidationMessage?.Invoke("Invalid multiple-choice content.");
+                _context?.presentValidationMessage?.Invoke(LearningToolkitStepValidationUx.InvalidMultipleChoiceContent);
                 return;
             }
 
@@ -189,14 +194,14 @@ namespace LanguageGame.Presentation.Steps
                 {
                     if (sel.Count != 1 || !correct.SetEquals(sel))
                     {
-                        _context?.presentValidationMessage?.Invoke("Not quite — check your answers.");
+                        _context?.presentValidationMessage?.Invoke(LearningToolkitStepValidationUx.NotQuiteCheckAnswers);
                         JumpToQuestion(i);
                         return;
                     }
                 }
                 else if (!correct.SetEquals(sel))
                 {
-                    _context?.presentValidationMessage?.Invoke("Not quite — check your answers.");
+                    _context?.presentValidationMessage?.Invoke(LearningToolkitStepValidationUx.NotQuiteCheckAnswers);
                     JumpToQuestion(i);
                     return;
                 }
@@ -211,7 +216,7 @@ namespace LanguageGame.Presentation.Steps
             validationMessage = null;
             if (!_contentReady || _questions == null)
             {
-                validationMessage = "Invalid multiple-choice content.";
+                validationMessage = LearningToolkitStepValidationUx.InvalidMultipleChoiceContent;
                 return false;
             }
 
@@ -274,7 +279,7 @@ namespace LanguageGame.Presentation.Steps
             if (q == null)
             {
                 _contentReady = false;
-                _context?.presentValidationMessage?.Invoke("Invalid multiple-choice question.");
+                _context?.presentValidationMessage?.Invoke(LearningToolkitStepValidationUx.InvalidMultipleChoiceQuestion);
                 return;
             }
 
@@ -393,7 +398,7 @@ namespace LanguageGame.Presentation.Steps
         {
             if (q?.options == null)
             {
-                _context?.presentValidationMessage?.Invoke("Invalid multiple-choice content.");
+                _context?.presentValidationMessage?.Invoke(LearningToolkitStepValidationUx.InvalidMultipleChoiceContent);
                 return false;
             }
 
@@ -406,7 +411,7 @@ namespace LanguageGame.Presentation.Steps
 
             if (_optionsDisplayOrder.Count == 0)
             {
-                _context?.presentValidationMessage?.Invoke("This question has no valid answer choices.");
+                _context?.presentValidationMessage?.Invoke(LearningToolkitStepValidationUx.NoValidAnswerChoices);
                 return false;
             }
 
@@ -753,7 +758,7 @@ namespace LanguageGame.Presentation.Steps
 
                     if (hasImg && !IsAllowedHttpMediaUrl(o.imageUrl, out var ue))
                     {
-                        error = ue ?? "Invalid option imageUrl.";
+                        error = ue ?? LearningToolkitStepValidationUx.InvalidOptionImageUrl;
                         return false;
                     }
                 }
@@ -806,7 +811,7 @@ namespace LanguageGame.Presentation.Steps
 
                             if (!IsAllowedHttpMediaUrl(b.imageUrl, out var ie))
                             {
-                                error = ie ?? "Invalid stem imageUrl.";
+                                error = ie ?? LearningToolkitStepValidationUx.InvalidStemImageUrl;
                                 return false;
                             }
                         }
@@ -820,7 +825,7 @@ namespace LanguageGame.Presentation.Steps
 
                             if (!IsAllowedHttpMediaUrl(b.audioUrl, out var ae))
                             {
-                                error = ae ?? "Invalid stem audioUrl.";
+                                error = ae ?? LearningToolkitStepValidationUx.InvalidStemAudioUrl;
                                 return false;
                             }
                         }

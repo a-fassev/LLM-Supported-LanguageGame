@@ -57,7 +57,12 @@ namespace LanguageGame.Presentation.Steps
             _coroutineHost = coroutineHost;
             _onPairingGeometryChanged = OnPairingGeometryChanged;
 
-            _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.MatchingTask, "matching-root", out _root);
+            _uiReady = ToolkitStepUx.TryMount(
+                host,
+                ToolkitStepTemplatePaths.MatchingTask,
+                "matching-root",
+                out _root,
+                stripTemplateOuterChrome: true);
             _promptLabel = _uiReady
                 ? ToolkitStepUx.QueryOptional<Label>(_root, "task-prompt")
                 : null;
@@ -126,7 +131,7 @@ namespace LanguageGame.Presentation.Steps
             if (!TryDeserialize(context?.contentJson, out var dto, out var error))
             {
                 Debug.LogWarning($"[MatchingToolkitStep] Invalid contentJson: {error ?? "unknown"}");
-                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? "Invalid matching content." : error);
+                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? LearningToolkitStepValidationUx.InvalidMatchingContent : error);
                 return;
             }
 
@@ -172,7 +177,7 @@ namespace LanguageGame.Presentation.Steps
 
             _contentReady = _leftById.Count > 0 && _rightById.Count > 0 && _expectedLeftToRight.Count > 0;
             if (!_contentReady)
-                context?.presentValidationMessage?.Invoke("Matching task is incomplete.");
+                context?.presentValidationMessage?.Invoke(LearningToolkitStepValidationUx.MatchingIncomplete);
 
             RegisterUiEvents();
             RefreshUnpairControls();
@@ -477,7 +482,7 @@ namespace LanguageGame.Presentation.Steps
         {
             if (!_contentReady || _dto == null)
             {
-                _context?.presentValidationMessage?.Invoke("This task is not ready yet. Check the lesson content.");
+                _context?.presentValidationMessage?.Invoke(LearningToolkitStepValidationUx.MatchingNotReady);
                 return false;
             }
 
@@ -488,7 +493,7 @@ namespace LanguageGame.Presentation.Steps
                 var id = left.id.Trim();
                 if (!_pairingLeftToRight.TryGetValue(id, out var r) || string.IsNullOrEmpty(r))
                 {
-                    _context?.presentValidationMessage?.Invoke("Fill every match.");
+                    _context?.presentValidationMessage?.Invoke(LearningToolkitStepValidationUx.FillEveryMatch);
                     return false;
                 }
             }
@@ -497,20 +502,20 @@ namespace LanguageGame.Presentation.Steps
             {
                 if (!_expectedLeftToRight.TryGetValue(kv.Key, out var expected))
                 {
-                    _context?.presentValidationMessage?.Invoke("Not quite — check your matches.");
+                    _context?.presentValidationMessage?.Invoke(LearningToolkitStepValidationUx.NotQuiteCheckMatches);
                     return false;
                 }
 
                 if (!string.Equals(expected, kv.Value, StringComparison.Ordinal))
                 {
-                    _context?.presentValidationMessage?.Invoke("Not quite — check your matches.");
+                    _context?.presentValidationMessage?.Invoke(LearningToolkitStepValidationUx.NotQuiteCheckMatches);
                     return false;
                 }
             }
 
             if (_pairingLeftToRight.Count != _dto.leftItems.Length)
             {
-                _context?.presentValidationMessage?.Invoke("Not quite — check your matches.");
+                _context?.presentValidationMessage?.Invoke(LearningToolkitStepValidationUx.NotQuiteCheckMatches);
                 return false;
             }
 
@@ -523,7 +528,7 @@ namespace LanguageGame.Presentation.Steps
             validationMessage = null;
             if (!_contentReady || _dto == null)
             {
-                validationMessage = "Matching task is not ready yet.";
+                validationMessage = LearningToolkitStepValidationUx.TaskNotReadyYet;
                 return false;
             }
 
@@ -540,7 +545,7 @@ namespace LanguageGame.Presentation.Steps
 
             if (elems.Count == 0)
             {
-                validationMessage = "Matching task is incomplete.";
+                validationMessage = LearningToolkitStepValidationUx.MatchingIncomplete;
                 return false;
             }
 
@@ -557,7 +562,7 @@ namespace LanguageGame.Presentation.Steps
                 return;
             }
 
-            var startWorld = GetConnectorPoint(leftEl, fromLeft: true);
+            var startWorld = GetConnectorPoint(leftEl, _leftColumn, fromLeft: true);
             var startLocal = _lineLayer.WorldToLocal(startWorld);
             _lineLayer.SetRubberBand(startLocal, _rubberEndLocal);
         }
@@ -571,21 +576,29 @@ namespace LanguageGame.Presentation.Steps
                     !_rightById.TryGetValue(kv.Value, out var rightEl))
                     continue;
 
-                var a = _lineLayer.WorldToLocal(GetConnectorPoint(leftEl, fromLeft: true));
-                var b = _lineLayer.WorldToLocal(GetConnectorPoint(rightEl, fromLeft: false));
+                var a = _lineLayer.WorldToLocal(GetConnectorPoint(leftEl, _leftColumn, fromLeft: true));
+                var b = _lineLayer.WorldToLocal(GetConnectorPoint(rightEl, _rightColumn, fromLeft: false));
                 _lineLayer.AddSegment(a, b);
             }
 
             _lineLayer.MarkDirtyRepaint();
         }
 
-        /// <summary>World-space point on the inner edge facing the opposite column.</summary>
-        private static Vector2 GetConnectorPoint(VisualElement el, bool fromLeft)
+        /// <summary>World-space point on the column inner edge facing the opposite column.</summary>
+        private static Vector2 GetConnectorPoint(VisualElement el, VisualElement column, bool fromLeft)
         {
-            var r = el.worldBound;
-            var cx = fromLeft ? r.xMax - 1f : r.xMin + 1f;
-            var cy = r.yMin + r.height * 0.5f;
-            return new Vector2(cx, cy);
+            var elBounds = el.worldBound;
+            var cy = elBounds.yMin + elBounds.height * 0.5f;
+
+            if (column != null)
+            {
+                var col = column.worldBound;
+                var cx = fromLeft ? col.xMax - 1f : col.xMin + 1f;
+                return new Vector2(cx, cy);
+            }
+
+            var cxFallback = fromLeft ? elBounds.xMax - 1f : elBounds.xMin + 1f;
+            return new Vector2(cxFallback, cy);
         }
 
         private void ScheduleRefreshLines()

@@ -502,8 +502,9 @@ namespace LanguageGame.Presentation.Steps
 
         private bool TryBuildChrome()
         {
-            if (ToolkitStepUx.TryMount(_host, HostUxmlResourcePath, "special-screen-root", out _))
+            if (ToolkitStepUx.TryMount(_host, HostUxmlResourcePath, "special-screen-root", out var chromeRoot))
             {
+                ToolkitStepUx.ApplySpecialScreenHostChrome(chromeRoot);
                 CacheChromeQueries();
                 if (_blockArea != null && _prevButton != null && _nextButton != null && _progressLabel != null)
                 {
@@ -1901,7 +1902,7 @@ namespace LanguageGame.Presentation.Steps
 
             public void Bind(VisualElement slot, StepContext parentContext)
             {
-                _step = new ClozeTextToolkitStep(slot, useMutedChrome: false);
+                _step = new ClozeTextToolkitStep(slot, stripTemplateOuterChrome: true);
                 var json = JsonUtility.ToJson(_dto);
                 var ctx = CloneStepContext(parentContext, json);
                 _step.Bind(ctx, _ => { });
@@ -1958,7 +1959,7 @@ namespace LanguageGame.Presentation.Steps
 
             public void Bind(VisualElement slot, StepContext parentContext)
             {
-                _step = new ErrorSpottingToolkitStep(slot, useMutedChrome: false);
+                _step = new ErrorSpottingToolkitStep(slot, stripTemplateOuterChrome: true);
                 var json = JsonUtility.ToJson(_dto);
                 var ctx = CloneStepContext(parentContext, json);
                 _step.Bind(ctx, _ => { });

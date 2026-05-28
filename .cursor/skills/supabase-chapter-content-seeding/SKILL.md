@@ -103,7 +103,7 @@ UPDATE game_quests SET is_active = false ...;
 
 **Cutscenes:** `beats[]` only; `presentationMode`: `narrator` | `npcDialog` | `innerMonologue` | `gameInfo`; optional `npcCast[]`.
 
-**ClozeText / embedded cloze:** segment `kind`: **`text`** (Unity accepts this; not only `literal`).
+**ClozeText / embedded cloze:** segment `kind`: **`text`** (Unity accepts this; not only `literal`). For dialogue with many gaps, use **multiple `lines[]` rows** (one row per speaker turn or short beat)—not one mega-line with `\n` in text segments; gap order must stay stable across rows. Example follow-up: **`20260628160000_chapter_02_nutelleria_cloze_lines.sql`**.
 
 **VALUES row shape:** cutscene uses `null::text` for `task_type`; tasks use `'ClozeText',` **without** `::text`.
 

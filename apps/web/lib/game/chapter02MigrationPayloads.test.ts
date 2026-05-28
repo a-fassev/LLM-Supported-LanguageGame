@@ -12,6 +12,10 @@ const followUpMigrationPath = path.join(
   repoRoot,
   "supabase/migrations/20260627150100_chapter_02_review_fixes.sql",
 );
+const nutelleriaClozeLinesMigrationPath = path.join(
+  repoRoot,
+  "supabase/migrations/20260628160000_chapter_02_nutelleria_cloze_lines.sql",
+);
 
 /** Dollar-quote tag in follow-up migration mapped to the canonical main migration tag. */
 const FOLLOW_UP_STEP_TAG_MAP = {
@@ -171,5 +175,27 @@ describe("chapter-02 migration payloads", () => {
     expect(followUpSql).toContain("chapter-02-q4-dragdrop-motivation-letter");
     expect(followUpSql).toContain('\'["f-inizio"]\'::jsonb');
     expect(followUpSql).toContain("'{targets,2,correctItemIds}'");
+  });
+
+  it("nutelleria cloze follow-up splits dialogue into multiple lines with 26 gaps", () => {
+    const sql = loadMigrationSql(nutelleriaClozeLinesMigrationPath);
+    const payload = extractPayloadsByTag(sql).get("q2s1_lines");
+    expect(payload).toBeDefined();
+
+    const result = parseStepContent({
+      step_kind: "task",
+      task_type: "ClozeText",
+      content_payload: payload,
+    });
+    expect(result.ok, result.ok ? "" : result.issues).toBe(true);
+
+    const lines = (payload as { lines: Array<{ segments: Array<{ kind: string }> }> }).lines;
+    expect(lines.length).toBe(8);
+
+    const gapCount = lines.reduce(
+      (sum, line) => sum + line.segments.filter((segment) => segment.kind === "gap").length,
+      0,
+    );
+    expect(gapCount).toBe(26);
   });
 });

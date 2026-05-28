@@ -22,19 +22,24 @@ namespace LanguageGame.Presentation.Steps
         private bool _contentReady;
         private bool _optionalBlock;
 
-        /// <param name="useMutedChrome">When false (e.g. embedded in <see cref="SpecialScreenToolkitStep"/>), skips outer panel styling to avoid stacked frames.</param>
-        public ClozeTextToolkitStep(VisualElement host, bool useMutedChrome = true)
+        /// <param name="stripTemplateOuterChrome">
+        /// When true (default), strips duplicate <c>lg-muted-panel</c> / <c>lg-task-template-root</c> from the template root
+        /// and applies <c>lg-task-template-layout</c>. Use for quest shell steps and embedded blocks inside <see cref="SpecialScreenToolkitStep"/>.
+        /// </param>
+        public ClozeTextToolkitStep(VisualElement host, bool stripTemplateOuterChrome = true)
         {
-            _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.ClozeTextTask, "cloze-text-root", out _root);
+            _uiReady = ToolkitStepUx.TryMount(
+                host,
+                ToolkitStepTemplatePaths.ClozeTextTask,
+                "cloze-text-root",
+                out _root,
+                stripTemplateOuterChrome: stripTemplateOuterChrome);
             _promptLabel = _uiReady
                 ? ToolkitStepUx.QueryOptional<Label>(_root, "task-prompt")
                 : null;
             _linesHost = _uiReady
                 ? ToolkitStepUx.QueryRequired<VisualElement>(_root, "cloze-lines-host", nameof(ClozeTextToolkitStep))
                 : null;
-
-            if (_uiReady)
-                ToolkitStepUx.ApplyMutedTaskChrome(_root, useMutedChrome);
         }
 
         /// <summary>True after <see cref="Bind"/> produced interactive gaps.</summary>

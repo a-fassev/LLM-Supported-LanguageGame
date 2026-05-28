@@ -10,7 +10,7 @@ description: >-
 
 Task steps render inside **`TaskShellScreen`** (`Assets/Resources/UI/LearningToolkit/Shells/TaskShellScreen.uxml`); cutscenes use **`CutShellScreen.uxml`**. **`QuestStepShellHost`** swaps shells in the **`Quest`** scene. The **`step-host`** `VisualElement` is cleared and populated at runtime.
 
-**Layout = UXML templates** under `Assets/Resources/UI/LearningToolkit/Templates/`; **content = `contentJson`** from the API. Use **`ToolkitStepUx.TryMount`** / **`Instantiate`** and stable **`name`** anchors (see **`ToolkitStepTemplatePaths`**). **Shell overlays** (pause, reward, loading, …): `Templates/Overlays/*.uxml` + `ToolkitOverlayTemplatePaths` + classes under `Assets/Scripts/Presentation/Overlays/` — same Option B fixtures; do not rebuild overlay DOM in C#. Do not add a second shell primary button in step UXML. Styling: [`docs/authoring/03-styling.md`](../../docs/authoring/03-styling.md).
+**Layout = UXML templates** under `Assets/Resources/UI/LearningToolkit/Templates/`; **content = `contentJson`** from the API. Use **`ToolkitStepUx.TryMount`** / **`Instantiate`** and stable **`name`** anchors (see **`ToolkitStepTemplatePaths`**). **Quest task shell panel:** `TaskShellScreen.uxml` owns **`quest-step-panel`** (`lg-game-panel`). Mount standard tasks with **`TryMount(..., stripTemplateOuterChrome: true)`** so **`ApplyTaskShellEmbeddedChrome`** strips template **`lg-muted-panel`** / **`lg-task-template-root`** at runtime and adds **`lg-task-template-layout`** (keep those classes on UXML roots for UI Builder preview only). **`SpecialScreenHost`:** **`ApplySpecialScreenHostChrome`**—no duplicate **`lg-game-panel`** on **`special-screen-root`**. Embedded cloze/error blocks use **`stripTemplateOuterChrome: true`** (strip template outer chrome only). **Shell overlays** (pause, reward, loading, …): `Templates/Overlays/*.uxml` + `ToolkitOverlayTemplatePaths` + classes under `Assets/Scripts/Presentation/Overlays/` — same Option B fixtures; do not rebuild overlay DOM in C#. Do not add a second shell primary button in step UXML. Styling: [`docs/authoring/03-styling.md`](../../docs/authoring/03-styling.md).
 
 **GameArt media:** Sprites under `Assets/Resources/UI/GameArt/`. Step JSON may set **`sceneBackgroundAsset`** (full-step background; shells bind `scene-background-host` via **`ToolkitSceneBackgroundBinder`**) and per-item **`assetId`** (bind with **`ToolkitStepMediaBinder`**; keep **`imageUrl`** only as legacy fallback). Constants and defaults: **`GameArtAssetKeys`** (`TryNormalizeGameArtKey` mirrors web Zod). New static keys: add PNG under `GameArt/`, run **`scripts/populate-gameart-placeholders.py`** when using placeholder masters. Pair new fields with Zod in **`apps/web/lib/game/stepContentValidation.ts`**.
 
@@ -50,7 +50,7 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 
 3. **Implement `IStepView`** (and **`ISubmitFromShell`** for tasks submitted by shell Controlla):
    - Place class under `Assets/Scripts/Presentation/Steps/` (e.g. `*ToolkitStep.cs`).
-   - **Constructor**: **`ToolkitStepUx.TryMount(stepHost, path, rootName, out _root)`**; cache **`QueryRequired`** / **`QueryOptional`** results for hosts and labels.
+   - **Constructor**: **`ToolkitStepUx.TryMount(stepHost, path, rootName, out _root, stripTemplateOuterChrome: true)`** for steps mounted in the quest task shell; cache **`QueryRequired`** / **`QueryOptional`** results for hosts and labels.
    - **`Bind`**: parse **`context.contentJson`**; **`ClearHost`** on every dynamic host **and** on nested containers inside instantiated parts before adding runtime children (Part UXML with **`ui:Instance`** previews clones those children in Play Mode — missing nested **`ClearHost`** causes duplicate hints/tiles); fill static slots; clone with **`InstantiatePart`**; avoid duplicate listeners on re-bind.
    - **`Teardown`**: **`RemoveFromHierarchy`** on mounted root; clear delegates / schedules.
    - **`SetInteractable`**: disable inputs during **`CompleteServerTaskRoutine`** / **`AdvanceCutsceneRoutine`**.
@@ -63,9 +63,11 @@ Successful task **`POST .../complete`** returns **`taskItemsCorrect`** / **`task
 
 ## ClozeText
 
-- Gap fields come from **`ClozeGapFieldPart.uxml`** via **`InstantiatePart`**—UI Builder preview **`value="…"`** on `TextField` is copied to runtime; **`lg-preview-sample` does not clear it**.
+- One UITK row per **`lines[]`** entry (`ClozeLineRowPart` / **`lg-cloze-line-row`**). **`\\n` inside a `text` segment does not create new rows**—split long dialogue into **multiple `lines[]` objects** (preserve gap order across lines when authoring SQL).
+- Gap fields: **`ClozeGapFieldPart.uxml`** with **`lg-cloze-gap-inline`** (not full-height **`lg-textfield`** form fields). Row uses **`align-items: flex-start`** and row spacing in **`task-templates.uss`**.
+- Gap fields come from **`InstantiatePart`**—UI Builder preview **`value="…"`** on `TextField` is copied to runtime; **`lg-preview-sample` does not clear it**.
 - In **`ClozeTextToolkitStep.Bind`**, after each gap `TextField` is created, set **`tf.value = string.Empty`**; keep the part template without sample answers (answers live only in JSON **`correctAnswers`**).
-- Embedded cloze inside **`SpecialScreenToolkitStep`** uses the same step class—same clear rule.
+- Embedded cloze inside **`SpecialScreenToolkitStep`** uses the same step class with **`stripTemplateOuterChrome: true`** (strip template outer chrome; host chrome is separate).
 
 ## Cutscenes (`step_kind: cutscene`)
 

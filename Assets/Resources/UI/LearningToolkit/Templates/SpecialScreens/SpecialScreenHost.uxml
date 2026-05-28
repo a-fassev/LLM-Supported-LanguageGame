@@ -1,6 +1,6 @@
 <!-- UI Builder: sample block in special-screen-block-area; runtime replaces per part. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="special-screen-root" class="lg-special-screen-host lg-game-panel lg-game-panel--over-scene lg-panel-padded" style="flex-grow: 1; flex-direction: column;">
+    <ui:VisualElement name="special-screen-root" class="lg-special-screen-host lg-task-template-layout" style="flex-grow: 1; flex-direction: column;">
         <ui:Label name="special-screen-title" text="Schermata speciale" class="lg-task-prompt lg-preview-sample"
             style="margin-bottom: 8px;" />
         <ui:Label name="special-screen-subtitle" text="Esempio di blocco incorporato"

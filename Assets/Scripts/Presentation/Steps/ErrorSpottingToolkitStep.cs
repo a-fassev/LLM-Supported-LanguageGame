@@ -38,12 +38,17 @@ namespace LanguageGame.Presentation.Steps
         private bool _contentReady;
         private bool _interactable = true;
 
-        /// <param name="useMutedChrome">When false (e.g. embedded in <see cref="SpecialScreenToolkitStep"/>), skips outer panel styling to avoid stacked frames.</param>
-        public ErrorSpottingToolkitStep(VisualElement host, bool useMutedChrome = true)
+        /// <param name="stripTemplateOuterChrome">
+        /// When true (default), strips duplicate outer panel classes from the template root (see <see cref="ClozeTextToolkitStep"/>).
+        /// </param>
+        public ErrorSpottingToolkitStep(VisualElement host, bool stripTemplateOuterChrome = true)
         {
-            _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.ErrorSpottingTask, "error-spotting-root", out _root);
-            if (_uiReady)
-                ToolkitStepUx.ApplyMutedTaskChrome(_root, useMutedChrome);
+            _uiReady = ToolkitStepUx.TryMount(
+                host,
+                ToolkitStepTemplatePaths.ErrorSpottingTask,
+                "error-spotting-root",
+                out _root,
+                stripTemplateOuterChrome: stripTemplateOuterChrome);
 
             _promptLabel = _uiReady
                 ? ToolkitStepUx.QueryOptional<Label>(_root, "task-prompt")
@@ -388,8 +393,33 @@ namespace LanguageGame.Presentation.Steps
             {
                 _correctionDrafts[id] = ev.newValue ?? string.Empty;
             });
+            ApplyInlineFieldWidth(tf, seg, chipText);
             slot.Add(tf);
             _correctionFields[id] = tf;
+        }
+
+        private static void ApplyInlineFieldWidth(TextField tf, ErrorSpottingSegmentDto seg, string chipText)
+        {
+            if (tf == null)
+                return;
+
+            var refLen = chipText?.Length ?? 0;
+            if (seg?.acceptedCorrections != null)
+            {
+                foreach (var correction in seg.acceptedCorrections)
+                {
+                    if (string.IsNullOrEmpty(correction))
+                        continue;
+                    refLen = Math.Max(refLen, correction.Length);
+                }
+            }
+
+            refLen = Math.Min(refLen, CorrectionMaxLength);
+            var width = Mathf.Clamp(refLen * 10 + 28, 48, 280);
+            tf.style.flexGrow = 0;
+            tf.style.flexShrink = 0;
+            tf.style.minWidth = width;
+            tf.style.maxWidth = width;
         }
 
         private void RefreshAllSlots()

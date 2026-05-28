@@ -19,7 +19,8 @@ namespace LanguageGame.Presentation.Steps
             VisualElement host,
             string resourcesPath,
             string rootElementName,
-            out VisualElement root)
+            out VisualElement root,
+            bool stripTemplateOuterChrome = false)
         {
             root = null;
             if (host == null)
@@ -37,6 +38,9 @@ namespace LanguageGame.Presentation.Steps
             root = DetachTemplateRoot(template, resourcesPath, rootElementName);
             if (root == null)
                 return false;
+
+            if (stripTemplateOuterChrome)
+                ApplyTaskShellEmbeddedChrome(root);
 
             host.Add(root);
             return true;
@@ -204,12 +208,37 @@ namespace LanguageGame.Presentation.Steps
             {
                 root.AddToClassList("lg-muted-panel");
                 root.AddToClassList("lg-task-template-root");
+                root.RemoveFromClassList("lg-task-template-layout");
             }
             else
             {
                 root.RemoveFromClassList("lg-muted-panel");
                 root.RemoveFromClassList("lg-task-template-root");
             }
+        }
+
+        /// <summary>
+        /// Quest task shell already provides <c>lg-game-panel</c>; strip duplicate template outer chrome at runtime.
+        /// </summary>
+        public static void ApplyTaskShellEmbeddedChrome(VisualElement root)
+        {
+            if (root == null)
+                return;
+
+            ApplyMutedTaskChrome(root, useMutedChrome: false);
+            root.AddToClassList("lg-task-template-layout");
+        }
+
+        /// <summary>Special Screen host must not duplicate the quest shell game panel.</summary>
+        public static void ApplySpecialScreenHostChrome(VisualElement root)
+        {
+            if (root == null)
+                return;
+
+            root.RemoveFromClassList("lg-game-panel");
+            root.RemoveFromClassList("lg-game-panel--over-scene");
+            root.RemoveFromClassList("lg-panel-padded");
+            ApplyTaskShellEmbeddedChrome(root);
         }
 
         private static VisualElement DetachTemplateRoot(

@@ -4,8 +4,7 @@
         src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/ClozeText/ClozeLiteralPart.uxml?fileID=9197481963319205126&amp;guid=3175ba584f4041268b221bb31fce7e4e&amp;type=3#ClozeLiteralPart" />
     <ui:Template name="ClozeGapFieldPart"
         src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/ClozeText/ClozeGapFieldPart.uxml?fileID=9197481963319205126&amp;guid=e29cb1b71f1f4502a1d0ed1ea40ccc21&amp;type=3#ClozeGapFieldPart" />
-    <ui:VisualElement name="cloze-line-row-part" class="lg-preview-sample"
-        style="flex-direction: row; flex-wrap: wrap; align-items: center; margin-bottom: 10px;">
+    <ui:VisualElement name="cloze-line-row-part" class="lg-cloze-line-row lg-preview-sample">
         <ui:Instance template="ClozeLiteralPart" />
         <ui:Instance template="ClozeGapFieldPart" />
         <ui:Instance template="ClozeLiteralPart" />

@@ -1,5 +1,5 @@
 <!-- UI Builder sample; runtime sets value from contentJson. -->
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:TextField name="cloze-gap-field-part" value="" class="lg-textfield lg-preview-sample"
-        style="min-width: 100px; margin-right: 6px; margin-bottom: 4px;" />
+    <ui:TextField name="cloze-gap-field-part" value="" class="lg-textfield lg-cloze-gap-inline lg-preview-sample"
+        max-length="128" />
 </ui:UXML>

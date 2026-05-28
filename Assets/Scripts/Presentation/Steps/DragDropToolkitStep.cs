@@ -45,7 +45,12 @@ namespace LanguageGame.Presentation.Steps
         public DragDropToolkitStep(VisualElement host, MonoBehaviour coroutineHost)
         {
             _coroutineHost = coroutineHost;
-            _uiReady = ToolkitStepUx.TryMount(host, ToolkitStepTemplatePaths.DragDropTask, "drag-drop-root", out _root);
+            _uiReady = ToolkitStepUx.TryMount(
+                host,
+                ToolkitStepTemplatePaths.DragDropTask,
+                "drag-drop-root",
+                out _root,
+                stripTemplateOuterChrome: true);
             _promptLabel = _uiReady
                 ? ToolkitStepUx.QueryOptional<Label>(_root, "task-prompt")
                 : null;
@@ -90,7 +95,7 @@ namespace LanguageGame.Presentation.Steps
             if (!TryDeserialize(context?.contentJson, out var dto, out var error))
             {
                 Debug.LogWarning($"[DragDropToolkitStep] Invalid contentJson: {error ?? "unknown"}");
-                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? "Invalid drag-and-drop content." : error);
+                context?.presentValidationMessage?.Invoke(string.IsNullOrEmpty(error) ? LearningToolkitStepValidationUx.InvalidDragDropContent : error);
                 return;
             }
 
@@ -174,7 +179,7 @@ namespace LanguageGame.Presentation.Steps
 
             _contentReady = _itemTiles.Count > 0 && _targetInnerHosts.Count > 0;
             if (!_contentReady)
-                context?.presentValidationMessage?.Invoke("Drag-and-drop task is incomplete.");
+                context?.presentValidationMessage?.Invoke(LearningToolkitStepValidationUx.DragDropIncomplete);
 
             if (_dragLayer != null && _dragLayer.parent != _root)
                 _root.Add(_dragLayer);
@@ -235,7 +240,7 @@ namespace LanguageGame.Presentation.Steps
             message = null;
             if (!_contentReady || _dto == null)
             {
-                message = "This task is not ready yet. Check the lesson content.";
+                message = LearningToolkitStepValidationUx.MatchingNotReady;
                 return false;
             }
 
@@ -246,13 +251,13 @@ namespace LanguageGame.Presentation.Steps
                 var tid = t.id.Trim();
                 if (!_occupant.TryGetValue(tid, out var placed) || placed == null || placed.Count == 0)
                 {
-                    message = "Fill every drop zone.";
+                    message = LearningToolkitStepValidationUx.DragDropFillEveryZone;
                     return false;
                 }
 
                 if (!TargetPlacementMatches(t, placed))
                 {
-                    message = "Not quite — check your matches.";
+                    message = LearningToolkitStepValidationUx.DragDropNotQuite;
                     return false;
                 }
             }
@@ -273,7 +278,7 @@ namespace LanguageGame.Presentation.Steps
 
                     if (!placedAnywhere)
                     {
-                        message = "Place every card.";
+                        message = LearningToolkitStepValidationUx.DragDropPlaceEveryCard;
                         return false;
                     }
                 }
@@ -291,7 +296,7 @@ namespace LanguageGame.Presentation.Steps
 
             if (_dto == null)
             {
-                validationMessage = "This task is not ready yet.";
+                validationMessage = LearningToolkitStepValidationUx.TaskNotReadyYet;
                 return false;
             }
 

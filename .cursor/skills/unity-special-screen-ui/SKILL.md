@@ -46,7 +46,7 @@ Authoritative pizza for **`SpecialScreen*`** steps uses the same **`complete`** 
 
 ## Embedded mechanics
 
-- Reuse **`ClozeTextToolkitStep`** / **`ErrorSpottingToolkitStep`** with **`useMutedChrome: false`** so panels do not stack inside the host chrome.
+- Reuse **`ClozeTextToolkitStep`** / **`ErrorSpottingToolkitStep`** with **`stripTemplateOuterChrome: true`** so template outer chrome does not stack inside the host chrome.
 - **`TryValidateLocally`** on those steps is the single validation source for composite submit (never duplicate gap/error rules in the host).
 - When cloning **`StepContext`** for nested blocks, **forward** **`presentBusyOverlay`** and **`dismissBusyOverlay`** from the parent context so embedded mechanics (e.g. **Freitext** / LLM-heavy flows) use the same shell loading overlay as standalone tasks.
 

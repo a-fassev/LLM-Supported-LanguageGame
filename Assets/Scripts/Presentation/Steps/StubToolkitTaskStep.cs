@@ -47,13 +47,7 @@ namespace LanguageGame.Presentation.Steps
         {
             _validationMessage = validationMessage ?? DefaultStubValidation;
             _root = new VisualElement();
-            _root.style.flexGrow = 1;
-            _root.AddToClassList("lg-muted-panel");
-            _root.AddToClassList("lg-task-template-root");
-            _root.style.paddingTop = 16;
-            _root.style.paddingBottom = 16;
-            _root.style.paddingLeft = 16;
-            _root.style.paddingRight = 16;
+            _root.AddToClassList("lg-task-template-layout");
 
             var title = new Label(titleText ?? "Attività");
             title.AddToClassList("lg-task-prompt");

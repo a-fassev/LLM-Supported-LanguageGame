@@ -10,6 +10,24 @@
     padding-right: var(--lg-space-16);
 }
 
+/* Column layout when mounted in quest task shell (outer panel chrome lives on shell only). */
+.lg-task-template-layout {
+    flex-grow: 1;
+    flex-direction: column;
+    min-height: 0;
+    padding-top: var(--lg-space-12);
+    padding-bottom: var(--lg-space-12);
+    padding-left: var(--lg-space-16);
+    padding-right: var(--lg-space-16);
+}
+
+.lg-cloze-line-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    margin-bottom: var(--lg-space-12);
+}
+
 /* In-task copy: shell header already shows quest title — keep prompts body-sized. */
 .lg-task-prompt {
     font-size: var(--lg-font-body);
@@ -56,23 +74,46 @@
     background-color: var(--lg-task-bg-over-scene);
 }
 
+.lg-drag-drop-root {
+    flex-grow: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.lg-drag-drop-bank-host {
+    flex-shrink: 0;
+}
+
+.lg-drag-drop-targets-scroll {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+}
+
 .lg-matching-columns-row {
     flex-grow: 1;
     flex-direction: row;
     align-items: stretch;
 }
 
+.lg-matching-center-gap {
+    width: 56px;
+    flex-shrink: 0;
+    flex-grow: 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
 .lg-matching-left-column {
     flex-grow: 1;
     flex-basis: 0;
-    margin-right: 16px;
+    margin-right: 8px;
     flex-direction: column;
 }
 
 .lg-matching-right-column {
     flex-grow: 1;
     flex-basis: 0;
-    margin-left: 16px;
+    margin-left: 8px;
     flex-direction: column;
 }
 
