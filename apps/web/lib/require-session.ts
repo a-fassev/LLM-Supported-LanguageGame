@@ -34,7 +34,7 @@ export async function requireSessionAccount(
 
   if (sessionError) {
     console.error("[require-session] lookup", sessionError);
-    return { ok: false, response: jsonError(500, "Could not validate session") };
+    return { ok: false, response: jsonError(500, "Impossibile verificare la sessione.") };
   }
 
   if (!session || session.revoked_at != null || session.expires_at <= nowIso) {

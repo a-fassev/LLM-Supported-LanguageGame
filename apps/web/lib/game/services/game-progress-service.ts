@@ -28,6 +28,7 @@ import {
   type PlayerQuestRunRow,
 } from "@/lib/game/repositories/game-progress-repository";
 import { allChapterQuestsEarnedMarks } from "@/lib/game/chapterUnlockProgress";
+import { gameClientMessages as msg } from "@/lib/game/clientMessages";
 import type { CutscenePayloadErrorDetail, CutscenePayloadInvalidApiDetails } from "@/lib/game/cutscenePayloadValidation";
 import {
   collectStepPayloadErrors,
@@ -365,7 +366,7 @@ function mapQuestStepRowsWithCutsceneValidation(
       return {
         ok: false,
         status: 502,
-        error: "Malformed step content payload",
+        error: msg.malformedStepPayload,
         code: "payload_invalid",
         details: detail,
       };
@@ -410,27 +411,27 @@ export async function evaluateFreitextLlmQuestStep(
 
   const run = await getQuestRunById(runId);
   if (!run || run.account_id !== accountId) {
-    return { ok: false, status: 404, error: "Run not found", code: "run_not_found", retryable: false };
+    return { ok: false, status: 404, error: msg.runNotFound, code: "run_not_found", retryable: false };
   }
   if (run.status !== "in_progress") {
-    return { ok: false, status: 400, error: "Run is not active", code: "run_not_active", retryable: false };
+    return { ok: false, status: 400, error: msg.runNotActive, code: "run_not_active", retryable: false };
   }
 
   const stepsRows = await listStepsForQuest(run.quest_id);
   if (!stepsRows) {
-    return { ok: false, status: 500, error: "Could not load quest steps", code: "steps_load_failed", retryable: true };
+    return { ok: false, status: 500, error: msg.couldNotLoadQuestSteps, code: "steps_load_failed", retryable: true };
   }
 
   const expected = pickExpectedPendingStep(run, stepsRows);
   if (!expected || expected.id !== stepId) {
-    return { ok: false, status: 409, error: "Step mismatch", code: "step_mismatch", retryable: false };
+    return { ok: false, status: 409, error: msg.stepMismatch, code: "step_mismatch", retryable: false };
   }
   if (expected.step_kind !== "task" || expected.task_type !== FREITEXT_LLM_TASK_TYPE) {
-    return { ok: false, status: 400, error: "Wrong task type", code: "wrong_task_type", retryable: false };
+    return { ok: false, status: 400, error: msg.wrongTaskType, code: "wrong_task_type", retryable: false };
   }
 
   if (trimmed.length === 0) {
-    return { ok: false, status: 400, error: "Answer is empty", code: "answer_empty", retryable: false };
+    return { ok: false, status: 400, error: msg.answerEmpty, code: "answer_empty", retryable: false };
   }
 
   const payload = parseFreitextLlmStepContent(expected.content_payload);
@@ -439,7 +440,7 @@ export async function evaluateFreitextLlmQuestStep(
     return {
       ok: false,
       status: 502,
-      error: "Malformed FreitextLlm content payload",
+      error: msg.malformedFreitextPayload,
       code: "payload_invalid",
       retryable: false,
     };
@@ -474,7 +475,7 @@ export async function evaluateFreitextLlmQuestStep(
     return {
       ok: false,
       status: 503,
-      error: "LLM evaluation is not configured on the server.",
+      error: msg.llmNotConfigured,
       code: "evaluator_unavailable",
       retryable: false,
     };
@@ -521,7 +522,7 @@ export async function evaluateFreitextLlmQuestStep(
         return {
           ok: false,
           status: 503,
-          error: "Could not issue evaluation gate.",
+          error: msg.couldNotIssueEvaluationGate,
           code: "gate_issue_failed",
           retryable: true,
         };
@@ -559,7 +560,7 @@ export async function evaluateFreitextLlmQuestStep(
       return {
         ok: false,
         status: 504,
-        error: "Model timed out while scoring this answer.",
+        error: msg.modelTimedOut,
         code: "MODEL_TIMEOUT",
         retryable: true,
       };
@@ -580,7 +581,7 @@ export async function evaluateFreitextLlmQuestStep(
     return {
       ok: false,
       status: 503,
-      error: "FreitextLlm evaluator error.",
+      error: msg.freitextEvaluatorError,
       code: "EVALUATOR_ERROR",
       retryable: true,
     };
@@ -711,36 +712,36 @@ function rpcFailureStatus(code: string): number {
 /** Safe copy for API responses; internal RPC/DB detail is logged server-side only. */
 function clientMessageForTaskRpcFailure(code: string, internalMessage: string): string {
   if (code === "rpc_transport_error") {
-    return "The game server is temporarily unavailable. Please try again.";
+    return msg.gameServerUnavailable;
   }
   if (code === "rpc_payload_error") {
-    return "Could not update your progress. Please try again.";
+    return msg.couldNotUpdateProgress;
   }
   return internalMessage;
 }
 
 export async function bootstrapGameState(accountId: string): Promise<BootstrapResult> {
   const okEnsure = await ensureWalletRow(accountId);
-  if (!okEnsure) return { ok: false, status: 500, error: "Could not load wallet" };
+  if (!okEnsure) return { ok: false, status: 500, error: msg.couldNotLoadWallet };
 
   const chapters = await listActiveChaptersOrdered();
-  if (!chapters) return { ok: false, status: 500, error: "Could not load chapters" };
+  if (!chapters) return { ok: false, status: 500, error: msg.couldNotLoadChapters };
 
   const wallet = await getWalletTotals(accountId);
-  if (wallet === null) return { ok: false, status: 500, error: "Could not load wallet" };
+  if (wallet === null) return { ok: false, status: 500, error: msg.couldNotLoadWallet };
 
   const completedQuestList = await listCompletedQuestIds(accountId);
-  if (!completedQuestList) return { ok: false, status: 500, error: "Could not load progress" };
+  if (!completedQuestList) return { ok: false, status: 500, error: msg.couldNotLoadProgress };
   const completedTaskKeyList = await listCompletedLogicalTaskKeys(accountId);
-  if (!completedTaskKeyList) return { ok: false, status: 500, error: "Could not load task prerequisites" };
+  if (!completedTaskKeyList) return { ok: false, status: 500, error: msg.couldNotLoadTaskPrerequisites };
 
   const chapterIds = chapters.map((c) => c.id);
   const quests = await listActiveQuestsByChapterIds(chapterIds);
-  if (!quests) return { ok: false, status: 500, error: "Could not load quests" };
+  if (!quests) return { ok: false, status: 500, error: msg.couldNotLoadQuests };
 
   const questIds = quests.map((q) => q.id);
   const allSteps = await listStepsForQuests(questIds);
-  if (!allSteps) return { ok: false, status: 500, error: "Could not load quest steps" };
+  if (!allSteps) return { ok: false, status: 500, error: msg.couldNotLoadQuestSteps };
 
   const completedQuestSet = new Set(completedQuestList);
   const completedTaskKeySet = new Set(completedTaskKeyList);
@@ -754,7 +755,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
     return {
       ok: false,
       status: 502,
-      error: "Malformed step content payload",
+      error: msg.malformedStepPayload,
       code: "payload_invalid",
       details: { stepPayloadErrors },
     };
@@ -792,7 +793,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
       if (runRow) {
         const materialized = await materializeQuestStepsForRun(accountId, runRow.id, stepRows);
         if (!materialized) {
-          return { ok: false, status: 500, error: "Could not materialize matching payloads" };
+          return { ok: false, status: 500, error: msg.couldNotMaterializeMatching };
         }
         effectiveRows = materialized;
       }
@@ -884,23 +885,23 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
 
 export async function startOrResumeQuest(accountId: string, questId: string): Promise<StartQuestResult> {
   if (!(await ensureWalletRow(accountId)))
-    return { ok: false, status: 500, error: "Could not load wallet" };
+    return { ok: false, status: 500, error: msg.couldNotLoadWallet };
 
   const quest = await getQuestById(questId);
-  if (!quest || !quest.is_active) return { ok: false, status: 404, error: "Quest not found", code: "quest_not_found" };
+  if (!quest || !quest.is_active) return { ok: false, status: 404, error: msg.questNotFound, code: "quest_not_found" };
 
   const chapters = await listActiveChaptersOrdered();
-  if (!chapters) return { ok: false, status: 500, error: "Could not load chapters" };
+  if (!chapters) return { ok: false, status: 500, error: msg.couldNotLoadChapters };
   const quests = await listActiveQuestsByChapterIds(chapters.map((c) => c.id));
-  if (!quests) return { ok: false, status: 500, error: "Could not load quests" };
+  if (!quests) return { ok: false, status: 500, error: msg.couldNotLoadQuests };
 
   const wallet = await getWalletTotals(accountId);
-  if (wallet === null) return { ok: false, status: 500, error: "Could not load wallet" };
+  if (wallet === null) return { ok: false, status: 500, error: msg.couldNotLoadWallet };
 
   const completedQuestList = await listCompletedQuestIds(accountId);
-  if (!completedQuestList) return { ok: false, status: 500, error: "Could not load progress" };
+  if (!completedQuestList) return { ok: false, status: 500, error: msg.couldNotLoadProgress };
   const completedTaskKeyList = await listCompletedLogicalTaskKeys(accountId);
-  if (!completedTaskKeyList) return { ok: false, status: 500, error: "Could not load task prerequisites" };
+  if (!completedTaskKeyList) return { ok: false, status: 500, error: msg.couldNotLoadTaskPrerequisites };
 
   const completedSet = new Set(completedQuestList);
   const completedTaskSet = new Set(completedTaskKeyList);
@@ -913,37 +914,37 @@ export async function startOrResumeQuest(accountId: string, questId: string): Pr
     const previousChapter = chapterSlotsAscending[chapterIndexForQuest - 1];
     const prevQuestRows = questsByChapter.get(previousChapter!.id) ?? [];
     if (!allChapterQuestsEarnedMarks(prevQuestRows, completedSet)) {
-      return { ok: false, status: 403, error: "Chapter is locked", code: "chapter_locked" };
+      return { ok: false, status: 403, error: msg.chapterLocked, code: "chapter_locked" };
     }
   }
 
   if (!isUnlockedForPlayer(quest, questsBySlug, completedSet, completedTaskSet, wallet.totalSlices)) {
-    return { ok: false, status: 403, error: "Quest is locked", code: "quest_locked" };
+    return { ok: false, status: 403, error: msg.questLocked, code: "quest_locked" };
   }
 
   if (!isSequentiallyAvailableInChapter(quest, questsByChapter, completedSet)) {
-    return { ok: false, status: 403, error: "Quest is locked", code: "quest_locked" };
+    return { ok: false, status: 403, error: msg.questLocked, code: "quest_locked" };
   }
 
   if (completedSet.has(questId)) {
-    return { ok: false, status: 403, error: "Quest already completed", code: "quest_already_completed" };
+    return { ok: false, status: 403, error: msg.questAlreadyCompleted, code: "quest_already_completed" };
   }
 
   let run = await findInProgressRun(accountId, questId);
   if (!run) {
     const abandoned = await abandonAllInProgressRunsForAccount(accountId);
-    if (!abandoned) return { ok: false, status: 500, error: "Could not start quest run" };
+    if (!abandoned) return { ok: false, status: 500, error: msg.couldNotStartQuestRun };
     run = await insertRun(accountId, quest.chapter_id, questId);
-    if (!run) return { ok: false, status: 500, error: "Could not start quest run" };
+    if (!run) return { ok: false, status: 500, error: msg.couldNotStartQuestRun };
   }
 
   const stepRows = await listStepsForQuest(questId);
   if (!stepRows || stepRows.length === 0)
-    return { ok: false, status: 500, error: "Quest has no steps" };
+    return { ok: false, status: 500, error: msg.questHasNoSteps };
 
   const materializedRows = await materializeQuestStepsForRun(accountId, run.id, stepRows);
   if (!materializedRows) {
-    return { ok: false, status: 500, error: "Could not materialize matching payloads" };
+    return { ok: false, status: 500, error: msg.couldNotMaterializeMatching };
   }
 
   const mappedSteps = mapQuestStepRowsWithCutsceneValidation(materializedRows, { id: quest.id, slug: quest.slug });
@@ -981,15 +982,15 @@ export async function completeQuestStepTask(
 ): Promise<CompleteStepTaskResult> {
   const run = await getQuestRunById(runId);
   if (!run || run.account_id !== accountId) {
-    return { ok: false, status: 404, error: "Run not found", code: "run_not_found" };
+    return { ok: false, status: 404, error: msg.runNotFound, code: "run_not_found" };
   }
 
   const stepsRows = await listStepsForQuest(run.quest_id);
-  if (!stepsRows) return { ok: false, status: 500, error: "Could not load quest steps", code: "steps_load_failed" };
+  if (!stepsRows) return { ok: false, status: 500, error: msg.couldNotLoadQuestSteps, code: "steps_load_failed" };
 
   const expected = pickExpectedPendingStep(run, stepsRows);
   if (!expected || expected.id !== stepId) {
-    return { ok: false, status: 409, error: "Step mismatch", code: "step_mismatch" };
+    return { ok: false, status: 409, error: msg.stepMismatch, code: "step_mismatch" };
   }
 
   const rewardRules = (expected.reward_rules ?? {}) as Record<string, unknown>;
@@ -1005,7 +1006,7 @@ export async function completeQuestStepTask(
       return {
         ok: false,
         status: 403,
-        error: "Completing FreitextLlm requires passing server evaluation.",
+        error: msg.freitextRequiresEvaluation,
         code: "evaluation_gate_required",
       };
     }
@@ -1015,7 +1016,7 @@ export async function completeQuestStepTask(
       return {
         ok: false,
         status: 403,
-        error: "Stale or invalid evaluation token. Submit Check again to re-score your answer.",
+        error: msg.staleEvaluationToken,
         code: "evaluation_gate_invalid",
       };
     }
@@ -1026,13 +1027,13 @@ export async function completeQuestStepTask(
   } else if (expected.step_kind === "task" && pizzaRules.kind === "scored") {
     const tt = expected.task_type ?? "";
     if (!tt) {
-      return { ok: false, status: 400, error: "Task type missing on step", code: "task_type_missing" };
+      return { ok: false, status: 400, error: msg.taskTypeMissing, code: "task_type_missing" };
     }
     if (options?.attempt === undefined || options.attempt === null) {
       return {
         ok: false,
         status: 400,
-        error: "This task requires an attempt payload for scored pizza rewards.",
+        error: msg.attemptRequiredForScored,
         code: "attempt_required",
       };
     }
@@ -1040,7 +1041,7 @@ export async function completeQuestStepTask(
     if (tt === "Matching") {
       const materialized = await materializeQuestStepsForRun(accountId, runId, [expected]);
       if (!materialized || materialized.length === 0) {
-        return { ok: false, status: 500, error: "Could not materialize matching payloads", code: "materialization_failed" };
+        return { ok: false, status: 500, error: msg.couldNotMaterializeMatching, code: "materialization_failed" };
       }
       content = (materialized[0]!.content_payload ?? {}) as Record<string, unknown>;
     }
@@ -1052,7 +1053,7 @@ export async function completeQuestStepTask(
       return {
         ok: false,
         status: 400,
-        error: "Performance is below the minimum required to complete this task.",
+        error: msg.performanceBelowMinimum,
         code: "ratio_below_minimum",
       };
     }
@@ -1132,11 +1133,11 @@ export async function advanceQuestCutscene(
 export async function finishQuestRun(accountId: string, runId: string): Promise<FinishRunResult> {
   const run = await getQuestRunById(runId);
   if (!run || run.account_id !== accountId) {
-    return { ok: false, status: 404, error: "Run not found", code: "run_not_found" };
+    return { ok: false, status: 404, error: msg.runNotFound, code: "run_not_found" };
   }
 
   const wallet = await getWalletTotals(accountId);
-  if (wallet === null) return { ok: false, status: 500, error: "Could not load wallet" };
+  if (wallet === null) return { ok: false, status: 500, error: msg.couldNotLoadWallet };
 
   if (run.status === "completed") {
     return {
@@ -1147,7 +1148,7 @@ export async function finishQuestRun(accountId: string, runId: string): Promise<
   }
 
   const stepsRows = await listStepsForQuest(run.quest_id);
-  if (!stepsRows) return { ok: false, status: 500, error: "Could not load quest steps" };
+  if (!stepsRows) return { ok: false, status: 500, error: msg.couldNotLoadQuestSteps };
 
   if (run.status === "in_progress" && run.current_step_order_index >= stepsRows.length) {
     const nowIso = new Date().toISOString();
@@ -1158,7 +1159,7 @@ export async function finishQuestRun(accountId: string, runId: string): Promise<
       "completed",
       nowIso,
     );
-    if (!ok) return { ok: false, status: 500, error: "Could not update run" };
+    if (!ok) return { ok: false, status: 500, error: msg.couldNotUpdateRun };
     return {
       ok: true,
       totalSlices: wallet.totalSlices,
@@ -1166,27 +1167,27 @@ export async function finishQuestRun(accountId: string, runId: string): Promise<
     };
   }
 
-  return { ok: false, status: 400, error: "Quest not finished yet", code: "run_incomplete" };
+  return { ok: false, status: 400, error: msg.runIncomplete, code: "run_incomplete" };
 }
 
 export async function getGameRun(accountId: string, runId: string): Promise<GetRunResult> {
   const run = await getQuestRunById(runId);
   if (!run || run.account_id !== accountId) {
-    return { ok: false, status: 404, error: "Run not found", code: "run_not_found" };
+    return { ok: false, status: 404, error: msg.runNotFound, code: "run_not_found" };
   }
 
   const quest = await getQuestById(run.quest_id);
-  if (!quest) return { ok: false, status: 500, error: "Quest missing" };
+  if (!quest) return { ok: false, status: 500, error: msg.questMissing };
 
   const stepsRows = await listStepsForQuest(run.quest_id);
-  if (!stepsRows) return { ok: false, status: 500, error: "Could not load quest steps" };
+  if (!stepsRows) return { ok: false, status: 500, error: msg.couldNotLoadQuestSteps };
 
   const wallet = await getWalletTotals(accountId);
-  if (wallet === null) return { ok: false, status: 500, error: "Could not load wallet" };
+  if (wallet === null) return { ok: false, status: 500, error: msg.couldNotLoadWallet };
 
   const materializedRows = await materializeQuestStepsForRun(accountId, run.id, stepsRows);
   if (!materializedRows) {
-    return { ok: false, status: 500, error: "Could not materialize matching payloads" };
+    return { ok: false, status: 500, error: msg.couldNotMaterializeMatching };
   }
 
   const mappedSteps = mapQuestStepRowsWithCutsceneValidation(materializedRows, { id: quest.id, slug: quest.slug });

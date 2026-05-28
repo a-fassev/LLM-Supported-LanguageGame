@@ -4,6 +4,7 @@ import { hashPassword } from "@/lib/password";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getClientIp, jsonError, jsonOk } from "@/lib/http";
+import { authClientMessages as authMsg, apiRouteMessages as routeMsg } from "@/lib/game/clientMessages";
 
 const bodySchema = z
   .object({
@@ -20,7 +21,7 @@ const bodySchema = z
     if (val.password !== val.passwordConfirm) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Passwords do not match",
+        message: authMsg.passwordsDoNotMatch,
         path: ["passwordConfirm"],
       });
     }
@@ -40,19 +41,19 @@ export const runtime = "nodejs";
 export async function POST(request: Request) {
   const ip = getClientIp(request);
   if (!checkRateLimit(`register:${ip}`, 20, 60_000)) {
-    return jsonError(429, "Too many requests");
+    return jsonError(429, routeMsg.tooManyRequests);
   }
 
   let json: unknown;
   try {
     json = await request.json();
   } catch {
-    return jsonError(400, "Invalid JSON body");
+    return jsonError(400, routeMsg.invalidJson);
   }
 
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) {
-    return jsonError(400, "Invalid request", "validation_error");
+    return jsonError(400, routeMsg.invalidRequest, "validation_error");
   }
 
   const { password, username: requestedUsername } = parsed.data;
@@ -60,7 +61,7 @@ export async function POST(request: Request) {
   try {
     passwordHash = await hashPassword(password);
   } catch {
-    return jsonError(500, "Could not process request");
+    return jsonError(500, authMsg.couldNotProcess);
   }
 
   const supabase = getSupabaseAdmin();
@@ -89,14 +90,14 @@ export async function POST(request: Request) {
 
     lastError = error;
     if (requestedUsername && isUniqueViolation(error)) {
-      return jsonError(409, "Username already taken", "username_taken");
+      return jsonError(409, authMsg.usernameTaken, "username_taken");
     }
     if (!requestedUsername && isUniqueViolation(error)) {
       continue;
     }
-    return jsonError(500, "Could not create account");
+    return jsonError(500, authMsg.couldNotCreateAccount);
   }
 
   console.error("[register] exhausted username attempts", lastError);
-  return jsonError(500, "Could not create account");
+  return jsonError(500, authMsg.couldNotCreateAccount);
 }

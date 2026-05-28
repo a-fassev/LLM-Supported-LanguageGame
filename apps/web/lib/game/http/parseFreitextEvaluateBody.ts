@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { apiRouteMessages as routeMsg } from "@/lib/game/clientMessages";
 
 const evaluateBodySchema = z.object({
   answerText: z.string().optional().default(""),
@@ -23,18 +24,18 @@ export function parseFreitextEvaluateBody(rawText: string): ParseFreitextEvaluat
   try {
     parsed = JSON.parse(trimmed) as unknown;
   } catch {
-    return { ok: false, message: "Invalid JSON body", code: "INVALID_JSON" };
+    return { ok: false, message: routeMsg.invalidJson, code: "INVALID_JSON" };
   }
 
   if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
-    return { ok: false, message: "JSON body must be an object", code: "INVALID_JSON_SHAPE" };
+    return { ok: false, message: "Il corpo JSON deve essere un oggetto.", code: "INVALID_JSON_SHAPE" };
   }
 
   const validated = evaluateBodySchema.safeParse(parsed);
   if (!validated.success) {
     return {
       ok: false,
-      message: "Invalid evaluate payload",
+      message: "Payload di valutazione non valido.",
       code: "INVALID_PAYLOAD",
     };
   }

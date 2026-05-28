@@ -30,7 +30,7 @@ namespace LanguageGame.Application
             var wrap = JsonUtility.FromJson<OkUsername>(req.downloadHandler.text);
             if (wrap == null || !wrap.ok || string.IsNullOrEmpty(wrap.username))
             {
-                onError?.Invoke("Invalid response from server");
+                onError?.Invoke(GameClientMessages.InvalidServerResponse);
                 yield break;
             }
 
@@ -69,7 +69,7 @@ namespace LanguageGame.Application
             }
 
             var err = JsonUtility.FromJson<ErrorBody>(text);
-            onError?.Invoke(!string.IsNullOrEmpty(err?.error) ? err.error : "Registration failed");
+            onError?.Invoke(!string.IsNullOrEmpty(err?.error) ? err.error : GameClientMessages.RegistrationFailed);
         }
 
         public IEnumerator Login(string username, string password, Action onSuccess, Action<string> onError)
@@ -103,7 +103,7 @@ namespace LanguageGame.Application
             }
 
             var err = JsonUtility.FromJson<ErrorBody>(text);
-            onError?.Invoke(!string.IsNullOrEmpty(err?.error) ? err.error : "Login failed");
+            onError?.Invoke(!string.IsNullOrEmpty(err?.error) ? err.error : GameClientMessages.LoginFailed);
         }
 
         public IEnumerator ValidateSession(Action onValid, Action<string> onInvalid)
@@ -111,7 +111,7 @@ namespace LanguageGame.Application
             var token = AuthSessionStore.GetToken();
             if (string.IsNullOrEmpty(token))
             {
-                onInvalid?.Invoke("No saved session");
+                onInvalid?.Invoke(GameClientMessages.NoSavedSession);
                 yield break;
             }
 
@@ -134,7 +134,7 @@ namespace LanguageGame.Application
                 yield break;
             }
 
-            onInvalid?.Invoke("Session expired");
+            onInvalid?.Invoke(GameClientMessages.SessionExpired);
         }
 
         public IEnumerator LogoutRemote(Action onDone, Action<string> onError)

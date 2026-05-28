@@ -116,12 +116,31 @@ namespace LanguageGame.Presentation
 
         private void RegisterButtonCallbacks()
         {
-            _loginButton?.RegisterCallback<ClickEvent>(_ => OnLoginClicked());
-            _registerButton?.RegisterCallback<ClickEvent>(_ => OnRegisterClicked());
-            _goToRegister?.RegisterCallback<ClickEvent>(_ => ShowRegisterFlow(true));
-            _goToLogin?.RegisterCallback<ClickEvent>(_ => ShowRegisterFlow(false));
-            _newUsernameButton?.RegisterCallback<ClickEvent>(_ => RefreshSuggestedUsername());
+            _loginButton?.RegisterCallback<ClickEvent>(OnLoginButtonClick);
+            _registerButton?.RegisterCallback<ClickEvent>(OnRegisterButtonClick);
+            _goToRegister?.RegisterCallback<ClickEvent>(OnGoToRegisterClick);
+            _goToLogin?.RegisterCallback<ClickEvent>(OnGoToLoginClick);
+            _newUsernameButton?.RegisterCallback<ClickEvent>(OnNewUsernameButtonClick);
         }
+
+        private void UnregisterButtonCallbacks()
+        {
+            _loginButton?.UnregisterCallback<ClickEvent>(OnLoginButtonClick);
+            _registerButton?.UnregisterCallback<ClickEvent>(OnRegisterButtonClick);
+            _goToRegister?.UnregisterCallback<ClickEvent>(OnGoToRegisterClick);
+            _goToLogin?.UnregisterCallback<ClickEvent>(OnGoToLoginClick);
+            _newUsernameButton?.UnregisterCallback<ClickEvent>(OnNewUsernameButtonClick);
+        }
+
+        private void OnLoginButtonClick(ClickEvent _) => OnLoginClicked();
+
+        private void OnRegisterButtonClick(ClickEvent _) => OnRegisterClicked();
+
+        private void OnGoToRegisterClick(ClickEvent _) => ShowRegisterFlow(true);
+
+        private void OnGoToLoginClick(ClickEvent _) => ShowRegisterFlow(false);
+
+        private void OnNewUsernameButtonClick(ClickEvent _) => RefreshSuggestedUsername();
 
         private void ResolveApiClient()
         {
@@ -375,6 +394,7 @@ namespace LanguageGame.Presentation
 
         private void OnDestroy()
         {
+            UnregisterButtonCallbacks();
             if (_doc != null)
                 LearningToolkitNavigationFeedback.UnregisterPresentationDocument(_doc);
             _loading.Destroy();

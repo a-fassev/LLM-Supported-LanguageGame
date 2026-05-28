@@ -373,7 +373,7 @@ namespace LanguageGame.Presentation.Steps
             dto = JsonUtility.FromJson<CutsceneContentDto>(json);
             if (dto == null)
             {
-                error = "Could not parse cutscene content.";
+                error = "Impossibile leggere il contenuto della scena.";
                 return false;
             }
 
@@ -400,7 +400,7 @@ namespace LanguageGame.Presentation.Steps
                 if (!ValidPresentationModes.Contains(modeRaw))
                 {
                     dto = null;
-                    error = $"Beat {i} has invalid presentationMode '{modeRaw}'.";
+                    error = $"Il beat {i} ha presentationMode non valido: '{modeRaw}'.";
                     return false;
                 }
 

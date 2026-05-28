@@ -4,6 +4,7 @@ import { createOpaqueToken, hashToken } from "@/lib/session-token";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getClientIp, jsonError, jsonOk } from "@/lib/http";
+import { authClientMessages as authMsg, apiRouteMessages as routeMsg } from "@/lib/game/clientMessages";
 
 const bodySchema = z.object({
   username: z.string().min(1).max(40),
@@ -21,19 +22,19 @@ function normalizeUsername(raw: string): string {
 export async function POST(request: Request) {
   const ip = getClientIp(request);
   if (!checkRateLimit(`login:${ip}`, 40, 60_000)) {
-    return jsonError(429, "Too many requests");
+    return jsonError(429, routeMsg.tooManyRequests);
   }
 
   let json: unknown;
   try {
     json = await request.json();
   } catch {
-    return jsonError(400, "Invalid JSON body");
+    return jsonError(400, routeMsg.invalidJson);
   }
 
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) {
-    return jsonError(400, "Invalid request");
+    return jsonError(400, routeMsg.invalidRequest);
   }
 
   const username = normalizeUsername(parsed.data.username);
@@ -47,14 +48,14 @@ export async function POST(request: Request) {
 
   if (lookupError) {
     console.error("[login] lookup", lookupError);
-    return jsonError(500, "Could not process request");
+    return jsonError(500, authMsg.couldNotProcess);
   }
 
   const valid =
     account && (await verifyPassword(account.password_hash, parsed.data.password));
 
   if (!valid) {
-    return jsonError(401, "Invalid username or password", "auth_failed");
+    return jsonError(401, authMsg.invalidCredentials, "auth_failed");
   }
 
   const token = createOpaqueToken();
@@ -70,7 +71,7 @@ export async function POST(request: Request) {
 
   if (sessionError) {
     console.error("[login] session insert", sessionError);
-    return jsonError(500, "Could not create session");
+    return jsonError(500, authMsg.couldNotCreateSession);
   }
 
   await supabase

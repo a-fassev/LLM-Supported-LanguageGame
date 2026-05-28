@@ -2,6 +2,7 @@ import { requireSessionAccount } from "@/lib/require-session";
 import { completeQuestStepTask } from "@/lib/game/services/game-progress-service";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getClientIp, jsonError, jsonOk } from "@/lib/http";
+import { apiRouteMessages as routeMsg } from "@/lib/game/clientMessages";
 import { z } from "zod";
 
 export const runtime = "nodejs";
@@ -24,33 +25,33 @@ type RouteContext = { params: Promise<{ runId: string; stepId: string }> };
 export async function POST(request: Request, context: RouteContext) {
   const ip = getClientIp(request);
   if (!checkRateLimit(`game_complete_step:ip:${ip}`, 120, 60_000)) {
-    return jsonError(429, "Too many requests", "RATE_LIMIT_IP");
+    return jsonError(429, routeMsg.tooManyRequests, "RATE_LIMIT_IP");
   }
 
   const session = await requireSessionAccount(request);
   if (!session.ok) return session.response;
 
   if (!checkRateLimit(`game_complete_step:acct:${session.accountId}`, 120, 60_000)) {
-    return jsonError(429, "Too many completions for this session", "RATE_LIMIT_ACCOUNT");
+    return jsonError(429, routeMsg.tooManyCompletions, "RATE_LIMIT_ACCOUNT");
   }
 
   const raw = await context.params;
   const parsed = paramsSchema.safeParse(raw);
   if (!parsed.success) {
-    return jsonError(400, "Invalid request");
+    return jsonError(400, routeMsg.invalidRequest);
   }
 
   const contentLength = request.headers.get("content-length");
   if (contentLength != null) {
     const n = Number(contentLength);
     if (Number.isFinite(n) && n > maxCompleteBodyChars) {
-      return jsonError(413, "Request body too large", "BODY_TOO_LARGE");
+      return jsonError(413, routeMsg.bodyTooLarge, "BODY_TOO_LARGE");
     }
   }
 
   const bodyText = await request.text();
   if (bodyText.length > maxCompleteBodyChars) {
-    return jsonError(413, "Request body too large", "BODY_TOO_LARGE");
+    return jsonError(413, routeMsg.bodyTooLarge, "BODY_TOO_LARGE");
   }
 
   let evaluationGateToken: string | undefined;
@@ -62,12 +63,12 @@ export async function POST(request: Request, context: RouteContext) {
     try {
       jsonBody = JSON.parse(trimmedBody);
     } catch {
-      return jsonError(400, "Invalid JSON body");
+      return jsonError(400, routeMsg.invalidJson);
     }
 
     const bodyParsed = completeOptionalBodySchema.safeParse(jsonBody);
     if (!bodyParsed.success) {
-      return jsonError(400, "Invalid body payload");
+      return jsonError(400, routeMsg.invalidBody);
     }
     evaluationGateToken = bodyParsed.data.evaluationGateToken;
     attempt = bodyParsed.data.attempt;

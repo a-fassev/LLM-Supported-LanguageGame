@@ -6,6 +6,7 @@ import {
   type LeaderboardTeamAggregateRow,
   type StudentTeamColor,
 } from "@/lib/game/repositories/game-progress-repository";
+import { gameClientMessages as msg } from "@/lib/game/clientMessages";
 
 export type LeaderboardPlayerClientDto = {
   rank: number;
@@ -73,11 +74,11 @@ export async function getLeaderboardState(accountId: string): Promise<Leaderboar
   ]);
 
   if (!selfContext) {
-    return { ok: false, status: 500, error: "Could not load player profile", code: "profile_load_failed" };
+    return { ok: false, status: 500, error: msg.couldNotLoadProfile, code: "profile_load_failed" };
   }
 
   if (!playerRows) {
-    return { ok: false, status: 500, error: "Could not load leaderboard", code: "leaderboard_load_failed" };
+    return { ok: false, status: 500, error: msg.couldNotLoadLeaderboard, code: "leaderboard_load_failed" };
   }
 
   const selfIndex = playerRows.findIndex((row) => row.accountId === accountId);

@@ -170,7 +170,7 @@ namespace LanguageGame.Presentation
                 totalBackpackPieces = flow.TotalBackpackPieces,
                 presentValidationMessage = _shared.PresentValidationMessage,
                 presentBusyOverlay = msg =>
-                    _shared.Loading.Show(string.IsNullOrWhiteSpace(msg) ? "Laden…" : msg),
+                    _shared.Loading.Show(string.IsNullOrWhiteSpace(msg) ? LearningToolkitChromeUx.LoadingFallbackMessage : msg),
                 dismissBusyOverlay = () => _shared.Loading.Hide(),
                 gameProgressApi = _shared.GameApi,
             };

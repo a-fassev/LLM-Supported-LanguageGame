@@ -2,6 +2,7 @@ import { hashToken } from "@/lib/session-token";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getClientIp, jsonError, jsonOk } from "@/lib/http";
+import { authClientMessages as authMsg, apiRouteMessages as routeMsg } from "@/lib/game/clientMessages";
 
 function extractBearer(request: Request): string | null {
   const header = request.headers.get("authorization") ?? "";
@@ -12,7 +13,7 @@ function extractBearer(request: Request): string | null {
 export async function POST(request: Request) {
   const ip = getClientIp(request);
   if (!checkRateLimit(`logout:${ip}`, 60, 60_000)) {
-    return jsonError(429, "Too many requests");
+    return jsonError(429, routeMsg.tooManyRequests);
   }
 
   const fromHeader = extractBearer(request);
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
   }
 
   if (!token) {
-    return jsonError(400, "Missing token");
+    return jsonError(400, authMsg.missingTokenBody);
   }
 
   const supabase = getSupabaseAdmin();
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
 
   if (error) {
     console.error("[logout]", error);
-    return jsonError(500, "Could not revoke session");
+    return jsonError(500, authMsg.couldNotRevokeSession);
   }
 
   return jsonOk({});

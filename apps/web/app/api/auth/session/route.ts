@@ -2,6 +2,7 @@ import { hashToken } from "@/lib/session-token";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getClientIp, jsonError, jsonOk } from "@/lib/http";
+import { authClientMessages as authMsg, apiRouteMessages as routeMsg } from "@/lib/game/clientMessages";
 
 function extractBearer(request: Request): string | null {
   const header = request.headers.get("authorization") ?? "";
@@ -12,12 +13,12 @@ function extractBearer(request: Request): string | null {
 export async function GET(request: Request) {
   const ip = getClientIp(request);
   if (!checkRateLimit(`session:${ip}`, 120, 60_000)) {
-    return jsonError(429, "Too many requests");
+    return jsonError(429, routeMsg.tooManyRequests);
   }
 
   const token = extractBearer(request);
   if (!token) {
-    return jsonError(401, "Missing token", "missing_token");
+    return jsonError(401, authMsg.missingToken, "missing_token");
   }
 
   const supabase = getSupabaseAdmin();
@@ -32,11 +33,11 @@ export async function GET(request: Request) {
 
   if (sessionError) {
     console.error("[session] lookup", sessionError);
-    return jsonError(500, "Could not validate session");
+    return jsonError(500, authMsg.couldNotValidateSession);
   }
 
   if (!session || session.revoked_at != null || session.expires_at <= nowIso) {
-    return jsonError(401, "Invalid or expired session", "invalid_session");
+    return jsonError(401, authMsg.invalidSession, "invalid_session");
   }
 
   const { data: account, error: accountError } = await supabase
@@ -46,7 +47,7 @@ export async function GET(request: Request) {
     .maybeSingle();
 
   if (accountError || !account?.username) {
-    return jsonError(401, "Invalid or expired session", "invalid_session");
+    return jsonError(401, authMsg.invalidSession, "invalid_session");
   }
 
   const team =

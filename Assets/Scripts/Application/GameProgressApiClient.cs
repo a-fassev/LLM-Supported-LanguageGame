@@ -46,8 +46,11 @@ namespace LanguageGame.Application
             string[] phrases =
             {
                 "not logged in",
+                "accesso non effettuato",
                 "session expired",
+                "sessione scaduta",
                 "please sign in",
+                "accedi di nuovo",
                 "invalid token",
                 "jwt expired",
                 "jwt malformed",
@@ -105,7 +108,7 @@ namespace LanguageGame.Application
                         return;
                     }
 
-                    onError?.Invoke(ParseErrorMessage(text, "Invalid leaderboard response"));
+                    onError?.Invoke(ParseErrorMessage(text, GameClientMessages.InvalidLeaderboardResponse));
                 },
                 onError);
         }
@@ -122,7 +125,7 @@ namespace LanguageGame.Application
                         onOk?.Invoke(env);
                         return;
                     }
-                    onError?.Invoke(ParseErrorMessage(text, "Invalid bootstrap response"));
+                    onError?.Invoke(ParseErrorMessage(text, GameClientMessages.InvalidBootstrapResponse));
                 },
                 onError);
         }
@@ -147,7 +150,7 @@ namespace LanguageGame.Application
                 }
                 else
                 {
-                    onError?.Invoke(ParseErrorMessage(text, "Could not start quest"));
+                    onError?.Invoke(ParseErrorMessage(text, GameClientMessages.CouldNotStartQuest));
                 }
             }, onError);
         }
@@ -173,7 +176,7 @@ namespace LanguageGame.Application
                     }
                     onError?.Invoke(!string.IsNullOrEmpty(env?.error)
                         ? env.error
-                        : ParseErrorMessage(text, "Could not complete task"));
+                        : ParseErrorMessage(text, GameClientMessages.CouldNotCompleteTask));
                 }, onError);
                 yield break;
             }
@@ -190,7 +193,7 @@ namespace LanguageGame.Application
                 }
                 onError?.Invoke(!string.IsNullOrEmpty(env?.error)
                     ? env.error
-                    : ParseErrorMessage(text, "Could not complete task"));
+                    : ParseErrorMessage(text, GameClientMessages.CouldNotCompleteTask));
             }, onError);
         }
 
@@ -269,7 +272,7 @@ namespace LanguageGame.Application
 
                 var message = env != null && !string.IsNullOrEmpty(env.error)
                     ? env.error
-                    : ParseErrorMessage(text, "FreitextLlm scorer failed.");
+                    : ParseErrorMessage(text, GameClientMessages.FreitextScorerFailed));
 
                 if (env != null && !string.IsNullOrEmpty(env.code))
                     message = $"{message} ({env.code})";
@@ -294,7 +297,7 @@ namespace LanguageGame.Application
                 }
                 onError?.Invoke(!string.IsNullOrEmpty(env?.error)
                     ? env.error
-                    : ParseErrorMessage(text, "Could not advance scene"));
+                    : ParseErrorMessage(text, GameClientMessages.CouldNotAdvanceScene));
             }, onError);
         }
 
@@ -311,7 +314,7 @@ namespace LanguageGame.Application
                 }
                 onError?.Invoke(!string.IsNullOrEmpty(env?.error)
                     ? env.error
-                    : ParseErrorMessage(text, "Could not finish run"));
+                    : ParseErrorMessage(text, GameClientMessages.CouldNotFinishRun));
             }, onError);
         }
 
@@ -320,7 +323,7 @@ namespace LanguageGame.Application
             var token = AuthSessionStore.GetToken();
             if (string.IsNullOrEmpty(token))
             {
-                onError?.Invoke("Not logged in");
+                onError?.Invoke(GameClientMessages.NotLoggedIn);
                 yield break;
             }
 
@@ -333,7 +336,7 @@ namespace LanguageGame.Application
             if (statusCode == 401 || statusCode == 403)
             {
                 ClearSessionAfterUnauthorized();
-                onError?.Invoke("Session expired. Please sign in again.");
+                onError?.Invoke(GameClientMessages.SessionExpiredSignInAgain);
                 yield break;
             }
 
@@ -351,7 +354,7 @@ namespace LanguageGame.Application
             var token = AuthSessionStore.GetToken();
             if (string.IsNullOrEmpty(token))
             {
-                onError?.Invoke("Not logged in");
+                onError?.Invoke(GameClientMessages.NotLoggedIn);
                 yield break;
             }
 
@@ -367,7 +370,7 @@ namespace LanguageGame.Application
             if (statusCode == 401 || statusCode == 403)
             {
                 ClearSessionAfterUnauthorized();
-                onError?.Invoke("Session expired. Please sign in again.");
+                onError?.Invoke(GameClientMessages.SessionExpiredSignInAgain);
                 yield break;
             }
 
@@ -386,7 +389,7 @@ namespace LanguageGame.Application
             var token = AuthSessionStore.GetToken();
             if (string.IsNullOrEmpty(token))
             {
-                onError?.Invoke("Not logged in");
+                onError?.Invoke(GameClientMessages.NotLoggedIn);
                 yield break;
             }
 
@@ -404,7 +407,7 @@ namespace LanguageGame.Application
             if (statusCode == 401 || statusCode == 403)
             {
                 ClearSessionAfterUnauthorized();
-                onError?.Invoke("Session expired. Please sign in again.");
+                onError?.Invoke(GameClientMessages.SessionExpiredSignInAgain);
                 yield break;
             }
 

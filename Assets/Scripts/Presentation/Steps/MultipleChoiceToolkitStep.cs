@@ -691,7 +691,7 @@ namespace LanguageGame.Presentation.Steps
             dto = JsonUtility.FromJson<MultipleChoiceContentDto>(json);
             if (dto == null)
             {
-                error = "Could not parse JSON.";
+                error = "Impossibile leggere i dati dell'attività.";
                 return false;
             }
 

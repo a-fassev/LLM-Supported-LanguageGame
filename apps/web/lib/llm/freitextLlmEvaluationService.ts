@@ -173,7 +173,7 @@ export function mapFreitextLlmProviderError(
       status: 503,
       code: "PROVIDER_UNAVAILABLE",
       retryable: true,
-      message: "The scorer is temporarily unavailable. Please retry.",
+      message: "Il valutatore non è disponibile. Riprova.",
     };
   }
 

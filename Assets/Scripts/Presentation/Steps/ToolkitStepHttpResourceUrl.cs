@@ -113,7 +113,7 @@ namespace LanguageGame.Presentation.Steps
                 {
                     lock (HostResolutionCache)
                         HostResolutionCache[host] = 0;
-                    error = "Could not resolve host for URL.";
+                    error = "Impossibile risolvere l'host dell'URL.";
                     return false;
                 }
 

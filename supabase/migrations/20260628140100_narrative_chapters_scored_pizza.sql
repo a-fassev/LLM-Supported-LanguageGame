@@ -9,7 +9,7 @@ set
     jsonb_build_object(
       'mode', 'scored',
       'maxSlices', greatest(1, least(5, coalesce((s.reward_rules->'pizza'->>'value')::int, 2))),
-      'minRatioToComplete', 0,
+      'minRatioToComplete', 0.01,
       'rounding', 'floor',
       'mapping', jsonb_build_object('kind', 'linear')
     ),
@@ -33,7 +33,7 @@ set
     jsonb_build_object(
       'mode', 'scored',
       'maxSlices', greatest(1, least(5, coalesce((s.reward_rules->'pizza'->>'value')::int, 2))),
-      'minRatioToComplete', 0,
+      'minRatioToComplete', 0.01,
       'rounding', 'floor',
       'mapping', jsonb_build_object('kind', 'linear')
     ),

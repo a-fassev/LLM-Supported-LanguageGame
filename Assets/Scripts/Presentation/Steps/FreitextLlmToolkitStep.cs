@@ -194,7 +194,7 @@ namespace LanguageGame.Presentation.Steps
                     else if (!string.IsNullOrWhiteSpace(error))
                         _context?.presentValidationMessage?.Invoke(error);
                     else
-                        _context?.presentValidationMessage?.Invoke("Scorer request failed.");
+                        _context?.presentValidationMessage?.Invoke("Valutazione non riuscita.");
 
                     yield break;
                 }

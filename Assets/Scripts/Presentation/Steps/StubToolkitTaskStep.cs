@@ -8,15 +8,15 @@ namespace LanguageGame.Presentation.Steps
     public sealed class StubToolkitTaskStep : IStepView, ISubmitFromShell
     {
         private const string DefaultStubBody =
-            "This step type is not available yet. Check will show a short message.";
+            "Questo tipo di attività non è ancora disponibile. Tocca Controlla per un messaggio.";
 
-        private const string DefaultStubValidation = "This task type is not implemented yet.";
+        private const string DefaultStubValidation = "Questo tipo di attività non è ancora implementato.";
 
         private const string MissingFactoryBody =
-            "This step could not be loaded. Leave the quest from the menu and try again.";
+            "Impossibile caricare questo passo. Esci dalla missione dal menu e riprova.";
 
         private const string MissingFactoryValidation =
-            "This step could not be loaded. Leave the quest and try again.";
+            "Impossibile caricare questo passo. Esci dalla missione e riprova.";
 
         private readonly VisualElement _root;
         private readonly string _validationMessage;
@@ -38,8 +38,8 @@ namespace LanguageGame.Presentation.Steps
         public static StubToolkitTaskStep CreateMissingFactoryFallback(VisualElement host, GameQuestStepDto step)
         {
             string title = step != null && !string.IsNullOrEmpty(step.taskType)
-                ? $"Unavailable ({step.taskType})"
-                : "Step unavailable";
+                ? $"Non disponibile ({step.taskType})"
+                : "Passo non disponibile";
             return new StubToolkitTaskStep(host, title, MissingFactoryBody, MissingFactoryValidation);
         }
 
@@ -55,7 +55,7 @@ namespace LanguageGame.Presentation.Steps
             _root.style.paddingLeft = 16;
             _root.style.paddingRight = 16;
 
-            var title = new Label(titleText ?? "Task");
+            var title = new Label(titleText ?? "Attività");
             title.AddToClassList("lg-task-prompt");
             title.style.marginBottom = 12;
             _root.Add(title);

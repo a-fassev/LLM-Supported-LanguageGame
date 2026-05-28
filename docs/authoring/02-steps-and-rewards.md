@@ -24,7 +24,7 @@ Parsed server-side by [`parsePizzaRewardRules`](../../apps/web/lib/game/scoring/
   "pizza": {
     "mode": "scored",
     "maxSlices": 2,
-    "minRatioToComplete": 0,
+    "minRatioToComplete": 0.01,
     "rounding": "floor",
     "mapping": { "kind": "linear" }
   },
