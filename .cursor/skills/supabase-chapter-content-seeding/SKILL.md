@@ -108,6 +108,10 @@ UPDATE game_quests SET is_active = false ...;
 
 **Rewards (placeholder until content team):** `'{"pizza":{"mode":"flat","value":2},"backpack":{"mode":"first_completion","value":1}}'`
 
+### QA solutions doc
+
+After the migration ships, add or refresh **`docs/narrative/solutions/chapter-NN-solutions.md`**: per-quest steps with cutscene beat counts, exact task answers from `content_payload` JSON, **Controlla** / **Avanti** notes, and Freitext sample text where needed. See [solutions/README.md](../../docs/narrative/solutions/README.md) and [chapter-01-solutions.md](../../docs/narrative/solutions/chapter-01-solutions.md) as the format exemplar.
+
 ### Do not
 
 - Commit ad-hoc **`supabase/scripts/chapter*`** chunk files

@@ -34,6 +34,10 @@ Use with `.cursor/skills/supabase-chapter-content-seeding/SKILL.md`.
 - [ ] Demo quest retirement (`quest-01`, `quest-02`) at end of migration
 - [ ] No committed `supabase/scripts/chapter*` one-offs
 
+## QA solutions (optional but recommended)
+
+- [ ] `docs/narrative/solutions/chapter-NN-solutions.md` updated from migration JSON (beat counts, exact answers, Freitext samples)
+
 ## Apply & verify
 
 - [ ] Applied via `supabase db push` or one MCP apply per repo file

@@ -27,6 +27,13 @@ Story drafts before seeding into `supabase/migrations/`:
 
 Seeding workflow: [`.cursor/skills/supabase-chapter-content-seeding/SKILL.md`](../.cursor/skills/supabase-chapter-content-seeding/SKILL.md).
 
+### QA solutions (fast playthrough without Italian)
+
+| Doc | Contents |
+|-----|----------|
+| [solutions/README.md](narrative/solutions/README.md) | Index + how to use |
+| [chapter-01-solutions.md](narrative/solutions/chapter-01-solutions.md) … [chapter-06-solutions.md](narrative/solutions/chapter-06-solutions.md) | Per-quest answer keys from migration JSON |
+
 ## Unity (UI Toolkit inventory)
 
 | Doc | Contents |
