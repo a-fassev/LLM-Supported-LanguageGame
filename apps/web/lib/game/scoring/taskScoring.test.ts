@@ -247,6 +247,19 @@ describe("evaluateTaskAttempt", () => {
     expect(r.ratio).toBe(0.5);
   });
 
+  it("special screen with empty blocks[] accepts empty attempt (photo-only chrome)", () => {
+    const content = { blocks: [] };
+    const attempt = {
+      taskType: "SpecialScreen" as const,
+      specialScreen: { blocks: [] },
+    };
+    const r = evaluateSpecialScreen(content, attempt);
+    expect(r.ok).toBe(true);
+    if (!r.ok) throw new Error("fail");
+    expect(r.ratio).toBe(1);
+    expect(r.pizzaRatio).toBe(0);
+  });
+
   it("special screen with only stub blocks completes with full ratio but zero pizzaRatio", () => {
     const content = {
       blocks: [{ blockType: "stub" }, { blockType: "Stub" }],

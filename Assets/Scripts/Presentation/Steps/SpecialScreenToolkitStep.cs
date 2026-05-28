@@ -354,8 +354,7 @@ namespace LanguageGame.Presentation.Steps
             }
 
             var tt = string.IsNullOrWhiteSpace(_context.taskType) ? "SpecialScreen" : _context.taskType.Trim();
-            if (_blocks.Count == 0 ||
-                (_contentMechanicsBlocksEmpty && (_usePhotoChrome || _readerDisplayOnly)))
+            if (_blocks.Count == 0 || _contentMechanicsBlocksEmpty)
             {
                 attemptJson =
                     "{\"taskType\":" +
