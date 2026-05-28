@@ -39,7 +39,29 @@
     flex-direction: row;
     justify-content: flex-end;
     align-items: center;
+    flex-shrink: 0;
+    margin-top: auto;
     width: 100%;
+}
+
+/* Task shell: mirror cutscene column flex so step-host fills height and footer stays bottom. */
+.lg-task-shell__column {
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.lg-task-shell__stage {
+    position: relative;
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.lg-task-shell__step-host {
+    flex-grow: 1;
+    min-height: 0;
+    flex-direction: column;
 }
 
 /* Cutscene shell: full-stage narrative (no task panel chrome). */

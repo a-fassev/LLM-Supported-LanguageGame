@@ -27,8 +27,8 @@
                 <ui:Label name="mc-option-label" text="Per favore" />
             </ui:Instance>
         </ui:VisualElement>
-        <ui:VisualElement name="mc-nav-row"
-            style="flex-direction: row; justify-content: center; align-items: center; flex-shrink: 0; margin-top: 12px;">
+        <ui:VisualElement name="mc-nav-row" class="lg-task-template-footer"
+            style="flex-direction: row; justify-content: center; align-items: center;">
             <ui:Button name="mc-prev-button" text="←" class="lg-btn lg-btn--secondary" />
             <ui:Label name="mc-progress-label" text="2 / 4" class="lg-text-caption lg-preview-sample"
                 style="margin-left: 12px; margin-right: 12px;" />

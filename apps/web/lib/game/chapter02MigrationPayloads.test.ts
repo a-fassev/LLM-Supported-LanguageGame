@@ -12,14 +12,21 @@ const followUpMigrationPath = path.join(
   repoRoot,
   "supabase/migrations/20260627150100_chapter_02_review_fixes.sql",
 );
+const q3SplitMigrationPath = path.join(
+  repoRoot,
+  "supabase/migrations/20260629120000_chapter_02_q3_split_profiles.sql",
+);
 const nutelleriaClozeLinesMigrationPath = path.join(
   repoRoot,
   "supabase/migrations/20260628160000_chapter_02_nutelleria_cloze_lines.sql",
 );
 
-/** Dollar-quote tag in follow-up migration mapped to the canonical main migration tag. */
+/** Dollar-quote tags in follow-up migrations mapped to canonical main migration tags. */
 const FOLLOW_UP_STEP_TAG_MAP = {
-  q3s1_fix: "q3s1",
+  q3s1_photo: "q3s1_photo",
+  q3s2_saviano: "q3s2_saviano",
+  q3s3_delpiero: "q3s3_delpiero",
+  q3s4_ferragni: "q3s4_ferragni",
 } as const;
 
 const EXPECTED_CHAPTER_THEME = {
@@ -97,12 +104,14 @@ function extractChapterThemeFromMainMigration(sql: string): typeof EXPECTED_CHAP
 describe("chapter-02 migration payloads", () => {
   const mainSql = loadMigrationSql(mainMigrationPath);
   const followUpSql = loadMigrationSql(followUpMigrationPath);
+  const q3SplitSql = loadMigrationSql(q3SplitMigrationPath);
   const mainSteps = collectStepPayloads(mainSql);
   const mainByTag = extractPayloadsByTag(mainSql);
   const followUpByTag = extractPayloadsByTag(followUpSql);
+  const q3SplitByTag = extractPayloadsByTag(q3SplitSql);
 
-  it("validates all 18 step content_payload objects in the main migration", () => {
-    expect(mainSteps).toHaveLength(18);
+  it("validates all 21 step content_payload objects in the main migration", () => {
+    expect(mainSteps).toHaveLength(21);
     expect(validateStepPayloads(mainSteps), validateStepPayloads(mainSteps).join("\n")).toEqual([]);
   });
 
@@ -145,29 +154,48 @@ describe("chapter-02 migration payloads", () => {
     expect(t3?.correctItemIds).toEqual(["f-inizio"]);
   });
 
-  it("splits identikit into three optional person-specific cloze blocks", () => {
-    const q3 = mainSteps.find((row) => row.meta.logical === "chapter-02-q3-profiles-identikit");
-    expect(q3).toBeDefined();
-    const blocks = (q3!.payload as { blocks: Array<{ blockType: string; clozeText?: { optional?: boolean; prompt?: string } }> })
-      .blocks;
-    const optionalClozes = blocks.filter(
-      (b) => b.blockType === "cloze_text" && b.clozeText?.optional === true,
-    );
-    expect(optionalClozes).toHaveLength(3);
-    expect(optionalClozes.map((b) => b.clozeText?.prompt)).toEqual([
-      "Identikit: Roberto Saviano — completa con le informazioni del testo.",
-      "Identikit: Alessandro Del Piero — completa con le informazioni del testo.",
-      "Identikit: Chiara Ferragni — completa con le informazioni del testo.",
-    ]);
+  it("splits Akt 2.2 profiles into photo grid plus three identikit ClozeText steps", () => {
+    const photo = mainSteps.find((row) => row.meta.logical === "chapter-02-q3-profiles-photo");
+    expect(photo).toBeDefined();
+    expect(photo!.meta.taskType).toBe("SpecialScreen");
+    const photoPayload = photo!.payload as {
+      photoViewerChrome?: { showCaptions?: boolean; items?: unknown[] };
+      blocks?: unknown[];
+    };
+    expect(photoPayload.photoViewerChrome?.showCaptions).toBe(true);
+    expect(photoPayload.photoViewerChrome?.items).toHaveLength(3);
+    expect(photoPayload.blocks).toEqual([]);
+
+    const identikitKeys = [
+      "chapter-02-q3-identikit-saviano",
+      "chapter-02-q3-identikit-del-piero",
+      "chapter-02-q3-identikit-ferragni",
+    ];
+    for (const key of identikitKeys) {
+      const step = mainSteps.find((row) => row.meta.logical === key);
+      expect(step, key).toBeDefined();
+      expect(step!.meta.taskType).toBe("ClozeText");
+      const payload = step!.payload as {
+        referenceDocument?: { title?: string; bodyText?: string };
+        lines?: Array<{ segments: unknown[] }>;
+      };
+      expect(payload.referenceDocument?.bodyText?.length).toBeGreaterThan(40);
+      expect(payload.lines?.length).toBe(6);
+    }
   });
 
-  it("keeps follow-up identikit payload in sync with the main migration", () => {
-    for (const [followUpTag, mainTag] of Object.entries(FOLLOW_UP_STEP_TAG_MAP)) {
-      expect(followUpByTag.has(followUpTag), `follow-up migration missing tag ${followUpTag}`).toBe(
-        true,
-      );
+  it("uses ClozeText (not SpecialScreen) for q3 identikit steps to avoid attempt_mismatch on complete", () => {
+    const identikit = mainSteps.filter((row) => row.meta.logical.startsWith("chapter-02-q3-identikit-"));
+    expect(identikit).toHaveLength(3);
+    expect(identikit.every((row) => row.meta.taskType === "ClozeText")).toBe(true);
+    expect(mainSteps.some((row) => row.meta.logical === "chapter-02-q3-profiles-identikit")).toBe(false);
+  });
+
+  it("keeps q3 split migration payloads in sync with the main migration", () => {
+    for (const [splitTag, mainTag] of Object.entries(FOLLOW_UP_STEP_TAG_MAP)) {
+      expect(q3SplitByTag.has(splitTag), `q3 split migration missing tag ${splitTag}`).toBe(true);
       expect(mainByTag.has(mainTag), `main migration missing tag ${mainTag}`).toBe(true);
-      expect(followUpByTag.get(followUpTag)).toEqual(mainByTag.get(mainTag));
+      expect(q3SplitByTag.get(splitTag)).toEqual(mainByTag.get(mainTag));
     }
   });
 

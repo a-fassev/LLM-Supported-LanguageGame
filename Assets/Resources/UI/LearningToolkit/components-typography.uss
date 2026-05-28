@@ -117,7 +117,7 @@ Label {
     min-width: 0;
     overflow: hidden;
     white-space: nowrap;
-    -unity-text-overflow: ellipsis;
+    text-overflow: ellipsis;
 }
 
 .lg-header-actions-host {
@@ -236,7 +236,7 @@ Label {
     max-width: 220px;
     min-height: 32px;
     margin-top: 0;
-    margin-bottom: var(--lg-space-4);
+    margin-bottom: 0;
     margin-right: var(--lg-space-6);
     font-size: var(--lg-font-body);
     padding-left: var(--lg-space-4);

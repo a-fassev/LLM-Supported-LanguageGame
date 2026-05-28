@@ -11,8 +11,8 @@
                     style="white-space: normal;" />
             </ui:VisualElement>
         </ui:VisualElement>
-        <ui:VisualElement name="special-screen-nav-row"
-            style="flex-direction: row; justify-content: center; align-items: center; flex-shrink: 0; margin-top: 12px;">
+        <ui:VisualElement name="special-screen-nav-row" class="lg-task-template-footer"
+            style="flex-direction: row; justify-content: center; align-items: center;">
             <ui:Button name="special-screen-prev" text="←" class="lg-btn lg-btn--secondary" />
             <ui:Label name="special-screen-progress" text="Parte 1 di 2" class="lg-text-caption lg-preview-sample"
                 style="margin-left: 12px; margin-right: 12px;" />

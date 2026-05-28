@@ -23,9 +23,27 @@
 
 .lg-cloze-line-row {
     flex-direction: row;
-    flex-wrap: wrap;
-    align-items: flex-start;
+    flex-wrap: nowrap;
+    align-items: center;
     margin-bottom: var(--lg-space-12);
+    overflow-x: auto;
+}
+
+.lg-cloze-line-row > Label {
+    flex-grow: 0;
+    flex-shrink: 1;
+    min-width: 0;
+}
+
+.lg-cloze-lines-host {
+    flex-grow: 1;
+    flex-shrink: 1;
+    min-height: 0;
+}
+
+.lg-task-template-footer {
+    flex-shrink: 0;
+    margin-top: auto;
 }
 
 /* In-task copy: shell header already shows quest title — keep prompts body-sized. */

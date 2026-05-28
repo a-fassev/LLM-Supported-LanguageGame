@@ -919,6 +919,7 @@ namespace LanguageGame.Presentation.Steps
                     out slot))
                 return false;
 
+            ToolkitStepUx.ClearHost(slot);
             _blockArea.Add(slot);
             _slots.Add(slot);
             return true;

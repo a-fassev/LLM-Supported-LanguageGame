@@ -112,7 +112,7 @@ TextField.lg-error-spotting-inline-field > Label {
 
 TextField.lg-cloze-gap-inline {
     min-height: 32px;
-    margin-bottom: var(--lg-space-4);
+    margin-bottom: 0;
 }
 
 TextField.lg-cloze-gap-inline > Label {

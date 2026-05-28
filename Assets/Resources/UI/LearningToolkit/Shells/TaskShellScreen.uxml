@@ -4,7 +4,7 @@
         src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/Navigation/NavigationPageHeaderWithWalletPart.uxml?fileID=9197481963319205126&amp;guid=2131fd26008943dea8b88c77d6e6587f&amp;type=3#NavigationPageHeaderWithWalletPart" />
     <ui:VisualElement name="quest-shell-root" class="lg-fill-screen lg-quest-shell-root lg-scene-bg-root lg-gameart-bg--task">
         <ui:VisualElement name="scene-background-host" class="lg-scene-background-host" picking-mode="Ignore"/>
-        <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen--transparent">
+        <ui:VisualElement name="main-column" class="lg-shell lg-shell--full lg-fill-screen--transparent lg-shell--flex-min lg-task-shell__column">
             <ui:Instance template="NavigationPageHeaderWithWalletPart">
                 <ui:Label name="title-label" text="" class="lg-heading-screen lg-quest-shell-title-label"
                     style="-unity-text-align: middle-center;" />
@@ -14,11 +14,11 @@
                 </ui:VisualElement>
             </ui:Instance>
             <ui:VisualElement name="quest-step-panel" class="lg-game-panel lg-game-panel--over-scene lg-quest-step-panel">
-                <ui:ScrollView name="step-scroll" class="lg-list-scroll" style="flex-grow: 1; min-height: 180px;">
-                    <ui:VisualElement name="step-host" style="flex-grow: 1; min-height: 0; flex-shrink: 1;"/>
-                </ui:ScrollView>
+                <ui:VisualElement name="task-shell-stage" class="lg-task-shell__stage">
+                    <ui:VisualElement name="step-host" class="lg-task-shell__step-host"/>
+                </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement name="quest-footer" class="lg-quest-footer" style="flex-shrink: 0; margin-top: 12px;">
+            <ui:VisualElement name="quest-footer" class="lg-quest-footer">
                 <ui:Button name="primary-action-button" text="Controlla" class="lg-btn lg-btn--primary" style="align-self: flex-end;"/>
             </ui:VisualElement>
         </ui:VisualElement>
