@@ -15,6 +15,13 @@ from quest_ref qr
 where s.quest_id = qr.quest_id
   and s.order_index >= 2;
 
+with quest_ref as (
+  select q.id as quest_id
+  from public.game_quests q
+  join public.game_chapters c on c.id = q.chapter_id
+  where c.slug = 'chapter-02'
+    and q.slug = 'chapter-02-quest-03-school-project'
+)
 update public.game_quest_steps s
 set order_index = s.order_index - 7, updated_at = now()
 from quest_ref qr
@@ -22,6 +29,13 @@ where s.quest_id = qr.quest_id
   and s.order_index >= 10;
 
 -- Retire legacy combined SpecialScreen step (replaced by photo + identikit tasks).
+with quest_ref as (
+  select q.id as quest_id
+  from public.game_quests q
+  join public.game_chapters c on c.id = q.chapter_id
+  where c.slug = 'chapter-02'
+    and q.slug = 'chapter-02-quest-03-school-project'
+)
 update public.game_quest_steps s
 set is_active = false, updated_at = now()
 from quest_ref qr
@@ -29,6 +43,13 @@ where s.quest_id = qr.quest_id
   and s.logical_task_key = 'chapter-02-q3-profiles-identikit';
 
 -- Photo profiles (order 1): replace payload on same slot if row still uses old logical key, else upsert via conflict.
+with quest_ref as (
+  select q.id as quest_id
+  from public.game_quests q
+  join public.game_chapters c on c.id = q.chapter_id
+  where c.slug = 'chapter-02'
+    and q.slug = 'chapter-02-quest-03-school-project'
+)
 update public.game_quest_steps s
 set
   step_kind = 'task',
@@ -58,6 +79,13 @@ from quest_ref qr
 where s.quest_id = qr.quest_id
   and s.order_index = 1;
 
+with quest_ref as (
+  select q.id as quest_id
+  from public.game_quests q
+  join public.game_chapters c on c.id = q.chapter_id
+  where c.slug = 'chapter-02'
+    and q.slug = 'chapter-02-quest-03-school-project'
+)
 insert into public.game_quest_steps (
   quest_id,
   order_index,
