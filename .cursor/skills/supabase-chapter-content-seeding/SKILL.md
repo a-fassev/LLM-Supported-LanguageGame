@@ -50,7 +50,8 @@ Map **one spoken scene** ≠ one DB row: multi-line dialog in one scene = **`bea
 Produce a table (in chat or plan, not a new doc unless asked):
 
 - **`game_chapters`:** `slug`, `display_name`, `order_index`, `theme_payload` (`background` = GameArt nav key or default, `paletteKey` → `Resources/UI/{paletteKey}.asset`)
-- **`game_quests`:** slug pattern `chapter-NN-quest-XX-{short-name}`, `unlock_rules.prerequisiteQuestSlugs`, `meta_payload.flow` (`blockBack`, `autoStartQuestSlug`), optional shared **`referenceDocument`** (task-shell brochure fallback)
+- **`game_quests`:** slug pattern `chapter-NN-quest-XX-{short-name}`, **`display_name`** = Italian title only (no `Akt` / act-number prefixes in learner-facing copy), `unlock_rules.prerequisiteQuestSlugs`, `meta_payload.flow` (`blockBack`, `autoStartQuestSlug`), optional shared **`referenceDocument`** (task-shell brochure fallback)
+- **`chapter-NN-quest-*-bonus-vocab`:** after adding a bonus quest migration, register its slug in **`apps/web/lib/game/chapterUnlockProgress.ts`** → **`OPTIONAL_CHAPTER_QUEST_SLUGS`** and extend **`game-progress-service.bootstrapChapterUnlock.test.ts`** (bonus optional for next-chapter unlock)
 - **`game_quest_steps`:** per row: `order_index`, `step_kind`, `task_type`, `template_key`, **`logical_task_key`** (globally unique), task/cutscene JSON shape, `reward_rules`, **`sceneBackgroundAsset`**
 - **Reference documents authoring rule:** if one reading doc is shared intentionally across several task steps, keep it at quest meta (`meta_payload.referenceDocument`). If different steps need different docs in one quest, author step-level **`content_payload.referenceDocument`** on those task rows (same shape: `documentId?`, `title`, `bodyText`, `buttonLabel?`) and avoid a mixed quest relying on only quest-level meta.
 
@@ -106,7 +107,9 @@ UPDATE game_quests SET is_active = false ...;
 
 **VALUES row shape:** cutscene uses `null::text` for `task_type`; tasks use `'ClozeText',` **without** `::text`.
 
-**Rewards (placeholder until content team):** `'{"pizza":{"mode":"flat","value":2},"backpack":{"mode":"first_completion","value":1}}'`
+**Rewards (placeholder until content team):** `'{"pizza":{"mode":"flat","value":2},"backpack":{"mode":"first_completion","value":1}}'`. Narrative chapters may follow up with **`scored`** pizza migrations for partial slices (see `docs/authoring/02-steps-and-rewards.md`).
+
+**Matching with randomized subsets:** authoring may use **`poolPairs` + `sampleSize`** in `content_payload`; Unity/API need concrete **`leftItems` / `rightItems` / `correctPairs`**. Persist per **`(run_id, step_id)`** in **`public.player_step_materializations`** and materialize in **`game-progress-service`** before bootstrap/start/get-run responses and before scoring—never re-sample only in memory across resume.
 
 ### QA solutions doc
 
