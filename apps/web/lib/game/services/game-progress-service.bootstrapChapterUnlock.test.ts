@@ -145,7 +145,7 @@ describe("bootstrapGameState chapter unlock", () => {
 
     const chapter3 = result.chapters.find((c) => c.slug === "chapter-03");
     expect(chapter3?.isUnlocked).toBe(false);
-    expect(chapter3?.unlockHint).toContain("bonus quests are optional");
+    expect(chapter3?.unlockHint).toContain("missioni bonus sono facoltative");
   });
 
   it("does not require the chapter 2 bonus quest for chapter 3 unlock", async () => {

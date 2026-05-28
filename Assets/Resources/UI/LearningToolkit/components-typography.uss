@@ -79,6 +79,23 @@ Label {
     width: 100%;
 }
 
+/* Auth: center headline + panels vertically and horizontally */
+.lg-shell--form-centered {
+    max-width: 440px;
+    width: 100%;
+    align-self: center;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    padding-top: var(--lg-safe-inset-top);
+    padding-bottom: var(--lg-safe-inset-bottom);
+}
+
+.lg-shell--form-centered .lg-heading-display {
+    -unity-text-align: middle-center;
+    align-self: center;
+}
+
 /* Top chrome row (title + header actions) */
 .lg-page-header {
     flex-direction: row;

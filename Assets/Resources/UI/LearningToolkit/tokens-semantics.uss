@@ -33,7 +33,7 @@
     --lg-hud-highlight: var(--lg-highlight-line);
 
     --lg-task-bg: var(--lg-surface-1);
-    --lg-task-bg-over-scene: rgba(251, 249, 243, 0.88);
+    --lg-task-bg-over-scene: rgba(251, 249, 243, 0.72);
     --lg-task-bg-hard: var(--lg-paper-100);
     --lg-task-border: var(--lg-border-soft);
     --lg-task-border-hard: var(--lg-terra-450);

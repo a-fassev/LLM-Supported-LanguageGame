@@ -108,7 +108,7 @@ namespace LanguageGame.Presentation
                 DisableQuestSlots("—");
 
                 _loadErrorBanner.Show(
-                    "Navigation is unavailable. Go back one screen or Restart from Auth.",
+                    "Navigazione non disponibile. Torna indietro o riavvia da Accesso.",
                     RefreshQuestSlots);
 
                 return;
@@ -119,7 +119,7 @@ namespace LanguageGame.Presentation
             if (_chapterTitleText != null)
             {
                 _chapterTitleText.text = string.IsNullOrEmpty(flow.SelectedChapterDisplayName)
-                    ? "Chapter quests"
+                    ? "Missioni del capitolo"
                     : flow.SelectedChapterDisplayName;
             }
 
@@ -133,7 +133,7 @@ namespace LanguageGame.Presentation
         private void DisableQuestSlots(string placeholderTitle)
         {
             if (_chapterTitleText != null)
-                _chapterTitleText.text = placeholderTitle ?? "Quests";
+                _chapterTitleText.text = placeholderTitle ?? "Missioni";
 
             for (var idx = 0; idx < VisibleQuestSlots; idx++)
             {
@@ -178,7 +178,7 @@ namespace LanguageGame.Presentation
             }
 
             ToggleChip(idx, quest.isUnlocked ? DisplayStyle.None : DisplayStyle.Flex,
-                quest.isUnlocked ? string.Empty : "Soon…");
+                quest.isUnlocked ? string.Empty : "Presto");
         }
 
         private void ToggleChip(int idx, DisplayStyle visibility, string text)
@@ -213,17 +213,17 @@ namespace LanguageGame.Presentation
 
             if (quest.hasCompletedAnyRun)
             {
-                _unlockModal.Show("Quest already completed", "This quest can only be played once.");
+                _unlockModal.Show("Missione già completata", "Questa missione può essere giocata una sola volta.");
                 return;
             }
 
             if (!quest.isUnlocked)
             {
                 string hint = string.IsNullOrEmpty(quest.unlockHint)
-                    ? "Complete earlier quests before this unlocks!"
+                    ? "Completa le missioni precedenti per sbloccare questa!"
                     : quest.unlockHint;
 
-                _unlockModal.Show("This quest is still locked", hint);
+                _unlockModal.Show("Missione ancora bloccata", hint);
                 return;
             }
 
@@ -235,7 +235,7 @@ namespace LanguageGame.Presentation
                 Debug.LogError("[QuestOverviewView] Cannot start quest: GameProgressApiClient missing.");
 
                 _loadErrorBanner.Show(
-                    "GameProgressApiClient is missing — add it to GameFlow and Retry.",
+                    "GameProgressApiClient mancante — aggiungilo a GameFlow e riprova.",
                     RetryFindApiThenRefreshSlots);
 
                 return;
@@ -255,7 +255,7 @@ namespace LanguageGame.Presentation
             _startingQuest = true;
             RefreshQuestSlots();
 
-            _loadingOverlay.Show("Heading into your quest…");
+            _loadingOverlay.Show("Avvio missione…");
 
             var useCase = new StartQuestRunUseCase(_gameApi);
             GameStartQuestEnvelope started = null;
@@ -269,13 +269,13 @@ namespace LanguageGame.Presentation
                 _startingQuest = false;
                 RefreshQuestSlots();
                 string message = string.IsNullOrEmpty(err)
-                    ? "Could not start this quest."
+                    ? "Impossibile avviare questa missione."
                     : err;
 
                 if (!string.IsNullOrEmpty(err) &&
                     err.IndexOf("quest_already_completed", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
-                    _unlockModal.Show("Quest already completed", "This quest can only be played once.");
+                    _unlockModal.Show("Missione già completata", "Questa missione può essere giocata una sola volta.");
                     yield break;
                 }
 
@@ -300,7 +300,7 @@ namespace LanguageGame.Presentation
                 RefreshQuestSlots();
 
                 _loadErrorBanner.Show(
-                    "Quest data arrived, but navigation is missing — return to chapters and Retry.",
+                    "Dati missione ricevuti, ma la navigazione manca — torna ai capitoli e riprova.",
                     RefreshQuestSlots);
                 yield break;
             }

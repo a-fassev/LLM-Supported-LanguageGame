@@ -261,7 +261,7 @@ namespace LanguageGame.Presentation
             _activeStepView?.SetInteractable(false);
             ConfigurePrimaryChrome();
 
-            _shared.Loading.Show("Speichern…");
+            _shared.Loading.Show("Salvataggio…");
 
             var runId = flow.ServerRunId;
             var useCase = new AdvanceCutsceneUseCase(_shared.GameApi);

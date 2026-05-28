@@ -2,15 +2,15 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="confirm-modal-scrim" class="lg-modal-scrim">
         <ui:VisualElement name="confirm-modal-card" class="lg-modal-card">
-            <ui:Label name="confirm-title" text="Quest verlassen?"
+            <ui:Label name="confirm-title" text="Uscire dalla missione?"
                 class="lg-heading-screen lg-modal-card__title lg-modal-card__title--compact lg-preview-sample" />
             <ui:Label name="confirm-message"
-                text="Dein Fortschritt wird nach jedem Schritt gespeichert. Du kannst die Quest später in den Kapiteln fortsetzen. Jetzt verlassen?"
+                text="Il progresso viene salvato dopo ogni passo. Puoi riprendere la missione dai capitoli. Uscire ora?"
                 class="lg-text-body lg-modal-card__message lg-overlay-message-wrap lg-preview-sample" />
             <ui:VisualElement name="confirm-actions-row" class="lg-modal-actions-row">
-                <ui:Button name="confirm-secondary" text="Bleiben"
+                <ui:Button name="confirm-secondary" text="Resta"
                     class="lg-btn lg-btn--ghost lg-modal-actions-row__secondary lg-preview-sample" />
-                <ui:Button name="confirm-primary" text="Zurück zu Kapiteln"
+                <ui:Button name="confirm-primary" text="Capitoli"
                     class="lg-btn lg-btn--primary lg-preview-sample" />
             </ui:VisualElement>
         </ui:VisualElement>

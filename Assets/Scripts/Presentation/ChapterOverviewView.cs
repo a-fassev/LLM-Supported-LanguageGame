@@ -97,7 +97,7 @@ namespace LanguageGame.Presentation
                 Debug.LogWarning("[ChapterOverviewView] GameProgressApiClient not found.");
 
                 _loadErrorBanner.Show(
-                    "GameProgressApiClient was not found in the scene — add it to GameFlow or Retry.",
+                    "GameProgressApiClient non trovato nella scena — aggiungilo a GameFlow o riprova.",
                     RestartBootstrapRoutine);
                 yield break;
             }
@@ -114,7 +114,7 @@ namespace LanguageGame.Presentation
                 GameBootstrapEnvelope env = null;
                 string err = string.Empty;
 
-                _loadingOverlay.Show("Loading chapters…");
+                _loadingOverlay.Show("Caricamento capitoli…");
                 yield return useCase.Run(e => env = e, m => err = m);
                 _loadingOverlay.Hide();
 
@@ -127,7 +127,7 @@ namespace LanguageGame.Presentation
                     }
 
                     _loadErrorBanner.Show(
-                        string.IsNullOrEmpty(err) ? "Could not load chapters." : err,
+                        string.IsNullOrEmpty(err) ? "Impossibile caricare i capitoli." : err,
                         RestartBootstrapRoutine);
                     yield break;
                 }
@@ -153,7 +153,7 @@ namespace LanguageGame.Presentation
                 Debug.LogError("[ChapterOverviewView] GameFlowController.Instance is null.");
 
                 _loadErrorBanner.Show(
-                    "Navigation is unavailable. Restart from Auth or Retry.",
+                    "Navigazione non disponibile. Riavvia da Accesso o riprova.",
                     RestartBootstrapRoutine);
 
                 DisableChapterRowsInteractive();
@@ -164,7 +164,7 @@ namespace LanguageGame.Presentation
                 bootstrap?.chapters == null)
             {
                 _loadErrorBanner.Show(
-                    "No chapter bootstrap data yet. Check the network or Retry.",
+                    "Nessun dato capitoli disponibile. Controlla la rete o riprova.",
                     RestartBootstrapRoutine);
 
                 DisableChapterRowsInteractive();
@@ -214,7 +214,7 @@ namespace LanguageGame.Presentation
                 _chapterTitles[idx].text = chapter.displayName ?? string.Empty;
 
             if (!chapter.isUnlocked)
-                ToggleChip(idx, DisplayStyle.Flex, "Next");
+                ToggleChip(idx, DisplayStyle.Flex, "Prossimo");
             else
                 ToggleChip(idx, DisplayStyle.None, string.Empty);
         }
@@ -248,10 +248,10 @@ namespace LanguageGame.Presentation
             if (!chapter.isUnlocked)
             {
                 string hint = string.IsNullOrEmpty(chapter.unlockHint)
-                    ? "Finish earlier chapters before this unlocks!"
+                    ? "Completa i capitoli precedenti per sbloccare questo!"
                     : chapter.unlockHint;
 
-                _unlockModal.Show("This chapter stays locked", hint);
+                _unlockModal.Show("Capitolo ancora bloccato", hint);
                 return;
             }
 

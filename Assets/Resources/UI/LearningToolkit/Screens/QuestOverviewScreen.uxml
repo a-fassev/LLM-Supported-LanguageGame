@@ -19,7 +19,7 @@
                 </ui:Button>
                 <ui:Button name="quest-row-2" class="lg-list-row-button">
                     <ui:Label name="quest-title-2" text="Missione 3: La classe" class="lg-list-row-text lg-text-body-lg lg-text-muted"/>
-                    <ui:Label name="quest-chip-2" text="Soon…" class="lg-chip lg-chip--lock lg-text-muted" style="display: flex;" />
+                    <ui:Label name="quest-chip-2" text="Presto" class="lg-chip lg-chip--lock lg-text-muted" style="display: flex;" />
                 </ui:Button>
             </ui:ScrollView>
         </ui:VisualElement>

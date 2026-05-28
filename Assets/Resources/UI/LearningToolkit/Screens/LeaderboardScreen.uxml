@@ -108,7 +108,7 @@
                 </ui:VisualElement>
             </ui:VisualElement>
 
-            <ui:Label name="empty-label" text="No rankings yet." class="lg-text-body lg-text-muted"
+            <ui:Label name="empty-label" text="Nessuna classifica ancora." class="lg-text-body lg-text-muted"
                 style="display: none; margin-top: 16px;" />
         </ui:VisualElement>
 

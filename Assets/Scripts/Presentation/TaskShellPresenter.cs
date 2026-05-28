@@ -176,8 +176,7 @@ namespace LanguageGame.Presentation
             }
 
             if (_tkQuestTitle != null)
-                _tkQuestTitle.text =
-                    $"{flow.ServerQuestDisplayName} — Step {flow.ServerCurrentStepNumberOneBased}/{flow.ServerStepCount}";
+                _tkQuestTitle.text = flow.ServerQuestDisplayName ?? string.Empty;
 
             BindStep(step, flow);
             ApplySceneBackground(step);
@@ -323,7 +322,7 @@ namespace LanguageGame.Presentation
                 {
                     var label = _resolvedReferenceDocument.buttonLabel;
                     _tkReferenceDocument.text = string.IsNullOrWhiteSpace(label)
-                        ? "Broschüre ansehen"
+                        ? "Leggi la brochure"
                         : label.Trim();
                     _tkReferenceDocument.style.display = DisplayStyle.Flex;
                     _tkReferenceDocument.SetEnabled(!_shared.Session.Submitting);
@@ -379,7 +378,7 @@ namespace LanguageGame.Presentation
             _activeStepView?.SetInteractable(false);
             RefreshUi();
 
-            _shared.Loading.Show("Wird geprüft…");
+            _shared.Loading.Show("Controllo in corso…");
 
             var runId = flow.ServerRunId;
 

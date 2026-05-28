@@ -178,7 +178,7 @@ namespace LanguageGame.Presentation.Steps
             {
                 if (!_selections.TryGetValue(i, out var sel) || sel == null || sel.Count == 0)
                 {
-                    _context?.presentValidationMessage?.Invoke("Please answer every question before checking.");
+                    _context?.presentValidationMessage?.Invoke("Rispondi a tutte le domande prima di controllare.");
                     JumpToQuestion(i);
                     return;
                 }
@@ -220,7 +220,7 @@ namespace LanguageGame.Presentation.Steps
             {
                 if (!_selections.TryGetValue(i, out var sel) || sel == null || sel.Count == 0)
                 {
-                    validationMessage = "Please answer every question before checking.";
+                    validationMessage = "Rispondi a tutte le domande prima di controllare.";
                     return false;
                 }
 

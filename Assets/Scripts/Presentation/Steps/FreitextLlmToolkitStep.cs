@@ -342,7 +342,7 @@ namespace LanguageGame.Presentation.Steps
 
             if (string.IsNullOrEmpty(text))
             {
-                error = "Please write something before tapping Check.";
+                error = "Scrivi qualcosa prima di toccare Controlla.";
                 return false;
             }
 
@@ -356,7 +356,7 @@ namespace LanguageGame.Presentation.Steps
 
             if (_dto.maxWords > 0 && wordCountValue > _dto.maxWords)
             {
-                error = $"Please stay within {_dto.maxWords} word(s).";
+                error = $"Resta entro {_dto.maxWords} parol{(_dto.maxWords == 1 ? "a" : "e")}.";
                 return false;
             }
 
@@ -375,7 +375,7 @@ namespace LanguageGame.Presentation.Steps
         {
             var t = text?.Trim();
             if (string.IsNullOrEmpty(t))
-                return "Almost there — revise your wording and tap Check again.";
+                return "Quasi fatto — correggi il testo e tocca Controlla di nuovo.";
 
             return t.Length <= maxLen ? t : $"{t.Substring(0, maxLen)}…";
         }

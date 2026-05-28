@@ -131,6 +131,7 @@ namespace LanguageGame.Presentation.Steps
                     if (tf == null)
                         return;
 
+                    tf.value = string.Empty;
                     if (seg.maxLength > 0)
                         tf.maxLength = Mathf.Clamp(seg.maxLength, 1, 256);
                     if (!string.IsNullOrEmpty(seg.placeholder))

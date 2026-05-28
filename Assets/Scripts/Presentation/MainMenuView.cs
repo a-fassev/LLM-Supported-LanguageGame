@@ -70,7 +70,7 @@ namespace LanguageGame.Presentation
                 _bootstrapState = BootstrapLoadState.Idle;
 
                 _loadErrorBanner.Show(
-                    "GameProgressApiClient was not found on the GameFlow object — add it here or Retry.",
+                    "GameProgressApiClient non trovato su GameFlow — aggiungilo qui o riprova.",
                     AttemptResolveGameApiAndMaybeBootstrap);
 
                 return;
@@ -114,7 +114,7 @@ namespace LanguageGame.Presentation
             _loadErrorBanner.SetRetryInteractable(false);
 
             if (showBlockingOverlay)
-                _loadingOverlay.Show("Loading game data…");
+                _loadingOverlay.Show("Caricamento dati di gioco…");
             else
                 _loadingOverlay.Hide();
 
@@ -131,7 +131,7 @@ namespace LanguageGame.Presentation
                     _bootstrapState = BootstrapLoadState.Error;
 
                     string message = string.IsNullOrEmpty(err)
-                        ? "Couldn't load game bootstrap. Did you run the classroom server (npm run dev) next door?"
+                        ? "Impossibile caricare i dati di gioco. Il server è avviato (npm run dev)?"
                         : err;
 
                     if (!string.IsNullOrEmpty(err))
@@ -181,7 +181,7 @@ namespace LanguageGame.Presentation
             {
                 Debug.LogError("[MainMenuView] GameFlowController not found.");
                 _loadErrorBanner.Show(
-                    "Navigation is not wired correctly. Check GameFlowController on the bootstrap object.",
+                    "Navigazione non configurata. Controlla GameFlowController sull'oggetto bootstrap.",
                     RetryAfterFlowNavigationMissing);
                 return;
             }
@@ -200,7 +200,7 @@ namespace LanguageGame.Presentation
                 Debug.LogError("[MainMenuView] GameFlowController not found.");
 
                 _loadErrorBanner.Show(
-                    "Navigation is not wired correctly. Check GameFlowController on the bootstrap object.",
+                    "Navigazione non configurata. Controlla GameFlowController sull'oggetto bootstrap.",
                     RetryAfterFlowNavigationMissing);
 
                 return;
@@ -220,7 +220,7 @@ namespace LanguageGame.Presentation
             Debug.LogWarning("[MainMenuView] Retry: GameFlowController still unavailable.");
 
             _loadErrorBanner.Show(
-                    "Navigation is not wired correctly. Check GameFlowController on the bootstrap object.",
+                    "Navigazione non configurata. Controlla GameFlowController sull'oggetto bootstrap.",
                     RetryAfterFlowNavigationMissing);
         }
 
@@ -231,7 +231,7 @@ namespace LanguageGame.Presentation
                 Debug.LogError("[MainMenuView] GameFlowController not found.");
 
                 _loadErrorBanner.Show(
-                    "Navigation is not wired correctly. Check GameFlowController on the bootstrap object.",
+                    "Navigazione non configurata. Controlla GameFlowController sull'oggetto bootstrap.",
                     RetryAfterFlowNavigationMissing);
 
                 return;

@@ -2,7 +2,7 @@
     <ui:VisualElement name="root-shell" class="lg-fill-screen lg-scene-bg-root lg-gameart-bg--auth">
         <ui:VisualElement name="scene-background-host" class="lg-scene-background-host" picking-mode="Ignore" />
 
-        <ui:VisualElement name="content-plane" class="lg-shell lg-shell--form lg-fill-screen--transparent">
+        <ui:VisualElement name="content-plane" class="lg-shell lg-shell--form-centered lg-fill-screen--transparent">
             <ui:Label text="Benvenuto!" class="lg-heading-display" />
             <ui:Label name="status-label" text="" class="lg-text-body lg-text-muted" />
 

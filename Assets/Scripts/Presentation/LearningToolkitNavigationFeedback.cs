@@ -9,7 +9,7 @@ namespace LanguageGame.Presentation
     /// </summary>
     public static class LearningToolkitNavigationFeedback
     {
-        private const string DefaultMessage = "Please wait…";
+        private const string DefaultMessage = "Attendi un momento…";
         private static readonly LearningToolkitInfoBanner Banner = new();
 
         private static UIDocument _registeredPresentationDocument;

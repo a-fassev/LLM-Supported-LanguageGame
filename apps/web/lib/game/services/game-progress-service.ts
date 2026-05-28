@@ -664,7 +664,7 @@ function formatQuestTitles(slugs: string[], questsBySlug: Map<string, GameQuestR
     .join(", ");
 }
 
-/** Human-readable blocker text for overlays (English). */
+/** Human-readable blocker text for overlays (Italian). */
 function buildQuestUnlockHint(
   quest: GameQuestRow,
   questsBySlug: Map<string, GameQuestRow>,
@@ -677,7 +677,9 @@ function buildQuestUnlockHint(
 
   const missingSlices = rules.requiredTotalSlices - walletSlices;
   if (missingSlices > 0) {
-    lines.push(`Earn ${missingSlices} more pizza slice${missingSlices === 1 ? "" : "s"} (have ${walletSlices}, need ${rules.requiredTotalSlices}).`);
+    lines.push(
+      `Guadagna ancora ${missingSlices} fett${missingSlices === 1 ? "a" : "e"} di pizza (hai ${walletSlices}, servono ${rules.requiredTotalSlices}).`,
+    );
   }
 
   const missingSlugQuests = rules.prerequisiteQuestSlugs.filter((slug) => {
@@ -685,16 +687,16 @@ function buildQuestUnlockHint(
     return !pre || !completedQuestIds.has(pre.id);
   });
   if (missingSlugQuests.length > 0) {
-    lines.push(`Finish quest(s): ${formatQuestTitles(missingSlugQuests, questsBySlug)}.`);
+    lines.push(`Completa le missioni: ${formatQuestTitles(missingSlugQuests, questsBySlug)}.`);
   }
 
   const missingTaskKeys = rules.prerequisiteLogicalTaskKeys.filter((key) => !completedLogicalTaskKeys.has(key));
   if (missingTaskKeys.length > 0) {
-    lines.push(`Complete task milestone(s): ${missingTaskKeys.join(", ")}.`);
+    lines.push(`Completa le tappe: ${missingTaskKeys.join(", ")}.`);
   }
 
   if (lines.length === 0) {
-    lines.push(`Quest "${quest.display_name}" is locked.`);
+    lines.push(`La missione «${quest.display_name}» è bloccata.`);
   }
   return lines.join("\n");
 }
@@ -777,7 +779,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
     const chapterUnlockHint =
       chapterUnlocked
         ? ""
-        : `Complete the main story quests in "${chaptersSorted[chIdx - 1]?.display_name ?? "the previous chapter"}" to unlock this chapter (bonus quests are optional).`;
+        : `Completa le missioni principali di «${chaptersSorted[chIdx - 1]?.display_name ?? "il capitolo precedente"}» per sbloccare questo capitolo (le missioni bonus sono facoltative).`;
 
     const questDtos: GameQuestClientDto[] = [];
     for (const quest of chapterQuestsSorted) {
@@ -812,7 +814,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
         unlockHint = chapterUnlockHint;
       }
       else if (hasCompletedAnyRun) {
-        unlockHint = "Quest already completed.";
+        unlockHint = "Missione già completata.";
       }
       else if (!gatesOk) {
         unlockHint = buildQuestUnlockHint(
@@ -824,7 +826,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
         );
       }
       else if (!sequentialOk) {
-        unlockHint = "Complete the previous quest first.";
+        unlockHint = "Completa prima la missione precedente.";
       }
 
       questDtos.push({

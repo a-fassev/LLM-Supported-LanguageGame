@@ -149,7 +149,7 @@ namespace LanguageGame.Presentation
             _loadErrorBanner.Hide();
 
             if (showBlockingOverlay)
-                _loadingOverlay.Show("Loading leaderboard…");
+                _loadingOverlay.Show("Caricamento classifica…");
             else
                 SetRefreshButtonBusy(true);
 
@@ -174,7 +174,7 @@ namespace LanguageGame.Presentation
                 }
 
                 _loadErrorBanner.Show(
-                    string.IsNullOrEmpty(err) ? "Could not load leaderboard." : err,
+                    string.IsNullOrEmpty(err) ? "Impossibile caricare la classifica." : err,
                     () => StartCoroutine(LoadLeaderboardRoutine(showBlockingOverlay: true)));
                 yield break;
             }
@@ -246,7 +246,7 @@ namespace LanguageGame.Presentation
             if (_refreshButton == null)
                 return;
 
-            _refreshButton.text = busy ? "Refreshing…" : RefreshButtonLabel;
+            _refreshButton.text = busy ? "Aggiornamento…" : RefreshButtonLabel;
         }
 
         private void ShowEmpty(bool visible)

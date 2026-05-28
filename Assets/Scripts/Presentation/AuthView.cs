@@ -44,12 +44,11 @@ namespace LanguageGame.Presentation
 
         private readonly LearningToolkitLoadingOverlay _loading = new LearningToolkitLoadingOverlay();
 
-        private int _authBusyRequests;
+        private int _sessionCheckBusyRequests;
 
         private void Awake()
         {
-            if (apiClient == null)
-                apiClient = FindAnyObjectByType<AuthApiClient>();
+            ResolveApiClient();
 
             _doc = LearningToolkitBootstrap.SpawnUiDocument(this, "Screens/AuthScreen");
             if (_doc == null)
@@ -58,10 +57,12 @@ namespace LanguageGame.Presentation
                 enabled = false;
                 return;
             }
+
             BindUi();
             ToolkitNavigationScreenBinder.ApplyAuthScreen(_doc.rootVisualElement);
             AttachLoadingChrome();
             LearningToolkitNavigationFeedback.RegisterPresentationDocument(_doc);
+            RegisterButtonCallbacks();
         }
 
         private void BindUi()
@@ -103,45 +104,58 @@ namespace LanguageGame.Presentation
 
         private void Start()
         {
-            if (apiClient == null)
-            {
-                SetStatus("AuthApiClient mancante. Collegalo al GameObject GameFlow.");
-                return;
-            }
+            ResolveApiClient();
 
             if (GameFlowController.Instance == null)
-            {
                 SetStatus("GameFlowController mancante.");
-                return;
-            }
-
-            _loginButton?.RegisterCallback<ClickEvent>(_ => OnLoginClicked());
-            _registerButton?.RegisterCallback<ClickEvent>(_ => OnRegisterClicked());
-            _goToRegister?.RegisterCallback<ClickEvent>(_ => ShowRegisterFlow(true));
-            _goToLogin?.RegisterCallback<ClickEvent>(_ => ShowRegisterFlow(false));
-            _newUsernameButton?.RegisterCallback<ClickEvent>(_ => RefreshSuggestedUsername());
 
             StartCoroutine(TryResumeSession());
             RefreshSuggestedUsername();
             ShowRegisterFlow(false);
         }
 
+        private void RegisterButtonCallbacks()
+        {
+            _loginButton?.RegisterCallback<ClickEvent>(_ => OnLoginClicked());
+            _registerButton?.RegisterCallback<ClickEvent>(_ => OnRegisterClicked());
+            _goToRegister?.RegisterCallback<ClickEvent>(_ => ShowRegisterFlow(true));
+            _goToLogin?.RegisterCallback<ClickEvent>(_ => ShowRegisterFlow(false));
+            _newUsernameButton?.RegisterCallback<ClickEvent>(_ => RefreshSuggestedUsername());
+        }
+
+        private void ResolveApiClient()
+        {
+            if (apiClient == null)
+                apiClient = FindAnyObjectByType<AuthApiClient>();
+        }
+
         private IEnumerator TryResumeSession()
         {
-            PushAuthBusyScope();
+            if (apiClient == null)
+            {
+                SetStatus("AuthApiClient mancante. Collegalo al GameObject GameFlow.");
+                yield break;
+            }
+
+            PushSessionCheckBusyScope();
             _loading.Show("Controllo sessione…");
 
-            yield return StartCoroutine(apiClient.ValidateSession(
-                onValid: () => { GameFlowController.Instance?.LoadMainMenu(); },
-                onInvalid: _ =>
-                {
-                    GameSessionStateStore.Clear();
-                    AuthSessionStore.Clear();
-                    SetStatus("La sessione è scaduta. Accedi di nuovo.");
-                }));
-
-            _loading.Hide();
-            PopAuthBusyScope();
+            try
+            {
+                yield return StartCoroutine(apiClient.ValidateSession(
+                    onValid: () => { GameFlowController.Instance?.LoadMainMenu(); },
+                    onInvalid: _ =>
+                    {
+                        GameSessionStateStore.Clear();
+                        AuthSessionStore.Clear();
+                        SetStatus("La sessione è scaduta. Accedi di nuovo.");
+                    }));
+            }
+            finally
+            {
+                _loading.Hide();
+                PopSessionCheckBusyScope();
+            }
         }
 
         private void ShowRegisterFlow(bool register)
@@ -165,6 +179,7 @@ namespace LanguageGame.Presentation
 
         private void RefreshSuggestedUsername()
         {
+            ResolveApiClient();
             if (apiClient == null)
                 return;
 
@@ -173,7 +188,9 @@ namespace LanguageGame.Presentation
 
         private IEnumerator SuggestUsernameCoroutine()
         {
-            PushAuthBusyScope();
+            ResolveApiClient();
+            if (apiClient == null)
+                yield break;
 
             yield return StartCoroutine(apiClient.SuggestUsername(
                 u =>
@@ -183,17 +200,22 @@ namespace LanguageGame.Presentation
                         _generatedUsernameLabel.text = u;
                 },
                 err => SetStatus("Impossibile suggerire un nome: " + err)));
-
-            PopAuthBusyScope();
         }
 
         private void OnRegisterClicked()
         {
+            ResolveApiClient();
             if (apiClient == null)
+            {
+                SetStatus("AuthApiClient mancante. Collegalo al GameObject GameFlow.");
                 return;
+            }
 
-            if (IsAuthBusy())
+            if (IsSessionCheckBusy())
+            {
+                SetStatus("Attendi un momento…");
                 return;
+            }
 
             if (string.IsNullOrEmpty(_suggestedUsername))
             {
@@ -222,32 +244,44 @@ namespace LanguageGame.Presentation
 
         private IEnumerator RegisterCoroutine(string username, string pwd, string pwdConfirm)
         {
-            PushAuthBusyScope();
+            SetAuthFormInteractable(false);
 
-            yield return StartCoroutine(apiClient.Register(username, pwd, pwdConfirm,
-                (u, team) =>
-                {
-                    var teamNote = string.IsNullOrEmpty(team)
-                        ? string.Empty
-                        : $" Sei nella {LearningToolkitChromeUx.FormatTeamDisplayLabel(team)}.";
-                    SetStatus($"Account pronto: {u} — ora puoi accedere!{teamNote}");
-                    ShowRegisterFlow(false);
+            try
+            {
+                yield return StartCoroutine(apiClient.Register(username, pwd, pwdConfirm,
+                    (u, team) =>
+                    {
+                        var teamNote = string.IsNullOrEmpty(team)
+                            ? string.Empty
+                            : $" Sei nella {LearningToolkitChromeUx.FormatTeamDisplayLabel(team)}.";
+                        SetStatus($"Account pronto: {u} — ora puoi accedere!{teamNote}");
+                        ShowRegisterFlow(false);
 
-                    if (_loginUsername != null)
-                        _loginUsername.value = u;
-                },
-                err => SetStatus(err)));
-
-            PopAuthBusyScope();
+                        if (_loginUsername != null)
+                            _loginUsername.value = u;
+                    },
+                    err => SetStatus(err)));
+            }
+            finally
+            {
+                SetAuthFormInteractable(true);
+            }
         }
 
         private void OnLoginClicked()
         {
+            ResolveApiClient();
             if (apiClient == null)
+            {
+                SetStatus("AuthApiClient mancante. Collegalo al GameObject GameFlow.");
                 return;
+            }
 
-            if (IsAuthBusy())
+            if (IsSessionCheckBusy())
+            {
+                SetStatus("Attendi un momento…");
                 return;
+            }
 
             string username = _loginUsername != null ? _loginUsername.value.Trim() : string.Empty;
             string pwd = _loginPassword != null ? _loginPassword.value : string.Empty;
@@ -264,18 +298,23 @@ namespace LanguageGame.Presentation
 
         private IEnumerator LoginCoroutine(string username, string password)
         {
-            PushAuthBusyScope();
+            SetAuthFormInteractable(false);
 
-            yield return StartCoroutine(apiClient.Login(username, password,
-                () =>
-                {
-                    SetStatus(string.Empty);
-                    GameSessionStateStore.Clear();
-                    GameFlowController.Instance?.LoadMainMenu();
-                },
-                err => SetStatus(err)));
-
-            PopAuthBusyScope();
+            try
+            {
+                yield return StartCoroutine(apiClient.Login(username, password,
+                    () =>
+                    {
+                        SetStatus(string.Empty);
+                        GameSessionStateStore.Clear();
+                        GameFlowController.Instance?.LoadMainMenu();
+                    },
+                    err => SetStatus(err)));
+            }
+            finally
+            {
+                SetAuthFormInteractable(true);
+            }
         }
 
         private void AttachLoadingChrome()
@@ -291,40 +330,48 @@ namespace LanguageGame.Presentation
                 _loading.Attach(overlay);
         }
 
-        private bool IsAuthBusy() => _authBusyRequests > 0;
+        private bool IsSessionCheckBusy() => _sessionCheckBusyRequests > 0;
 
-        private void PushAuthBusyScope()
+        private void PushSessionCheckBusyScope()
         {
-            _authBusyRequests++;
+            _sessionCheckBusyRequests++;
             RefreshAuthInteractableAfterBusyChange();
         }
 
-        private void PopAuthBusyScope()
+        private void PopSessionCheckBusyScope()
         {
-            if (_authBusyRequests > 0)
-                _authBusyRequests--;
+            if (_sessionCheckBusyRequests > 0)
+                _sessionCheckBusyRequests--;
 
             RefreshAuthInteractableAfterBusyChange();
         }
 
         private void RefreshAuthInteractableAfterBusyChange()
         {
-            bool idle = !IsAuthBusy();
-
-            _loginButton?.SetEnabled(idle);
-            _registerButton?.SetEnabled(idle);
-            _goToRegister?.SetEnabled(idle);
-            _goToLogin?.SetEnabled(idle);
-            _newUsernameButton?.SetEnabled(idle);
-
-            bool fieldsIdle = idle;
-            _loginUsername?.SetEnabled(fieldsIdle);
-            _loginPassword?.SetEnabled(fieldsIdle);
-            _registerPassword?.SetEnabled(fieldsIdle);
-            _registerPasswordConfirm?.SetEnabled(fieldsIdle);
+            var sessionIdle = !IsSessionCheckBusy();
+            _loginButton?.SetEnabled(sessionIdle);
+            _registerButton?.SetEnabled(sessionIdle);
+            _goToRegister?.SetEnabled(sessionIdle);
+            _goToLogin?.SetEnabled(sessionIdle);
+            _newUsernameButton?.SetEnabled(sessionIdle);
+            _loginUsername?.SetEnabled(sessionIdle);
+            _loginPassword?.SetEnabled(sessionIdle);
+            _registerPassword?.SetEnabled(sessionIdle);
+            _registerPasswordConfirm?.SetEnabled(sessionIdle);
         }
 
-        private static string FormatTeamLabel(string team) => LearningToolkitChromeUx.FormatTeamDisplayLabel(team);
+        private void SetAuthFormInteractable(bool enabled)
+        {
+            _loginButton?.SetEnabled(enabled && !IsSessionCheckBusy());
+            _registerButton?.SetEnabled(enabled && !IsSessionCheckBusy());
+            _goToRegister?.SetEnabled(enabled && !IsSessionCheckBusy());
+            _goToLogin?.SetEnabled(enabled && !IsSessionCheckBusy());
+            _newUsernameButton?.SetEnabled(enabled && !IsSessionCheckBusy());
+            _loginUsername?.SetEnabled(enabled);
+            _loginPassword?.SetEnabled(enabled);
+            _registerPassword?.SetEnabled(enabled);
+            _registerPasswordConfirm?.SetEnabled(enabled);
+        }
 
         private void OnDestroy()
         {

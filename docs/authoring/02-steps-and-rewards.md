@@ -15,7 +15,22 @@ Parsed server-side by [`parsePizzaRewardRules`](../../apps/web/lib/game/scoring/
 | `flat` | Fixed slices (`value` or `slices`, clamped 0–5) | RPC credits pizza from **stored rules**; `p_awarded_slices` from API layer does **not** override pizza |
 | `scored` | `maxSlices` + optional `minRatioToComplete` + `rounding` + `mapping` (`linear` or `bands`) | Server computes ratio from learner **`attempt`** (or Freitext gate); derives slices via [`slicesFromRatio`](../../apps/web/lib/game/scoring/pizzaReward.ts); must pass [`meetsScoredPizzaMinimum`](../../apps/web/lib/game/scoring/pizzaReward.ts) |
 
-**`minRatioToComplete`:** defaults to **1** when omitted on scored pizza rules.
+**`minRatioToComplete`:** defaults to **1** when omitted on scored pizza rules. Use **`0`** when learners may complete with partial correctness and receive proportional slices via `mapping` (e.g. `linear` with `maxSlices: 2` → 50% ratio awards 1 slice with `rounding: floor`).
+
+**Partial credit example (narrative chapters):**
+
+```json
+{
+  "pizza": {
+    "mode": "scored",
+    "maxSlices": 2,
+    "minRatioToComplete": 0,
+    "rounding": "floor",
+    "mapping": { "kind": "linear" }
+  },
+  "backpack": { "mode": "first_completion", "value": 1 }
+}
+```
 
 **Task attempt requirement:** Scored pizza on normal tasks requires `POST .../steps/:stepId/complete` body **`attempt`** matching [`taskAttemptSchema`](../../apps/web/lib/game/scoring/evaluateTaskAttempt.ts). Helpers: [`requiresTaskAttemptPayload`](../../apps/web/lib/game/scoring/pizzaReward.ts).
 

@@ -92,9 +92,9 @@ namespace LanguageGame.Presentation
         {
             var flow = GameFlowController.Instance;
             var message = flow != null && flow.IsServerQuestActive
-                ? "Dein Fortschritt wird nach jedem Schritt gespeichert. Du kannst die Quest später in den Kapiteln fortsetzen. Jetzt verlassen?"
-                : "Wenn du jetzt gehst, geht der Fortschritt in dieser Quest verloren. Zurück zu den Kapiteln?";
-            BackConfirm.Show("Quest verlassen?", message, "Bleiben", LearningToolkitChromeUx.LeaveToChapterOverviewLabel,
+                ? "Il progresso viene salvato dopo ogni passo. Puoi riprendere la missione dai capitoli. Uscire ora?"
+                : "Se esci ora, perderai il progresso di questa missione. Tornare ai capitoli?";
+            BackConfirm.Show("Uscire dalla missione?", message, "Resta", LearningToolkitChromeUx.LeaveToChapterOverviewLabel,
                 onCancel, onLeave);
         }
 
@@ -155,7 +155,7 @@ namespace LanguageGame.Presentation
             Session.Submitting = true;
             refreshUi?.Invoke();
 
-            Loading.Show("Zurück zu den Kapiteln…");
+            Loading.Show("Torno ai capitoli…");
 
             var finish = new FinishQuestRunUseCase(GameApi);
             GameFinishEnvelope finishResult = null;
@@ -241,7 +241,7 @@ namespace LanguageGame.Presentation
                 yield break;
             }
 
-            Loading.Show("Quest wird gestartet…");
+            Loading.Show("Avvio missione…");
 
             var useCase = new StartQuestRunUseCase(GameApi);
             GameStartQuestEnvelope started = null;
