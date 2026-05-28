@@ -14,7 +14,7 @@ Special Screens are **normal tasks** (`game_quest_steps.step_kind = task`): prog
 
 One server row usually hosts **several mechanics** as **`blocks[]`**, sequenced with **←** / **→** (same arrow chrome as multiple-choice paging) inside [`SpecialScreenToolkitStep.cs`](Assets/Scripts/Presentation/Steps/SpecialScreenToolkitStep.cs). Shell **Controlla** only on the **last** part; it re-validates **every** block. **Display-only readers** (**`SpecialScreenReader`** / **`screenVariant` `reader`** with empty **`blocks`**) hide paging; **Controlla** submits immediately once the chrome is loaded. **Photo-only** (**`SpecialScreenPhotoViewer`** / **`screenVariant` `photo`**, **`photoViewerChrome`** only, no learner captions) hides paging the same way; mixed **photo + `blocks[]`** uses part 1 for the gallery.
 
-Contract tables and learner-copy notes: **`docs/task-type-ui-guide.md`** (Special Screen section).
+Contract tables and server scoring: [`docs/authoring/02-steps-and-rewards.md`](../../docs/authoring/02-steps-and-rewards.md) (Special Screen section).
 
 ## Routing
 
@@ -55,7 +55,7 @@ Authoritative pizza for **`SpecialScreen*`** steps uses the same **`complete`** 
 1. Extend **`BlockKind`** / **`ClassifyBlock`** / **`ValidateBlockPayload`** / **`CreateNestedBlock`** in **`SpecialScreenToolkitStep`** (keep parse validation aligned with **`JsonUtility`** field shapes).
 2. Implement **`ISpecialScreenNestedBlock`**: **`Bind`**, **`Teardown`**, **`SetInteractable`**, **`TryValidate`**, **`IsBinderReady`**.
 3. **`Bind`**: clone **`StepContext`** with **`CloneStepContext`**-style field copy and nested **`contentJson`** (`JsonUtility.ToJson` on the nested DTO); copied fields must include **`presentBusyOverlay`** / **`dismissBusyOverlay`** when the new block type can trigger slow work.
-4. Update **`docs/task-type-ui-guide.md`** block table + example snippet.
+4. Update [`docs/authoring/02-steps-and-rewards.md`](../../docs/authoring/02-steps-and-rewards.md) block table when the server contract changes.
 
 For purely visual chrome (SMS frame, mail headers): prefer branching on **`screenVariant`** inside the host or lightweight USS/UXML under Resources — keep mechanic payloads separate from layout unless authoring asks otherwise.
 

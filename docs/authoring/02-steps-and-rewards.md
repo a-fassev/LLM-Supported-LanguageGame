@@ -1,6 +1,6 @@
 # Steps, content JSON, and rewards
 
-Payload shape matches Unity **`JsonUtility`** parsing unless noted (JSON keys = camelCase fields on DTOs in [`ToolkitStepContentDtos.cs`](../Assets/Scripts/Presentation/Steps/ToolkitStepContentDtos.cs); Matching schema lives in [`MatchingToolkitStep.cs`](../Assets/Scripts/Presentation/Steps/MatchingToolkitStep.cs) private nested types).
+Payload shape matches Unity **`JsonUtility`** parsing unless noted (JSON keys = camelCase fields on DTOs in [`ToolkitStepContentDtos.cs`](../../Assets/Scripts/Presentation/Steps/ToolkitStepContentDtos.cs); Matching schema lives in [`MatchingToolkitStep.cs`](../../Assets/Scripts/Presentation/Steps/MatchingToolkitStep.cs) private nested types).
 
 ## Shared: `reward_rules` (`rewardRulesJson`)
 
@@ -8,20 +8,20 @@ Stored per step in DB; surfaced verbatim to Unity.
 
 ### Pizza (`reward_rules.pizza`)
 
-Parsed server-side by [`parsePizzaRewardRules`](../apps/web/lib/game/scoring/pizzaReward.ts):
+Parsed server-side by [`parsePizzaRewardRules`](../../apps/web/lib/game/scoring/pizzaReward.ts):
 
 | `mode` | Meaning | Completion behaviour |
 |--------|---------|----------------------|
 | `flat` | Fixed slices (`value` or `slices`, clamped 0–5) | RPC credits pizza from **stored rules**; `p_awarded_slices` from API layer does **not** override pizza |
-| `scored` | `maxSlices` + optional `minRatioToComplete` + `rounding` + `mapping` (`linear` or `bands`) | Server computes ratio from learner **`attempt`** (or Freitext gate); derives slices via [`slicesFromRatio`](../apps/web/lib/game/scoring/pizzaReward.ts); must pass [`meetsScoredPizzaMinimum`](../apps/web/lib/game/scoring/pizzaReward.ts) |
+| `scored` | `maxSlices` + optional `minRatioToComplete` + `rounding` + `mapping` (`linear` or `bands`) | Server computes ratio from learner **`attempt`** (or Freitext gate); derives slices via [`slicesFromRatio`](../../apps/web/lib/game/scoring/pizzaReward.ts); must pass [`meetsScoredPizzaMinimum`](../../apps/web/lib/game/scoring/pizzaReward.ts) |
 
 **`minRatioToComplete`:** defaults to **1** when omitted on scored pizza rules.
 
-**Task attempt requirement:** Scored pizza on normal tasks requires `POST .../steps/:stepId/complete` body **`attempt`** matching [`taskAttemptSchema`](../apps/web/lib/game/scoring/evaluateTaskAttempt.ts). Helpers: [`requiresTaskAttemptPayload`](../apps/web/lib/game/scoring/pizzaReward.ts).
+**Task attempt requirement:** Scored pizza on normal tasks requires `POST .../steps/:stepId/complete` body **`attempt`** matching [`taskAttemptSchema`](../../apps/web/lib/game/scoring/evaluateTaskAttempt.ts). Helpers: [`requiresTaskAttemptPayload`](../../apps/web/lib/game/scoring/pizzaReward.ts).
 
 ### Backpack (`reward_rules.backpack`)
 
-Implemented in Postgres **`complete_quest_step_task`** (see migration [`20260530120000_pizza_scored_completion_and_gate_award.sql`](../supabase/migrations/20260530120000_pizza_scored_completion_and_gate_award.sql)):
+Implemented in Postgres **`complete_quest_step_task`** (see migration [`20260530120000_pizza_scored_completion_and_gate_award.sql`](../../supabase/migrations/20260530120000_pizza_scored_completion_and_gate_award.sql)):
 
 - Uses **`logical_task_key`** on the step (fallback: step UUID string).
 - Typical authoring pattern from seeds: `"backpack": { "mode": "first_completion", "value": 1 }` — credits backpack pieces **at most once per account per logical task key** (repeat completions mint **0** extra backpack).
@@ -35,7 +35,7 @@ Implemented in Postgres **`complete_quest_step_task`** (see migration [`20260530
 
 ## Cutscene (`step_kind: cutscene`, `isTask: false`)
 
-DTO: **`CutsceneContentDto`** ([`ToolkitStepContentDtos.cs`](../Assets/Scripts/Presentation/Steps/ToolkitStepContentDtos.cs)). Validated by [`cutsceneContentSchema.ts`](../apps/web/lib/game/schemas/cutsceneContentSchema.ts) (strict; unknown keys rejected).
+DTO: **`CutsceneContentDto`** ([`ToolkitStepContentDtos.cs`](../../Assets/Scripts/Presentation/Steps/ToolkitStepContentDtos.cs)). Validated by [`cutsceneContentSchema.ts`](../../apps/web/lib/game/schemas/cutsceneContentSchema.ts) (strict; unknown keys rejected).
 
 ### Root
 
@@ -85,7 +85,7 @@ Rewards: cutscene advance uses empty `{}` `reward_rules` in seeds; RPC awards no
 
 ## Quest meta (`game_quests.meta_payload` → API `metaJson`)
 
-Validated leniently on read via [`questMetaPayloadSchema.ts`](../apps/web/lib/game/schemas/questMetaPayloadSchema.ts). Unity: [`QuestMetaPayloadDto`](../Assets/Scripts/Application/QuestMetaPayloadDto.cs).
+Validated leniently on read via [`questMetaPayloadSchema.ts`](../../apps/web/lib/game/schemas/questMetaPayloadSchema.ts). Unity: [`QuestMetaPayloadDto`](../../Assets/Scripts/Application/QuestMetaPayloadDto.cs).
 
 | Field | Notes |
 |-------|--------|
@@ -101,7 +101,7 @@ Single composite step; **`blocks`** executed in order. DTO: **`SpecialScreenCont
 
 ### Chrome selection
 
-Match **`task_type`** and optional **`screenVariant`** (see XML doc comments on [`SpecialScreenContentDto`](../Assets/Scripts/Presentation/Steps/ToolkitStepContentDtos.cs)). Rough mapping:
+Match **`task_type`** and optional **`screenVariant`** (see XML doc comments on [`SpecialScreenContentDto`](../../Assets/Scripts/Presentation/Steps/ToolkitStepContentDtos.cs)). Rough mapping:
 
 | `task_type` | Intended chrome |
 |-------------|-----------------|
@@ -115,7 +115,7 @@ Match **`task_type`** and optional **`screenVariant`** (see XML doc comments on 
 
 ### Block types (`blocks[].blockType`)
 
-| Block `blockType` values | Nested payload | Server scoring ([`evaluateSpecialScreen`](../apps/web/lib/game/scoring/evaluateTaskAttempt.ts)) |
+| Block `blockType` values | Nested payload | Server scoring ([`evaluateSpecialScreen`](../../apps/web/lib/game/scoring/evaluateTaskAttempt.ts)) |
 |--------------------------|----------------|----------------------------------|
 | `stub` | `stub` | Ignored for scoring |
 | `cloze_text` / `ClozeText` | `clozeText` | Uses cloze evaluator |
@@ -124,7 +124,7 @@ Match **`task_type`** and optional **`screenVariant`** (see XML doc comments on 
 
 **Stub-only screens:** ratio **1** (complete) but **`pizzaRatio` 0** so scored pizza mints **no** slices.
 
-**Attempt shape:** `attempt.specialScreen.blocks[]` aligns by index with content `blocks[]`; each non-stub scorable block requires matching inner attempt (`taskType` discriminated union in [`evaluateTaskAttempt.ts`](../apps/web/lib/game/scoring/evaluateTaskAttempt.ts)).
+**Attempt shape:** `attempt.specialScreen.blocks[]` aligns by index with content `blocks[]`; each non-stub scorable block requires matching inner attempt (`taskType` discriminated union in [`evaluateTaskAttempt.ts`](../../apps/web/lib/game/scoring/evaluateTaskAttempt.ts)).
 
 ---
 
@@ -137,7 +137,7 @@ Segment **`kind`**:
 - **`text`** — renders `text` as label (plain).
 - **`gap`** — input field; **`correctAnswers`** required for authoring; optional per-gap `ignoreCase` overrides root case logic.
 
-Server gaps: kinds normalized to **`gap`** in scoring ([`clozeGapSpecs`](../apps/web/lib/game/scoring/evaluateTaskAttempt.ts)).
+Server gaps: kinds normalized to **`gap`** in scoring ([`clozeGapSpecs`](../../apps/web/lib/game/scoring/evaluateTaskAttempt.ts)).
 
 ---
 
@@ -185,7 +185,7 @@ Segment: `id`, `text`, **`isError`**, **`acceptedCorrections`** (case-insensitiv
 
 DTO **`FreitextLlmContentDto`** + nested **`evaluation`** (`FreitextLlmEvaluationPayloadDto`): weights, **`passThreshold`**, **`registerTarget`**, `scoringPolicy`, `maxPoints`, optional `evaluationCriteria`, `targetStructures`.
 
-Flow ([`game-progress-service.ts`](../apps/web/lib/game/services/game-progress-service.ts)):
+Flow ([`game-progress-service.ts`](../../apps/web/lib/game/services/game-progress-service.ts)):
 
 1. **`POST /api/game/runs/:runId/steps/:stepId/evaluate`** with answer text — server scores LLM, applies **`passThreshold`** **and** scored pizza **`minRatioToComplete`** when issuing gate.
 2. **`POST .../complete`** with **`evaluationGateToken`** — redeems stored pizza slices for scored pizza; rejects missing/stale tokens.
@@ -198,7 +198,7 @@ Word bounds: `minWords` / `maxWords` enforced server-side on evaluate.
 
 ## Task: FreeText / RelativeClause / unknown types
 
-Rendered as **stub** UI ([`ToolkitStepFactory`](../Assets/Scripts/Presentation/Steps/ToolkitStepFactory.cs)). Treat content JSON as **unsupported** until a real step ships.
+Rendered as **stub** UI ([`ToolkitStepFactory`](../../Assets/Scripts/Presentation/Steps/ToolkitStepFactory.cs)). Treat content JSON as **unsupported** until a real step ships.
 
 ---
 
@@ -218,5 +218,5 @@ There is **no** shared Markdown renderer across steps — do not assume `**bold*
 
 ## API references (Unity client)
 
-- Complete task: [`GameProgressApiClient.CompleteStepTask`](../Assets/Scripts/Application/GameProgressApiClient.cs)
+- Complete task: [`GameProgressApiClient.CompleteStepTask`](../../Assets/Scripts/Application/GameProgressApiClient.cs)
 - Freitext evaluate: **`EvaluateFreitextLlmStep`** → `/evaluate`

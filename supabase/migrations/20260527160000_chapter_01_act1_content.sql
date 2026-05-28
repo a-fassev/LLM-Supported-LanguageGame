@@ -1,4 +1,4 @@
--- Chapter 1 (Akt 1.0–1.3): narrative content from chapter-1.md
+-- Chapter 1 (Akt 1.0–1.3): narrative content from docs/narrative/chapter-1.md
 -- Three quests in chapter-01; auto-start chain Q1 -> Q2 -> Q3; Q3 returns to overview.
 -- Idempotent upserts on chapter slug, (chapter_id, quest slug), (quest_id, order_index).
 

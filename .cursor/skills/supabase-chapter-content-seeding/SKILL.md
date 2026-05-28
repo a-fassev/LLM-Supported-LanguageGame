@@ -4,13 +4,13 @@ description: >-
   Seeds narrative chapter content from markdown Akte/Act files into Supabase
   (game_chapters, game_quests, game_quest_steps), GameArt placeholder keys,
   idempotent migrations, payload validation, and dev DB apply. Use when authoring
-  chapter-2.md+, seeding quests/steps, writing chapter content SQL, GameArt keys
+  docs/narrative/chapter-*.md, seeding quests/steps, writing chapter content SQL, GameArt keys
   for a chapter, or fixing chapter payload/migration drift.
 ---
 
 # Supabase chapter content seeding
 
-Turn **story markdown** (e.g. `chapter-N.md`, Akte segments) into **DB-first** game content the Unity client loads via `/api/game/*`. Canonical output lives in **`supabase/migrations/`**; **`AGENTS.md`** (Supabase / narrative seeding bullets) is the repo-wide index.
+Turn **story markdown** (e.g. `docs/narrative/chapter-N.md`, Akte segments) into **DB-first** game content the Unity client loads via `/api/game/*`. Canonical output lives in **`supabase/migrations/`**; **`AGENTS.md`** (Supabase / narrative seeding bullets) is the repo-wide index.
 
 **Reference:** [checklist.md](references/checklist.md) (end-to-end gates), [edge-cases.md](references/edge-cases.md) (known pitfalls from Chapter 1).
 
@@ -20,7 +20,7 @@ Turn **story markdown** (e.g. `chapter-N.md`, Akte segments) into **DB-first** g
 
 ## When to use
 
-- User provides or points at **`chapter-*.md`** and wants quests/steps in Supabase
+- User provides or points at **`docs/narrative/chapter-*.md`** and wants quests/steps in Supabase
 - Adding a new chapter row, quest chain, cutscene beats, or task payloads
 - Fixing content already deployed (follow-up migration + sync test)
 - Inventorying **GameArt** keys before art swap

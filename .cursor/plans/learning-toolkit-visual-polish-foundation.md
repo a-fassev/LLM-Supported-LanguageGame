@@ -2,7 +2,7 @@
 
 > **Purpose**: Bring every Learning Toolkit screen, shell, part, task template, cutscene, special screen, and overlay to a consistent visual and authoring standard—centralized sprites, clearer borders and spacing, unified element naming, Italian learner-facing copy, and JSON/DB contracts that reference bundled assets instead of ad hoc remote URLs where possible.
 
-**Inventory source**: `[docs/ui-learning-toolkit-inventory.md](../../docs/ui-learning-toolkit-inventory.md)` (§0–§11).  
+**Inventory source**: `[docs/unity/ui-learning-toolkit-inventory.md](../../docs/unity/ui-learning-toolkit-inventory.md)` (§0–§11).  
 **Audit date**: 2026-05-27 (UXML/USS/C#/web schema review on `unity-implementation`).
 
 ---
@@ -997,7 +997,7 @@ Each entry lists the target work for one file or group. **Status** values: `Rewo
 ## Success Criteria
 
 - Every inventory row in §Element Catalog marked **Done** or explicitly deferred with reason.
-- `GameArt/` convention documented in `DOC/03-styling.md` and `AGENTS.md` (brief).
+- `GameArt/` convention documented in `docs/authoring/03-styling.md` and `AGENTS.md` (brief).
 - Every static and dynamic image is named and present under `Assets/Resources/UI/GameArt/` (placeholder accepted in first iteration).
 - Player-facing chrome is **Italian** (no German pause/confirm/brochure close in normal flow).
 - Shared screen-size and typography-token consistency validated across all screens/shells.

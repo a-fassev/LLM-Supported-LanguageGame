@@ -1,4 +1,4 @@
--- Chapter 3 (Akt 3.0–3.3 + bonus): narrative content from chapter-3.md
+-- Chapter 3 (Akt 3.0–3.3 + bonus): narrative content from docs/narrative/chapter-3.md
 -- Five quests in chapter-03: bridge, museum, Valentina, Cioccoshow, bonus vocab.
 -- Idempotent upserts on chapter slug, (chapter_id, quest slug), (quest_id, order_index).
 

@@ -408,10 +408,10 @@ Hilfen: `ToolkitStepUx`, `ToolkitStepTemplatePaths`, `ToolkitStepContentDtos`, `
 
 | Dokument | Inhalt |
 |----------|--------|
-| [`docs/task-type-ui-guide.md`](task-type-ui-guide.md) | Neues Task-UI anlegen |
-| [`DOC/02-steps-and-rewards.md`](../DOC/02-steps-and-rewards.md) | `content_json`, Rewards, Cutscenes |
-| [`DOC/03-styling.md`](../DOC/03-styling.md) | Styling-Konventionen |
-| [`AGENTS.md`](../AGENTS.md) | Navigation, Shells, Parts-Single-Source |
+| [`.cursor/skills/unity-task-type-ui/SKILL.md`](../../.cursor/skills/unity-task-type-ui/SKILL.md) | Neues Task-UI anlegen |
+| [`docs/authoring/02-steps-and-rewards.md`](../authoring/02-steps-and-rewards.md) | `content_json`, Rewards, Cutscenes |
+| [`docs/authoring/03-styling.md`](../authoring/03-styling.md) | Styling-Konventionen |
+| [`AGENTS.md`](../../AGENTS.md) | Navigation, Shells, Parts-Single-Source |
 
 ---
 

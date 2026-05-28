@@ -1,4 +1,4 @@
--- Chapter 2 (Akt 2.0–2.3 + bonus): narrative content from chapter-2.md
+-- Chapter 2 (Akt 2.0–2.3 + bonus): narrative content from docs/narrative/chapter-2.md
 -- Five quests in chapter-02: bridge (2.0), Nutelleria / school project / restaurant (parallel after bridge), bonus vocab.
 -- Idempotent upserts on chapter slug, (chapter_id, quest slug), (quest_id, order_index).
 
