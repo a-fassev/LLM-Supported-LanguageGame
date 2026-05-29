@@ -61,6 +61,8 @@ const MAIL_CONTENT_KEYS = [
   "sendSuccessText",
 ] as const;
 
+type RefinementIssueSink = Pick<z.RefinementCtx, "addIssue">;
+
 export type SpecialScreenModeFlags = {
   useReader: boolean;
   useMail: boolean;
@@ -139,7 +141,7 @@ export const specialScreenContentSchema = z
 function refineSpecialScreenByTaskType(
   data: z.infer<typeof specialScreenContentSchema>,
   taskType: string | null | undefined,
-  ctx: z.RefinementCtx,
+  ctx: RefinementIssueSink,
 ): void {
   const blockCount = data.blocks?.length ?? 0;
   const photoItems = data.photoViewerChrome?.items?.length ?? 0;
@@ -238,10 +240,19 @@ export function parseSpecialScreenContent(
     return { ok: false, issues: issues || "invalid special screen payload" };
   }
 
-  const issues: z.ZodIssue[] = [];
-  const ctx: z.RefinementCtx = {
-    addIssue: (issue) => issues.push(issue),
-    path: [],
+  const issues: Array<{ path: PropertyKey[]; message: string }> = [];
+  const ctx: RefinementIssueSink = {
+    addIssue: (issue) => {
+      if (typeof issue === "string") {
+        issues.push({ path: [], message: issue });
+        return;
+      }
+
+      issues.push({
+        path: [...(issue.path ?? [])],
+        message: issue.message ?? "invalid special screen payload",
+      });
+    },
   };
   refineSpecialScreenByTaskType(parsed.data, taskType, ctx);
 

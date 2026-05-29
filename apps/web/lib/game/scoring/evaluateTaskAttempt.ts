@@ -466,6 +466,7 @@ export function evaluateSpecialScreen(
       return err(400, scoreMsg.specialScreenBlockTypeMismatch(i + 1), "attempt_mismatch");
     }
     if (!inner.ok) return inner;
+    if ("skipped" in inner) continue;
     weight += 1;
     weighted += inner.ratio;
     if ("itemsTotal" in inner && inner.itemsTotal != null && inner.itemsTotal > 0) {
