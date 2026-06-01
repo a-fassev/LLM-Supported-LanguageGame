@@ -7,9 +7,9 @@ Fast answer keys for playtesting **without reading Italian**. Content is derived
 | 1 | [chapter-01-solutions.md](chapter-01-solutions.md) | Yes |
 | 2 | [chapter-02-solutions.md](chapter-02-solutions.md) | Yes |
 | 3 | [chapter-03-solutions.md](chapter-03-solutions.md) | Yes |
-| 4 | [chapter-04-solutions.md](chapter-04-solutions.md) | Placeholder |
-| 5 | [chapter-05-solutions.md](chapter-05-solutions.md) | Placeholder |
-| 6 | [chapter-06-solutions.md](chapter-06-solutions.md) | Placeholder |
+| 4 | [chapter-04-solutions.md](chapter-04-solutions.md) | Yes |
+| 5 | [chapter-05-solutions.md](chapter-05-solutions.md) | Yes |
+| 6 | [chapter-06-solutions.md](chapter-06-solutions.md) | Yes |
 
 ## How to use
 

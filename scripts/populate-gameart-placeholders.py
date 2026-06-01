@@ -79,6 +79,51 @@ TARGETS: list[tuple[str, str]] = [
     ("light", "static/task-scene-backgrounds/chapter-03/ph-ts-museum-side-room"),
     ("light", "static/task-scene-backgrounds/chapter-03/ph-ts-piazza-maggiore"),
     ("dark", "static/task-scene-backgrounds/chapter-03/ph-ts-bonus-neutral"),
+    # Chapter 4 — NPC portraits
+    ("light", "portraits/npc/sara"),
+    # Chapter 4 — cutscene backgrounds
+    ("dark", "static/cutscene-backgrounds/chapter-04/ph-cs-bedroom-morning"),
+    ("light", "static/cutscene-backgrounds/chapter-04/ph-cs-giardini-margherita"),
+    ("dark", "static/cutscene-backgrounds/chapter-04/ph-cs-bedroom-desk-evening"),
+    ("dark", "static/cutscene-backgrounds/chapter-04/ph-cs-bonus-neutral"),
+    # Chapter 4 — task backgrounds
+    ("light", "static/task-scene-backgrounds/chapter-04/ph-ts-giardini-margherita"),
+    ("dark", "static/task-scene-backgrounds/chapter-04/ph-ts-bedroom-desk-evening"),
+    ("dark", "static/task-scene-backgrounds/chapter-04/ph-ts-bonus-neutral"),
+    # Chapter 4 — Sicily photo placeholders (p. 122/123)
+    ("light", "static/chapter-04/sicily/palermo-cathedral"),
+    ("light", "static/chapter-04/sicily/palermo-markets"),
+    ("light", "static/chapter-04/sicily/monreale-cathedral"),
+    ("light", "static/chapter-04/sicily/agrigento-temples"),
+    ("light", "static/chapter-04/sicily/piazza-armerina-villa"),
+    ("light", "static/chapter-04/sicily/scala-dei-turchi"),
+    ("light", "static/chapter-04/sicily/trapani"),
+    # Chapter 5 — NPC portraits
+    ("light", "portraits/npc/sara"),
+    # Chapter 5 — cutscene backgrounds
+    ("dark", "static/cutscene-backgrounds/chapter-05/ph-cs-bedroom-afternoon"),
+    ("light", "static/cutscene-backgrounds/chapter-05/ph-cs-giardini-cafe"),
+    # Chapter 5 — task backgrounds
+    ("dark", "static/task-scene-backgrounds/chapter-05/ph-ts-bedroom-afternoon"),
+    ("light", "static/task-scene-backgrounds/chapter-05/ph-ts-giardini-cafe"),
+    ("dark", "static/task-scene-backgrounds/chapter-05/ph-ts-bedroom-desk-evening"),
+    # Chapter 6 — cutscene backgrounds
+    ("dark", "static/cutscene-backgrounds/chapter-06/ph-cs-bedroom-morning"),
+    ("light", "static/cutscene-backgrounds/chapter-06/ph-cs-restaurant-interior"),
+    ("light", "static/cutscene-backgrounds/chapter-06/ph-cs-park-cafe"),
+    ("light", "static/cutscene-backgrounds/chapter-06/ph-cs-piazza-maggiore"),
+    # Chapter 6 — task backgrounds
+    ("light", "static/task-scene-backgrounds/chapter-06/ph-ts-restaurant-interior"),
+    ("light", "static/task-scene-backgrounds/chapter-06/ph-ts-park-cafe"),
+    ("light", "static/task-scene-backgrounds/chapter-06/ph-ts-piazza-maggiore"),
+    # Chapter 6 — Sicily photo placeholders (p. 122/123)
+    ("light", "static/chapter-06/sicily/palermo-cathedral"),
+    ("light", "static/chapter-06/sicily/palermo-markets"),
+    ("light", "static/chapter-06/sicily/monreale-cathedral"),
+    ("light", "static/chapter-06/sicily/agrigento-temples"),
+    ("light", "static/chapter-06/sicily/piazza-armerina-villa"),
+    ("light", "static/chapter-06/sicily/scala-dei-turchi"),
+    ("light", "static/chapter-06/sicily/trapani"),
 ]
 
 

@@ -15,7 +15,8 @@ join (
     ('chapter-02', 'chapter-02-quest-02-nutelleria', 'chapter-02-quest-05-bonus-vocab'),
     ('chapter-02', 'chapter-02-quest-03-school-project', 'chapter-02-quest-05-bonus-vocab'),
     ('chapter-02', 'chapter-02-quest-04-restaurant', 'chapter-02-quest-05-bonus-vocab'),
-    ('chapter-03', 'chapter-03-quest-04-cioccoshow', 'chapter-03-quest-05-bonus-vocab')
+    ('chapter-03', 'chapter-03-quest-04-cioccoshow', 'chapter-03-quest-05-bonus-vocab'),
+    ('chapter-04', 'chapter-04-quest-04-comacchio', 'chapter-04-quest-05-bonus-vocab')
 ) as v(chapter_slug, quest_slug, auto_start_slug)
   on c.slug = v.chapter_slug
 where q.chapter_id = c.id

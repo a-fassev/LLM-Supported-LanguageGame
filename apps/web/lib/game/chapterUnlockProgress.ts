@@ -11,6 +11,7 @@ export const OPTIONAL_CHAPTER_QUEST_SLUGS = new Set<string>([
   "chapter-01-quest-04-bonus-vocab",
   "chapter-02-quest-05-bonus-vocab",
   "chapter-03-quest-05-bonus-vocab",
+  "chapter-04-quest-05-bonus-vocab",
 ]);
 
 export function isOptionalChapterQuestSlug(slug: string): boolean {
