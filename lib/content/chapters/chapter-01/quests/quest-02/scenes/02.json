@@ -10,7 +10,18 @@
       "title": "Biglietto",
       "body": "BOLOGNA CENTRALE - Binario 3 - Posto 12A"
     },
-    "task": {}
+    "task": {
+      "leftItems": [
+        { "id": "left-binario", "text": "binario" }
+      ],
+      "rightItems": [
+        { "id": "right-track", "text": "platform track" },
+        { "id": "right-ticket", "text": "ticket" }
+      ],
+      "correctPairs": [
+        { "leftItemId": "left-binario", "rightItemId": "right-track" }
+      ]
+    }
   },
   "scoring": {
     "backpack": { "pieces": 1 },

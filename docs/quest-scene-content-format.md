@@ -248,7 +248,7 @@ Plain text only (no HTML).
 
 ### Pizza
 
-The server derives a correctness **ratio** (0–1) from the attempt (when task mechanics exist), then maps it through `scoring.pizza`. Authors can mix **flat** and **scored** per scene.
+The server derives a correctness **ratio** (0–1) from the attempt (when task mechanics exist), then maps it through `scoring.pizza`. Authors can mix **flat** and **scored** per scene. Do not rely on service-side auto-pass for unsupported scored task types: use `flat` until evaluator support exists, or the API returns `task_eval_not_implemented`.
 
 ### Backpack
 
@@ -374,7 +374,7 @@ Create a **mini example** under `lib/content/chapters/` (JSON only; UI comes lat
 | `chapter-02` Firenze | 2 | — | 6 |
 | `chapter-03` Roma | 2 | 1 | 9 |
 
-**24** scene files across **8** quests and **3** chapters. Italian placeholder copy; `content.task: {}` until per-type schemas exist.
+**24** scene files across **8** quests and **3** chapters. Italian placeholder copy; where `content.task` is still minimal, prefer `pizza.mode: "flat"` to keep progression deterministic until per-type evaluator contracts are ready.
 
 **Target tree:**
 

@@ -57,7 +57,7 @@ Each step is defined by JSON with:
 - **Leaderboard:** compare progress by **total pizza slices**—**Overall** (all learners) or **Teams** (blue vs red). Players can **refresh** after playing; their own row should be easy to find without shaming low scores.
 - **Inside a quest**, the UI alternates **story mode** (narrative: **Pausa**, **«Avanti»**, full-step **background**, no performance HUD) and **task mode** (quest title, **pizza + backpack** in the header, optional **documento** for shared reading text, one exercise surface, **«Controlla»**).
 - After **«Controlla»**, a **full-screen success overlay** (not a pop-up toast) shows Italian praise, how much pizza/backpack they earned, and **«Riprova»** when the score was below the step minimum—children stay on the same scene until they pass.
-- **Chapter and quest lists** show **locked** vs **open** missions from saved progress; starting a locked quest should eventually be blocked server-side—until then, treat locks as the honest map state the child sees.
+- **Chapter and quest lists** show **locked** vs **open** missions from saved progress; locked quests are enforced server-side too, so children do not enter content that should still be closed.
 - **Mission names** on lists are **short Italian titles**, not internal act numbers or `Step 2/7` in the shell.
 - **Bonus quests** sit in the same list as story quests (often at the bottom), are **optional for chapter unlock**, and may be **offered** after the last main quest—children can still **Pausa** / go back.
 - **Navigation menus** (main menu, chapters, classifica, login) share **Italian** chrome and consistent **background** treatment so the app feels like one product.
@@ -76,6 +76,8 @@ Each step is defined by JSON with:
 | **Pizza slices** | **Performance**—how well they did on a **task** (or **bonus**) step. Awarded **variably** from authored **scoring** rules (e.g. more correct answers → more slices). Same answers should always yield the same slices (**fair**, server-side). Used for **leaderboard** rank and optional rewards (e.g. mascot skins). |
 | **Backpack %**   | **Completion**—**0–100%** progress through the **whole game**. Increments by a **fixed** amount per **completed step**, regardless of exercise score. Reaches **100%** when everything required is done.                                                                                                               |
 
+
+When a scene is authored as **scored**, rewards should come from real evaluation (no hidden auto-pass shortcuts). If a task is still placeholder-only, use **flat** rewards so feedback stays deterministic and honest for learners.
 
 Show **pizza** and **backpack** where progress matters (chapter/quest hubs, **task** steps—not pure story beats). Keep the **main menu** visually light.
 

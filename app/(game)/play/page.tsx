@@ -133,6 +133,15 @@ function readTaskOutcome(error: ApiErrorResult): TaskOutcomeDto | null {
   return raw ?? null;
 }
 
+function activeRunConflictMessage(error: ApiErrorResult): string {
+  const existingChapterId = firstString(error.details?.existingChapterId);
+  const existingQuestId = firstString(error.details?.existingQuestId);
+  if (!existingChapterId || !existingQuestId) {
+    return error.error;
+  }
+  return `${error.error} Missione attiva: ${existingChapterId} / ${existingQuestId}.`;
+}
+
 function readReference(scene: RunSceneDto | null): { title?: string; body: string } | null {
   if (!scene || scene.scene_type !== "task") return null;
   const task = getTaskPayload(scene);
@@ -190,7 +199,8 @@ export default function PlayPage() {
         if (!mountedRef.current) return;
         if (snapshot.ok && snapshot.data.run) {
           setState((current) => mergeRunState(current, snapshot.data));
-          setError(null);
+          setError(activeRunConflictMessage(result));
+          toastBlockingApiError(result);
           setLoading(false);
           return;
         }
@@ -332,6 +342,13 @@ export default function PlayPage() {
         outcome={outcome}
         onOpenChange={setSuccessOpen}
         onContinue={() => {
+          const chapterPath = state.run?.chapterId ? `/chapters/${state.run.chapterId}` : "/chapters";
+          if (state.run?.status === "completed") {
+            setSuccessOpen(false);
+            setOutcome(null);
+            router.push(chapterPath);
+            return;
+          }
           setSuccessOpen(false);
           setOutcome(null);
         }}

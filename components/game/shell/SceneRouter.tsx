@@ -30,7 +30,9 @@ function storyText(scene: RunSceneDto): string {
 function taskInstructions(scene: RunSceneDto): string | undefined {
   const content = scene.content;
   return (
+    readString(content.instruction) ??
     readString(content.instructions) ??
+    readString((content.task as { instruction?: unknown } | undefined)?.instruction) ??
     readString((content.task as { instructions?: unknown } | undefined)?.instructions) ??
     undefined
   );

@@ -1,8 +1,11 @@
 import { hashToken } from "@/lib/session-token";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getClientIp, jsonError, jsonOk } from "@/lib/http";
 import { authClientMessages as authMsg, apiRouteMessages as routeMsg } from "@/lib/game/clientMessages";
+
+export const runtime = "nodejs";
 
 function extractBearer(request: Request): string | null {
   const header = request.headers.get("authorization") ?? "";
@@ -32,7 +35,12 @@ export async function POST(request: Request) {
     return jsonError(400, authMsg.missingTokenBody);
   }
 
-  const supabase = getSupabaseAdmin();
+  let supabase: SupabaseClient;
+  try {
+    supabase = getSupabaseAdmin();
+  } catch {
+    return jsonError(503, authMsg.couldNotRevokeSession, "config_error");
+  }
   const tokenHash = hashToken(token);
   const nowIso = new Date().toISOString();
 

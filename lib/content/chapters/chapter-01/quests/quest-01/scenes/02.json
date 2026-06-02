@@ -7,7 +7,21 @@
     "title": "Come saluti?",
     "instruction": "Scegli la risposta corretta.",
     "referenceDocument": null,
-    "task": {}
+    "task": {
+      "questions": [
+        {
+          "id": "q1",
+          "prompt": "Un compagno ti dice: \"Ciao!\"",
+          "selectionMode": "single",
+          "options": [
+            { "id": "opt-ciao", "text": "Ciao!" },
+            { "id": "opt-grazie", "text": "Grazie." },
+            { "id": "opt-notte", "text": "Buona notte." }
+          ],
+          "correctOptionIds": ["opt-ciao"]
+        }
+      ]
+    }
   },
   "scoring": {
     "backpack": { "pieces": 1 },

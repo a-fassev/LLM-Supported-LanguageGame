@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { generateSuggestedUsername } from "@/lib/username-generator";
 import { hashPassword } from "@/lib/password";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
@@ -64,14 +65,24 @@ export async function POST(request: Request) {
     return jsonError(500, authMsg.couldNotProcess);
   }
 
-  const supabase = getSupabaseAdmin();
+  let supabase: SupabaseClient;
+  try {
+    supabase = getSupabaseAdmin();
+  } catch {
+    return jsonError(503, authMsg.couldNotProcess, "config_error");
+  }
+
   const attempts = 12;
   let lastError: unknown;
+  const normalizedRequestedUsername = requestedUsername
+    ? normalizeUsername(requestedUsername)
+    : null;
 
   for (let i = 0; i < attempts; i++) {
-    const username = requestedUsername
-      ? normalizeUsername(requestedUsername)
-      : normalizeUsername(generateSuggestedUsername());
+    const username =
+      i === 0 && normalizedRequestedUsername
+        ? normalizedRequestedUsername
+        : normalizeUsername(generateSuggestedUsername());
 
     const { data, error } = await supabase
       .from("student_accounts")
@@ -89,10 +100,7 @@ export async function POST(request: Request) {
     }
 
     lastError = error;
-    if (requestedUsername && isUniqueViolation(error)) {
-      return jsonError(409, authMsg.usernameTaken, "username_taken");
-    }
-    if (!requestedUsername && isUniqueViolation(error)) {
+    if (isUniqueViolation(error)) {
       continue;
     }
     return jsonError(500, authMsg.couldNotCreateAccount);

@@ -13,7 +13,13 @@ import {
   type QuestRunRow,
 } from "@/lib/game/repositories/game-progress-repository";
 import { gameClientMessages as msg } from "@/lib/game/clientMessages";
-import { findCatalogScene, findCatalogQuest, loadContentCatalog, type CatalogScene } from "@/lib/game/content/catalog-loader";
+import {
+  findCatalogScene,
+  findCatalogQuest,
+  loadContentCatalog,
+  type CatalogScene,
+  type ContentCatalog,
+} from "@/lib/game/content/catalog-loader";
 import { meetsScoredPizzaMinimum, parsePizzaRewardRules, slicesFromRatio } from "@/lib/game/scoring/pizzaReward";
 import { evaluateTaskAttempt } from "@/lib/game/scoring/evaluateTaskAttempt";
 import { buildTaskOutcome, type TaskOutcomeDto } from "@/lib/game/task-outcome-messages";
@@ -60,6 +66,33 @@ function toBootstrapChapters(): Promise<BootstrapChapterDto[]> {
       })),
     })),
   );
+}
+
+function isQuestLockedForAccount(
+  catalog: ContentCatalog,
+  chapterId: string,
+  questId: string,
+  completedQuestIds: Set<string>,
+): boolean {
+  const chapterIndex = catalog.chapters.findIndex((chapter) => chapter.id === chapterId);
+  if (chapterIndex < 0) return true;
+  if (chapterIndex > 0) {
+    const previousChapter = catalog.chapters[chapterIndex - 1];
+    const requiredMainQuestIds = previousChapter.questsExpanded
+      .filter((quest) => quest.kind !== "bonus")
+      .map((quest) => quest.id);
+    const previousChapterComplete = requiredMainQuestIds.every((requiredQuestId) =>
+      completedQuestIds.has(requiredQuestId),
+    );
+    if (!previousChapterComplete) return true;
+  }
+
+  const quest = findCatalogQuest(catalog, chapterId, questId);
+  if (!quest) return true;
+  if (quest.requiresQuestId && !completedQuestIds.has(quest.requiresQuestId)) {
+    return true;
+  }
+  return false;
 }
 
 export async function bootstrapGameState(accountId: string): Promise<BootstrapResult> {
@@ -246,6 +279,23 @@ export async function startOrResumeRun(
       error: msg.runNotFound,
       code: "quest_not_found",
       details: { chapterId, questId },
+    };
+  }
+  const completedQuestIds = await getCompletedQuestIds(accountId);
+  if (completedQuestIds === null) {
+    return { ok: false, status: 500, error: msg.couldNotLoadRun };
+  }
+  if (isQuestLockedForAccount(catalog, chapterId, questId, new Set(completedQuestIds))) {
+    return {
+      ok: false,
+      status: 409,
+      error: msg.questLocked,
+      code: "quest_locked",
+      details: {
+        chapterId,
+        questId,
+        requiresQuestId: quest.requiresQuestId,
+      },
     };
   }
   const firstScene = quest.scenes[0];

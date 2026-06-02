@@ -16,15 +16,29 @@ export function RegisterForm() {
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [pending, setPending] = useState(false);
+  const [loadingUsername, setLoadingUsername] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    suggestUsername().then((result) => {
-      if (result.ok) setUsername(result.data.username);
-    });
+    let active = true;
+    void (async () => {
+      setLoadingUsername(true);
+      const result = await suggestUsername();
+      if (!active) return;
+      if (result.ok) {
+        setUsername(result.data.username);
+      } else {
+        setError(result.error);
+      }
+      setLoadingUsername(false);
+    })();
+    return () => {
+      active = false;
+    };
   }, []);
 
   async function onRegenerate() {
+    setLoadingUsername(true);
     const result = await suggestUsername();
     if (result.ok) {
       setUsername(result.data.username);
@@ -32,6 +46,7 @@ export function RegisterForm() {
     } else {
       setError(result.error);
     }
+    setLoadingUsername(false);
   }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -39,14 +54,19 @@ export function RegisterForm() {
     setPending(true);
     setError(null);
 
-    const registerResult = await register({ username, password, passwordConfirm });
+    let registerResult = await register({ username, password, passwordConfirm });
+    if (!registerResult.ok && registerResult.code === "username_taken") {
+      registerResult = await register({ password, passwordConfirm });
+    }
     if (!registerResult.ok) {
       setError(registerResult.error);
       setPending(false);
       return;
     }
+    const registeredUsername = registerResult.data.username;
+    setUsername(registeredUsername);
 
-    const loginResult = await login({ username, password });
+    const loginResult = await login({ username: registeredUsername, password });
     if (!loginResult.ok) {
       setError(loginResult.error);
       setPending(false);
@@ -75,7 +95,7 @@ export function RegisterForm() {
           <Label htmlFor="username">Nome utente</Label>
           <div className="flex gap-2">
             <Input id="username" value={username} readOnly />
-            <Button type="button" variant="outline" onClick={onRegenerate}>
+            <Button type="button" variant="outline" onClick={onRegenerate} disabled={pending || loadingUsername}>
               Rigenera
             </Button>
           </div>
@@ -105,8 +125,8 @@ export function RegisterForm() {
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
       </CardContent>
       <CardFooter className="flex flex-col gap-2 px-0 pb-0">
-        <Button className="w-full" type="submit" disabled={pending}>
-          {pending ? "Registrazione..." : "Registrati"}
+        <Button className="w-full" type="submit" disabled={pending || loadingUsername || username.length < 3}>
+          {pending ? "Registrazione..." : loadingUsername ? "Preparazione..." : "Registrati"}
         </Button>
         <Button className="w-full" type="button" variant="outline" onClick={() => router.push("/login")}>
           Hai già un account? Accedi

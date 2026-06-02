@@ -10,6 +10,7 @@ const BLOCKING_CODES = new Set<string>([
   "run_not_found",
   "scene_missing",
   "active_run_exists",
+  "quest_locked",
   "invalid_session",
   "missing_token",
 ]);

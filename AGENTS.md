@@ -222,13 +222,13 @@ LLM-Supported-LanguageGame-1/
 
 **Content:** `lib/content/chapters/**` + `catalog-loader.ts`. Scene order from `scenes/01.json`, `02.json`, …; scene ids derived in loader.
 
-**Progression:** Sequential chapters → quests → **scenes**; server advances by catalog scene order. Unlock math: `lib/game/chapterUnlockProgress.ts` (tests); hub **display** locks: `lib/game/unlock-display.ts` from bootstrap `completedQuestIds`. **Gap:** `POST /api/game/runs/start` does not yet reject locked quests server-side—enforce in service when hardening.
+**Progression:** Sequential chapters → quests → **scenes**; server advances by catalog scene order. Hub **display** locks use `lib/game/unlock-display.ts` from bootstrap `completedQuestIds`, and `POST /api/game/runs/start` enforces unlocks server-side (`requiresQuestId` + previous chapter completion).
 
 **Scene contract (authoring):** Per-scene JSON — `scene_type` (`story` | `task`), `screen_type`, `content`, `background`, optional `scoring`. Legacy step fields in older docs map to this model; see `docs/quest-scene-content-format.md`.
 
 **Task types (schemas):** `ClozeText`, `MultipleChoice`, `DragDrop`, `Matching`, `ErrorSpotting`, `FreitextLlm`, plus `SpecialScreen`* variants (web UI: placeholders in `TaskPanel` until per-type components land).
 
-**Scoring:** `evaluateTaskAttempt` + pizza rules in service; rewards recorded on scene completion; wallet in `player_wallets`.
+**Scoring:** `evaluateTaskAttempt` + pizza rules in service; rewards recorded on scene completion; wallet in `player_wallets`. Do not auto-pass unsupported **scored** task types in service logic—unsupported scored scenes must fail clearly (`task_eval_not_implemented`) until an evaluator exists. For smoke/placeholder authoring, use `scoring.pizza.mode: "flat"` instead of bypassing scored evaluation.
 
 **LLM:** `lib/llm/` for Freitext contracts; wired through run **attempt** when content uses Freitext (no separate public evaluate route required for shell).
 
@@ -250,6 +250,8 @@ All game routes require a valid session unless noted. Rate limiting via `lib/rat
 | POST   | `/api/auth/logout`           | Revoke session                     |
 | GET    | `/api/auth/session`          | Current account                    |
 | GET    | `/api/auth/suggest-username` | Generated username candidate       |
+
+Team assignment ownership: `student_accounts.team` is assigned in Postgres (`assign_balanced_student_team` trigger). Keep API register routes free of app-side balancing reads.
 
 
 **Game**

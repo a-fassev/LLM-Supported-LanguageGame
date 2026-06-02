@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { verifyPassword } from "@/lib/password";
 import { createOpaqueToken, hashToken } from "@/lib/session-token";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
@@ -38,7 +39,12 @@ export async function POST(request: Request) {
   }
 
   const username = normalizeUsername(parsed.data.username);
-  const supabase = getSupabaseAdmin();
+  let supabase: SupabaseClient;
+  try {
+    supabase = getSupabaseAdmin();
+  } catch {
+    return jsonError(503, authMsg.couldNotProcess, "config_error");
+  }
 
   const { data: account, error: lookupError } = await supabase
     .from("student_accounts")
