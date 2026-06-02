@@ -1,6 +1,6 @@
 # Language game API
 
-Next.js App Router backend for session auth, game progress, task scoring, and Freitext LLM evaluation. Data lives in **Supabase Postgres** (configure credentials locally; schema is not shipped in this repo).
+Next.js App Router backend for session auth, wallet/leaderboard progress, and shared task-scoring contracts. **Supabase Postgres** stores accounts, sessions, and `player_wallets` only; narrative content is not hosted in the database (see `supabase/migrations/` for schema changes).
 
 ## Setup
 
@@ -27,6 +27,6 @@ API base: [http://localhost:3000](http://localhost:3000)
 ## API routes
 
 - **Auth:** `/api/auth/register`, `login`, `logout`, `session`, `suggest-username`
-- **Game:** `/api/game/bootstrap`, quest start, run/step complete and advance, leaderboard
+- **Game:** `/api/game/bootstrap` (wallet + empty chapter catalog), `/api/game/leaderboard`
 
 Agent conventions: [`AGENTS.md`](AGENTS.md).

@@ -24,6 +24,5 @@ export async function GET(request: Request) {
     totalSlices: result.totalSlices,
     totalBackpackPieces: result.totalBackpackPieces,
     chapters: result.chapters,
-    ...(result.activeRun ? { activeRun: result.activeRun } : {}),
   });
 }

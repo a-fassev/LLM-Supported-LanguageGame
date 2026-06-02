@@ -38,7 +38,7 @@ Run locally: `npm run dev` (secrets in `.env.local` only; see `.env.example`).
 
 - **Clean & simple:** KISS, minimal dependencies, clear naming, no over-engineering
 - **Modern & modular:** Single responsibility, separation of concerns, reusable modules
-- **Server-authoritative game logic:** Scoring, unlocks, and progression live in `lib/` + Supabase—not in client-only rules
+- **Server-authoritative game logic:** Scoring and progression rules live in `lib/`; Supabase stores **auth + wallet/leaderboard** only (no chapter/quest/step catalog in Postgres)
 - **Type-safe contracts:** Zod for step payloads and API bodies; extend schemas when content shape changes
 
 ---
@@ -81,7 +81,7 @@ Optional CLIs when MCP is not enough: **GitHub** (`gh`) for PRs and CI; **Supaba
 - Keep changes **small and correct** — match existing patterns in `lib/` and `app/api/`.
 - **Do not** put LLM or Supabase secrets in the client.
 - **Validate** new step shapes with Zod and tests where behavior is non-obvious.
-- **Ground** game behavior in `game-progress-service` and repository RPCs—not one-off route logic.
+- **Ground** wallet/bootstrap behavior in `game-progress-service` and `game-progress-repository`—not one-off route logic.
 
 ---
 
@@ -103,7 +103,7 @@ Optional CLIs when MCP is not enough: **GitHub** (`gh`) for PRs and CI; **Supaba
 | Lint              | **ESLint 9** + `eslint-config-next`    | `npm run lint` → `eslint .` (`next lint` removed in Next 16)        |
 
 
-**Not in this repo:** Full Supabase schema and narrative SQL seeds (live in the linked Supabase project / migrations workflow).
+**Supabase schema:** DDL under `supabase/migrations/` (auth, wallets, player run tables; **no** `game_chapters` / `game_quests` / `game_quest_steps`). Apply via Supabase MCP/CLI to the linked project.
 
 ### Architecture principles
 
@@ -122,8 +122,8 @@ Next.js serves **both** the web UI and `/api/*`. Treat the **server** as the sou
 
 | Kind | Examples | Where it lives | Who owns updates |
 | ---- | -------- | -------------- | ---------------- |
-| **Player persistence** | Wallet, completed quests, active run, leaderboard | Supabase via `lib/game/repositories/*` | Services + RPCs only |
-| **Content & rules** | Step payloads, unlock gates, scoring, LLM evaluate | `lib/` (+ DB or repo files for authored content) | Server at read/submit time |
+| **Player persistence** | Wallet, leaderboard ranks | Supabase (`student_*`, `player_wallets`) via `game-progress-repository` | Services only |
+| **Content & rules** | Step payloads, unlock gates, scoring (future quest APIs) | `lib/` schemas/scoring; **not** in Supabase today | Server when quest routes return |
 | **UI-local** | Current answer draft, open documento overlay, form fields | Client component `useState` / `useReducer` | Component; discard on unmount unless submitted |
 
 Do **not** mirror player persistence (chapters unlocked, run step index, pizza totals) in a global client store. After a successful mutation, refresh from the server (`router.refresh()`, a targeted refetch, or navigation) instead of patching client caches by hand.
@@ -146,9 +146,9 @@ Do **not** mirror player persistence (chapters unlocked, run step index, pizza t
 - Cutscene/story steps: minimal state (current beat index only if the server does not drive it via `advance`).
 - Shared chrome (pause, documento open): lift state only as high as needed—Context is fine for **session + shell chrome**, not for game progression.
 
-#### Content source (DB vs repo)
+#### Content source
 
-Today, chapters/quests/steps are loaded from **Supabase** at bootstrap. Content may later live in **repo files** under `lib/content/` (still validated with Zod on the server). Either way, the **client receives DTOs** from the server/API—never treat raw content JSON as authoritative on the client.
+Narrative catalog (chapters, quests, steps) is **not** stored in Supabase. `GET /api/game/bootstrap` returns wallet totals and `chapters: []` until content is re-authored (e.g. under `lib/content/` or a new store). Zod schemas in `lib/game/schemas/` remain the contract for the next content pipeline. Clients must not treat missing catalog as authoritative game state.
 
 #### Error handling (client boundary)
 
@@ -183,7 +183,8 @@ LLM-Supported-LanguageGame-1/
 ├── .github/workflows/     # deploy-azure.yml (push web-based-implementation)
 ├── app/
 │   ├── api/auth/          # login, register, logout, session, suggest-username
-│   ├── api/game/          # bootstrap, quests, runs, leaderboard
+│   ├── api/game/          # bootstrap, leaderboard
+│   ├── supabase/migrations/  # Postgres DDL (auth + progress; no content catalog)
 │   ├── layout.tsx
 │   └── page.tsx           # Placeholder / growing game shell
 ├── lib/
@@ -192,7 +193,7 @@ LLM-Supported-LanguageGame-1/
 │   │   ├── schemas/       # Zod content per task type + cutscene + game art
 │   │   ├── scoring/       # evaluateTaskAttempt, pizzaReward
 │   │   ├── services/      # game-progress-service, leaderboard-service
-│   │   ├── repositories/  # Supabase access + RPC wrappers
+│   │   ├── repositories/  # Supabase wallet + leaderboard access
 │   │   └── stepContentValidation.ts
 │   ├── llm/               # FreitextLlm schema, evaluation service, env
 │   ├── require-session.ts
@@ -212,32 +213,17 @@ LLM-Supported-LanguageGame-1/
 
 ## Game domain (technical)
 
-**Progression:** Sequential chapters → sequential quests → ordered **steps**. Optional **bonus** quests at chapter end (extra pizza; not required for next chapter). Unlock logic: `lib/game/chapterUnlockProgress.ts` + service bootstrap.
+**Supabase today:** `student_accounts`, `student_sessions`, `player_wallets`, and empty-ready `player_quest_runs` / `player_step_*` tables (no FK to a content catalog). Quest gameplay APIs are removed until content is reintroduced.
 
-**Step contract (authoring mental model → DB today):**
+**Progression (product + future code):** Sequential chapters → quests → steps; unlock helpers in `lib/game/chapterUnlockProgress.ts` remain for tests and the next content pipeline.
 
+**Step contract (authoring mental model):** Zod under `lib/game/schemas/` — `step_kind`, `task_type`, `content_payload` / `contentJson`, `reward_rules`, `sceneBackgroundAsset`. Not persisted in Postgres until a new content store is chosen.
 
-| Authoring field               | DB / API (typical)                                                    |
-| ----------------------------- | --------------------------------------------------------------------- |
-| `scene_type` `story` | `task` | `step_kind` `cutscene` | `task`                                       |
-| `screen_type`                 | `task_type` (tasks) or cutscene template                              |
-| `content`                     | `content_payload` (JSONB), exposed as `contentJson` string to clients |
-| `background`                  | Inside payload / `sceneBackgroundAsset` (see `gameArtAssetSchema`)    |
-| `scoring`                     | `reward_rules` / `rewardRulesJson` (pizza rules)                      |
+**Task types (schemas):** `ClozeText`, `MultipleChoice`, `DragDrop`, `Matching`, `ErrorSpotting`, `FreitextLlm`, plus `SpecialScreen`* variants.
 
+**Scoring:** Pure functions in `lib/game/scoring/`; wallet totals in `player_wallets`. Bootstrap returns `totalSlices` / `totalBackpackPieces` only.
 
-**Task types (server):** `ClozeText`, `MultipleChoice`, `DragDrop`, `Matching`, `ErrorSpotting`, `FreitextLlm`, plus `SpecialScreen`* variants. **Bonus** quests are content/flow, not necessarily a separate `task_type`.
-
-**Scoring:**
-
-
-| Currency         | Role                                   | Implementation                                                                                   |
-| ---------------- | -------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| **Pizza slices** | Performance on tasks                   | `pizzaReward.ts`, evaluate routes, wallet `total_slices`                                         |
-| **Backpack**     | Completion progress (product: 0–100 %) | Bootstrap exposes `totalBackpackPieces` today—align UI copy with product skill when building HUD |
-
-
-**LLM:** Only `FreitextLlm` uses `lib/llm/freitextLlmEvaluationService.ts` (NVIDIA/OpenAI-compatible env in `.env.example`). Gate/retry behavior lives in progress service + repository.
+**LLM:** `lib/llm/` kept for Freitext contracts; no live `/evaluate` route until quest flow returns.
 
 ---
 
@@ -262,16 +248,10 @@ All game routes require a valid session unless noted. Rate limiting via `lib/rat
 **Game**
 
 
-| Method | Path                                             | Purpose                                            |
-| ------ | ------------------------------------------------ | -------------------------------------------------- |
-| GET    | `/api/game/bootstrap`                            | Chapters, quests, steps, wallet totals, active run |
-| POST   | `/api/game/quests/[questId]/start`               | Start or resume quest run                          |
-| GET    | `/api/game/runs/[runId]`                         | Run + step materialization                         |
-| POST   | `/api/game/runs/[runId]/steps/[stepId]/advance`  | Cutscene / story step forward                      |
-| POST   | `/api/game/runs/[runId]/steps/[stepId]/complete` | Submit task attempt (deterministic types)          |
-| POST   | `/api/game/runs/[runId]/steps/[stepId]/evaluate` | FreitextLlm judge + gate                           |
-| POST   | `/api/game/runs/[runId]/finish`                  | Complete quest run                                 |
-| GET    | `/api/game/leaderboard`                          | Overall / team rankings by pizza slices            |
+| Method | Path                  | Purpose                                      |
+| ------ | --------------------- | -------------------------------------------- |
+| GET    | `/api/game/bootstrap` | Wallet totals; `chapters: []` (no DB catalog) |
+| GET    | `/api/game/leaderboard` | Overall / team rankings by pizza slices    |
 
 
 JSON helpers: `lib/http.ts` (`jsonOk`, `jsonError`). User-facing message keys: `lib/game/clientMessages.ts`.
@@ -282,8 +262,8 @@ JSON helpers: `lib/http.ts` (`jsonOk`, `jsonError`). User-facing message keys: `
 | Layer          | Responsibility                                                                                                           |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | **Route**      | HTTP method, rate limit, `requireSessionAccount`, map status codes                                                       |
-| **Service**    | `game-progress-service.ts` — bootstrap, start quest, advance, complete, evaluate, finish; payload validation errors      |
-| **Repository** | `game-progress-repository.ts` — queries, RPCs (`rpcCompleteQuestStepTask`, `rpcAdvanceQuestCutsceneStep`, wallet, gates) |
+| **Service**    | `game-progress-service.ts` — bootstrap wallet snapshot; `leaderboard-service.ts` — rankings |
+| **Repository** | `game-progress-repository.ts` — `player_wallets`, leaderboard joins on `student_accounts` |
 | **Schemas**    | Parse/validate `content_payload` per `task_type`                                                                         |
 | **Scoring**    | Pure functions + `evaluateTaskAttempt` for attempt JSON                                                                  |
 
@@ -293,7 +273,7 @@ JSON helpers: `lib/http.ts` (`jsonOk`, `jsonError`). User-facing message keys: `
 1. Zod schema under `lib/game/schemas/` (LLM types under `lib/llm/` if needed).
 2. Register parser in `lib/game/stepContentValidation.ts`.
 3. Add branch in `lib/game/scoring/evaluateTaskAttempt.ts` if scored server-side.
-4. Extend progress service / RPC usage if new completion semantics.
+4. Wire quest completion in the service layer when quest routes return (not in Postgres content tables).
 5. Add Vitest coverage for schema + scoring edge cases.
 6. Client step renderer (when web quest UI exists).
 
@@ -320,7 +300,7 @@ Do not sprinkle one-off colours in feature PRs; extend tokens or shared UI primi
 - Use `export const runtime = "nodejs"` on API routes that touch Supabase/crypto.
 - Never log raw bearer tokens or passwords.
 - Prefer structured `jsonError(status, message, code?, details?)` over throwing for expected client errors.
-- Content errors at bootstrap: `collectStepPayloadErrors` — fix seeds/schemas, do not weaken validation silently.
+- When content returns: validate with `collectStepPayloadErrors` at bootstrap boundaries; do not weaken Zod silently.
 
 ### Frontend (in progress)
 
