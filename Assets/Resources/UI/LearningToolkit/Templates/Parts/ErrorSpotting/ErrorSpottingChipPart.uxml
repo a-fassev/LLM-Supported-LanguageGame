@@ -1,4 +1,0 @@
-<!-- UI Builder sample; runtime overwrites button text. -->
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Button name="error-spotting-chip-part" text="bello" class="lg-error-spotting-chip lg-preview-sample" />
-</ui:UXML>

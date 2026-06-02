@@ -1,9 +1,0 @@
-<!-- UI Builder sample; runtime replaces copy. Protected: error-message, error-retry-button -->
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="load-error-banner-root" class="lg-error-banner">
-        <ui:Label name="error-message"
-            text="Non è stato possibile caricare i dati. Controlla la connessione e riprova."
-            class="lg-banner-message lg-text-muted lg-overlay-message-wrap lg-preview-sample" />
-        <ui:Button name="error-retry-button" text="Riprova" class="lg-btn lg-btn--primary lg-preview-sample" />
-    </ui:VisualElement>
-</ui:UXML>

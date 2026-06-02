@@ -1,6 +1,0 @@
-<!-- UI Builder sample; runtime overwrites body paragraph text. -->
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Label name="special-reader-body-label-part"
-        text="Il mercato è pieno di colori e profumi. I venditori chiamano i clienti con voce allegra."
-        class="lg-text-body lg-special-reader__body lg-preview-sample" style="white-space: normal;" />
-</ui:UXML>

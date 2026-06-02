@@ -1,8 +1,0 @@
-<!-- UI Builder sample; runtime mounts nested task UI here. -->
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="special-bubble-mechanic-host-part" class="lg-special-bubble__mechanic lg-preview-sample"
-        style="flex-grow: 1; flex-shrink: 0; min-height: 48px; justify-content: center;">
-        <ui:Label text="Attività incorporata …" class="lg-special-bubble__text lg-text-muted"
-            style="white-space: normal;" />
-    </ui:VisualElement>
-</ui:UXML>

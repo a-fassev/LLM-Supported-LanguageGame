@@ -1,5 +1,0 @@
-<!-- UI Builder sample; runtime overwrites header text. -->
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Label name="matching-column-header-part" text="Sinistra" class="lg-text-caption lg-preview-sample"
-        style="margin-bottom: 6px;" />
-</ui:UXML>

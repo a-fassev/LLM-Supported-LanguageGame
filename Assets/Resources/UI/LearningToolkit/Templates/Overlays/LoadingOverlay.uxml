@@ -1,9 +1,0 @@
-<!-- UI Builder sample; runtime replaces loading-message text. Protected: loading-message -->
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="loading-overlay-root" class="lg-loading-overlay">
-        <ui:VisualElement name="loading-card" class="lg-loading-card">
-            <ui:Label name="loading-message" text="Caricamento…"
-                class="lg-heading-screen lg-overlay-message-center lg-preview-sample" />
-        </ui:VisualElement>
-    </ui:VisualElement>
-</ui:UXML>

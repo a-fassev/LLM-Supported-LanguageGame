@@ -1,197 +1,66 @@
 # Agent guidance
 
-**Git branch for agent work:** Implement and commit **only** on `unity-implementation`. Do **not** do agent work on `main` or any other branch. Create this branch from `main` when needed (`git checkout main && git pull && git checkout -b unity-implementation`). At the start of every session, confirm you are on it: `git checkout unity-implementation`.
+**Git branch for agent work:** `web-based-implementation` (create from `main` when needed). Do not use legacy `unity-implementation` for new work.
 
 ## Repository overview
 
-The **committed** repository is a **Unity 6.4** project at the **repository root** (not under `apps/`). `git ls-files` is the source of truth for what ships in version control; extra folders in a local clone (for example `apps/` with leftover `node_modules` / build output) may be **untracked** and must not be treated as the canonical layout.
-
+Next.js **App Router** API for the language-learning game: auth (`/api/auth/*`) and game progress (`/api/game/*`), backed by **Supabase Postgres** (schema and content live in your Supabase project—not in this repo).
 
 | Area | Path | Role |
-| -------------------- | -------------------------------------------------------------------- | ---- |
-| **Unity (2D / URP)** | `Assets/`, `Packages/`, `ProjectSettings/` | Game client — URP 2D, New Input System, multi-scene **navigation** (`Auth` -> `MainMenu` -> `ChapterOverview` -> `QuestOverview` -> reusable `Quest`; `Leaderboard` from main menu; `AvatarShop` from chapter overview via `GameFlowController`, returns to chapter overview). Editor: `6000.4.6f1` per `ProjectSettings/ProjectVersion.txt`. |
-| **Next.js (local API)** | `apps/web/` | Auth + game/progress API for Unity (`/api/auth/*`, `/api/game/*`), backed by Supabase Postgres; run with `npm run dev` (secrets via `.env.local` only). |
-| **Planning / deferred work** | `.cursor/plans/` | Long-term backlog and milestones; **deferred scope** is consolidated in `long-term-todos.md` (anchor: foundation plan *Out of Scope*). Prefer extending that file over duplicating roadmaps here. |
-| **Repo meta** | `.gitignore`, `.gitattributes`, `AGENTS.md` | Version control and agent conventions. |
+|------|------|------|
+| **Routes** | `app/api/` | HTTP API handlers |
+| **Domain logic** | `lib/` | Auth, game progress, scoring, LLM evaluate, Supabase clients |
+| **Agent conventions** | `AGENTS.md`, `LEARNINGS.md`, `.cursor/commands/`, `.cursor/skills/` | Workflow and domain skills |
 
-**Deprecated layout note:** An older monorepo placed Unity under `apps/unity/`. **Open the Unity editor from this repository root** (folder containing `Assets` + `ProjectSettings`). The Next.js app lives at `apps/web/` (not `apps/unity/`).
+Run locally: `npm run dev` (secrets in `.env.local` only; see `.env.example`).
 
----
-
-## Tech stack (current tree)
-
-### Unity (repository root)
-
-- **Engine:** Unity 6.4 (`6000.4.6f1` per `ProjectSettings/ProjectVersion.txt`).
-- **Rendering:** 2D **Universal Render Pipeline (URP)** — settings under `Assets/Settings/` and `ProjectSettings/` (e.g. `URPProjectSettings.asset`).
-- **Input:** New Input System — `Assets/InputSystem_Actions.inputactions`.
-- **Language:** C# — gameplay and editor scripts under `Assets/Scripts/` (`LanguageGame.Application`, `LanguageGame.Domain`, `LanguageGame.Presentation` for the navigation skeleton).
-- **Navigation:** `Assets/Scripts/Application/GameFlowController.cs` loads `Auth`, `MainMenu`, `Leaderboard`, `ChapterOverview`, `QuestOverview`, `AvatarShop`, and a single reusable `Quest` scene. Content and progression are server-backed (`/api/game/*`) with DB-first chapter/quest/step data from Supabase. Presentation includes `AuthView`, `MainMenuView`, `LeaderboardView`, `ChapterOverviewView`, `QuestOverviewView`, `QuestStepShellHost` (task + cutscene shells), and `AvatarShopView` under `Assets/Scripts/Presentation/`. Keep `ProjectSettings/EditorBuildSettings.asset` aligned with scene names; preserve `GameFlowController` + `AuthApiClient` + `GameProgressApiClient` on the `GameFlow` object in `Auth` as `DontDestroyOnLoad` carries them into later scenes. **`AuthView` + DDOL:** reloading `Auth` after logout spawns a duplicate `GameFlow` that destroys itself and can null a serialized `AuthApiClient` on the scene `AuthView`—re-resolve the client in `Start`/before clicks, register button callbacks in `Awake`, and keep username-suggest busy separate from session-check busy so login stays clickable.
-
-**Unity UI / scene conventions (navigation flow):**
-
-- **UI Toolkit:** Menus and quest shell use **UI Toolkit** (`UIDocument`, UXML/USS under `Assets/Resources/UI/LearningToolkit/`). `LearningToolkitBootstrap` wires shared `PanelSettings` / theme. Do not add **Canvas** / **uGUI** for these navigation screens.
-- **Camera:** Menu, map, chapter/quest overview, and quest-shell scenes include an active **Main Camera**; mirror that when adding scenes to the same flow unless you intentionally use a different rendering setup.
-- **UI design tokens:** Shared styling data lives in `UiDesignTokens` (`Assets/Scripts/Presentation/UiDesignTokens.cs`, ScriptableObject). `UiThemeProvider` exposes tokens at runtime; optional default asset at `Resources/UI/UiDesignTokens_Default`. Prefer USS theme classes under `Assets/Resources/UI/LearningToolkit/` for menus and quest shell instead of scattering literals in C#.
-- **GameArt assets and step JSON media:** Static and dynamic sprites live under **`Assets/Resources/UI/GameArt/`** (loaded as `Resources.Load` paths `UI/GameArt/...`). Authoring uses **JSONB on `game_quest_steps.content_payload`** (no new SQL columns): **`sceneBackgroundAsset`** = full-step background for every **`task`** and **`cutscene`**; **`assetId`** = per-item image (and **`audioAssetId`** where used). Keys are **lowercase** path segments after `GameArt/` (e.g. `static/task-scene-backgrounds/ph-st-task-bg-default`); web Zod **normalizes** mixed-case authoring to lowercase. **Defaults:** `static/task-scene-backgrounds/ph-st-task-bg-default` (tasks), `static/cutscene-backgrounds/ph-st-cutscene-bg-default` (cutscenes). **Unity:** `GameArtResourceLoader`, `ToolkitSceneBackgroundBinder` (`scene-background-host` as a **direct child of the shell scene-bg root**, sibling of `main-column`, in **both** task and cut shell UXML—not nested only inside `cut-shell-stage`, or per-step bind clips art to the stage band), `ToolkitStepMediaBinder` (prefer `assetId`, fallback **`imageUrl`** / legacy HTTP where still authored), `ToolkitNavigationScreenBinder` (navigation screen backgrounds). **Placeholders:** masters in `GameArt/_MasterPlaceholders/`; named copies via **`scripts/populate-gameart-placeholders.py`**. **Web:** `gameArtAssetSchema.ts` + per-task Zod schemas routed by **`apps/web/lib/game/stepContentValidation.ts`**. **DB:** idempotent backfill migration **`20260627120000_content_payload_scene_background_defaults.sql`** when `sceneBackgroundAsset` is missing.
-- **Wallet HUD (pizza + backpack pieces):** Canonical structure in **`Templates/Parts/Navigation/NavigationWalletHudPart.uxml`**, composed via **`NavigationPageHeaderWithWalletPart`** (`ui:Template` / `ui:Instance` on **ChapterOverview**, **QuestOverview**, **task quest shell**, **AvatarShop**). Runtime values via **`WalletHudBinder`** + **`WalletUiTotals`**. In headers use **`lg-hud-strip--in-header`** with **`flex-wrap: nowrap`** and **`flex-shrink: 0`** on **`#navigation-wallet-hud-part`** so pizza + backpack stay on one row when the quest title is long (`components-hud.uss`). **Cutscene steps hide the wallet** (story mode). **`MainMenu` may omit wallet labels** while bootstrap still refreshes session totals for later scenes. **Leaderboard** uses **`NavigationPageHeaderMinimalPart`** (no wallet).
-- **Quest overview (bootstrap + list):** `QuestOverviewView` must refresh bootstrap on scene start when `GameSessionStateStore` is missing, stale, or invalidated (same pattern as `ChapterOverviewView.EnsureBootstrapThenRefresh`), then re-call `GameFlowController.SetSelectedChapter` from the fresh chapter row—`SelectedChapterQuests` is a snapshot updated only in `SetSelectedChapter`, not when a run finishes (`ApplyRunFinished` invalidates bootstrap). Render **all** `chapter.quests` in dynamic `quest-list-host` rows inside `quest-scroll`—do not cap at a fixed number of static UXML slots (bonus `*-bonus-vocab` quests are last by `order_index` and were invisible when only three rows existed).
-- **Leaderboard screen:** `MainMenuScreen.uxml` exposes **`leaderboard-button`** (under **Continue**). `LeaderboardView` + `LeaderboardScreen.uxml` preview list/team rows: runtime **`LeaderboardPlayerRowPart.uxml`** via **`ui:Instance`** (preview row #1) plus two inline preview rows in **`leaderboard-ui-builder-preview`** that mirror the same structure (rows #2/#3 dummy data; do not add extra `ui:Template` preview parts with hand-authored `.meta`—Unity fails to resolve them). Team cards use **`LeaderboardTeamSummaryPart.uxml`**. **`leaderboard-list-host`** stays empty in UXML; **`leaderboard-ui-builder-preview`** is removed in `LeaderboardView.Awake` before API bind. Runtime **`ToolkitStepUx.ClearHost`** + `ToolkitLeaderboardUx` rebuild player rows from API data. **Overall** ranks by pizza (`totalSlices`); backpack totals are display-only on rows. **Teams** shows blue/red team totals plus grouped player lists. Data from **`GET /api/game/leaderboard`** (initial load on open; **`refresh-button`** re-fetches in place). Pause chrome returns to main menu (`LearningToolkitPauseChromeBinder`). Editor: **Tools → Learning Toolkit → Validate UXML Template References** checks `ui:Template` `src` GUIDs/hash against `.meta` files and `ui:Instance` template names (auto-run on Learning Toolkit UXML import). UITK USS does not support `:last-child`; use modifier classes (e.g. `lg-header-actions-host__btn--trailing`).
-
-**Quest scene shell routing (one `Quest` scene, two shells):**
-
-- **`QuestStepShellHost`** (`Assets/Scripts/Presentation/QuestStepShellHost.cs`) mounts **exactly one** shell per refresh: **`TaskShellPresenter`** + `Shells/TaskShellScreen.uxml` or **`CutsceneShellPresenter`** + `Shells/CutShellScreen.uxml`. Switching `step_kind` is a **UIDocument teardown/mount in the same scene**—not separate `Task`/`Cut` scenes.
-- **Task shell** (current step is `task`, quest finish, or no step): **`scene-background-host`**, quest title in header, wallet HUD, optional **reference document** button, **one** task panel (`quest-step-panel` / `lg-game-panel`), **Controlla** / quest-finish primary, reward overlay after task complete. **Layout:** mirror **`CutShellScreen`** flex—`main-column` uses `lg-shell--flex-min` + `lg-task-shell__column`; `quest-step-panel` holds **`task-shell-stage`** + **`step-host`** (`lg-task-shell__step-host`) with **no shell-level `ScrollView`** around `step-host`; **`quest-footer`** uses `margin-top: auto`. In-task nav rows use **`lg-task-template-footer`**. Long content scrolls inside task hosts (e.g. `lg-cloze-lines-host`), not the shell. Step templates must **not** add a second outer `lg-game-panel` or `lg-muted-panel` at runtime—use **`ToolkitStepUx.TryMount(..., stripTemplateOuterChrome: true)`** → **`ApplyTaskShellEmbeddedChrome`** (UXML may keep preview classes for UI Builder).
-- **Cut shell** (`step_kind = cutscene`): **Pausa** (top) + full-viewport **`scene-background-host`** (shell-root sibling of `main-column`) + **`step-host`** + **Avanti** (footer) only—no quest title, wallet, brochure, or task panel. Beat headlines come from **`contentJson` beats** only.
-- **Shared:** `QuestShellSharedRuntime` + `QuestShellSessionState` hold overlays (loading, pause, reward, back confirm), pending advance / finish-run flags, and finish / auto-start quest coroutines. Overlays re-attach to each shell’s `overlay-plane` on mount. Layout: `Templates/Overlays/*.uxml` (UI Builder fixtures + `lg-preview-sample`); runtime via `Assets/Scripts/Presentation/Overlays/LearningToolkit*Overlay*.cs` + `ToolkitOverlayTemplatePaths` — do not rebuild overlay DOM in C#.
-- **Auto-start next quest:** After `finish` run, `QuestShellSharedRuntime` may follow `meta_payload.flow.autoStartQuestSlug`. Refresh bootstrap before slug lookup; do not gate auto-start on stale `isUnlocked` from `SelectedChapterQuests`. Optional bonus vocab: set `autoStartQuestSlug` on last main quest(s) toward `*-bonus-vocab` (delta migration **`20260628150000_bonus_quest_auto_start.sql`**; chapter 2 sets it on all three parallel location quests because bonus `unlock_rules` need all three).
-- **Extend the correct presenter:** task chrome → `TaskShellPresenter`; cutscene CTA / beat pager → `ICutsceneBeatNavigator` + `CutsceneShellPresenter`—do not add a third monolithic shell class.
-
-**Quest shell task steps (patterns):**
-
-- **UXML templates (layout) vs API payloads (content):** Step **layout** is authored in UI Builder under `Assets/Resources/UI/LearningToolkit/Templates/` (`Tasks/*`, `Cutscenes/*`, `Parts/*`, `SpecialScreens/*`). Runtime loads via `ToolkitStepUx` + `ToolkitStepTemplatePaths` (`TryMount` / `Instantiate`, then `Q<…>("name")`). C# owns parsing `contentJson`, validation, interaction, and filling named slots; **do not** rebuild static chrome in code. **Shell** controls (`Controlla` / `Weiter`, HUD, overlays) stay in `TaskShellScreen.uxml` / `CutShellScreen.uxml` and their presenters only—step templates must not duplicate them. **Single source for recurring UI:** each row/card/bubble lives only in **`Templates/Parts/*.uxml`**. Task templates compose full-task UI Builder previews with **`ui:Template`** + **`ui:Instance`** pointing at those part assets (GUID from the part `.meta`, `src` hash = part filename without `.uxml`, e.g. `#McOptionRowPart`)—**do not** copy duplicate fixture trees inline. On bind, **`ToolkitStepUx.ClearHost(host)`** then rebuild from live data via **`ToolkitStepUx.InstantiatePart`** (same part paths). Clear nested containers inside instantiated parts when the binder adds replacement children (e.g. drop-zone inner). Nested parts (e.g. a line row part instancing literal/gap parts) follow the same rule. Preview sample counts stay manual in the task template; JSON still drives runtime counts. Label-root parts may override preview text on **`ui:Instance`** (e.g. `text="Destra"`). Marked Error Spotting preview uses **`ErrorSpottingSlotMarkedPart.uxml`**. Run **Tools → Learning Toolkit → Validate UXML Template References** after moving part assets. Separate `*Preview.uxml` is not the default workflow. Task UI workflow: [`.cursor/skills/unity-task-type-ui/SKILL.md`](.cursor/skills/unity-task-type-ui/SKILL.md). Styling: [`docs/authoring/03-styling.md`](docs/authoring/03-styling.md).
-- **Single factory router:** `ToolkitStepFactory.Create` maps each `GameQuestStepDto` to an `IStepView`: non-task rows use `CutsceneToolkitStep`; task rows switch on `taskType` (`DragDrop`, `ClozeText`, `MultipleChoice`, `Matching`, `FreitextLlm`, `ErrorSpotting`, …). Unregistered types use `StubToolkitTaskStep` until a real UI exists.
-- **Special Screen family:** `SpecialScreen`, `SpecialScreenSms`, `SpecialScreenMailEditor`, `SpecialScreenPhotoViewer`, and `SpecialScreenReader` all resolve to `SpecialScreenToolkitStep` (`IsSpecialScreenTaskType`). Adding another `SpecialScreen*` alias means extending that helper in `ToolkitStepFactory`, plus DTO/`content_json` alignment. **`TryCreateBlockSlot`** must call **`ToolkitStepUx.ClearHost(slot)`** before nested `TryMount` so `SpecialScreenBlockSlotPart` UI Builder fixtures do not leak at runtime. **Authoring:** for “read profiles then identikit” flows, prefer **photo-only** `SpecialScreen` (`photoViewerChrome.showCaptions: true`, `blocks: []`) plus **standalone `ClozeText` steps** with step-level **`referenceDocument`** (see `20260629120000_chapter_02_q3_split_profiles.sql`) instead of one composite screen with stub blocks + embedded clozes—fewer parts, clearer captions, simpler flat `complete` (scored composite screens risk `attempt_mismatch` when attempt block count ≠ `content_payload.blocks.length`). New task types generally need a `*ToolkitStep` class, DTO shapes (often `ToolkitStepContentDtos.cs`), a factory case, and DB/API `content_json` kept in sync with `GameProgressContracts` and any Next.js validation.
-- **Long-running task work:** Task/cutscene shells inject `StepContext.presentBusyOverlay` / `dismissBusyOverlay` (same full-screen loading overlay as progression). Steps with slow HTTP (e.g. LLM evaluation) must use these instead of ad hoc spinners; composite hosts that clone `StepContext` for nested blocks (e.g. `SpecialScreenToolkitStep`) must forward both callbacks.
-
-**Quest shell cutscenes and quest meta (narrative scaffolding):**
-
-- **Cutscene `content_payload`:** Strict **`beats[]`** shape only (no legacy root `title`/`body`). Each beat has **`presentationMode`**: `narrator` | `npcDialog` | `innerMonologue` | `gameInfo`; optional **`npcCast[]`** for multiple NPCs in one cutscene step; optional **`sceneBackgroundAsset`** (full-step background). Validated in [`cutsceneContentSchema.ts`](apps/web/lib/game/schemas/cutsceneContentSchema.ts); authoring detail in [`docs/authoring/02-steps-and-rewards.md`](docs/authoring/02-steps-and-rewards.md).
-- **Avatar beats (`innerMonologue` / `npcDialog`):** Fixed **25% `avatar-slot` + 75% `bubble-col`** in `CutsceneInnerMonologueBeat.uxml` / `CutsceneNpcDialogBeat.uxml` (`lg-cutscene-beat-row--playerLeft` = player left + thought bubble right; `--npcRight` = speech left + NPC right). Player portrait is **not** in beat JSON — `CutscenePlayerPortraitProvider` loads **`GameArt/portraits/player/current`**; NPCs use `npcCast[].portraitId` → **`GameArt/portraits/npc/{id}`**. **`CutsceneAvatarSlotBinder`** clears `avatar-slot` and sets `backgroundImage` or `lg-cutscene-avatar-slot--placeholder`. **`npcCast.side`** is schema-only for layout (Unity ignores it). `narrator` / `gameInfo` beats unchanged.
-- **Local beat pager:** `CutsceneToolkitStep` implements **`ICutsceneBeatNavigator`**. `CutsceneShellPresenter` **Avanti** calls `TryAdvanceBeat()` until the last beat, then **`advance_quest_cutscene_step`** (one DB cutscene row = one server advance). Optional per-beat **`autoAdvanceMs`** via `StepContext.coroutineHost` (shell `MonoBehaviour`).
-- **Quest `meta_payload` + step `content_payload.referenceDocument`:** Column on `game_quests` → API **`metaJson`** on bootstrap/start. Quest meta still holds shared chrome (**`referenceDocument`**, **`flow.blockBack`**, **`flow.autoStartQuestSlug`**), but task steps may now carry **`referenceDocument`** directly in **`content_payload`** (same shape: `documentId?`, `title`, `bodyText`, `buttonLabel?`). **Task shell resolution is step-first, quest-fallback, else hidden button**. Authoring rule: use quest-level `referenceDocument` only when one document is intentionally shared across several task steps; use step-level docs when a quest contains different reading documents per task. Web validation for this document shape is **strict** (unknown keys rejected), so authoring payloads must keep the exact contract. Parsed in Unity via [`StepReferenceDocumentParser.cs`](Assets/Scripts/Application/StepReferenceDocumentParser.cs) and [`QuestMetaPayloadParser.cs`](Assets/Scripts/Application/QuestMetaPayloadParser.cs); Zod in [`referenceDocumentSchema.ts`](apps/web/lib/game/schemas/referenceDocumentSchema.ts) + [`questMetaPayloadSchema.ts`](apps/web/lib/game/schemas/questMetaPayloadSchema.ts).
-- **Shell overlays:** `LearningToolkitReferenceDocumentModal`, `LearningToolkitPauseMenuModal` under [`Assets/Scripts/Presentation/Overlays/`](Assets/Scripts/Presentation/Overlays/); USS in [`cutscene-narrative.uss`](Assets/Resources/UI/LearningToolkit/cutscene-narrative.uss). Extend **`ICutsceneBeatNavigator`** for new cutscene CTA/navigation behavior—do not bypass with ad hoc shell logic.
-- **Learning Toolkit folder layout:** navigation UXML under `Screens/`; quest shells under `Shells/`; recurring rows in `Templates/Parts/{Navigation|Leaderboard|ClozeText|MultipleChoice|DragDrop|Matching|ErrorSpotting|SpecialScreen|Common}/`; task layouts in `Templates/Tasks/{taskType}/`. See [`docs/unity/ui-learning-toolkit-inventory.md`](docs/unity/ui-learning-toolkit-inventory.md) §0.
-- **Chapter 1 story authoring convention:** **Akt 1** = one `game_chapters` row; **Akt 1.x** = one `game_quests` row per story beat; multi-line dialog in one scene = multiple **`beats[]`** inside one cutscene step (not one DB row per spoken line).
-
-### Web / auth API (`apps/web`)
-
-- **Next.js** App Router API routes under `apps/web/app/api/auth/*` and `apps/web/app/api/game/*` (session-auth game bootstrap, quest start/resume, step completion, run finish, leaderboard).
-- **Supabase:** database tables `student_accounts` (incl. **`team`**: `blue` | `red`) / `student_sessions` plus canonical game tables (`game_chapters`, `game_quests` incl. **`meta_payload`**, `game_quest_steps`, `player_quest_runs`, `player_step_attempts`, `player_wallets`) defined in [`supabase/migrations/`](supabase/migrations/); apply migrations to your Supabase project (Supabase MCP or CLI). **Secret API key** (`SUPABASE_SECRET_KEY`, server-only) and URL only in `apps/web/.env.local` (never ship to Unity). See `apps/web/.env.example`.
-- **Team assignment (registration):** **Server-only** — Unity does not send or choose team. On insert into `student_accounts`, Postgres trigger **`student_accounts_set_team_on_insert`** sets `team` via **`assign_balanced_student_team()`** (assign to the smaller team; random on tie). Migration: **`20260602120000_student_accounts_team.sql`**. `/api/auth/register` may return `team` in the JSON response; test mirror: `apps/web/lib/auth/balancedTeamPick.ts`.
-- **Leaderboard API:** `GET /api/game/leaderboard` (Bearer session) returns `self`, `overall` (players ranked by `player_wallets.total_slices`, tie-break username), and `teams` (aggregated slice totals per team). Service: `apps/web/lib/game/services/leaderboard-service.ts`; Unity DTOs in `GameProgressContracts` / `GameProgressApiClient.GetLeaderboard`.
-  - **Game migration sequence:** Apply the numbered chain in full (see `supabase/migrations/`). The greenfield migration **drops game tables/functions** (`DROP`/CASCADE) before recreating chapter/quest/step schema plus seed rows. **`complete_quest_step_task`** uses a **four-parameter** signature `(account_id, run_id, step_id, p_awarded_slices)`: for **`reward_rules.pizza.mode = 'scored'`**, credited pizza is **`p_awarded_slices`** clamped to **0..maxSlices**; for **`flat`**, pizza slices come from **`reward_rules.pizza`** in SQL and the passed value is **not** used for pizza (see **`20260530120000_*`** and neighbors). Apply **`20260518141500_*`** before **`20260519120000_*`** (`advance_quest_cutscene_step`). If your database still has only a three-argument overload from an older deploy, also apply **`20260521153000_*`**. Do not cherry-pick a subset omitting **`20260518141500_*`**, or task completion RPCs will not exist yet.
-  - **Narrative chapter content seeding:** Ship story content as numbered SQL under **`supabase/migrations/`** and apply with **`supabase db push`** or Supabase CLI—not ad-hoc MCP chunk scripts (see Key rules). **Canonical pattern** (Chapter 1: **`20260527160000_chapter_01_act1_content.sql`**): idempotent upserts on **`game_chapters.slug`**, **`(chapter_id, quest slug)`**, **`(quest_id, order_index)`**; step JSON in **dollar-quoted** blocks; **`sceneBackgroundAsset`** on every task and cutscene step; quest **`display_name`** = learner-facing title only (no `Akt` prefixes); quest **`meta_payload`** for **`flow.autoStartQuestSlug`**, **`referenceDocument`**, unlock rules. **Chapter bonus quests** (`*-bonus-vocab`): register each new slug in **`apps/web/lib/game/chapterUnlockProgress.ts`** → **`OPTIONAL_CHAPTER_QUEST_SLUGS`** and extend chapter-unlock tests—**`OPTIONAL_CHAPTER_QUEST_SLUGS` only excludes bonus from next-chapter unlock requirements**; bootstrap still returns every active quest and Unity must list them all. Wire **`flow.autoStartQuestSlug`** from the last main quest(s) to the bonus slug when the product should offer bonus right after the story beat (see **`20260628150000_bonus_quest_auto_start.sql`**). **Matching pools:** authoring may use **`poolPairs` + `sampleSize`**; runtime/scoring needs concrete pairs via **`player_step_materializations`** (materialize on bootstrap/start/get-run and before scoring—do not re-sample in memory per request). **Retire greenfield demo rows** in the same chapter: set **`is_active = false`** on legacy demo quests and their steps (e.g. **`quest-01`**, **`quest-02`** under **`chapter-01`**) or chapter overview shows duplicate quests after a full migration chain. **Post-deploy content fixes:** add a follow-up migration with delta upserts only; mark duplicated dollar-quote tags with **`KEEP IN SYNC`** in the SQL header; guard with **`apps/web/lib/game/chapter01MigrationPayloads.test.ts`** (**`npm run test:chapter01-migration`** in `apps/web`) so shared tags match the canonical migration—reuse this two-file + sync-test pattern for later chapters.
-- **Pizza rewards (authoritative):** Task `reward_rules.pizza` is **`flat`** (fixed slice count in DB JSON) or **`scored`** (integer slices derived on the server from performance). **Non–FreitextLlm** scored tasks: `POST .../steps/[stepId]/complete` may include **`attempt`** (task-type-shaped JSON); `completeQuestStepTask` in `apps/web/lib/game/services/game-progress-service.ts` runs `evaluateTaskAttempt` → `meetsScoredPizzaMinimum` → `slicesFromRatio` (`apps/web/lib/game/scoring/`), then passes the result as **`p_awarded_slices`**. The same JSON response includes **`taskItemsCorrect`** / **`taskItemsTotal`** (or **`-1`** when no discrete breakdown, e.g. flat pizza or FreitextLlm) for the quest-shell reward overlay copy. **FreitextLlm:** `.../evaluate` persists **`pizza_slices_award`** on **`player_freitext_llm_gates`**; `.../complete` redeems it with **`evaluationGateToken`**—**`minRatioToComplete`** (pizza rules) applies at evaluate time together with content **`passThreshold`**. A successful evaluate **always** leaves a gate row for that run + step; **no row** after a failed evaluate means the server never finished (timeout/provider/config)—see [`docs/unity/freitext-llm-timeout-diagnostics.md`](docs/unity/freitext-llm-timeout-diagnostics.md). **SpecialScreen:** server scoring only supports **`blockType`** **stub** / **cloze** / **error_spotting** (see `evaluateTaskAttempt`); stub-only `blocks[]` completes without minting pizza for non-exercises (`ratio` vs `pizzaRatio` in scoring). Unity: **`ITaskAttemptPayloadProvider`** + `TaskShellPresenter` / `GameProgressApiClient` for attempt payloads when pizza is scored.
-- **Step `content_payload` validation:** Bootstrap, quest start, and get-run validate **all** active steps via **`parseStepContent`** / **`collectStepPayloadErrors`** in [`stepContentValidation.ts`](apps/web/lib/game/stepContentValidation.ts) (not cutscene-only). Malformed JSON → HTTP **502** `payload_invalid` with **`details.stepPayloadErrors`** (bootstrap batch) or a flat detail per quest. Registered types: **ClozeText**, **DragDrop**, **MultipleChoice**, **Matching**, **ErrorSpotting**, **FreitextLlm**, **SpecialScreen***; unknown `task_type` passes if `content_payload` is an object. **Adding a task type:** add a Zod schema under `apps/web/lib/game/schemas/` (or `freitextLlmContentSchema.ts`) **and** a router case in `stepContentValidation.ts` in the same change as Unity DTOs / `ToolkitStepFactory`.
-- **Progression integrity:** Multi-step game transitions (rewards, chapter/quest unlocks, step/run completion) are enforced with **Postgres RPC** and **RLS** where migrations define them—atomic server-side updates, not client-only state. Example: **`complete_quest_step_task`** credits **backpack pieces at most once per account per logical task key**; revisits/replays do not mint extra backpack credits on the server (engagement placeholders may still differ). **Quest replay:** **`startOrResumeQuest`** in **`game-progress-service.ts`** enforces chapter-internal **sequential order** and blocks starting a quest that already has a completed run (`quest_already_completed`); resume of an **`in_progress`** run is allowed. Unity chips/modals reflect bootstrap `hasCompletedAnyRun` / `isUnlocked` but must not be the only gate. When extending schema or currencies, mirror **HTTP DTO <-> `GameProgressContracts` <-> `GameSessionStateStore.SetLatestWalletTotals` <-> UI** like pizza totals. Pair API/RPC changes with resilient loading/error UI on the Unity side.
-- Unity talks to the backend over HTTP only (`AuthApiClient` + `GameProgressApiClient` default `http://127.0.0.1:3000`).
-- **`GameProgressApiClient` auth vs business errors:** Call `ClearSessionAfterUnauthorized` only on **401** (or 403 with session error codes such as `invalid_session` / `missing_token`). Game APIs use **403** for business rules (`quest_already_completed`, `quest_locked`, `chapter_locked`, …)—parse the JSON body and surface to UI; do not treat every 403 as logout.
-
-If you extend the web stack (e.g. LLM task evaluation), keep **API keys server-side** and prefer a clear HTTP contract to the game client.
-
----
-
-## Directory structure
-
-Repository layout **as committed today**:
+## Layout (Next.js)
 
 ```text
-LLM-Supported-LanguageGame/
-├── AGENTS.md
-├── docs/                     # authoring/, narrative/ (chapter-*.md), unity/ inventory; see docs/README.md
-├── LEARNINGS.md              # pending notes for /apply-learnings (may be empty)
-├── supabase/migrations/      # Postgres schema for game progress (apply via Supabase CLI or SQL editor)
-├── Assets/
-│ ├── InputSystem_Actions.inputactions
-│ ├── Data/                   # optional local authoring data (DB remains source of truth for live chapter/quest/step content)
-│ ├── Scenes/                 # Boot, Auth, MainMenu, Leaderboard, ChapterOverview, QuestOverview, AvatarShop, Quest
-├── apps/
-│ └── web/                    # Next.js API (`npm run dev`: auth + game); see `.env.example`
-│ ├── Scripts/                # Application, Domain, Presentation
-│ └── Settings/               # URP 2D render assets and template scenes
-├── .cursor/                  # commands, skills, plans (not all tracked — use git status)
-├── Packages/
-│ ├── manifest.json
-│ └── packages-lock.json
-├── ProjectSettings/
-├── .gitignore
-└── .gitattributes
+app/              # App Router (root page + app/api/*)
+lib/              # Shared server modules (@/lib/...)
+middleware.ts
+next.config.ts
+package.json
 ```
 
-Update this tree when the repository layout changes.
+## Tech stack
+
+- **Next.js 15** App Router, TypeScript, Zod
+- **Supabase** via `@supabase/supabase-js` and server-only `SUPABASE_SECRET_KEY`
+- **Postgres RPC / RLS** in the linked Supabase project
+- **LangChain + OpenAI-compatible API** for FreitextLlm evaluate (keys server-side only)
+
+### Key modules
+
+- **Progress:** `lib/game/services/game-progress-service.ts`, `lib/game/repositories/game-progress-repository.ts`
+- **Step payloads:** `lib/game/stepContentValidation.ts`, `lib/game/schemas/`
+- **Scoring:** `lib/game/scoring/`
+- **Auth:** `app/api/auth/*`, `lib/require-session.ts`
+
+### Adding a task type
+
+1. Zod schema under `lib/game/schemas/`
+2. Register in `lib/game/stepContentValidation.ts`
+3. Extend `lib/game/scoring/evaluateTaskAttempt.ts` if scored
+
+### Tests
+
+```bash
+npm test
+```
 
 ---
 
 ## Core principle
 
-**UNDERSTAND → CLARIFY → CODE** — Understand the current situation first, ask questions and suggest options, and only start coding after the user confirms the approach.
-
----
-
-## 3-phase response protocol
-
-### Phase 1: Understand current state
-
-- Analyze existing code, setup, and tools
-- Identify the problem, constraints, and non-negotiables
-- Map what already exists vs. what's missing
-
-### Phase 2: Clarify and suggest (before coding)
-
-- Ask clarifying questions (spec gaps, scope, integrations)
-- Offer focused suggestions (tradeoffs, risks, simpler alternatives)
-- No coding yet — wait for explicit confirmation
-
-### Phase 3: Implement after confirmation
-
-- Build what was agreed
-- Follow the chosen approach
-- No scope creep or unrequested extras
-
----
-
-## Development philosophy
-
-- **Clean and simple:** avoid over-engineering; minimal dependencies; clear names
-- **Modern and modular:** single responsibility, separation of concerns, reusable pieces
+**UNDERSTAND → CLARIFY → CODE**
 
 ---
 
 ## Key rules
 
-- **Language:** Write **code** (identifiers, comments), **repository documentation** (`AGENTS.md`, `.cursor/` guidance, committed plan markdown), and **technical docs** in **English**. Conversation with the user may be in **German** when they prefer — that does not change the English-only rule for code and committed docs.
-- Do not jump straight to code; ground changes in the current codebase
-- Questions and suggestions should fit **this** project, not generic lectures
-- Wait for confirmation; do not assume unstated requirements
-- Do not create documentation files unless the user explicitly asks (no unsolicited `*_SUMMARY.md`, `*_GUIDE.md`, `TODO.md`, etc.). Prefer answering in chat unless they asked for a doc or you're adding real implementation that requires a file
-- Before adding a file: *"Did the user ask for this file?"* If not, keep it in the reply
-- **Supabase game content:** **`supabase/migrations/`** is the source of truth for chapter/quest/step seed data. Do not commit one-off **`supabase/scripts/chapter*`** chunk files; delete temp scripts after a dev rescue. Prefer **`supabase db push`** (or one MCP **`apply_migration`** per repo file). Chunked MCP **`execute_sql`** applies desync **`schema_migrations`** from git. **Multi-statement deltas:** Postgres `WITH … AS (quest_ref)` scopes to **one** SQL statement only—repeat the same CTE before each `UPDATE`/`INSERT` in a migration file (or use inline subqueries); if `apply_migration` fails mid-file, run statements via **`execute_sql`** one at a time.
-
----
-
-## Debugging
-
-- Prefer existing dev surfaces: Unity Console, test output, and (when a web app exists) browser DevTools
-- Do not spin up extra servers whose only purpose is ad-hoc logging or debugging
-- **FreitextLlm evaluate timeouts:** correlate Unity validation toasts with **`POST .../evaluate`** in the Next.js dev log and **`player_freitext_llm_gates`** in Postgres (Supabase API logs do not include the evaluate route). Checklist: [`docs/unity/freitext-llm-timeout-diagnostics.md`](docs/unity/freitext-llm-timeout-diagnostics.md)
-
----
-
-## Skills, MCP, and project conventions
-
-When the repo provides skills, rules, or MCP tools, use the ones that match the task (DB, CI, analytics, design system, etc.) instead of guessing.
-
-**Mapping for this repo:**
-
-- **Unity / game client:** follow Unity and C# conventions under `Assets/`; respect `ProjectSettings/` and `Packages/manifest.json` when changing engine behavior or dependencies.
-- **Chapter DB seeding:** when authoring `docs/narrative/chapter-*.md` into Supabase quests/steps/migrations, use **`.cursor/skills/supabase-chapter-content-seeding/SKILL.md`** (GameArt placeholders, idempotent migrations, validation, edge cases).
-- **Future web / LLM integration:** when present, use that app's `package.json` scripts (`dev`, `build`, `lint`); keep secrets server-side.
-
----
-
-## CLI tools (optional)
-
-Prefer each vendor's official CLI for local workflows (webhooks, auth, cloud resources) when it's faster or clearer than doing everything through a UI or brittle one-off scripts.
-
-**In use here (from the repo):**
-
-- **Unity Editor** — primary client for this tree
-- **npm** / **npx** — only when a `package.json` exists for a web or tooling subfolder
-
----
-
-## Most important
-
-- Favor simple, maintainable solutions
-- Be concise; avoid long essays unless the user wants depth
+- **Language:** Code and committed docs in **English**; conversation with the user may be in **German**.
+- Ground changes in this repo layout; wait for confirmation before large scope.
+- Do not create documentation files unless the user asks.
+- **Secrets:** Never commit `.env.local` or API keys.

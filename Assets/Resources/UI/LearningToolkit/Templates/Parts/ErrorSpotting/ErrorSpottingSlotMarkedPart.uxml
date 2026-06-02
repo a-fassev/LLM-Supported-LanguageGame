@@ -1,9 +1,0 @@
-<!-- UI Builder preview for marked error-spotting slot; runtime builds via ClearHost + inline field part. -->
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Template name="ErrorSpottingInlineFieldPart"
-        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/ErrorSpotting/ErrorSpottingInlineFieldPart.uxml?fileID=9197481963319205126&amp;guid=26d85854a39546aab4e8a4115484c1ef&amp;type=3#ErrorSpottingInlineFieldPart" />
-    <ui:VisualElement name="error-spotting-slot-part"
-        class="lg-error-spotting-slot lg-preview-sample lg-error-spotting-slot--marked">
-        <ui:Instance template="ErrorSpottingInlineFieldPart" />
-    </ui:VisualElement>
-</ui:UXML>

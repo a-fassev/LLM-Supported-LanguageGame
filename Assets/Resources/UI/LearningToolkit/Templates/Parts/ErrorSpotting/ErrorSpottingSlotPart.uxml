@@ -1,8 +1,0 @@
-<!-- UI Builder sample; runtime ClearHost then adds chip or field part. -->
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Template name="ErrorSpottingChipPart"
-        src="project://database/Assets/Resources/UI/LearningToolkit/Templates/Parts/ErrorSpotting/ErrorSpottingChipPart.uxml?fileID=9197481963319205126&amp;guid=619f7f460fc449329a14e3e125b42310&amp;type=3#ErrorSpottingChipPart" />
-    <ui:VisualElement name="error-spotting-slot-part" class="lg-error-spotting-slot">
-        <ui:Instance template="ErrorSpottingChipPart" />
-    </ui:VisualElement>
-</ui:UXML>

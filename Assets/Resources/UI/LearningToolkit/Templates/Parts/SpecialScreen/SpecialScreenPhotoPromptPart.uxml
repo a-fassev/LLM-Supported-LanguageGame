@@ -1,5 +1,0 @@
-<!-- UI Builder sample; runtime overwrites prompt text. -->
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:Label name="special-photo-prompt-part" text="Scrivi una didascalia per questa foto."
-        class="lg-task-prompt lg-preview-sample" style="margin-bottom: 8px;" />
-</ui:UXML>

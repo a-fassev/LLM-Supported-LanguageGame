@@ -1,9 +1,0 @@
-<!-- UI Builder sample; runtime overwrites line number and text. -->
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="special-reader-line-row-part" class="lg-special-reader__line-row lg-preview-sample">
-        <ui:Label name="special-reader-line-num" text="1" class="lg-text-caption lg-special-reader__line-num" />
-        <ui:Label name="special-reader-line-text"
-            text="Il mercato è pieno di colori e profumi."
-            class="lg-text-body lg-special-reader__line-text" style="white-space: normal;" />
-    </ui:VisualElement>
-</ui:UXML>

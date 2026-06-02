@@ -1,7 +1,0 @@
-<!-- UI Builder sample; runtime loads remote image into this host. -->
-<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
-    <ui:VisualElement name="mc-stem-image-part" class="lg-preview-sample"
-        style="height: 200px; min-height: 120px; margin-bottom: 8px; justify-content: center; align-items: center;">
-        <ui:Label text="Immagine (anteprima)" class="lg-text-caption lg-text-muted" />
-    </ui:VisualElement>
-</ui:UXML>
