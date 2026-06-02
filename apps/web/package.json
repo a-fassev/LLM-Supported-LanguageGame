@@ -11,6 +11,9 @@
     "test:watch": "vitest",
     "test:chapter01-migration": "vitest run chapter01MigrationPayloads.test.ts",
     "test:chapter02-migration": "vitest run chapter02MigrationPayloads.test.ts",
+    "test:chapter04-migration": "vitest run chapter04MigrationPayloads.test.ts",
+    "test:chapter05-migration": "vitest run chapter05MigrationPayloads.test.ts",
+    "test:chapter06-migration": "vitest run chapter06MigrationPayloads.test.ts",
     "test:chapter-unlock": "vitest run chapterUnlockProgress.test.ts",
     "test:bootstrap-chapter-unlock": "vitest run game-progress-service.bootstrapChapterUnlock.test.ts"
   },
