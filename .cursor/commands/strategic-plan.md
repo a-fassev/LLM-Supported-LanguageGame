@@ -12,7 +12,7 @@ Build a solid requirements foundation through structured conversation before ent
 **USE for:**
 - Complex features that need thorough requirements analysis
 - Ambiguous requests that need clarification
-- High-impact changes that touch both Unity and the Next.js app, or multiple subsystems
+- High-impact changes that touch multiple subsystems (API, game services, web UI)
 - Before entering planning mode
 
 **DON'T USE for:**
