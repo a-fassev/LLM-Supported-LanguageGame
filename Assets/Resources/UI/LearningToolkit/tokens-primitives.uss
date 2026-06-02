@@ -5,8 +5,8 @@
     --lg-ink-900: rgb(52, 48, 43);
     --lg-ink-700: rgb(94, 86, 78);
     --lg-ink-500: rgb(125, 115, 105);
-    --lg-sea-500: rgb(43, 128, 168);
-    --lg-sea-600: rgb(33, 102, 140);
+    --lg-peach-500: rgb(255, 201, 178);
+    --lg-peach-600: rgb(255, 219, 199);
     --lg-terra-450: rgb(217, 120, 86);
     --lg-terra-520: rgb(191, 95, 64);
     --lg-olive-400: rgb(146, 160, 86);
@@ -29,7 +29,7 @@
 
     /* Radii */
     --lg-radius-sm: 8px;
-    --lg-radius-button: 12px;
+    --lg-radius-button: 8px;
     --lg-radius-md: 14px;
     --lg-radius-lg: 22px;
     --lg-radius-pill: 999px;

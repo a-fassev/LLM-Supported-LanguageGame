@@ -52,7 +52,7 @@ MonoBehaviour:
   interaction:
     buttonNormal: {r: 0.2, g: 0.55, b: 0.85, a: 1}
     buttonHighlighted: {r: 0.3, g: 0.65, b: 0.95, a: 1}
-    buttonPressed: {r: 0.15, g: 0.4, b: 0.7, a: 1}
+    buttonPressed: {r: 0.69803923, g: 0.14901961, b: 0.15450706, a: 1}
     buttonDisabled: {r: 0.55, g: 0.55, b: 0.55, a: 0.95}
   layout:
     bannerHeight: 120

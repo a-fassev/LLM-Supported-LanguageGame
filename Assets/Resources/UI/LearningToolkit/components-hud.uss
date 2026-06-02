@@ -50,7 +50,7 @@
 }
 
 .lg-hud-badge__icon.lg-hud-badge__glyph--backpack {
-    color: var(--lg-sea-600);
+    color: var(--lg-peach-600);
     -unity-font-style: bold;
 }
 
@@ -66,5 +66,5 @@
 }
 
 .lg-hud-badge--backpack {
-    border-color: var(--lg-sea-500);
+    border-color: var(--lg-peach-500);
 }

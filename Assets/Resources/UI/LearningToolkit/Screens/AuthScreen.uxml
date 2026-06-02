@@ -1,40 +1,30 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Resources/UI/LearningToolkit/components-buttons-fields.uss?fileID=7433441132597879392&amp;guid=e156dec11ffb4771826399548d0bd0b9&amp;type=3#components-buttons-fields"/>
     <ui:VisualElement name="root-shell" class="lg-fill-screen lg-scene-bg-root lg-gameart-bg--auth">
-        <ui:VisualElement name="scene-background-host" class="lg-scene-background-host" picking-mode="Ignore" />
-
-        <ui:VisualElement name="content-plane" class="lg-shell lg-shell--form-centered lg-fill-screen--transparent">
-            <ui:Label text="Benvenuto!" class="lg-heading-display" />
-            <ui:Label name="status-label" text="" class="lg-text-body lg-text-muted" />
-
-            <ui:VisualElement name="login-panel" class="lg-game-panel lg-game-panel--over-scene lg-panel-padded">
-                <ui:TextField name="login-username" label="Nome utente" class="lg-textfield" />
-                <ui:TextField name="login-password" label="Password" class="lg-textfield"
-                    masking-character="*" password="true" />
-                <ui:Button name="login-button" text="Accedi" class="lg-btn lg-btn--primary" />
-                <ui:Button name="goto-register-button" text="Nuovo? Crea un account"
-                    class="lg-btn lg-btn--ghost" />
-            </ui:VisualElement>
-
-            <ui:VisualElement name="register-panel" class="lg-game-panel lg-game-panel--over-scene lg-panel-padded" style="margin-top: 16px;">
-                <ui:Label text="Scegli il tuo nome giocatore" class="lg-text-body-lg lg-text-muted" />
-                <ui:VisualElement style="flex-direction: row; align-items: center; margin-bottom: 8px;">
-                    <ui:Label name="generated-username-label" text="..." class="lg-text-body-lg"
-                        style="flex-grow: 1;" />
-                    <ui:Button name="new-username-button" text="Suggeriscine un altro"
-                        class="lg-btn lg-btn--secondary" />
+        <ui:VisualElement name="scene-background-host" picking-mode="Ignore" class="lg-scene-background-host"/>
+        <ui:VisualElement style="flex-grow: 1; height: 30%;"/>
+        <ui:VisualElement style="flex-grow: 1; align-self: flex-start; width: 50%; height: 70%;">
+            <ui:VisualElement name="content-plane" class="lg-shell lg-shell--form-centered lg-fill-screen--transparent">
+                <ui:Label name="status-label" text="" class="lg-text-body lg-text-muted"/>
+                <ui:VisualElement name="login-panel" class="lg-game-panel lg-game-panel--over-scene lg-panel-padded">
+                    <ui:TextField name="login-username" label="Nome utente" class="lg-textfield"/>
+                    <ui:TextField name="login-password" label="Password" masking-character="*" password="true" class="lg-textfield"/>
+                    <ui:Button name="login-button" text="Accedi" class="lg-btn lg-btn--primary"/>
+                    <ui:Button name="goto-register-button" text="Nuovo? Crea un account" class="lg-btn lg-btn--ghost"/>
                 </ui:VisualElement>
-                <ui:TextField name="register-password" label="Password" class="lg-textfield"
-                    masking-character="*" password="true" />
-                <ui:TextField name="register-password-confirm" label="Conferma password"
-                    class="lg-textfield"
-                    masking-character="*" password="true" />
-                <ui:Button name="register-button" text="Crea account" class="lg-btn lg-btn--primary"
-                    style="margin-top: 8px;" />
-                <ui:Button name="goto-login-button" text="Ho già un account" class="lg-btn lg-btn--ghost" />
+                <ui:VisualElement name="register-panel" class="lg-game-panel lg-game-panel--over-scene lg-panel-padded" style="margin-top: 16px;">
+                    <ui:Label text="Scegli il tuo nome giocatore" class="lg-text-body-lg lg-text-muted"/>
+                    <ui:VisualElement style="flex-direction: row; align-items: center; margin-bottom: 8px;">
+                        <ui:Label name="generated-username-label" text="..." class="lg-text-body-lg" style="flex-grow: 1; color: rgb(255, 201, 178);"/>
+                        <ui:Button name="new-username-button" text="Suggeriscine un altro" class="lg-btn lg-btn--secondary"/>
+                    </ui:VisualElement>
+                    <ui:TextField name="register-password" label="Password" masking-character="*" password="true" class="lg-textfield"/>
+                    <ui:TextField name="register-password-confirm" label="Conferma password" masking-character="*" password="true" class="lg-textfield"/>
+                    <ui:Button name="register-button" text="Crea account" class="lg-btn lg-btn--primary" style="margin-top: 8px;"/>
+                    <ui:Button name="goto-login-button" text="Ho già un account" class="lg-btn lg-btn--ghost"/>
+                </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>
-
-        <ui:VisualElement name="overlay-plane" picking-mode="Ignore" class="lg-overlay-root" />
-
+        <ui:VisualElement name="overlay-plane" picking-mode="Ignore" class="lg-overlay-root"/>
     </ui:VisualElement>
 </ui:UXML>

@@ -18,15 +18,15 @@ Button.lg-btn {
 
 Button.lg-btn--primary {
     background-color: var(--lg-accent-primary-bg);
-    color: var(--lg-text-inverse);
+    color: var(--lg-text-soft);
 }
 
 Button.lg-btn--primary:hover {
-    background-color: var(--lg-accent-primary-press);
+    background-color: var(--lg-accent-primary-press) !important;
 }
 
 Button.lg-btn--primary:active {
-    background-color: var(--lg-accent-primary-press);
+    background-color: var(--lg-accent-primary-press) !important;
 }
 
 Button.lg-btn--primary-hard {
@@ -53,8 +53,8 @@ Button.lg-btn--nav {
     padding-right: var(--lg-space-12);
     background-color: rgba(43, 128, 168, 0.08);
     border-width: var(--lg-stroke-1);
-    border-color: var(--lg-sea-500);
-    color: var(--lg-sea-600);
+    border-color: var(--lg-peach-500);
+    color: var(--lg-peach-600);
     -unity-font-style: bold;
 }
 
@@ -71,7 +71,7 @@ Button.lg-btn--secondary {
 
 Button.lg-btn--ghost {
     background-color: transparent;
-    color: var(--lg-sea-600);
+    color: var(--lg-peach-600);
     border-width: 0;
 }
 
@@ -82,7 +82,7 @@ Button.lg-btn--ghost#pause-menu-button {
 
 Button.lg-btn--ghost#pause-menu-button:hover {
     background-color: rgba(43, 128, 168, 0.08);
-    border-color: var(--lg-sea-500);
+    border-color: var(--lg-peach-500);
 }
 
 Button.lg-btn--tertiary {
@@ -99,7 +99,7 @@ TextField.lg-textfield {
 
 TextField.lg-textfield > Label {
     min-width: 120px;
-    color: var(--lg-text-soft);
+    color: var(--lg-text-inverse);
 }
 
 TextField.lg-error-spotting-inline-field > Label {
@@ -124,7 +124,7 @@ TextField.lg-cloze-gap-inline > Label {
 }
 
 TextField.lg-textfield > TextInput {
-    background-color: var(--lg-bg-muted);
+    background-color: rgba(255, 201, 178, 0.4);
     border-radius: var(--lg-radius-sm);
     border-width: var(--lg-stroke-1);
     border-color: var(--lg-border-soft);

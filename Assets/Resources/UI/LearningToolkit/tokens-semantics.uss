@@ -10,14 +10,14 @@
     --lg-text-main: var(--lg-ink-900);
     --lg-text-soft: var(--lg-ink-700);
     --lg-text-muted: var(--lg-ink-500);
-    --lg-text-inverse: var(--lg-white);
+    --lg-text-inverse: var(--lg-peach-500);
 
-    --lg-accent-primary-bg: var(--lg-sea-500);
-    --lg-accent-primary-press: var(--lg-sea-600);
+    --lg-accent-primary-bg: var(--lg-peach-500);
+    --lg-accent-primary-press: var(--lg-peach-600);
     --lg-accent-secondary-bg: rgba(239, 229, 217, 0.95);
 
     --lg-border-soft: var(--lg-stroke-strong);
-    --lg-focus-ring: var(--lg-sea-500);
+    --lg-focus-ring: var(--lg-peach-500);
 
     --lg-feedback-success-bg: rgba(229, 246, 237, 0.95);
     --lg-feedback-success-fg: var(--lg-success);
@@ -39,5 +39,5 @@
     --lg-task-border-hard: var(--lg-terra-450);
 
     --lg-card-highlight: var(--lg-highlight-line);
-    --lg-modal-border-game: var(--lg-sea-600);
+    --lg-modal-border-game: var(--lg-peach-600);
 }

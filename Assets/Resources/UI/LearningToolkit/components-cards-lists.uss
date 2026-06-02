@@ -158,7 +158,7 @@
 }
 
 .lg-leaderboard-team-dot--blue {
-    background-color: var(--lg-sea-500);
+    background-color: var(--lg-peach-500);
 }
 
 .lg-leaderboard-team-dot--red {
@@ -214,7 +214,7 @@
 
 .lg-leaderboard-team--blue {
     border-left-width: 6px;
-    border-left-color: var(--lg-sea-500);
+    border-left-color: var(--lg-peach-500);
 }
 
 .lg-leaderboard-team--red {
