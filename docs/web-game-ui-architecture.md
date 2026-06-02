@@ -1,6 +1,6 @@
 # Web game UI architecture (high level)
 
-**Status:** Draft v1 — planning only. Product decisions **§10** locked (2026-06-02). No game routes or shadcn components shipped yet.
+**Status:** v1 — **shell shipped** (2026-06-02). Product decisions **§10** locked. Routes under `app/(auth)/` and `app/(game)/`; shadcn primitives in `components/ui/`; **per-task-type renderers** still placeholders in `TaskPanel`.
 
 **Purpose:** Structure the React + shadcn UI for the browser game: directory layout, screen map, shared quest chrome, data flow with existing `/api/*` + Supabase, styling via `app/globals.css`, and Italian player copy.
 
@@ -46,7 +46,7 @@
 ### Frontend foundation
 
 - Next.js 16 App Router, React 19, Tailwind v4, shadcn **init** (`components.json`, `lib/utils.ts`, `app/globals.css`).
-- **`components/ui/`** — empty (`.gitkeep` only); components added incrementally via `npx shadcn@latest add …`.
+- **`components/ui/`** — shadcn primitives (button, card, dialog, …); add more via `npx shadcn@latest add …`.
 
 ### Intentionally out of scope (initial UI work)
 

@@ -38,7 +38,7 @@ Run locally: `npm run dev` (secrets in `.env.local` only; see `.env.example`).
 
 - **Clean & simple:** KISS, minimal dependencies, clear naming, no over-engineering
 - **Modern & modular:** Single responsibility, separation of concerns, reusable modules
-- **Server-authoritative game logic:** Scoring and progression rules live in `lib/`; Supabase stores **auth + wallet/leaderboard** only (no chapter/quest/step catalog in Postgres)
+- **Server-authoritative game logic:** Scoring, unlock rules, and narrative catalog live in `lib/` (JSON + services); Supabase stores **auth, wallet, and run/scene progress** only (no chapter/quest/step catalog in Postgres)
 - **Type-safe contracts:** Zod for step payloads and API bodies; extend schemas when content shape changes
 
 ---
@@ -93,8 +93,8 @@ Optional CLIs when MCP is not enough: **GitHub** (`gh`) for PRs and CI; **Supaba
 | Layer             | Choice                                 | Notes                                                               |
 | ----------------- | -------------------------------------- | ------------------------------------------------------------------- |
 | Framework         | **Next.js 16** App Router              | Repo root: `app/`, `lib/`, `middleware.ts`                          |
-| Language / UI     | **TypeScript 6**, **React 19**         | Game UI growing; today mostly API + placeholder pages               |
-| Styling           | **Tailwind CSS v4**, **shadcn/ui**     | `app/globals.css`, `components.json`, `lib/utils.ts` — no UI components in repo yet |
+| Language / UI     | **TypeScript 6**, **React 19**         | Game shell in `app/(game)/`, `components/game/`; per-task renderers still placeholders |
+| Styling           | **Tailwind CSS v4**, **shadcn/ui**     | `app/globals.css`, `components.json`, `components/ui/`; **`shadcn` npm package** required for `@import "shadcn/tailwind.css"` |
 | Data / auth       | **Supabase** (`@supabase/supabase-js`) | Postgres + RLS in linked project; `SUPABASE_SECRET_KEY` server-only |
 | Validation        | **Zod 4**                              | Step payloads, attempts, pizza rules                                |
 | LLM               | **LangChain** + OpenAI-compatible API  | **FreitextLlm** evaluate only (`lib/llm/`)                          |
@@ -111,7 +111,7 @@ Optional CLIs when MCP is not enough: **GitHub** (`gh`) for PRs and CI; **Supaba
 - **Session auth:** Bearer token in `Authorization` header; validated via `lib/require-session.ts` against `student_sessions` (hashed token).
 - **Content validation at boundaries:** `lib/game/stepContentValidation.ts` + per-type schemas under `lib/game/schemas/`.
 - **Deterministic scoring:** Task attempts evaluated in `lib/game/scoring/evaluateTaskAttempt.ts`; pizza rules in `lib/game/scoring/pizzaReward.ts`.
-- **Image-driven UI (target):** Asset keys in content JSON; resolve in the client once the design system lands (see Design system).
+- **Image-driven UI:** Asset keys in scene JSON; client resolves via `lib/game/content/resolve-asset-url.ts` → `public/content-assets/` (see Design system).
 
 ### State management
 
@@ -122,8 +122,8 @@ Next.js serves **both** the web UI and `/api/*`. Treat the **server** as the sou
 
 | Kind | Examples | Where it lives | Who owns updates |
 | ---- | -------- | -------------- | ---------------- |
-| **Player persistence** | Wallet, leaderboard ranks | Supabase (`student_*`, `player_wallets`) via `game-progress-repository` | Services only |
-| **Content & rules** | Step payloads, unlock gates, scoring (future quest APIs) | `lib/` schemas/scoring; **not** in Supabase today | Server when quest routes return |
+| **Player persistence** | Wallet, run position, completed scenes/quests, leaderboard | Supabase (`student_*`, `player_wallets`, `player_quest_runs`, `player_scene_completions`, …) via `game-progress-repository` | Services only |
+| **Content & rules** | Scene payloads, unlock gates, scoring | `lib/content/` + `lib/game/content/catalog-loader.ts`, Zod in `lib/game/schemas/`; **not** in Supabase | Server on bootstrap / run APIs |
 | **UI-local** | Current answer draft, open documento overlay, form fields | Client component `useState` / `useReducer` | Component; discard on unmount unless submitted |
 
 Do **not** mirror player persistence (chapters unlocked, run step index, pizza totals) in a global client store. After a successful mutation, refresh from the server (`router.refresh()`, a targeted refetch, or navigation) instead of patching client caches by hand.
@@ -136,8 +136,8 @@ Do **not** mirror player persistence (chapters unlocked, run step index, pizza t
 
 #### Session
 
-- Store the bearer token in a **small, explicit** place (e.g. `sessionStorage` + a narrow React Context, or httpOnly cookie if introduced later)—not scattered across components.
-- Gate client routes on `GET /api/auth/session`; on `401`, clear credentials and send the player to login.
+- Bearer token: `sessionStorage` key `game.session.token`, exposed via `lib/game/session-context.tsx` (`GameSessionProvider` on `app/(game)/layout.tsx`).
+- Gate `(game)` routes on `GET /api/auth/session` through `refreshSession`; on `401`, clear credentials and send the player to login.
 - Never put Supabase service keys or LLM keys in client state.
 
 #### Local UI state guidelines
@@ -148,19 +148,20 @@ Do **not** mirror player persistence (chapters unlocked, run step index, pizza t
 
 #### Content source
 
-Narrative catalog (chapters, quests, steps) is **not** stored in Supabase. `GET /api/game/bootstrap` returns wallet totals and `chapters: []` until content is re-authored (e.g. under `lib/content/` or a new store). Zod schemas in `lib/game/schemas/` remain the contract for the next content pipeline. Clients must not treat missing catalog as authoritative game state.
+Narrative catalog is **git-versioned JSON** under `lib/content/chapters/` (see `docs/quest-scene-content-format.md`), loaded by `lib/game/content/catalog-loader.ts` and validated with `lib/game/schemas/contentCatalogSchema.ts`. `GET /api/game/bootstrap` returns wallet totals, **`chapters`** (metadata list), and **`completedQuestIds`**. Active play uses run snapshot APIs (current **scene**, not legacy step-index rows). Clients must not invent catalog or unlock state locally beyond display helpers (`lib/game/unlock-display.ts`).
 
 #### Error handling (client boundary)
 
 - APIs return `{ ok: false, error, code? }` via `jsonError` (`lib/http.ts`). User-facing Italian copy comes from `lib/game/clientMessages.ts`.
-- Use a single **`lib/api-client.ts`** (or equivalent) to parse responses; map `code` when the UI must branch (e.g. stale evaluation token, quest locked).
+- Use **`lib/api-client.ts`** for all client `/api/*` calls (`ApiResult`, auth header, envelope parse); map `code` when the UI must branch.
 - Do not invent a parallel error taxonomy in components—reuse server `error` / `code` and `clientMessages`.
+- Post-**Controlla** success/retry copy and reward summary: server **`taskOutcome`** from `lib/game/task-outcome-messages.ts` → `SuccessOverlay` on `/play` (not a toast). Below min ratio: **409** with `taskOutcome` in `details` (`kind: "retry"`).
 
-**Inline (default):** Wrong password, empty answer, task feedback after **Controlla**, field validation—show **in context** (under the field, in the step panel, inline banner on the quest screen). These are normal play flow, not global alerts.
+**Inline (default):** Wrong password, empty answer, field validation—show **in context**. Routine task mistakes use the success overlay in retry mode, not Sonner.
 
-**Toasts (shadcn Sonner):** Reserve for **serious** failures that **block or derail active play**—not every small API rejection. Examples: bootstrap or run load failed (cannot continue), session expired mid-quest, game server unavailable (`gameServerUnavailable`), LLM evaluator down when Freitext is required, unrecoverable run/state conflict. Wire Sonner once in the root layout (`<Toaster />`); call from a thin helper that maps `code` → `clientMessages` when needed.
+**Toasts (shadcn Sonner):** `<Toaster />` in root `app/layout.tsx`; trigger via `lib/game/toast-from-api.ts` (**5xx** or `BLOCKING_CODES` only—e.g. `catalog_unavailable`, `active_run_exists`, session invalid). Do not toast per-attempt wrong answers or quest-locked hints on the map.
 
-**Do not toast:** Per-attempt wrong answers, quest locked hints, rate limits on username suggest, validation on a single form field, or any error the child can fix on the same screen without losing progress context.
+**Do not toast:** Per-attempt scoring feedback, rate limits on username suggest, validation on a single form field, or any error the child can fix on the same screen without losing progress context.
 
 #### Anti-patterns
 
@@ -179,51 +180,57 @@ LLM-Supported-LanguageGame-1/
 ├── .cursor/
 │   ├── commands/          # apply-learnings, review-code, strategic-plan, …
 │   ├── plans/             # Foundations and backlog (planning only unless user executes)
-│   └── skills/            # product, …
+│   └── skills/            # product, unity-* (reference only on web branch), …
 ├── .github/workflows/     # deploy-azure.yml (push web-based-implementation)
 ├── app/
+│   ├── (auth)/            # login, register
+│   ├── (game)/            # menu, chapters, leaderboard, play (QuestShell)
 │   ├── api/auth/          # login, register, logout, session, suggest-username
-│   ├── api/game/          # bootstrap, leaderboard
-│   ├── supabase/migrations/  # Postgres DDL (auth + progress; no content catalog)
-│   ├── layout.tsx
-│   └── page.tsx           # Placeholder / growing game shell
+│   ├── api/game/          # bootstrap, leaderboard, runs/*
+│   ├── layout.tsx         # globals, Sonner Toaster
+│   └── page.tsx           # redirect: session → menu, else login
+├── components/
+│   ├── ui/                # shadcn primitives
+│   └── game/              # layout, shell, overlays, screens, tasks
 ├── lib/
-│   ├── auth/              # balanced team pick at registration
+│   ├── api-client.ts      # client fetch + DTO types
+│   ├── content/chapters/  # git-versioned quest/scene JSON
+│   ├── auth/
 │   ├── game/
-│   │   ├── schemas/       # Zod content per task type + cutscene + game art
-│   │   ├── scoring/       # evaluateTaskAttempt, pizzaReward
-│   │   ├── services/      # game-progress-service, leaderboard-service
-│   │   ├── repositories/  # Supabase wallet + leaderboard access
-│   │   └── stepContentValidation.ts
-│   ├── llm/               # FreitextLlm schema, evaluation service, env
-│   ├── require-session.ts
-│   ├── supabase-admin.ts
-│   └── http.ts, rate-limit.ts, …
-├── docs/
-│   └── web-stack-setup-plan.md   # Planned Tailwind + shadcn init
-├── middleware.ts          # CORS for /api/*
-├── AGENTS.md
-├── LEARNINGS.md
+│   │   ├── content/       # catalog-loader, resolve-asset-url
+│   │   ├── schemas/       # Zod (tasks + contentCatalogSchema)
+│   │   ├── scoring/
+│   │   ├── services/
+│   │   ├── repositories/
+│   │   ├── session-context.tsx, unlock-display.ts, toast-from-api.ts
+│   │   └── task-outcome-messages.ts
+│   └── llm/
+├── public/content-assets/ # backgrounds from content keys
+├── supabase/migrations/   # auth, wallet, run/scene tables (no game_chapters)
+├── docs/                  # web-game-ui-architecture, quest-scene-content-format, …
+├── middleware.ts
 └── package.json
 ```
 
-**Note:** A duplicate tree may exist under `apps/web/` from an earlier layout. Treat **repo root** `app/` + `lib/` as canonical unless the user directs otherwise.
+**Note:** Do **not** treat `apps/web/` or Unity `Assets/` as canonical on this branch. Unity skills under `.cursor/skills/unity-*` are **reference** for the legacy client only.
 
 ---
 
 ## Game domain (technical)
 
-**Supabase today:** `student_accounts`, `student_sessions`, `player_wallets`, and empty-ready `player_quest_runs` / `player_step_*` tables (no FK to a content catalog). Quest gameplay APIs are removed until content is reintroduced.
+**Supabase today:** `student_accounts`, `student_sessions`, `player_wallets`, **`player_quest_runs`** (text `chapter_id` / `quest_id` / `current_scene_id`; at most one `in_progress` run per account), **`player_scene_completions`**, **`player_task_attempts`**. No `game_chapters` / `game_quests` / `game_quest_steps` (dropped in `20260602120000_remove_game_content_catalog.sql`; greenfield run schema in `20260602221000_player_scene_progress_greenfield.sql`).
 
-**Progression (product + future code):** Sequential chapters → quests → steps; unlock helpers in `lib/game/chapterUnlockProgress.ts` remain for tests and the next content pipeline.
+**Content:** `lib/content/chapters/**` + `catalog-loader.ts`. Scene order from `scenes/01.json`, `02.json`, …; scene ids derived in loader.
 
-**Step contract (authoring mental model):** Zod under `lib/game/schemas/` — `step_kind`, `task_type`, `content_payload` / `contentJson`, `reward_rules`, `sceneBackgroundAsset`. Not persisted in Postgres until a new content store is chosen.
+**Progression:** Sequential chapters → quests → **scenes**; server advances by catalog scene order. Unlock math: `lib/game/chapterUnlockProgress.ts` (tests); hub **display** locks: `lib/game/unlock-display.ts` from bootstrap `completedQuestIds`. **Gap:** `POST /api/game/runs/start` does not yet reject locked quests server-side—enforce in service when hardening.
 
-**Task types (schemas):** `ClozeText`, `MultipleChoice`, `DragDrop`, `Matching`, `ErrorSpotting`, `FreitextLlm`, plus `SpecialScreen`* variants.
+**Scene contract (authoring):** Per-scene JSON — `scene_type` (`story` | `task`), `screen_type`, `content`, `background`, optional `scoring`. Legacy step fields in older docs map to this model; see `docs/quest-scene-content-format.md`.
 
-**Scoring:** Pure functions in `lib/game/scoring/`; wallet totals in `player_wallets`. Bootstrap returns `totalSlices` / `totalBackpackPieces` only.
+**Task types (schemas):** `ClozeText`, `MultipleChoice`, `DragDrop`, `Matching`, `ErrorSpotting`, `FreitextLlm`, plus `SpecialScreen`* variants (web UI: placeholders in `TaskPanel` until per-type components land).
 
-**LLM:** `lib/llm/` kept for Freitext contracts; no live `/evaluate` route until quest flow returns.
+**Scoring:** `evaluateTaskAttempt` + pizza rules in service; rewards recorded on scene completion; wallet in `player_wallets`.
+
+**LLM:** `lib/llm/` for Freitext contracts; wired through run **attempt** when content uses Freitext (no separate public evaluate route required for shell).
 
 ---
 
@@ -250,8 +257,12 @@ All game routes require a valid session unless noted. Rate limiting via `lib/rat
 
 | Method | Path                  | Purpose                                      |
 | ------ | --------------------- | -------------------------------------------- |
-| GET    | `/api/game/bootstrap` | Wallet totals; `chapters: []` (no DB catalog) |
-| GET    | `/api/game/leaderboard` | Overall / team rankings by pizza slices    |
+| GET    | `/api/game/bootstrap` | Wallet, `chapters`, `completedQuestIds` |
+| GET    | `/api/game/leaderboard` | Overall / team rankings by pizza slices |
+| POST   | `/api/game/runs/start` | Start/resume quest run (`chapterId`, `questId`) |
+| GET    | `/api/game/runs/snapshot` | Active run + current scene (or empty run) |
+| POST   | `/api/game/runs/[runId]/advance` | Story scene → next |
+| POST   | `/api/game/runs/[runId]/attempt` | Task attempt → score; may return `taskOutcome` |
 
 
 JSON helpers: `lib/http.ts` (`jsonOk`, `jsonError`). User-facing message keys: `lib/game/clientMessages.ts`.
@@ -262,8 +273,8 @@ JSON helpers: `lib/http.ts` (`jsonOk`, `jsonError`). User-facing message keys: `
 | Layer          | Responsibility                                                                                                           |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | **Route**      | HTTP method, rate limit, `requireSessionAccount`, map status codes                                                       |
-| **Service**    | `game-progress-service.ts` — bootstrap wallet snapshot; `leaderboard-service.ts` — rankings |
-| **Repository** | `game-progress-repository.ts` — `player_wallets`, leaderboard joins on `student_accounts` |
+| **Service**    | `game-progress-service.ts` — bootstrap, runs, scoring, `taskOutcome`; `leaderboard-service.ts` — rankings |
+| **Repository** | `game-progress-repository.ts` — wallets, runs, scene completions, leaderboard |
 | **Schemas**    | Parse/validate `content_payload` per `task_type`                                                                         |
 | **Scoring**    | Pure functions + `evaluateTaskAttempt` for attempt JSON                                                                  |
 
@@ -273,9 +284,9 @@ JSON helpers: `lib/http.ts` (`jsonOk`, `jsonError`). User-facing message keys: `
 1. Zod schema under `lib/game/schemas/` (LLM types under `lib/llm/` if needed).
 2. Register parser in `lib/game/stepContentValidation.ts`.
 3. Add branch in `lib/game/scoring/evaluateTaskAttempt.ts` if scored server-side.
-4. Wire quest completion in the service layer when quest routes return (not in Postgres content tables).
+4. Wire scene completion in `game-progress-service` (run attempt/advance paths).
 5. Add Vitest coverage for schema + scoring edge cases.
-6. Client step renderer (when web quest UI exists).
+6. Client renderer under `components/game/tasks/types/` (dispatch from `TaskPanel`).
 
 ### Design system (implementation)
 
@@ -300,16 +311,16 @@ Do not sprinkle one-off colours in feature PRs; extend tokens or shared UI primi
 - Use `export const runtime = "nodejs"` on API routes that touch Supabase/crypto.
 - Never log raw bearer tokens or passwords.
 - Prefer structured `jsonError(status, message, code?, details?)` over throwing for expected client errors.
-- When content returns: validate with `collectStepPayloadErrors` at bootstrap boundaries; do not weaken Zod silently.
+- Validate catalog and scene payloads at loader/service boundaries (`contentCatalogSchema`, `collectStepPayloadErrors` where used); do not weaken Zod silently.
 
-### Frontend (in progress)
+### Frontend
 
-- Follow `docs/web-stack-setup-plan.md` before adding shadcn components ad hoc.
-- Italian player-facing strings for game chrome (see product skill); English for code and committed docs.
-- When adding pages, keep **game shell** concerns separate from **API** (client calls same-origin `/api/`* with bearer token).
-- Follow **State management** above: Server Components + props for reads; `useState` for drafts; no global game state.
-- Add `lib/api-client.ts` when the first client mutation ships; reuse `clientMessages` for display text.
-- Install **Sonner** via shadcn when the UI foundation lands; use toasts only for serious, play-blocking errors (see **Error handling** under State management).
+- Shell shipped: `app/(auth)/`, `app/(game)/`, `components/game/*` — see `docs/web-game-ui-architecture.md`.
+- Add shadcn primitives via `npx shadcn@latest add …`; extend `app/globals.css` tokens rather than one-off colours.
+- Italian player-facing strings (product skill); English for code and committed docs.
+- Client calls same-origin `/api/*` through `lib/api-client.ts` with bearer from `session-context`.
+- Follow **State management**: Server Components where reads are server-assembled; `useState` for drafts on `/play`; refetch bootstrap/snapshot after mutations.
+- Toasts only via `lib/game/toast-from-api.ts` for play-blocking errors (see **Error handling**).
 
 ### Tests
 
@@ -339,6 +350,8 @@ Co-locate tests as `*.test.ts` next to modules. Favor pure tests for scoring, sc
 | `.cursor/skills/product/SKILL.md`     | Learner experience, progression, rewards, copy            |
 | `.cursor/commands/apply-learnings.md` | Promote chat learnings into `LEARNINGS.md` / docs         |
 | `.cursor/commands/review-code.md`     | Review checklist (update if still references old layouts) |
-| `docs/web-stack-setup-plan.md`        | Approved-next stack upgrade checklist                     |
+| `docs/web-stack-setup-plan.md`        | Stack upgrade checklist (mostly done)                     |
+| `docs/web-game-ui-architecture.md`    | Web shell layout, screens, overlays, data flow            |
+| `docs/quest-scene-content-format.md`  | `lib/content/` authoring spec                             |
 
 

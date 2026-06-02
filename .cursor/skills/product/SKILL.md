@@ -14,7 +14,7 @@ description: |
 
 An **LLM-supported Italian learning game** for **children** in a **gifted-education school**, built as part of the **TUM IT-based learning** course. The experience is a **browser game**: a **sequential** journey through chapters and quests on a **city-map** hub, with **large language models** used only for **a small subset** of tasks (short free-text checks). Most interactions stay **predictably checkable** on the server.
 
-Canonical **technical** contracts live in `AGENTS.md`. UI foundation work is tracked in `docs/web-stack-setup-plan.md`. Deferred milestones: `.cursor/plans/long-term-todos.md`.
+Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (login, menu, chapter map, leaderboard, quest play with pause/documento) ships on the web branch; per-task exercise UIs are still filling in. UI structure: `docs/web-game-ui-architecture.md`. Deferred milestones: `.cursor/plans/long-term-todos.md`.
 
 ## Who it is for
 
@@ -56,6 +56,8 @@ Each step is defined by JSON with:
 - **Chapter tiles** show unlock state; **tap a chapter** for quest overview, then start a **quest**.
 - **Leaderboard:** compare progress by **total pizza slices**—**Overall** (all learners) or **Teams** (blue vs red). Players can **refresh** after playing; their own row should be easy to find without shaming low scores.
 - **Inside a quest**, the UI alternates **story mode** (narrative: **Pausa**, **«Avanti»**, full-step **background**, no performance HUD) and **task mode** (quest title, **pizza + backpack** in the header, optional **documento** for shared reading text, one exercise surface, **«Controlla»**).
+- After **«Controlla»**, a **full-screen success overlay** (not a pop-up toast) shows Italian praise, how much pizza/backpack they earned, and **«Riprova»** when the score was below the step minimum—children stay on the same scene until they pass.
+- **Chapter and quest lists** show **locked** vs **open** missions from saved progress; starting a locked quest should eventually be blocked server-side—until then, treat locks as the honest map state the child sees.
 - **Mission names** on lists are **short Italian titles**, not internal act numbers or `Step 2/7` in the shell.
 - **Bonus quests** sit in the same list as story quests (often at the bottom), are **optional for chapter unlock**, and may be **offered** after the last main quest—children can still **Pausa** / go back.
 - **Navigation menus** (main menu, chapters, classifica, login) share **Italian** chrome and consistent **background** treatment so the app feels like one product.
