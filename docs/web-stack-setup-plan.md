@@ -418,6 +418,8 @@ npm run build && npm test && npm run lint
 - **Node:** `.nvmrc` → `22`, `engines` → `>=22 <23` (CI already on 22.x).
 - **Verification:** `npm run build`, `npm test` (82 tests), `npm run lint` — all pass.
 
+**Runtime dependency:** `app/globals.css` imports `shadcn/tailwind.css` — the **`shadcn` npm package** (not only the CLI) must stay in `dependencies`. It was briefly removed with `radix-ui`; restored in follow-up fix.
+
 **Deferred (separate PRs):** `shadcn add sonner`, `lib/api-client.ts`, game route groups, brand token tuning in `globals.css`.
 
 ---
