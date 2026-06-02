@@ -2,8 +2,8 @@
 name: product
 description: |
   Domain knowledge for the language-learning game from the learner and product perspective:
-  Italian for children (gifted-education school), city-map quests, task variety (incl. composite
-  special screens), mascot rewards, research study context, privacy posture. Use when deciding UX,
+  Italian for children (gifted-education school), sequential chapter/quest progression, task variety,
+  image-driven UI, mascot rewards, research study context, privacy posture. Use when deciding UX,
   copy, pacing, difficulty, task design, or explaining what players experience—not for implementation
   details (see AGENTS.md).
 ---
@@ -12,100 +12,121 @@ description: |
 
 ## Overview
 
-An **LLM-supported Italian learning game** for **children** in a **gifted-education school**, built as part of the **TUM IT-based learning** course. Unity delivers a **playable, map-based** experience; **large language models** support **a small subset** of interactions so teaching and checking Italian feel **varied and responsive**, while most tasks stay **predictably checkable**.
+An **LLM-supported Italian learning game** for **children** in a **gifted-education school**, built as part of the **TUM IT-based learning** course. The experience is a **browser game**: a **sequential** journey through chapters and quests on a **city-map** hub, with **large language models** used only for **a small subset** of tasks (short free-text checks). Most interactions stay **predictably checkable** on the server.
 
-Canonical **technical** contracts live in `AGENTS.md`; **task-type orientation** is summarized in this skill. Deferred milestones and backlog anchors: `.cursor/plans/long-term-todos.md`. Older root-level requirement markdown files were removed—confirm specifics with the team or meeting notes when needed.
+Canonical **technical** contracts live in `AGENTS.md`. UI foundation work is tracked in `docs/web-stack-setup-plan.md`. Deferred milestones: `.cursor/plans/long-term-todos.md`.
 
 ## Who it is for
 
 - **Players:** School-age children learning **Italian** in class (content ties to textbook and teacher-prepared material).
 - **Stakeholders:** Teacher and content team align structure and tasks; the product must support **research** (game run plus pre/post measures) with a sound rationale for **task types** and **content**.
 
+## Game structure (progression)
+
+Play is **strictly sequential**:
+
+- **Chapters** unlock one after another; a player must **finish a chapter** before the next opens.
+- Within a chapter, **quests** unlock in order; quest **N+1** stays locked until quest **N** is complete.
+- A **chapter** is an ordered list of **quests**. At the end of a chapter there may be **optional bonus quests**—extra **pizza slices**, but **not required** to unlock the next chapter.
+
+Each **quest** has a story arc and an ordered list of **steps**. A step is the **atomic** unit of play.
+
+### Step model (authoring mental model)
+
+Each step is defined by JSON with:
+
+| Field | Role |
+|-------|------|
+| `scene_type` | `story` (narrative) or `task` (exercise) |
+| `screen_type` | Info/interaction shell, or a specific **task type** for task steps |
+| `content` | Type-specific payload (story beats, prompts, options, etc.) |
+| `background` | Background image for this step |
+| `scoring` | How **pizza slices** are awarded for this step (task and bonus steps) |
+
+**Story steps** should feel continuous—minimal chrome, strong background and copy. **Task steps** show exercise UI, **«Controlla»** (check), and reward feedback where appropriate.
+
 ## What players experience
 
 ### World and flow
 
 - **Main menu** offers **Continue** into the chapter map and a **Leaderboard** entry (rankings are optional motivation, not required to progress).
-- **Chapter overview** as the main hub—not a free-roam character hub.
-- **Chapter cards/buttons** drive progression visibility via unlock rules.
-- **Tap a chapter** to open quest overview, then start a **quest**; quests **chain** (finishing one unlocks the next).
-- **Leaderboard:** children can compare progress by **total pizza slices**—**Overall** (all learners) or **Teams** (blue vs red standings). They can **refresh** the list to see updated ranks after playing. Their own row should feel findable (rank / highlight), without shaming low scores.
-- **Inside a quest**, children move through **steps** in one **`Quest` scene**, but the UI switches between two modes: **task mode** (exercise chrome: quest title, **pizza and backpack side by side** in the header, optional **documento** button, **one** exercise panel filling the middle—not a card inside a card, **«Controlla»**) and **story mode** (full-screen narrative: **Pausa** + **«Avanti»** only—no wallet or quest title so the scene feels like one continuous story card). **Task and story steps** can show a **full-scene background image** (authored per step) behind header and footer chrome—not only a band in the middle—so city/quest mood stays consistent without rebuilding layout.
-- **Mission names** on chapter/quest lists are **short Italian titles** (e.g. scene name), not act numbers or `Step 2/7` counters in the shell header.
-- **One playthrough per mission:** after a mission is **finished**, children see **«Fatto»** and cannot start it again; the server enforces this (Unity chips are a mirror). **Bonus vocabulary missions** appear in the **same mission list** as story missions (usually at the bottom), are **optional for unlocking the next chapter**—main story is enough—and after the last main beat the game may **offer the bonus mission automatically** (children can still use **Pausa** / back to skip). Cutscenes can show several beats in one row (narrator, NPC speech, inner thoughts, game-info hints) before the next task. **Story beats with characters:** the learner’s thoughts appear as a **thought bubble on the right** with their **avatar on the left**; **NPC dialogue** uses a **speech bubble on the left** and the **NPC portrait on the right** (placeholder art until final portraits ship). **Pausa** is available in both modes; the **documento** appears only during **tasks**, not during pure story beats. **Navigation menus** (main menu, chapters, classifica, login) use the same Italian chrome and background treatment so the app feels like one product, not a prototype mix of languages. Some quests may **block leaving** or **continue straight into the next quest** when the story requires it; otherwise **back to chapters** stays available so children do not feel trapped in homework mode.
-- **Reading-doc UX rule:** when a quest has one shared reading text, children can reopen the same **documento** across related task steps; when tasks in one quest need different texts, the **documento** now follows the active step so learners always reopen the text that matches the current exercise.
+- **Chapter overview** is the main hub—not a free-roam character world.
+- **Chapter tiles** show unlock state; **tap a chapter** for quest overview, then start a **quest**.
+- **Leaderboard:** compare progress by **total pizza slices**—**Overall** (all learners) or **Teams** (blue vs red). Players can **refresh** after playing; their own row should be easy to find without shaming low scores.
+- **Inside a quest**, the UI alternates **story mode** (narrative: **Pausa**, **«Avanti»**, full-step **background**, no performance HUD) and **task mode** (quest title, **pizza + backpack** in the header, optional **documento** for shared reading text, one exercise surface, **«Controlla»**).
+- **Mission names** on lists are **short Italian titles**, not internal act numbers or `Step 2/7` in the shell.
+- **Bonus quests** sit in the same list as story quests (often at the bottom), are **optional for chapter unlock**, and may be **offered** after the last main quest—children can still **Pausa** / go back.
+- **Navigation menus** (main menu, chapters, classifica, login) share **Italian** chrome and consistent **background** treatment so the app feels like one product.
+- **Reading-doc rule:** when one shared text applies across tasks, **documento** reopens the same passage; when tasks need different texts, **documento** follows the **active step**.
 
 ### Teams and classroom competition
 
-- On **first account creation**, each learner is placed automatically on **Squadra Blu** or **Squadra Rossa**—they **do not pick** a side; the game keeps teams **roughly equal** in size.
-- Copy after signup can name their team once (friendly, not political); leaderboard **Teams** view is where class rivalry should feel visible.
-- Team assignment is **not** a gate for quests—children can always continue the story; teams mainly frame **leaderboard** motivation.
+- On **first account creation**, each learner is assigned **Squadra Blu** or **Squadra Rossa** automatically (balanced team sizes)—they do not pick a side.
+- Teams mainly frame **leaderboard** rivalry; they do **not** gate story progress.
 
-### Mascot and motivation
+### Scoring and motivation (two currencies)
 
-- Mascot can be **lightweight** (e.g. **static in a corner**), not a full controllable avatar.
-- **Rewards (reference: Essen project)** — distinct roles for children and copy:
-  - **Pizza slices:** **Practice / encouragement** loot—shows **how well the step went** in the moment (often **whole slices**, sometimes **fewer slices** when the child only got part of the exercise right). The **game server** applies the teacher-authored rules so the same answers **always** produce the same slice count—play stays **fair** and predictable. Slices support unlocking **mascot skins** in the avatar shop and can recur on **replay** so repetition still feels supported.
-  - **Backpack pieces:** **Milestone / mastery** loot—conceptually tied to **first-time success on a distinct task**, not infinite grinding on repeats. Messaging and tutorials must not imply endless backpack gains from redoing one activity forever.
-  - **Where totals appear:** show balances on **ChapterOverview**, during **task steps inside a quest** (not on cutscene/story-only beats), and in **AvatarShop**; keep the **main menu** visually light (players land there to continue—full wallet HUD belongs with exploration/customization flows). **Leaderboard** uses pizza totals as the **ranking score** (not backpack pieces).
-  - **Composite special screens:** a step may mix **real exercises** (e.g. gaps, error spotting) with **story-only** pieces; children should still feel **one quest**, but **pizza** should only reflect **actual language work**—**stub** / layout blocks alone should not feel like “jackpot” pizza.
-  - Optional **expressions** by situation remain nice-to-have.
-- **Visual direction** (not final): e.g. **lion** (Bologna) or neutral **boy/girl** school-trip style.
+| Currency | What it means for the child |
+|----------|-----------------------------|
+| **Pizza slices** | **Performance**—how well they did on a **task** (or **bonus**) step. Awarded **variably** from authored **scoring** rules (e.g. more correct answers → more slices). Same answers should always yield the same slices (**fair**, server-side). Used for **leaderboard** rank and optional rewards (e.g. mascot skins). |
+| **Backpack %** | **Completion**—**0–100%** progress through the **whole game**. Increments by a **fixed** amount per **completed step**, regardless of exercise score. Reaches **100%** when everything required is done. |
 
-### Tasks (modularity)
+Show **pizza** and **backpack** where progress matters (chapter/quest hubs, **task** steps—not pure story beats). Keep the **main menu** visually light.
 
-- Task types are **modular** (e.g. drag-and-drop): swap **texts and content** without rebuilding core mechanics.
-- **Pedagogical preference:** **little free-text** input where possible, for clearer scoring and control.
-- **LLM use** is **intentionally narrow**—today that means **short Italian writing checked against clear criteria**; most tasks are **fixed, deterministic** checks on the server.
-- **Special screens** dress several small mechanics inside **one believable frame** (e.g. **phone chat**, **email/letter**, **photo strip**, **magazine-style reader**). Learners may tap **«→»** to move between parts, then **«Controlla»** (and sometimes an in-frame **send** on mail) so pacing still feels like **one quest**, not a pile of worksheets. When the job is **“look at three profile cards, then fill three identikits”**, the product often works better as **one short photo step** (names under the pictures) followed by **separate identikit exercises** with a **documento** button to reopen the full bio—instead of paging through the same text again inside one long composite screen.
+### Visual design (product framing)
 
-## Task categories (what kids do)
+The look is **image-driven**: backgrounds and UI chrome often use **sprites on buttons and panels**, not only flat color blocks. **Typography, colour, spacing, radii, shadows** stay consistent via a **central design system** and **tokens**.
 
-**Implemented today — mostly deterministic (no LLM scoring):**
+**Backgrounds:**
 
-| Category | Player action (short) |
-|----------|------------------------|
-| Error spotting | Find/fix a deliberate mistake; mark segments and confirm corrections. |
-| Drag & drop | Order fragments, fill gaps, match pronouns/referents, sort into categories. |
-| Cloze | Fill gaps in **readable dialogue rows**—each line should read like a sentence, not a stack of broken chips; typically **closed answers** / accepted solutions. Long passages use **more rows**, not tiny fragments wrapped line by line. |
-| Matching | Pair columns (words/meanings, clauses, pictures/terms, etc.). |
-| Multiple choice | Choose correct option(s) from stems that can mix **text**, **image**, and **audio**. |
-| Special screen (composite) | **Chat**, **mail/letter**, **photo gallery/slideshow**, or **reader** chrome wrapping the same core mechanics (e.g. cloze / error spotting) in a story context; often **multi-part** with clear arrows between parts. |
+- **Static** — hub screens (main menu, dashboard-style navigation).
+- **Dynamic** — chapter/quest overviews, story, and tasks; each screen pulls the right image from **context**.
 
-**LLM-assisted (use sparingly; copy must set expectations):**
+Image references live throughout **content config**—chapter tiles, quest tiles, buttons, and steps—not only a single hero per screen.
 
-| Category | Player action (short) |
-|----------|------------------------|
-| Short free writing (scored) | Brief **Italian** answer; server-backed check against **authored criteria** (learners should understand there can be a short **“checking”** moment before feedback—avoid implying instant magic). If checking fails or times out, the step **did not pass**—they need to try again, not assume the game “almost” accepted it. |
-| Relative-clause puzzle *(planned / not shipped as a dedicated screen yet)* | Describe a target **without naming it**, using relative clauses; model-guided guessing—**teacher sign-off** before exposing widely. |
+### Mascot
 
-The **final menu** of task types may still change with **feasibility** and **teacher sign-off**.
+- Mascot can stay **lightweight** (e.g. corner presence), not a full avatar controller.
+- Optional **expressions** by situation remain nice-to-have.
+
+### Tasks (what kids do)
+
+| Task type | Player action (short) |
+|-----------|------------------------|
+| Error spotting | Find/fix deliberate mistakes; confirm corrections. |
+| Drag & drop | Order fragments, fill slots, sort into categories, match referents. |
+| Free text | Brief **Italian** answer; **language model** checks against **authored criteria**—set expectations for a short **checking** moment; failures/timeouts mean **try again**, not “almost passed”. |
+| Matching | Pair columns (words, meanings, pictures, clauses). |
+| Multiple choice / gap fill | Choose options or fill gaps in readable lines (prefer **sentence-like** rows, not broken chips). |
+| Bonus | Optional chapter-end activities for **extra pizza**; not required to advance. |
+
+**Pedagogical preference:** **little free-text** where possible, for clearer scoring and control.
 
 ## Access and platform
 
-- Target: **browser-playable** build; students **log in** with **generated username + password**—align login UX with teacher/org provisioning flows agreed outside the codebase.
-- UI should be **click/tap-friendly** for map navigation and tasks.
+- **Browser-playable**; students **log in** with **generated username + password** (teacher/org provisioning).
+- UI is **click/tap-friendly** for map navigation and tasks.
 
 ## Privacy and school context (product framing)
 
 - **No personal student data** stored; **random/generated** player names.
-- Metrics may exist for research but must stay **non-identifying**; schools and parents need **clear information** and consent—**EU hosting** does not replace that communication.
+- Research metrics stay **non-identifying**; schools and parents need **clear information** and consent—**EU hosting** does not replace that communication.
 
 ## Research and timeline (orientation only)
 
-- Field run and milestones (e.g. school week, “feature-complete” target) may appear in `.cursor/plans/long-term-todos.md` or meeting notes; treat dates as **planning signals**, not agent-implemented schedules.
+- Field run and milestones may appear in `.cursor/plans/long-term-todos.md` or meeting notes; treat dates as **planning signals**, not agent-implemented schedules.
 - Content process: agree **skeleton** (story, structure, categories) with teacher, then ship **task packs** aligned to the book.
 
 ## Principles for agents
 
 When you design flows, wording, difficulty, or task presentation:
 
-1. **Child-first, Italian-first**—clarity, encouragement, age-appropriate tone; gifted learners still need **accessible** UI.
-2. **Game feel over admin feel**—motivation, progression, and feedback matter as much as correctness.
-3. **Prefer deterministic UX** where the product promises a **fair, repeatable** outcome; surface LLM-based tasks only when the design **owns** the softer scoring tradeoffs (and when **Controlla** feedback can stay **encouraging** even if wording is model-shaped).
-4. **LLM as backstage support** unless the experience intentionally exposes it to the child; **Italian shell copy** and **special-screen fiction** (chat, mail, reader) should still read as **school-trip / lesson** tone, not generic chatbot.
+1. **Child-first, Italian-first**—clarity, encouragement, age-appropriate tone.
+2. **Game feel over admin feel**—progression and feedback matter as much as correctness.
+3. **Prefer deterministic UX** where the product promises a **fair, repeatable** outcome; surface LLM tasks only when the design owns softer scoring tradeoffs.
+4. **LLM as backstage support** unless the experience intentionally exposes it; shell copy stays **school-trip / lesson** tone.
 5. If an idea only fits a **generic enterprise app**, it is likely **wrong** here unless the user says otherwise.
 
 ## Out of scope for this skill
 
-Implementation stack (Unity scenes, Next.js auth API, Azure, etc.)—use `AGENTS.md` and the codebase.
+Implementation stack (Next.js routes, Supabase, Zod schemas, component library)—use `AGENTS.md` and the codebase.
