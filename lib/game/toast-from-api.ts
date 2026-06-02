@@ -16,6 +16,7 @@ const BLOCKING_CODES = new Set<string>([
 ]);
 
 export function shouldToastApiError(error: ApiErrorResult): boolean {
+  if (error.status === 0) return true;
   if (error.status >= 500) return true;
   if (!error.code) return false;
   return BLOCKING_CODES.has(error.code);

@@ -92,7 +92,7 @@ Optional CLIs when MCP is not enough: **GitHub** (`gh`) for PRs and CI; **Supaba
 
 | Layer             | Choice                                 | Notes                                                               |
 | ----------------- | -------------------------------------- | ------------------------------------------------------------------- |
-| Framework         | **Next.js 16** App Router              | Repo root: `app/`, `lib/`, `middleware.ts`                          |
+| Framework         | **Next.js 16** App Router              | Repo root: `app/`, `lib/`, `proxy.ts`                               |
 | Language / UI     | **TypeScript 6**, **React 19**         | Game shell in `app/(game)/`, `components/game/`; per-task renderers still placeholders |
 | Styling           | **Tailwind CSS v4**, **shadcn/ui**     | `app/globals.css`, `components.json`, `components/ui/`; **`shadcn` npm package** required for `@import "shadcn/tailwind.css"` |
 | Data / auth       | **Supabase** (`@supabase/supabase-js`) | Postgres + RLS in linked project; `SUPABASE_SECRET_KEY` server-only |
@@ -142,6 +142,7 @@ Do **not** mirror player persistence (chapters unlocked, run step index, pizza t
 
 #### Local UI state guidelines
 
+- Client `useEffect` + `await fetch`: before `setState` after the await, guard with `useMountedRef()` (`lib/game/use-mounted-ref.ts`). React Strict Mode remounts leave a plain `useRef(false)` cleanup stuck false.
 - One quest step screen: local state for **in-progress input** until the player taps **Controlla** / submit; then POST to the API and use the response (and server refresh) for feedback and rewards.
 - Cutscene/story steps: minimal state (current beat index only if the server does not drive it via `advance`).
 - Shared chrome (pause, documento open): lift state only as high as needed—Context is fine for **session + shell chrome**, not for game progression.
@@ -159,7 +160,7 @@ Narrative catalog is **git-versioned JSON** under `lib/content/chapters/` (see `
 
 **Inline (default):** Wrong password, empty answer, field validation—show **in context**. Routine task mistakes use the success overlay in retry mode, not Sonner.
 
-**Toasts (shadcn Sonner):** `<Toaster />` in root `app/layout.tsx`; trigger via `lib/game/toast-from-api.ts` (**5xx** or `BLOCKING_CODES` only—e.g. `catalog_unavailable`, `active_run_exists`, session invalid). Do not toast per-attempt wrong answers or quest-locked hints on the map.
+**Toasts (shadcn Sonner):** `<Toaster />` in root `app/layout.tsx`; trigger via `lib/game/toast-from-api.ts` (**network unreachable** `status === 0`, **5xx**, or `BLOCKING_CODES` only—e.g. `catalog_unavailable`, `active_run_exists`, session invalid). Do not toast per-attempt wrong answers or quest-locked hints on the map.
 
 **Do not toast:** Per-attempt scoring feedback, rate limits on username suggest, validation on a single form field, or any error the child can fix on the same screen without losing progress context.
 
@@ -208,7 +209,7 @@ LLM-Supported-LanguageGame-1/
 ├── public/content-assets/ # backgrounds from content keys
 ├── supabase/migrations/   # auth, wallet, run/scene tables (no game_chapters)
 ├── docs/                  # web-game-ui-architecture, quest-scene-content-format, …
-├── middleware.ts
+├── proxy.ts
 └── package.json
 ```
 
@@ -228,7 +229,7 @@ LLM-Supported-LanguageGame-1/
 
 **Task types (schemas):** `ClozeText`, `MultipleChoice`, `DragDrop`, `Matching`, `ErrorSpotting`, `FreitextLlm`, plus `SpecialScreen`* variants (web UI: placeholders in `TaskPanel` until per-type components land).
 
-**Scoring:** `evaluateTaskAttempt` + pizza rules in service; rewards recorded on scene completion; wallet in `player_wallets`. Do not auto-pass unsupported **scored** task types in service logic—unsupported scored scenes must fail clearly (`task_eval_not_implemented`) until an evaluator exists. For smoke/placeholder authoring, use `scoring.pizza.mode: "flat"` instead of bypassing scored evaluation.
+**Scoring:** `evaluateTaskAttempt` + pizza rules in service; rewards recorded on scene completion; wallet in `player_wallets`. Do not auto-pass unsupported **scored** task types in service logic—unsupported scored scenes must fail clearly (`task_eval_not_implemented`) until an evaluator exists. For smoke/placeholder authoring, use `scoring.pizza.mode: "flat"` or, for local/staging walkthrough only, `GAME_SMOKE_AUTO_PASS=true` in `.env.local` (skips evaluation, full ratio)—never enable in production Azure unless intentional.
 
 **LLM:** `lib/llm/` for Freitext contracts; wired through run **attempt** when content uses Freitext (no separate public evaluate route required for shell).
 
@@ -300,9 +301,9 @@ JSON helpers: `lib/http.ts` (`jsonOk`, `jsonError`). User-facing message keys: `
 
 Do not sprinkle one-off colours in feature PRs; extend tokens or shared UI primitives.
 
-### CORS and middleware
+### CORS and proxy
 
-`middleware.ts` applies CORS to `/api/`* (OPTIONS + response headers). Configure `CORS_ALLOWED_ORIGINS` for deployed clients.
+`proxy.ts` applies CORS to `/api/`* (OPTIONS + response headers). Configure `CORS_ALLOWED_ORIGINS` for deployed clients.
 
 ---
 

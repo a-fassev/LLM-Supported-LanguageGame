@@ -23,7 +23,7 @@ function applyCors(response: NextResponse, request: NextRequest) {
   return response;
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   if (!request.nextUrl.pathname.startsWith("/api/")) {
     return NextResponse.next();
   }

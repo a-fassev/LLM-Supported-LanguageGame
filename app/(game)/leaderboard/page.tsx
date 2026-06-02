@@ -1,30 +1,28 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { HubPage } from "@/components/game/layout/HubPage";
 import { LeaderboardView } from "@/components/game/screens/LeaderboardView";
 import { getLeaderboard, type LeaderboardDto } from "@/lib/api-client";
 import { useGameSession } from "@/lib/game/session-context";
+import { useMountedRef } from "@/lib/game/use-mounted-ref";
 import { toastBlockingApiError } from "@/lib/game/toast-from-api";
 
 export default function LeaderboardPage() {
   const router = useRouter();
   const { token, clearSession } = useGameSession();
-  const mountedRef = useRef(true);
+  const mountedRef = useMountedRef();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<LeaderboardDto | null>(null);
 
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
   const load = useCallback(async () => {
-    if (!token) return;
+    if (!token) {
+      setPending(false);
+      return;
+    }
     setPending(true);
     setError(null);
     const result = await getLeaderboard(token);
@@ -32,6 +30,7 @@ export default function LeaderboardPage() {
     if (!result.ok) {
       if (result.status === 401) {
         clearSession();
+        setPending(false);
         router.replace("/login");
         return;
       }
@@ -42,7 +41,7 @@ export default function LeaderboardPage() {
     }
     setData(result.data);
     setPending(false);
-  }, [clearSession, router, token]);
+  }, [clearSession, mountedRef, router, token]);
 
   useEffect(() => {
     void (async () => {
@@ -54,10 +53,13 @@ export default function LeaderboardPage() {
     <HubPage title="Classifica" onBack={() => router.push("/menu")}>
       <div className="space-y-4">
         <div className="flex justify-end">
-          <Button onClick={load} disabled={pending}>
+          <Button onClick={() => void load()} disabled={pending}>
             {pending ? "Aggiornamento..." : "Aggiorna"}
           </Button>
         </div>
+        {pending && !data ? (
+          <p className="text-sm text-muted-foreground">Caricamento classifica...</p>
+        ) : null}
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
         {data ? <LeaderboardView data={data} /> : null}
       </div>

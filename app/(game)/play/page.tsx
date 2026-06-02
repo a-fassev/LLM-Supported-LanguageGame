@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import {
   type TaskOutcomeDto,
 } from "@/lib/api-client";
 import { useGameSession } from "@/lib/game/session-context";
+import { readNonEmptyString } from "@/lib/game/read-non-empty-string";
+import { useMountedRef } from "@/lib/game/use-mounted-ref";
 import { toastBlockingApiError } from "@/lib/game/toast-from-api";
 import { QuestShell } from "@/components/game/shell/QuestShell";
 import { SceneRouter } from "@/components/game/shell/SceneRouter";
@@ -29,10 +31,6 @@ type RunState = {
   totalBackpackPieces: number;
   run: RunDto | null;
 };
-
-function firstString(value: unknown): string | null {
-  return typeof value === "string" && value.trim().length > 0 ? value.trim() : null;
-}
 
 function getTaskPayload(scene: RunSceneDto): Record<string, unknown> {
   const task = (scene.content.task as Record<string, unknown> | undefined) ?? null;
@@ -63,7 +61,7 @@ function buildPlaceholderAttempt(scene: RunSceneDto, typedText: string): unknown
         const firstOption = Array.isArray(question.options)
           ? (question.options as Record<string, unknown>[]).find((item) => typeof item.id === "string")
           : undefined;
-        const optionId = firstString(firstOption?.id);
+        const optionId = readNonEmptyString(firstOption?.id);
         return optionId ? [optionId] : [];
       });
       return { taskType: "MultipleChoice", multipleChoice: { selections } };
@@ -71,7 +69,7 @@ function buildPlaceholderAttempt(scene: RunSceneDto, typedText: string): unknown
     const firstOption = Array.isArray(task.options)
       ? (task.options as Record<string, unknown>[]).find((item) => typeof item.id === "string")
       : undefined;
-    const optionId = firstString(firstOption?.id);
+    const optionId = readNonEmptyString(firstOption?.id);
     return { taskType: "MultipleChoice", multipleChoice: { selections: [optionId ? [optionId] : []] } };
   }
 
@@ -81,9 +79,9 @@ function buildPlaceholderAttempt(scene: RunSceneDto, typedText: string): unknown
     const firstItem = Array.isArray(task.items)
       ? (task.items as Record<string, unknown>[]).find((item) => typeof item.id === "string")
       : undefined;
-    const fallbackItemId = firstString(firstItem?.id);
+    const fallbackItemId = readNonEmptyString(firstItem?.id);
     for (const target of targets) {
-      const targetId = firstString(target.id);
+      const targetId = readNonEmptyString(target.id);
       if (!targetId || !fallbackItemId) continue;
       assignments[targetId] = fallbackItemId;
     }
@@ -94,10 +92,10 @@ function buildPlaceholderAttempt(scene: RunSceneDto, typedText: string): unknown
     const pairs: Record<string, string> = {};
     const leftItems = Array.isArray(task.leftItems) ? (task.leftItems as Record<string, unknown>[]) : [];
     const rightItems = Array.isArray(task.rightItems) ? (task.rightItems as Record<string, unknown>[]) : [];
-    const fallbackRightId = firstString(rightItems[0]?.id);
+    const fallbackRightId = readNonEmptyString(rightItems[0]?.id);
     if (fallbackRightId) {
       for (const left of leftItems) {
-        const leftId = firstString(left.id);
+        const leftId = readNonEmptyString(left.id);
         if (!leftId) continue;
         pairs[leftId] = fallbackRightId;
       }
@@ -134,8 +132,8 @@ function readTaskOutcome(error: ApiErrorResult): TaskOutcomeDto | null {
 }
 
 function activeRunConflictMessage(error: ApiErrorResult): string {
-  const existingChapterId = firstString(error.details?.existingChapterId);
-  const existingQuestId = firstString(error.details?.existingQuestId);
+  const existingChapterId = readNonEmptyString(error.details?.existingChapterId);
+  const existingQuestId = readNonEmptyString(error.details?.existingQuestId);
   if (!existingChapterId || !existingQuestId) {
     return error.error;
   }
@@ -147,9 +145,9 @@ function readReference(scene: RunSceneDto | null): { title?: string; body: strin
   const task = getTaskPayload(scene);
   const ref = (task.referenceDocument ?? scene.content.referenceDocument) as Record<string, unknown> | undefined;
   if (!ref) return null;
-  const body = firstString(ref.body);
+  const body = readNonEmptyString(ref.body);
   if (!body) return null;
-  const title = firstString(ref.title) ?? "Documento";
+  const title = readNonEmptyString(ref.title) ?? "Documento";
   return { title, body };
 }
 
@@ -160,7 +158,7 @@ export default function PlayPage() {
   const questId = searchParams.get("questId");
 
   const { token, clearSession } = useGameSession();
-  const mountedRef = useRef(true);
+  const mountedRef = useMountedRef();
   const [state, setState] = useState<RunState>({ totalSlices: 0, totalBackpackPieces: 0, run: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -172,17 +170,14 @@ export default function PlayPage() {
   const [successOpen, setSuccessOpen] = useState(false);
   const [outcome, setOutcome] = useState<TaskOutcomeDto | null>(null);
 
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
   const currentScene = state.run?.currentScene ?? null;
   const referenceDocument = useMemo(() => readReference(currentScene), [currentScene]);
 
   const loadRun = useCallback(async () => {
-    if (!token) return;
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
 
@@ -192,6 +187,7 @@ export default function PlayPage() {
       if (result.status === 401) {
         clearSession();
         router.replace("/login");
+        setLoading(false);
         return;
       }
       if (result.code === "active_run_exists") {
@@ -213,7 +209,7 @@ export default function PlayPage() {
 
     setState((current) => mergeRunState(current, result.data));
     setLoading(false);
-  }, [chapterId, clearSession, questId, router, token]);
+  }, [chapterId, clearSession, mountedRef, questId, router, token]);
 
   useEffect(() => {
     void (async () => {
@@ -221,7 +217,7 @@ export default function PlayPage() {
       if (!mountedRef.current) return;
       setAttemptText("");
     })();
-  }, [loadRun]);
+  }, [loadRun, mountedRef]);
 
   async function onAdvanceStory() {
     if (!token || !state.run || !currentScene) return;

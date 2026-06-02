@@ -392,8 +392,9 @@ export async function completeTaskScene(
     error_spotting: "ErrorSpotting",
   };
 
+  const smokeAutoPass = process.env.GAME_SMOKE_AUTO_PASS === "true";
   let ratio = 1;
-  if (pizzaRules.kind !== "flat") {
+  if (!smokeAutoPass && pizzaRules.kind !== "flat") {
     const attemptTaskType = taskTypeMap[scene.screen_type];
     if (!attemptTaskType) {
       return { ok: false, status: 501, error: msg.taskEvaluationNotImplemented, code: "task_eval_not_implemented" };

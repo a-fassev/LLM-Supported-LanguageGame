@@ -196,4 +196,86 @@ describe("game-progress-service run flows", () => {
       expect(result.code).toBe("task_eval_not_implemented");
     }
   });
+
+  it("auto-passes scored free_text when GAME_SMOKE_AUTO_PASS is true", async () => {
+    vi.stubEnv("GAME_SMOKE_AUTO_PASS", "true");
+
+    const run = {
+      runId: "run-1",
+      accountId: "acc-1",
+      chapterId: "chapter-03",
+      questId: "quest-02",
+      currentSceneId: "chapter-03-quest-02-scene-02",
+      status: "in_progress" as const,
+    };
+    const taskScene = {
+      id: "chapter-03-quest-02-scene-02",
+      sceneNumber: 2,
+      filename: "02.json",
+      scene_type: "task" as const,
+      screen_type: "free_text",
+      background: "chapters/03/quests/02/bg-task-01",
+      content: { title: "Task", task: {} },
+      scoring: {
+        backpack: { pieces: 1 },
+        pizza: {
+          mode: "scored" as const,
+          maxSlices: 3,
+          minRatioToComplete: 0.7,
+          rounding: "nearest" as const,
+          mapping: { kind: "linear" as const },
+        },
+      },
+    };
+    const nextScene = {
+      id: "chapter-03-quest-02-scene-03",
+      sceneNumber: 3,
+      filename: "03.json",
+      scene_type: "story" as const,
+      screen_type: "info",
+      background: "bg",
+      content: { text: "Fine" },
+      scoring: { backpack: { pieces: 0 }, pizza: { mode: "flat" as const, slices: 0 } },
+    };
+
+    repoMocks.getQuestRunById
+      .mockResolvedValueOnce(run)
+      .mockResolvedValueOnce({ ...run, currentSceneId: nextScene.id });
+    catalogMocks.loadContentCatalog.mockResolvedValue({
+      chapters: [
+        {
+          id: "chapter-03",
+          questsExpanded: [{ id: "quest-02", scenes: [taskScene, nextScene] }],
+        },
+      ],
+    });
+    catalogMocks.findCatalogScene.mockImplementation((_catalog, _ch, _q, sceneId: string) => {
+      if (sceneId === taskScene.id) return taskScene;
+      if (sceneId === nextScene.id) return nextScene;
+      return null;
+    });
+    catalogMocks.findCatalogQuest.mockReturnValue({
+      id: "quest-02",
+      scenes: [taskScene, nextScene],
+    });
+    repoMocks.completeSceneOnce.mockResolvedValue({ completionId: "c1", inserted: true });
+    repoMocks.incrementWalletTotals.mockResolvedValue(true);
+    repoMocks.updateQuestRunPosition.mockResolvedValue(true);
+    repoMocks.getCompletedSceneIds.mockResolvedValue([taskScene.id]);
+    repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 3, totalBackpackPieces: 1 });
+
+    const result = await completeTaskScene("acc-1", "run-1", taskScene.id, {
+      attemptPayload: { rawText: "wrong on purpose" },
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.taskOutcome?.ratio).toBe(1);
+      expect(result.taskOutcome?.awardedSlices).toBe(3);
+    }
+    expect(repoMocks.completeSceneOnce).toHaveBeenCalled();
+    expect(repoMocks.incrementWalletTotals).toHaveBeenCalled();
+
+    vi.unstubAllEnvs();
+  });
 });

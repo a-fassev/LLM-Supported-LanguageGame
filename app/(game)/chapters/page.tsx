@@ -1,55 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { HubPage } from "@/components/game/layout/HubPage";
 import { ChapterGrid } from "@/components/game/screens/ChapterGrid";
-import { getBootstrap, type BootstrapDto } from "@/lib/api-client";
-import { useGameSession } from "@/lib/game/session-context";
-import { toastBlockingApiError } from "@/lib/game/toast-from-api";
+import { useBootstrap } from "@/lib/game/use-bootstrap";
 import { isChapterLocked } from "@/lib/game/unlock-display";
 
 export default function ChaptersPage() {
   const router = useRouter();
-  const { token, clearSession } = useGameSession();
-  const mountedRef = useRef(true);
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<BootstrapDto | null>(null);
-
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
-  const load = useCallback(async () => {
-    if (!token) return;
-    setPending(true);
-    setError(null);
-    const result = await getBootstrap(token);
-    if (!mountedRef.current) return;
-    if (!result.ok) {
-      if (result.status === 401) {
-        clearSession();
-        router.replace("/login");
-        return;
-      }
-      toastBlockingApiError(result);
-      setError(result.error);
-      setPending(false);
-      return;
-    }
-    setData(result.data);
-    setPending(false);
-  }, [clearSession, router, token]);
-
-  useEffect(() => {
-    void (async () => {
-      await load();
-    })();
-  }, [load]);
+  const { loading, refreshing, error, data, reload } = useBootstrap({ refreshOnFocus: true });
 
   const chapterItems = useMemo(() => {
     if (!data) return [];
@@ -66,16 +27,26 @@ export default function ChaptersPage() {
   return (
     <HubPage title="Capitoli" onBack={() => router.push("/menu")}>
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            🍕 {data?.totalSlices ?? 0} • 🎒 {data?.totalBackpackPieces ?? 0}%
-          </p>
-          <Button variant="outline" onClick={load} disabled={pending}>
-            {pending ? "Aggiornamento..." : "Aggiorna"}
-          </Button>
-        </div>
+        {data ? (
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">
+              🍕 {data.totalSlices} • 🎒 {data.totalBackpackPieces}%
+            </p>
+            <Button variant="outline" onClick={() => void reload()} disabled={refreshing}>
+              {refreshing ? "Aggiornamento..." : "Aggiorna"}
+            </Button>
+          </div>
+        ) : null}
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
-        <ChapterGrid items={chapterItems} onOpenChapter={(chapterId) => router.push(`/chapters/${chapterId}`)} />
+        {loading && !data ? (
+          <p className="text-sm text-muted-foreground">Caricamento capitoli...</p>
+        ) : null}
+        {data && data.chapters.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nessun capitolo disponibile.</p>
+        ) : null}
+        {data && data.chapters.length > 0 ? (
+          <ChapterGrid items={chapterItems} onOpenChapter={(chapterId) => router.push(`/chapters/${chapterId}`)} />
+        ) : null}
       </div>
     </HubPage>
   );

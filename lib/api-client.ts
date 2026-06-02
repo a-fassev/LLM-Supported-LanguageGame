@@ -136,19 +136,26 @@ function authHeader(token?: string | null): HeadersInit {
   return { Authorization: `Bearer ${token}` };
 }
 
+const NETWORK_ERROR_MESSAGE = "Impossibile contattare il server. Controlla la connessione.";
+
 async function requestJson<T extends Record<string, unknown>>(
   path: string,
   options?: RequestOptions,
 ): Promise<ApiResult<T>> {
-  const response = await fetch(path, {
-    method: options?.method ?? "GET",
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeader(options?.token),
-    },
-    body: options?.body === undefined ? undefined : JSON.stringify(options.body),
-    cache: options?.cache ?? "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch(path, {
+      method: options?.method ?? "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeader(options?.token),
+      },
+      body: options?.body === undefined ? undefined : JSON.stringify(options.body),
+      cache: options?.cache ?? "no-store",
+    });
+  } catch {
+    return { ok: false, status: 0, error: NETWORK_ERROR_MESSAGE };
+  }
 
   let payload: ApiEnvelope<T> | null = null;
   try {

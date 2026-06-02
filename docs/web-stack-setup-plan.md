@@ -14,7 +14,7 @@ Execution checklist for upgrading this repo to the latest stable stack and addin
 
 | Goal | Detail |
 |------|--------|
-| Single Next.js server | Keep App Router at repo root (`app/`, `lib/`, `middleware.ts`) |
+| Single Next.js server | Keep App Router at repo root (`app/`, `lib/`, `proxy.ts`) |
 | Latest stable core | Next 16, React 19.2.x, TypeScript 6, Vitest 4 |
 | UI foundation | Tailwind v4 + shadcn `init` only (no `shadcn add …` yet) |
 | API unchanged | Existing `/api/auth/*` and `/api/game/*` routes and `lib/*` logic stay as-is unless upgrades force fixes |
@@ -217,7 +217,7 @@ npm ci
 
 | Area | Action |
 |------|--------|
-| **Next 16** | Read [Next.js upgrade guide](https://nextjs.org/docs/app/building-your-application/upgrading); fix breaking changes in `middleware.ts`, route handlers, or `next.config.ts` if the build reports them |
+| **Next 16** | Read [Next.js upgrade guide](https://nextjs.org/docs/app/building-your-application/upgrading); fix breaking changes in `proxy.ts`, route handlers, or `next.config.ts` if the build reports them |
 | **TypeScript 6** | Run `tsc` / `next build`; remove or update deprecated `tsconfig` options flagged by TS 6 |
 | **ESLint 10** | Adjust `eslint.config.mjs` if `next lint` fails (flat config + `eslint-config-next@16` compatibility) |
 | **Vitest 4** | Check [Vitest migration guide](https://vitest.dev/guide/migration); update `vitest.config.ts` only if `npm test` fails |
