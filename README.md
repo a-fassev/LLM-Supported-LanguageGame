@@ -21,7 +21,7 @@ API base: [http://localhost:3000](http://localhost:3000)
 | `npm run dev` | Development server (Turbopack) |
 | `npm run build` | Production build |
 | `npm run start` | Run production server |
-| `npm run lint` | ESLint |
+| `npm run lint` | ESLint (`eslint .`) |
 | `npm test` | Vitest unit tests |
 
 ## API routes
