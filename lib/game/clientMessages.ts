@@ -1,8 +1,17 @@
 /** Learner-facing API error and status copy (Italian). */
 export const gameClientMessages = {
   couldNotLoadWallet: "Impossibile caricare il portafoglio.",
+  couldNotLoadCatalog: "Impossibile caricare il catalogo di gioco.",
   couldNotLoadLeaderboard: "Impossibile caricare la classifica.",
   couldNotLoadProfile: "Impossibile caricare il profilo.",
+  couldNotLoadRun: "Impossibile caricare la partita.",
+  couldNotStartRun: "Impossibile avviare la partita.",
+  couldNotAdvanceScene: "Impossibile avanzare la scena.",
+  couldNotCompleteTask: "Impossibile completare l'attivita.",
+  runNotFound: "Partita non trovata.",
+  activeRunExists: "Hai gia una partita in corso in un'altra missione.",
+  invalidSceneProgression: "Progressione scena non valida.",
+  taskEvaluationNotImplemented: "Valutazione task non ancora disponibile.",
 } as const;
 
 /** Auth API routes (login/register/session). */

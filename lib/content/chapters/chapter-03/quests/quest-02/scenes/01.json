@@ -1,0 +1,9 @@
+{
+  "id": "chapter-03-quest-02-scene-01",
+  "scene_type": "story",
+  "screen_type": "dialogue",
+  "background": "chapters/03/quests/02/bg-dialogue-01",
+  "content": {
+    "text": "Al bar puoi ordinare da bere in italiano."
+  }
+}

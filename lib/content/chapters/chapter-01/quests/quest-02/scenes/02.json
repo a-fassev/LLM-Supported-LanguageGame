@@ -1,0 +1,25 @@
+{
+  "id": "chapter-01-quest-02-scene-02",
+  "scene_type": "task",
+  "screen_type": "matching",
+  "background": "chapters/01/quests/02/bg-task-01",
+  "content": {
+    "title": "Parole della stazione",
+    "instruction": "Abbina ogni parola alla traduzione corretta.",
+    "referenceDocument": {
+      "title": "Biglietto",
+      "body": "BOLOGNA CENTRALE - Binario 3 - Posto 12A"
+    },
+    "task": {}
+  },
+  "scoring": {
+    "backpack": { "pieces": 1 },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.6,
+      "rounding": "floor",
+      "mapping": { "kind": "linear" }
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "quest-01-bonus",
+  "title": "Extra: al bar",
+  "order": 3,
+  "kind": "bonus",
+  "requiresQuestId": "quest-02",
+  "autoStartQuestId": null
+}

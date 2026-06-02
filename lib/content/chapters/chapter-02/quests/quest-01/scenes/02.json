@@ -1,0 +1,21 @@
+{
+  "id": "chapter-02-quest-01-scene-02",
+  "scene_type": "task",
+  "screen_type": "cloze",
+  "background": "chapters/02/quests/01/bg-task-01",
+  "content": {
+    "title": "Completa la frase",
+    "instruction": "Inserisci le parole mancanti.",
+    "referenceDocument": null,
+    "task": {}
+  },
+  "scoring": {
+    "backpack": { "pieces": 1 },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.8,
+      "mapping": { "kind": "linear" }
+    }
+  }
+}

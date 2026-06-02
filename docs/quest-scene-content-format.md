@@ -1,0 +1,544 @@
+# Quest scene content format
+
+**Status:** Draft v1 — decisions locked (see §13). Format + sample content only until task payloads and Supabase runs ship.
+
+**Purpose:** Define how chapters, quests, and scenes are stored as JSON on the server (`lib/content/`). The game client renders shell chrome (HUD, pause, documento, Controlla); this spec covers **authored data only**.
+
+**Principles:**
+
+- One **scene** = one screen the player is on until progress advances.
+- Strict **order**: chapter → quests → scenes.
+- **Server** validates content and applies **scoring**; the client never invents rewards.
+
+---
+
+## 1. Folder layout
+
+```text
+lib/content/
+└── chapters/
+    └── {chapterId}/
+        ├── chapter.json
+        └── quests/
+            └── {questId}/
+                ├── quest.json
+                └── scenes/
+                    ├── 01.json
+                    ├── 02.json
+                    └── ...
+```
+
+| File | Contains |
+| ---- | -------- |
+| `chapter.json` | Chapter title, order, list of quest ids |
+| `quest.json` | Quest title, kind, unlock, optional auto-start |
+| `scenes/NN.json` | One scene (envelope + `content`) |
+
+Scene order is the **numeric prefix** on filenames (`01`, `02`, …).
+
+---
+
+## 2. Chapter and quest
+
+### `chapter.json`
+
+```jsonc
+{
+  "id": "chapter-01",
+  "title": "Bologna",
+  "order": 1,
+  "quests": ["quest-01", "quest-02", "quest-01-bonus"]
+}
+```
+
+### `quest.json`
+
+```jsonc
+{
+  "id": "quest-01",
+  "title": "Il biglietto",
+  "order": 1,
+  "kind": "main",
+  "requiresQuestId": null,
+  "autoStartQuestId": null
+}
+```
+
+| Field | Description |
+| ----- | ----------- |
+| `kind` | `main` (required for chapter progress) or `bonus` (extra pizza, optional). |
+| `requiresQuestId` | Previous **main** quest in the same chapter (`null` for the first quest in that chapter). |
+| `autoStartQuestId` | Optional. If set, start that quest when this one ends. If `null`, the loader may auto-start the **next main quest** in `chapter.json` → `quests` order (skips `kind: "bonus"` entries). Never auto-start a bonus quest. |
+
+Reading text for tasks lives on **each task scene**, not on the quest (see §5.3).
+
+**Progression (sequential play):**
+
+- The game is played **in order**: chapters by `chapter.order`, quests by `chapter.json` → `quests`, scenes by filename `01.json`, `02.json`, …
+- **Next chapter** unlocks when every **main** quest in the current chapter is complete. Bonus quests are optional and do not block the next chapter.
+- No extra unlock JSON on chapters beyond catalog order and completed runs (§12).
+
+---
+
+## 3. Scene envelope
+
+Every scene file uses the same top-level shape:
+
+```jsonc
+{
+  "id": "chapter-01-quest-01-scene-03",
+  "scene_type": "task",
+  "screen_type": "multiple_choice",
+  "background": "chapters/01/quests/01/bg-task-station",
+  "content": { },
+  "scoring": { }
+}
+```
+
+**`id` convention (required):**
+
+```text
+{chapterId}-{questId}-scene-{NN}
+```
+
+- `chapterId` / `questId` match the parent folder and `chapter.json` / `quest.json` `id` fields (e.g. `chapter-01`, `quest-01`).
+- `NN` is two digits, zero-padded, and **must match** the scene filename (`03.json` → `scene-03`).
+- Globally unique across the game.
+
+| Field | Required | Description |
+| ----- | -------- | ----------- |
+| `id` | yes | Stable string per convention above (runs, logging, Supabase). |
+| `scene_type` | yes | `story` or `task` — which shell the client uses. |
+| `screen_type` | yes | Variant within that shell (§4). |
+| `background` | yes | Asset key for the full-screen background image. |
+| `content` | yes | Payload for this `screen_type` (§5). |
+| `scoring` | task only | Pizza rules (§6). Omit on story scenes. |
+
+**Not in JSON** (built into the client): pause, next/back, task HUD (pizza + backpack), documento button, Controlla.
+
+**Navigation (product):** Player may go **back** to an earlier scene in the quest. Re-opening a completed **task** is allowed for reading only — **no second scoring** or wallet award (§12). Story scenes advance with a single **Avanti** tap (no timer).
+
+---
+
+## 4. Scene types and screen types
+
+### Story (`scene_type: "story"`)
+
+No Controlla, no `scoring`. Player continues with **Avanti**.
+
+| `screen_type` | Player sees | Authored content (v1) |
+| ------------- | ----------- | --------------------- |
+| `info` | A **game-info** text block on the scene (rules, hints, scene setup). | Single `text` only. |
+| `dialogue` | Character line over the background. **Avatar is part of the background image**, not a separate asset id. No choices in v1 — only copy. | Single `text` only. |
+
+### Task (`scene_type: "task"`)
+
+Exercise with **Controlla** and server-checked answers.
+
+| `screen_type` | Player does |
+| ------------- | ----------- |
+| `cloze` | Fill gaps in a passage (own type, not multiple choice). |
+| `error_spotting` | Find and fix mistakes in a passage. |
+| `drag_drop` | Drag items into slots or order. |
+| `free_text` | Short Italian answer (LLM check on server — **implementation later**). |
+| `matching` | Match pairs between two columns. |
+| `multiple_choice` | Pick one or more options. |
+| `bonus` | Dedicated bonus exercise screen; pair with `quest.json` → `kind: "bonus"`. |
+
+Mechanics inside `content.task` are defined per type in a later pass (§5.3).
+
+---
+
+## 5. Content payloads
+
+### 5.1 Story — `info`
+
+```jsonc
+{
+  "text": "In questa missione impari a salutare qualcuno in italiano."
+}
+```
+
+| Field | Required | Description |
+| ----- | -------- | ----------- |
+| `text` | yes | Full copy for the info block. |
+
+---
+
+### 5.2 Story — `dialogue`
+
+```jsonc
+{
+  "text": "Ciao! Sono Marco. Benvenuto a Bologna!"
+}
+```
+
+| Field | Required | Description |
+| ----- | -------- | ----------- |
+| `text` | yes | Dialogue line shown on the scene. |
+
+Use a **dialogue** background asset that already includes the character art (see `public/content-assets/`).
+
+---
+
+### 5.3 Task — all `screen_type`s
+
+Shared shell for every task scene:
+
+```jsonc
+{
+  "title": "Scegli la risposta giusta",
+  "instruction": "Leggi la frase e scegli.",
+  "referenceDocument": {
+    "title": "Il biglietto",
+    "body": "Testo lungo per il pulsante documento…"
+  },
+  "task": {}
+}
+```
+
+| Field | Required | Description |
+| ----- | -------- | ----------- |
+| `title` | yes | Task heading in the quest shell. |
+| `instruction` | no | Short line above the task area. |
+| `referenceDocument` | no | Text for **documento** on this scene only. If omitted, the button is hidden or empty. |
+| `task` | yes | **Placeholder** — type-specific exercise data. Shape depends on `screen_type`; spec TBD. Empty object `{}` is valid until task schemas exist. |
+
+`referenceDocument` shape:
+
+```jsonc
+{
+  "title": "string",
+  "body": "string"
+}
+```
+
+Plain text only (no HTML).
+
+**Example** (task body still undefined):
+
+```jsonc
+{
+  "id": "chapter-01-quest-01-scene-04",
+  "scene_type": "task",
+  "screen_type": "multiple_choice",
+  "background": "chapters/01/quests/01/bg-task",
+  "content": {
+    "title": "Al binario",
+    "instruction": "Scegli la parola corretta.",
+    "referenceDocument": null,
+    "task": {}
+  },
+  "scoring": {
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 1,
+      "mapping": { "kind": "linear" }
+    }
+  }
+}
+```
+
+---
+
+## 6. Scoring (pizza + backpack)
+
+**Task scenes only** (story scenes omit `scoring`). The server applies rules **once per first successful completion** of a scene (retries / going back do not re-award — §12).
+
+### Pizza
+
+The server derives a correctness **ratio** (0–1) from the attempt (when task mechanics exist), then maps it through `scoring.pizza`. Authors can mix **flat** and **scored** per scene.
+
+### Backpack
+
+Configured **per scene** under `scoring.backpack` (not a global constant).
+
+```jsonc
+"scoring": {
+  "backpack": { "pieces": 1 }
+}
+```
+
+| Field | Notes |
+| ----- | ----- |
+| `pieces` | Non-negative integer added to backpack progress on **first** completion of this scene. Use `0` to skip backpack for a scene. |
+
+**Story scenes:** no `scoring` field (no pizza; backpack only if you add story scoring later — currently omit).
+
+### Flat pizza
+
+Award a fixed number of slices on **first successful completion** (task meets `minRatioToComplete` when using scored task rules; for flat-only tasks, completion on pass).
+
+```jsonc
+"scoring": {
+  "backpack": { "pieces": 1 },
+  "pizza": { "mode": "flat", "slices": 2 }
+}
+```
+
+### Scored
+
+Map ratio → slices up to `maxSlices`. Combine with **linear** or **bands** mapping, optional completion bar, and rounding.
+
+```jsonc
+"scoring": {
+  "backpack": { "pieces": 1 },
+  "pizza": {
+    "mode": "scored",
+    "maxSlices": 3,
+    "minRatioToComplete": 0.6,
+    "rounding": "floor",
+    "mapping": { "kind": "linear" }
+  }
+}
+```
+
+| Field | Notes |
+| ----- | ----- |
+| `maxSlices` | Cap (0–5). |
+| `minRatioToComplete` | Minimum ratio to count the scene as completed. Default `1` if omitted. |
+| `rounding` | `floor` \| `ceil` \| `nearest` on linear mapping. Default `floor`. |
+| `mapping.kind` | `linear` — slices from ratio × `maxSlices`. |
+| `mapping.kind` | `bands` — arbitrary steps (full flexibility). |
+
+**Bands example:**
+
+```jsonc
+"mapping": {
+  "kind": "bands",
+  "bands": [
+    { "minRatio": 0, "slices": 0 },
+    { "minRatio": 0.5, "slices": 1 },
+    { "minRatio": 0.8, "slices": 2 },
+    { "minRatio": 1, "slices": 3 }
+  ]
+}
+```
+
+Bands may be non-uniform (e.g. reward only perfect answers with 3 slices). Server clamps to `maxSlices`.
+
+**Free text:** ratio comes from LLM evaluation policy (defined with `content.task` later).
+
+---
+
+## 7. Assets
+
+`background` (and future keys inside `content.task`) use **lowercase path-style ids** (e.g. `chapters/01/quests/01/bg-task`).
+
+Files live under **`public/content-assets/`** (see README there). **v1:** placeholders only — no PNGs required yet; UI may use a default fill until art exists.
+
+---
+
+## 8. Validation and runtime
+
+1. Authors commit JSON under `lib/content/`.
+2. CI validates envelope + `content` per `screen_type`.
+3. APIs load the catalog and return the current scene for an active run.
+4. Attempt POST → server scores → slices + scene completion.
+
+---
+
+## 9. Deferred (not in v1 envelope)
+
+Likely needed later; intentionally omitted until product asks for them:
+
+| Topic | Why it might matter |
+| ----- | ------------------- |
+| `content.task` per `screen_type` | Exercise mechanics (options, gaps, rubric, …). |
+| Per-character dialogue backgrounds | Different `background` keys per `dialogue` scene if needed. |
+| Per-scene navigation | e.g. disable back on a story beat. |
+| Chapter / quest hub art | Tiles on chapter map (may live in `chapter.json` extensions). |
+| Audio / TTS keys | Pronunciation or listening tasks. |
+
+---
+
+## 10. Next documentation passes
+
+1. Define `content.task` for each task `screen_type`.
+2. Free-text rubric inside `task` for LLM scoring.
+
+---
+
+## 11. Implementation plan (not started)
+
+**Status:** Planned work — **no files under `lib/content/` yet.** Execute in order when the format spec is stable enough to author against.
+
+### 11.1 Planned sample catalog
+
+Create a **mini example** under `lib/content/chapters/` (JSON only; UI comes later):
+
+| Chapter | Main quests | Bonus | Scene files (planned) |
+| ------- | ----------- | ----- | --------------------- |
+| `chapter-01` Bologna | 2 | 1 | 9 |
+| `chapter-02` Firenze | 2 | — | 6 |
+| `chapter-03` Roma | 2 | 1 | 9 |
+
+**24** scene files across **8** quests and **3** chapters. Italian placeholder copy; `content.task: {}` until per-type schemas exist.
+
+**Target tree:**
+
+```text
+lib/content/chapters/
+├── chapter-01/
+│   ├── chapter.json
+│   └── quests/
+│       ├── quest-01/          # Arrivo — 3 scenes (info → dialogue → multiple_choice)
+│       ├── quest-02/          # Alla stazione — 4 scenes (+ matching, bands scoring)
+│       └── quest-01-bonus/    # 2 scenes (info → bonus task, flat pizza)
+├── chapter-02/
+│   ├── chapter.json
+│   └── quests/
+│       ├── quest-01/          # 3 scenes (drag_drop)
+│       └── quest-02/          # 3 scenes (error_spotting, flat pizza)
+└── chapter-03/
+    ├── chapter.json
+    └── quests/
+        ├── quest-01/          # 3 scenes (free_text)
+        ├── quest-02/          # 4 scenes (matching + multiple_choice, referenceDocument)
+        └── quest-01-bonus/    # 2 scenes
+```
+
+**Authoring notes for the sample:**
+
+- Quest chains: `requiresQuestId` on each main quest; `quest-01` in each chapter may set `autoStartQuestId` to the next main quest (chaining demo).
+- Vary `scoring` (flat, linear, bands) across a few task scenes.
+- Use `referenceDocument` on at least one task per chapter where a reading text fits.
+- Do **not** commit hub art or real GameArt assets — background keys only.
+
+### 11.2 Implementation steps
+
+| Step | Area | Work |
+| ---- | ---- | ---- |
+| **A** | Content | Add the sample tree in §11.1 (`chapter.json`, `quest.json`, `scenes/01.json`, …) per this spec. |
+| **B** | Backend | Content loader: read `lib/content/chapters/**`, scene order from numeric filenames, expose catalog on bootstrap / start-quest. |
+| **C** | Backend | Zod envelope + per-`screen_type` `content` validation in CI (`npm test`). |
+| **D** | Backend | Loader tests + validation only (no quest APIs yet). |
+| **E** | Frontend | *Deferred* — chapter / quest UI. |
+| **F** | Frontend | *Deferred* — story shells (`info`, `dialogue`). |
+| **G** | Frontend | *Deferred* — task shell; empty `task` until per-type UI exists. |
+| **H** | Content / doc | Fill `content.task` per `screen_type` when task mechanics are specified (§10). |
+
+**Current focus:** **A–C** (sample JSON, loader, Zod). **D–G** and **§12** when you pick up game UI and Supabase.
+
+**Suggested order:** **A → C** first; then UI (**E–G**); then **§12** (persistence); then **H** (task payloads).
+
+---
+
+## 12. Player progress in Supabase (later track)
+
+**Product rule:** After the player **finishes a scene** (story advance or successful task completion), the server **persists** that progress for the logged-in user. The client does not own unlock state, run position, or wallet totals.
+
+### 12.0 Legacy Supabase (Unity era) — do not anchor on it
+
+The project already used Supabase for the **old** implementation (content catalog in Postgres, quest RPCs, run tables tied to `game_*` UUIDs). After the web reset, **game content no longer lives in Supabase**; the remote database may still contain **leftover tables, columns, or empty run rows** from that era.
+
+**Policy for this format:**
+
+- Treat persistence as **greenfield design** aligned with §3–§7 (`sceneId`, string chapter/quest ids, per-scene saves).
+- **Do not** keep old shapes just because they exist — rename, replace, or drop tables when a simpler model is clearer.
+- **Reuse only when it clearly saves work** and fits the new model (see below).
+
+| Keep (likely) | Reason |
+| ------------- | ------ |
+| `student_accounts`, `student_sessions` | Auth already wired; unrelated to quest JSON. |
+| `player_wallets` | Leaderboard + pizza/backpack totals; bootstrap already reads it. |
+
+| Legacy (safe to ignore or remove) | Notes |
+| --------------------------------- | ----- |
+| `game_chapters`, `game_quests`, `game_quest_steps` | Dropped from product path; catalog is `lib/content/`. |
+| `player_quest_runs`, `player_step_attempts`, `player_step_materializations`, `player_freitext_llm_gates` | Shaped for old step UUIDs and RPCs; **replace or redesign** rather than patch. |
+| Postgres RPCs (`advance_quest_cutscene_step`, `complete_quest_step_task`, …) | Removed; logic belongs in Next.js `lib/game/services/*`. |
+
+Repo migration `20260602120000_remove_game_content_catalog.sql` is a **hint** about what was cut, not a contract for the final schema. When you implement §12, prefer **one new migration** (or a controlled reset on dev) that matches this doc — not incremental fixes to every legacy column.
+
+**Split of concerns:**
+
+| Layer | Stores |
+| ----- | ------ |
+| **`lib/content/`** | Catalog only — chapters, quests, scene JSON. Versioned in git. |
+| **Supabase** | Per-account **wallet**, **quest runs**, **per-scene completion** (and task **attempts** where useful). Table names are **your choice** on rebuild. |
+
+Content ids in JSON (`chapter-01`, `quest-01`, `chapter-01-quest-01-scene-03`) are the **stable keys** progress rows should reference.
+
+### 12.1 What to save per scene (target behaviour)
+
+When a scene completes, the server should (in one logical transaction):
+
+1. **Run pointer** — one row per active/completed quest playthrough: `chapter_id`, `quest_id`, `current_scene_id` or order index, `status` (`in_progress` / `completed`).
+2. **Scene record** — record that `scene_id` completed for this run (and `account_id`).
+3. **Task-only** — optional attempt row on **first** scored completion: payload or hash, ratio, **`awarded_slices`** from `scoring.pizza`.
+4. **Wallet** — add pizza slices and **`scoring.backpack.pieces`** from that scene’s JSON (idempotent — no duplicate awards).
+
+**Resume:** **One active run per account** (global). After each scene complete, persist position; on return, resume at the **last saved scene** (or next incomplete).
+
+**Going back:** Player may view an earlier scene. **Do not** re-run scoring or wallet updates for a task scene already marked complete.
+
+Story scenes: complete on **Avanti**; steps 1–2 + wallet backpack if you add `scoring` to story later (v1: story has no `scoring`).
+
+### 12.2 Preparations you can make now (before full game logic)
+
+These align authoring and **code structure** with §11 — **no obligation** to keep legacy Supabase tables:
+
+| Prep | Why |
+| ---- | --- |
+| **Keep `sceneId` globally unique** in all authored JSON | Natural key for completions and errors. |
+| **Author with string slugs** (`chapter-01`, `quest-01`) everywhere | Same ids in run rows; no Postgres content UUIDs. |
+| **Sketch the new tables** (names up to you) | e.g. `player_quest_runs` + `player_scene_completions`, or one completions table + run header — pick the smallest model that supports resume + idempotent complete. |
+| **One active run per account** | Partial unique index on `(account_id) where status = 'in_progress'` (pattern worth keeping; table can be new). |
+| **Completion uniqueness** | Unique `(run_id, scene_id)` so retries do not double-award pizza or backpack. |
+| **Repository boundary** | Methods in `game-progress-repository` (or successor): `startRun`, `completeScene`, `getRunSnapshot` — implement when §12 starts; legacy methods can be deleted. |
+| **Service owns rules** | Unlock (`requiresQuestId`) and pizza math in `lib/game/services/*` + `lib/game/scoring/*`, not SQL RPCs. |
+| **API sketch** (optional) | e.g. advance story scene vs submit task attempt — avoids UI guessing wrong contracts. |
+
+**Reuse from app code (not Supabase schema):** `pizzaReward.ts` / `evaluateTaskAttempt.ts` for scoring behaviour.
+
+**Do not block on:** cleaning every old table in dev, RLS polish, Freitext gate tables, or leaderboard schema until run writes exist.
+
+### 12.3 Implementation steps (persistence track)
+
+| Step | Area | Work |
+| ---- | ---- | ---- |
+| **P1** | Database | **Greenfield migration** (or dev reset): new run + completion tables using text `chapter_id`, `quest_id`, `scene_id`; drop or ignore legacy `player_*` quest tables if still present. Keep auth + wallet unless you merge wallet elsewhere. |
+| **P2** | Backend | `completeScene(runId, sceneId, …)` in `game-progress-service`: validate scene against loaded catalog, idempotent complete, wallet update. |
+| **P3** | Backend | Task branch: accept attempt JSON, `evaluateTaskAttempt`, apply `scoring.pizza`, then call `completeScene`. |
+| **P4** | Backend | Bootstrap/run APIs: return current scene from run + catalog; expose completed `scene_id`s for unlock UI. |
+| **P5** | Frontend | Resume quest from server snapshot only (no local progression source of truth). |
+
+Steps **P1–P5** depend on **§11 A–C** (loader + validation). UI (**E–G**) and **P4–P5** when the client exists.
+
+---
+
+## 13. Locked decisions (team answers)
+
+| # | Topic | Decision |
+| - | ----- | -------- |
+| 1 | Task types in catalog | All: `cloze`, `error_spotting`, `drag_drop`, `free_text`, `matching`, `multiple_choice`, `bonus`. |
+| 2 | Cloze | Own `screen_type`, not MC. |
+| 3 | Bonus | Own `screen_type` + `quest.kind: "bonus"`. |
+| 4 | Story character line | `screen_type`: **`dialogue`** (renamed from `interaction`); use everywhere in docs and new code. |
+| 5 | Chapter unlock | Strict sequential play; next chapter when current chapter’s **main** quests are done. |
+| 6–7 | Quest unlock / auto-start | `requiresQuestId` = previous **main** in chapter; auto-start **next main** in `chapter.json` `quests` order; **never** auto-start bonus. |
+| 8 | Back to earlier task | Allowed; **no re-scoring**. |
+| 9 | Backpack | Per scene via `scoring.backpack.pieces`. |
+| 10 | Flat pizza | Award on **first successful** scene completion; idempotent persist prevents double pay. |
+| 11 | Story advance | Single button (**Avanti**), no timer. |
+| 12 | Scene `id` | `{chapterId}-{questId}-scene-{NN}` (§3). |
+| 13 | `chapter.json` `quests` | Authoritative quest **order**; loader validates folders exist. Scenes ordered by `NN.json` only. |
+| 14 | `schemaVersion` | Not used. |
+| 15 | Assets | `public/content-assets/` tree; placeholders until art exists. |
+| 16 | Avatar | Baked into **dialogue** background; no avatar field in JSON. |
+| 17 | APIs / UI in format phase | Out of scope until later (**§11 E–G** deferred). |
+| 18 | `content.task` bodies | Spec + implementation **later**; `{}` valid for now. |
+| 19 | Runs | **One** `in_progress` run per account; resume at last saved scene after each complete. |
+
+---
+
+*Changelog:*
+
+- 2026-06-02 — greenfield rewrite.
+- 2026-06-02 — story `info` / `interaction` simplified to `text`; task shell (`title`, `instruction`, `referenceDocument`, `task` placeholder); quest-level document removed; scoring flexibility called out.
+- 2026-06-02 — §11 implementation plan (sample catalog + steps A–H); files not created yet.
+- 2026-06-02 — §12 Supabase per-scene progress (later track) + preparations; §11 split from persistence.
+- 2026-06-02 — §12.0 legacy Supabase policy: greenfield OK, reuse auth/wallet only when sensible.
+- 2026-06-02 — §13 locked decisions; `dialogue`; `cloze`; per-scene backpack; id convention; `public/content-assets/`; scope A–C vs UI/Supabase.

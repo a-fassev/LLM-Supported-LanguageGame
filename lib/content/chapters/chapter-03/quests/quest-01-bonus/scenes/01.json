@@ -1,0 +1,9 @@
+{
+  "id": "chapter-03-quest-01-bonus-scene-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/03/quests/bonus/bg-info-01",
+  "content": {
+    "text": "Bonus finale: completa una sfida extra al bar."
+  }
+}

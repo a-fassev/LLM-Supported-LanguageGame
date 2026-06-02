@@ -1,0 +1,21 @@
+{
+  "id": "chapter-01-quest-01-scene-02",
+  "scene_type": "task",
+  "screen_type": "multiple_choice",
+  "background": "chapters/01/quests/01/bg-task-01",
+  "content": {
+    "title": "Come saluti?",
+    "instruction": "Scegli la risposta corretta.",
+    "referenceDocument": null,
+    "task": {}
+  },
+  "scoring": {
+    "backpack": { "pieces": 1 },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 2,
+      "minRatioToComplete": 1,
+      "mapping": { "kind": "linear" }
+    }
+  }
+}

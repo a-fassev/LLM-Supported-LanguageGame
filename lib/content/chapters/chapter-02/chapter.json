@@ -1,0 +1,6 @@
+{
+  "id": "chapter-02",
+  "title": "Firenze",
+  "order": 2,
+  "quests": ["quest-01", "quest-02"]
+}

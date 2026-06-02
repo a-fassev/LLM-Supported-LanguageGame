@@ -52,6 +52,234 @@ export async function getWalletTotals(accountId: string): Promise<WalletTotals |
   };
 }
 
+export type QuestRunStatus = "in_progress" | "completed" | "abandoned";
+
+export type QuestRunRow = {
+  runId: string;
+  accountId: string;
+  chapterId: string;
+  questId: string;
+  currentSceneId: string;
+  status: QuestRunStatus;
+};
+
+export type SceneCompletionInsert = {
+  runId: string;
+  accountId: string;
+  chapterId: string;
+  questId: string;
+  sceneId: string;
+  sceneType: "story" | "task";
+  taskType: string | null;
+  awardedSlices: number;
+  awardedBackpackPieces: number;
+  taskAttemptPayload?: unknown;
+  taskRatio?: number;
+};
+
+export async function getActiveQuestRun(accountId: string): Promise<QuestRunRow | null> {
+  const { data, error } = await admin()
+    .from("player_quest_runs")
+    .select("id, account_id, chapter_id, quest_id, current_scene_id, status")
+    .eq("account_id", accountId)
+    .eq("status", "in_progress")
+    .maybeSingle();
+
+  if (error) {
+    console.error("[game-repo] getActiveQuestRun", error);
+    return null;
+  }
+  if (!data) return null;
+
+  return {
+    runId: data.id as string,
+    accountId: data.account_id as string,
+    chapterId: data.chapter_id as string,
+    questId: data.quest_id as string,
+    currentSceneId: data.current_scene_id as string,
+    status: data.status as QuestRunStatus,
+  };
+}
+
+export async function getQuestRunById(runId: string): Promise<QuestRunRow | null> {
+  const { data, error } = await admin()
+    .from("player_quest_runs")
+    .select("id, account_id, chapter_id, quest_id, current_scene_id, status")
+    .eq("id", runId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[game-repo] getQuestRunById", error);
+    return null;
+  }
+  if (!data) return null;
+  return {
+    runId: data.id as string,
+    accountId: data.account_id as string,
+    chapterId: data.chapter_id as string,
+    questId: data.quest_id as string,
+    currentSceneId: data.current_scene_id as string,
+    status: data.status as QuestRunStatus,
+  };
+}
+
+export async function createQuestRun(
+  accountId: string,
+  chapterId: string,
+  questId: string,
+  firstSceneId: string,
+): Promise<QuestRunRow | null> {
+  const { data, error } = await admin()
+    .from("player_quest_runs")
+    .insert({
+      account_id: accountId,
+      chapter_id: chapterId,
+      quest_id: questId,
+      current_scene_id: firstSceneId,
+      status: "in_progress",
+    })
+    .select("id, account_id, chapter_id, quest_id, current_scene_id, status")
+    .single();
+
+  if (error) {
+    console.error("[game-repo] createQuestRun", error);
+    return null;
+  }
+  return {
+    runId: data.id as string,
+    accountId: data.account_id as string,
+    chapterId: data.chapter_id as string,
+    questId: data.quest_id as string,
+    currentSceneId: data.current_scene_id as string,
+    status: data.status as QuestRunStatus,
+  };
+}
+
+export async function updateQuestRunPosition(runId: string, currentSceneId: string): Promise<boolean> {
+  const { error } = await admin()
+    .from("player_quest_runs")
+    .update({
+      current_scene_id: currentSceneId,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", runId);
+  if (error) {
+    console.error("[game-repo] updateQuestRunPosition", error);
+    return false;
+  }
+  return true;
+}
+
+export async function completeQuestRun(runId: string): Promise<boolean> {
+  const now = new Date().toISOString();
+  const { error } = await admin()
+    .from("player_quest_runs")
+    .update({
+      status: "completed",
+      completed_at: now,
+      updated_at: now,
+    })
+    .eq("id", runId);
+  if (error) {
+    console.error("[game-repo] completeQuestRun", error);
+    return false;
+  }
+  return true;
+}
+
+export async function getCompletedSceneIds(runId: string): Promise<string[] | null> {
+  const { data, error } = await admin()
+    .from("player_scene_completions")
+    .select("scene_id")
+    .eq("run_id", runId);
+
+  if (error) {
+    console.error("[game-repo] getCompletedSceneIds", error);
+    return null;
+  }
+  const ids = (data ?? []).map((row) => String((row as { scene_id: unknown }).scene_id));
+  return ids;
+}
+
+export async function completeSceneOnce(input: SceneCompletionInsert): Promise<{ inserted: boolean; completionId?: string }> {
+  const { data: existing, error: existingError } = await admin()
+    .from("player_scene_completions")
+    .select("id")
+    .eq("run_id", input.runId)
+    .eq("scene_id", input.sceneId)
+    .maybeSingle();
+  if (existingError) {
+    console.error("[game-repo] completeSceneOnce:existing", existingError);
+    return { inserted: false };
+  }
+  if (existing?.id) {
+    return { inserted: false, completionId: existing.id as string };
+  }
+
+  const { data, error } = await admin()
+    .from("player_scene_completions")
+    .insert({
+      run_id: input.runId,
+      account_id: input.accountId,
+      chapter_id: input.chapterId,
+      quest_id: input.questId,
+      scene_id: input.sceneId,
+      scene_type: input.sceneType,
+      task_type: input.taskType,
+      awarded_slices: input.awardedSlices,
+      awarded_backpack_pieces: input.awardedBackpackPieces,
+    })
+    .select("id")
+    .single();
+  if (error) {
+    console.error("[game-repo] completeSceneOnce:insert", error);
+    return { inserted: false };
+  }
+
+  const completionId = data.id as string;
+  if (input.sceneType === "task") {
+    const { error: attemptError } = await admin().from("player_task_attempts").insert({
+      completion_id: completionId,
+      run_id: input.runId,
+      account_id: input.accountId,
+      scene_id: input.sceneId,
+      task_type: input.taskType ?? "",
+      attempt_payload: input.taskAttemptPayload ?? null,
+      ratio: input.taskRatio ?? null,
+    });
+    if (attemptError) {
+      console.error("[game-repo] completeSceneOnce:attempt", attemptError);
+    }
+  }
+
+  return { inserted: true, completionId };
+}
+
+export async function incrementWalletTotals(
+  accountId: string,
+  slicesDelta: number,
+  backpackDelta: number,
+): Promise<boolean> {
+  const wallet = await getWalletTotals(accountId);
+  if (!wallet) return false;
+  const nextSlices = Math.max(0, wallet.totalSlices + Math.trunc(slicesDelta));
+  const nextBackpack = Math.max(0, wallet.totalBackpackPieces + Math.trunc(backpackDelta));
+  const { error } = await admin()
+    .from("player_wallets")
+    .update({
+      total_slices: nextSlices,
+      total_backpack_pieces: nextBackpack,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("account_id", accountId);
+
+  if (error) {
+    console.error("[game-repo] incrementWalletTotals", error);
+    return false;
+  }
+  return true;
+}
+
 export type StudentTeamColor = "blue" | "red";
 
 export type LeaderboardPlayerRow = {

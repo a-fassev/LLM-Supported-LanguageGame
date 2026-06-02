@@ -1,0 +1,6 @@
+{
+  "id": "chapter-01",
+  "title": "Bologna",
+  "order": 1,
+  "quests": ["quest-01", "quest-02", "quest-01-bonus"]
+}

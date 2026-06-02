@@ -1,0 +1,9 @@
+{
+  "id": "chapter-02-quest-01-scene-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/02/quests/01/bg-info-01",
+  "content": {
+    "text": "A Firenze trovi nuove parole utili per orientarti in piazza."
+  }
+}
