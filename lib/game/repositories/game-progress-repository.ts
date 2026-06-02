@@ -187,6 +187,27 @@ export async function completeQuestRun(runId: string): Promise<boolean> {
   return true;
 }
 
+/** Quest ids with at least one completed run for this account. */
+export async function getCompletedQuestIds(accountId: string): Promise<string[] | null> {
+  const { data, error } = await admin()
+    .from("player_quest_runs")
+    .select("quest_id")
+    .eq("account_id", accountId)
+    .eq("status", "completed");
+
+  if (error) {
+    console.error("[game-repo] getCompletedQuestIds", error);
+    return null;
+  }
+
+  const ids = new Set<string>();
+  for (const row of data ?? []) {
+    const questId = (row as { quest_id?: unknown }).quest_id;
+    if (typeof questId === "string" && questId.length > 0) ids.add(questId);
+  }
+  return [...ids];
+}
+
 export async function getCompletedSceneIds(runId: string): Promise<string[] | null> {
   const { data, error } = await admin()
     .from("player_scene_completions")

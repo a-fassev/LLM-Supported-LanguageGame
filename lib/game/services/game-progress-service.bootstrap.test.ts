@@ -3,12 +3,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   ensureWalletRow: vi.fn(),
   getWalletTotals: vi.fn(),
+  getCompletedQuestIds: vi.fn(),
   loadContentCatalog: vi.fn(),
 }));
 
 vi.mock("@/lib/game/repositories/game-progress-repository", () => ({
   ensureWalletRow: mocks.ensureWalletRow,
   getWalletTotals: mocks.getWalletTotals,
+  getCompletedQuestIds: mocks.getCompletedQuestIds,
 }));
 
 vi.mock("@/lib/game/content/catalog-loader", () => ({

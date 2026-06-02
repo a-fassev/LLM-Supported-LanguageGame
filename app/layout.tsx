@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
+import { GameSessionProvider } from "@/lib/game/session-context";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Language Game API",
-  description: "Backend API for the language learning game",
+  title: "Enigma di Bologna",
+  description: "Gioco linguistico in italiano",
 };
 
 export default function RootLayout({
@@ -16,8 +18,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", geist.variable)}>
-      <body>{children}</body>
+    <html lang="it" className={cn("font-sans", geist.variable)}>
+      <body>
+        <GameSessionProvider>
+          {children}
+          <Toaster richColors position="top-center" />
+        </GameSessionProvider>
+      </body>
     </html>
   );
 }

@@ -12,6 +12,7 @@ export const gameClientMessages = {
   activeRunExists: "Hai gia una partita in corso in un'altra missione.",
   invalidSceneProgression: "Progressione scena non valida.",
   taskEvaluationNotImplemented: "Valutazione task non ancora disponibile.",
+  taskMinRatioNotMet: "Non abbastanza risposte corrette per completare l'attivita.",
 } as const;
 
 /** Auth API routes (login/register/session). */

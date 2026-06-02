@@ -23,6 +23,7 @@ export async function GET(request: Request) {
   return jsonOk({
     totalSlices: result.totalSlices,
     totalBackpackPieces: result.totalBackpackPieces,
+    completedQuestIds: result.completedQuestIds,
     chapters: result.chapters,
   });
 }

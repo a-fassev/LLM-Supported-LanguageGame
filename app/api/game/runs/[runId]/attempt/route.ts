@@ -41,12 +41,17 @@ export async function POST(
     attemptPayload: body.attempt,
   });
   if (!result.ok) {
-    return jsonError(result.status, result.error, result.code, result.details);
+    const details = {
+      ...result.details,
+      ...(result.taskOutcome ? { taskOutcome: result.taskOutcome } : {}),
+    };
+    return jsonError(result.status, result.error, result.code, details);
   }
 
   return jsonOk({
     totalSlices: result.totalSlices,
     totalBackpackPieces: result.totalBackpackPieces,
     run: result.run,
+    ...(result.taskOutcome ? { taskOutcome: result.taskOutcome } : {}),
   });
 }

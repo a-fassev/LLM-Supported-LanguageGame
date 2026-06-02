@@ -4,6 +4,7 @@ import {
   createQuestRun,
   ensureWalletRow,
   getActiveQuestRun,
+  getCompletedQuestIds,
   getCompletedSceneIds,
   getQuestRunById,
   getWalletTotals,
@@ -15,6 +16,7 @@ import { gameClientMessages as msg } from "@/lib/game/clientMessages";
 import { findCatalogScene, findCatalogQuest, loadContentCatalog, type CatalogScene } from "@/lib/game/content/catalog-loader";
 import { meetsScoredPizzaMinimum, parsePizzaRewardRules, slicesFromRatio } from "@/lib/game/scoring/pizzaReward";
 import { evaluateTaskAttempt } from "@/lib/game/scoring/evaluateTaskAttempt";
+import { buildTaskOutcome, type TaskOutcomeDto } from "@/lib/game/task-outcome-messages";
 
 export type BootstrapQuestDto = {
   id: string;
@@ -37,6 +39,7 @@ export type BootstrapResult =
       ok: true;
       totalSlices: number;
       totalBackpackPieces: number;
+      completedQuestIds: string[];
       chapters: BootstrapChapterDto[];
     }
   | { ok: false; status: number; error: string; code?: string; details?: Record<string, unknown> };
@@ -65,10 +68,13 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
 
   const wallet = await getWalletTotals(accountId);
   if (wallet === null) return { ok: false, status: 500, error: msg.couldNotLoadWallet };
-  const chapters = await toBootstrapChapters().catch((error) => {
-    console.error("[game-service] bootstrap catalog", error);
-    return null;
-  });
+  const [chapters, completedQuestIds] = await Promise.all([
+    toBootstrapChapters().catch((error) => {
+      console.error("[game-service] bootstrap catalog", error);
+      return null;
+    }),
+    getCompletedQuestIds(accountId),
+  ]);
   if (!chapters) {
     return {
       ok: false,
@@ -77,11 +83,15 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
       code: "catalog_unavailable",
     };
   }
+  if (completedQuestIds === null) {
+    return { ok: false, status: 500, error: msg.couldNotLoadRun };
+  }
 
   return {
     ok: true,
     totalSlices: wallet.totalSlices,
     totalBackpackPieces: wallet.totalBackpackPieces,
+    completedQuestIds,
     chapters,
   };
 }
@@ -111,8 +121,16 @@ export type RunSnapshotResult =
       totalSlices: number;
       totalBackpackPieces: number;
       run: RunSnapshotDto | null;
+      taskOutcome?: TaskOutcomeDto;
     }
-  | { ok: false; status: number; error: string; code?: string; details?: Record<string, unknown> };
+  | {
+      ok: false;
+      status: number;
+      error: string;
+      code?: string;
+      details?: Record<string, unknown>;
+      taskOutcome?: TaskOutcomeDto;
+    };
 
 type BuildSnapshotOptions = {
   includeWallet?: boolean;
@@ -342,7 +360,20 @@ export async function completeTaskScene(
   }
 
   if (!meetsScoredPizzaMinimum(ratio, pizzaRules)) {
-    return { ok: false, status: 409, error: msg.invalidSceneProgression, code: "task_min_ratio_not_met" };
+    const taskOutcome = buildTaskOutcome({
+      passed: false,
+      ratio,
+      awardedSlices: 0,
+      awardedBackpackPieces: 0,
+    });
+    return {
+      ok: false,
+      status: 409,
+      error: msg.taskMinRatioNotMet,
+      code: "task_min_ratio_not_met",
+      taskOutcome,
+      details: { taskOutcome },
+    };
   }
   const awardedSlices = slicesFromRatio(ratio, pizzaRules);
   const awardedBackpack = Math.max(0, Math.trunc(scene.scoring.backpack.pieces));
@@ -372,5 +403,14 @@ export async function completeTaskScene(
   const moved = await moveRunAfterCompletion(run, scene);
   if (!moved) return { ok: false, status: 500, error: msg.couldNotCompleteTask };
   const updatedRun = await getQuestRunById(run.runId);
-  return buildSnapshotFromRun(accountId, updatedRun);
+  const snapshot = await buildSnapshotFromRun(accountId, updatedRun);
+  if (!snapshot.ok) return snapshot;
+
+  const taskOutcome = buildTaskOutcome({
+    passed: true,
+    ratio,
+    awardedSlices,
+    awardedBackpackPieces: awardedBackpack,
+  });
+  return { ...snapshot, taskOutcome };
 }
