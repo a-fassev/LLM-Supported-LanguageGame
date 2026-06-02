@@ -57,7 +57,7 @@
 .lg-hud-badge__value {
     font-size: var(--lg-font-body);
     -unity-font-style: bold;
-    color: var(--lg-text-main);
+    color: rgb(0, 0, 20);
     -unity-text-align: middle-left;
 }
 
