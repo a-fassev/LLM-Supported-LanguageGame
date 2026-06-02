@@ -35,13 +35,15 @@ Each **quest** has a story arc and an ordered list of **steps**. A step is the *
 
 Each step is defined by JSON with:
 
-| Field | Role |
-|-------|------|
-| `scene_type` | `story` (narrative) or `task` (exercise) |
-| `screen_type` | Info/interaction shell, or a specific **task type** for task steps |
-| `content` | Type-specific payload (story beats, prompts, options, etc.) |
-| `background` | Background image for this step |
-| `scoring` | How **pizza slices** are awarded for this step (task and bonus steps) |
+
+| Field         | Role                                                                  |
+| ------------- | --------------------------------------------------------------------- |
+| `scene_type`  | `story` (narrative) or `task` (exercise)                              |
+| `screen_type` | Info/interaction shell, or a specific **task type** for task steps    |
+| `content`     | Type-specific payload (story beats, prompts, options, etc.)           |
+| `background`  | Background image for this step                                        |
+| `scoring`     | How **pizza slices** are awarded for this step (task and bonus steps) |
+
 
 **Story steps** should feel continuous—minimal chrome, strong background and copy. **Task steps** show exercise UI, **«Controlla»** (check), and reward feedback where appropriate.
 
@@ -66,10 +68,12 @@ Each step is defined by JSON with:
 
 ### Scoring and motivation (two currencies)
 
-| Currency | What it means for the child |
-|----------|-----------------------------|
+
+| Currency         | What it means for the child                                                                                                                                                                                                                                                                                            |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Pizza slices** | **Performance**—how well they did on a **task** (or **bonus**) step. Awarded **variably** from authored **scoring** rules (e.g. more correct answers → more slices). Same answers should always yield the same slices (**fair**, server-side). Used for **leaderboard** rank and optional rewards (e.g. mascot skins). |
-| **Backpack %** | **Completion**—**0–100%** progress through the **whole game**. Increments by a **fixed** amount per **completed step**, regardless of exercise score. Reaches **100%** when everything required is done. |
+| **Backpack %**   | **Completion**—**0–100%** progress through the **whole game**. Increments by a **fixed** amount per **completed step**, regardless of exercise score. Reaches **100%** when everything required is done.                                                                                                               |
+
 
 Show **pizza** and **backpack** where progress matters (chapter/quest hubs, **task** steps—not pure story beats). Keep the **main menu** visually light.
 
@@ -84,21 +88,18 @@ The look is **image-driven**: backgrounds and UI chrome often use **sprites on b
 
 Image references live throughout **content config**—chapter tiles, quest tiles, buttons, and steps—not only a single hero per screen.
 
-### Mascot
-
-- Mascot can stay **lightweight** (e.g. corner presence), not a full avatar controller.
-- Optional **expressions** by situation remain nice-to-have.
-
 ### Tasks (what kids do)
 
-| Task type | Player action (short) |
-|-----------|------------------------|
-| Error spotting | Find/fix deliberate mistakes; confirm corrections. |
-| Drag & drop | Order fragments, fill slots, sort into categories, match referents. |
-| Free text | Brief **Italian** answer; **language model** checks against **authored criteria**—set expectations for a short **checking** moment; failures/timeouts mean **try again**, not “almost passed”. |
-| Matching | Pair columns (words, meanings, pictures, clauses). |
-| Multiple choice / gap fill | Choose options or fill gaps in readable lines (prefer **sentence-like** rows, not broken chips). |
-| Bonus | Optional chapter-end activities for **extra pizza**; not required to advance. |
+
+| Task type                  | Player action (short)                                                                                                                                                                          |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Error spotting             | Find/fix deliberate mistakes; confirm corrections.                                                                                                                                             |
+| Drag & drop                | Order fragments, fill slots, sort into categories, match referents.                                                                                                                            |
+| Free text                  | Brief **Italian** answer; **language model** checks against **authored criteria**—set expectations for a short **checking** moment; failures/timeouts mean **try again**, not “almost passed”. |
+| Matching                   | Pair columns (words, meanings, pictures, clauses).                                                                                                                                             |
+| Multiple choice / gap fill | Choose options or fill gaps in readable lines (prefer **sentence-like** rows, not broken chips).                                                                                               |
+| Bonus                      | Optional chapter-end activities for **extra pizza**; not required to advance.                                                                                                                  |
+
 
 **Pedagogical preference:** **little free-text** where possible, for clearer scoring and control.
 
