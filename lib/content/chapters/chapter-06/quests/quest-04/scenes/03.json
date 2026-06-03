@@ -1,0 +1,398 @@
+{
+  "id": "chapter-06-quest-04-scene-03",
+  "scene_type": "task",
+  "screen_type": "multiple_choice",
+  "background": "chapters/06/quests/04/bg-piazza-maggiore",
+  "content": {
+    "title": "Quiz all'italiana",
+    "instruction": "Risolvi le 16 domande del quiz.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Scegli la risposta corretta per ogni domanda.",
+      "questions": [
+        {
+          "id": "quiz-01",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "La Notte Rosa si festeggia:",
+          "options": [
+            {
+              "id": "quiz-01-opt-a",
+              "label": "in Puglia."
+            },
+            {
+              "id": "quiz-01-opt-b",
+              "label": "in Toscana."
+            },
+            {
+              "id": "quiz-01-opt-c",
+              "label": "in Emilia Romagna."
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-01-opt-c"
+          ]
+        },
+        {
+          "id": "quiz-02",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "La Puglia è una regione italiana:",
+          "options": [
+            {
+              "id": "quiz-02-opt-a",
+              "label": "del nord."
+            },
+            {
+              "id": "quiz-02-opt-b",
+              "label": "del centro."
+            },
+            {
+              "id": "quiz-02-opt-c",
+              "label": "del sud."
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-02-opt-c"
+          ]
+        },
+        {
+          "id": "quiz-03",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Nominate tre città etrusche che si trovano al centro d'Italia:",
+          "options": [
+            {
+              "id": "quiz-03-opt-a",
+              "label": "Volterra, Cerveteri, Milano."
+            },
+            {
+              "id": "quiz-03-opt-b",
+              "label": "Cerveteri, Arezzo, Orvieto."
+            },
+            {
+              "id": "quiz-03-opt-c",
+              "label": "Arezzo, Orvieto, Lucca."
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-03-opt-b"
+          ]
+        },
+        {
+          "id": "quiz-04",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Chi ha inventato l'eTwinning?",
+          "options": [
+            {
+              "id": "quiz-04-opt-a",
+              "label": "Il Prof. Ghilliardi."
+            },
+            {
+              "id": "quiz-04-opt-b",
+              "label": "La sezione \"Scambi internazionali\" dell'Ufficio Scuola."
+            },
+            {
+              "id": "quiz-04-opt-c",
+              "label": "La Commissione Europea."
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-04-opt-c"
+          ]
+        },
+        {
+          "id": "quiz-05",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Roberto Saviano è famoso perché:",
+          "options": [
+            {
+              "id": "quiz-05-opt-a",
+              "label": "è spesso in TV."
+            },
+            {
+              "id": "quiz-05-opt-b",
+              "label": "lavora per i Carabinieri."
+            },
+            {
+              "id": "quiz-05-opt-c",
+              "label": "si impegna contro la mafia."
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-05-opt-c"
+          ]
+        },
+        {
+          "id": "quiz-06",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Comacchio è famosa per:",
+          "options": [
+            {
+              "id": "quiz-06-opt-a",
+              "label": "la pizza."
+            },
+            {
+              "id": "quiz-06-opt-b",
+              "label": "i canali."
+            },
+            {
+              "id": "quiz-06-opt-c",
+              "label": "le mandorle."
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-06-opt-b"
+          ]
+        },
+        {
+          "id": "quiz-07",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "A Torino è nato/a:",
+          "options": [
+            {
+              "id": "quiz-07-opt-a",
+              "label": "la Nutella."
+            },
+            {
+              "id": "quiz-07-opt-b",
+              "label": "la pizza Margherita."
+            },
+            {
+              "id": "quiz-07-opt-c",
+              "label": "il Pinguino."
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-07-opt-c"
+          ]
+        },
+        {
+          "id": "quiz-08",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Italo Svevo è un autore importante di:",
+          "options": [
+            {
+              "id": "quiz-08-opt-a",
+              "label": "Milano."
+            },
+            {
+              "id": "quiz-08-opt-b",
+              "label": "Trieste."
+            },
+            {
+              "id": "quiz-08-opt-c",
+              "label": "Roma."
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-08-opt-b"
+          ]
+        },
+        {
+          "id": "quiz-09",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Trova l'intruso! Quale attrazione turistica non si trova a Napoli?",
+          "options": [
+            {
+              "id": "quiz-09-opt-a",
+              "label": "Piazza Plebiscito."
+            },
+            {
+              "id": "quiz-09-opt-b",
+              "label": "Teatro San Carlo."
+            },
+            {
+              "id": "quiz-09-opt-c",
+              "label": "Mole Antonelliana."
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-09-opt-c"
+          ]
+        },
+        {
+          "id": "quiz-10",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Treja è il nome di:",
+          "options": [
+            {
+              "id": "quiz-10-opt-a",
+              "label": "un cinema nel centro di Roma."
+            },
+            {
+              "id": "quiz-10-opt-b",
+              "label": "un parco avventura a un'ora di macchina da Roma."
+            },
+            {
+              "id": "quiz-10-opt-c",
+              "label": "un quartiere di Trieste."
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-10-opt-b"
+          ]
+        },
+        {
+          "id": "quiz-11",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Il primo Circolo dei Lettori è nato a:",
+          "options": [
+            {
+              "id": "quiz-11-opt-a",
+              "label": "Roma."
+            },
+            {
+              "id": "quiz-11-opt-b",
+              "label": "Palermo."
+            },
+            {
+              "id": "quiz-11-opt-c",
+              "label": "Torino."
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-11-opt-c"
+          ]
+        },
+        {
+          "id": "quiz-12",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Margherita Hack amava:",
+          "options": [
+            {
+              "id": "quiz-12-opt-a",
+              "label": "la carne."
+            },
+            {
+              "id": "quiz-12-opt-b",
+              "label": "le stelle."
+            },
+            {
+              "id": "quiz-12-opt-c",
+              "label": "la chiesa cattolica."
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-12-opt-b"
+          ]
+        },
+        {
+          "id": "quiz-13",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Palermo si trova:",
+          "options": [
+            {
+              "id": "quiz-13-opt-a",
+              "label": "in Piemonte."
+            },
+            {
+              "id": "quiz-13-opt-b",
+              "label": "in Sicilia."
+            },
+            {
+              "id": "quiz-13-opt-c",
+              "label": "nel Lazio."
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-13-opt-b"
+          ]
+        },
+        {
+          "id": "quiz-14",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Al Ferrara Buskers Festival:",
+          "options": [
+            {
+              "id": "quiz-14-opt-a",
+              "label": "si presentano musicisti ed artisti."
+            },
+            {
+              "id": "quiz-14-opt-b",
+              "label": "vediamo nuovissimi film italiani per i giovani."
+            },
+            {
+              "id": "quiz-14-opt-c",
+              "label": "puoi mangiare specialità della zona Padana."
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-14-opt-a"
+          ]
+        },
+        {
+          "id": "quiz-15",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Quale regola è sbagliata? Il calcio storico:",
+          "options": [
+            {
+              "id": "quiz-15-opt-a",
+              "label": "si gioca sull'erba."
+            },
+            {
+              "id": "quiz-15-opt-b",
+              "label": "si gioca in tutto con 54 giocatori."
+            },
+            {
+              "id": "quiz-15-opt-c",
+              "label": "non conosce intervalli e dura 50 minuti."
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-15-opt-a"
+          ]
+        },
+        {
+          "id": "quiz-16",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Che cosa ha detto Goethe sulla Sicilia?",
+          "options": [
+            {
+              "id": "quiz-16-opt-a",
+              "label": "\"L'Italia, senza la Sicilia, non lascia alcuna immagine nell'anima: qui comincia tutto.\""
+            },
+            {
+              "id": "quiz-16-opt-b",
+              "label": "\"L'Italia, senza la Sicilia, è solo un paese banale.\""
+            },
+            {
+              "id": "quiz-16-opt-c",
+              "label": "\"La Sicilia è la chiave di tutto: qui comincia tutto.\""
+            }
+          ],
+          "correctOptionIds": [
+            "quiz-16-opt-a"
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.75,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

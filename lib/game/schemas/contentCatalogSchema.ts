@@ -13,6 +13,8 @@ export const chapterFileSchema = z
     order: z.number().int().min(0),
     locked: z.boolean().optional().default(false),
     reference: z.boolean().optional().default(false),
+    /** When true, completing the chapter's last quest triggers the game-finale overlay (menu). */
+    gameFinale: z.boolean().optional().default(false),
     quests: z.array(questIdSchema).min(1),
     background: z.string().min(1),
   })

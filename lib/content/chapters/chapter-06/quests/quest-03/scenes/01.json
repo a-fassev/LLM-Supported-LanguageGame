@@ -1,0 +1,9 @@
+{
+  "id": "chapter-06-quest-03-scene-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/06/quests/03/bg-parco-caffe",
+  "content": {
+    "text": "La signora ti mostra foto della Sicilia sul tablet e aspetta una risposta precisa."
+  }
+}

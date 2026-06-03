@@ -33,6 +33,7 @@ describe("bootstrapGameState", () => {
           order: 1,
           locked: false,
           reference: false,
+          gameFinale: false,
           background: "chapters/01/chapter/bg-missions",
           questsExpanded: [
             {
@@ -65,6 +66,7 @@ describe("bootstrapGameState", () => {
           order: 1,
           locked: false,
           reference: false,
+          gameFinale: false,
           background: "chapters/01/chapter/bg-missions",
           quests: [
             {

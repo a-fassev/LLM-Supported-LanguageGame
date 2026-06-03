@@ -61,7 +61,8 @@ Scene order is the **numeric prefix** on filenames (`01`, `02`, …). When mappi
 | `background` | **Required.** Asset key for the chapter mission list hub (`/chapters/[chapterId]`). Resolved via `resolveAssetUrl` → `public/content-assets/`. |
 | `locked` | Optional, default `false`. When `true`, the chapter is **not playable** (hub shows locked; server rejects start, resume, snapshot (in-progress run), advance, attempt, and retreat with API code `chapter_locked`). Use for classroom pilots—change in git and deploy; independent of learner progress. |
 | `reference` | Optional, default `false`. When `true`, the chapter is a **team sandbox** (task-type fixtures): always playable when not `locked`, and **does not gate** the next progression chapter. At most one chapter in the catalog may set `reference: true`. |
-| `quests` | Ordered quest folder ids for this chapter. |
+| `gameFinale` | Optional, default `false`. When `true`, completing the chapter’s **last** quest in `quests[]` (usually the bonus) ends the learner journey: snapshot sets `run.isGameFinaleQuest`; `/play` shows «Percorso completato!» and primary **«Torna al menu»** (not the chapter mission list). Author **story scenes after the bonus task** for narrative closure; overlay is the mechanical game end. Logic: `lib/game/game-finale.ts`. At most one progression chapter should set this until a post-game hub exists. |
+| `quests` | Ordered quest folder ids for this chapter. **Last id** is the finale quest when `gameFinale` is `true`. |
 
 **Progression chapters** (`chapter-01` …) use `order: 1` and up without `reference`. **Sandbox** lives in `chapter-00` (`order: 0`, `reference: true`) — all task-type smoke fixtures for web development.
 
@@ -87,12 +88,13 @@ Scene order is the **numeric prefix** on filenames (`01`, `02`, …). When mappi
 
 Reading text for tasks lives on **each task scene**, not on the quest (see §5.2).
 
-**After a quest completes:** the client returns to **`/chapters/[chapterId]`**; the next mission is chosen from the list when unlocked. There is **no** `autoStartQuestId` / automatic jump into the following quest on `/play`.
+**After a quest completes:** the client returns to **`/chapters/[chapterId]`**; the next mission is chosen from the list when unlocked. **Exception:** when `gameFinale: true` and the completed run is the chapter’s **last** quest (`run.isGameFinaleQuest`), `/play` routes to **`/menu`** instead. There is **no** `autoStartQuestId` / automatic jump into the following quest on `/play`.
 
 **Progression (sequential play):**
 
 - The game is played **in order**: chapters by `chapter.order`, quests by `chapter.json` → `quests`, scenes by filename `01.json`, `02.json`, …
 - **Next chapter** unlocks when every **main** quest in the current chapter is complete. Bonus quests are optional and do not block the next chapter.
+- **Hub unlock is linear:** each quest has at most one `requiresQuestId`. Raw “parallel branches” or “complete A and B before C” are approximated with **fixed quest order** in `chapter.json` → `quests`; parallel intent may appear in **story copy only** (see chapter-content-authoring skill).
 - Optional **`locked: true`** on a chapter (see table above) manually withholds that chapter until authors remove the flag and deploy.
 - Progression otherwise uses catalog order and completed runs only (§12).
 

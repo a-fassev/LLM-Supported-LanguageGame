@@ -1,0 +1,9 @@
+{
+  "id": "chapter-06-quest-01-bonus-scene-05",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/06/quests/bonus/bg-finale",
+  "content": {
+    "text": "Ottimo! Hai superato anche l'ultimo controllo dei vocaboli."
+  }
+}

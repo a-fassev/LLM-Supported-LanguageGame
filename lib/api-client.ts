@@ -47,6 +47,7 @@ export type BootstrapChapterDto = {
   order: number;
   locked: boolean;
   reference: boolean;
+  gameFinale: boolean;
   background: string;
   quests: BootstrapQuestDto[];
 };
@@ -113,6 +114,8 @@ export type RunDto = {
   status: "in_progress" | "completed" | "abandoned";
   completedSceneIds: string[];
   canRetreat: boolean;
+  /** Last quest of a `gameFinale` chapter — use with `status === "completed"` for finale overlay. */
+  isGameFinaleQuest: boolean;
   currentScene: RunSceneDto;
   /** Next scene background key from catalog, when present (client preload). */
   nextSceneBackground: string | null;

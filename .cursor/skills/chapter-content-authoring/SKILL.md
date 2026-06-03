@@ -11,7 +11,7 @@ description: >-
 
 Branch: **`web-based-implementation`**. Contracts: **`docs/quest-scene-content-format.md`**, **`AGENTS.md`** (game domain). Learner UX: **`.cursor/skills/product/SKILL.md`**. New **task types** or play UI: **`.cursor/skills/web-task-type-ui/SKILL.md`** (fixtures stay in **`chapter-00`**).
 
-**Reference rollouts:** `chapter-01` … `chapter-05` each have `docs/chapter-NN-implementation-overview.md`, optional `chapter-NN-implementation-plan.md`, `scripts/generate-chapter-NN-catalog.mjs`, and `lib/game/content/chapter-NN-catalog.test.ts` (optional `chapter-NN-task-scoring.test.ts` for answer keys). Start from [chapter-01-implementation-overview.md](../../../docs/chapter-01-implementation-overview.md) for the template.
+**Reference rollouts:** `chapter-01` … `chapter-06` each have `docs/chapter-NN-implementation-overview.md`, optional `chapter-NN-implementation-plan.md`, `scripts/generate-chapter-NN-catalog.mjs`, and `lib/game/content/chapter-NN-catalog.test.ts` (optional `chapter-NN-task-scoring.test.ts` for answer keys). Start from [chapter-01-implementation-overview.md](../../../docs/chapter-01-implementation-overview.md) for the template.
 
 ---
 
@@ -111,7 +111,9 @@ Chapter NN authoring:
 
 - Completed missions: hub **Completata**, not replayable; server `quest_already_completed`.
 - **Indietro** (retreat): no wallet rollback; scene rewards once per `(run_id, scene_id)`.
-- Manual **`locked: true`** on `chapter.json` for classroom pilots (today: **chapter-06** locked; **03–05** unlocked — flip in generator/`chapter.json` when ready).
+- Manual **`locked: true`** on `chapter.json` for classroom pilots (today: **chapter-03–06** unlocked — flip in generator/`chapter.json` when ready).
+- **Raw parallel acts** (e.g. “6.1 and 6.2 in any order”): web hub is **linear** — set `requiresQuestId` chain in play order; do **not** model AND-gates or free-order unlock in JSON. Document the approximation in `docs/chapter-NN-implementation-overview.md`; keep parallel hints in story only (e.g. “due pin sulla mappa”).
+- **Game end (`gameFinale`):** on the closing chapter set `"gameFinale": true` in `chapter.json`; last entry in `quests[]` must be the finale quest (typically bonus). Add **story scenes after the bonus task**; `/play` overlay + menu routing is automatic via `lib/game/game-finale.ts` — do not hardcode chapter ids in the client.
 
 ---
 
@@ -135,6 +137,8 @@ Chapter NN authoring:
 | Cloze tests that only check `correctAnswers[0]` | Test every listed alternate per gap in `chapter-NN-task-scoring.test.ts` |
 | Partial cloze answer + literal noun (`un solo` + `studente`) | One **full-phrase** gap per line; see Tasks § cloze A/B |
 | Story/task scene order swapped vs raw act | Match raw beat order; add `chapter-NN-catalog.test.ts` scene-order checks when fragile |
+| Parallel raw branches → multiple `requiresQuestId` or hub forks | **Linear** `quests[]` order + story copy; note in overview § settled |
+| Expecting client game-end without `gameFinale` | Set `gameFinale: true` + finale story after bonus; see `docs/quest-scene-content-format.md` |
 
 ---
 

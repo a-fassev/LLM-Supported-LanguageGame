@@ -82,6 +82,11 @@ import {
   toReferenceDocumentView,
   type ReferenceDocumentView,
 } from "@/lib/game/reference-document-view";
+import {
+  isGameFinaleCompletedRun,
+  QUEST_COMPLETE_GAME_FINALE,
+} from "@/lib/game/game-finale";
+
 type RunState = {
   totalSlices: number;
   totalBackpackPieces: number;
@@ -453,6 +458,18 @@ export default function PlayPage() {
     [chapterPathForRun, dismissSuccessOverlay, router],
   );
 
+  const finishCompletedRun = useCallback(
+    (run: RunDto) => {
+      if (isGameFinaleCompletedRun(run)) {
+        dismissSuccessOverlay();
+        router.push("/menu");
+        return;
+      }
+      finishQuestToChapterHub(run);
+    },
+    [dismissSuccessOverlay, finishQuestToChapterHub, router],
+  );
+
   const handleCompletedRun = useCallback(
     (
       run: RunDto,
@@ -473,7 +490,9 @@ export default function PlayPage() {
         setBackgroundHoldKey(ctx.backgroundKey ?? null);
         setChromeHoldScene(ctx.holdScene);
       }
-      setOutcome(QUEST_COMPLETE_STANDARD);
+      setOutcome(
+        isGameFinaleCompletedRun(run) ? QUEST_COMPLETE_GAME_FINALE : QUEST_COMPLETE_STANDARD,
+      );
       setSuccessOpen(true);
     },
     [],
@@ -947,11 +966,17 @@ export default function PlayPage() {
       <SuccessOverlay
         open={successOpen}
         outcome={outcome}
-        primaryLabel={state.run?.status === "completed" ? "Alla lista missioni" : undefined}
+        primaryLabel={
+          state.run?.status === "completed"
+            ? isGameFinaleCompletedRun(state.run)
+              ? "Torna al menu"
+              : "Alla lista missioni"
+            : undefined
+        }
         onOpenChange={(open) => {
           if (!open) {
-            if (state.run?.status === "completed") {
-              finishQuestToChapterHub(state.run);
+            if (state.run?.status === "completed" && state.run) {
+              finishCompletedRun(state.run);
               return;
             }
             dismissSuccessOverlay();
@@ -962,7 +987,7 @@ export default function PlayPage() {
         }
         onContinue={() => {
           if (state.run?.status === "completed" && state.run) {
-            finishQuestToChapterHub(state.run);
+            finishCompletedRun(state.run);
             return;
           }
           dismissSuccessOverlay();

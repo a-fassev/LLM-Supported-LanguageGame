@@ -1,0 +1,9 @@
+{
+  "id": "chapter-06-quest-04-scene-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/06/quests/04/bg-piazza-maggiore",
+  "content": {
+    "text": "Per la Festa della Repubblica in piazza c'è un grande quiz pubblico sull'Italia. Tutti partecipano: studenti, famiglie, turisti."
+  }
+}

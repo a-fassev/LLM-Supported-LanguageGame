@@ -1,9 +1,9 @@
 {
-  "id": "chapter-06-quest-01-scene-02",
+  "id": "chapter-06-quest-01-scene-03",
   "scene_type": "story",
   "screen_type": "info",
   "background": "chapters/06/quests/01/bg-room-morning",
   "content": {
-    "text": "Tu\n„Oggi ho due tappe: il turno al ristorante e un incontro al parco.\""
+    "text": "Sulla mappa si accendono due pin nello stesso momento."
   }
 }

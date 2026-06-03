@@ -1,0 +1,9 @@
+{
+  "id": "chapter-06-quest-01-bonus-scene-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/06/quests/bonus/bg-neutral",
+  "content": {
+    "text": "Hai completato il sesto capitolo della tua avventura a Bologna. La collezione delle sei lezioni è completa."
+  }
+}

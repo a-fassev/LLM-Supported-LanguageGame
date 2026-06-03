@@ -1,6 +1,6 @@
 {
   "id": "quest-02",
-  "title": "La Scala",
+  "title": "Al ristorante",
   "order": 2,
   "kind": "main",
   "requiresQuestId": "quest-01",

@@ -39,6 +39,33 @@ describe("contentCatalogSchema", () => {
     }
   });
 
+  it("parses chapter gameFinale flag and defaults to false", () => {
+    const parsed = parseChapterFile({
+      id: "chapter-01",
+      title: "Bologna",
+      order: 1,
+      quests: ["quest-01"],
+      background: "chapters/01/chapter/bg-missions",
+    });
+    expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.value.gameFinale).toBe(false);
+    }
+
+    const finale = parseChapterFile({
+      id: "chapter-06",
+      title: "Bologna — sesto giorno",
+      order: 6,
+      gameFinale: true,
+      quests: ["quest-01", "quest-01-bonus"],
+      background: "chapters/06/chapter/bg-missions",
+    });
+    expect(finale.ok).toBe(true);
+    if (finale.ok) {
+      expect(finale.value.gameFinale).toBe(true);
+    }
+  });
+
   it("parses chapter locked flag and defaults to false", () => {
     const locked = parseChapterFile({
       id: "chapter-03",

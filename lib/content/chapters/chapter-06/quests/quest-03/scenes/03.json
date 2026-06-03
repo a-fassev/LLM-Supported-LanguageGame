@@ -1,0 +1,166 @@
+{
+  "id": "chapter-06-quest-03-scene-03",
+  "scene_type": "task",
+  "screen_type": "cloze",
+  "background": "chapters/06/quests/03/bg-parco-caffe",
+  "content": {
+    "title": "È in Sicilia che voglio andare!",
+    "instruction": "Completa cinque frasi con la messa in rilievo (è ... che / non sono ... che ...).",
+    "referenceDocument": {
+      "title": "Luoghi in Sicilia (S. 122/123)",
+      "body": "Luoghi (S. 122/123):\n\n1) Palermo — Cattedrale Santa Vergine Maria Assunta\n2) Palermo — mercati (Ballarò, Vucciria, Capo)\n3) Monreale — Cattedrale di Santa Maria Nuova\n4) Agrigento — Valle dei Templi\n5) Piazza Armerina — Villa Romana del Casale\n6) Scala dei Turchi\n7) Trapani — saline / città barocca\n\nStrutture: «È ... che vorrei vedere perché ...» / «Non sono ... che mi interessano perché ...».",
+      "figures": [
+        {
+          "image": "chapters/06/quests/03/ref-sicilia-01",
+          "caption": "Palermo — Cattedrale Santa Vergine Maria Assunta",
+          "alt": "Palermo, cattedrale"
+        },
+        {
+          "image": "chapters/06/quests/03/ref-sicilia-02",
+          "caption": "Palermo — mercati (Ballarò, Vucciria, Capo)",
+          "alt": "Mercati di Palermo"
+        },
+        {
+          "image": "chapters/06/quests/03/ref-sicilia-03",
+          "caption": "Monreale — Cattedrale di Santa Maria Nuova",
+          "alt": "Cattedrale di Monreale"
+        },
+        {
+          "image": "chapters/06/quests/03/ref-sicilia-04",
+          "caption": "Agrigento — Valle dei Templi",
+          "alt": "Valle dei Templi"
+        },
+        {
+          "image": "chapters/06/quests/03/ref-sicilia-05",
+          "caption": "Piazza Armerina — Villa Romana del Casale",
+          "alt": "Villa Romana del Casale"
+        },
+        {
+          "image": "chapters/06/quests/03/ref-sicilia-06",
+          "caption": "Scala dei Turchi",
+          "alt": "Scala dei Turchi"
+        },
+        {
+          "image": "chapters/06/quests/03/ref-sicilia-07",
+          "caption": "Trapani — saline e città barocca",
+          "alt": "Trapani"
+        }
+      ]
+    },
+    "task": {
+      "prompt": "Completa solo le parti evidenziate. Le motivazioni sono già date.",
+      "caseSensitive": false,
+      "lines": [
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "A Trapani è "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "la città barocca"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " che vorrei vedere perché questa città non l'ho vista ancora."
+            }
+          ]
+        },
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "Non sono "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "le saline"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " che mi interessano perché le saline le ho visitate già tante volte."
+            }
+          ]
+        },
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "A Monreale non è "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 96,
+              "correctAnswers": [
+                "la Cattedrale di Santa Maria Nuova"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " che mi interessa perché la Cattedrale la vedo su quasi ogni cartolina della città."
+            }
+          ]
+        },
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "A Piazza Armerina sono "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "i mosaici"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " che vorrei vedere perché i mosaici li trovo affascinanti."
+            }
+          ]
+        },
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "A Palermo è "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "il Palazzo della Giustizia"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " che vorrei visitare perché questo posto l'ho visto tante volte nei documentari su Giovanni Falcone."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.8,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

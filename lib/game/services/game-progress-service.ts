@@ -30,6 +30,7 @@ import { sanitizeSceneContentForClient } from "@/lib/game/content/sanitize-task-
 import { parsePizzaRewardRules, slicesFromRatio } from "@/lib/game/scoring/pizzaReward";
 import { meetsTaskSceneCompletionMinimum } from "@/lib/game/tasks/freitext/meets-freitext-completion-minimum";
 import { evaluateTaskAttempt } from "@/lib/game/scoring/evaluateTaskAttempt";
+import { isGameFinaleCatalogQuest } from "@/lib/game/game-finale";
 import { buildTaskOutcome, type TaskOutcomeDto } from "@/lib/game/task-outcome-messages";
 import { buildFreitextRetryTaskOutcome } from "@/lib/game/tasks/freitext/build-freitext-retry-task-outcome";
 import { evaluateFreitextLlmScene } from "@/lib/game/tasks/freitext/evaluate-freitext-llm-scene";
@@ -55,6 +56,7 @@ function toBootstrapChapters(): Promise<BootstrapChapterDto[]> {
       order: chapter.order,
       locked: chapter.locked,
       reference: chapter.reference,
+      gameFinale: chapter.gameFinale ?? false,
       background: chapter.background,
       quests: chapter.questsExpanded.map((quest) => ({
         id: quest.id,
@@ -244,6 +246,7 @@ async function buildSnapshotFromRun(
       status: run.status,
       completedSceneIds,
       canRetreat,
+      isGameFinaleQuest: isGameFinaleCatalogQuest(catalog, run.chapterId, run.questId),
       currentScene: sceneToDto(scene),
       nextSceneBackground: quest ? nextSceneBackgroundInQuest(scene, quest.scenes) : null,
     },

@@ -2,8 +2,8 @@
   "id": "chapter-06-quest-02-scene-01",
   "scene_type": "story",
   "screen_type": "info",
-  "background": "chapters/06/quests/02/bg-dialogue-01",
+  "background": "chapters/06/quests/02/bg-ristorante",
   "content": {
-    "text": "Al naviglio si parla velocemente. Prova a ricostruire la frase."
+    "text": "Tra due ordinazioni noti un libro aperto: \"Bianca come il latte, rossa come il sangue\"."
   }
 }
