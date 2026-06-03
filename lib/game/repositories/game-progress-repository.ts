@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { compareLeaderboardPlayers } from "@/lib/game/leaderboard-player-sort";
 import { toQuestProgressId } from "@/lib/game/quest-progress-id";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export type WalletTotals = {
   totalSlices: number;
@@ -523,10 +524,7 @@ export async function listLeaderboardPlayerRows(
     });
   }
 
-  rows.sort((a, b) => {
-    if (b.totalSlices !== a.totalSlices) return b.totalSlices - a.totalSlices;
-    return a.username.localeCompare(b.username);
-  });
+  rows.sort(compareLeaderboardPlayers);
 
   return rows.slice(0, Math.max(1, limit));
 }

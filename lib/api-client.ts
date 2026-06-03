@@ -74,12 +74,18 @@ export type LeaderboardPlayerDto = {
   isSelf: boolean;
 };
 
+export type LeaderboardTeamMemberDto = {
+  username: string;
+  isSelf: boolean;
+};
+
 export type LeaderboardTeamDto = {
   rank: number;
   team: TeamColor;
   totalSlices: number;
   totalBackpackPieces: number;
   memberCount: number;
+  members: LeaderboardTeamMemberDto[];
 };
 
 export type LeaderboardDto = {

@@ -54,7 +54,19 @@ describe("getLeaderboardState", () => {
       isSelf: true,
       totalBackpackPieces: 1,
     });
-    expect(result.teams[0]).toMatchObject({ rank: 1, team: "red", totalSlices: 10, memberCount: 1 });
+    expect(result.teams[0]).toMatchObject({
+      rank: 1,
+      team: "red",
+      totalSlices: 10,
+      memberCount: 1,
+      members: [{ username: "top", isSelf: false }],
+    });
+    expect(result.teams[1]).toMatchObject({
+      rank: 2,
+      team: "blue",
+      memberCount: 1,
+      members: [{ username: "me", isSelf: true }],
+    });
     expect(result.self).toMatchObject({
       overallRank: 2,
       totalSlices: 5,

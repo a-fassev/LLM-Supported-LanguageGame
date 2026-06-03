@@ -49,13 +49,24 @@ export default function LeaderboardPage() {
   }, [load]);
 
   return (
-    <HubPage title="Classifica" onBack={() => router.push("/menu")}>
-      <div className="space-y-4">
+    <HubPage
+      title="Classifica"
+      onBack={() => router.push("/menu")}
+      className="flex flex-col overflow-hidden"
+    >
+      <div className="flex min-h-0 flex-1 flex-col gap-4">
         {pending && !data ? (
           <p className="text-base text-muted-foreground">Caricamento classifica...</p>
         ) : null}
         {error ? <p className="text-base text-destructive">{error}</p> : null}
-        {data ? <LeaderboardView data={data} onRefresh={() => void load()} refreshing={pending} /> : null}
+        {data ? (
+          <LeaderboardView
+            className="min-h-0 flex-1"
+            data={data}
+            onRefresh={() => void load()}
+            refreshing={pending}
+          />
+        ) : null}
       </div>
     </HubPage>
   );
