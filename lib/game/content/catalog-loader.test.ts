@@ -133,7 +133,7 @@ describe("catalog-loader", () => {
     await expect(loadContentCatalog({ rootDir: root, bypassCache: true })).rejects.toThrow(/expected exactly NN\.json/);
   });
 
-  it("fails when matching scene uses poolPairs without concrete items", async () => {
+  it("loads matching scene with poolPairs and sampleSize without concrete items", async () => {
     const root = await makeBaseCatalogRoot();
     tempRoots.push(root);
 
@@ -162,8 +162,100 @@ describe("catalog-loader", () => {
       },
     });
 
+    const catalog = await loadContentCatalog({ rootDir: root, bypassCache: true });
+    const quest = catalog.chapters[0]?.questsExpanded[0];
+    const task = quest?.scenes[1];
+    expect(task?.screen_type).toBe("matching");
+    expect((task?.content.task as { poolPairs?: unknown[] }).poolPairs).toHaveLength(1);
+  });
+
+  it("rejects autoStartQuestId that targets a main quest", async () => {
+    const root = await makeBaseCatalogRoot();
+    tempRoots.push(root);
+
+    await writeJson(path.join(root, "chapters", "chapter-01", "chapter.json"), {
+      id: "chapter-01",
+      title: "Test",
+      order: 1,
+      quests: ["quest-01", "quest-02"],
+    });
+    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01", "quest.json"), {
+      id: "quest-01",
+      title: "Main 1",
+      order: 1,
+      kind: "main",
+      requiresQuestId: null,
+      autoStartQuestId: "quest-02",
+    });
+    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-02", "quest.json"), {
+      id: "quest-02",
+      title: "Main 2",
+      order: 2,
+      kind: "main",
+      requiresQuestId: "quest-01",
+      autoStartQuestId: null,
+    });
+    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01", "scenes", "01.json"), {
+      id: "chapter-01-quest-01-scene-01",
+      scene_type: "story",
+      screen_type: "info",
+      background: "chapters/01/quests/01/bg",
+      content: { text: "hello" },
+    });
+    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-02", "scenes", "01.json"), {
+      id: "chapter-01-quest-02-scene-01",
+      scene_type: "story",
+      screen_type: "info",
+      background: "chapters/01/quests/02/bg",
+      content: { text: "hello" },
+    });
+
     await expect(loadContentCatalog({ rootDir: root, bypassCache: true })).rejects.toThrow(
-      /require concrete leftItems, rightItems, and correctPairs/,
+      /must reference a bonus quest/,
     );
+  });
+
+  it("allows autoStartQuestId to target a bonus quest", async () => {
+    const root = await makeBaseCatalogRoot();
+    tempRoots.push(root);
+
+    await writeJson(path.join(root, "chapters", "chapter-01", "chapter.json"), {
+      id: "chapter-01",
+      title: "Test",
+      order: 1,
+      quests: ["quest-01", "quest-01-bonus"],
+    });
+    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01", "quest.json"), {
+      id: "quest-01",
+      title: "Main",
+      order: 1,
+      kind: "main",
+      requiresQuestId: null,
+      autoStartQuestId: "quest-01-bonus",
+    });
+    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01-bonus", "quest.json"), {
+      id: "quest-01-bonus",
+      title: "Bonus",
+      order: 2,
+      kind: "bonus",
+      requiresQuestId: "quest-01",
+      autoStartQuestId: null,
+    });
+    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01", "scenes", "01.json"), {
+      id: "chapter-01-quest-01-scene-01",
+      scene_type: "story",
+      screen_type: "info",
+      background: "chapters/01/quests/01/bg",
+      content: { text: "hello" },
+    });
+    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01-bonus", "scenes", "01.json"), {
+      id: "chapter-01-quest-01-bonus-scene-01",
+      scene_type: "story",
+      screen_type: "info",
+      background: "chapters/01/quests/bonus/bg",
+      content: { text: "bonus" },
+    });
+
+    await expect(loadContentCatalog({ rootDir: root, bypassCache: true })).resolves.toBeDefined();
   });
 });

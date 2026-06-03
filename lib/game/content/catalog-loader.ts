@@ -124,9 +124,13 @@ async function loadScenes(chapterId: string, questId: string, scenesDir: string)
         task.rightItems.length > 0 &&
         Array.isArray(task.correctPairs) &&
         task.correctPairs.length > 0;
-      if (!hasConcrete) {
+      const hasPool =
+        Array.isArray(task.poolPairs) &&
+        task.poolPairs.length > 0 &&
+        typeof task.sampleSize === "number";
+      if (!hasConcrete && !hasPool) {
         err(
-          `${filePath}: content.task: matching scenes in web catalog require concrete leftItems, rightItems, and correctPairs (poolPairs authoring is not supported yet)`,
+          `${filePath}: content.task: matching scenes require concrete leftItems/rightItems/correctPairs or poolPairs+sampleSize`,
         );
       }
     }
@@ -194,8 +198,14 @@ function validateQuestFlow(chapter: ChapterFileParsed, quests: CatalogQuest[]) {
     }
     if (q.autoStartQuestId !== null) {
       const target = byId.get(q.autoStartQuestId);
-      if (!target || target.kind !== "main") {
-        err(`chapter '${chapter.id}' quest '${q.id}' autoStartQuestId '${q.autoStartQuestId}' must point to a main quest`);
+      if (!target) {
+        err(
+          `chapter '${chapter.id}' quest '${q.id}' autoStartQuestId '${q.autoStartQuestId}' must reference a quest in the same chapter`,
+        );
+      } else if (target.kind !== "bonus") {
+        err(
+          `chapter '${chapter.id}' quest '${q.id}' autoStartQuestId '${q.autoStartQuestId}' must reference a bonus quest`,
+        );
       }
       if (q.autoStartQuestId === q.id) {
         err(`chapter '${chapter.id}' quest '${q.id}' autoStartQuestId cannot self-reference`);

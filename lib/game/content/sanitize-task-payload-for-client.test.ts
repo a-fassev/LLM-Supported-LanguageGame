@@ -60,6 +60,22 @@ describe("sanitizeTaskPayloadForClient", () => {
     });
   });
 
+  it("removes pool authoring fields from matching", () => {
+    const sanitized = sanitizeTaskPayloadForClient("matching", {
+      prompt: "Match",
+      sampleSize: 2,
+      poolPairs: [{ id: "a", leftLabel: "ciao", rightLabel: "hello" }],
+      leftItems: [{ id: "l1", label: "A" }],
+      rightItems: [{ id: "r1", label: "B" }],
+      correctPairs: [{ leftItemId: "l1", rightItemId: "r1" }],
+    });
+    expect(sanitized).toEqual({
+      prompt: "Match",
+      leftItems: [{ id: "l1", label: "A" }],
+      rightItems: [{ id: "r1", label: "B" }],
+    });
+  });
+
   it("removes evaluation rubric from free_text", () => {
     const sanitized = sanitizeTaskPayloadForClient("free_text", {
       prompt: "Presentati",

@@ -1,13 +1,27 @@
 {
   "id": "chapter-03-quest-01-bonus-scene-02",
   "scene_type": "task",
-  "screen_type": "bonus",
+  "screen_type": "matching",
   "background": "chapters/03/quests/bonus/bg-task-01",
   "content": {
     "title": "Sfida bonus",
-    "instruction": "Completa la sfida per ottenere pizza extra.",
+    "instruction": "Abbina ogni espressione alla traduzione corretta.",
     "referenceDocument": null,
-    "task": {}
+    "task": {
+      "prompt": "Vocabolario al bar.",
+      "sampleSize": 3,
+      "poolPairs": [
+        { "id": "b01", "leftLabel": "Un caffè", "rightLabel": "A coffee" },
+        { "id": "b02", "leftLabel": "Il conto", "rightLabel": "The bill" },
+        { "id": "b03", "leftLabel": "Per favore", "rightLabel": "Please" },
+        { "id": "b04", "leftLabel": "Grazie", "rightLabel": "Thanks" }
+      ],
+      "presentation": {
+        "leftLabel": "Italiano",
+        "rightLabel": "Traduzione",
+        "shuffleRightOrder": true
+      }
+    }
   },
   "scoring": {
     "backpack": { "pieces": 1 },

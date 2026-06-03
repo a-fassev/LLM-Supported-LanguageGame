@@ -12,6 +12,7 @@ import {
   startRun,
   type ApiErrorResult,
   type AttemptRunDto,
+  type QuestAutoStartDto,
   type RunDto,
   type RunSceneDto,
   type RunSnapshotDto,
@@ -94,6 +95,30 @@ function mergeRunState(_current: RunState, data: RunSnapshotDto): RunState {
     totalBackpackPieces: data.totalBackpackPieces,
     run: data.run,
   };
+}
+
+const QUEST_COMPLETE_BONUS_OFFER: TaskOutcomeDto = {
+  kind: "success",
+  ratio: 1,
+  awardedSlices: 0,
+  awardedBackpackPieces: 0,
+  headline: "Missione completata!",
+  body: "Vuoi provare la sfida bonus per guadagnare pizza extra?",
+};
+
+const QUEST_COMPLETE_STANDARD: TaskOutcomeDto = {
+  kind: "success",
+  ratio: 1,
+  awardedSlices: 0,
+  awardedBackpackPieces: 0,
+  headline: "Missione completata!",
+  body: "Ottimo lavoro. Continua dalla mappa del capitolo.",
+};
+
+function questCompleteOutcome(run: RunDto | null, taskOutcome?: TaskOutcomeDto | null): TaskOutcomeDto {
+  if (taskOutcome) return taskOutcome;
+  if (run?.autoStartQuest) return QUEST_COMPLETE_BONUS_OFFER;
+  return QUEST_COMPLETE_STANDARD;
 }
 
 function mergeAttemptState(_current: RunState, data: AttemptRunDto): RunState {
@@ -403,11 +428,48 @@ export default function PlayPage() {
       ? backgroundHoldKey
       : (currentScene?.background ?? null);
 
-  function dismissSuccessOverlay() {
+  const dismissSuccessOverlay = useCallback(() => {
     setSuccessOpen(false);
     setOutcome(null);
     setBackgroundHoldKey(null);
-  }
+  }, []);
+
+  const chapterPathForRun = useCallback(
+    (run: RunDto | null) => (run?.chapterId ? `/chapters/${run.chapterId}` : "/chapters"),
+    [],
+  );
+
+  const startAutoQuest = useCallback(
+    async (target: QuestAutoStartDto) => {
+      if (!token) return;
+      setLoading(true);
+      const result = await startRun(token, {
+        chapterId: target.chapterId,
+        questId: target.questId,
+      });
+      if (!mountedRef.current) return;
+      if (!result.ok) {
+        if (result.status === 401) {
+          clearSession();
+          router.replace("/login");
+          return;
+        }
+        toastBlockingApiError(result);
+        setError(result.error);
+        setLoading(false);
+        return;
+      }
+      dismissSuccessOverlay();
+      setLoading(false);
+      router.replace(
+        `/play?chapterId=${encodeURIComponent(target.chapterId)}&questId=${encodeURIComponent(target.questId)}`,
+      );
+    },
+    [clearSession, dismissSuccessOverlay, mountedRef, router, token],
+  );
+
+  const autoStartQuest =
+    state.run?.status === "completed" ? (state.run.autoStartQuest ?? null) : null;
 
   const loadRun = useCallback(async () => {
     if (!token) {
@@ -474,6 +536,11 @@ export default function PlayPage() {
       setClozeAnswers,
       setClozeValidationError,
     });
+    const run = result.data.run;
+    if (run?.status === "completed" && run.autoStartQuest) {
+      setOutcome(questCompleteOutcome(run));
+      setSuccessOpen(true);
+    }
     setLoading(false);
   }, [chapterId, clearSession, mountedRef, questId, router, token]);
 
@@ -526,6 +593,10 @@ export default function PlayPage() {
     setMcValidationError(null);
     setMatchingValidationError(null);
     setDragDropValidationError(null);
+    if (result.data.run?.status === "completed") {
+      setOutcome(questCompleteOutcome(result.data.run, result.data.taskOutcome));
+      setSuccessOpen(true);
+    }
     setSceneNavPending(false);
   }
 
@@ -857,11 +928,29 @@ export default function PlayPage() {
         onOpenChange={(open) => {
           if (!open) dismissSuccessOverlay();
         }}
+        primaryLabel={autoStartQuest ? "Vai alla sfida bonus" : undefined}
+        secondaryAction={
+          autoStartQuest
+            ? {
+                label: "Più tardi",
+                onClick: () => {
+                  dismissSuccessOverlay();
+                  router.push(chapterPathForRun(state.run));
+                },
+              }
+            : undefined
+        }
+        showRewardSummary={
+          outcome !== null && (outcome.awardedSlices > 0 || outcome.awardedBackpackPieces > 0)
+        }
         onContinue={() => {
-          const chapterPath = state.run?.chapterId ? `/chapters/${state.run.chapterId}` : "/chapters";
           if (state.run?.status === "completed") {
+            if (autoStartQuest) {
+              void startAutoQuest(autoStartQuest);
+              return;
+            }
             dismissSuccessOverlay();
-            router.push(chapterPath);
+            router.push(chapterPathForRun(state.run));
             return;
           }
           dismissSuccessOverlay();

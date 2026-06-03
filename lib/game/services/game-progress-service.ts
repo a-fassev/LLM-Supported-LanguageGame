@@ -7,11 +7,18 @@ import {
   getCompletedQuestIds,
   getCompletedSceneIds,
   getQuestRunById,
+  getRecentCompletedQuestRuns,
   getWalletTotals,
   incrementWalletTotals,
   updateQuestRunPosition,
   type QuestRunRow,
 } from "@/lib/game/repositories/game-progress-repository";
+import {
+  isQuestLockedForAccount,
+  resolveAutoStartQuest,
+  type QuestAutoStartDto,
+} from "@/lib/game/resolve-auto-start-quest";
+import { resolveCatalogSceneForRun } from "@/lib/game/tasks/matching/resolve-matching-scene-task";
 import { gameClientMessages as msg } from "@/lib/game/clientMessages";
 import {
   findCatalogScene,
@@ -27,8 +34,6 @@ import { evaluateTaskAttempt } from "@/lib/game/scoring/evaluateTaskAttempt";
 import { buildTaskOutcome, type TaskOutcomeDto } from "@/lib/game/task-outcome-messages";
 import { buildFreitextRetryTaskOutcome } from "@/lib/game/tasks/freitext/build-freitext-retry-task-outcome";
 import { evaluateFreitextLlmScene } from "@/lib/game/tasks/freitext/evaluate-freitext-llm-scene";
-import { toQuestProgressId } from "@/lib/game/quest-progress-id";
-
 export type BootstrapQuestDto = {
   id: string;
   title: string;
@@ -71,36 +76,6 @@ function toBootstrapChapters(): Promise<BootstrapChapterDto[]> {
       })),
     })),
   );
-}
-
-function isQuestLockedForAccount(
-  catalog: ContentCatalog,
-  chapterId: string,
-  questId: string,
-  completedQuestIds: Set<string>,
-): boolean {
-  const chapterIndex = catalog.chapters.findIndex((chapter) => chapter.id === chapterId);
-  if (chapterIndex < 0) return true;
-  if (chapterIndex > 0) {
-    const previousChapter = catalog.chapters[chapterIndex - 1];
-    const requiredMainQuestProgressIds = previousChapter.questsExpanded
-      .filter((quest) => quest.kind !== "bonus")
-      .map((quest) => toQuestProgressId(previousChapter.id, quest.id));
-    const previousChapterComplete = requiredMainQuestProgressIds.every((requiredQuestProgressId) =>
-      completedQuestIds.has(requiredQuestProgressId),
-    );
-    if (!previousChapterComplete) return true;
-  }
-
-  const quest = findCatalogQuest(catalog, chapterId, questId);
-  if (!quest) return true;
-  if (
-    quest.requiresQuestId &&
-    !completedQuestIds.has(toQuestProgressId(chapterId, quest.requiresQuestId))
-  ) {
-    return true;
-  }
-  return false;
 }
 
 export async function bootstrapGameState(accountId: string): Promise<BootstrapResult> {
@@ -147,6 +122,8 @@ export type RunSceneDto = {
   scoring?: Record<string, unknown>;
 };
 
+export type { QuestAutoStartDto };
+
 export type RunSnapshotDto = {
   runId: string;
   chapterId: string;
@@ -158,6 +135,8 @@ export type RunSnapshotDto = {
   currentScene: RunSceneDto;
   /** Background key of the next catalog scene, when one exists (for client preload). */
   nextSceneBackground: string | null;
+  /** Set when this run just completed and a follow-up quest should be offered (e.g. chapter bonus). */
+  autoStartQuest: QuestAutoStartDto | null;
 };
 
 export type RunSnapshotResult =
@@ -218,8 +197,8 @@ async function buildSnapshotFromRun(
   });
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
 
-  const scene = findCatalogScene(catalog, run.chapterId, run.questId, run.currentSceneId);
-  if (!scene) {
+  const catalogScene = findCatalogScene(catalog, run.chapterId, run.questId, run.currentSceneId);
+  if (!catalogScene) {
     return {
       ok: false,
       status: 500,
@@ -229,7 +208,18 @@ async function buildSnapshotFromRun(
     };
   }
 
+  const scene = await resolveCatalogSceneForRun(run.runId, catalogScene);
+  if (!scene) {
+    return {
+      ok: false,
+      status: 500,
+      error: msg.couldNotMaterializeMatching,
+      code: "materialization_failed",
+    };
+  }
+
   const completedSceneIds = (await getCompletedSceneIds(run.runId)) ?? [];
+  const completedQuestIds = (await getCompletedQuestIds(accountId)) ?? [];
   const quest = findCatalogQuest(catalog, run.chapterId, run.questId);
   const canRetreat = quest ? previousSceneIdInQuest(scene, quest.scenes) !== null : false;
   return {
@@ -246,14 +236,43 @@ async function buildSnapshotFromRun(
       canRetreat,
       currentScene: sceneToDto(scene),
       nextSceneBackground: quest ? nextSceneBackgroundInQuest(scene, quest.scenes) : null,
+      autoStartQuest: resolveAutoStartQuest(catalog, run, completedQuestIds),
     },
   };
+}
+
+async function findCompletedRunWithPendingAutoStart(
+  accountId: string,
+  catalog: ContentCatalog,
+  completedQuestIds: string[],
+): Promise<QuestRunRow | null> {
+  const recent = await getRecentCompletedQuestRuns(accountId);
+  if (recent === null) return null;
+  for (const candidate of recent) {
+    if (resolveAutoStartQuest(catalog, candidate, completedQuestIds)) {
+      return candidate;
+    }
+  }
+  return null;
 }
 
 export async function getRunSnapshot(accountId: string): Promise<RunSnapshotResult> {
   const ensured = await ensureWalletRow(accountId);
   if (!ensured) return { ok: false, status: 500, error: msg.couldNotLoadWallet };
-  const run = await getActiveQuestRun(accountId);
+
+  let run = await getActiveQuestRun(accountId);
+  if (!run) {
+    const catalog = await loadContentCatalog().catch((error) => {
+      console.error("[game-service] run snapshot catalog", error);
+      return null;
+    });
+    if (!catalog) {
+      return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
+    }
+    const completedQuestIds = (await getCompletedQuestIds(accountId)) ?? [];
+    run = await findCompletedRunWithPendingAutoStart(accountId, catalog, completedQuestIds);
+  }
+
   return buildSnapshotFromRun(accountId, run);
 }
 
@@ -464,9 +483,19 @@ export async function completeTaskScene(
 
   const catalog = await loadContentCatalog().catch(() => null);
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
-  const scene = findCatalogScene(catalog, run.chapterId, run.questId, sceneId);
-  if (!scene || scene.scene_type !== "task") {
+  const catalogScene = findCatalogScene(catalog, run.chapterId, run.questId, sceneId);
+  if (!catalogScene || catalogScene.scene_type !== "task") {
     return { ok: false, status: 400, error: msg.invalidSceneProgression, code: "scene_not_task" };
+  }
+
+  const scene = await resolveCatalogSceneForRun(runId, catalogScene);
+  if (!scene) {
+    return {
+      ok: false,
+      status: 500,
+      error: msg.couldNotMaterializeMatching,
+      code: "materialization_failed",
+    };
   }
 
   const pizzaRules = parsePizzaRewardRules({ pizza: scene.scoring.pizza });

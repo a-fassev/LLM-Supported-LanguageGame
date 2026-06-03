@@ -19,6 +19,8 @@ function stripMcAnswers(task: Record<string, unknown>): Record<string, unknown> 
 function stripMatchingAnswers(task: Record<string, unknown>): Record<string, unknown> {
   const next = { ...task };
   delete next.correctPairs;
+  delete next.poolPairs;
+  delete next.sampleSize;
   return next;
 }
 

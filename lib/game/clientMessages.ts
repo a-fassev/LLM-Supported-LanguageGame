@@ -21,6 +21,7 @@ export const gameClientMessages = {
   llmNotConfigured: "Il valutatore non è disponibile. Riprova più tardi.",
   modelTimedOut: "Il valutatore ha impiegato troppo tempo. Riprova.",
   freitextEvaluatorError: "Il valutatore non è disponibile. Riprova.",
+  couldNotMaterializeMatching: "Impossibile preparare l'attività di abbinamento.",
 } as const;
 
 /** Auth screens (login/register) — learner-facing Italian. */

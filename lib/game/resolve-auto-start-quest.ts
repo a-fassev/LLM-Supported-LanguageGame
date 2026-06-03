@@ -1,0 +1,56 @@
+import {
+  findCatalogQuest,
+  type ContentCatalog,
+} from "@/lib/game/content/catalog-loader";
+import { toQuestProgressId } from "@/lib/game/quest-progress-id";
+import type { QuestRunRow } from "@/lib/game/repositories/game-progress-repository";
+
+export type QuestAutoStartDto = {
+  chapterId: string;
+  questId: string;
+};
+
+export function isQuestLockedForAccount(
+  catalog: ContentCatalog,
+  chapterId: string,
+  questId: string,
+  completedQuestIds: Set<string>,
+): boolean {
+  const chapterIndex = catalog.chapters.findIndex((chapter) => chapter.id === chapterId);
+  if (chapterIndex < 0) return true;
+  if (chapterIndex > 0) {
+    const previousChapter = catalog.chapters[chapterIndex - 1];
+    const requiredMainQuestProgressIds = previousChapter.questsExpanded
+      .filter((quest) => quest.kind !== "bonus")
+      .map((quest) => toQuestProgressId(previousChapter.id, quest.id));
+    const previousChapterComplete = requiredMainQuestProgressIds.every((requiredQuestProgressId) =>
+      completedQuestIds.has(requiredQuestProgressId),
+    );
+    if (!previousChapterComplete) return true;
+  }
+
+  const quest = findCatalogQuest(catalog, chapterId, questId);
+  if (!quest) return true;
+  if (
+    quest.requiresQuestId &&
+    !completedQuestIds.has(toQuestProgressId(chapterId, quest.requiresQuestId))
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export function resolveAutoStartQuest(
+  catalog: ContentCatalog,
+  run: QuestRunRow,
+  completedQuestIds: string[],
+): QuestAutoStartDto | null {
+  if (run.status !== "completed") return null;
+  const quest = findCatalogQuest(catalog, run.chapterId, run.questId);
+  if (!quest?.autoStartQuestId) return null;
+  const targetId = quest.autoStartQuestId;
+  const completedSet = new Set(completedQuestIds);
+  if (completedSet.has(toQuestProgressId(run.chapterId, targetId))) return null;
+  if (isQuestLockedForAccount(catalog, run.chapterId, targetId, completedSet)) return null;
+  return { chapterId: run.chapterId, questId: targetId };
+}

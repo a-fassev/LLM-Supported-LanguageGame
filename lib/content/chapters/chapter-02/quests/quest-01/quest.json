@@ -4,5 +4,5 @@
   "order": 1,
   "kind": "main",
   "requiresQuestId": null,
-  "autoStartQuestId": "quest-02"
+  "autoStartQuestId": null
 }

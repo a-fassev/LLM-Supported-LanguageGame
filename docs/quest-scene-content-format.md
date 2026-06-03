@@ -68,7 +68,7 @@ Scene order is the **numeric prefix** on filenames (`01`, `02`, …).
 | ----- | ----------- |
 | `kind` | `main` (required for chapter progress) or `bonus` (extra pizza, optional). |
 | `requiresQuestId` | Previous **main** quest in the same chapter (`null` for the first quest in that chapter). |
-| `autoStartQuestId` | Optional. If set, start that quest when this one ends. If `null`, the loader may auto-start the **next main quest** in `chapter.json` → `quests` order (skips `kind: "bonus"` entries). Never auto-start a bonus quest. |
+| `autoStartQuestId` | Optional. When this quest completes, the client offers to start that quest next (e.g. last **main** quest → `quest-01-bonus`). May target `kind: "bonus"`. Learner can skip and open the chapter map. |
 
 Reading text for tasks lives on **each task scene**, not on the quest (see §5.2).
 
@@ -142,7 +142,7 @@ Exercise with **Controlla** and server-checked answers.
 | `free_text` | Short Italian answer scored on the server via LLM (`FreitextLlm`). |
 | `matching` | Match pairs between two columns. |
 | `multiple_choice` | Pick one or more options. |
-| `bonus` | Dedicated bonus exercise screen; pair with `quest.json` → `kind: "bonus"`. |
+| `bonus` | **Deprecated** placeholder — use `quest.kind: "bonus"` + `screen_type: "matching"` for bonus exercises. |
 
 Mechanics inside `content.task` are defined per type in a later pass (§5.2).
 
@@ -272,7 +272,22 @@ Fixture scenes in quest-01: `scenes/04.json` (minimal flat), `scenes/05.json` (r
 
 #### `matching` — `content.task`
 
-Validated at catalog load (`parseMatchingContent`). Web v1 renders **text-only** cards with tap-to-pair and drag-to-pair (connector lines). Pool authoring (`poolPairs` + `sampleSize`) is schema-valid but **not materialized** in web v1.
+Validated at catalog load (`parseMatchingContent`). Web renders **text-only** cards with tap-to-pair and drag-to-pair (connector lines).
+
+**Pool authoring (bonus vocab):** Author `poolPairs` + `sampleSize` instead of concrete `leftItems` / `rightItems` / `correctPairs`. The server samples `sampleSize` pairs per run, persists them in `player_scene_materializations`, and sends only the sampled set to the client (no full pool, no `correctPairs`). Resume reuses the same sample.
+
+```jsonc
+"task": {
+  "prompt": "10 parole scelte a caso dal capitolo.",
+  "sampleSize": 10,
+  "poolPairs": [
+    { "id": "v01", "leftLabel": "ciao", "rightLabel": "hello" }
+  ],
+  "presentation": { "leftLabel": "Italiano", "rightLabel": "Traduzione", "shuffleRightOrder": true }
+}
+```
+
+Use **`scoring.pizza.mode: "scored"`** on bonus scenes (per-scene `maxSlices`, `minRatioToComplete`, etc.). See `docs/bonus-quest-implementation-plan.md`.
 
 ```jsonc
 {
@@ -718,10 +733,10 @@ Steps **P1–P5** depend on **§11 A–C** (loader + validation). UI (**E–G**)
 | - | ----- | -------- |
 | 1 | Task types in catalog | All: `cloze`, `error_spotting`, `drag_drop`, `free_text`, `matching`, `multiple_choice`, `bonus`. |
 | 2 | Cloze | Own `screen_type`, not MC. |
-| 3 | Bonus | Own `screen_type` + `quest.kind: "bonus"`. |
+| 3 | Bonus | `quest.kind: "bonus"` + task `screen_type: "matching"` (pool optional). |
 | 4 | Story scenes | Single story `screen_type`: **`info`** only (`content.text`). |
 | 5 | Chapter unlock | Strict sequential play; next chapter when current chapter’s **main** quests are done. |
-| 6–7 | Quest unlock / auto-start | `requiresQuestId` = previous **main** in chapter; auto-start **next main** in `chapter.json` `quests` order; **never** auto-start bonus. |
+| 6–7 | Quest unlock / auto-start | `requiresQuestId` gates unlock; `autoStartQuestId` on last main may chain into bonus (skippable). |
 | 8 | Back to earlier task | Allowed; **no re-scoring**. |
 | 9 | Backpack | Per scene via `scoring.backpack.pieces`. |
 | 10 | Flat pizza | Award on **first successful** scene completion; idempotent persist prevents double pay. |
