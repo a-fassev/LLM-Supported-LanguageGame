@@ -14,7 +14,7 @@ description: |
 
 An **LLM-supported Italian learning game** for **children** in a **gifted-education school**, built as part of the **TUM IT-based learning** course. The experience is a **browser game**: a **sequential** journey through chapters and quests on a **city-map** hub, with **large language models** used only for **a small subset** of tasks (short free-text checks). Most interactions stay **predictably checkable** on the server.
 
-Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (login, menu, chapter map, leaderboard, quest play with pause/documento) ships on the web branch; **multiple choice**, **matching**, **drag & drop**, **error spotting**, and **free text** have full exercise UIs—other task types still use placeholders until rolled out. UI structure: `docs/web-game-ui-architecture.md`. Deferred milestones: `.cursor/plans/long-term-todos.md`.
+Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (login, menu, chapter map, shop shell, leaderboard, quest play with pause/documento) ships on the web branch; **multiple choice**, **matching**, **drag & drop**, **error spotting**, and **free text** have full exercise UIs—other task types still use placeholders until rolled out. UI structure: `docs/web-game-ui-architecture.md`. Deferred milestones: `.cursor/plans/long-term-todos.md`.
 
 ## Who it is for
 
@@ -52,7 +52,8 @@ Each step is defined by JSON with:
 
 ### World and flow
 
-- **Main menu** offers **Continue** into the chapter map and a **Leaderboard** entry (rankings are optional motivation, not required to progress).
+- **Main menu** offers **Continue** into the chapter map (**Gioca**), **Negozio** (room shop — shell today; later furnish the room with pizza slices), and **Classifica** (rankings are optional motivation, not required to progress).
+- **Shop (Negozio):** same hub chrome as chapter lists (back to menu, **pizza + backpack** in the header, scrollable panel). Placeholder copy until catalog and room preview ship; spending pizza and saving room layout are not live yet.
 - **Chapter overview** is the main hub—not a free-roam character world.
 - **Chapter tiles** show unlock state (**Sbloccato** / **Bloccato**); **tap an open chapter** for quest overview, then start a **quest**. Locked chapters are not playable—deep links bounce back to the chapter map. On chapter and quest lists, **pizza + backpack** stay visible in the header so progress is always in sight.
 - **Leaderboard:** compare progress by **total pizza slices**—**Overall** (all learners) or **Teams** (blue vs red). Players can **refresh** after playing; their own row should be easy to find without shaming low scores.
@@ -63,7 +64,7 @@ Each step is defined by JSON with:
 - **Chapter and quest lists** show **locked** vs **open** missions from saved progress; locked quests are enforced server-side too, so children do not enter content that should still be closed.
 - **Mission names** on lists are **short Italian titles**, not internal act numbers or `Step 2/7` in the shell.
 - **Bonus quests** sit in the same list as story quests (often at the bottom), are **optional for chapter unlock**, and use the same **matching** exercise UI as main quests (often a random subset of vocabulary from a larger pool). After the **last scene of the last main quest**, children see a **completion overlay**—not automatic teleport into the bonus. Primary button **«Vai alla sfida bonus»** starts the extra quest; **«Più tardi»** returns to the **chapter map** (bonus stays available from the list). If they just finished a **task**, the overlay still shows normal pizza/backpack praise first; if they finished on a **story** beat, the offer uses a short “mission complete” message without a fake reward row. Refreshing `/play` right after finishing can bring the same offer back while the bonus is still unplayed.
-- **Navigation menus** (main menu, chapters, classifica, login) share **Italian** chrome and consistent **background** treatment so the app feels like one product.
+- **Navigation menus** (main menu, chapters, negozio, classifica, login) share **Italian** chrome and consistent **background** treatment so the app feels like one product.
 - **Reading-doc rule:** when one shared text applies across tasks, **documento** reopens the same passage; when tasks need different texts, **documento** follows the **active step**.
 
 ### Teams and classroom competition
@@ -76,7 +77,7 @@ Each step is defined by JSON with:
 
 | Currency         | What it means for the child                                                                                                                                                                                                                                                                                            |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Pizza slices** | **Performance**—how well they did on a **task** (or **bonus**) step. Awarded **variably** from authored **scoring** rules (e.g. more correct answers → more slices). Same answers should always yield the same slices (**fair**, server-side). Used for **leaderboard** rank and optional rewards (e.g. mascot skins). |
+| **Pizza slices** | **Performance**—how well they did on a **task** (or **bonus**) step. Awarded **variably** from authored **scoring** rules (e.g. more correct answers → more slices). Same answers should always yield the same slices (**fair**, server-side). Used for **leaderboard** rank, planned **Negozio** room items (shell only today), and optional rewards (e.g. mascot skins). |
 | **Backpack %**   | **Completion**—**0–100%** progress through the **whole game**. Increments by a **fixed** amount per **completed step**, regardless of exercise score. Reaches **100%** when everything required is done.                                                                                                               |
 
 

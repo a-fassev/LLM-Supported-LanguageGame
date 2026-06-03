@@ -2,12 +2,13 @@
 
 Use after changes to `GameBackground`, auth layout, or run snapshot backgrounds.
 
-## Hub routes (menu, chapters, leaderboard)
+## Hub routes (menu, chapters, shop, leaderboard)
 
 | Step | Action | Expected |
 | ---- | ------ | -------- |
 | H1 | Navigate menu → chapters → chapter detail → back | One shared hub background host; no full remount flash between hub pages |
-| H2 | Open leaderboard and back | Same |
+| H2 | Open shop (Negozio) and back | Same |
+| H3 | Open leaderboard and back | Same |
 
 ## Auth (static)
 

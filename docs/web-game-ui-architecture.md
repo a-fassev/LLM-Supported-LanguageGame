@@ -72,6 +72,7 @@ app/
 ├── (game)/
 │   ├── layout.tsx                # optional: GameSessionProvider (client)
 │   ├── menu/page.tsx             # main menu
+│   ├── shop/page.tsx             # room shop shell (Negozio)
 │   ├── leaderboard/page.tsx
 │   ├── chapters/page.tsx         # chapter overview
 │   ├── chapters/[chapterId]/
@@ -102,6 +103,7 @@ components/
     │   ├── RegisterForm.tsx
     │   ├── MainMenuActions.tsx
     │   ├── LeaderboardView.tsx
+    │   ├── ShopView.tsx
     │   ├── ChapterGrid.tsx
     │   └── QuestList.tsx
     └── tasks/
@@ -152,7 +154,8 @@ Shared layout: **`CenteredCard`** on **`GameBackground`** (static asset per scre
 | ------ | ---------------- | -------- | ---------------------- |
 | **Login** | `/login` | username, password, submit, link to register | Accedi, Nome utente, Password, Registrati |
 | **Register** | `/register` | generated username (read-only), regenerate, password ×2, submit, link to login | Registrati, Genera nome, Password, Ripeti password, Hai già un account? Accedi |
-| **Main menu** | `/menu` | play, leaderboard, logout | **Gioca** → `/chapters` always; Classifica, Esci |
+| **Main menu** | `/menu` | play, shop, leaderboard, logout | **Gioca** → `/chapters` always; Negozio, Classifica, Esci |
+| **Shop** | `/shop` | back, HUD (bootstrap), empty panel (room + catalog later) | Negozio, Indietro |
 | **Leaderboard** | `/leaderboard` | refresh, tabs overall/teams, back | Aggiorna, Individuale, Squadre, Indietro |
 | **Chapter overview** | `/chapters` | back, chapter grid, HUD optional | Capitoli, Indietro |
 | **Quest overview** | `/chapters/[chapterId]` | back, quest list, HUD | Missioni, Indietro |
@@ -390,7 +393,7 @@ Extend existing shadcn tokens with **game layer** (names illustrative):
 - **Decision:** Story scenes have **no «Indietro»** (no previous scene) in v1.
 - **Only «Avanti»** calls `POST …/advance` and moves the run forward on the server.
 - **Why:** Going back would need a new API or risks UI/server mismatch. Re-reading is still possible by staying on the same scene until the player taps **Avanti**.
-- **Hub screens** (menu, chapters, quest list, leaderboard) keep **Indietro** for normal page back navigation.
+- **Hub screens** (menu, chapters, quest list, shop, leaderboard) keep **Indietro** for normal page back navigation.
 
 ### 10.4 Task success / retry overlay (locked)
 
@@ -500,7 +503,7 @@ sequenceDiagram
 | ----- | ----------- |
 | **P0** | shadcn: button, input, label, card, dialog, tabs, scroll-area; game tokens in `globals.css`; `lib/api-client.ts` + session provider |
 | **P1** | Auth screens (login/register) + session gate |
-| **P2** | Main menu, leaderboard, static backgrounds |
+| **P2** | Main menu, shop shell, leaderboard, static backgrounds |
 | **P3** | Chapter + quest overview; bootstrap-driven grid/list; HUD on hubs |
 | **P4** | `/play` shell: snapshot, start run, story scenes + advance |
 | **P5** | Task shell: Controlla → attempt, `SuccessOverlay` from `taskOutcome`, documento; `TaskPlaceholder` |
@@ -520,6 +523,7 @@ Each phase: Italian copy, one layout primitive reused, no new global stores. Pha
 | Register | Registrati |
 | Logout | Esci |
 | Play | Gioca |
+| Shop | Negozio |
 | Leaderboard | Classifica |
 | Refresh | Aggiorna |
 | Individual / Team | Individuale / Squadre |
@@ -544,7 +548,7 @@ Content strings (`content.text`, task prompts) come from JSON — already Italia
 | Screen | Background source |
 | ------ | ------------------- |
 | Login, Register | Shared `GameBackground` in `app/(auth)/layout.tsx`; key from `authBackgroundKeyForPath()`; both auth PNGs preloaded via `authBackgroundPreloadKeys` |
-| Main menu, chapters, leaderboard | Shared `HubBackgroundHost` in `app/(game)/layout.tsx` via `useRegisterHubBackground` on each page/`HubPage` |
+| Main menu, chapters, shop, leaderboard | Shared `HubBackgroundHost` in `app/(game)/layout.tsx` via `useRegisterHubBackground` on each page/`HubPage` |
 | Chapter overview | Pass `backgroundKey` / `preloadAssetKeys` to `HubPage` when art exists |
 | Quest overview | Dynamic key from catalog/quest when available; fallback gradient |
 | Story / Task scenes | `run.currentScene.background` from snapshot; `run.nextSceneBackground` preloads the next catalog scene |

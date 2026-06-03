@@ -169,6 +169,7 @@ Narrative catalog is **git-versioned JSON** under `lib/content/chapters/` (see `
 #### Anti-patterns
 
 - Putting unlock/scoring/pizza logic only in the client.
+- Client-only shop purchases or room inventory (server must debit wallet and persist layout).
 - Comparing bare `quest.id` to `completedQuestIds` (always use `toQuestProgressId(chapterId, questId)`).
 - Global stores for bootstrap payload or full quest step lists.
 - Duplicating Zod validation on the client as the authority (server validation remains required; client checks are optional UX only).
@@ -188,7 +189,7 @@ LLM-Supported-LanguageGame-1/
 ├── .github/workflows/     # deploy-azure.yml (push web-based-implementation)
 ├── app/
 │   ├── (auth)/            # login, register
-│   ├── (game)/            # menu, chapters, leaderboard, play (QuestShell)
+│   ├── (game)/            # menu, chapters, shop, leaderboard, play (QuestShell)
 │   ├── api/auth/          # login, register, logout, session, suggest-username
 │   ├── api/game/          # bootstrap, leaderboard, runs/*
 │   ├── layout.tsx         # globals, Sonner Toaster
@@ -330,6 +331,16 @@ JSON helpers: `lib/http.ts` (`jsonOk`, `jsonError`). User-facing message keys: `
 **Play-scene typography (`lib/game/task-typography.ts`):** Single source for task + story body size — do **not** hardcode `text-sm` / `text-base` on play task UI. `StoryPanel` uses `TASK_PLAY_BODY_TEXT` (`text-base leading-relaxed md:text-lg`). Map: instruction → `TASK_PLAY_INSTRUCTION_TEXT`; prompt → `TASK_PLAY_PROMPT_TEXT`; exercise copy (options, cards, chips, textarea) → `TASK_PLAY_BODY_TEXT`; pre-submit validation → `TASK_PLAY_VALIDATION_ERROR_TEXT` (meta size, red); content mismatch → `TASK_PLAY_ERROR_TEXT`; meta hints (progress, drag hints, char counts) → `TASK_PLAY_META_TEXT` (`text-sm md:text-base`, muted); column/category labels → `TASK_PLAY_SECTION_LABEL_TEXT`. **Inline cloze gaps and error-spotting correction fields** → `TASK_PLAY_INLINE_FIELD_TEXT` (`leading-none`) — not `TASK_PLAY_BODY_TEXT` (tailwind-merge lets `leading-relaxed` override `leading-none` and breaks baseline alignment). Compose with `cn()` from `@/lib/utils`.
 
 **Multi-item scenes (optional):** Reuse shell **Avanti** / **Indietro** in `SceneRouter` (see `getMcQuestionNavState` in `lib/game/tasks/multiple-choice/mc-question-nav.ts`)—no in-task Precedente/Prossima rows. **Avanti** until the last item, then **Controlla**; **Indietro** walks items before scene retreat. Submit validates all items; on failure jump to first incomplete with error under the prompt.
+
+### Hub screens (menu destinations)
+
+Mirror **`app/(game)/leaderboard/page.tsx`**: client page + `HubPage` (`title`, `onBack` → `/menu`, `className="flex flex-col overflow-hidden"`) + thin `components/game/screens/*View.tsx`. Link from **`MainMenuActions.tsx`**. Session gate is **`app/(game)/layout.tsx`** only—do not duplicate auth on the page.
+
+- **Views without hooks** may omit `"use client"` (e.g. `ShopView.tsx` imported from the client page).
+- **Empty hub panels** still need a labelled region (`<section aria-labelledby="…">`) and Italian placeholder copy until real content ships.
+- Update **`docs/web-game-ui-architecture.md`** and **`docs/background-transitions-qa.md`** when adding a route.
+
+**Shop (Negozio) — `/shop` (shell today):** Entry for future **room preview** and **furnishing** paid with **wallet pizza slices** (`components/game/screens/ShopView.tsx`). `QuestHud` via `useBootstrap` in the header (same as chapter hubs). No shop API or spend logic yet. When purchases ship: extend `ShopView`, add **`lib/game/services/*`** + **`app/api/game/*`** routes; **never** client-only spend or owned-item state. Room layout persistence (if needed) belongs in Supabase via repository, not local-only stores.
 
 ### Design system (implementation)
 
