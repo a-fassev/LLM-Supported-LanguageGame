@@ -331,7 +331,7 @@ describe("game-progress-service run flows", () => {
       filename: "01.json",
       scene_type: "story" as const,
       screen_type: "info",
-      background: "bg",
+      background: "chapters/01/quests/01/bg-scene-01",
       content: { text: "One" },
       scoring: { backpack: { pieces: 0 }, pizza: { mode: "flat" as const, slices: 0 } },
     };
@@ -341,7 +341,7 @@ describe("game-progress-service run flows", () => {
       filename: "02.json",
       scene_type: "story" as const,
       screen_type: "info",
-      background: "bg",
+      background: "chapters/01/quests/01/bg-scene-02",
       content: { text: "Two" },
       scoring: { backpack: { pieces: 0 }, pizza: { mode: "flat" as const, slices: 0 } },
     };
@@ -373,6 +373,7 @@ describe("game-progress-service run flows", () => {
     if (result.ok && result.run) {
       expect(result.run.currentSceneId).toBe(scene1.id);
       expect(result.run.canRetreat).toBe(false);
+      expect(result.run.nextSceneBackground).toBe(scene2.background);
     }
   });
 });

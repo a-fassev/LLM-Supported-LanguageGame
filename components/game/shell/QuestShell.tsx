@@ -1,12 +1,10 @@
 import { BookOpenText, Pause } from "lucide-react";
-import { GameBackground } from "@/components/game/layout/GameBackground";
 import { GameShellHeader } from "@/components/game/layout/GameShellHeader";
 import { QuestHud } from "@/components/game/shell/QuestHud";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type QuestShellProps = {
-  backgroundKey?: string | null;
   /** Task scenes: `content.title` when authored. */
   headerTitle?: string | null;
   showHud: boolean;
@@ -22,7 +20,6 @@ type QuestShellProps = {
 };
 
 export function QuestShell({
-  backgroundKey,
   headerTitle,
   showHud,
   showDocument,
@@ -35,39 +32,37 @@ export function QuestShell({
   contentClassName,
 }: QuestShellProps) {
   return (
-    <GameBackground assetKey={backgroundKey} mode="play">
-      <main className="game-shell-inset flex min-h-0 flex-col gap-4">
-        <GameShellHeader
-          variant="play"
-          title={headerTitle ?? undefined}
-          actions={
-            <>
-              {showDocument ? (
-                <Button size="lg" variant="outline" onClick={onOpenDocument}>
-                  <BookOpenText className="mr-2 h-5 w-5" />
-                  Documento
-                </Button>
-              ) : null}
-              {showHud ? (
-                <QuestHud totalSlices={totalSlices} totalBackpackPieces={totalBackpackPieces} />
-              ) : null}
-              <Button size="lg" variant="outline" onClick={onOpenPause}>
-                <Pause className="mr-2 h-5 w-5" />
-                Pausa
+    <main className="game-shell-inset flex min-h-0 flex-col gap-4">
+      <GameShellHeader
+        variant="play"
+        title={headerTitle ?? undefined}
+        actions={
+          <>
+            {showDocument ? (
+              <Button size="lg" variant="outline" onClick={onOpenDocument}>
+                <BookOpenText className="mr-2 h-5 w-5" />
+                Documento
               </Button>
-            </>
-          }
-        />
-        <section
-          className={cn(
-            "flex min-h-0 flex-1 flex-col overflow-hidden",
-            showContentPanel && "game-panel game-panel-inset",
-            contentClassName,
-          )}
-        >
-          <div className="flex min-h-0 flex-1 flex-col">{children}</div>
-        </section>
-      </main>
-    </GameBackground>
+            ) : null}
+            {showHud ? (
+              <QuestHud totalSlices={totalSlices} totalBackpackPieces={totalBackpackPieces} />
+            ) : null}
+            <Button size="lg" variant="outline" onClick={onOpenPause}>
+              <Pause className="mr-2 h-5 w-5" />
+              Pausa
+            </Button>
+          </>
+        }
+      />
+      <section
+        className={cn(
+          "flex min-h-0 flex-1 flex-col overflow-hidden",
+          showContentPanel && "game-panel game-panel-inset",
+          contentClassName,
+        )}
+      >
+        <div className="flex min-h-0 flex-1 flex-col">{children}</div>
+      </section>
+    </main>
   );
 }

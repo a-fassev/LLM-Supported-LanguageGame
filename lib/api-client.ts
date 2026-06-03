@@ -105,6 +105,8 @@ export type RunDto = {
   completedSceneIds: string[];
   canRetreat: boolean;
   currentScene: RunSceneDto;
+  /** Next scene background key from catalog, when present (client preload). */
+  nextSceneBackground: string | null;
 };
 
 export type TaskOutcomeDto = {

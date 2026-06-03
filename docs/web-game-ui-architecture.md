@@ -166,7 +166,7 @@ Single route hosts **all scenes** for the active run. Sub-views:
 | **Story** | `story` | `info` | Full background; **StoryPanel** (text bottom); **Pausa**; **Indietro** (if `canRetreat`) + **Avanti**; no HUD |
 | **Task** | `task` | `cloze`, `multiple_choice`, … | HUD; optional **Documento**; instruction strip; **TaskPanel**; **Controlla**; then success overlay → **Avanti** |
 
-**Backgrounds:** `currentScene.background` from run snapshot (dynamic). Hub screens use fixed keys in code or a small `lib/game/hub-assets.ts` map.
+**Backgrounds:** `currentScene.background` from run snapshot (dynamic). Hub screens use fixed keys from `lib/game/content/hub-background-keys.ts`.
 
 ### 4.3 Overlays (shadcn `Dialog` or `Sheet`)
 
@@ -337,7 +337,7 @@ Extend existing shadcn tokens with **game layer** (names illustrative):
 - Quest shell: full viewport; panels use shared `.game-panel`.
 - Team colours (leaderboard): `--team-blue`, `--team-red` in `@theme` — do not hardcode in components.
 
-**Background component:** `GameBackground` applies `background-image` from resolved URL; `object-fit: cover` on a fixed full-screen layer behind content.
+**Background component:** `GameBackground` (client) preloads assets, crossfades between layers on key change, and uses `object-cover` full-viewport images with CSS gradient fallback. Auth hosts one shared instance in `app/(auth)/layout.tsx`; play uses `QuestShell` + optional `run.nextSceneBackground` preload.
 
 ---
 
@@ -392,6 +392,8 @@ Extend existing shadcn tokens with **game layer** (names illustrative):
 - Optional secondary line: percent correct from `ratio` on retry.
 - **success:** primary button **Avanti** → close overlay; render `run` from the same response (next scene).
 - **retry:** primary **Riprova** → close overlay; keep task draft.
+
+**Visible background on success:** The attempt response may already advance `run.currentScene` on the server. The play page keeps the **completed** scene’s `background` visible (`backgroundHoldKey`) until the overlay closes, then crossfades to the new scene background. Reuse this hold pattern for any future overlay that advances scenes server-side before the player dismisses UI.
 
 **Copy changes:** Edit `task-outcome-messages.ts` only (not scattered strings in components). Current examples:
 
@@ -498,14 +500,15 @@ Content strings (`content.text`, task prompts) come from JSON — already Italia
 
 | Screen | Background source |
 | ------ | ------------------- |
-| Login, Register, Main menu | Static keys in code (e.g. `hubs/menu-bg`) → resolver; **gradient fallback** until files exist |
-| Chapter overview | Same pattern; tile art optional later |
+| Login, Register | Shared `GameBackground` in `app/(auth)/layout.tsx`; key from `authBackgroundKeyForPath()`; both auth PNGs preloaded via `authBackgroundPreloadKeys` |
+| Main menu, chapters, leaderboard | Shared `HubBackgroundHost` in `app/(game)/layout.tsx` via `useRegisterHubBackground` on each page/`HubPage` |
+| Chapter overview | Pass `backgroundKey` / `preloadAssetKeys` to `HubPage` when art exists |
 | Quest overview | Dynamic key from catalog/quest when available; fallback gradient |
-| Story / Task scenes | `run.currentScene.background` from content JSON → resolver; fallback gradient |
+| Story / Task scenes | `run.currentScene.background` from snapshot; `run.nextSceneBackground` preloads the next catalog scene |
 
-Single resolver function (`resolveAssetUrl(key)`) returns a public URL or `null` (trigger CSS fallback in `GameBackground`).
+Single resolver (`resolveAssetUrl`) + preload helper (`preloadAssetUrl`). See `docs/background-transitions-qa.md` for manual QA.
 
-**Until assets exist:** Do not block UI on missing images; hubs and play should look intentional with tokens only.
+**Until assets exist:** Do not block UI on missing images; hubs and play should look intentional with tokens only. Auth login/register PNGs live under `public/content-assets/hubs/auth/` (see `public/content-assets/README.md`).
 
 ---
 

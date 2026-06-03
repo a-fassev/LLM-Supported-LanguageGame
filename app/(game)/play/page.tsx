@@ -22,6 +22,7 @@ import { readNonEmptyString } from "@/lib/game/read-non-empty-string";
 import { readTaskSceneTitle } from "@/lib/game/scene-display";
 import { useMountedRef } from "@/lib/game/use-mounted-ref";
 import { toastBlockingApiError } from "@/lib/game/toast-from-api";
+import { GameBackground } from "@/components/game/layout/GameBackground";
 import { QuestShell } from "@/components/game/shell/QuestShell";
 import { SceneRouter } from "@/components/game/shell/SceneRouter";
 import { PauseOverlay } from "@/components/game/overlays/PauseOverlay";
@@ -171,6 +172,8 @@ export default function PlayPage() {
   const [documentOpen, setDocumentOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [outcome, setOutcome] = useState<TaskOutcomeDto | null>(null);
+  /** Keeps task-success overlay on the completed scene background until dismissed. */
+  const [backgroundHoldKey, setBackgroundHoldKey] = useState<string | null>(null);
 
   const currentScene = state.run?.currentScene ?? null;
   const referenceDocument = useMemo(() => readReference(currentScene), [currentScene]);
@@ -180,6 +183,22 @@ export default function PlayPage() {
   }, [currentScene]);
   const canRetreat =
     state.run?.canRetreat === true && (currentScene?.sceneNumber ?? 1) > 1;
+
+  const backgroundPreloadKeys = useMemo(() => {
+    const next = state.run?.nextSceneBackground;
+    return next ? ([next] as const) : undefined;
+  }, [state.run?.nextSceneBackground]);
+
+  const visibleBackgroundKey =
+    successOpen && backgroundHoldKey !== null
+      ? backgroundHoldKey
+      : (currentScene?.background ?? null);
+
+  function dismissSuccessOverlay() {
+    setSuccessOpen(false);
+    setOutcome(null);
+    setBackgroundHoldKey(null);
+  }
 
   const loadRun = useCallback(async () => {
     if (!token) {
@@ -274,6 +293,7 @@ export default function PlayPage() {
     if (!token || !state.run || !currentScene || currentScene.scene_type !== "task") return;
     setTaskPending(true);
     setError(null);
+    const backgroundBeforeSubmit = currentScene.background;
 
     const attempt = buildPlaceholderAttempt(currentScene, attemptText);
     const result = await attemptRun(token, state.run.runId, { sceneId: currentScene.id, attempt });
@@ -299,35 +319,33 @@ export default function PlayPage() {
     setState((current) => mergeAttemptState(current, result.data));
     setAttemptText("");
     if (result.data.taskOutcome) {
+      setBackgroundHoldKey(backgroundBeforeSubmit);
       setOutcome(result.data.taskOutcome);
       setSuccessOpen(true);
     }
     setTaskPending(false);
   }
 
-  if (loading) {
-    return (
-      <main className="flex min-h-dvh items-center justify-center">
-        <p className="text-sm text-muted-foreground">Caricamento missione...</p>
-      </main>
-    );
-  }
-
-  if (!currentScene || !state.run) {
-    return (
-      <main className="game-shell-inset flex min-h-dvh items-center justify-center">
-        <div className="game-panel game-panel-inset max-w-md space-y-3 text-center">
-          <p className="text-sm">Nessuna missione attiva.</p>
-          <Button onClick={() => router.push("/chapters")}>Vai ai capitoli</Button>
-        </div>
-      </main>
-    );
-  }
-
   return (
-    <>
+    <GameBackground
+      assetKey={visibleBackgroundKey}
+      preloadAssetKeys={backgroundPreloadKeys}
+      mode="play"
+    >
+      {loading ? (
+        <main className="flex min-h-dvh items-center justify-center">
+          <p className="text-sm text-muted-foreground">Caricamento missione...</p>
+        </main>
+      ) : !currentScene || !state.run ? (
+        <main className="game-shell-inset flex min-h-dvh items-center justify-center">
+          <div className="game-panel game-panel-inset max-w-md space-y-3 text-center">
+            <p className="text-sm">Nessuna missione attiva.</p>
+            <Button onClick={() => router.push("/chapters")}>Vai ai capitoli</Button>
+          </div>
+        </main>
+      ) : (
+        <>
       <QuestShell
-        backgroundKey={currentScene.background}
         headerTitle={taskHeaderTitle}
         showHud={currentScene.scene_type === "task"}
         showDocument={Boolean(referenceDocument)}
@@ -370,17 +388,17 @@ export default function PlayPage() {
       <SuccessOverlay
         open={successOpen}
         outcome={outcome}
-        onOpenChange={setSuccessOpen}
+        onOpenChange={(open) => {
+          if (!open) dismissSuccessOverlay();
+        }}
         onContinue={() => {
           const chapterPath = state.run?.chapterId ? `/chapters/${state.run.chapterId}` : "/chapters";
           if (state.run?.status === "completed") {
-            setSuccessOpen(false);
-            setOutcome(null);
+            dismissSuccessOverlay();
             router.push(chapterPath);
             return;
           }
-          setSuccessOpen(false);
-          setOutcome(null);
+          dismissSuccessOverlay();
         }}
       />
 
@@ -392,6 +410,8 @@ export default function PlayPage() {
           body={referenceDocument.body}
         />
       ) : null}
-    </>
+        </>
+      )}
+    </GameBackground>
   );
 }

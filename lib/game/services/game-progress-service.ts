@@ -152,6 +152,8 @@ export type RunSnapshotDto = {
   completedSceneIds: string[];
   canRetreat: boolean;
   currentScene: RunSceneDto;
+  /** Background key of the next catalog scene, when one exists (for client preload). */
+  nextSceneBackground: string | null;
 };
 
 export type RunSnapshotResult =
@@ -238,6 +240,7 @@ async function buildSnapshotFromRun(
       completedSceneIds,
       canRetreat,
       currentScene: sceneToDto(scene),
+      nextSceneBackground: quest ? nextSceneBackgroundInQuest(scene, quest.scenes) : null,
     },
   };
 }
@@ -336,6 +339,11 @@ export async function startOrResumeRun(
 function nextSceneIdInQuest(scene: CatalogScene, questScenes: CatalogScene[]): string | null {
   const next = questScenes.find((s) => s.sceneNumber === scene.sceneNumber + 1);
   return next?.id ?? null;
+}
+
+function nextSceneBackgroundInQuest(scene: CatalogScene, questScenes: CatalogScene[]): string | null {
+  const next = questScenes.find((s) => s.sceneNumber === scene.sceneNumber + 1);
+  return next?.background ?? null;
 }
 
 function previousSceneIdInQuest(scene: CatalogScene, questScenes: CatalogScene[]): string | null {

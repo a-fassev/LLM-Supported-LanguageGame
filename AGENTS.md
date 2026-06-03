@@ -301,6 +301,16 @@ JSON helpers: `lib/http.ts` (`jsonOk`, `jsonError`). User-facing message keys: `
 - **Tokens** — central typography, colour, spacing, radii, shadows (after Tailwind/shadcn init per setup plan).
 - **Schemas:** `lib/game/schemas/gameArtAssetSchema.ts` and task payloads that reference `sceneBackgroundAsset`.
 
+**Background hosts (no per-page remount):** One `GameBackground` per route segment — do **not** wrap individual auth/hub/play pages with their own `GameBackground`.
+
+| Segment | Host | Keys |
+| ------- | ---- | ---- |
+| Auth | `app/(auth)/layout.tsx` | `authBackgroundKeyForPath()` + `authBackgroundPreloadKeys` in `lib/game/content/hub-background-keys.ts` |
+| Game hubs | `HubBackgroundHost` in `app/(game)/layout.tsx` (not `/play`) | `useRegisterHubBackground` / `HubPage` props |
+| Play | `app/(game)/play/page.tsx` only | `QuestShell` is content-only; `run.currentScene.background` + preload `run.nextSceneBackground` |
+
+Pipeline: `resolveAssetUrl` → `preloadAssetUrl` → dual-layer crossfade in `components/game/layout/GameBackground.tsx` (stale-async guard on `activeTargetUrlRef`). Files: `public/content-assets/` (see README). QA: `docs/background-transitions-qa.md`. Do **not** use `loading="lazy"` on full-viewport backgrounds.
+
 Do not sprinkle one-off colours in feature PRs; extend tokens or shared UI primitives.
 
 ### CORS and proxy

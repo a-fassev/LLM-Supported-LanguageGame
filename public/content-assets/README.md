@@ -1,11 +1,28 @@
-# Content assets (placeholders)
+# Content assets
 
-Background keys in `lib/content/` scene JSON (e.g. `chapters/01/quests/01/bg-story-arrivo`) resolve to files under this tree once art exists.
+Raster backgrounds for the web client. Keys are lowercase path segments (no file extension in code). The client resolves them via `lib/game/content/resolve-asset-url.ts` to **`/content-assets/{key}.png`** under this directory.
 
-**v1:** No image files yet — the client may show a solid placeholder. Mirror path segments from the `background` field (lowercase).
+## Hub screens (`hubs/`)
 
-Example target path for key `chapters/01/quests/01/bg-story-arrivo`:
+Static keys live in **`lib/game/content/hub-background-keys.ts`** and are passed to `GameBackground` from hub/auth pages.
+
+| Screen | Asset key | File |
+| ------ | --------- | ---- |
+| Login | `hubs/auth/bg-login` | `public/content-assets/hubs/auth/bg-login.png` |
+| Register | `hubs/auth/bg-register` | `public/content-assets/hubs/auth/bg-register.png` |
+
+Future examples: `hubs/menu/bg-main` → `public/content-assets/hubs/menu/bg-main.png`.
+
+## Chapter / quest scenes (`chapters/`)
+
+Background keys in `lib/content/` scene JSON (e.g. `chapters/01/quests/01/bg-story-arrivo`) mirror path segments under `chapters/`:
 
 `public/content-assets/chapters/01/quests/01/bg-story-arrivo.png`
 
 Story scenes may use backgrounds that include character artwork; no separate avatar asset id in JSON.
+
+## Format and fallbacks
+
+- Store **PNG** files (keys in code omit `.png`).
+- If a file is missing or fails to load, `GameBackground` falls back to CSS gradients (`--game-hub-bg` / `--game-play-bg`).
+- Route changes use preload + crossfade (`lib/game/content/preload-asset-url.ts`). Auth: shared layout in `app/(auth)/layout.tsx`. Play: `run.nextSceneBackground` from API for next-scene warmup.

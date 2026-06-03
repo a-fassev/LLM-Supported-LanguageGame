@@ -57,7 +57,7 @@ Each step is defined by JSON with:
 - **Leaderboard:** compare progress by **total pizza slices**—**Overall** (all learners) or **Teams** (blue vs red). Players can **refresh** after playing; their own row should be easy to find without shaming low scores.
 - **Inside a quest**, the UI alternates **story mode** (narrative: **Pausa**, **«Indietro»** when not on the first scene, **«Avanti»**, full-step **background**, no performance HUD) and **task mode** (short **mission title** in the header, **pizza + backpack**, optional **documento** for shared reading text, one exercise surface, **«Indietro»** + **«Controlla»**).
 - **«Indietro»** lets children re-read the previous story beat or task setup; rewards already earned stay saved—going back is for clarity, not to undo pizza or backpack progress.
-- After **«Controlla»**, a **full-screen success overlay** (not a pop-up toast) shows Italian praise, how much pizza/backpack they earned, and **«Riprova»** when the score was below the step minimum—children stay on the same scene until they pass.
+- After **«Controlla»**, a **full-screen success overlay** (not a pop-up toast) shows Italian praise, how much pizza/backpack they earned, and **«Riprova»** when the score was below the step minimum—children stay on the same scene until they pass. On **success**, the **same step background** stays visible behind the overlay until they tap **«Avanti»**—the next scene’s art appears only after they continue, so the reward moment does not jump visually.
 - **Chapter and quest lists** show **locked** vs **open** missions from saved progress; locked quests are enforced server-side too, so children do not enter content that should still be closed.
 - **Mission names** on lists are **short Italian titles**, not internal act numbers or `Step 2/7` in the shell.
 - **Bonus quests** sit in the same list as story quests (often at the bottom), are **optional for chapter unlock**, and may be **offered** after the last main quest—children can still **Pausa** / go back.
@@ -88,8 +88,8 @@ The look is **image-driven**: backgrounds and UI chrome often use **sprites on b
 
 **Backgrounds:**
 
-- **Static** — hub screens (main menu, dashboard-style navigation).
-- **Dynamic** — chapter/quest overviews, story, and tasks; each screen pulls the right image from **context**.
+- **Static** — hub screens (main menu, dashboard-style navigation); login and register use distinct art; switching between them should feel smooth (no flash of a blank or wrong image).
+- **Dynamic** — chapter/quest overviews, story, and tasks; each screen pulls the right image from **context**. Scene-to-scene changes should crossfade gently, not cut abruptly.
 
 Image references live throughout **content config**—chapter tiles, quest tiles, buttons, and steps—not only a single hero per screen.
 
