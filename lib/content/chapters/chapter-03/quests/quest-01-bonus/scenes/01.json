@@ -2,8 +2,8 @@
   "id": "chapter-03-quest-01-bonus-scene-01",
   "scene_type": "story",
   "screen_type": "info",
-  "background": "chapters/03/quests/bonus/bg-info-01",
+  "background": "chapters/03/quests/bonus/bg-neutral",
   "content": {
-    "text": "Bonus finale: completa una sfida extra al bar."
+    "text": "Hai finito il terzo capitolo della tua avventura a Bologna. Hai scoperto la storia della città, hai partecipato a una festa italiana e hai incontrato un torinese che ti ha mostrato „la sua\" Italia."
   }
 }

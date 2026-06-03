@@ -1,0 +1,641 @@
+{
+  "id": "chapter-03-quest-01-bonus-scene-04",
+  "scene_type": "task",
+  "screen_type": "matching",
+  "background": "chapters/03/quests/bonus/bg-task",
+  "content": {
+    "title": "Sfida bonus",
+    "instruction": "Abbina ogni parola italiana al suo equivalente inglese.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Collega ogni parola italiana al suo equivalente inglese.",
+      "sampleSize": 10,
+      "poolPairs": [
+        {
+          "id": "ch03v001",
+          "leftLabel": "il/la residente",
+          "rightLabel": "resident / inhabitant"
+        },
+        {
+          "id": "ch03v002",
+          "leftLabel": "il/la pizzaiolo/a",
+          "rightLabel": "pizza maker"
+        },
+        {
+          "id": "ch03v003",
+          "leftLabel": "il paese industrializzato",
+          "rightLabel": "industrialized country"
+        },
+        {
+          "id": "ch03v004",
+          "leftLabel": "il sud",
+          "rightLabel": "the South"
+        },
+        {
+          "id": "ch03v005",
+          "leftLabel": "il nord",
+          "rightLabel": "the North"
+        },
+        {
+          "id": "ch03v006",
+          "leftLabel": "settentrionale",
+          "rightLabel": "northern"
+        },
+        {
+          "id": "ch03v007",
+          "leftLabel": "meridionale",
+          "rightLabel": "southern"
+        },
+        {
+          "id": "ch03v008",
+          "leftLabel": "la veduta",
+          "rightLabel": "view / sight"
+        },
+        {
+          "id": "ch03v009",
+          "leftLabel": "la conversazione",
+          "rightLabel": "conversation"
+        },
+        {
+          "id": "ch03v010",
+          "leftLabel": "la volontà di (conoscere gente nuova)",
+          "rightLabel": "the will to (meet new people)"
+        },
+        {
+          "id": "ch03v011",
+          "leftLabel": "l'imbarazzo della scelta",
+          "rightLabel": "spoilt for choice"
+        },
+        {
+          "id": "ch03v012",
+          "leftLabel": "ho l'impressione",
+          "rightLabel": "I have the impression"
+        },
+        {
+          "id": "ch03v013",
+          "leftLabel": "la paura (della verifica)",
+          "rightLabel": "fear (of the test)"
+        },
+        {
+          "id": "ch03v014",
+          "leftLabel": "la speranza (in voti buoni)",
+          "rightLabel": "hope (for good grades)"
+        },
+        {
+          "id": "ch03v015",
+          "leftLabel": "il sentimento",
+          "rightLabel": "feeling / sentiment"
+        },
+        {
+          "id": "ch03v016",
+          "leftLabel": "(un') esperienza indimenticabile",
+          "rightLabel": "(an) unforgettable experience"
+        },
+        {
+          "id": "ch03v017",
+          "leftLabel": "il/la chiacchierone/a",
+          "rightLabel": "chatterbox"
+        },
+        {
+          "id": "ch03v018",
+          "leftLabel": "l'accordo",
+          "rightLabel": "agreement"
+        },
+        {
+          "id": "ch03v019",
+          "leftLabel": "per quanto riguarda",
+          "rightLabel": "as far as ... is concerned"
+        },
+        {
+          "id": "ch03v020",
+          "leftLabel": "l'appuntamento",
+          "rightLabel": "appointment / date"
+        },
+        {
+          "id": "ch03v021",
+          "leftLabel": "la pace; lasciare in pace",
+          "rightLabel": "peace; to leave in peace"
+        },
+        {
+          "id": "ch03v022",
+          "leftLabel": "il permesso",
+          "rightLabel": "permission"
+        },
+        {
+          "id": "ch03v023",
+          "leftLabel": "il volume",
+          "rightLabel": "volume"
+        },
+        {
+          "id": "ch03v024",
+          "leftLabel": "inoltre",
+          "rightLabel": "moreover / besides"
+        },
+        {
+          "id": "ch03v025",
+          "leftLabel": "ribelle",
+          "rightLabel": "rebellious"
+        },
+        {
+          "id": "ch03v026",
+          "leftLabel": "tranne (che)",
+          "rightLabel": "except (for)"
+        },
+        {
+          "id": "ch03v027",
+          "leftLabel": "la guerra",
+          "rightLabel": "war"
+        },
+        {
+          "id": "ch03v028",
+          "leftLabel": "chiarire",
+          "rightLabel": "to clarify"
+        },
+        {
+          "id": "ch03v029",
+          "leftLabel": "il/la corrispondente",
+          "rightLabel": "correspondent / pen friend"
+        },
+        {
+          "id": "ch03v030",
+          "leftLabel": "minimo, -a",
+          "rightLabel": "minimum / least"
+        },
+        {
+          "id": "ch03v031",
+          "leftLabel": "interrompere, interrotto",
+          "rightLabel": "to interrupt"
+        },
+        {
+          "id": "ch03v032",
+          "leftLabel": "Ti va di ...",
+          "rightLabel": "Do you feel like ...?"
+        },
+        {
+          "id": "ch03v033",
+          "leftLabel": "l'impressione f.",
+          "rightLabel": "impression"
+        },
+        {
+          "id": "ch03v034",
+          "leftLabel": "caotico, -a",
+          "rightLabel": "chaotic"
+        },
+        {
+          "id": "ch03v035",
+          "leftLabel": "il lato",
+          "rightLabel": "side"
+        },
+        {
+          "id": "ch03v036",
+          "leftLabel": "la bellezza",
+          "rightLabel": "beauty"
+        },
+        {
+          "id": "ch03v037",
+          "leftLabel": "augurarsi",
+          "rightLabel": "to wish (for oneself)"
+        },
+        {
+          "id": "ch03v038",
+          "leftLabel": "attraverso prep.",
+          "rightLabel": "through / by means of"
+        },
+        {
+          "id": "ch03v039",
+          "leftLabel": "la melodia",
+          "rightLabel": "melody"
+        },
+        {
+          "id": "ch03v040",
+          "leftLabel": "un sacco di",
+          "rightLabel": "a lot of"
+        },
+        {
+          "id": "ch03v041",
+          "leftLabel": "l'odore m.",
+          "rightLabel": "smell / odor"
+        },
+        {
+          "id": "ch03v042",
+          "leftLabel": "l'opinione f.",
+          "rightLabel": "opinion"
+        },
+        {
+          "id": "ch03v043",
+          "leftLabel": "prendere sul serio",
+          "rightLabel": "to take seriously"
+        },
+        {
+          "id": "ch03v044",
+          "leftLabel": "rispetto a",
+          "rightLabel": "compared to"
+        },
+        {
+          "id": "ch03v045",
+          "leftLabel": "andare d'accordo (con qn)",
+          "rightLabel": "to get along (with someone)"
+        },
+        {
+          "id": "ch03v046",
+          "leftLabel": "il disordine",
+          "rightLabel": "disorder / mess"
+        },
+        {
+          "id": "ch03v047",
+          "leftLabel": "classico, -a",
+          "rightLabel": "classical"
+        },
+        {
+          "id": "ch03v048",
+          "leftLabel": "il simbolo",
+          "rightLabel": "symbol"
+        },
+        {
+          "id": "ch03v049",
+          "leftLabel": "la manifestazione",
+          "rightLabel": "event / demonstration"
+        },
+        {
+          "id": "ch03v050",
+          "leftLabel": "spettacolare",
+          "rightLabel": "spectacular"
+        },
+        {
+          "id": "ch03v051",
+          "leftLabel": "aver luogo",
+          "rightLabel": "to take place"
+        },
+        {
+          "id": "ch03v052",
+          "leftLabel": "all'aperto",
+          "rightLabel": "in the open / outdoors"
+        },
+        {
+          "id": "ch03v053",
+          "leftLabel": "la maschera",
+          "rightLabel": "mask"
+        },
+        {
+          "id": "ch03v054",
+          "leftLabel": "indossare",
+          "rightLabel": "to wear"
+        },
+        {
+          "id": "ch03v055",
+          "leftLabel": "il cappuccio",
+          "rightLabel": "hood"
+        },
+        {
+          "id": "ch03v056",
+          "leftLabel": "il viso",
+          "rightLabel": "face"
+        },
+        {
+          "id": "ch03v057",
+          "leftLabel": "il corno",
+          "rightLabel": "horn"
+        },
+        {
+          "id": "ch03v058",
+          "leftLabel": "il portafortuna",
+          "rightLabel": "lucky charm"
+        },
+        {
+          "id": "ch03v059",
+          "leftLabel": "rappresentare",
+          "rightLabel": "to represent"
+        },
+        {
+          "id": "ch03v060",
+          "leftLabel": "la nascita",
+          "rightLabel": "birth"
+        },
+        {
+          "id": "ch03v061",
+          "leftLabel": "la tradizione",
+          "rightLabel": "tradition"
+        },
+        {
+          "id": "ch03v062",
+          "leftLabel": "il patrono",
+          "rightLabel": "patron saint"
+        },
+        {
+          "id": "ch03v063",
+          "leftLabel": "proteggere, protetto",
+          "rightLabel": "to protect"
+        },
+        {
+          "id": "ch03v064",
+          "leftLabel": "sciogliersi, sciolto",
+          "rightLabel": "to melt / to dissolve"
+        },
+        {
+          "id": "ch03v065",
+          "leftLabel": "il sangue",
+          "rightLabel": "blood"
+        },
+        {
+          "id": "ch03v066",
+          "leftLabel": "la sfortuna",
+          "rightLabel": "bad luck / misfortune"
+        },
+        {
+          "id": "ch03v067",
+          "leftLabel": "la memoria",
+          "rightLabel": "memory"
+        },
+        {
+          "id": "ch03v068",
+          "leftLabel": "contribuire",
+          "rightLabel": "to contribute"
+        },
+        {
+          "id": "ch03v069",
+          "leftLabel": "la diffusione",
+          "rightLabel": "spreading / diffusion"
+        },
+        {
+          "id": "ch03v070",
+          "leftLabel": "nascondere, nascosto",
+          "rightLabel": "to hide"
+        },
+        {
+          "id": "ch03v071",
+          "leftLabel": "la pubblicità",
+          "rightLabel": "advertising / publicity"
+        },
+        {
+          "id": "ch03v072",
+          "leftLabel": "innamorato, -a (di)",
+          "rightLabel": "in love (with)"
+        },
+        {
+          "id": "ch03v073",
+          "leftLabel": "spedire",
+          "rightLabel": "to send"
+        },
+        {
+          "id": "ch03v074",
+          "leftLabel": "la relazione",
+          "rightLabel": "relationship / essay"
+        },
+        {
+          "id": "ch03v075",
+          "leftLabel": "il tavolo",
+          "rightLabel": "table"
+        },
+        {
+          "id": "ch03v076",
+          "leftLabel": "In quanti siete? – Siamo in quattro.",
+          "rightLabel": "How many are you? – We are four."
+        },
+        {
+          "id": "ch03v077",
+          "leftLabel": "buffo, -a",
+          "rightLabel": "funny"
+        },
+        {
+          "id": "ch03v078",
+          "leftLabel": "Caspita!",
+          "rightLabel": "Wow! / My goodness!"
+        },
+        {
+          "id": "ch03v079",
+          "leftLabel": "delizioso, -a",
+          "rightLabel": "delicious"
+        },
+        {
+          "id": "ch03v080",
+          "leftLabel": "goloso, -a; golosone",
+          "rightLabel": "greedy (about sweets); greedy (augmentative)"
+        },
+        {
+          "id": "ch03v081",
+          "leftLabel": "il genere",
+          "rightLabel": "type / kind / gender"
+        },
+        {
+          "id": "ch03v082",
+          "leftLabel": "tradizionale",
+          "rightLabel": "traditional"
+        },
+        {
+          "id": "ch03v083",
+          "leftLabel": "matto, -a (per)",
+          "rightLabel": "crazy (about)"
+        },
+        {
+          "id": "ch03v084",
+          "leftLabel": "il cioccolatino",
+          "rightLabel": "chocolate (small piece)"
+        },
+        {
+          "id": "ch03v085",
+          "leftLabel": "ripieno, -a",
+          "rightLabel": "filled / stuffed"
+        },
+        {
+          "id": "ch03v086",
+          "leftLabel": "mostrare",
+          "rightLabel": "to show"
+        },
+        {
+          "id": "ch03v087",
+          "leftLabel": "prendere freddo",
+          "rightLabel": "to catch a cold"
+        },
+        {
+          "id": "ch03v088",
+          "leftLabel": "la febbre",
+          "rightLabel": "fever"
+        },
+        {
+          "id": "ch03v089",
+          "leftLabel": "il più possibile",
+          "rightLabel": "as much as possible"
+        },
+        {
+          "id": "ch03v090",
+          "leftLabel": "il cacao",
+          "rightLabel": "cocoa"
+        },
+        {
+          "id": "ch03v091",
+          "leftLabel": "la nocciola",
+          "rightLabel": "hazelnut"
+        },
+        {
+          "id": "ch03v092",
+          "leftLabel": "il barattolo",
+          "rightLabel": "jar"
+        },
+        {
+          "id": "ch03v093",
+          "leftLabel": "croccante",
+          "rightLabel": "crunchy / crispy"
+        },
+        {
+          "id": "ch03v094",
+          "leftLabel": "gustare",
+          "rightLabel": "to taste / to enjoy"
+        },
+        {
+          "id": "ch03v095",
+          "leftLabel": "il sale",
+          "rightLabel": "salt"
+        },
+        {
+          "id": "ch03v096",
+          "leftLabel": "salato, -a",
+          "rightLabel": "salty"
+        },
+        {
+          "id": "ch03v097",
+          "leftLabel": "dolce",
+          "rightLabel": "sweet"
+        },
+        {
+          "id": "ch03v098",
+          "leftLabel": "il bastoncino",
+          "rightLabel": "stick (small)"
+        },
+        {
+          "id": "ch03v099",
+          "leftLabel": "la fetta",
+          "rightLabel": "slice"
+        },
+        {
+          "id": "ch03v100",
+          "leftLabel": "celebrare",
+          "rightLabel": "to celebrate"
+        },
+        {
+          "id": "ch03v101",
+          "leftLabel": "la fabbrica",
+          "rightLabel": "factory"
+        },
+        {
+          "id": "ch03v102",
+          "leftLabel": "il soprannome",
+          "rightLabel": "nickname"
+        },
+        {
+          "id": "ch03v103",
+          "leftLabel": "le Alpi",
+          "rightLabel": "the Alps"
+        },
+        {
+          "id": "ch03v104",
+          "leftLabel": "all'interno di ...",
+          "rightLabel": "inside of ..."
+        },
+        {
+          "id": "ch03v105",
+          "leftLabel": "la fila; fare la fila",
+          "rightLabel": "queue; to queue"
+        },
+        {
+          "id": "ch03v106",
+          "leftLabel": "ammirare",
+          "rightLabel": "to admire"
+        },
+        {
+          "id": "ch03v107",
+          "leftLabel": "il pezzo",
+          "rightLabel": "piece"
+        },
+        {
+          "id": "ch03v108",
+          "leftLabel": "l'opera",
+          "rightLabel": "work (of art) / opera"
+        },
+        {
+          "id": "ch03v109",
+          "leftLabel": "il tetto",
+          "rightLabel": "roof"
+        },
+        {
+          "id": "ch03v110",
+          "leftLabel": "storico, -a",
+          "rightLabel": "historic / historical"
+        },
+        {
+          "id": "ch03v111",
+          "leftLabel": "numeroso, -a",
+          "rightLabel": "numerous"
+        },
+        {
+          "id": "ch03v112",
+          "leftLabel": "automatico, -a",
+          "rightLabel": "automatic"
+        },
+        {
+          "id": "ch03v113",
+          "leftLabel": "l'occasione f.",
+          "rightLabel": "occasion / opportunity"
+        },
+        {
+          "id": "ch03v114",
+          "leftLabel": "invernale",
+          "rightLabel": "winter (adj.) / wintry"
+        },
+        {
+          "id": "ch03v115",
+          "leftLabel": "impiegare",
+          "rightLabel": "to take (time) / to employ"
+        },
+        {
+          "id": "ch03v116",
+          "leftLabel": "dare un'occhiata a",
+          "rightLabel": "to take a look at"
+        },
+        {
+          "id": "ch03v117",
+          "leftLabel": "il/la proprietario/a",
+          "rightLabel": "owner"
+        },
+        {
+          "id": "ch03v118",
+          "leftLabel": "la graduatoria",
+          "rightLabel": "ranking"
+        },
+        {
+          "id": "ch03v119",
+          "leftLabel": "confrontare",
+          "rightLabel": "to compare"
+        },
+        {
+          "id": "ch03v120",
+          "leftLabel": "ciascuno, -a pron./agg.",
+          "rightLabel": "each / every"
+        },
+        {
+          "id": "ch03v121",
+          "leftLabel": "arricchire, -sc-",
+          "rightLabel": "to enrich"
+        }
+      ],
+      "presentation": {
+        "leftLabel": "italiano",
+        "rightLabel": "english",
+        "shuffleRightOrder": true
+      }
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.6,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

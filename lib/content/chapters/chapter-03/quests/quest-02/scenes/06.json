@@ -1,0 +1,9 @@
+{
+  "id": "chapter-03-quest-02-scene-06",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/03/quests/02/bg-museum-hall",
+  "content": {
+    "text": "Tu\nFatto. Bologna è davvero una città speciale — l'università più antica d'Europa, le torri, i portici... Vediamo cos'altro c'è da scoprire."
+  }
+}

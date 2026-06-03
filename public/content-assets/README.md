@@ -32,6 +32,10 @@ Keys in scene JSON (no `.png` suffix) map to **`public/content-assets/{key}.png`
 | **02** | `public/content-assets/chapters/02/quests/02/ref-prof-*.png` | Nutelleria freetext (4 professions) |
 | **02** | `public/content-assets/chapters/02/quests/04/ref-menu-*.png` | Trattoria menù freetext (5 categories) |
 
+## Chapter backgrounds (`chapters/03/`)
+
+Scene and quest `background` keys only (no reference-document figures in ch.3). Place PNGs next to `.gitkeep` under e.g. `chapters/03/quests/02/bg-museum-hall.png`. Regenerate JSON from `scripts/generate-chapter-03-catalog.mjs` if keys change.
+
 Replace a file in place (same key in JSON) when art is ready; no code change required.
 
 ## Format and fallbacks

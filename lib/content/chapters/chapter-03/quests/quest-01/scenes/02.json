@@ -1,26 +1,9 @@
 {
   "id": "chapter-03-quest-01-scene-02",
-  "scene_type": "task",
-  "screen_type": "error_spotting",
-  "background": "chapters/03/quests/01/bg-task-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/03/quests/01/bg-room-morning",
   "content": {
-    "title": "Trova l'errore",
-    "instruction": "Tocca il verbo sbagliato e scrivi la forma corretta.",
-    "referenceDocument": null,
-    "task": {
-      "prompt": "Trova l'errore nel testo.",
-      "segments": [
-        { "id": "a", "text": "Maria", "isError": false },
-        { "id": "b", "text": " vai", "isError": true, "acceptedCorrections": ["va"] },
-        { "id": "c", "text": " a scuola ogni giorno.", "isError": false }
-      ]
-    }
-  },
-  "scoring": {
-    "backpack": { "pieces": 1 },
-    "pizza": {
-      "mode": "flat",
-      "slices": 2
-    }
+    "text": "Tu\nOggi non ho compiti. Ma la signora Ferrari ieri sera mi ha parlato di un museo che devo assolutamente vedere se voglio capire davvero Bologna: il Museo della Storia di Bologna. Una buona occasione per imparare un po' di storia."
   }
 }

@@ -2,8 +2,8 @@
   "id": "chapter-03-quest-02-scene-01",
   "scene_type": "story",
   "screen_type": "info",
-  "background": "chapters/03/quests/02/bg-dialogue-01",
+  "background": "chapters/03/quests/02/bg-museum-hall",
   "content": {
-    "text": "Al bar puoi ordinare da bere in italiano."
+    "text": "Entri nel Museo della Storia di Bologna. La sala è tranquilla, nelle vetrine ci sono mappe antiche, monete e cocci di terracotta. Alle pareti, immagini di torri medievali e una grande mappa del centro storico."
   }
 }

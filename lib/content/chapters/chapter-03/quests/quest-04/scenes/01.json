@@ -1,0 +1,9 @@
+{
+  "id": "chapter-03-quest-04-scene-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/03/quests/04/bg-piazza-cioccoshow",
+  "content": {
+    "text": "Arrivi in piazza Maggiore. Già da lontano vedi ombrelloni colorati, senti vociare e senti l'odore di cioccolato — cioccolato ovunque. Famiglie si fanno strada tra le bancarelle, bambini assaggiano con le dita appiccicose, i cioccolatieri chiamano i passanti con le loro specialità."
+  }
+}

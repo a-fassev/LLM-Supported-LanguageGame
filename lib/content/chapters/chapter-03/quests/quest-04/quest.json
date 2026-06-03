@@ -1,0 +1,8 @@
+{
+  "id": "quest-04",
+  "title": "La Cioccoshow",
+  "order": 4,
+  "kind": "main",
+  "requiresQuestId": "quest-03",
+  "background": "chapters/03/quests/04/bg-overview"
+}

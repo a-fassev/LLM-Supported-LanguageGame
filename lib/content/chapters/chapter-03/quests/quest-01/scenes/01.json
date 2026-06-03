@@ -2,8 +2,8 @@
   "id": "chapter-03-quest-01-scene-01",
   "scene_type": "story",
   "screen_type": "info",
-  "background": "chapters/03/quests/01/bg-info-01",
+  "background": "chapters/03/quests/01/bg-room-morning",
   "content": {
-    "text": "A Roma osservi il Colosseo e prepari una breve descrizione."
+    "text": "Un nuovo giorno a Bologna. Ti svegli, la luce entra calda dalla finestra. Sulla scrivania ci sono i tuoi libri di scuola per la prossima lezione e accanto, il tuo zaino — già un bel po' pieno di colore."
   }
 }

@@ -1,0 +1,135 @@
+{
+  "id": "chapter-03-quest-03-scene-14",
+  "scene_type": "task",
+  "screen_type": "matching",
+  "background": "chapters/03/quests/03/bg-museum-side",
+  "content": {
+    "title": "Accrescitivi e diminutivi — Teil A",
+    "instruction": "Collega ogni parola di partenza alla sua forma derivata.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Collega ogni parola di partenza alla sua forma derivata (accrescitivo o diminutivo). Attenzione al significato!",
+      "leftItems": [
+        {
+          "id": "left-1",
+          "label": "pizza"
+        },
+        {
+          "id": "left-2",
+          "label": "cioccolato"
+        },
+        {
+          "id": "left-3",
+          "label": "palazzo"
+        },
+        {
+          "id": "left-4",
+          "label": "goloso"
+        },
+        {
+          "id": "left-5",
+          "label": "libro"
+        },
+        {
+          "id": "left-6",
+          "label": "casa"
+        },
+        {
+          "id": "left-7",
+          "label": "ragazzo"
+        },
+        {
+          "id": "left-8",
+          "label": "tavolo"
+        }
+      ],
+      "rightItems": [
+        {
+          "id": "right-1",
+          "label": "pizzetta (piccola)"
+        },
+        {
+          "id": "right-2",
+          "label": "cioccolatino (piccolo)"
+        },
+        {
+          "id": "right-3",
+          "label": "palazzone (grande)"
+        },
+        {
+          "id": "right-4",
+          "label": "golosone (molto goloso)"
+        },
+        {
+          "id": "right-5",
+          "label": "librone (grande)"
+        },
+        {
+          "id": "right-6",
+          "label": "casetta (piccola e carina)"
+        },
+        {
+          "id": "right-7",
+          "label": "ragazzaccio (cattivo / birichino)"
+        },
+        {
+          "id": "right-8",
+          "label": "tavolino (piccolo)"
+        }
+      ],
+      "correctPairs": [
+        {
+          "leftItemId": "left-1",
+          "rightItemId": "right-1"
+        },
+        {
+          "leftItemId": "left-2",
+          "rightItemId": "right-2"
+        },
+        {
+          "leftItemId": "left-3",
+          "rightItemId": "right-3"
+        },
+        {
+          "leftItemId": "left-4",
+          "rightItemId": "right-4"
+        },
+        {
+          "leftItemId": "left-5",
+          "rightItemId": "right-5"
+        },
+        {
+          "leftItemId": "left-6",
+          "rightItemId": "right-6"
+        },
+        {
+          "leftItemId": "left-7",
+          "rightItemId": "right-7"
+        },
+        {
+          "leftItemId": "left-8",
+          "rightItemId": "right-8"
+        }
+      ],
+      "presentation": {
+        "leftLabel": "Parola di partenza",
+        "rightLabel": "Forma derivata",
+        "shuffleRightOrder": true
+      }
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 2,
+      "minRatioToComplete": 0.75,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

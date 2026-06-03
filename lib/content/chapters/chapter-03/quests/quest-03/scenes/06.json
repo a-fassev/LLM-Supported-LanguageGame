@@ -1,0 +1,9 @@
+{
+  "id": "chapter-03-quest-03-scene-06",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/03/quests/03/bg-museum-side",
+  "content": {
+    "text": "Valentina\n„In piazza troverai decine di bancarelle dove i maestri cioccolatieri di tutta Italia presentano le loro creazioni. Credo che tu assaggerai del cioccolato come non l'hai mai mangiato. E penso che molti visitatori vengano da altre città — incontrerai gente di Milano, Torino, Firenze.\""
+  }
+}

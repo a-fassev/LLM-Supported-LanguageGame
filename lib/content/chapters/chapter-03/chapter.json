@@ -1,11 +1,13 @@
 {
   "id": "chapter-03",
-  "title": "Roma",
+  "title": "Bologna — terzo giorno",
   "order": 3,
-  "locked": true,
+  "locked": false,
   "quests": [
     "quest-01",
     "quest-02",
+    "quest-03",
+    "quest-04",
     "quest-01-bonus"
   ],
   "background": "chapters/03/chapter/bg-missions"

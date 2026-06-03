@@ -5,7 +5,7 @@
 
 ## Delivered
 
-- **Fixtures:** `chapter-01/quest-01/scenes/12.json` (minimal smoke), `chapter-03/quest-02/scenes/02.json` (rich + documento).
+- **Fixtures:** `chapter-00/quests/quest-01/scenes/12.json` (minimal smoke + single-figure documento); learner examples in `chapter-02` freetext profession/menù scenes.
 - **Server:** `evaluateFreitextLlmScene` + `completeTaskScene` branch. LLM judge scores **grammar, vocabulary, register, task fulfillment** (`taskFulfillmentScore` + `taskFulfillmentWeight`, default weight 1). `GAME_SMOKE_AUTO_PASS` skips the LLM like other task types.
 - **UI:** `FreeTextTask`, play draft/submit, loading copy, retry overlay with LLM summary.
 - **Tests:** catalog smoke, service mocks, validation/outcome helpers.

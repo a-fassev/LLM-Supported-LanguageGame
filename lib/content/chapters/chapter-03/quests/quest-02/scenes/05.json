@@ -1,0 +1,171 @@
+{
+  "id": "chapter-03-quest-02-scene-05",
+  "scene_type": "task",
+  "screen_type": "multiple_choice",
+  "background": "chapters/03/quests/02/bg-museum-hall",
+  "content": {
+    "title": "Quiz: Bologna, duemila anni di storia",
+    "instruction": "Leggi attentamente il volantino. Poi rispondi alle domande. Usa il documento se ti serve.",
+    "referenceDocument": {
+      "title": "Bologna — duemila anni di storia",
+      "body": "Bologna è una delle città più antiche d'Italia. Le sue origini risalgono al VI secolo a.C., quando gli Etruschi fondarono qui una città importante e la chiamarono Felsina. Più tardi, nel IV secolo a.C., arrivarono i Galli Boi. Nel 189 a.C. i Romani fondarono la colonia di Bononia, da cui deriva il nome moderno „Bologna\".\n\nNel 1088 a Bologna nasce l'Università più antica del mondo occidentale: l'Alma Mater Studiorum. Da quasi mille anni studenti da tutta Europa vengono qui per imparare. Per questo motivo Bologna è chiamata „la Dotta\".\n\nTra il 1109 e il 1119 due famiglie nobili — gli Asinelli e i Garisendi — fanno costruire due torri nel centro della città. La Torre degli Asinelli è alta 97,2 metri. La Torre della Garisenda è più bassa (47 metri), ma molto più pendente: anche Dante Alighieri ne parla nella „Divina Commedia\".\n\nUn altro simbolo di Bologna sono i portici: in totale 62 chilometri in città. Il portico più lungo è quello di San Luca, con 3.796 metri e ben 666 archi. Dal 28 luglio 2021 i portici sono patrimonio dell'umanità dell'UNESCO.\n\nBologna ha anche un terzo soprannome: „la Grassa\", per la sua famosa tradizione gastronomica. I piatti tipici sono i tortellini, le tagliatelle al ragù e la mortadella."
+    },
+    "task": {
+      "prompt": "Leggi attentamente il volantino. Poi rispondi alle domande sulla storia di Bologna. Per ogni domanda, scegli la risposta giusta.",
+      "questions": [
+        {
+          "id": "museum-q1",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Chi ha fondato la città che oggi si chiama Bologna?",
+          "options": [
+            {
+              "id": "museum-q1-opt-a",
+              "label": "I Romani, nel 189 a.C."
+            },
+            {
+              "id": "museum-q1-opt-b",
+              "label": "Gli Etruschi, nel VI secolo a.C."
+            },
+            {
+              "id": "museum-q1-opt-c",
+              "label": "I Galli Boi, nel IV secolo a.C."
+            }
+          ],
+          "correctOptionIds": [
+            "museum-q1-opt-b"
+          ]
+        },
+        {
+          "id": "museum-q2",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Come si chiamava Bologna ai tempi degli Etruschi?",
+          "options": [
+            {
+              "id": "museum-q2-opt-a",
+              "label": "Bononia"
+            },
+            {
+              "id": "museum-q2-opt-b",
+              "label": "Felsina"
+            },
+            {
+              "id": "museum-q2-opt-c",
+              "label": "Alma Mater"
+            }
+          ],
+          "correctOptionIds": [
+            "museum-q2-opt-b"
+          ]
+        },
+        {
+          "id": "museum-q3",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "In che anno è stata fondata l'Università di Bologna?",
+          "options": [
+            {
+              "id": "museum-q3-opt-a",
+              "label": "Nel 189 a.C."
+            },
+            {
+              "id": "museum-q3-opt-b",
+              "label": "Nel 1088"
+            },
+            {
+              "id": "museum-q3-opt-c",
+              "label": "Nel 1119"
+            }
+          ],
+          "correctOptionIds": [
+            "museum-q3-opt-b"
+          ]
+        },
+        {
+          "id": "museum-q4",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Qual è il soprannome di Bologna che si riferisce all'università?",
+          "options": [
+            {
+              "id": "museum-q4-opt-a",
+              "label": "La Grassa"
+            },
+            {
+              "id": "museum-q4-opt-b",
+              "label": "La Rossa"
+            },
+            {
+              "id": "museum-q4-opt-c",
+              "label": "La Dotta"
+            }
+          ],
+          "correctOptionIds": [
+            "museum-q4-opt-c"
+          ]
+        },
+        {
+          "id": "museum-q5",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Quanto è alta la Torre degli Asinelli?",
+          "options": [
+            {
+              "id": "museum-q5-opt-a",
+              "label": "47 metri"
+            },
+            {
+              "id": "museum-q5-opt-b",
+              "label": "97,2 metri"
+            },
+            {
+              "id": "museum-q5-opt-c",
+              "label": "666 metri"
+            }
+          ],
+          "correctOptionIds": [
+            "museum-q5-opt-b"
+          ]
+        },
+        {
+          "id": "museum-q6",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Da quando i portici di Bologna sono patrimonio dell'umanità dell'UNESCO?",
+          "options": [
+            {
+              "id": "museum-q6-opt-a",
+              "label": "Dal 1088"
+            },
+            {
+              "id": "museum-q6-opt-b",
+              "label": "Dal 1964"
+            },
+            {
+              "id": "museum-q6-opt-c",
+              "label": "Dal 2021"
+            }
+          ],
+          "correctOptionIds": [
+            "museum-q6-opt-c"
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.67,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

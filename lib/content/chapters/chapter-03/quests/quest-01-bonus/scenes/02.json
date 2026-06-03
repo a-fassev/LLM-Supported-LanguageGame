@@ -1,33 +1,9 @@
 {
   "id": "chapter-03-quest-01-bonus-scene-02",
-  "scene_type": "task",
-  "screen_type": "matching",
-  "background": "chapters/03/quests/bonus/bg-task-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/03/quests/bonus/bg-neutral",
   "content": {
-    "title": "Sfida bonus",
-    "instruction": "Abbina ogni espressione alla traduzione corretta.",
-    "referenceDocument": null,
-    "task": {
-      "prompt": "Vocabolario al bar.",
-      "sampleSize": 3,
-      "poolPairs": [
-        { "id": "b01", "leftLabel": "Un caffè", "rightLabel": "A coffee" },
-        { "id": "b02", "leftLabel": "Il conto", "rightLabel": "The bill" },
-        { "id": "b03", "leftLabel": "Per favore", "rightLabel": "Please" },
-        { "id": "b04", "leftLabel": "Grazie", "rightLabel": "Thanks" }
-      ],
-      "presentation": {
-        "leftLabel": "Italiano",
-        "rightLabel": "Traduzione",
-        "shuffleRightOrder": true
-      }
-    }
-  },
-  "scoring": {
-    "backpack": { "pieces": 1 },
-    "pizza": {
-      "mode": "flat",
-      "slices": 3
-    }
+    "text": "Prima di chiudere il capitolo, mettiti alla prova: quante parole di questa lezione ricordi davvero?"
   }
 }

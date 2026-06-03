@@ -1,0 +1,9 @@
+{
+  "id": "chapter-03-quest-04-scene-13",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/03/quests/04/bg-piazza-cioccoshow",
+  "content": {
+    "text": "Lorenzo prende una rivista colorata dalla sua borsa e te la passa. Sulla copertina: una cartina d'Italia con piccoli simboli, un espresso, una pizza, un Pinguino al cioccolato, una FIAT 500."
+  }
+}

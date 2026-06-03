@@ -1,46 +1,9 @@
 {
   "id": "chapter-03-quest-02-scene-02",
-  "scene_type": "task",
-  "screen_type": "free_text",
-  "background": "chapters/03/quests/02/bg-task-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/03/quests/02/bg-museum-hall",
   "content": {
-    "title": "Descrivi la situazione",
-    "instruction": "Scrivi due frasi in italiano.",
-    "referenceDocument": {
-      "title": "Menu",
-      "body": "Caffe - 1,20 EUR; Cappuccino - 1,50 EUR; Acqua - 1,00 EUR"
-    },
-    "task": {
-      "prompt": "Descrivi cosa ordini al bar usando almeno due frasi.",
-      "targetLanguage": "it",
-      "showWordCount": true,
-      "minWords": 2,
-      "maxWords": 50,
-      "evaluation": {
-        "grammarWeight": 1,
-        "vocabularyWeight": 1,
-        "registerWeight": 1,
-        "taskFulfillmentWeight": 1,
-        "passThreshold": 0.65,
-        "registerTarget": "informal",
-        "scoringPolicy": "threshold_pass",
-        "maxPoints": 5,
-        "evaluationCriteria": [
-          "Use polite bar/order phrasing in Italian",
-          "Mention at least one item from the menu"
-        ],
-        "targetStructures": ["vorrei", "per favore"]
-      }
-    }
-  },
-  "scoring": {
-    "backpack": { "pieces": 1 },
-    "pizza": {
-      "mode": "scored",
-      "maxSlices": 3,
-      "minRatioToComplete": 0.7,
-      "rounding": "nearest",
-      "mapping": { "kind": "linear" }
-    }
+    "text": "Tu\nVediamo cosa si può scoprire qui. All'ingresso c'era un volantino con le informazioni principali — me lo prendo."
   }
 }

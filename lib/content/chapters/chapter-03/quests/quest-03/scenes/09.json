@@ -1,0 +1,147 @@
+{
+  "id": "chapter-03-quest-03-scene-09",
+  "scene_type": "task",
+  "screen_type": "cloze",
+  "background": "chapters/03/quests/03/bg-museum-side",
+  "content": {
+    "title": "Due chiacchiere",
+    "instruction": "Completa il dialogo con le forme del congiuntivo presente o passato dei verbi tra parentesi.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Completa il dialogo con le forme del congiuntivo presente o passato dei verbi tra parentesi.",
+      "caseSensitive": false,
+      "lines": [
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "Elisa:        Mi dispiace che Franca non "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "sia venuta",
+                "Sia venuta"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (venire) con noi ieri.\n\nTiziana:    Non sta bene. Penso che "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "abbia preso",
+                "Abbia preso"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (prendere) freddo e ora "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "abbia",
+                "Abbia"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (avere) la febbre.\n\nCarlo:        Poverina! Credi che non "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "venga",
+                "Venga"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (venire) neanche alla festa di Cinzia stasera?\n\nTiziana:    È probabile che non ci "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "riesca",
+                "Riesca"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (riuscire). A proposito di festa. Ho l'impressione che tu, Carlo, "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "ti sia divertito",
+                "Ti sia divertito"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (divertirsi) molto ieri sera.\n\nElisa:        Ah ah, non credo che lui "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "abbia ballato",
+                "Abbia ballato"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (lui, ballare) mai così tanto ad una festa!\n\nEnzo:        Allora non penso che il nostro caro Carlo "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "manci",
+                "Manci"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (mancare) alla festa di Cinzia.\n\nTiziana:    Sì, anch'io credo che tu non "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "voglia",
+                "Voglia"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (volere) perdere questa ottima occasione stasera."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.78,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}
