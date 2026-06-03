@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-02-scene-09",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/02/bg-class",
+  "content": {
+    "text": "Prof.ssa Ricci\n\"Perfetto, avete trovato tutto. Vedete, conoscere una cultura significa anche conoscere i piccoli dettagli. Bene, per oggi basta. Ci vediamo giovedì!\""
+  }
+}

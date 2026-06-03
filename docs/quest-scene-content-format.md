@@ -31,7 +31,7 @@ lib/content/
 | File | Contains |
 | ---- | -------- |
 | `chapter.json` | Chapter title, order, list of quest ids |
-| `quest.json` | Quest title, kind, unlock, optional auto-start |
+| `quest.json` | Quest title, kind, unlock (`requiresQuestId`) |
 | `scenes/NN.json` | One scene (envelope + `content`) |
 
 Scene order is the **numeric prefix** on filenames (`01`, `02`, …).
@@ -48,7 +48,8 @@ Scene order is the **numeric prefix** on filenames (`01`, `02`, …).
   "title": "Area di prova (team)",
   "order": 0,
   "reference": true,
-  "quests": ["quest-01", "quest-02", "quest-01-bonus"]
+  "quests": ["quest-01", "quest-02", "quest-01-bonus"],
+  "background": "chapters/00/chapter/bg-missions"
 }
 ```
 
@@ -57,6 +58,7 @@ Scene order is the **numeric prefix** on filenames (`01`, `02`, …).
 | `id` | Chapter id (`chapter-NN`). |
 | `title` | Hub title. |
 | `order` | Sort order on the chapter map (**0-based**, contiguous `0 … n−1` across all chapters). |
+| `background` | **Required.** Asset key for the chapter mission list hub (`/chapters/[chapterId]`). Resolved via `resolveAssetUrl` → `public/content-assets/`. |
 | `locked` | Optional, default `false`. When `true`, the chapter is **not playable** (hub shows locked; server rejects start, resume, snapshot (in-progress run), advance, attempt, and retreat with API code `chapter_locked`). Use for classroom pilots—change in git and deploy; independent of learner progress. |
 | `reference` | Optional, default `false`. When `true`, the chapter is a **team sandbox** (task-type fixtures): always playable when not `locked`, and **does not gate** the next progression chapter. At most one chapter in the catalog may set `reference: true`. |
 | `quests` | Ordered quest folder ids for this chapter. |
@@ -72,17 +74,20 @@ Scene order is the **numeric prefix** on filenames (`01`, `02`, …).
   "order": 1,
   "kind": "main",
   "requiresQuestId": null,
-  "autoStartQuestId": null
+  "background": "chapters/01/quests/01/bg-overview"
 }
 ```
 
 | Field | Description |
 | ----- | ----------- |
+| `background` | **Required.** Asset key for quest overview art (carried in bootstrap DTOs; chapter hub uses `chapter.background`). |
 | `kind` | `main` (required for chapter progress) or `bonus` (extra pizza, optional). |
-| `requiresQuestId` | Previous **main** quest in the same chapter (`null` for the first quest in that chapter). |
-| `autoStartQuestId` | Optional. When this quest completes, the client offers to start that quest next (e.g. last **main** quest → `quest-01-bonus`). May target `kind: "bonus"`. Learner can skip and open the chapter map. |
+| `requiresQuestId` | Previous **main** quest in the same chapter (`null` for the first quest in that chapter). For **bonus**, usually the last main quest that must finish before the bonus unlocks on the mission list. |
+| `title` | Short Italian hub label. For **`kind: "bonus"`**, prefix with **`Extra: `** (e.g. `Extra: sfida vocabolario`) so learners see it as optional—not a required main mission. Do not rely on the loanword “Bonus” alone. |
 
 Reading text for tasks lives on **each task scene**, not on the quest (see §5.2).
+
+**After a quest completes:** the client returns to **`/chapters/[chapterId]`**; the next mission is chosen from the list when unlocked. There is **no** `autoStartQuestId` / automatic jump into the following quest on `/play`.
 
 **Progression (sequential play):**
 
@@ -632,7 +637,7 @@ lib/content/chapters/
 
 **Authoring notes for the sample:**
 
-- Quest chains: `requiresQuestId` on each main quest; `quest-01` in each chapter may set `autoStartQuestId` to the next main quest (chaining demo).
+- Quest chains: `requiresQuestId` on each main quest; bonus quests use `kind: "bonus"` + `requiresQuestId` pointing at the last required main quest.
 - Vary `scoring` (flat, linear, bands) across a few task scenes.
 - Use `referenceDocument` on at least one task per chapter where a reading text fits.
 - Do **not** commit hub art or real GameArt assets — background keys only.
@@ -749,7 +754,7 @@ Steps **P1–P5** depend on **§11 A–C** (loader + validation). UI (**E–G**)
 | 3 | Bonus | `quest.kind: "bonus"` + task `screen_type: "matching"` (pool optional). |
 | 4 | Story scenes | Single story `screen_type`: **`info`** only (`content.text`). |
 | 5 | Chapter unlock | Strict sequential play; next chapter when current chapter’s **main** quests are done. |
-| 6–7 | Quest unlock / auto-start | `requiresQuestId` gates unlock; `autoStartQuestId` on last main may chain into bonus (skippable). |
+| 6–7 | Quest unlock | `requiresQuestId` gates unlock; bonus unlocks when its required main quest is completed. |
 | 8 | Back to earlier task | Allowed; **no re-scoring**. |
 | 9 | Backpack | Per scene via `scoring.backpack.pieces`. |
 | 10 | Flat pizza | Award on **first successful** scene completion; idempotent persist prevents double pay. |

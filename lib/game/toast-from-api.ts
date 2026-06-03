@@ -11,6 +11,7 @@ const BLOCKING_CODES = new Set<string>([
   "scene_missing",
   "active_run_exists",
   "quest_locked",
+  "quest_already_completed",
   "chapter_locked",
   "invalid_session",
   "missing_token",

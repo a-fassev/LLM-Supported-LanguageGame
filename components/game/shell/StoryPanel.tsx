@@ -13,7 +13,7 @@ export function StoryPanel({ text }: StoryPanelProps) {
         TASK_PLAY_BODY_TEXT,
       )}
     >
-      <p>{text}</p>
+      <p className="whitespace-pre-line">{text}</p>
     </section>
   );
 }

@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-02-scene-03",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/02/bg-class",
+  "content": {
+    "text": "Chiara\n\"Inizio io, prof! Quest'estate sono stata in Sicilia con la mia famiglia. Faceva un caldo pazzesco, ma il mare era bellissimo. E tu? Sei nuovo/a, vero? Da dove vieni?\""
+  }
+}

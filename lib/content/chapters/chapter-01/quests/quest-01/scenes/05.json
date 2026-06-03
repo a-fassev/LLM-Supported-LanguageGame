@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-01-scene-05",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/01/bg-room",
+  "content": {
+    "text": "Durante il gioco completerai diversi compiti per la scuola e per le persone che incontrerai. Per ogni compito risolto, il tuo zaino diventa più pieno di colore. (Hai perso lo zaino il primo giorno!)"
+  }
+}

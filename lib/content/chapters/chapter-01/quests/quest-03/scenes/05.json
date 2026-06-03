@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-03-scene-05",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/03/bg-school",
+  "content": {
+    "text": "Tu\nMatteo non cambia mai. Gli rispondo più tardi, adesso ho voglia di esplorare un po' Bologna. È la mia prima vera giornata libera in città."
+  }
+}

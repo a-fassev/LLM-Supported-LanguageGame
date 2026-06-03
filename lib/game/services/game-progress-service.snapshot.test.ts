@@ -5,7 +5,6 @@ const repoMocks = vi.hoisted(() => ({
   getActiveQuestRun: vi.fn(),
   getCompletedQuestIds: vi.fn(),
   getCompletedSceneIds: vi.fn(),
-  getRecentCompletedQuestRuns: vi.fn(),
   getWalletTotals: vi.fn(),
   getSceneMaterialization: vi.fn(),
   insertSceneMaterializationIfAbsent: vi.fn(),
@@ -25,7 +24,6 @@ vi.mock("@/lib/game/repositories/game-progress-repository", async (importOrigina
     getActiveQuestRun: repoMocks.getActiveQuestRun,
     getCompletedQuestIds: repoMocks.getCompletedQuestIds,
     getCompletedSceneIds: repoMocks.getCompletedSceneIds,
-    getRecentCompletedQuestRuns: repoMocks.getRecentCompletedQuestRuns,
     getWalletTotals: repoMocks.getWalletTotals,
     getSceneMaterialization: repoMocks.getSceneMaterialization,
     insertSceneMaterializationIfAbsent: repoMocks.insertSceneMaterializationIfAbsent,
@@ -68,51 +66,11 @@ describe("getRunSnapshot", () => {
     repoMocks.insertSceneMaterializationIfAbsent.mockResolvedValue(true);
   });
 
-  it("restores a completed main run when bonus auto-start is still pending", async () => {
-    const completedMain = {
-      runId: "run-main",
-      accountId: "acc-1",
-      chapterId: "chapter-01",
-      questId: "quest-02",
-      currentSceneId: "chapter-01-quest-02-scene-02",
-      status: "completed" as const,
-    };
-    repoMocks.getRecentCompletedQuestRuns.mockResolvedValue([completedMain]);
-    repoMocks.getCompletedQuestIds.mockResolvedValue(["chapter-01:quest-01", "chapter-01:quest-02"]);
-    catalogMocks.loadContentCatalog.mockResolvedValue({
-      chapters: [
-        {
-          id: "chapter-01",
-          questsExpanded: [
-            { id: "quest-02", kind: "main", autoStartQuestId: "quest-01-bonus", scenes: [matchingScene] },
-            { id: "quest-01-bonus", kind: "bonus", requiresQuestId: "quest-02", scenes: [matchingScene] },
-          ],
-        },
-      ],
-    });
-    catalogMocks.findCatalogQuest.mockImplementation(
-      (_catalog: unknown, _chapterId: string, questId: string) => {
-        if (questId === "quest-02") {
-          return {
-            id: "quest-02",
-            autoStartQuestId: "quest-01-bonus",
-            scenes: [matchingScene],
-          };
-        }
-        return {
-          id: "quest-01-bonus",
-          requiresQuestId: "quest-02",
-          scenes: [matchingScene],
-        };
-      },
-    );
-    catalogMocks.findCatalogScene.mockReturnValue(matchingScene);
-
+  it("returns no run when there is no active in-progress quest", async () => {
     const result = await getRunSnapshot("acc-1");
     expect(result.ok).toBe(true);
     if (!result.ok) throw new Error("expected ok");
-    expect(result.run?.status).toBe("completed");
-    expect(result.run?.autoStartQuest).toEqual({ chapterId: "chapter-01", questId: "quest-01-bonus" });
+    expect(result.run).toBeNull();
   });
 
   it("rejects snapshot for in-progress run in manually locked chapter", async () => {

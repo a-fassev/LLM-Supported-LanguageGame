@@ -4,5 +4,5 @@
   "order": 1,
   "kind": "main",
   "requiresQuestId": null,
-  "autoStartQuestId": null
+  "background": "chapters/00/quests/01/bg-overview"
 }

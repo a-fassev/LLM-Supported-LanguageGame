@@ -2,8 +2,8 @@
   "id": "chapter-01-quest-01-scene-01",
   "scene_type": "story",
   "screen_type": "info",
-  "background": "chapters/01/quests/01/bg-info-01",
+  "background": "chapters/01/quests/01/bg-room",
   "content": {
-    "text": "Benvenuto a Bologna! Il contenuto di questo capitolo arriverà presto."
+    "text": "Benvenuto/a a Bologna."
   }
 }

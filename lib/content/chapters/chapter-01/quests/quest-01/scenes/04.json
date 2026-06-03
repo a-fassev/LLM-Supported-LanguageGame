@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-01-scene-04",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/01/bg-room",
+  "content": {
+    "text": "Questa è la tua camera. Adesso è ancora vuota, ma con il tempo si riempirà di ricordi, oggetti e souvenir delle tue avventure."
+  }
+}

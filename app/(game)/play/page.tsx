@@ -12,7 +12,6 @@ import {
   startRun,
   type ApiErrorResult,
   type AttemptRunDto,
-  type QuestAutoStartDto,
   type RunDto,
   type RunSceneDto,
   type RunSnapshotDto,
@@ -94,29 +93,14 @@ function mergeRunState(_current: RunState, data: RunSnapshotDto): RunState {
   };
 }
 
-const QUEST_COMPLETE_BONUS_OFFER: TaskOutcomeDto = {
-  kind: "success",
-  ratio: 1,
-  awardedSlices: 0,
-  awardedBackpackPieces: 0,
-  headline: "Missione completata!",
-  body: "Vuoi provare la sfida bonus per guadagnare pizza extra?",
-};
-
 const QUEST_COMPLETE_STANDARD: TaskOutcomeDto = {
   kind: "success",
   ratio: 1,
   awardedSlices: 0,
   awardedBackpackPieces: 0,
   headline: "Missione completata!",
-  body: "Ottimo lavoro. Continua dalla mappa del capitolo.",
+  body: "Ottimo lavoro. Scegli la prossima missione dalla lista.",
 };
-
-function questCompleteOutcome(run: RunDto | null, taskOutcome?: TaskOutcomeDto | null): TaskOutcomeDto {
-  if (taskOutcome) return taskOutcome;
-  if (run?.autoStartQuest) return QUEST_COMPLETE_BONUS_OFFER;
-  return QUEST_COMPLETE_STANDARD;
-}
 
 function mergeAttemptState(_current: RunState, data: AttemptRunDto): RunState {
   return {
@@ -462,37 +446,39 @@ export default function PlayPage() {
     [],
   );
 
-  const startAutoQuest = useCallback(
-    async (target: QuestAutoStartDto) => {
-      if (!token) return;
-      setLoading(true);
-      const result = await startRun(token, {
-        chapterId: target.chapterId,
-        questId: target.questId,
-      });
-      if (!mountedRef.current) return;
-      if (!result.ok) {
-        if (result.status === 401) {
-          clearSession();
-          router.replace("/login");
-          return;
-        }
-        toastBlockingApiError(result);
-        setError(result.error);
-        setLoading(false);
-        return;
-      }
+  const finishQuestToChapterHub = useCallback(
+    (run: RunDto) => {
       dismissSuccessOverlay();
-      setLoading(false);
-      router.replace(
-        `/play?chapterId=${encodeURIComponent(target.chapterId)}&questId=${encodeURIComponent(target.questId)}`,
-      );
+      router.push(chapterPathForRun(run));
     },
-    [clearSession, dismissSuccessOverlay, mountedRef, router, token],
+    [chapterPathForRun, dismissSuccessOverlay, router],
   );
 
-  const autoStartQuest =
-    state.run?.status === "completed" ? (state.run.autoStartQuest ?? null) : null;
+  const handleCompletedRun = useCallback(
+    (
+      run: RunDto,
+      ctx?: {
+        taskOutcome?: TaskOutcomeDto | null;
+        holdScene?: RunSceneDto | null;
+        backgroundKey?: string | null;
+      },
+    ) => {
+      if (ctx?.taskOutcome) {
+        setBackgroundHoldKey(ctx.backgroundKey ?? null);
+        setChromeHoldScene(ctx.holdScene ?? null);
+        setOutcome(ctx.taskOutcome);
+        setSuccessOpen(true);
+        return;
+      }
+      if (ctx?.holdScene) {
+        setBackgroundHoldKey(ctx.backgroundKey ?? null);
+        setChromeHoldScene(ctx.holdScene);
+      }
+      setOutcome(QUEST_COMPLETE_STANDARD);
+      setSuccessOpen(true);
+    },
+    [],
+  );
 
   const loadRun = useCallback(async () => {
     if (!token) {
@@ -508,6 +494,12 @@ export default function PlayPage() {
       if (result.status === 401) {
         clearSession();
         router.replace("/login");
+        setLoading(false);
+        return;
+      }
+      if (result.code === "quest_already_completed" && chapterId) {
+        toastBlockingApiError(result);
+        router.replace(`/chapters/${chapterId}`);
         setLoading(false);
         return;
       }
@@ -560,17 +552,13 @@ export default function PlayPage() {
       setClozeValidationError,
     });
     const run = result.data.run;
-    if (run?.status === "completed" && run.autoStartQuest) {
-      const holdScene = run.currentScene ?? null;
-      if (holdScene) {
-        setBackgroundHoldKey(holdScene.background ?? null);
-        setChromeHoldScene(holdScene);
-      }
-      setOutcome(questCompleteOutcome(run));
-      setSuccessOpen(true);
+    if (run?.status === "completed") {
+      handleCompletedRun(run);
+      setLoading(false);
+      return;
     }
     setLoading(false);
-  }, [chapterId, clearSession, mountedRef, questId, router, token]);
+  }, [chapterId, clearSession, handleCompletedRun, mountedRef, questId, router, token]);
 
   useEffect(() => {
     void (async () => {
@@ -622,10 +610,10 @@ export default function PlayPage() {
     setMatchingValidationError(null);
     setDragDropValidationError(null);
     if (result.data.run?.status === "completed") {
-      setBackgroundHoldKey(backgroundBeforeAdvance);
-      setChromeHoldScene(sceneBeforeAdvance);
-      setOutcome(questCompleteOutcome(result.data.run, result.data.taskOutcome));
-      setSuccessOpen(true);
+      handleCompletedRun(result.data.run, {
+        holdScene: sceneBeforeAdvance,
+        backgroundKey: backgroundBeforeAdvance,
+      });
     }
     setSceneNavPending(false);
   }
@@ -960,32 +948,22 @@ export default function PlayPage() {
       <SuccessOverlay
         open={successOpen}
         outcome={outcome}
+        primaryLabel={state.run?.status === "completed" ? "Alla lista missioni" : undefined}
         onOpenChange={(open) => {
-          if (!open) dismissSuccessOverlay();
+          if (!open) {
+            if (state.run?.status === "completed") {
+              finishQuestToChapterHub(state.run);
+              return;
+            }
+            dismissSuccessOverlay();
+          }
         }}
-        primaryLabel={autoStartQuest ? "Vai alla sfida bonus" : undefined}
-        secondaryAction={
-          autoStartQuest
-            ? {
-                label: "Più tardi",
-                onClick: () => {
-                  dismissSuccessOverlay();
-                  router.push(chapterPathForRun(state.run));
-                },
-              }
-            : undefined
-        }
         showRewardSummary={
           outcome !== null && (outcome.awardedSlices > 0 || outcome.awardedBackpackPieces > 0)
         }
         onContinue={() => {
-          if (state.run?.status === "completed") {
-            if (autoStartQuest) {
-              void startAutoQuest(autoStartQuest);
-              return;
-            }
-            dismissSuccessOverlay();
-            router.push(chapterPathForRun(state.run));
+          if (state.run?.status === "completed" && state.run) {
+            finishQuestToChapterHub(state.run);
             return;
           }
           dismissSuccessOverlay();

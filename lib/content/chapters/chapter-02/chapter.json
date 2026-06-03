@@ -2,5 +2,9 @@
   "id": "chapter-02",
   "title": "Firenze",
   "order": 2,
-  "quests": ["quest-01", "quest-02"]
+  "quests": [
+    "quest-01",
+    "quest-02"
+  ],
+  "background": "chapters/02/chapter/bg-missions"
 }

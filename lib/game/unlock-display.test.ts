@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { isChapterLocked, isQuestCompleted, isQuestLocked } from "@/lib/game/unlock-display";
+import {
+  isChapterFullyComplete,
+  isChapterLocked,
+  isChapterMainProgressComplete,
+  isQuestCompleted,
+  isQuestLocked,
+} from "@/lib/game/unlock-display";
 
 const chapter00 = {
   id: "chapter-00",
@@ -8,8 +14,8 @@ const chapter00 = {
   locked: false,
   reference: true,
   quests: [
-    { id: "quest-01", title: "Q1", order: 1, kind: "main" as const, requiresQuestId: null, autoStartQuestId: null },
-    { id: "quest-02", title: "Q2", order: 2, kind: "main" as const, requiresQuestId: "quest-01", autoStartQuestId: null },
+    { id: "quest-01", title: "Q1", order: 1, kind: "main" as const, requiresQuestId: null },
+    { id: "quest-02", title: "Q2", order: 2, kind: "main" as const, requiresQuestId: "quest-01" },
   ],
 };
 
@@ -20,8 +26,8 @@ const chapter01 = {
   locked: false,
   reference: false,
   quests: [
-    { id: "quest-01", title: "Q1", order: 1, kind: "main" as const, requiresQuestId: null, autoStartQuestId: null },
-    { id: "quest-02", title: "Q2", order: 2, kind: "main" as const, requiresQuestId: "quest-01", autoStartQuestId: null },
+    { id: "quest-01", title: "Q1", order: 1, kind: "main" as const, requiresQuestId: null },
+    { id: "quest-02", title: "Q2", order: 2, kind: "main" as const, requiresQuestId: "quest-01" },
   ],
 };
 
@@ -32,7 +38,7 @@ const chapter02 = {
   locked: false,
   reference: false,
   quests: [
-    { id: "quest-01", title: "Q1", order: 1, kind: "main" as const, requiresQuestId: null, autoStartQuestId: null },
+    { id: "quest-01", title: "Q1", order: 1, kind: "main" as const, requiresQuestId: null },
   ],
 };
 
@@ -74,5 +80,26 @@ describe("unlock-display", () => {
     const completed = new Set<string>(["chapter-01:quest-01"]);
     expect(isQuestLocked("chapter-01", chapter01.quests[1], completed)).toBe(false);
     expect(isQuestCompleted("chapter-02", chapter02.quests[0], completed)).toBe(false);
+  });
+
+  it("detects chapter main vs full completion", () => {
+    const chapterWithBonus = {
+      ...chapter01,
+      quests: [
+        ...chapter01.quests,
+        {
+          id: "quest-bonus",
+          title: "Bonus",
+          order: 3,
+          kind: "bonus" as const,
+          requiresQuestId: "quest-02",
+        },
+      ],
+    };
+    const mainOnly = new Set<string>(["chapter-01:quest-01", "chapter-01:quest-02"]);
+    expect(isChapterMainProgressComplete(chapterWithBonus, mainOnly)).toBe(true);
+    expect(isChapterFullyComplete(chapterWithBonus, mainOnly)).toBe(false);
+    const allDone = new Set([...mainOnly, "chapter-01:quest-bonus"]);
+    expect(isChapterFullyComplete(chapterWithBonus, allDone)).toBe(true);
   });
 });

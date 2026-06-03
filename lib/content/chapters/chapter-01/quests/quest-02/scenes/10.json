@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-02-scene-10",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/02/bg-class",
+  "content": {
+    "text": "La campanella suona. Esci dalla classe con gli altri studenti e ti dirigi verso l'uscita della scuola."
+  }
+}

@@ -3,5 +3,10 @@
   "title": "Roma",
   "order": 3,
   "locked": true,
-  "quests": ["quest-01", "quest-02", "quest-01-bonus"]
+  "quests": [
+    "quest-01",
+    "quest-02",
+    "quest-01-bonus"
+  ],
+  "background": "chapters/03/chapter/bg-missions"
 }

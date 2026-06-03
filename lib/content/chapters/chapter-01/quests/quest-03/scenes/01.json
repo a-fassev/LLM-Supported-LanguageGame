@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-03-scene-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/03/bg-school",
+  "content": {
+    "text": "Davanti al Liceo Galvani. Il sole è alto, gli studenti escono in gruppi. Stai per andare via quando il telefono vibra in tasca."
+  }
+}

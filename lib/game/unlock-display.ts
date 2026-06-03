@@ -24,6 +24,25 @@ export function isChapterLocked(
   return !areAllRequiredDone(previousChapter, completedQuestIds);
 }
 
+/** All main quests in the chapter are completed (bonus may still be open). */
+export function isChapterMainProgressComplete(
+  chapter: BootstrapChapterDto,
+  completedQuestIds: Set<string>,
+): boolean {
+  return areAllRequiredDone(chapter, completedQuestIds);
+}
+
+/** Every quest in the chapter (main + bonus) is completed — nothing left to play. */
+export function isChapterFullyComplete(
+  chapter: BootstrapChapterDto,
+  completedQuestIds: Set<string>,
+): boolean {
+  if (chapter.quests.length === 0) return false;
+  return chapter.quests.every((quest) =>
+    completedQuestIds.has(toQuestProgressId(chapter.id, quest.id)),
+  );
+}
+
 export function isQuestLocked(
   chapterId: string,
   quest: BootstrapQuestDto,

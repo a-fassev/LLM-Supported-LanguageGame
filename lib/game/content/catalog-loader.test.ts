@@ -17,6 +17,7 @@ async function makeBaseCatalogRoot() {
     title: "Bologna",
     order: 0,
     quests: ["quest-01"],
+    background: "chapters/01/chapter/bg-missions",
   });
   await writeJson(path.join(chapterDir, "quests", "quest-01", "quest.json"), {
     id: "quest-01",
@@ -24,7 +25,7 @@ async function makeBaseCatalogRoot() {
     order: 1,
     kind: "main",
     requiresQuestId: null,
-    autoStartQuestId: null,
+    background: "chapters/01/quests/01/bg-overview",
   });
   return root;
 }
@@ -169,96 +170,6 @@ describe("catalog-loader", () => {
     expect((task?.content.task as { poolPairs?: unknown[] }).poolPairs).toHaveLength(1);
   });
 
-  it("rejects autoStartQuestId that targets a main quest", async () => {
-    const root = await makeBaseCatalogRoot();
-    tempRoots.push(root);
-
-    await writeJson(path.join(root, "chapters", "chapter-01", "chapter.json"), {
-      id: "chapter-01",
-      title: "Test",
-      order: 0,
-      quests: ["quest-01", "quest-02"],
-    });
-    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01", "quest.json"), {
-      id: "quest-01",
-      title: "Main 1",
-      order: 1,
-      kind: "main",
-      requiresQuestId: null,
-      autoStartQuestId: "quest-02",
-    });
-    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-02", "quest.json"), {
-      id: "quest-02",
-      title: "Main 2",
-      order: 2,
-      kind: "main",
-      requiresQuestId: "quest-01",
-      autoStartQuestId: null,
-    });
-    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01", "scenes", "01.json"), {
-      id: "chapter-01-quest-01-scene-01",
-      scene_type: "story",
-      screen_type: "info",
-      background: "chapters/01/quests/01/bg",
-      content: { text: "hello" },
-    });
-    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-02", "scenes", "01.json"), {
-      id: "chapter-01-quest-02-scene-01",
-      scene_type: "story",
-      screen_type: "info",
-      background: "chapters/01/quests/02/bg",
-      content: { text: "hello" },
-    });
-
-    await expect(loadContentCatalog({ rootDir: root, bypassCache: true })).rejects.toThrow(
-      /must reference a bonus quest/,
-    );
-  });
-
-  it("allows autoStartQuestId to target a bonus quest", async () => {
-    const root = await makeBaseCatalogRoot();
-    tempRoots.push(root);
-
-    await writeJson(path.join(root, "chapters", "chapter-01", "chapter.json"), {
-      id: "chapter-01",
-      title: "Test",
-      order: 0,
-      quests: ["quest-01", "quest-01-bonus"],
-    });
-    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01", "quest.json"), {
-      id: "quest-01",
-      title: "Main",
-      order: 1,
-      kind: "main",
-      requiresQuestId: null,
-      autoStartQuestId: "quest-01-bonus",
-    });
-    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01-bonus", "quest.json"), {
-      id: "quest-01-bonus",
-      title: "Bonus",
-      order: 2,
-      kind: "bonus",
-      requiresQuestId: "quest-01",
-      autoStartQuestId: null,
-    });
-    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01", "scenes", "01.json"), {
-      id: "chapter-01-quest-01-scene-01",
-      scene_type: "story",
-      screen_type: "info",
-      background: "chapters/01/quests/01/bg",
-      content: { text: "hello" },
-    });
-    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01-bonus", "scenes", "01.json"), {
-      id: "chapter-01-quest-01-bonus-scene-01",
-      scene_type: "story",
-      screen_type: "info",
-      background: "chapters/01/quests/bonus/bg",
-      content: { text: "bonus" },
-    });
-
-    await expect(loadContentCatalog({ rootDir: root, bypassCache: true })).resolves.toBeDefined();
-  });
-
   it("rejects more than one reference chapter", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "lg-content-ref-"));
     tempRoots.push(root);
@@ -274,6 +185,7 @@ describe("catalog-loader", () => {
         order,
         reference: true,
         quests: ["quest-01"],
+        background: "chapters/00/chapter/bg-missions",
       });
       await writeJson(path.join(chapterDir, "quests", "quest-01", "quest.json"), {
         id: "quest-01",
@@ -281,7 +193,7 @@ describe("catalog-loader", () => {
         order: 1,
         kind: "main",
         requiresQuestId: null,
-        autoStartQuestId: null,
+        background: "chapters/00/quests/01/bg-overview",
       });
       await writeJson(path.join(chapterDir, "quests", "quest-01", "scenes", "01.json"), {
         id: `${chapterId}-quest-01-scene-01`,

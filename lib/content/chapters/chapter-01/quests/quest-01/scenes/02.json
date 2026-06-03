@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-01-scene-02",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/01/bg-room",
+  "content": {
+    "text": "Ti chiami Toni. Vieni dalla Germania e sei in Italia per un anno di scambio. Da oggi vivi qui, nella casa della famiglia Ferrari, in una città che ancora non conosci."
+  }
+}

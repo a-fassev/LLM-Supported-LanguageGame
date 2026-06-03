@@ -1,0 +1,159 @@
+{
+  "id": "chapter-01-quest-03-scene-04",
+  "scene_type": "task",
+  "screen_type": "cloze",
+  "background": "chapters/01/quests/03/bg-task-cloze",
+  "content": {
+    "title": "Completa l'SMS",
+    "instruction": "Leggi il messaggio di Matteo e scegli il pronome personale giusto e metti i verbi al passato prossimo.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Leggi il messaggio di Matteo e scegli il pronome personale giusto e metti i verbi al passato prossimo.",
+      "caseSensitive": false,
+      "lines": [
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "Ciao cugino/a! "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "ti",
+                "Ti"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " scrivo solo poche frasi perché vado di fretta. Il nostro prof di matematica "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "ci ha dato",
+                "Ci ha dato"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " tantissimi compiti già il primo giorno … "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "gli abbiamo detto",
+                "Gli abbiamo detto"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " che non è giusto, ma lo conosci, non "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "gli",
+                "Gli"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " interessa. Ti salutano i miei genitori, a pranzo "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "mi hanno detto",
+                "Mi hanno detto"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " che "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "gli hai mandato",
+                "Gli hai mandato"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " un'e-mail. E poi Giulia …! "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "le ho promesso",
+                "Le ho promesso"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " di mandar"
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "le",
+                "Le"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " non solo i suoi saluti, ma anche un bacio da parte di Cinzia. Vogliamo dir"
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "ti",
+                "Ti"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " tutti che "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "ci",
+                "Ci"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " manchi! Appena ho un po' di tempo, mi faccio di nuovo vivo. A presto, M."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.85,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

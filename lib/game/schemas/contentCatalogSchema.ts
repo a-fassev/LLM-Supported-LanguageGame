@@ -13,6 +13,7 @@ export const chapterFileSchema = z
     locked: z.boolean().optional().default(false),
     reference: z.boolean().optional().default(false),
     quests: z.array(questIdSchema).min(1),
+    background: z.string().min(1),
   })
   .strict();
 
@@ -23,7 +24,7 @@ export const questFileSchema = z
     order: z.number().int().min(1),
     kind: z.enum(["main", "bonus"]),
     requiresQuestId: questIdSchema.nullable(),
-    autoStartQuestId: questIdSchema.nullable(),
+    background: z.string().min(1),
   })
   .strict();
 

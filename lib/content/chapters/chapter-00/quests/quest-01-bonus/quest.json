@@ -4,5 +4,5 @@
   "order": 3,
   "kind": "bonus",
   "requiresQuestId": "quest-02",
-  "autoStartQuestId": null
+  "background": "chapters/00/quests/bonus/bg-overview"
 }

@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-02-scene-04",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/02/bg-class",
+  "content": {
+    "text": "Tu\nTutti mi guardano. Devo raccontare qualcosa anch'io delle mie vacanze..."
+  }
+}

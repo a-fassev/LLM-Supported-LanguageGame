@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-01-scene-03",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/01/bg-room",
+  "content": {
+    "text": "È domenica sera. Domani sarà il tuo primo giorno al Liceo Galvani, la tua nuova scuola."
+  }
+}

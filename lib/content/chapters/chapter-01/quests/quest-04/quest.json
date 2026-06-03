@@ -1,0 +1,8 @@
+{
+  "id": "quest-04",
+  "title": "Il bar di Tonio",
+  "order": 4,
+  "kind": "main",
+  "requiresQuestId": "quest-03",
+  "background": "chapters/01/quests/04/bg-overview"
+}

@@ -6,5 +6,6 @@
   "quests": [
     "quest-01",
     "quest-02"
-  ]
+  ],
+  "background": "chapters/06/chapter/bg-missions"
 }

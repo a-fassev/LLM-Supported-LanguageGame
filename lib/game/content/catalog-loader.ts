@@ -197,21 +197,6 @@ function validateQuestFlow(chapter: ChapterFileParsed, quests: CatalogQuest[]) {
         `chapter '${chapter.id}' quest '${q.id}' requiresQuestId '${q.requiresQuestId}' must match previous main quest '${expectedRequires}'`,
       );
     }
-    if (q.autoStartQuestId !== null) {
-      const target = byId.get(q.autoStartQuestId);
-      if (!target) {
-        err(
-          `chapter '${chapter.id}' quest '${q.id}' autoStartQuestId '${q.autoStartQuestId}' must reference a quest in the same chapter`,
-        );
-      } else if (target.kind !== "bonus") {
-        err(
-          `chapter '${chapter.id}' quest '${q.id}' autoStartQuestId '${q.autoStartQuestId}' must reference a bonus quest`,
-        );
-      }
-      if (q.autoStartQuestId === q.id) {
-        err(`chapter '${chapter.id}' quest '${q.id}' autoStartQuestId cannot self-reference`);
-      }
-    }
   }
 }
 

@@ -4,12 +4,6 @@ import {
 } from "@/lib/game/content/catalog-loader";
 import { getPreviousProgressionChapter } from "@/lib/game/chapter-progression";
 import { toQuestProgressId } from "@/lib/game/quest-progress-id";
-import type { QuestRunRow } from "@/lib/game/repositories/game-progress-repository";
-
-export type QuestAutoStartDto = {
-  chapterId: string;
-  questId: string;
-};
 
 export function isChapterManuallyLocked(catalog: ContentCatalog, chapterId: string): boolean {
   const chapter = catalog.chapters?.find((item) => item.id === chapterId);
@@ -55,19 +49,4 @@ export function isQuestLockedForAccount(
 ): boolean {
   if (isChapterManuallyLocked(catalog, chapterId)) return true;
   return isQuestProgressionLockedForAccount(catalog, chapterId, questId, completedQuestIds);
-}
-
-export function resolveAutoStartQuest(
-  catalog: ContentCatalog,
-  run: QuestRunRow,
-  completedQuestIds: string[],
-): QuestAutoStartDto | null {
-  if (run.status !== "completed") return null;
-  const quest = findCatalogQuest(catalog, run.chapterId, run.questId);
-  if (!quest?.autoStartQuestId) return null;
-  const targetId = quest.autoStartQuestId;
-  const completedSet = new Set(completedQuestIds);
-  if (completedSet.has(toQuestProgressId(run.chapterId, targetId))) return null;
-  if (isQuestLockedForAccount(catalog, run.chapterId, targetId, completedSet)) return null;
-  return { chapterId: run.chapterId, questId: targetId };
 }

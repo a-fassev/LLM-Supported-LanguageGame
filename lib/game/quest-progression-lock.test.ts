@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { isQuestLockedForAccount, resolveAutoStartQuest } from "@/lib/game/resolve-auto-start-quest";
+import { isQuestLockedForAccount } from "@/lib/game/quest-progression-lock";
 import type { ContentCatalog } from "@/lib/game/content/catalog-loader";
-import type { QuestRunRow } from "@/lib/game/repositories/game-progress-repository";
 
 function catalogFixture(): ContentCatalog {
   return {
@@ -20,7 +19,6 @@ function catalogFixture(): ContentCatalog {
             order: 1,
             kind: "main",
             requiresQuestId: null,
-            autoStartQuestId: null,
             scenes: [],
           },
           {
@@ -29,7 +27,6 @@ function catalogFixture(): ContentCatalog {
             order: 2,
             kind: "main",
             requiresQuestId: "quest-01",
-            autoStartQuestId: "quest-01-bonus",
             scenes: [],
           },
           {
@@ -38,23 +35,11 @@ function catalogFixture(): ContentCatalog {
             order: 3,
             kind: "bonus",
             requiresQuestId: "quest-02",
-            autoStartQuestId: null,
             scenes: [],
           },
         ],
       },
     ],
-  };
-}
-
-function completedRun(): QuestRunRow {
-  return {
-    runId: "run-1",
-    accountId: "acc-1",
-    chapterId: "chapter-01",
-    questId: "quest-02",
-    currentSceneId: "chapter-01-quest-02-scene-02",
-    status: "completed",
   };
 }
 
@@ -76,7 +61,6 @@ describe("isQuestLockedForAccount", () => {
               order: 1,
               kind: "main",
               requiresQuestId: null,
-              autoStartQuestId: null,
               scenes: [],
             },
           ],
@@ -97,26 +81,5 @@ describe("isQuestLockedForAccount", () => {
       ],
     };
     expect(isQuestLockedForAccount(catalog, "chapter-01", "quest-01", new Set())).toBe(true);
-  });
-});
-
-describe("resolveAutoStartQuest", () => {
-  it("offers bonus when main quest completed and bonus not done", () => {
-    const result = resolveAutoStartQuest(catalogFixture(), completedRun(), ["chapter-01:quest-01", "chapter-01:quest-02"]);
-    expect(result).toEqual({ chapterId: "chapter-01", questId: "quest-01-bonus" });
-  });
-
-  it("returns null when bonus already completed", () => {
-    const result = resolveAutoStartQuest(catalogFixture(), completedRun(), [
-      "chapter-01:quest-01",
-      "chapter-01:quest-02",
-      "chapter-01:quest-01-bonus",
-    ]);
-    expect(result).toBeNull();
-  });
-
-  it("returns null when run is still in progress", () => {
-    const result = resolveAutoStartQuest(catalogFixture(), { ...completedRun(), status: "in_progress" }, []);
-    expect(result).toBeNull();
   });
 });

@@ -435,7 +435,7 @@ Extend existing shadcn tokens with **game layer** (names illustrative):
 | Chrome | `chromeHoldScene` → `displayScene` | Header title, `TaskPanel`, documento, MC question index match the **submitted** scene — not the next task behind the dialog. |
 | Drafts | `pendingDraftSyncSceneRef` | Defer `syncTaskDraftsForScene` until overlay closes so the player does not see empty inputs for the next scene. |
 
-Apply the same chrome + background hold when **quest complete** opens the overlay (`onAdvanceStory`, or completed run with `autoStartQuest` on load). **Retry (409):** no draft sync — answers stay on screen.
+Apply the same chrome + background hold when **quest complete** opens the overlay (`onAdvanceStory`). **Retry (409):** no draft sync — answers stay on screen.
 
 Implementation: `app/(game)/play/page.tsx` (`dismissSuccessOverlay` flushes pending draft sync). Reuse this pattern for any overlay shown while the server has already advanced the run.
 

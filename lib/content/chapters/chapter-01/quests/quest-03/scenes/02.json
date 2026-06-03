@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-03-scene-02",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/03/bg-school",
+  "content": {
+    "text": "Matteo\nCiao cugino/a! Allora, com'è andato il primo giorno a Bologna? Io oggi sono tornato a scuola anch'io e... che disastro! Ti racconto tutto, ma scrivo di fretta perché ho i compiti."
+  }
+}

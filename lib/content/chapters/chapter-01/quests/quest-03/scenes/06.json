@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-03-scene-06",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/03/bg-school",
+  "content": {
+    "text": "Riponi il telefono in tasca. È ora di andare in un bar nel centro di Bologna."
+  }
+}

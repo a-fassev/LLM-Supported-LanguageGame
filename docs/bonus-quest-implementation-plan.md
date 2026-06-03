@@ -1,7 +1,9 @@
 # Bonus quests — product shape & web implementation plan
 
+> **Historical (2026-06-03):** Auto-start of the bonus after the last main quest was **removed**. Bonus unlocks on the chapter mission list via `requiresQuestId`; learners return to `/chapters/[chapterId]` after each quest. Sections below that mention `autoStartQuestId` or auto-start are **not** current behavior—see `AGENTS.md` and `docs/quest-scene-content-format.md`.
+
 **Status:** Draft (2026-06-03) — direction for web `web-based-implementation`.  
-**Scope:** Optional end-of-chapter **bonus quests** with **scored** pizza rewards, **auto-start after the last main quest** (with **skip**), implemented as **matching + vocabulary pool** on the web stack (git JSON catalog, scene runs, existing matching UI).  
+**Scope:** Optional end-of-chapter **bonus quests** with **scored** pizza rewards, implemented as **matching + vocabulary pool** on the web stack (git JSON catalog, scene runs, existing matching UI).  
 **Pilot:** **Chapter 01 only** (`quest-01-bonus`) until the flow is validated.  
 **Out of scope:** A new `screen_type` / task evaluator named `bonus`; game catalog in Postgres; replay of completed quests; chapter-03 bonus migration in the first PR.
 

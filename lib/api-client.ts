@@ -38,7 +38,7 @@ export type BootstrapQuestDto = {
   order: number;
   kind: "main" | "bonus";
   requiresQuestId: string | null;
-  autoStartQuestId: string | null;
+  background: string;
 };
 
 export type BootstrapChapterDto = {
@@ -47,6 +47,7 @@ export type BootstrapChapterDto = {
   order: number;
   locked: boolean;
   reference: boolean;
+  background: string;
   quests: BootstrapQuestDto[];
 };
 
@@ -104,11 +105,6 @@ export type RunSceneDto = {
   scoring?: Record<string, unknown>;
 };
 
-export type QuestAutoStartDto = {
-  chapterId: string;
-  questId: string;
-};
-
 export type RunDto = {
   runId: string;
   chapterId: string;
@@ -120,8 +116,6 @@ export type RunDto = {
   currentScene: RunSceneDto;
   /** Next scene background key from catalog, when present (client preload). */
   nextSceneBackground: string | null;
-  /** Offered when this completed run chains into another quest (e.g. bonus). */
-  autoStartQuest: QuestAutoStartDto | null;
 };
 
 export type TaskOutcomeDto = {

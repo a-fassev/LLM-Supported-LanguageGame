@@ -7,7 +7,6 @@ import {
   getCompletedQuestIds,
   getCompletedSceneIds,
   getQuestRunById,
-  getRecentCompletedQuestRuns,
   getWalletTotals,
   incrementWalletTotals,
   updateQuestRunPosition,
@@ -16,9 +15,8 @@ import {
 import {
   isChapterManuallyLocked,
   isQuestProgressionLockedForAccount,
-  resolveAutoStartQuest,
-  type QuestAutoStartDto,
-} from "@/lib/game/resolve-auto-start-quest";
+} from "@/lib/game/quest-progression-lock";
+import { isQuestCompleted } from "@/lib/game/unlock-display";
 import { resolveCatalogSceneForRun } from "@/lib/game/tasks/matching/resolve-matching-scene-task";
 import { gameClientMessages as msg } from "@/lib/game/clientMessages";
 import {
@@ -57,13 +55,14 @@ function toBootstrapChapters(): Promise<BootstrapChapterDto[]> {
       order: chapter.order,
       locked: chapter.locked,
       reference: chapter.reference,
+      background: chapter.background,
       quests: chapter.questsExpanded.map((quest) => ({
         id: quest.id,
         title: quest.title,
         order: quest.order,
         kind: quest.kind,
         requiresQuestId: quest.requiresQuestId,
-        autoStartQuestId: quest.autoStartQuestId,
+        background: quest.background,
       })),
     })),
   );
@@ -113,8 +112,6 @@ export type RunSceneDto = {
   scoring?: Record<string, unknown>;
 };
 
-export type { QuestAutoStartDto };
-
 export type RunSnapshotDto = {
   runId: string;
   chapterId: string;
@@ -126,8 +123,6 @@ export type RunSnapshotDto = {
   currentScene: RunSceneDto;
   /** Background key of the next catalog scene, when one exists (for client preload). */
   nextSceneBackground: string | null;
-  /** Set when this run just completed and a follow-up quest should be offered (e.g. chapter bonus). */
-  autoStartQuest: QuestAutoStartDto | null;
 };
 
 export type RunSnapshotResult =
@@ -252,43 +247,15 @@ async function buildSnapshotFromRun(
       canRetreat,
       currentScene: sceneToDto(scene),
       nextSceneBackground: quest ? nextSceneBackgroundInQuest(scene, quest.scenes) : null,
-      autoStartQuest: resolveAutoStartQuest(catalog, run, completedQuestIds),
     },
   };
-}
-
-async function findCompletedRunWithPendingAutoStart(
-  accountId: string,
-  catalog: ContentCatalog,
-  completedQuestIds: string[],
-): Promise<QuestRunRow | null> {
-  const recent = await getRecentCompletedQuestRuns(accountId);
-  if (recent === null) return null;
-  for (const candidate of recent) {
-    if (resolveAutoStartQuest(catalog, candidate, completedQuestIds)) {
-      return candidate;
-    }
-  }
-  return null;
 }
 
 export async function getRunSnapshot(accountId: string): Promise<RunSnapshotResult> {
   const ensured = await ensureWalletRow(accountId);
   if (!ensured) return { ok: false, status: 500, error: msg.couldNotLoadWallet };
 
-  let run = await getActiveQuestRun(accountId);
-  if (!run) {
-    const catalog = await loadContentCatalog().catch((error) => {
-      console.error("[game-service] run snapshot catalog", error);
-      return null;
-    });
-    if (!catalog) {
-      return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
-    }
-    const completedQuestIds = (await getCompletedQuestIds(accountId)) ?? [];
-    run = await findCompletedRunWithPendingAutoStart(accountId, catalog, completedQuestIds);
-  }
-
+  const run = await getActiveQuestRun(accountId);
   return buildSnapshotFromRun(accountId, run);
 }
 
@@ -321,6 +288,27 @@ export async function startOrResumeRun(
     }
     if (isChapterManuallyLocked(resumeCatalog, existingRun.chapterId)) {
       return runBlockedByChapterLock(resumeCatalog, existingRun.chapterId, existingRun.questId);
+    }
+    const resumeCompletedQuestIds = await getCompletedQuestIds(accountId);
+    if (resumeCompletedQuestIds === null) {
+      return { ok: false, status: 500, error: msg.couldNotLoadRun };
+    }
+    const resumeQuest = findCatalogQuest(
+      resumeCatalog,
+      existingRun.chapterId,
+      existingRun.questId,
+    );
+    if (
+      resumeQuest &&
+      isQuestCompleted(existingRun.chapterId, resumeQuest, new Set(resumeCompletedQuestIds))
+    ) {
+      return {
+        ok: false,
+        status: 409,
+        error: msg.questAlreadyCompleted,
+        code: "quest_already_completed",
+        details: { chapterId: existingRun.chapterId, questId: existingRun.questId },
+      };
     }
     return buildSnapshotFromRun(accountId, existingRun, { catalog: resumeCatalog });
   }
@@ -356,6 +344,15 @@ export async function startOrResumeRun(
         questId,
         requiresQuestId: quest.requiresQuestId,
       },
+    };
+  }
+  if (isQuestCompleted(chapterId, quest, new Set(completedQuestIds))) {
+    return {
+      ok: false,
+      status: 409,
+      error: msg.questAlreadyCompleted,
+      code: "quest_already_completed",
+      details: { chapterId, questId },
     };
   }
   const firstScene = quest.scenes[0];
@@ -658,11 +655,13 @@ export async function completeTaskScene(
   const snapshot = await buildSnapshotFromRun(accountId, updatedRun);
   if (!snapshot.ok) return snapshot;
 
+  const walletAwarded = completion.inserted;
   const taskOutcome = buildTaskOutcome({
     passed: true,
     ratio,
-    awardedSlices,
-    awardedBackpackPieces: awardedBackpack,
+    awardedSlices: walletAwarded ? awardedSlices : 0,
+    awardedBackpackPieces: walletAwarded ? awardedBackpack : 0,
+    rewardsAlreadyClaimed: !walletAwarded,
   });
   return { ...snapshot, taskOutcome };
 }

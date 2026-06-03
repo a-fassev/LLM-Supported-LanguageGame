@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-04-scene-09",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/04/bg-bar",
+  "content": {
+    "text": "Tonio\n\"Bravissimo/a! Sai, mia nipote studia l'inglese a scuola e mi ha detto che molte parole italiane assomigliano a parole inglesi. Lei ha fatto una lista, ma ha mescolato tutto! Mi aiuti a rimettere le coppie in ordine?\""
+  }
+}

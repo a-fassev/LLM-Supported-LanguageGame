@@ -1,0 +1,229 @@
+{
+  "id": "chapter-01-quest-02-scene-05",
+  "scene_type": "task",
+  "screen_type": "cloze",
+  "background": "chapters/01/quests/02/bg-task-cloze",
+  "content": {
+    "title": "Completa il testo",
+    "instruction": "Completa con le forme giuste dei verbi all'imperfetto o al passato prossimo.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Racconta delle tue vacanze. Completa con le forme giuste dei verbi all'imperfetto o al passato prossimo.",
+      "caseSensitive": false,
+      "lines": [
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "Quest'estate "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "sono andato",
+                "sono andata",
+                "Sono andato",
+                "Sono andata"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " in campeggio con la mia famiglia al Lago di Garda. "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "Era",
+                "era"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " la prima volta che "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "vedevamo",
+                "abbiamo visto",
+                "Vedevamo",
+                "Abbiamo visto"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " quel lago e ci "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "è piaciuto",
+                "È piaciuto"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " moltissimo. Ogni mattina "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "facevo",
+                "Facevo"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " colazione con vista sull'acqua, poi "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "andavamo",
+                "Andavamo"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " in spiaggia. Il tempo "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "era",
+                "Era"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " quasi sempre bello, solo un giorno "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "è piovuto",
+                "È piovuto"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " così tanto che "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "abbiamo dovuto",
+                "Abbiamo dovuto"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " rimanere in tenda. Una sera "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "ho conosciuto",
+                "Ho conosciuto"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " un ragazzo italiano di Verona: "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "abbiamo parlato",
+                "Abbiamo parlato"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " per ore, anche se il mio italiano non "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "era",
+                "Era"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " ancora perfetto. Quando "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "sono tornato",
+                "sono tornata",
+                "Sono tornato",
+                "Sono tornata"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " a casa, "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "mi sentivo",
+                "Mi sentivo"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " un po' triste, ma anche contento/a perché presto "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "partivo",
+                "Partivo",
+                "sarei partito",
+                "sarei partita",
+                "Sarei partito",
+                "Sarei partita"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " per Bologna."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.85,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

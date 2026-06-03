@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-01-scene-07",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/01/bg-room",
+  "content": {
+    "text": "Dalla mappa dei capitoli puoi scegliere la prossima missione. Alcuni capitoli si aprono solo quando hai completato quelli precedenti."
+  }
+}

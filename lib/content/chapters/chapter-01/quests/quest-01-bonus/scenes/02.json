@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-01-bonus-scene-02",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/bonus/bg-bonus",
+  "content": {
+    "text": "Prima di chiudere il capitolo, mettiti alla prova: quante parole di questa lezione ricordi davvero?"
+  }
+}

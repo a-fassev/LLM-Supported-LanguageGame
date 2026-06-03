@@ -8,6 +8,7 @@ describe("contentCatalogSchema", () => {
       title: "Bologna",
       order: 1,
       quests: ["quest-01", "quest-01-bonus"],
+      background: "chapters/01/chapter/bg-missions",
     });
     const quest = parseQuestFile({
       id: "quest-01",
@@ -15,7 +16,7 @@ describe("contentCatalogSchema", () => {
       order: 1,
       kind: "main",
       requiresQuestId: null,
-      autoStartQuestId: null,
+      background: "chapters/01/quests/01/bg-overview",
     });
 
     expect(chapter.ok).toBe(true);
@@ -29,6 +30,7 @@ describe("contentCatalogSchema", () => {
       order: 0,
       reference: true,
       quests: ["quest-01"],
+      background: "chapters/00/chapter/bg-missions",
     });
     expect(reference.ok).toBe(true);
     if (reference.ok) {
@@ -44,12 +46,14 @@ describe("contentCatalogSchema", () => {
       order: 3,
       locked: true,
       quests: ["quest-01"],
+      background: "chapters/03/chapter/bg-missions",
     });
     const unlocked = parseChapterFile({
       id: "chapter-01",
       title: "Bologna",
       order: 1,
       quests: ["quest-01"],
+      background: "chapters/01/chapter/bg-missions",
     });
 
     expect(locked.ok).toBe(true);
