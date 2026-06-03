@@ -6,11 +6,17 @@ describe("chapter-01 smoke content", () => {
     resetContentCatalogCacheForTests();
   });
 
+  it("keeps quest-01 story preview scenes before the task", async () => {
+    const catalog = await loadContentCatalog({ bypassCache: true });
+    const quest = findCatalogQuest(catalog, "chapter-01", "quest-01");
+    expect(quest?.scenes.map((scene) => scene.screen_type)).toEqual(["info", "dialogue", "info", "multiple_choice"]);
+  });
+
   it("keeps quest-01 task scene compatible with placeholder multiple-choice attempts", async () => {
     const catalog = await loadContentCatalog({ bypassCache: true });
     const quest = findCatalogQuest(catalog, "chapter-01", "quest-01");
     expect(quest).toBeTruthy();
-    const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-01-quest-01-scene-02");
+    const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-01-quest-01-scene-04");
     expect(taskScene?.scene_type).toBe("task");
     expect(taskScene?.screen_type).toBe("multiple_choice");
 

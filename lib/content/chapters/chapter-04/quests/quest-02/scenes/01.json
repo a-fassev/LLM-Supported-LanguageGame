@@ -1,0 +1,9 @@
+{
+  "id": "chapter-04-quest-02-scene-01",
+  "scene_type": "story",
+  "screen_type": "dialogue",
+  "background": "chapters/04/quests/02/bg-dialogue-01",
+  "content": {
+    "text": "Al pontile si parla velocemente. Prova a ricostruire la frase."
+  }
+}

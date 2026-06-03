@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { toQuestProgressId } from "@/lib/game/quest-progress-id";
 
 export type WalletTotals = {
   totalSlices: number;
@@ -142,6 +143,9 @@ export async function createQuestRun(
     .single();
 
   if (error) {
+    if (error.code === "23505") {
+      return getActiveQuestRun(accountId);
+    }
     console.error("[game-repo] createQuestRun", error);
     return null;
   }
@@ -191,7 +195,7 @@ export async function completeQuestRun(runId: string): Promise<boolean> {
 export async function getCompletedQuestIds(accountId: string): Promise<string[] | null> {
   const { data, error } = await admin()
     .from("player_quest_runs")
-    .select("quest_id")
+    .select("chapter_id, quest_id")
     .eq("account_id", accountId)
     .eq("status", "completed");
 
@@ -202,8 +206,11 @@ export async function getCompletedQuestIds(accountId: string): Promise<string[] 
 
   const ids = new Set<string>();
   for (const row of data ?? []) {
+    const chapterId = (row as { chapter_id?: unknown }).chapter_id;
     const questId = (row as { quest_id?: unknown }).quest_id;
-    if (typeof questId === "string" && questId.length > 0) ids.add(questId);
+    if (typeof chapterId !== "string" || chapterId.length === 0) continue;
+    if (typeof questId !== "string" || questId.length === 0) continue;
+    ids.add(toQuestProgressId(chapterId, questId));
   }
   return [...ids];
 }

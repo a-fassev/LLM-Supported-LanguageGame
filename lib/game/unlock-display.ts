@@ -1,4 +1,5 @@
 import type { BootstrapChapterDto, BootstrapQuestDto } from "@/lib/api-client";
+import { toQuestProgressId } from "@/lib/game/quest-progress-id";
 
 function requiredQuestIds(chapter: BootstrapChapterDto): string[] {
   return chapter.quests.filter((quest) => quest.kind !== "bonus").map((quest) => quest.id);
@@ -7,7 +8,7 @@ function requiredQuestIds(chapter: BootstrapChapterDto): string[] {
 function areAllRequiredDone(chapter: BootstrapChapterDto, completedQuestIds: Set<string>): boolean {
   const required = requiredQuestIds(chapter);
   if (required.length === 0) return true;
-  return required.every((questId) => completedQuestIds.has(questId));
+  return required.every((questId) => completedQuestIds.has(toQuestProgressId(chapter.id, questId)));
 }
 
 export function isChapterLocked(
@@ -21,11 +22,19 @@ export function isChapterLocked(
   return !areAllRequiredDone(previousChapter, completedQuestIds);
 }
 
-export function isQuestLocked(quest: BootstrapQuestDto, completedQuestIds: Set<string>): boolean {
+export function isQuestLocked(
+  chapterId: string,
+  quest: BootstrapQuestDto,
+  completedQuestIds: Set<string>,
+): boolean {
   if (!quest.requiresQuestId) return false;
-  return !completedQuestIds.has(quest.requiresQuestId);
+  return !completedQuestIds.has(toQuestProgressId(chapterId, quest.requiresQuestId));
 }
 
-export function isQuestCompleted(quest: BootstrapQuestDto, completedQuestIds: Set<string>): boolean {
-  return completedQuestIds.has(quest.id);
+export function isQuestCompleted(
+  chapterId: string,
+  quest: BootstrapQuestDto,
+  completedQuestIds: Set<string>,
+): boolean {
+  return completedQuestIds.has(toQuestProgressId(chapterId, quest.id));
 }

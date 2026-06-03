@@ -184,7 +184,10 @@ export async function loadContentCatalog(options?: {
   bypassCache?: boolean;
 }): Promise<ContentCatalog> {
   const rootDir = options?.rootDir ?? path.join(process.cwd(), "lib", "content");
-  const bypassCache = options?.bypassCache === true;
+  const bypassCache =
+    options?.bypassCache !== undefined
+      ? options.bypassCache
+      : process.env.NODE_ENV === "development";
 
   if (!bypassCache && cachedCatalog && cachedRoot === rootDir) return cachedCatalog;
   const catalog = await loadCatalogInternal(rootDir);

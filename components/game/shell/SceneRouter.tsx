@@ -3,14 +3,15 @@ import { StoryPanel } from "@/components/game/shell/StoryPanel";
 import { TaskChrome } from "@/components/game/shell/TaskChrome";
 import { TaskPanel } from "@/components/game/tasks/TaskPanel";
 import { Button } from "@/components/ui/button";
-
 type SceneRouterProps = {
   scene: RunSceneDto;
   attemptText: string;
-  storySubmitting: boolean;
+  canRetreat: boolean;
+  sceneNavPending: boolean;
   taskSubmitting: boolean;
   onAttemptTextChange: (value: string) => void;
   onAdvanceStory: () => void;
+  onRetreatScene: () => void;
   onSubmitTask: () => void;
 };
 
@@ -41,21 +42,33 @@ function taskInstructions(scene: RunSceneDto): string | undefined {
 export function SceneRouter({
   scene,
   attemptText,
-  storySubmitting,
+  canRetreat,
+  sceneNavPending,
   taskSubmitting,
   onAttemptTextChange,
   onAdvanceStory,
+  onRetreatScene,
   onSubmitTask,
 }: SceneRouterProps) {
   if (scene.scene_type === "story") {
-    const variant = scene.screen_type === "dialogue" ? "dialog" : "interaction";
+    const isDialogue = scene.screen_type === "dialogue";
+    const variant = isDialogue ? "dialog" : "interaction";
     return (
-      <div className="mx-auto flex min-h-dvh w-full max-w-6xl flex-col px-4">
-        <StoryPanel variant={variant} text={storyText(scene)} />
-        <div className="game-shell-bottom-nav">
-          <span />
-          <Button onClick={onAdvanceStory} disabled={storySubmitting}>
-            {storySubmitting ? "Avanzamento..." : "Avanti"}
+      <div className="flex h-full min-h-0 w-full flex-col">
+        <div className="flex min-h-0 flex-1 flex-col">
+          <StoryPanel variant={variant} text={storyText(scene)} />
+        </div>
+        <div className="flex shrink-0 items-center justify-between gap-3 pt-3">
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={onRetreatScene}
+            disabled={!canRetreat || sceneNavPending}
+          >
+            {sceneNavPending ? "..." : "Indietro"}
+          </Button>
+          <Button size="lg" onClick={onAdvanceStory} disabled={sceneNavPending}>
+            {sceneNavPending ? "Avanzamento..." : "Avanti"}
           </Button>
         </div>
       </div>
@@ -67,9 +80,13 @@ export function SceneRouter({
       instructions={taskInstructions(scene)}
       primaryLabel={taskSubmitting ? "Controllo..." : "Controlla"}
       primaryDisabled={taskSubmitting}
+      canRetreat={canRetreat}
+      retreatDisabled={!canRetreat || sceneNavPending || taskSubmitting}
+      retreatLabel={sceneNavPending ? "..." : "Indietro"}
+      onRetreat={onRetreatScene}
       onPrimary={onSubmitTask}
     >
-      <TaskPanel scene={scene} attemptText={attemptText} onAttemptTextChange={onAttemptTextChange} />
+      <TaskPanel attemptText={attemptText} onAttemptTextChange={onAttemptTextChange} />
     </TaskChrome>
   );
 }

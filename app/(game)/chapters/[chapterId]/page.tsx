@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { HubPage } from "@/components/game/layout/HubPage";
+import { QuestHud } from "@/components/game/shell/QuestHud";
 import { QuestList } from "@/components/game/screens/QuestList";
 import type { BootstrapChapterDto } from "@/lib/api-client";
 import { useBootstrap } from "@/lib/game/use-bootstrap";
@@ -27,13 +28,21 @@ export default function ChapterDetailPage() {
       .sort((a, b) => a.order - b.order)
       .map((quest) => ({
         quest,
-        locked: isQuestLocked(quest, completedSet),
-        completed: isQuestCompleted(quest, completedSet),
+        locked: isQuestLocked(chapter.id, quest, completedSet),
+        completed: isQuestCompleted(chapter.id, quest, completedSet),
       }));
   }, [chapter, data]);
 
+  const headerRight = data ? (
+    <QuestHud totalSlices={data.totalSlices} totalBackpackPieces={data.totalBackpackPieces} />
+  ) : null;
+
   return (
-    <HubPage title={chapter?.title ?? "Missioni"} onBack={() => router.push("/chapters")}>
+    <HubPage
+      title={chapter?.title ?? "Missioni"}
+      onBack={() => router.push("/chapters")}
+      headerRight={headerRight}
+    >
       <div className="space-y-4">
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
         {loading && !data ? (

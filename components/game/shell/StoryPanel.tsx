@@ -9,8 +9,10 @@ export function StoryPanel({ variant, text }: StoryPanelProps) {
   return (
     <section
       className={cn(
-        "game-panel max-w-3xl p-4 text-base leading-relaxed md:p-6 md:text-lg",
-        variant === "dialog" ? "mx-auto mt-auto mb-20" : "ml-auto mt-auto mb-24 mr-4 md:mr-10",
+        "game-panel game-panel-inset text-base leading-relaxed md:text-lg",
+        variant === "dialog"
+          ? "mx-auto my-auto w-full max-w-3xl"
+          : "mx-auto mt-auto w-fit max-w-xl md:max-w-2xl",
       )}
     >
       <p>{text}</p>

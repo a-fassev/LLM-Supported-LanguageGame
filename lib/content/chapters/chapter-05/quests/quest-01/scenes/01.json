@@ -1,0 +1,9 @@
+{
+  "id": "chapter-05-quest-01-scene-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/05/quests/01/bg-info-01",
+  "content": {
+    "text": "A Napoli trovi nuove parole utili per orientarti al porto."
+  }
+}

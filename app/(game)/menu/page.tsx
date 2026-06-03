@@ -1,6 +1,5 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CenteredCard } from "@/components/game/layout/CenteredCard";
 import { GameBackground } from "@/components/game/layout/GameBackground";
 import { MainMenuActions } from "@/components/game/screens/MainMenuActions";
@@ -12,17 +11,15 @@ export default function MenuPage() {
   return (
     <GameBackground mode="hub">
       <CenteredCard>
-        <Card className="bg-transparent shadow-none ring-0">
-          <CardHeader className="px-0 pt-0 text-center">
-            <CardTitle className="text-2xl">Menu principale</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 px-0">
-            <p className="text-center text-sm text-muted-foreground">
+        <div className="space-y-4">
+          <div className="text-center">
+            <h1 className="text-2xl font-semibold">Menu principale</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
               Bentornato{account?.username ? `, ${account.username}` : ""}!
             </p>
-            <MainMenuActions />
-          </CardContent>
-        </Card>
+          </div>
+          <MainMenuActions />
+        </div>
       </CenteredCard>
     </GameBackground>
   );

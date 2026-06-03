@@ -7,6 +7,8 @@ export const gameClientMessages = {
   couldNotLoadRun: "Impossibile caricare la partita.",
   couldNotStartRun: "Impossibile avviare la partita.",
   couldNotAdvanceScene: "Impossibile avanzare la scena.",
+  couldNotRetreatScene: "Impossibile tornare alla scena precedente.",
+  retreatNotAllowed: "Non puoi tornare indietro da questa scena.",
   couldNotCompleteTask: "Impossibile completare l'attivita.",
   runNotFound: "Partita non trovata.",
   activeRunExists: "Hai gia una partita in corso in un'altra missione.",
@@ -16,13 +18,22 @@ export const gameClientMessages = {
   taskMinRatioNotMet: "Non abbastanza risposte corrette per completare l'attivita.",
 } as const;
 
+/** Auth screens (login/register) — learner-facing Italian. */
+export const authUiLabels = {
+  username: "Nome utente",
+  password: "Parola segreta",
+  repeatPassword: "Ripeti la parola segreta",
+  usernamePlaceholder: "nome-utente",
+  passwordPlaceholder: "parola-segreta",
+} as const;
+
 /** Auth API routes (login/register/session). */
 export const authClientMessages = {
   tooManyRequests: "Troppe richieste. Riprova tra poco.",
   invalidJson: "Corpo della richiesta non valido.",
   invalidRequest: "Richiesta non valida.",
   couldNotProcess: "Impossibile elaborare la richiesta.",
-  invalidCredentials: "Nome utente o password non validi.",
+  invalidCredentials: "Nome utente o parola segreta non validi.",
   couldNotCreateSession: "Impossibile creare la sessione.",
   couldNotCreateAccount: "Impossibile creare l'account.",
   couldNotValidateSession: "Impossibile verificare la sessione.",
@@ -30,7 +41,7 @@ export const authClientMessages = {
   missingToken: "Token mancante.",
   invalidSession: "Sessione non valida o scaduta.",
   usernameTaken: "Nome utente già in uso.",
-  passwordsDoNotMatch: "Le password non coincidono.",
+  passwordsDoNotMatch: "Le parole segrete non coincidono.",
   missingTokenBody: "Token mancante.",
   invalidUsernameCharacters: "Caratteri nome utente non validi (solo a-z, 0-9, -).",
 } as const;

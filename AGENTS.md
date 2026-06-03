@@ -149,7 +149,7 @@ Do **not** mirror player persistence (chapters unlocked, run step index, pizza t
 
 #### Content source
 
-Narrative catalog is **git-versioned JSON** under `lib/content/chapters/` (see `docs/quest-scene-content-format.md`), loaded by `lib/game/content/catalog-loader.ts` and validated with `lib/game/schemas/contentCatalogSchema.ts`. `GET /api/game/bootstrap` returns wallet totals, **`chapters`** (metadata list), and **`completedQuestIds`**. Active play uses run snapshot APIs (current **scene**, not legacy step-index rows). Clients must not invent catalog or unlock state locally beyond display helpers (`lib/game/unlock-display.ts`).
+Narrative catalog is **git-versioned JSON** under `lib/content/chapters/` (see `docs/quest-scene-content-format.md`), loaded by `lib/game/content/catalog-loader.ts` and validated with `lib/game/schemas/contentCatalogSchema.ts`. In **development**, `loadContentCatalog()` bypasses the in-memory cache by default (`NODE_ENV === "development"`); tests pass explicit `bypassCache`. `GET /api/game/bootstrap` returns wallet totals, **`chapters`** (metadata list), and **`completedQuestIds`** — each entry is **`chapterId:questId`** (see `lib/game/quest-progress-id.ts`), because quest directory names repeat per chapter. Active play uses run snapshot APIs (current **scene**, not legacy step-index rows). Clients must not invent catalog or unlock state locally beyond display helpers (`lib/game/unlock-display.ts`).
 
 #### Error handling (client boundary)
 
@@ -167,6 +167,7 @@ Narrative catalog is **git-versioned JSON** under `lib/content/chapters/` (see `
 #### Anti-patterns
 
 - Putting unlock/scoring/pizza logic only in the client.
+- Comparing bare `quest.id` to `completedQuestIds` (always use `toQuestProgressId(chapterId, questId)`).
 - Global stores for bootstrap payload or full quest step lists.
 - Duplicating Zod validation on the client as the authority (server validation remains required; client checks are optional UX only).
 - Optimistic UI that shows rewards before the server confirms completion.
@@ -203,7 +204,7 @@ LLM-Supported-LanguageGame-1/
 │   │   ├── scoring/
 │   │   ├── services/
 │   │   ├── repositories/
-│   │   ├── session-context.tsx, unlock-display.ts, toast-from-api.ts
+│   │   ├── session-context.tsx, unlock-display.ts, quest-progress-id.ts, toast-from-api.ts
 │   │   └── task-outcome-messages.ts
 │   └── llm/
 ├── public/content-assets/ # backgrounds from content keys
@@ -223,7 +224,7 @@ LLM-Supported-LanguageGame-1/
 
 **Content:** `lib/content/chapters/**` + `catalog-loader.ts`. Scene order from `scenes/01.json`, `02.json`, …; scene ids derived in loader.
 
-**Progression:** Sequential chapters → quests → **scenes**; server advances by catalog scene order. Hub **display** locks use `lib/game/unlock-display.ts` from bootstrap `completedQuestIds`, and `POST /api/game/runs/start` enforces unlocks server-side (`requiresQuestId` + previous chapter completion).
+**Progression:** Sequential chapters → quests → **scenes**; server advances by catalog scene order. Hub **display** locks use `lib/game/unlock-display.ts` from bootstrap **`completedQuestIds`** (`chapterId:questId` strings), and `POST /api/game/runs/start` enforces unlocks server-side (`requiresQuestId` + previous chapter completion, same qualified ids). **`POST /api/game/runs/[runId]/retreat`** moves `current_scene_id` to the previous catalog scene only — it does not delete scene completions or reverse wallet rewards. Snapshot includes **`canRetreat`** when `sceneNumber > 1`.
 
 **Scene contract (authoring):** Per-scene JSON — `scene_type` (`story` | `task`), `screen_type`, `content`, `background`, optional `scoring`. Legacy step fields in older docs map to this model; see `docs/quest-scene-content-format.md`.
 
@@ -260,11 +261,12 @@ Team assignment ownership: `student_accounts.team` is assigned in Postgres (`ass
 
 | Method | Path                  | Purpose                                      |
 | ------ | --------------------- | -------------------------------------------- |
-| GET    | `/api/game/bootstrap` | Wallet, `chapters`, `completedQuestIds` |
+| GET    | `/api/game/bootstrap` | Wallet, `chapters`, `completedQuestIds` (`chapterId:questId` each) |
 | GET    | `/api/game/leaderboard` | Overall / team rankings by pizza slices |
 | POST   | `/api/game/runs/start` | Start/resume quest run (`chapterId`, `questId`) |
-| GET    | `/api/game/runs/snapshot` | Active run + current scene (or empty run) |
+| GET    | `/api/game/runs/snapshot` | Active run + current scene + `canRetreat` (or empty run) |
 | POST   | `/api/game/runs/[runId]/advance` | Story scene → next |
+| POST   | `/api/game/runs/[runId]/retreat` | Move to previous scene (`sceneId` = current); no completion rollback |
 | POST   | `/api/game/runs/[runId]/attempt` | Task attempt → score; may return `taskOutcome` |
 
 
@@ -333,7 +335,7 @@ npm run lint
 npm run build
 ```
 
-Co-locate tests as `*.test.ts` next to modules. Favor pure tests for scoring, schemas, and unlock math; service tests mock repository boundaries where already established.
+Co-locate tests as `*.test.ts` next to modules. Favor pure tests for scoring, schemas, and unlock math; service tests mock repository boundaries where already established. When changing unlock or bootstrap completion, extend `lib/game/unlock-display.test.ts` (chapter-qualified ids).
 
 ---
 

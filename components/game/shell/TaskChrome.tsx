@@ -4,6 +4,10 @@ type TaskChromeProps = {
   instructions?: string;
   primaryLabel: string;
   primaryDisabled?: boolean;
+  canRetreat?: boolean;
+  retreatDisabled?: boolean;
+  retreatLabel?: string;
+  onRetreat?: () => void;
   onPrimary: () => void;
   children: React.ReactNode;
 };
@@ -12,21 +16,31 @@ export function TaskChrome({
   instructions,
   primaryLabel,
   primaryDisabled,
+  canRetreat = false,
+  retreatDisabled,
+  retreatLabel = "Indietro",
+  onRetreat,
   onPrimary,
   children,
 }: TaskChromeProps) {
+  const intro =
+    instructions?.trim() || "Completa l'attività e premi «Controlla».";
+
   return (
-    <section className="mx-auto mt-24 w-full max-w-5xl px-4 pb-8">
-      <div className="game-panel flex flex-col gap-4 p-4 md:p-6">
-        <div className="game-panel px-3 py-2 text-sm md:text-base">
-          {instructions?.trim() || "Completa l'attività e premi «Controlla»."}
-        </div>
-        <div className="game-panel min-h-[260px] p-4 md:p-6">{children}</div>
-        <div className="flex justify-end">
-          <Button onClick={onPrimary} disabled={primaryDisabled}>
-            {primaryLabel}
+    <section className="flex h-full min-h-0 w-full flex-col gap-4 overflow-y-auto">
+      <p className="shrink-0 text-base leading-relaxed md:text-lg">{intro}</p>
+      <div className="min-h-[260px] flex-1">{children}</div>
+      <div className="flex shrink-0 items-center justify-between gap-3">
+        {onRetreat ? (
+          <Button size="lg" variant="outline" onClick={onRetreat} disabled={retreatDisabled ?? !canRetreat}>
+            {retreatLabel}
           </Button>
-        </div>
+        ) : (
+          <span />
+        )}
+        <Button size="lg" onClick={onPrimary} disabled={primaryDisabled}>
+          {primaryLabel}
+        </Button>
       </div>
     </section>
   );

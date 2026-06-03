@@ -2,15 +2,15 @@
 
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { HubPage } from "@/components/game/layout/HubPage";
+import { QuestHud } from "@/components/game/shell/QuestHud";
 import { ChapterGrid } from "@/components/game/screens/ChapterGrid";
 import { useBootstrap } from "@/lib/game/use-bootstrap";
 import { isChapterLocked } from "@/lib/game/unlock-display";
 
 export default function ChaptersPage() {
   const router = useRouter();
-  const { loading, refreshing, error, data, reload } = useBootstrap({ refreshOnFocus: true });
+  const { loading, error, data } = useBootstrap({ refreshOnFocus: true });
 
   const chapterItems = useMemo(() => {
     if (!data) return [];
@@ -24,30 +24,31 @@ export default function ChaptersPage() {
       }));
   }, [data]);
 
+  const headerRight = data ? (
+    <QuestHud totalSlices={data.totalSlices} totalBackpackPieces={data.totalBackpackPieces} />
+  ) : null;
+
   return (
-    <HubPage title="Capitoli" onBack={() => router.push("/menu")}>
-      <div className="space-y-4">
-        {data ? (
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">
-              🍕 {data.totalSlices} • 🎒 {data.totalBackpackPieces}%
-            </p>
-            <Button variant="outline" onClick={() => void reload()} disabled={refreshing}>
-              {refreshing ? "Aggiornamento..." : "Aggiorna"}
-            </Button>
-          </div>
-        ) : null}
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
-        {loading && !data ? (
-          <p className="text-sm text-muted-foreground">Caricamento capitoli...</p>
-        ) : null}
-        {data && data.chapters.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nessun capitolo disponibile.</p>
-        ) : null}
-        {data && data.chapters.length > 0 ? (
-          <ChapterGrid items={chapterItems} onOpenChapter={(chapterId) => router.push(`/chapters/${chapterId}`)} />
-        ) : null}
-      </div>
+    <HubPage
+      title="Capitoli"
+      onBack={() => router.push("/menu")}
+      headerRight={headerRight}
+      className="flex min-h-0 flex-col"
+    >
+      {error ? <p className="shrink-0 text-sm text-destructive">{error}</p> : null}
+      {loading && !data ? (
+        <p className="shrink-0 text-sm text-muted-foreground">Caricamento capitoli...</p>
+      ) : null}
+      {data && data.chapters.length === 0 ? (
+        <p className="shrink-0 text-sm text-muted-foreground">Nessun capitolo disponibile.</p>
+      ) : null}
+      {data && data.chapters.length > 0 ? (
+        <ChapterGrid
+          className="min-h-0 flex-1"
+          items={chapterItems}
+          onOpenChapter={(chapterId) => router.push(`/chapters/${chapterId}`)}
+        />
+      ) : null}
     </HubPage>
   );
 }

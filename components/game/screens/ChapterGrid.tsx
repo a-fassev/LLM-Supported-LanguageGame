@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import type { BootstrapChapterDto } from "@/lib/api-client";
 
 type ChapterGridItem = {
@@ -12,22 +12,41 @@ type ChapterGridItem = {
 type ChapterGridProps = {
   items: ChapterGridItem[];
   onOpenChapter: (chapterId: string) => void;
+  className?: string;
 };
 
-export function ChapterGrid({ items, onOpenChapter }: ChapterGridProps) {
+export function ChapterGrid({ items, onOpenChapter, className }: ChapterGridProps) {
   return (
-    <div className="grid gap-3 md:grid-cols-2">
+    <div
+      className={cn(
+        "grid h-full min-h-0 auto-rows-fr grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3",
+        className,
+      )}
+    >
       {items.map(({ chapter, locked }) => (
-        <article key={chapter.id} className="game-panel flex flex-col gap-3 p-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-semibold md:text-lg">{chapter.title}</h2>
-            {locked ? <Badge variant="outline">Bloccato</Badge> : <Badge>Sbloccato</Badge>}
+        <button
+          key={chapter.id}
+          type="button"
+          onClick={() => onOpenChapter(chapter.id)}
+          disabled={locked}
+          className={cn(
+            "game-panel flex h-full min-h-0 flex-col p-5 text-left transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            locked ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:opacity-90",
+          )}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <h2 className="min-w-0 flex-1 text-xl font-bold leading-tight tracking-tight md:text-2xl">
+              {chapter.title}
+            </h2>
+            {locked ? (
+              <Badge className="shrink-0" variant="outline">
+                Bloccato
+              </Badge>
+            ) : (
+              <Badge className="shrink-0">Sbloccato</Badge>
+            )}
           </div>
-          <p className="text-sm text-muted-foreground">Missioni: {chapter.quests.length}</p>
-          <Button onClick={() => onOpenChapter(chapter.id)} disabled={locked}>
-            Apri capitolo
-          </Button>
-        </article>
+        </button>
       ))}
     </div>
   );

@@ -36,6 +36,7 @@
   | POST | `/api/game/runs/start` | Start/resume quest run |
   | GET | `/api/game/runs/snapshot` | Active run + current scene |
   | POST | `/api/game/runs/[runId]/advance` | Story scene → next |
+  | POST | `/api/game/runs/[runId]/retreat` | Previous scene (`sceneId` = current); position only — no completion/wallet rollback |
   | POST | `/api/game/runs/[runId]/attempt` | Task attempt → score → advance if min ratio met |
 
 - **Auth APIs:** login, register, logout, session, `GET /api/auth/suggest-username`.
@@ -82,15 +83,15 @@ components/
 ├── ui/                           # shadcn primitives (generated)
 └── game/
     ├── layout/
-    │   ├── GameBackground.tsx    # static or dynamic bg image
+    │   ├── GameBackground.tsx    # h-dvh bg image + fallback gradient
+    │   ├── GameShellHeader.tsx   # hub title/back/actions; play task title slot
     │   ├── CenteredCard.tsx      # login/register/menu narrow column
-    │   └── HubPage.tsx           # bg + back + title slot + children
+    │   └── HubPage.tsx           # game-shell-inset + header + scrollable panel
     ├── shell/
-    │   ├── QuestShell.tsx        # full-viewport play layout
-    │   ├── QuestHud.tsx          # pizza + backpack
-    │   ├── QuestNavBar.tsx       # pause, documento, top-right cluster
+    │   ├── QuestShell.tsx        # play layout: header (HUD, Documento, Pausa) + content panel
+    │   ├── QuestHud.tsx          # pizza + backpack (hubs + task play)
     │   ├── StoryPanel.tsx        # semi-transparent text box variants
-    │   ├── TaskChrome.tsx        # instructions + task container + inner nav
+    │   ├── TaskChrome.tsx        # instructions + task container + Indietro / Controlla
     │   └── SceneRouter.tsx       # picks story vs task by run.currentScene
     ├── overlays/
     │   ├── PauseOverlay.tsx
@@ -113,6 +114,8 @@ lib/
 ├── game/
 │   ├── session-context.tsx       # bearer token + account snapshot (client)
 │   ├── unlock-display.ts         # pure helpers: locked chapter/quest from bootstrap (display only)
+│   ├── quest-progress-id.ts      # chapterId:questId keys for completedQuestIds
+│   ├── scene-display.ts          # readTaskSceneTitle for play header
 │   └── content/
 │       └── resolve-asset-url.ts  # background key → /public/content-assets/...
 ```
@@ -191,7 +194,7 @@ ASCII regions (all quest play modes):
 │              ┌─ StoryPanel / TaskChrome ─┐                  │
 │              │  instructions (task)      │                  │
 │              │  TaskPanel or story text  │                  │
-│              │  [Avanti] or [Controlla]                     │  ← story: Avanti; task: Controlla
+│              │  [Indietro?] [Avanti] or [Controlla]         │  ← story/task: retreat when canRetreat
 │              └───────────────────────────┘                  │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -201,10 +204,11 @@ ASCII regions (all quest play modes):
 | Top-right **Pausa** | yes | yes |
 | **HUD** (pizza count, backpack %) | no | yes |
 | **Documento** | no | if `referenceDocument` in content |
-| Bottom navigation | **Avanti** only → `advance` API | **Controlla** → `attempt`; **Avanti** on overlay after success (server already advanced run) |
-| Center panel | `StoryPanel` variant `dialog` \| `interaction` | `TaskChrome` wraps instructions + `TaskPanel` |
+| Bottom navigation | **Indietro** (if `canRetreat`) + **Avanti** → `retreat` / `advance` | **Indietro** + **Controlla** → `retreat` / `attempt`; overlay **Avanti** after success |
+| Center panel | `StoryPanel` variant `dialog` \| `interaction` | `TaskChrome` wraps instructions + `TaskPanel`; task **title** in `GameShellHeader` (`readTaskSceneTitle`) |
+| Hub lists | `ChapterGrid` / `QuestList` as **`<button>`** rows (keyboard + disabled when locked) | — |
 
-**CSS:** Define panel look once, e.g. `.game-panel` in `globals.css` (white/translucent background, radius, padding from tokens `--game-panel-bg`, `--game-spacing-md`).
+**CSS:** `GameBackground` uses `h-dvh`; outer **`game-shell-inset`** (`--game-shell-padding`); inner panels use **`game-panel`** + **`game-panel-inset`** (`--game-panel-padding`). Define translucent panel look once in `globals.css` (`--game-panel-bg`, spacing tokens).
 
 ---
 
@@ -228,6 +232,7 @@ Prefer **Server Components** for hub pages that only display server-fetched prop
 | Login / register / logout | `/api/auth/*` |
 | Start quest | `POST /api/game/runs/start` `{ chapterId, questId }` |
 | Story next | `POST .../advance` `{ sceneId }` |
+| Go back one scene | `POST .../retreat` `{ sceneId }` (current scene id); server moves run pointer only |
 | Task check | `POST .../attempt` `{ sceneId, attemptPayload }` |
 
 ### Client-local state (only)
@@ -243,12 +248,14 @@ Prefer **Server Components** for hub pages that only display server-fetched prop
 
 ### Unlock display (locked — Option A)
 
-`GET /api/game/bootstrap` returns **`completedQuestIds: string[]`** (from Supabase completed runs). The UI derives lock state **for display only**:
+`GET /api/game/bootstrap` returns **`completedQuestIds: string[]`** — each value is **`chapterId:questId`** (`lib/game/quest-progress-id.ts`), built from completed `player_quest_runs` rows. Quest folder names (`quest-01`, …) repeat in every chapter, so **never** compare bare `quest.id` to this list.
 
-1. **Quest locked** if `requiresQuestId` is set and that quest id is **not** in `completedQuestIds`.
-2. **Chapter locked** if the previous chapter’s **main** quests are not all complete (reuse rules from `lib/game/chapterUnlockProgress.ts` — bonus quests do not gate the next chapter).
+The UI derives lock state **for display only**:
 
-Helper: `lib/game/unlock-display.ts` (pure functions, no extra API). Starting a locked quest may still need server enforcement later; v1 focuses on correct tiles/list states after each bootstrap refresh.
+1. **Quest locked** if `requiresQuestId` is set and **`chapterId:requiresQuestId`** is **not** in `completedQuestIds`.
+2. **Chapter locked** if the previous chapter’s **main** quests are not all complete (qualified ids for that chapter).
+
+Helper: `lib/game/unlock-display.ts` (pure functions, no extra API). **`POST /api/game/runs/start`** enforces the same rules server-side.
 
 ---
 

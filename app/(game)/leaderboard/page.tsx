@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { HubPage } from "@/components/game/layout/HubPage";
 import { LeaderboardView } from "@/components/game/screens/LeaderboardView";
 import { getLeaderboard, type LeaderboardDto } from "@/lib/api-client";
@@ -52,16 +51,11 @@ export default function LeaderboardPage() {
   return (
     <HubPage title="Classifica" onBack={() => router.push("/menu")}>
       <div className="space-y-4">
-        <div className="flex justify-end">
-          <Button onClick={() => void load()} disabled={pending}>
-            {pending ? "Aggiornamento..." : "Aggiorna"}
-          </Button>
-        </div>
         {pending && !data ? (
-          <p className="text-sm text-muted-foreground">Caricamento classifica...</p>
+          <p className="text-base text-muted-foreground">Caricamento classifica...</p>
         ) : null}
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
-        {data ? <LeaderboardView data={data} /> : null}
+        {error ? <p className="text-base text-destructive">{error}</p> : null}
+        {data ? <LeaderboardView data={data} onRefresh={() => void load()} refreshing={pending} /> : null}
       </div>
     </HubPage>
   );

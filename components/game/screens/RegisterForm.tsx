@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { register, suggestUsername, login, getSession } from "@/lib/api-client";
+import { authUiLabels } from "@/lib/game/clientMessages";
 import { useGameSession } from "@/lib/game/session-context";
 
 export function RegisterForm() {
@@ -92,7 +93,7 @@ export function RegisterForm() {
       </CardHeader>
       <CardContent className="space-y-4 px-0">
         <div className="space-y-2">
-          <Label htmlFor="username">Nome utente</Label>
+          <Label htmlFor="username">{authUiLabels.username}</Label>
           <div className="flex gap-2">
             <Input id="username" value={username} readOnly />
             <Button type="button" variant="outline" onClick={onRegenerate} disabled={pending || loadingUsername}>
@@ -101,30 +102,32 @@ export function RegisterForm() {
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{authUiLabels.password}</Label>
           <Input
             id="password"
             type="password"
             autoComplete="new-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            placeholder={authUiLabels.passwordPlaceholder}
             required
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="passwordConfirm">Ripeti password</Label>
+          <Label htmlFor="passwordConfirm">{authUiLabels.repeatPassword}</Label>
           <Input
             id="passwordConfirm"
             type="password"
             autoComplete="new-password"
             value={passwordConfirm}
             onChange={(event) => setPasswordConfirm(event.target.value)}
+            placeholder={authUiLabels.passwordPlaceholder}
             required
           />
         </div>
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
       </CardContent>
-      <CardFooter className="flex flex-col gap-2 px-0 pb-0">
+      <CardFooter className="flex flex-col gap-2 border-0 bg-transparent px-0 pb-0">
         <Button className="w-full" type="submit" disabled={pending || loadingUsername || username.length < 3}>
           {pending ? "Registrazione..." : loadingUsername ? "Preparazione..." : "Registrati"}
         </Button>

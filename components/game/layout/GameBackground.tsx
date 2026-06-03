@@ -13,7 +13,7 @@ export function GameBackground({ assetKey, mode = "hub", className, children }: 
   const fallback = mode === "play" ? "game-background-fallback-play" : "game-background-fallback-hub";
 
   return (
-    <div className={cn("relative isolate min-h-dvh w-full overflow-hidden", fallback, className)}>
+    <div className={cn("relative isolate h-dvh w-full overflow-hidden", fallback, className)}>
       {url ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -27,7 +27,7 @@ export function GameBackground({ assetKey, mode = "hub", className, children }: 
         />
       ) : null}
       <div className="absolute inset-0 -z-10 bg-black/20" />
-      <div className="relative z-10 min-h-dvh">{children}</div>
+      <div className="relative z-10 h-full">{children}</div>
     </div>
   );
 }

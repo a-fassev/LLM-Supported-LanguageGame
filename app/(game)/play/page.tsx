@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   advanceRun,
   attemptRun,
+  retreatRun,
   getRunSnapshot,
   startRun,
   type ApiErrorResult,
@@ -18,6 +19,7 @@ import {
 } from "@/lib/api-client";
 import { useGameSession } from "@/lib/game/session-context";
 import { readNonEmptyString } from "@/lib/game/read-non-empty-string";
+import { readTaskSceneTitle } from "@/lib/game/scene-display";
 import { useMountedRef } from "@/lib/game/use-mounted-ref";
 import { toastBlockingApiError } from "@/lib/game/toast-from-api";
 import { QuestShell } from "@/components/game/shell/QuestShell";
@@ -163,7 +165,7 @@ export default function PlayPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [attemptText, setAttemptText] = useState("");
-  const [storyPending, setStoryPending] = useState(false);
+  const [sceneNavPending, setSceneNavPending] = useState(false);
   const [taskPending, setTaskPending] = useState(false);
   const [pauseOpen, setPauseOpen] = useState(false);
   const [documentOpen, setDocumentOpen] = useState(false);
@@ -172,6 +174,12 @@ export default function PlayPage() {
 
   const currentScene = state.run?.currentScene ?? null;
   const referenceDocument = useMemo(() => readReference(currentScene), [currentScene]);
+  const taskHeaderTitle = useMemo(() => {
+    if (!currentScene || currentScene.scene_type !== "task") return null;
+    return readTaskSceneTitle(currentScene);
+  }, [currentScene]);
+  const canRetreat =
+    state.run?.canRetreat === true && (currentScene?.sceneNumber ?? 1) > 1;
 
   const loadRun = useCallback(async () => {
     if (!token) {
@@ -221,7 +229,7 @@ export default function PlayPage() {
 
   async function onAdvanceStory() {
     if (!token || !state.run || !currentScene) return;
-    setStoryPending(true);
+    setSceneNavPending(true);
     const result = await advanceRun(token, state.run.runId, { sceneId: currentScene.id });
     if (!mountedRef.current) return;
     if (!result.ok) {
@@ -232,12 +240,34 @@ export default function PlayPage() {
       }
       toastBlockingApiError(result);
       setError(result.error);
-      setStoryPending(false);
+      setSceneNavPending(false);
       return;
     }
     setState((current) => mergeRunState(current, result.data));
     setAttemptText("");
-    setStoryPending(false);
+    setSceneNavPending(false);
+  }
+
+  async function onRetreatScene() {
+    if (!token || !state.run || !currentScene || !canRetreat) return;
+    setSceneNavPending(true);
+    setError(null);
+    const result = await retreatRun(token, state.run.runId, { sceneId: currentScene.id });
+    if (!mountedRef.current) return;
+    if (!result.ok) {
+      if (result.status === 401) {
+        clearSession();
+        router.replace("/login");
+        return;
+      }
+      toastBlockingApiError(result);
+      setError(result.error);
+      setSceneNavPending(false);
+      return;
+    }
+    setState((current) => mergeRunState(current, result.data));
+    setAttemptText("");
+    setSceneNavPending(false);
   }
 
   async function onSubmitTask() {
@@ -285,8 +315,8 @@ export default function PlayPage() {
 
   if (!currentScene || !state.run) {
     return (
-      <main className="flex min-h-dvh items-center justify-center px-4">
-        <div className="game-panel max-w-md space-y-3 p-4 text-center">
+      <main className="game-shell-inset flex min-h-dvh items-center justify-center">
+        <div className="game-panel game-panel-inset max-w-md space-y-3 text-center">
           <p className="text-sm">Nessuna missione attiva.</p>
           <Button onClick={() => router.push("/chapters")}>Vai ai capitoli</Button>
         </div>
@@ -298,15 +328,17 @@ export default function PlayPage() {
     <>
       <QuestShell
         backgroundKey={currentScene.background}
+        headerTitle={taskHeaderTitle}
         showHud={currentScene.scene_type === "task"}
         showDocument={Boolean(referenceDocument)}
         totalSlices={state.totalSlices}
         totalBackpackPieces={state.totalBackpackPieces}
         onOpenPause={() => setPauseOpen(true)}
         onOpenDocument={referenceDocument ? () => setDocumentOpen(true) : undefined}
+        showContentPanel={currentScene.scene_type === "task"}
       >
         {error ? (
-          <div className="mx-auto mt-18 w-full max-w-2xl px-4">
+          <div className="w-full max-w-2xl">
             <Alert variant="destructive">
               <AlertTitle>Errore</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
@@ -317,10 +349,12 @@ export default function PlayPage() {
         <SceneRouter
           scene={currentScene}
           attemptText={attemptText}
-          storySubmitting={storyPending}
+          canRetreat={canRetreat}
+          sceneNavPending={sceneNavPending}
           taskSubmitting={taskPending}
           onAttemptTextChange={setAttemptText}
           onAdvanceStory={onAdvanceStory}
+          onRetreatScene={onRetreatScene}
           onSubmitTask={onSubmitTask}
         />
       </QuestShell>

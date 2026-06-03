@@ -5,7 +5,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -25,19 +24,24 @@ export function SuccessOverlay({ open, outcome, onOpenChange, onContinue }: Succ
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>{outcome.headline}</DialogTitle>
-          <DialogDescription>{outcome.body}</DialogDescription>
-        </DialogHeader>
-        <div className="game-panel flex items-center justify-between gap-3 px-4 py-3 text-sm">
-          <span>🍕 +{outcome.awardedSlices}</span>
-          <span>🎒 +{outcome.awardedBackpackPieces}</span>
-          <span>{Math.round(outcome.ratio * 100)}%</span>
+      <DialogContent
+        showCloseButton={false}
+        className="game-panel max-w-md gap-0 border-0 p-0 shadow-lg ring-0 sm:max-w-md"
+      >
+        <div className="game-panel-inset flex flex-col gap-5 text-base">
+          <DialogHeader className="gap-3 text-left">
+            <DialogTitle className="game-hub-header__title text-left">{outcome.headline}</DialogTitle>
+            <DialogDescription className="text-base leading-relaxed">{outcome.body}</DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/60 px-3 py-2 text-sm font-medium">
+            <span>🍕 +{outcome.awardedSlices}</span>
+            <span>🎒 +{outcome.awardedBackpackPieces}</span>
+            <span className="tabular-nums">{Math.round(outcome.ratio * 100)}%</span>
+          </div>
+          <Button size="lg" className="w-full sm:w-auto sm:self-end" onClick={onContinue}>
+            {primaryLabel}
+          </Button>
         </div>
-        <DialogFooter>
-          <Button onClick={onContinue}>{primaryLabel}</Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

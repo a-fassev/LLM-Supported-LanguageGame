@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { login, getSession } from "@/lib/api-client";
+import { authUiLabels } from "@/lib/game/clientMessages";
 import { useGameSession } from "@/lib/game/session-context";
 
 export function LoginForm() {
@@ -48,30 +49,31 @@ export function LoginForm() {
       </CardHeader>
       <CardContent className="space-y-4 px-0">
         <div className="space-y-2">
-          <Label htmlFor="username">Nome utente</Label>
+          <Label htmlFor="username">{authUiLabels.username}</Label>
           <Input
             id="username"
             autoComplete="username"
             value={username}
             onChange={(event) => setUsername(event.target.value)}
-            placeholder="nome-utente"
+            placeholder={authUiLabels.usernamePlaceholder}
             required
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{authUiLabels.password}</Label>
           <Input
             id="password"
             type="password"
             autoComplete="current-password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            placeholder={authUiLabels.passwordPlaceholder}
             required
           />
         </div>
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
       </CardContent>
-      <CardFooter className="flex flex-col gap-2 px-0 pb-0">
+      <CardFooter className="flex flex-col gap-2 border-0 bg-transparent px-0 pb-0">
         <Button className="w-full" type="submit" disabled={pending}>
           {pending ? "Accesso..." : "Accedi"}
         </Button>

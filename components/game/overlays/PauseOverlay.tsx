@@ -5,7 +5,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -27,20 +26,29 @@ export function PauseOverlay({
 }: PauseOverlayProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Pausa</DialogTitle>
-          <DialogDescription>Scegli come continuare la tua avventura.</DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="flex-col gap-2 sm:flex-col">
-          <Button onClick={onResume}>Continua a giocare</Button>
-          <Button variant="outline" onClick={onBackToQuestList}>
-            Torna alle missioni
-          </Button>
-          <Button variant="ghost" onClick={onBackToMenu}>
-            Menu principale
-          </Button>
-        </DialogFooter>
+      <DialogContent
+        showCloseButton={false}
+        className="game-panel max-w-md gap-0 border-0 p-0 shadow-lg ring-0 sm:max-w-md"
+      >
+        <div className="game-panel-inset flex flex-col gap-5 text-base">
+          <DialogHeader className="gap-3 text-left">
+            <DialogTitle className="game-hub-header__title text-left">Pausa</DialogTitle>
+            <DialogDescription className="text-base leading-relaxed">
+              Scegli come continuare la tua avventura.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3">
+            <Button size="lg" onClick={onResume}>
+              Continua a giocare
+            </Button>
+            <Button size="lg" variant="outline" onClick={onBackToQuestList}>
+              Torna alle missioni
+            </Button>
+            <Button size="lg" variant="outline" onClick={onBackToMenu}>
+              Menu principale
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );

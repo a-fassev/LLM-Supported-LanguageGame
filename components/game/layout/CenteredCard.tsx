@@ -7,8 +7,8 @@ type CenteredCardProps = {
 
 export function CenteredCard({ className, children }: CenteredCardProps) {
   return (
-    <div className="mx-auto flex min-h-dvh w-full items-center px-4 py-8">
-      <div className={cn("game-panel game-centered-column", className)}>{children}</div>
+    <div className="game-shell-inset flex h-dvh w-full items-center">
+      <div className={cn("game-panel game-centered-column game-panel-inset", className)}>{children}</div>
     </div>
   );
 }

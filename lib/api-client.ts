@@ -88,6 +88,7 @@ export type LeaderboardDto = {
 
 export type RunSceneDto = {
   id: string;
+  sceneNumber: number;
   scene_type: "story" | "task";
   screen_type: string;
   background: string;
@@ -102,6 +103,7 @@ export type RunDto = {
   currentSceneId: string;
   status: "in_progress" | "completed" | "abandoned";
   completedSceneIds: string[];
+  canRetreat: boolean;
   currentScene: RunSceneDto;
 };
 
@@ -237,6 +239,14 @@ export function getRunSnapshot(token: string) {
 
 export function advanceRun(token: string, runId: string, input: { sceneId: string }) {
   return requestJson<RunSnapshotDto>(`/api/game/runs/${runId}/advance`, {
+    method: "POST",
+    token,
+    body: input,
+  });
+}
+
+export function retreatRun(token: string, runId: string, input: { sceneId: string }) {
+  return requestJson<RunSnapshotDto>(`/api/game/runs/${runId}/retreat`, {
     method: "POST",
     token,
     body: input,

@@ -23,7 +23,11 @@ const catalogMocks = vi.hoisted(() => ({
 vi.mock("@/lib/game/repositories/game-progress-repository", () => repoMocks);
 vi.mock("@/lib/game/content/catalog-loader", () => catalogMocks);
 
-import { completeTaskScene, startOrResumeRun } from "@/lib/game/services/game-progress-service";
+import {
+  completeTaskScene,
+  retreatRunScene,
+  startOrResumeRun,
+} from "@/lib/game/services/game-progress-service";
 
 describe("game-progress-service run flows", () => {
   beforeEach(() => {
@@ -31,6 +35,47 @@ describe("game-progress-service run flows", () => {
     repoMocks.ensureWalletRow.mockResolvedValue(true);
     repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 0, totalBackpackPieces: 0 });
     repoMocks.getCompletedQuestIds.mockResolvedValue([]);
+  });
+
+  it("resumes same quest when create races on active-run unique index", async () => {
+    const activeRun = {
+      runId: "run-1",
+      accountId: "acc-1",
+      chapterId: "chapter-01",
+      questId: "quest-01",
+      currentSceneId: "chapter-01-quest-01-scene-01",
+      status: "in_progress" as const,
+    };
+    repoMocks.getActiveQuestRun
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(activeRun);
+    repoMocks.createQuestRun.mockResolvedValue(null);
+    catalogMocks.loadContentCatalog.mockResolvedValue({
+      chapters: [{ id: "chapter-01", questsExpanded: [{ id: "quest-01", kind: "main" }] }],
+    });
+    catalogMocks.findCatalogQuest.mockReturnValue({
+      id: "quest-01",
+      requiresQuestId: null,
+      scenes: [{ id: "chapter-01-quest-01-scene-01" }],
+    });
+    catalogMocks.findCatalogScene.mockReturnValue({
+      id: "chapter-01-quest-01-scene-01",
+      sceneNumber: 1,
+      filename: "01.json",
+      scene_type: "story",
+      screen_type: "info",
+      background: "bg",
+      content: {},
+    });
+    repoMocks.getCompletedSceneIds.mockResolvedValue([]);
+
+    const result = await startOrResumeRun("acc-1", "chapter-01", "quest-01");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.run?.runId).toBe("run-1");
+    }
+    expect(repoMocks.createQuestRun).toHaveBeenCalledTimes(1);
+    expect(repoMocks.getActiveQuestRun).toHaveBeenCalledTimes(2);
   });
 
   it("returns conflict when another run is already active", async () => {
@@ -73,7 +118,7 @@ describe("game-progress-service run flows", () => {
       requiresQuestId: null,
       scenes: [{ id: "chapter-02-quest-01-scene-01" }],
     });
-    repoMocks.getCompletedQuestIds.mockResolvedValue(["quest-01"]);
+    repoMocks.getCompletedQuestIds.mockResolvedValue(["chapter-01:quest-01"]);
 
     const result = await startOrResumeRun("acc-1", "chapter-02", "quest-01");
     expect(result.ok).toBe(false);
@@ -277,5 +322,57 @@ describe("game-progress-service run flows", () => {
     expect(repoMocks.incrementWalletTotals).toHaveBeenCalled();
 
     vi.unstubAllEnvs();
+  });
+
+  it("retreats to the previous scene in catalog order", async () => {
+    const scene1 = {
+      id: "chapter-01-quest-01-scene-01",
+      sceneNumber: 1,
+      filename: "01.json",
+      scene_type: "story" as const,
+      screen_type: "info",
+      background: "bg",
+      content: { text: "One" },
+      scoring: { backpack: { pieces: 0 }, pizza: { mode: "flat" as const, slices: 0 } },
+    };
+    const scene2 = {
+      id: "chapter-01-quest-01-scene-02",
+      sceneNumber: 2,
+      filename: "02.json",
+      scene_type: "story" as const,
+      screen_type: "dialogue",
+      background: "bg",
+      content: { text: "Two" },
+      scoring: { backpack: { pieces: 0 }, pizza: { mode: "flat" as const, slices: 0 } },
+    };
+    const run = {
+      runId: "run-1",
+      accountId: "acc-1",
+      chapterId: "chapter-01",
+      questId: "quest-01",
+      currentSceneId: scene2.id,
+      status: "in_progress" as const,
+    };
+
+    repoMocks.getQuestRunById
+      .mockResolvedValueOnce(run)
+      .mockResolvedValueOnce({ ...run, currentSceneId: scene1.id });
+    catalogMocks.loadContentCatalog.mockResolvedValue({ chapters: [] });
+    catalogMocks.findCatalogQuest.mockReturnValue({ id: "quest-01", scenes: [scene1, scene2] });
+    catalogMocks.findCatalogScene.mockImplementation((_catalog, _chapterId, _questId, sceneId) => {
+      if (sceneId === scene2.id) return scene2;
+      if (sceneId === scene1.id) return scene1;
+      return null;
+    });
+    repoMocks.updateQuestRunPosition.mockResolvedValue(true);
+    repoMocks.getCompletedSceneIds.mockResolvedValue([]);
+
+    const result = await retreatRunScene("acc-1", "run-1", scene2.id);
+    expect(result.ok).toBe(true);
+    expect(repoMocks.updateQuestRunPosition).toHaveBeenCalledWith("run-1", scene1.id);
+    if (result.ok && result.run) {
+      expect(result.run.currentSceneId).toBe(scene1.id);
+      expect(result.run.canRetreat).toBe(false);
+    }
   });
 });

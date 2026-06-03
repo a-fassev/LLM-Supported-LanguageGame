@@ -53,9 +53,10 @@ Each step is defined by JSON with:
 
 - **Main menu** offers **Continue** into the chapter map and a **Leaderboard** entry (rankings are optional motivation, not required to progress).
 - **Chapter overview** is the main hub—not a free-roam character world.
-- **Chapter tiles** show unlock state; **tap a chapter** for quest overview, then start a **quest**.
+- **Chapter tiles** show unlock state; **tap a chapter** for quest overview, then start a **quest**. On chapter and quest lists, **pizza + backpack** stay visible in the header so progress is always in sight.
 - **Leaderboard:** compare progress by **total pizza slices**—**Overall** (all learners) or **Teams** (blue vs red). Players can **refresh** after playing; their own row should be easy to find without shaming low scores.
-- **Inside a quest**, the UI alternates **story mode** (narrative: **Pausa**, **«Avanti»**, full-step **background**, no performance HUD) and **task mode** (quest title, **pizza + backpack** in the header, optional **documento** for shared reading text, one exercise surface, **«Controlla»**).
+- **Inside a quest**, the UI alternates **story mode** (narrative: **Pausa**, **«Indietro»** when not on the first scene, **«Avanti»**, full-step **background**, no performance HUD) and **task mode** (short **mission title** in the header, **pizza + backpack**, optional **documento** for shared reading text, one exercise surface, **«Indietro»** + **«Controlla»**).
+- **«Indietro»** lets children re-read the previous story beat or task setup; rewards already earned stay saved—going back is for clarity, not to undo pizza or backpack progress.
 - After **«Controlla»**, a **full-screen success overlay** (not a pop-up toast) shows Italian praise, how much pizza/backpack they earned, and **«Riprova»** when the score was below the step minimum—children stay on the same scene until they pass.
 - **Chapter and quest lists** show **locked** vs **open** missions from saved progress; locked quests are enforced server-side too, so children do not enter content that should still be closed.
 - **Mission names** on lists are **short Italian titles**, not internal act numbers or `Step 2/7` in the shell.

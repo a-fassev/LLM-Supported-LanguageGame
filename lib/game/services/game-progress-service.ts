@@ -23,6 +23,7 @@ import {
 import { meetsScoredPizzaMinimum, parsePizzaRewardRules, slicesFromRatio } from "@/lib/game/scoring/pizzaReward";
 import { evaluateTaskAttempt } from "@/lib/game/scoring/evaluateTaskAttempt";
 import { buildTaskOutcome, type TaskOutcomeDto } from "@/lib/game/task-outcome-messages";
+import { toQuestProgressId } from "@/lib/game/quest-progress-id";
 
 export type BootstrapQuestDto = {
   id: string;
@@ -78,18 +79,21 @@ function isQuestLockedForAccount(
   if (chapterIndex < 0) return true;
   if (chapterIndex > 0) {
     const previousChapter = catalog.chapters[chapterIndex - 1];
-    const requiredMainQuestIds = previousChapter.questsExpanded
+    const requiredMainQuestProgressIds = previousChapter.questsExpanded
       .filter((quest) => quest.kind !== "bonus")
-      .map((quest) => quest.id);
-    const previousChapterComplete = requiredMainQuestIds.every((requiredQuestId) =>
-      completedQuestIds.has(requiredQuestId),
+      .map((quest) => toQuestProgressId(previousChapter.id, quest.id));
+    const previousChapterComplete = requiredMainQuestProgressIds.every((requiredQuestProgressId) =>
+      completedQuestIds.has(requiredQuestProgressId),
     );
     if (!previousChapterComplete) return true;
   }
 
   const quest = findCatalogQuest(catalog, chapterId, questId);
   if (!quest) return true;
-  if (quest.requiresQuestId && !completedQuestIds.has(quest.requiresQuestId)) {
+  if (
+    quest.requiresQuestId &&
+    !completedQuestIds.has(toQuestProgressId(chapterId, quest.requiresQuestId))
+  ) {
     return true;
   }
   return false;
@@ -131,6 +135,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
 
 export type RunSceneDto = {
   id: string;
+  sceneNumber: number;
   scene_type: "story" | "task";
   screen_type: string;
   background: string;
@@ -145,6 +150,7 @@ export type RunSnapshotDto = {
   currentSceneId: string;
   status: "in_progress" | "completed" | "abandoned";
   completedSceneIds: string[];
+  canRetreat: boolean;
   currentScene: RunSceneDto;
 };
 
@@ -172,6 +178,7 @@ type BuildSnapshotOptions = {
 function sceneToDto(scene: CatalogScene): RunSceneDto {
   return {
     id: scene.id,
+    sceneNumber: scene.sceneNumber,
     scene_type: scene.scene_type,
     screen_type: scene.screen_type,
     background: scene.background,
@@ -216,6 +223,8 @@ async function buildSnapshotFromRun(
   }
 
   const completedSceneIds = (await getCompletedSceneIds(run.runId)) ?? [];
+  const quest = findCatalogQuest(catalog, run.chapterId, run.questId);
+  const canRetreat = quest ? previousSceneIdInQuest(scene, quest.scenes) !== null : false;
   return {
     ok: true,
     totalSlices: wallet?.totalSlices ?? 0,
@@ -227,6 +236,7 @@ async function buildSnapshotFromRun(
       currentSceneId: run.currentSceneId,
       status: run.status,
       completedSceneIds,
+      canRetreat,
       currentScene: sceneToDto(scene),
     },
   };
@@ -300,13 +310,76 @@ export async function startOrResumeRun(
   }
   const firstScene = quest.scenes[0];
   const created = await createQuestRun(accountId, chapterId, questId, firstScene.id);
-  if (!created) return { ok: false, status: 500, error: msg.couldNotStartRun };
+  if (!created) {
+    const racedRun = await getActiveQuestRun(accountId);
+    if (racedRun?.chapterId === chapterId && racedRun.questId === questId) {
+      return buildSnapshotFromRun(accountId, racedRun);
+    }
+    if (racedRun) {
+      return {
+        ok: false,
+        status: 409,
+        error: msg.activeRunExists,
+        code: "active_run_exists",
+        details: {
+          existingRunId: racedRun.runId,
+          existingChapterId: racedRun.chapterId,
+          existingQuestId: racedRun.questId,
+        },
+      };
+    }
+    return { ok: false, status: 500, error: msg.couldNotStartRun };
+  }
   return buildSnapshotFromRun(accountId, created);
 }
 
 function nextSceneIdInQuest(scene: CatalogScene, questScenes: CatalogScene[]): string | null {
   const next = questScenes.find((s) => s.sceneNumber === scene.sceneNumber + 1);
   return next?.id ?? null;
+}
+
+function previousSceneIdInQuest(scene: CatalogScene, questScenes: CatalogScene[]): string | null {
+  const previous = questScenes.find((s) => s.sceneNumber === scene.sceneNumber - 1);
+  return previous?.id ?? null;
+}
+
+export async function retreatRunScene(
+  accountId: string,
+  runId: string,
+  sceneId: string,
+): Promise<RunSnapshotResult> {
+  const run = await getQuestRunById(runId);
+  if (!run || run.accountId !== accountId || run.status !== "in_progress") {
+    return { ok: false, status: 404, error: msg.runNotFound, code: "run_not_found" };
+  }
+  if (run.currentSceneId !== sceneId) {
+    return { ok: false, status: 409, error: msg.invalidSceneProgression, code: "scene_out_of_sync" };
+  }
+
+  const catalog = await loadContentCatalog().catch(() => null);
+  if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
+
+  const quest = findCatalogQuest(catalog, run.chapterId, run.questId);
+  const scene = findCatalogScene(catalog, run.chapterId, run.questId, sceneId);
+  if (!quest || !scene) {
+    return { ok: false, status: 400, error: msg.invalidSceneProgression, code: "scene_missing" };
+  }
+
+  const previousSceneId = previousSceneIdInQuest(scene, quest.scenes);
+  if (!previousSceneId) {
+    return {
+      ok: false,
+      status: 409,
+      error: msg.retreatNotAllowed,
+      code: "retreat_not_allowed",
+    };
+  }
+
+  const moved = await updateQuestRunPosition(run.runId, previousSceneId);
+  if (!moved) return { ok: false, status: 500, error: msg.couldNotRetreatScene };
+
+  const updatedRun = await getQuestRunById(run.runId);
+  return buildSnapshotFromRun(accountId, updatedRun);
 }
 
 async function moveRunAfterCompletion(run: QuestRunRow, currentScene: CatalogScene): Promise<boolean> {

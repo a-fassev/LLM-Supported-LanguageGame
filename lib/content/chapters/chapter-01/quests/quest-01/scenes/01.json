@@ -4,6 +4,6 @@
   "screen_type": "info",
   "background": "chapters/01/quests/01/bg-info-01",
   "content": {
-    "text": "Benvenuto a Bologna. Iniziamo con i saluti di base."
+    "text": "Benvenuto a Bologna! Questo è un blocco informativo: qui spieghi regole, contesto o obiettivi della missione."
   }
 }

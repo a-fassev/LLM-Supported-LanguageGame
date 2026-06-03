@@ -1,0 +1,9 @@
+{
+  "id": "chapter-05-quest-02-scene-01",
+  "scene_type": "story",
+  "screen_type": "dialogue",
+  "background": "chapters/05/quests/02/bg-dialogue-01",
+  "content": {
+    "text": "Alla pizzeria si parla velocemente. Prova a ricostruire la frase."
+  }
+}
