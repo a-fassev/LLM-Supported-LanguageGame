@@ -3,7 +3,7 @@ name: Deploy Next.js app to Azure App Service
 on:
   push:
     branches:
-      - web-based-implementation
+      - main
   workflow_dispatch:
 
 jobs:
