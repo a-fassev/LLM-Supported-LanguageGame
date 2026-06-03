@@ -1,0 +1,9 @@
+{
+  "id": "chapter-02-quest-01-bonus-scene-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/02/quests/bonus/bg-neutral",
+  "content": {
+    "text": "Hai completato il secondo capitolo della tua avventura a Bologna. Hai parlato del futuro con un nuovo amico, hai conosciuto tre italiani famosi e hai fatto domanda per il tuo primo lavoretto."
+  }
+}

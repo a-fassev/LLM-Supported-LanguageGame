@@ -1,0 +1,9 @@
+{
+  "id": "chapter-02-quest-01-scene-03",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/02/quests/01/bg-room-morning",
+  "content": {
+    "text": "Oggi ti aspettano tre missioni: una visita alla Nutelleria in centro, i compiti di scuola a casa e un ristorante che cerca personale per l'estate. Puoi iniziare dalla lista missioni del capitolo."
+  }
+}

@@ -1,20 +1,32 @@
-/** Normalizes catalog `body` or task `bodyText` into the task-schema reference document shape. */
+import { parseReferenceDocument } from "@/lib/game/schemas/referenceDocumentSchema";
+
+/** Normalizes catalog `body` or task `bodyText` into a reference document record for tasks and play UI. */
 export function normalizeReferenceDocumentForTask(
   ref: unknown,
 ): Record<string, unknown> | null {
-  if (!ref || typeof ref !== "object" || Array.isArray(ref)) return null;
-  const record = ref as Record<string, unknown>;
-  const title = typeof record.title === "string" ? record.title.trim() : "";
+  const parsed = parseReferenceDocument(ref);
+  if (!parsed.ok) return null;
+
+  const value = parsed.value;
   const bodyText =
-    (typeof record.bodyText === "string" ? record.bodyText.trim() : "") ||
-    (typeof record.body === "string" ? record.body.trim() : "");
-  if (!title || !bodyText) return null;
-  const normalized: Record<string, unknown> = { title, bodyText };
-  if (typeof record.documentId === "string" && record.documentId.trim()) {
-    normalized.documentId = record.documentId.trim();
+    (typeof value.bodyText === "string" ? value.bodyText.trim() : "") ||
+    (typeof value.body === "string" ? value.body.trim() : "");
+
+  const normalized: Record<string, unknown> = { title: value.title };
+  if (bodyText) {
+    normalized.bodyText = bodyText;
   }
-  if (typeof record.buttonLabel === "string" && record.buttonLabel.trim()) {
-    normalized.buttonLabel = record.buttonLabel.trim();
+  if (typeof value.documentId === "string" && value.documentId.trim()) {
+    normalized.documentId = value.documentId.trim();
+  }
+  if (typeof value.buttonLabel === "string" && value.buttonLabel.trim()) {
+    normalized.buttonLabel = value.buttonLabel.trim();
+  }
+  if (value.figures?.length) {
+    normalized.figures = value.figures;
+  }
+  if (value.sections?.length) {
+    normalized.sections = value.sections;
   }
   return normalized;
 }

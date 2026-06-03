@@ -151,6 +151,22 @@ describe("sanitizeSceneContentForClient", () => {
     expect(sanitizeSceneContentForClient("story", "info", content)).toEqual(content);
   });
 
+  it("keeps shell referenceDocument with figures when sanitizing nested task", () => {
+    const ref = {
+      title: "Foto",
+      figures: [{ image: "chapters/02/quests/02/ref-prof-architetto", caption: "l'architetto" }],
+    };
+    const sanitized = sanitizeSceneContentForClient("task", "free_text", {
+      title: "Descrivi",
+      referenceDocument: ref,
+      task: {
+        prompt: "Scrivi.",
+        evaluation: { passThreshold: 0.65, grammarWeight: 1, vocabularyWeight: 1, registerWeight: 1 },
+      },
+    });
+    expect(sanitized.referenceDocument).toEqual(ref);
+  });
+
   it("still normalizes drag_drop after answer keys are stripped", () => {
     const sanitized = sanitizeTaskPayloadForClient("drag_drop", {
       items: [{ id: "a", label: "A" }],

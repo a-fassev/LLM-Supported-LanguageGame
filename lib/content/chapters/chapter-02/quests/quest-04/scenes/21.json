@@ -1,0 +1,9 @@
+{
+  "id": "chapter-02-quest-04-scene-21",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/02/quests/04/bg-trattoria",
+  "content": {
+    "text": "Esci dal ristorante. Il sole tramonta sui portici di Bologna."
+  }
+}

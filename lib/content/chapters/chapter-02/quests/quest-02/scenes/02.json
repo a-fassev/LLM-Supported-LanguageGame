@@ -1,40 +1,9 @@
 {
   "id": "chapter-02-quest-02-scene-02",
-  "scene_type": "task",
-  "screen_type": "drag_drop",
-  "background": "chapters/02/quests/02/bg-task-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/02/quests/02/bg-nutelleria",
   "content": {
-    "title": "Ordina le parole",
-    "instruction": "Trascina le parole nella posizione corretta.",
-    "referenceDocument": null,
-    "task": {
-      "prompt": "Metti la parola nella casella.",
-      "presentation": { "targetMode": "blocks" },
-      "shuffleItemOrder": false,
-      "items": [{ "id": "ch02-q02-stub-item", "label": "parola" }],
-      "targets": [
-        {
-          "id": "ch02-q02-stub-target",
-          "title": "Casella",
-          "correctItemIds": ["ch02-q02-stub-item"]
-        }
-      ]
-    }
-  },
-  "scoring": {
-    "backpack": { "pieces": 1 },
-    "pizza": {
-      "mode": "scored",
-      "maxSlices": 2,
-      "minRatioToComplete": 0.5,
-      "mapping": {
-        "kind": "bands",
-        "bands": [
-          { "minRatio": 0, "slices": 0 },
-          { "minRatio": 0.5, "slices": 1 },
-          { "minRatio": 1, "slices": 2 }
-        ]
-      }
-    }
+    "text": "A un tavolo vicino c'è un ragazzo che riconosci subito: è Dario, un compagno della tua nuova classe al Liceo Galvani. Ti vede e ti fa un cenno con la mano."
   }
 }

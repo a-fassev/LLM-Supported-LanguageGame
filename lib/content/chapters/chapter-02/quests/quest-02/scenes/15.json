@@ -1,0 +1,9 @@
+{
+  "id": "chapter-02-quest-02-scene-15",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/02/quests/02/bg-nutelleria",
+  "content": {
+    "text": "Esci dalla Nutelleria. Ti restano ancora due cose importanti per oggi: i compiti a casa della famiglia Ferrari e il ristorante in centro che cerca personale per l'estate."
+  }
+}

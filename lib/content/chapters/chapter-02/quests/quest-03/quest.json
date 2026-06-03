@@ -1,0 +1,8 @@
+{
+  "id": "quest-03",
+  "title": "Il progetto di scuola",
+  "order": 3,
+  "kind": "main",
+  "requiresQuestId": "quest-02",
+  "background": "chapters/02/quests/03/bg-overview"
+}

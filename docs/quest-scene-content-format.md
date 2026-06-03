@@ -202,7 +202,7 @@ Shared shell for every task scene:
 | ----- | -------- | ----------- |
 | `title` | yes | Task heading in the quest shell (`GameShellHeader`; long titles truncate with ellipsis). |
 | `instruction` | no | Scene-level line in **`TaskChrome`** (bold, fixed above the exercise). Not the per-question prompt. |
-| `referenceDocument` | no | Text for **documento** on this scene only. If omitted, the button is hidden or empty. |
+| `referenceDocument` | no | **Documento** overlay on this scene: optional intro `body`, `sections[]` (profile blocks), and/or `figures[]` (image key + caption). If omitted or invalid, the documento button is hidden. See shape below. |
 | `task` | yes | Type-specific exercise data. Shape depends on `screen_type` (see below). Often includes a **`prompt`** for the task body (see layout below). |
 
 #### Web UI — copy hierarchy and layout (all task types)
@@ -233,16 +233,19 @@ Shared layout: `components/game/tasks/TaskBodyLayout.tsx`. Example for a future 
 
 `TaskPanel` dispatches by `screen_type`; each type supplies prompt + scrollable body. **Multiple choice** uses per-question `prompt` from `questions[i]` and puts options in the scroll area (see below).
 
-`referenceDocument` shape:
+`referenceDocument` shape (intro text and/or structured blocks for documento overlay):
 
 ```jsonc
 {
+  "documentId": "optional-stable-id",
   "title": "string",
-  "body": "string"
+  "body": "string", // catalog JSON; alias of bodyText at load
+  "sections": [{ "title": "…", "body": "…" }], // e.g. Steckbrief profiles
+  "figures": [{ "image": "chapters/02/quests/03/ref-quiz-verdi", "caption": "Giuseppe Verdi" }]
 }
 ```
 
-Plain text only (no HTML).
+At least one of: non-empty `body`, non-empty `sections[]`, or non-empty `figures[]`. No HTML in body/sections.
 
 #### `multiple_choice` — `content.task`
 

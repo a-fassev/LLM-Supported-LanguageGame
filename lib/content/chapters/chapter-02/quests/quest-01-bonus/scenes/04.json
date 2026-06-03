@@ -1,0 +1,571 @@
+{
+  "id": "chapter-02-quest-01-bonus-scene-04",
+  "scene_type": "task",
+  "screen_type": "matching",
+  "background": "chapters/02/quests/bonus/bg-task",
+  "content": {
+    "title": "Sfida bonus",
+    "instruction": "Abbina ogni parola italiana al suo equivalente inglese.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Collega ogni parola italiana al suo equivalente inglese.",
+      "sampleSize": 10,
+      "poolPairs": [
+        {
+          "id": "ch02v01",
+          "leftLabel": "la professione",
+          "rightLabel": "profession / occupation"
+        },
+        {
+          "id": "ch02v02",
+          "leftLabel": "il mestiere",
+          "rightLabel": "trade / job"
+        },
+        {
+          "id": "ch02v03",
+          "leftLabel": "il medico",
+          "rightLabel": "doctor / physician"
+        },
+        {
+          "id": "ch02v04",
+          "leftLabel": "l'impiegato",
+          "rightLabel": "clerk / employee"
+        },
+        {
+          "id": "ch02v05",
+          "leftLabel": "l'impiegata",
+          "rightLabel": "clerk / employee"
+        },
+        {
+          "id": "ch02v06",
+          "leftLabel": "il giardiniere",
+          "rightLabel": "gardener"
+        },
+        {
+          "id": "ch02v07",
+          "leftLabel": "la giardiniere",
+          "rightLabel": "gardener"
+        },
+        {
+          "id": "ch02v08",
+          "leftLabel": "il giornalista",
+          "rightLabel": "journalist"
+        },
+        {
+          "id": "ch02v09",
+          "leftLabel": "la giornalista",
+          "rightLabel": "journalist"
+        },
+        {
+          "id": "ch02v10",
+          "leftLabel": "l'archeologo",
+          "rightLabel": "archaeologist"
+        },
+        {
+          "id": "ch02v11",
+          "leftLabel": "l'archeologa",
+          "rightLabel": "archaeologist"
+        },
+        {
+          "id": "ch02v12",
+          "leftLabel": "il poliziotto",
+          "rightLabel": "police officer"
+        },
+        {
+          "id": "ch02v13",
+          "leftLabel": "la poliziotta",
+          "rightLabel": "police officer"
+        },
+        {
+          "id": "ch02v14",
+          "leftLabel": "l'architetto",
+          "rightLabel": "architect"
+        },
+        {
+          "id": "ch02v15",
+          "leftLabel": "l'architetto donna",
+          "rightLabel": "architect"
+        },
+        {
+          "id": "ch02v16",
+          "leftLabel": "l'insegnante",
+          "rightLabel": "teacher"
+        },
+        {
+          "id": "ch02v17",
+          "leftLabel": "il professore",
+          "rightLabel": "professor"
+        },
+        {
+          "id": "ch02v18",
+          "leftLabel": "la professoressa",
+          "rightLabel": "professor"
+        },
+        {
+          "id": "ch02v19",
+          "leftLabel": "il dottore",
+          "rightLabel": "doctor"
+        },
+        {
+          "id": "ch02v20",
+          "leftLabel": "la dottoressa",
+          "rightLabel": "doctor"
+        },
+        {
+          "id": "ch02v21",
+          "leftLabel": "(creare) un profilo",
+          "rightLabel": "(to create) a profile"
+        },
+        {
+          "id": "ch02v22",
+          "leftLabel": "informare (il pubblico)",
+          "rightLabel": "to inform (the public)"
+        },
+        {
+          "id": "ch02v23",
+          "leftLabel": "fare un'indagine",
+          "rightLabel": "to carry out an investigation"
+        },
+        {
+          "id": "ch02v24",
+          "leftLabel": "lottare contro la criminalità",
+          "rightLabel": "to fight against crime"
+        },
+        {
+          "id": "ch02v25",
+          "leftLabel": "fare la scorta a",
+          "rightLabel": "to provide bodyguard protection for"
+        },
+        {
+          "id": "ch02v26",
+          "leftLabel": "inscenare (un caso)",
+          "rightLabel": "to stage (a case)"
+        },
+        {
+          "id": "ch02v27",
+          "leftLabel": "(spiegare) la particolarità (di un caso)",
+          "rightLabel": "(to explain) the particularity (of a case)"
+        },
+        {
+          "id": "ch02v28",
+          "leftLabel": "il liceo artistico",
+          "rightLabel": "art high school"
+        },
+        {
+          "id": "ch02v29",
+          "leftLabel": "il liceo classico",
+          "rightLabel": "classical/humanistic high school"
+        },
+        {
+          "id": "ch02v30",
+          "leftLabel": "il liceo scientifico",
+          "rightLabel": "scientific high school"
+        },
+        {
+          "id": "ch02v31",
+          "leftLabel": "il liceo linguistico",
+          "rightLabel": "linguistic high school"
+        },
+        {
+          "id": "ch02v32",
+          "leftLabel": "il liceo musicale",
+          "rightLabel": "music high school"
+        },
+        {
+          "id": "ch02v33",
+          "leftLabel": "la formazione professionale",
+          "rightLabel": "vocational training"
+        },
+        {
+          "id": "ch02v34",
+          "leftLabel": "il passaggio",
+          "rightLabel": "transition / passage"
+        },
+        {
+          "id": "ch02v35",
+          "leftLabel": "la scuola primaria",
+          "rightLabel": "primary school"
+        },
+        {
+          "id": "ch02v36",
+          "leftLabel": "la scuola secondaria",
+          "rightLabel": "secondary school"
+        },
+        {
+          "id": "ch02v37",
+          "leftLabel": "l'obbligo (d'istruzione)",
+          "rightLabel": "(school) obligation"
+        },
+        {
+          "id": "ch02v38",
+          "leftLabel": "lo stage",
+          "rightLabel": "internship"
+        },
+        {
+          "id": "ch02v39",
+          "leftLabel": "lo stagista",
+          "rightLabel": "intern"
+        },
+        {
+          "id": "ch02v40",
+          "leftLabel": "la stagista",
+          "rightLabel": "intern"
+        },
+        {
+          "id": "ch02v41",
+          "leftLabel": "il braccio",
+          "rightLabel": "arm"
+        },
+        {
+          "id": "ch02v42",
+          "leftLabel": "le braccia",
+          "rightLabel": "arms"
+        },
+        {
+          "id": "ch02v43",
+          "leftLabel": "la mano",
+          "rightLabel": "hand"
+        },
+        {
+          "id": "ch02v44",
+          "leftLabel": "le mani",
+          "rightLabel": "hands"
+        },
+        {
+          "id": "ch02v45",
+          "leftLabel": "il ginocchio",
+          "rightLabel": "knee"
+        },
+        {
+          "id": "ch02v46",
+          "leftLabel": "le ginocchia",
+          "rightLabel": "knees"
+        },
+        {
+          "id": "ch02v47",
+          "leftLabel": "l'occhio",
+          "rightLabel": "eye"
+        },
+        {
+          "id": "ch02v48",
+          "leftLabel": "la testa",
+          "rightLabel": "head"
+        },
+        {
+          "id": "ch02v49",
+          "leftLabel": "il naso",
+          "rightLabel": "nose"
+        },
+        {
+          "id": "ch02v50",
+          "leftLabel": "il labbro",
+          "rightLabel": "lip"
+        },
+        {
+          "id": "ch02v51",
+          "leftLabel": "le labbra",
+          "rightLabel": "lips"
+        },
+        {
+          "id": "ch02v52",
+          "leftLabel": "l'orecchio",
+          "rightLabel": "ear"
+        },
+        {
+          "id": "ch02v53",
+          "leftLabel": "le orecchie",
+          "rightLabel": "ears"
+        },
+        {
+          "id": "ch02v54",
+          "leftLabel": "il piede",
+          "rightLabel": "foot"
+        },
+        {
+          "id": "ch02v55",
+          "leftLabel": "i capelli",
+          "rightLabel": "hair"
+        },
+        {
+          "id": "ch02v56",
+          "leftLabel": "la spalla",
+          "rightLabel": "shoulder"
+        },
+        {
+          "id": "ch02v57",
+          "leftLabel": "il dito",
+          "rightLabel": "finger"
+        },
+        {
+          "id": "ch02v58",
+          "leftLabel": "le dita",
+          "rightLabel": "fingers"
+        },
+        {
+          "id": "ch02v59",
+          "leftLabel": "il cuore",
+          "rightLabel": "heart"
+        },
+        {
+          "id": "ch02v60",
+          "leftLabel": "la gamba",
+          "rightLabel": "leg"
+        },
+        {
+          "id": "ch02v61",
+          "leftLabel": "il muscolo",
+          "rightLabel": "muscle"
+        },
+        {
+          "id": "ch02v62",
+          "leftLabel": "rilassato",
+          "rightLabel": "relaxed"
+        },
+        {
+          "id": "ch02v63",
+          "leftLabel": "rilassata",
+          "rightLabel": "relaxed"
+        },
+        {
+          "id": "ch02v64",
+          "leftLabel": "disponibile",
+          "rightLabel": "available"
+        },
+        {
+          "id": "ch02v65",
+          "leftLabel": "umano",
+          "rightLabel": "human"
+        },
+        {
+          "id": "ch02v66",
+          "leftLabel": "umana",
+          "rightLabel": "human"
+        },
+        {
+          "id": "ch02v67",
+          "leftLabel": "magnifico",
+          "rightLabel": "magnificent / great"
+        },
+        {
+          "id": "ch02v68",
+          "leftLabel": "magnifica",
+          "rightLabel": "magnificent / great"
+        },
+        {
+          "id": "ch02v69",
+          "leftLabel": "carismatico",
+          "rightLabel": "charismatic"
+        },
+        {
+          "id": "ch02v70",
+          "leftLabel": "carismatica",
+          "rightLabel": "charismatic"
+        },
+        {
+          "id": "ch02v71",
+          "leftLabel": "orgoglioso",
+          "rightLabel": "proud"
+        },
+        {
+          "id": "ch02v72",
+          "leftLabel": "orgogliosa",
+          "rightLabel": "proud"
+        },
+        {
+          "id": "ch02v73",
+          "leftLabel": "geniale",
+          "rightLabel": "brilliant / genius"
+        },
+        {
+          "id": "ch02v74",
+          "leftLabel": "(super)potente",
+          "rightLabel": "(super)powerful"
+        },
+        {
+          "id": "ch02v75",
+          "leftLabel": "(ultra)sensibile",
+          "rightLabel": "(ultra)sensitive"
+        },
+        {
+          "id": "ch02v76",
+          "leftLabel": "sincero",
+          "rightLabel": "sincere / honest"
+        },
+        {
+          "id": "ch02v77",
+          "leftLabel": "sincera",
+          "rightLabel": "sincere / honest"
+        },
+        {
+          "id": "ch02v78",
+          "leftLabel": "responsabile",
+          "rightLabel": "responsible"
+        },
+        {
+          "id": "ch02v79",
+          "leftLabel": "flessibile",
+          "rightLabel": "flexible"
+        },
+        {
+          "id": "ch02v80",
+          "leftLabel": "duro",
+          "rightLabel": "hard / tough"
+        },
+        {
+          "id": "ch02v81",
+          "leftLabel": "dura",
+          "rightLabel": "hard / tough"
+        },
+        {
+          "id": "ch02v82",
+          "leftLabel": "snello",
+          "rightLabel": "slim"
+        },
+        {
+          "id": "ch02v83",
+          "leftLabel": "snella",
+          "rightLabel": "slim"
+        },
+        {
+          "id": "ch02v84",
+          "leftLabel": "distrutto",
+          "rightLabel": "destroyed / exhausted"
+        },
+        {
+          "id": "ch02v85",
+          "leftLabel": "distrutta",
+          "rightLabel": "destroyed / exhausted"
+        },
+        {
+          "id": "ch02v86",
+          "leftLabel": "pigro",
+          "rightLabel": "lazy"
+        },
+        {
+          "id": "ch02v87",
+          "leftLabel": "pigra",
+          "rightLabel": "lazy"
+        },
+        {
+          "id": "ch02v88",
+          "leftLabel": "vegano",
+          "rightLabel": "vegan"
+        },
+        {
+          "id": "ch02v89",
+          "leftLabel": "vegana",
+          "rightLabel": "vegan"
+        },
+        {
+          "id": "ch02v90",
+          "leftLabel": "l'esperto",
+          "rightLabel": "expert"
+        },
+        {
+          "id": "ch02v91",
+          "leftLabel": "l'esperta",
+          "rightLabel": "expert"
+        },
+        {
+          "id": "ch02v92",
+          "leftLabel": "programmare",
+          "rightLabel": "to program"
+        },
+        {
+          "id": "ch02v93",
+          "leftLabel": "utilizzare",
+          "rightLabel": "to use"
+        },
+        {
+          "id": "ch02v94",
+          "leftLabel": "il materiale",
+          "rightLabel": "material"
+        },
+        {
+          "id": "ch02v95",
+          "leftLabel": "il modello",
+          "rightLabel": "model"
+        },
+        {
+          "id": "ch02v96",
+          "leftLabel": "magnetico",
+          "rightLabel": "magnetic"
+        },
+        {
+          "id": "ch02v97",
+          "leftLabel": "magnetica",
+          "rightLabel": "magnetic"
+        },
+        {
+          "id": "ch02v98",
+          "leftLabel": "chimico",
+          "rightLabel": "chemical"
+        },
+        {
+          "id": "ch02v99",
+          "leftLabel": "chimica",
+          "rightLabel": "chemical"
+        },
+        {
+          "id": "ch02v100",
+          "leftLabel": "la base (chimica)",
+          "rightLabel": "(chemical) base"
+        },
+        {
+          "id": "ch02v101",
+          "leftLabel": "il comando",
+          "rightLabel": "command / control"
+        },
+        {
+          "id": "ch02v102",
+          "leftLabel": "la trasmissione",
+          "rightLabel": "transmission / broadcast"
+        },
+        {
+          "id": "ch02v103",
+          "leftLabel": "la radio",
+          "rightLabel": "radio"
+        },
+        {
+          "id": "ch02v104",
+          "leftLabel": "il frigorifero",
+          "rightLabel": "refrigerator"
+        },
+        {
+          "id": "ch02v105",
+          "leftLabel": "il ventilatore",
+          "rightLabel": "fan / ventilator"
+        },
+        {
+          "id": "ch02v106",
+          "leftLabel": "lo schermo",
+          "rightLabel": "screen"
+        },
+        {
+          "id": "ch02v107",
+          "leftLabel": "il robot",
+          "rightLabel": "robot"
+        }
+      ],
+      "presentation": {
+        "leftLabel": "italiano",
+        "rightLabel": "english",
+        "shuffleRightOrder": true
+      }
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.6,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

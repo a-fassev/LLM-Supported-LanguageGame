@@ -1,6 +1,6 @@
 {
   "id": "quest-02",
-  "title": "Al mercato",
+  "title": "La Nutelleria",
   "order": 2,
   "kind": "main",
   "requiresQuestId": "quest-01",

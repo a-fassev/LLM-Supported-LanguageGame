@@ -230,7 +230,6 @@ async function buildSnapshotFromRun(
   }
 
   const completedSceneIds = (await getCompletedSceneIds(run.runId)) ?? [];
-  const completedQuestIds = (await getCompletedQuestIds(accountId)) ?? [];
   const quest = findCatalogQuest(catalog, run.chapterId, run.questId);
   const canRetreat = quest ? previousSceneIdInQuest(scene, quest.scenes) !== null : false;
   return {

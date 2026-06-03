@@ -152,7 +152,7 @@ describe("chapter-00 smoke content", () => {
     expect(task?.targets?.[0]?.matchMode).toBe("all");
   });
 
-  it("keeps quest-01 scene 12 as minimal free_text fixture", async () => {
+  it("keeps quest-01 scene 12 as minimal free_text fixture with single figure documento", async () => {
     const catalog = await loadContentCatalog({ bypassCache: true });
     const quest = findCatalogQuest(catalog, "chapter-00", "quest-01");
     const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-00-quest-01-scene-12");
@@ -166,6 +166,17 @@ describe("chapter-00 smoke content", () => {
     expect(typeof task?.prompt).toBe("string");
     expect(task?.minWords).toBe(2);
     expect(taskScene?.scoring.pizza).toMatchObject({ mode: "scored", minRatioToComplete: 0.7 });
+    const ref = taskScene?.content.referenceDocument as { figures?: unknown[] };
+    expect(ref?.figures?.length).toBe(1);
+  });
+
+  it("keeps quest-01 scene 04 MC fixture with six-figure documento gallery", async () => {
+    const catalog = await loadContentCatalog({ bypassCache: true });
+    const quest = findCatalogQuest(catalog, "chapter-00", "quest-01");
+    const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-00-quest-01-scene-04");
+    expect(taskScene?.screen_type).toBe("multiple_choice");
+    const ref = taskScene?.content.referenceDocument as { figures?: unknown[] };
+    expect(ref?.figures?.length).toBe(6);
   });
 
   it("keeps quest-01 scene 13 as short error_spotting fixture", async () => {

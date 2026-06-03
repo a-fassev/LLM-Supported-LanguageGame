@@ -78,7 +78,10 @@ import { SceneRouter } from "@/components/game/shell/SceneRouter";
 import { PauseOverlay } from "@/components/game/overlays/PauseOverlay";
 import { SuccessOverlay } from "@/components/game/overlays/SuccessOverlay";
 import { ReferenceDocumentOverlay } from "@/components/game/overlays/ReferenceDocumentOverlay";
-
+import {
+  toReferenceDocumentView,
+  type ReferenceDocumentView,
+} from "@/lib/game/reference-document-view";
 type RunState = {
   totalSlices: number;
   totalBackpackPieces: number;
@@ -342,15 +345,11 @@ function syncTaskDraftsForScene(
   }, clozePreserve);
 }
 
-function readReference(scene: RunSceneDto | null): { title?: string; body: string } | null {
+function readReference(scene: RunSceneDto | null): ReferenceDocumentView | null {
   if (!scene || scene.scene_type !== "task") return null;
   const task = getTaskPayload(scene);
-  const ref = (task.referenceDocument ?? scene.content.referenceDocument) as Record<string, unknown> | undefined;
-  if (!ref) return null;
-  const body = readNonEmptyString(ref.body) ?? readNonEmptyString(ref.bodyText);
-  if (!body) return null;
-  const title = readNonEmptyString(ref.title) ?? "Documento";
-  return { title, body };
+  const ref = task.referenceDocument ?? scene.content.referenceDocument;
+  return toReferenceDocumentView(ref);
 }
 
 export default function PlayPage() {
@@ -976,6 +975,8 @@ export default function PlayPage() {
           onOpenChange={setDocumentOpen}
           title={referenceDocument.title}
           body={referenceDocument.body}
+          sections={referenceDocument.sections}
+          figures={referenceDocument.figures}
         />
       ) : null}
         </>

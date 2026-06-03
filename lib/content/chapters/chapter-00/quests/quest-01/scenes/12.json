@@ -5,8 +5,18 @@
   "background": "chapters/00/quests/01/bg-task-01",
   "content": {
     "title": "Presentati",
-    "instruction": "Scrivi due frasi in italiano.",
-    "referenceDocument": null,
+    "instruction": "Scrivi due frasi in italiano. Apri il documento se ti serve la foto di esempio.",
+    "referenceDocument": {
+      "title": "Il compagno di esempio",
+      "body": "Fixture per il team: una sola figura nel documento (come le professioni nel capitolo 2).",
+      "figures": [
+        {
+          "image": "chapters/00/quests/01/ref-fixture-compagno",
+          "caption": "Un compagno di classe",
+          "alt": "Ritratto placeholder per test UI"
+        }
+      ]
+    },
     "task": {
       "prompt": "Come ti presenteresti a un nuovo compagno di classe?",
       "targetLanguage": "it",

@@ -1,0 +1,9 @@
+{
+  "id": "chapter-02-quest-04-scene-06",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/02/quests/04/bg-trattoria",
+  "content": {
+    "text": "Signor Marini\n\"Ah, perfetto! Stiamo cercando ragazzi/e per la stagione estiva. Hai con te una lettera di motivazione?\""
+  }
+}

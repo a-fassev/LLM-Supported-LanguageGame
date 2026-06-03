@@ -16,6 +16,18 @@ describe("normalizeReferenceDocumentForTask", () => {
       bodyText: "Caffe - 1,20 EUR",
     });
   });
+
+  it("accepts figures without body text", () => {
+    expect(
+      normalizeReferenceDocumentForTask({
+        title: "l'architetto",
+        figures: [{ image: "chapters/02/quests/02/ref-prof-architetto", caption: "l'architetto" }],
+      }),
+    ).toMatchObject({
+      title: "l'architetto",
+      figures: [{ image: "chapters/02/quests/02/ref-prof-architetto", caption: "l'architetto" }],
+    });
+  });
 });
 
 describe("mergeFreitextSceneContent", () => {

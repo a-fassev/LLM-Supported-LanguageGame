@@ -1,0 +1,9 @@
+{
+  "id": "chapter-02-quest-04-scene-05",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/02/quests/04/bg-trattoria",
+  "content": {
+    "text": "Tu\n\"Buongiorno, no, scusi… Ho visto il cartello fuori. Cerco un lavoretto per l'estate.\""
+  }
+}

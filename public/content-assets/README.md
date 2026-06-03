@@ -21,6 +21,19 @@ Background keys in `lib/content/` scene JSON (e.g. `chapters/01/quests/01/bg-sto
 
 Story scenes may use backgrounds that include character artwork; no separate avatar asset id in JSON.
 
+## Reference document figures (`referenceDocument.figures[]`)
+
+Keys in scene JSON (no `.png` suffix) map to **`public/content-assets/{key}.png`**. They power the **documento** overlay (image grid), not scene backgrounds.
+
+| Chapter | Path on disk | Used for |
+| ------- | ------------ | -------- |
+| **00** (fixtures) | `public/content-assets/chapters/00/quests/01/ref-fixture-*.png` | Sandbox: 6-face gallery (scene 04), single figure (scene 12) |
+| **02** (Lezione 2) | `public/content-assets/chapters/02/quests/03/ref-quiz-*.png` | Quiz gallery (6 persons) |
+| **02** | `public/content-assets/chapters/02/quests/02/ref-prof-*.png` | Nutelleria freetext (4 professions) |
+| **02** | `public/content-assets/chapters/02/quests/04/ref-menu-*.png` | Trattoria menù freetext (5 categories) |
+
+Replace a file in place (same key in JSON) when art is ready; no code change required.
+
 ## Format and fallbacks
 
 - Store **PNG** files (keys in code omit `.png`).

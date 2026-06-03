@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { referenceDocumentSchema } from "@/lib/game/schemas/referenceDocumentSchema";
 import { pizzaRulesSchema } from "@/lib/game/scoring/pizzaReward";
 
 const idPartSchema = z.string().regex(/^[a-z0-9-]+$/);
@@ -38,13 +39,6 @@ export const taskScreenTypeSchema = z.enum([
   "multiple_choice",
   "bonus",
 ]);
-
-export const referenceDocumentSchema = z
-  .object({
-    title: z.string().min(1),
-    body: z.string().min(1),
-  })
-  .strict();
 
 const taskContentSchema = z
   .object({

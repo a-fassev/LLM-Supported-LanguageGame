@@ -11,7 +11,7 @@ description: >-
 
 Branch: **`web-based-implementation`**. Canonical rules: **`AGENTS.md`**, learner UX: **`.cursor/skills/product/SKILL.md`**. Content shape: **`docs/quest-scene-content-format.md`**.
 
-**Reference implementations** (sandbox **`chapter-00`**, not learner **`chapter-01`**): Multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, `chapter-00/quests/quest-01/scenes/04.json` + `05.json`. Matching — `chapter-00/quests/quest-01/scenes/06.json`–`08.json`. Drag_drop — `chapter-00/quests/quest-01/scenes/09.json`–`11.json`. **Free_text** — `chapter-00/quests/quest-01/scenes/12.json`, `docs/freitext-llm-implementation.md`. **Error_spotting** — chapter-03 quest-01 `scenes/02.json`, `chapter-00/quests/quest-01/scenes/13.json` + `14.json`. **Cloze** — `chapter-00/quests/quest-01/scenes/15.json` + `16.json`, `docs/cloze-text-task-integration-plan.md`. Smoke tests: `lib/game/content/chapter-00-smoke-content.test.ts`.
+**Reference implementations** (sandbox **`chapter-00`**, not learner **`chapter-01`**): Multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, `chapter-00/quests/quest-01/scenes/04.json` (**6-figure documento**) + `05.json` (long text documento). Matching — `chapter-00/quests/quest-01/scenes/06.json`–`08.json`. Drag_drop — `chapter-00/quests/quest-01/scenes/09.json`–`11.json`. **Free_text** — `chapter-00/quests/quest-01/scenes/12.json` (**single-figure documento**), `docs/freitext-llm-implementation.md`. **Error_spotting** — chapter-03 quest-01 `scenes/02.json`, `chapter-00/quests/quest-01/scenes/13.json` + `14.json`. **Cloze** — `chapter-00/quests/quest-01/scenes/15.json` + `16.json` (text `referenceDocument`), `docs/cloze-text-task-integration-plan.md`. Learner documento figures: **`chapter-02`**. Smoke tests: `lib/game/content/chapter-00-smoke-content.test.ts`.
 
 ## Methodology (always)
 
@@ -86,6 +86,21 @@ Execute in order; complete each phase before the next unless the user splits PRs
 | **4 — Docs & tests** | Contract documented | `docs/quest-scene-content-format.md` subsection, Vitest for normalize/validate/attempt builders |
 
 After phase 2, manual pass on `/play` with fixtures. After phase 3, verify scored path + retry overlay.
+
+## Documento (`referenceDocument` overlay)
+
+**Contract:** `lib/game/schemas/referenceDocumentSchema.ts`; authoring: `docs/quest-scene-content-format.md` § task shell. Scene-level `content.referenceDocument` on any task type; play reads `task.referenceDocument ?? scene.content.referenceDocument` via `toReferenceDocumentView()` (`lib/game/reference-document-view.ts`). UI: `components/game/overlays/ReferenceDocumentOverlay.tsx`.
+
+**Assets:** `figures[].image` keys → `public/content-assets/{key}.png` (`public/content-assets/README.md`). Sanitizer keeps shell `referenceDocument` on snapshots (`sanitizeSceneContentForClient`).
+
+**UI (locked):**
+
+- Dialog body scrolls without an extra bordered box around all content; **per-figure** `border` cards are OK.
+- Image frame: `aspect-[4/3] w-full` only — **no** `max-h-*` on the same element.
+- One figure: grid `place-items-center`, card `max-w-sm`. Gallery: `md:grid-cols-2`.
+- `resolveAssetUrl` is sync — `useMemo` for figure URLs, not async `.then()` in effects.
+
+**Fixtures:** chapter-00 scenes **04** (gallery), **12** (single figure); chapter-02 quiz / profession / menu scenes.
 
 ## Error spotting (`error_spotting`)
 
