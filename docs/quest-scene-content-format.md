@@ -139,7 +139,7 @@ Exercise with **Controlla** and server-checked answers.
 | `cloze` | Fill gaps in a passage (own type, not multiple choice). |
 | `error_spotting` | Find and fix mistakes in a passage. |
 | `drag_drop` | Drag items into slots or order. |
-| `free_text` | Short Italian answer (LLM check on server — **implementation later**). |
+| `free_text` | Short Italian answer scored on the server via LLM (`FreitextLlm`). |
 | `matching` | Match pairs between two columns. |
 | `multiple_choice` | Pick one or more options. |
 | `bonus` | Dedicated bonus exercise screen; pair with `quest.json` → `kind: "bonus"`. |
@@ -341,6 +341,46 @@ Validated at catalog load (`parseDragDropContent`). Web v1 supports **`presentat
 | Attempt | `{ taskType: "DragDrop", dragDrop: { assignments: { [targetId]: string \| string[] } } } }` — arrays for `all` buckets. |
 
 Fixture scenes in quest-01 (after matching): `scenes/09.json` (minimal), `10.json` (medium + `referenceDocument`), `11.json` (bucket `matchMode: "all"`). See `docs/drag-drop-task-integration-plan.md`.
+
+#### `free_text` — `content.task`
+
+Validated at catalog load (`parseFreitextLlmStepContent` on merged `content.task` + scene `instruction`). **Scene completion** uses **`scoring.pizza.minRatioToComplete`** when `pizza.mode` is `scored`, and **`evaluation.passThreshold`** when `pizza.mode` is `flat`. **`evaluation.passThreshold`** and **`scoringPolicy`** feed the LLM rubric only — they do **not** gate completion on web. The server always runs the LLM judge for `free_text`, including when `pizza.mode` is `flat` (flat only fixes slice count, not evaluation). Snapshots strip `task.evaluation` before the browser (see `sanitize-task-payload-for-client.ts`).
+
+```jsonc
+{
+  "prompt": "Come ti presenteresti a un nuovo compagno?",
+  "targetLanguage": "it",
+  "showWordCount": true,
+  "minWords": 2,
+  "maxWords": 40,
+  "evaluation": {
+    "grammarWeight": 1,
+    "vocabularyWeight": 1,
+    "registerWeight": 1,
+    "taskFulfillmentWeight": 1,
+    "passThreshold": 0.6,
+    "registerTarget": "informal",
+    "scoringPolicy": "threshold_pass",
+    "maxPoints": 5,
+    "evaluationCriteria": ["Use a simple Italian greeting"],
+    "targetStructures": ["ciao", "mi chiamo"]
+  }
+}
+```
+
+| Rule | Notes |
+| ---- | ----- |
+| `prompt` | Required; shown in `TaskBodyLayout`. |
+| `evaluation` | Required weights (`grammarWeight`, `vocabularyWeight`, `registerWeight`, optional `taskFulfillmentWeight` default 1) + `passThreshold`. LLM returns four scores; `ratio` is their weighted mean. Stripped from client snapshots. |
+| `taskFulfillmentWeight` | Weight for **task fulfillment** (prompt + instruction + `evaluationCriteria` + `targetStructures`). Default **1** when omitted. |
+| `pizza.mode` | Prefer **`scored`** with `minRatioToComplete`. **`flat`** still calls the LLM; completion uses **`evaluation.passThreshold`** as the ratio bar (slices use the flat value). |
+| Limits | Optional `minWords` / `maxWords`; enforced client + server. |
+| Counters | `showWordCount` / `showCharacterCount` toggle stats under the prompt. |
+| Scene copy | `instruction` → `TaskChrome`; optional scene-level `referenceDocument` for documento. |
+| Attempt | `{ taskType: "FreitextLlm", freitextLlm: { answerText: "…" } }`. |
+| Retry UX | Below `minRatioToComplete`: `409` + `taskOutcome` with LLM `summaryFeedback` in overlay body. |
+
+Fixture scenes: quest-01 `scenes/12.json` (minimal smoke), chapter-03 quest-02 `scenes/02.json` (rich + `referenceDocument`). See `docs/freitext-llm-task-integration-plan.md`.
 
 ---
 

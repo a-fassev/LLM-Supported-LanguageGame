@@ -20,8 +20,47 @@ const catalogMocks = vi.hoisted(() => ({
   findCatalogScene: vi.fn(),
 }));
 
+const evaluateFreitextLlmSceneMock = vi.hoisted(() => vi.fn());
+
 vi.mock("@/lib/game/repositories/game-progress-repository", () => repoMocks);
 vi.mock("@/lib/game/content/catalog-loader", () => catalogMocks);
+vi.mock("@/lib/game/tasks/freitext/evaluate-freitext-llm-scene", () => ({
+  evaluateFreitextLlmScene: evaluateFreitextLlmSceneMock,
+}));
+
+function makeFreetextTaskScene() {
+  return {
+    id: "chapter-03-quest-02-scene-02",
+    sceneNumber: 2,
+    filename: "02.json",
+    scene_type: "task" as const,
+    screen_type: "free_text" as const,
+    background: "chapters/03/quests/02/bg-task-01",
+    content: {
+      title: "Task",
+      instruction: "Scrivi due frasi.",
+      task: {
+        prompt: "Descrivi.",
+        evaluation: {
+          grammarWeight: 1,
+          vocabularyWeight: 1,
+          registerWeight: 1,
+          passThreshold: 0.5,
+        },
+      },
+    },
+    scoring: {
+      backpack: { pieces: 1 },
+      pizza: {
+        mode: "scored" as const,
+        maxSlices: 3,
+        minRatioToComplete: 0.7,
+        rounding: "nearest" as const,
+        mapping: { kind: "linear" as const },
+      },
+    },
+  };
+}
 
 import {
   completeTaskScene,
@@ -32,6 +71,7 @@ import {
 describe("game-progress-service run flows", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.unstubAllEnvs();
     repoMocks.ensureWalletRow.mockResolvedValue(true);
     repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 0, totalBackpackPieces: 0 });
     repoMocks.getCompletedQuestIds.mockResolvedValue([]);
@@ -201,76 +241,164 @@ describe("game-progress-service run flows", () => {
     expect(repoMocks.incrementWalletTotals).not.toHaveBeenCalled();
   });
 
-  it("rejects scored free_text tasks without evaluator", async () => {
+  it("returns evaluator_unavailable for free_text when LLM env is missing", async () => {
+    const taskScene = makeFreetextTaskScene();
     repoMocks.getQuestRunById.mockResolvedValue({
       runId: "run-1",
       accountId: "acc-1",
       chapterId: "chapter-03",
       questId: "quest-02",
-      currentSceneId: "chapter-03-quest-02-scene-02",
+      currentSceneId: taskScene.id,
       status: "in_progress",
     });
     catalogMocks.loadContentCatalog.mockResolvedValue({});
-    catalogMocks.findCatalogScene.mockReturnValue({
-      id: "chapter-03-quest-02-scene-02",
-      sceneNumber: 2,
-      filename: "02.json",
-      scene_type: "task",
-      screen_type: "free_text",
-      background: "chapters/03/quests/02/bg-task-01",
-      content: {
-        title: "Task",
-        task: {},
-      },
-      scoring: {
-        backpack: { pieces: 1 },
-        pizza: {
-          mode: "scored",
-          maxSlices: 3,
-          mapping: { kind: "linear" },
-        },
-      },
+    catalogMocks.findCatalogScene.mockReturnValue(taskScene);
+    evaluateFreitextLlmSceneMock.mockResolvedValue({
+      ok: false,
+      status: 503,
+      error: "Il valutatore non è disponibile. Riprova più tardi.",
+      code: "evaluator_unavailable",
     });
 
-    const result = await completeTaskScene("acc-1", "run-1", "chapter-03-quest-02-scene-02", {
-      attemptPayload: { rawText: "ciao" },
+    const result = await completeTaskScene("acc-1", "run-1", taskScene.id, {
+      attemptPayload: {
+        taskType: "FreitextLlm",
+        freitextLlm: { answerText: "Ciao, mi chiamo Luca." },
+      },
     });
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.status).toBe(501);
-      expect(result.code).toBe("task_eval_not_implemented");
+      expect(result.status).toBe(503);
+      expect(result.code).toBe("evaluator_unavailable");
     }
+    expect(evaluateFreitextLlmSceneMock).toHaveBeenCalled();
   });
 
-  it("auto-passes scored free_text when GAME_SMOKE_AUTO_PASS is true", async () => {
-    vi.stubEnv("GAME_SMOKE_AUTO_PASS", "true");
-
+  it("evaluates free_text when pizza mode is flat", async () => {
+    const taskScene = {
+      ...makeFreetextTaskScene(),
+      scoring: {
+        backpack: { pieces: 1 },
+        pizza: { mode: "flat" as const, slices: 2 },
+      },
+    };
     const run = {
       runId: "run-1",
       accountId: "acc-1",
       chapterId: "chapter-03",
       questId: "quest-02",
-      currentSceneId: "chapter-03-quest-02-scene-02",
+      currentSceneId: taskScene.id,
       status: "in_progress" as const,
     };
-    const taskScene = {
-      id: "chapter-03-quest-02-scene-02",
-      sceneNumber: 2,
-      filename: "02.json",
-      scene_type: "task" as const,
-      screen_type: "free_text",
-      background: "chapters/03/quests/02/bg-task-01",
-      content: { title: "Task", task: {} },
-      scoring: {
-        backpack: { pieces: 1 },
-        pizza: {
-          mode: "scored" as const,
-          maxSlices: 3,
-          minRatioToComplete: 0.7,
-          rounding: "nearest" as const,
-          mapping: { kind: "linear" as const },
+    const nextScene = {
+      id: "chapter-03-quest-02-scene-03",
+      sceneNumber: 3,
+      filename: "03.json",
+      scene_type: "story" as const,
+      screen_type: "info",
+      background: "bg",
+      content: { text: "Fine" },
+      scoring: { backpack: { pieces: 0 }, pizza: { mode: "flat" as const, slices: 0 } },
+    };
+
+    repoMocks.getQuestRunById
+      .mockResolvedValueOnce(run)
+      .mockResolvedValueOnce({ ...run, currentSceneId: nextScene.id });
+    catalogMocks.loadContentCatalog.mockResolvedValue({
+      chapters: [
+        {
+          id: "chapter-03",
+          questsExpanded: [{ id: "quest-02", scenes: [taskScene, nextScene] }],
         },
+      ],
+    });
+    catalogMocks.findCatalogScene.mockImplementation((_catalog, _ch, _q, sceneId: string) => {
+      if (sceneId === taskScene.id) return taskScene;
+      if (sceneId === nextScene.id) return nextScene;
+      return null;
+    });
+    catalogMocks.findCatalogQuest.mockReturnValue({
+      id: "quest-02",
+      scenes: [taskScene, nextScene],
+    });
+    repoMocks.completeSceneOnce.mockResolvedValue({ completionId: "c1", inserted: true });
+    repoMocks.incrementWalletTotals.mockResolvedValue(true);
+    repoMocks.updateQuestRunPosition.mockResolvedValue(true);
+    repoMocks.getCompletedSceneIds.mockResolvedValue([taskScene.id]);
+    repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 2, totalBackpackPieces: 1 });
+    evaluateFreitextLlmSceneMock.mockResolvedValue({
+      ok: true,
+      ratio: 0.9,
+      feedback: { summaryFeedback: "Ottimo!" },
+    });
+
+    const result = await completeTaskScene("acc-1", "run-1", taskScene.id, {
+      attemptPayload: {
+        taskType: "FreitextLlm",
+        freitextLlm: { answerText: "Ciao, mi chiamo Luca. Piacere." },
       },
+    });
+
+    expect(result.ok).toBe(true);
+    expect(evaluateFreitextLlmSceneMock).toHaveBeenCalled();
+    if (result.ok) {
+      expect(result.taskOutcome?.awardedSlices).toBe(2);
+    }
+  });
+
+  it("rejects free_text below passThreshold when pizza mode is flat", async () => {
+    const taskScene = {
+      ...makeFreetextTaskScene(),
+      scoring: {
+        backpack: { pieces: 0 },
+        pizza: { mode: "flat" as const, slices: 2 },
+      },
+    };
+    repoMocks.getQuestRunById.mockResolvedValue({
+      runId: "run-1",
+      accountId: "acc-1",
+      chapterId: "chapter-03",
+      questId: "quest-02",
+      currentSceneId: taskScene.id,
+      status: "in_progress",
+    });
+    catalogMocks.loadContentCatalog.mockResolvedValue({});
+    catalogMocks.findCatalogScene.mockReturnValue(taskScene);
+    evaluateFreitextLlmSceneMock.mockResolvedValue({
+      ok: true,
+      ratio: 0.4,
+      feedback: { summaryFeedback: "Aggiungi un saluto." },
+    });
+
+    const result = await completeTaskScene("acc-1", "run-1", taskScene.id, {
+      attemptPayload: {
+        taskType: "FreitextLlm",
+        freitextLlm: { answerText: "Ciao." },
+      },
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.status).toBe(409);
+      expect(result.code).toBe("task_min_ratio_not_met");
+      expect(result.taskOutcome?.kind).toBe("retry");
+      expect(result.taskOutcome?.body).toContain("saluto");
+    }
+    expect(evaluateFreitextLlmSceneMock).toHaveBeenCalled();
+    expect(repoMocks.completeSceneOnce).not.toHaveBeenCalled();
+  });
+
+  it("evaluates free_text when GAME_SMOKE_AUTO_PASS is true", async () => {
+    vi.stubEnv("GAME_SMOKE_AUTO_PASS", "true");
+
+    const taskScene = makeFreetextTaskScene();
+    const run = {
+      runId: "run-1",
+      accountId: "acc-1",
+      chapterId: "chapter-03",
+      questId: "quest-02",
+      currentSceneId: taskScene.id,
+      status: "in_progress" as const,
     };
     const nextScene = {
       id: "chapter-03-quest-02-scene-03",
@@ -308,16 +436,25 @@ describe("game-progress-service run flows", () => {
     repoMocks.updateQuestRunPosition.mockResolvedValue(true);
     repoMocks.getCompletedSceneIds.mockResolvedValue([taskScene.id]);
     repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 3, totalBackpackPieces: 1 });
+    evaluateFreitextLlmSceneMock.mockResolvedValue({
+      ok: true,
+      ratio: 0.85,
+      feedback: { summaryFeedback: "Bene!", nextStepAdvice: "Continua così." },
+    });
 
     const result = await completeTaskScene("acc-1", "run-1", taskScene.id, {
-      attemptPayload: { rawText: "wrong on purpose" },
+      attemptPayload: {
+        taskType: "FreitextLlm",
+        freitextLlm: { answerText: "Ciao, mi chiamo Luca. Piacere di conoscerti." },
+      },
     });
 
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.taskOutcome?.ratio).toBe(1);
-      expect(result.taskOutcome?.awardedSlices).toBe(3);
+      expect(result.taskOutcome?.ratio).toBe(0.85);
+      expect(result.taskOutcome?.awardedSlices).toBeGreaterThan(0);
     }
+    expect(evaluateFreitextLlmSceneMock).toHaveBeenCalled();
     expect(repoMocks.completeSceneOnce).toHaveBeenCalled();
     expect(repoMocks.incrementWalletTotals).toHaveBeenCalled();
 

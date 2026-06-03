@@ -52,7 +52,7 @@
 ### Intentionally out of scope (initial UI work)
 
 - **Per-task-type renderers** — **Multiple choice** implemented under `components/game/tasks/types/multiple-choice/`; Cloze, DragDrop, Matching, Error spotting, … still **`TaskPlaceholder`** until each type is built (see **§5b** + **web-task-type-ui** skill).
-- **Freitext / LLM** — not in scope; no evaluate UI or loading states for LLM in this phase.
+- **Freitext / LLM** — implemented (`screen_type: "free_text"`, `components/game/tasks/types/free-text/`); Controlla blocks with loading copy while the server runs the judge.
 - Unity-specific `SpecialScreen*` — not ported unless content uses them on web.
 - **“First playable milestone”** end-to-end slice — planned separately later; this doc does not define that checklist.
 
@@ -472,7 +472,7 @@ sequenceDiagram
 - **Per-type UI:** Roll out one `screen_type` at a time using **`.cursor/skills/web-task-type-ui/SKILL.md`**. **Multiple choice** is the reference implementation (2026-06-03).
 - **Placeholder:** Unsupported `screen_type`s still render `TaskPlaceholder` inside `TaskBodyLayout` (optional flat `task.prompt`).
 - **Server:** Unsupported **scored** types may return `task_eval_not_implemented` — inline Italian from `clientMessages`, not a toast.
-- **Freitext / LLM:** excluded until a dedicated milestone; no dedicated evaluate UI yet.
+- **Freitext / LLM:** `FreeTextTask` + play-page draft; attempt POST runs `evaluateFreitextLlmScene` server-side; retry overlay shows LLM `summaryFeedback` (success overlay stays generic).
 
 ---
 
@@ -496,7 +496,7 @@ sequenceDiagram
 | **P5** | Task shell: Controlla → attempt, `SuccessOverlay` from `taskOutcome`, documento; `TaskPlaceholder` |
 | **P6** | Pause overlay + exit paths; Sonner for fatal errors |
 | **P7** | Multiple choice (`TaskBodyLayout` + MC renderer) — **done** |
-| **P7+** | Remaining types under `components/game/tasks/types/*` via **web-task-type-ui** skill (Freitext/LLM last or separate) |
+| **P7+** | Remaining types under `components/game/tasks/types/*` via **web-task-type-ui** skill (matching, drag_drop, **free_text** done; cloze, error_spotting, …) |
 
 Each phase: Italian copy, one layout primitive reused, no new global stores. Phases are **technical building blocks**, not the deferred “playable milestone” checklist.
 

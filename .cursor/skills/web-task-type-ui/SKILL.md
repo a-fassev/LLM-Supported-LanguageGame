@@ -11,7 +11,7 @@ description: >-
 
 Branch: **`web-based-implementation`**. Canonical rules: **`AGENTS.md`**, learner UX: **`.cursor/skills/product/SKILL.md`**. Content shape: **`docs/quest-scene-content-format.md`**.
 
-**Reference implementations:** Multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, quest-01 `scenes/04.json` + `05.json`, `docs/multiple-choice-task-integration-plan.md` (historical detail). Matching — `components/game/tasks/types/matching/`, `lib/game/tasks/matching/`, quest-01 `scenes/06.json`–`08.json`. Drag_drop — `components/game/tasks/types/drag-drop/`, `lib/game/tasks/drag-drop/`, quest-01 `scenes/09.json`–`11.json`, `docs/drag-drop-task-integration-plan.md`.
+**Reference implementations:** Multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, quest-01 `scenes/04.json` + `05.json`, `docs/multiple-choice-task-integration-plan.md` (historical detail). Matching — `components/game/tasks/types/matching/`, `lib/game/tasks/matching/`, quest-01 `scenes/06.json`–`08.json`. Drag_drop — `components/game/tasks/types/drag-drop/`, `lib/game/tasks/drag-drop/`, quest-01 `scenes/09.json`–`11.json`, `docs/drag-drop-task-integration-plan.md`. **Free_text** — `components/game/tasks/types/free-text/`, `lib/game/tasks/freitext/`, quest-01 `scenes/12.json`, `docs/freitext-llm-implementation.md`.
 
 ## Methodology (always)
 
@@ -47,7 +47,8 @@ Do **not** edit Cursor plan files unless the user asks. Prefer updating `docs/qu
 **Client rules:**
 
 - Never use `correctOptionIds` / `correctPairs` / answers in UI logic.
-- Run snapshots strip answer keys in `game-progress-service` → `sceneToDto` → `sanitize-task-payload-for-client.ts`; normalizers use `parseMultipleChoiceClientContent` / `parseMatchingClientContent` / `parseDragDropClientContent` after sanitize. Extend when adding a scored type.
+- Run snapshots strip answer keys in `game-progress-service` → `sceneToDto` → `sanitize-task-payload-for-client.ts`; normalizers use client parsers after sanitize (`parseMultipleChoiceClientContent`, `parseMatchingClientContent`, `parseDragDropClientContent`, **`parseFreitextClientContent`** — freetext also strips `task.evaluation`). **Do not** call `parseFreitextLlmStepContent` in UI normalizers.
+- **Free_text server path:** async `evaluateFreitextLlmScene` in `completeTaskScene` (not `evaluateTaskAttempt`). `GAME_SMOKE_AUTO_PASS` still runs the LLM for freetext. Use `TaskBodyLayout` `fillScroll` + full-height textarea; loading copy while attempt is in flight.
 - **Pre-Controlla validation:** MC/matching require a complete draft (inline error under prompt). **Drag-drop:** no completeness gate — always submit; wrong/empty zones fail via server ratio + `SuccessOverlay` retry.
 - **Drag-drop `matchMode: "one"`:** UI may stack multiple tiles in one zone while sorting; scoring counts the target correct only when **exactly one** placed tile is in `correctItemIds`. Do not “fix” multi-tile zones back to single-slot replace.
 - Post-**Controlla** feedback: `SuccessOverlay` + `taskOutcome`, not toasts for wrong answers.

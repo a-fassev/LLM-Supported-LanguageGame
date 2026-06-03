@@ -11,6 +11,8 @@ import {
 import { parseDragDropContent } from "@/lib/game/schemas/dragDropContentSchema";
 import { parseMatchingContent } from "@/lib/game/schemas/matchingContentSchema";
 import { parseMultipleChoiceContent } from "@/lib/game/schemas/multipleChoiceContentSchema";
+import { parseFreitextLlmStepContent } from "@/lib/llm/freitextLlmContentSchema";
+import { mergeFreitextSceneContent } from "@/lib/game/tasks/freitext/merge-freitext-scene-content";
 
 export type CatalogScene = SceneFileParsed & {
   sceneNumber: number;
@@ -124,6 +126,17 @@ async function loadScenes(chapterId: string, questId: string, scenesDir: string)
         err(
           `${filePath}: content.task: matching scenes in web catalog require concrete leftItems, rightItems, and correctPairs (poolPairs authoring is not supported yet)`,
         );
+      }
+    }
+
+    if (scene.scene_type === "task" && scene.screen_type === "free_text") {
+      const merged = mergeFreitextSceneContent(
+        scene.content.task as Record<string, unknown>,
+        scene.content.instruction,
+      );
+      const freitextParsed = parseFreitextLlmStepContent(merged);
+      if (!freitextParsed.ok) {
+        err(`${filePath}: content.task: ${freitextParsed.issues}`);
       }
     }
 

@@ -24,6 +24,8 @@ type SceneRouterProps = {
   matchingValidationError?: string | null;
   dragDropAssignments: DragDropAssignmentsDraft | null;
   dragDropValidationError?: string | null;
+  freetextAnswer: string;
+  freetextValidationError?: string | null;
   canRetreat: boolean;
   sceneNavPending: boolean;
   taskSubmitting: boolean;
@@ -31,6 +33,7 @@ type SceneRouterProps = {
   onMcQuestionIndexChange: (index: number) => void;
   onMatchingPairsChange: (updater: MatchingPairsUpdater) => void;
   onDragDropAssignmentsChange: (updater: DragDropAssignmentsUpdater) => void;
+  onFreetextAnswerChange: (value: string) => void;
   onAdvanceStory: () => void;
   onRetreatScene: () => void;
   onSubmitTask: () => void;
@@ -58,6 +61,8 @@ export function SceneRouter({
   matchingValidationError,
   dragDropAssignments,
   dragDropValidationError,
+  freetextAnswer,
+  freetextValidationError,
   canRetreat,
   sceneNavPending,
   taskSubmitting,
@@ -65,6 +70,7 @@ export function SceneRouter({
   onMcQuestionIndexChange,
   onMatchingPairsChange,
   onDragDropAssignmentsChange,
+  onFreetextAnswerChange,
   onAdvanceStory,
   onRetreatScene,
   onSubmitTask,
@@ -150,10 +156,14 @@ export function SceneRouter({
           matchingValidationError={matchingValidationError}
           dragDropAssignments={dragDropAssignments}
           dragDropValidationError={dragDropValidationError}
+          freetextAnswer={freetextAnswer}
+          freetextValidationError={freetextValidationError}
+          freetextEvaluating={taskSubmitting && scene.screen_type === "free_text"}
           taskDisabled={taskSubmitting}
           onMcSelectionsChange={onMcSelectionsChange}
           onMatchingPairsChange={onMatchingPairsChange}
           onDragDropAssignmentsChange={onDragDropAssignmentsChange}
+          onFreetextAnswerChange={onFreetextAnswerChange}
         />
       </TaskChrome>
     </div>

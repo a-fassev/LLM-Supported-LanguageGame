@@ -41,6 +41,13 @@ import {
   normalizeDragDropContentResult,
 } from "@/lib/game/tasks/drag-drop/normalize-drag-drop-content";
 import { validateDragDropDraft } from "@/lib/game/tasks/drag-drop/validate-drag-drop-draft";
+import { buildFreitextAttempt } from "@/lib/game/tasks/freitext/build-freitext-attempt";
+import {
+  FREITEXT_CONTENT_MISMATCH_MESSAGE,
+  normalizeFreitextContentResult,
+} from "@/lib/game/tasks/freitext/normalize-freitext-content";
+import { validateFreitextDraft } from "@/lib/game/tasks/freitext/validate-freitext-draft";
+import { readTaskSceneInstruction } from "@/lib/game/scene-display";
 import type { MatchingPairsDraft } from "@/lib/game/tasks/matching/matching-types";
 import type { DragDropAssignmentsDraft } from "@/lib/game/tasks/drag-drop/drag-drop-types";
 import { clampMcQuestionIndex } from "@/lib/game/tasks/multiple-choice/mc-question-nav";
@@ -164,6 +171,31 @@ function syncDragDropDraftForScene(
   setters.setDragDropValidationError(null);
 }
 
+function syncFreetextDraftForScene(
+  scene: RunSceneDto | null,
+  setters: {
+    setFreetextAnswer: (value: string) => void;
+    setFreetextValidationError: (value: string | null) => void;
+  },
+) {
+  if (!scene || scene.scene_type !== "task" || scene.screen_type !== "free_text") {
+    setters.setFreetextAnswer("");
+    setters.setFreetextValidationError(null);
+    return;
+  }
+  const normalized = normalizeFreitextContentResult(
+    getTaskPayload(scene),
+    readTaskSceneInstruction(scene),
+  );
+  if (!normalized.ok) {
+    setters.setFreetextAnswer("");
+    setters.setFreetextValidationError(FREITEXT_CONTENT_MISMATCH_MESSAGE);
+    return;
+  }
+  setters.setFreetextAnswer("");
+  setters.setFreetextValidationError(null);
+}
+
 function syncMatchingDraftForScene(
   scene: RunSceneDto | null,
   setters: {
@@ -196,6 +228,8 @@ function syncTaskDraftsForScene(
     setMatchingValidationError: (value: string | null) => void;
     setDragDropAssignments: (value: DragDropAssignmentsDraft | null) => void;
     setDragDropValidationError: (value: string | null) => void;
+    setFreetextAnswer: (value: string) => void;
+    setFreetextValidationError: (value: string | null) => void;
   },
 ) {
   syncMcDraftForScene(scene, {
@@ -210,6 +244,10 @@ function syncTaskDraftsForScene(
   syncDragDropDraftForScene(scene, {
     setDragDropAssignments: setters.setDragDropAssignments,
     setDragDropValidationError: setters.setDragDropValidationError,
+  });
+  syncFreetextDraftForScene(scene, {
+    setFreetextAnswer: setters.setFreetextAnswer,
+    setFreetextValidationError: setters.setFreetextValidationError,
   });
 }
 
@@ -243,6 +281,8 @@ export default function PlayPage() {
   const [matchingValidationError, setMatchingValidationError] = useState<string | null>(null);
   const [dragDropAssignments, setDragDropAssignments] = useState<DragDropAssignmentsDraft | null>(null);
   const [dragDropValidationError, setDragDropValidationError] = useState<string | null>(null);
+  const [freetextAnswer, setFreetextAnswer] = useState("");
+  const [freetextValidationError, setFreetextValidationError] = useState<string | null>(null);
   const [sceneNavPending, setSceneNavPending] = useState(false);
   const [taskPending, setTaskPending] = useState(false);
   const [pauseOpen, setPauseOpen] = useState(false);
@@ -307,6 +347,8 @@ export default function PlayPage() {
             setMatchingValidationError,
             setDragDropAssignments,
             setDragDropValidationError,
+            setFreetextAnswer,
+            setFreetextValidationError,
           });
           setError(activeRunConflictMessage(result));
           toastBlockingApiError(result);
@@ -329,6 +371,8 @@ export default function PlayPage() {
       setMatchingValidationError,
       setDragDropAssignments,
       setDragDropValidationError,
+      setFreetextAnswer,
+      setFreetextValidationError,
     });
     setLoading(false);
   }, [chapterId, clearSession, mountedRef, questId, router, token]);
@@ -374,6 +418,8 @@ export default function PlayPage() {
       setMatchingValidationError,
       setDragDropAssignments,
       setDragDropValidationError,
+      setFreetextAnswer,
+      setFreetextValidationError,
     });
     setAttemptText("");
     setMcValidationError(null);
@@ -408,11 +454,14 @@ export default function PlayPage() {
       setMatchingValidationError,
       setDragDropAssignments,
       setDragDropValidationError,
+      setFreetextAnswer,
+      setFreetextValidationError,
     });
     setAttemptText("");
     setMcValidationError(null);
     setMatchingValidationError(null);
     setDragDropValidationError(null);
+    setFreetextValidationError(null);
     setSceneNavPending(false);
   }
 
@@ -474,6 +523,24 @@ export default function PlayPage() {
       }
       setDragDropValidationError(null);
       attempt = buildDragDropAttempt(normalized.content.targets, draft);
+    } else if (currentScene.screen_type === "free_text") {
+      const normalized = normalizeFreitextContentResult(
+        getTaskPayload(currentScene),
+        readTaskSceneInstruction(currentScene),
+      );
+      if (!normalized.ok) {
+        setFreetextValidationError(FREITEXT_CONTENT_MISMATCH_MESSAGE);
+        setTaskPending(false);
+        return;
+      }
+      const validation = validateFreitextDraft(normalized.content, freetextAnswer);
+      if (!validation.ok) {
+        setFreetextValidationError(validation.message);
+        setTaskPending(false);
+        return;
+      }
+      setFreetextValidationError(null);
+      attempt = buildFreitextAttempt(freetextAnswer.trim());
     } else {
       attempt = buildPlaceholderAttempt(currentScene, attemptText);
     }
@@ -506,11 +573,14 @@ export default function PlayPage() {
       setMatchingValidationError,
       setDragDropAssignments,
       setDragDropValidationError,
+      setFreetextAnswer,
+      setFreetextValidationError,
     });
     setAttemptText("");
     setMcValidationError(null);
     setMatchingValidationError(null);
     setDragDropValidationError(null);
+    setFreetextValidationError(null);
     if (result.data.taskOutcome) {
       setBackgroundHoldKey(backgroundBeforeSubmit);
       setOutcome(result.data.taskOutcome);
@@ -567,6 +637,8 @@ export default function PlayPage() {
           matchingValidationError={matchingValidationError}
           dragDropAssignments={dragDropAssignments}
           dragDropValidationError={dragDropValidationError}
+          freetextAnswer={freetextAnswer}
+          freetextValidationError={freetextValidationError}
           canRetreat={canRetreat}
           sceneNavPending={sceneNavPending}
           taskSubmitting={taskPending}
@@ -591,6 +663,10 @@ export default function PlayPage() {
               return typeof next === "function" ? next(prev) : next;
             });
             setDragDropValidationError(null);
+          }}
+          onFreetextAnswerChange={(value) => {
+            setFreetextAnswer(value);
+            setFreetextValidationError(null);
           }}
           onAdvanceStory={onAdvanceStory}
           onRetreatScene={onRetreatScene}

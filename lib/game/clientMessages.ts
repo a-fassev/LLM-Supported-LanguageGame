@@ -16,6 +16,11 @@ export const gameClientMessages = {
   invalidSceneProgression: "Progressione scena non valida.",
   taskEvaluationNotImplemented: "Valutazione task non ancora disponibile.",
   taskMinRatioNotMet: "Non abbastanza risposte corrette per completare l'attivita.",
+  freitextAnswerEmpty: "Scrivi qualcosa prima di toccare Controlla.",
+  freitextPayloadInvalid: "Contenuto attività freitext non valido.",
+  llmNotConfigured: "Il valutatore non è disponibile. Riprova più tardi.",
+  modelTimedOut: "Il valutatore ha impiegato troppo tempo. Riprova.",
+  freitextEvaluatorError: "Il valutatore non è disponibile. Riprova.",
 } as const;
 
 /** Auth screens (login/register) — learner-facing Italian. */

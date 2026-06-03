@@ -7,6 +7,7 @@ import { TaskPlaceholder } from "@/components/game/tasks/TaskPlaceholder";
 import { MultipleChoiceTask } from "@/components/game/tasks/types/multiple-choice/MultipleChoiceTask";
 import { MatchingTask } from "@/components/game/tasks/types/matching/MatchingTask";
 import { DragDropTask } from "@/components/game/tasks/types/drag-drop/DragDropTask";
+import { FreeTextTask } from "@/components/game/tasks/types/free-text/FreeTextTask";
 import { MC_CONTENT_MISMATCH_MESSAGE } from "@/lib/game/tasks/multiple-choice/normalize-mc-content";
 import { MATCHING_CONTENT_MISMATCH_MESSAGE } from "@/lib/game/tasks/matching/normalize-matching-content";
 import { DRAG_DROP_CONTENT_MISMATCH_MESSAGE } from "@/lib/game/tasks/drag-drop/normalize-drag-drop-content";
@@ -26,10 +27,14 @@ type TaskPanelProps = {
   matchingValidationError?: string | null;
   dragDropAssignments: DragDropAssignmentsDraft | null;
   dragDropValidationError?: string | null;
+  freetextAnswer: string;
+  freetextValidationError?: string | null;
+  freetextEvaluating?: boolean;
   taskDisabled?: boolean;
   onMcSelectionsChange: (selections: McSelectionsDraft) => void;
   onMatchingPairsChange: (updater: MatchingPairsUpdater) => void;
   onDragDropAssignmentsChange: (updater: DragDropAssignmentsUpdater) => void;
+  onFreetextAnswerChange: (value: string) => void;
 };
 
 export function TaskPanel({
@@ -41,11 +46,29 @@ export function TaskPanel({
   matchingValidationError,
   dragDropAssignments,
   dragDropValidationError,
+  freetextAnswer,
+  freetextValidationError,
+  freetextEvaluating,
   taskDisabled,
   onMcSelectionsChange,
   onMatchingPairsChange,
   onDragDropAssignmentsChange,
+  onFreetextAnswerChange,
 }: TaskPanelProps) {
+  if (scene.screen_type === "free_text") {
+    return (
+      <FreeTextTask
+        key={scene.id}
+        scene={scene}
+        answerText={freetextAnswer}
+        validationError={freetextValidationError}
+        evaluating={freetextEvaluating}
+        disabled={taskDisabled}
+        onAnswerChange={onFreetextAnswerChange}
+      />
+    );
+  }
+
   if (scene.screen_type === "multiple_choice") {
     if (!mcSelections) {
       return (

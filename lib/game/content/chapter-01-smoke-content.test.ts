@@ -21,6 +21,7 @@ describe("chapter-01 smoke content", () => {
       "drag_drop",
       "drag_drop",
       "drag_drop",
+      "free_text",
     ]);
   });
 
@@ -145,6 +146,22 @@ describe("chapter-01 smoke content", () => {
     };
     expect((task?.targets ?? []).length).toBe(1);
     expect(task?.targets?.[0]?.matchMode).toBe("all");
+  });
+
+  it("keeps quest-01 scene 12 as minimal free_text fixture", async () => {
+    const catalog = await loadContentCatalog({ bypassCache: true });
+    const quest = findCatalogQuest(catalog, "chapter-01", "quest-01");
+    const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-01-quest-01-scene-12");
+    expect(taskScene?.screen_type).toBe("free_text");
+
+    const task = taskScene?.content.task as {
+      prompt?: string;
+      minWords?: number;
+      evaluation?: { passThreshold?: number };
+    };
+    expect(typeof task?.prompt).toBe("string");
+    expect(task?.minWords).toBe(2);
+    expect(taskScene?.scoring.pizza).toMatchObject({ mode: "scored", minRatioToComplete: 0.7 });
   });
 
   it("keeps quest-02 matching scene with at least one correct pair", async () => {

@@ -6,8 +6,10 @@ export const freitextLlmStructuredOutputSchema = z.object({
   grammarScore: z.number().min(0).max(1),
   vocabularyScore: z.number().min(0).max(1),
   registerScore: z.number().min(0).max(1),
+  taskFulfillmentScore: z.number().min(0).max(1),
   grammarFeedback: z.string().min(1),
   vocabularyFeedback: z.string().min(1),
   registerFeedback: z.string().min(1),
+  taskFulfillmentFeedback: z.string().min(1),
   nextStepAdvice: z.string().min(1),
 });

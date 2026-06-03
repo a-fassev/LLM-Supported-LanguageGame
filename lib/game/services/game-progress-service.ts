@@ -21,9 +21,12 @@ import {
   type ContentCatalog,
 } from "@/lib/game/content/catalog-loader";
 import { sanitizeSceneContentForClient } from "@/lib/game/content/sanitize-task-payload-for-client";
-import { meetsScoredPizzaMinimum, parsePizzaRewardRules, slicesFromRatio } from "@/lib/game/scoring/pizzaReward";
+import { parsePizzaRewardRules, slicesFromRatio } from "@/lib/game/scoring/pizzaReward";
+import { meetsTaskSceneCompletionMinimum } from "@/lib/game/tasks/freitext/meets-freitext-completion-minimum";
 import { evaluateTaskAttempt } from "@/lib/game/scoring/evaluateTaskAttempt";
 import { buildTaskOutcome, type TaskOutcomeDto } from "@/lib/game/task-outcome-messages";
+import { buildFreitextRetryTaskOutcome } from "@/lib/game/tasks/freitext/build-freitext-retry-task-outcome";
+import { evaluateFreitextLlmScene } from "@/lib/game/tasks/freitext/evaluate-freitext-llm-scene";
 import { toQuestProgressId } from "@/lib/game/quest-progress-id";
 
 export type BootstrapQuestDto = {
@@ -476,30 +479,72 @@ export async function completeTaskScene(
   };
 
   const smokeAutoPass = process.env.GAME_SMOKE_AUTO_PASS === "true";
+  const skipEval = smokeAutoPass && scene.screen_type !== "free_text";
   let ratio = 1;
-  if (!smokeAutoPass && pizzaRules.kind !== "flat") {
-    const attemptTaskType = taskTypeMap[scene.screen_type];
-    if (!attemptTaskType) {
-      return { ok: false, status: 501, error: msg.taskEvaluationNotImplemented, code: "task_eval_not_implemented" };
+  let freitextRetryFeedback: { summaryFeedback: string; nextStepAdvice?: string } | null = null;
+
+  const shouldEvaluateTask =
+    !skipEval && (scene.screen_type === "free_text" || pizzaRules.kind !== "flat");
+
+  if (shouldEvaluateTask) {
+    if (scene.screen_type === "free_text") {
+      const evaluated = await evaluateFreitextLlmScene(
+        {
+          task: scene.content.task as Record<string, unknown>,
+          instruction: scene.content.instruction,
+        },
+        options?.attemptPayload,
+      );
+      if (!evaluated.ok) {
+        return { ok: false, status: evaluated.status, error: evaluated.error, code: evaluated.code };
+      }
+      ratio = evaluated.ratio;
+      freitextRetryFeedback = evaluated.feedback;
+    } else {
+      const attemptTaskType = taskTypeMap[scene.screen_type];
+      if (!attemptTaskType) {
+        return { ok: false, status: 501, error: msg.taskEvaluationNotImplemented, code: "task_eval_not_implemented" };
+      }
+      const evaluated = evaluateTaskAttempt(
+        attemptTaskType,
+        scene.content.task as Record<string, unknown>,
+        options?.attemptPayload,
+      );
+      if (!evaluated.ok) {
+        return { ok: false, status: evaluated.status, error: evaluated.error, code: evaluated.code };
+      }
+      ratio = Math.max(0, Math.min(1, evaluated.ratio));
     }
-    const evaluated = evaluateTaskAttempt(
-      attemptTaskType,
-      scene.content.task as Record<string, unknown>,
-      options?.attemptPayload,
-    );
-    if (!evaluated.ok) {
-      return { ok: false, status: evaluated.status, error: evaluated.error, code: evaluated.code };
-    }
-    ratio = Math.max(0, Math.min(1, evaluated.ratio));
   }
 
-  if (!meetsScoredPizzaMinimum(ratio, pizzaRules)) {
-    const taskOutcome = buildTaskOutcome({
-      passed: false,
+  if (
+    !meetsTaskSceneCompletionMinimum({
       ratio,
-      awardedSlices: 0,
-      awardedBackpackPieces: 0,
-    });
+      screenType: scene.screen_type,
+      pizzaRules,
+      taskPayload:
+        scene.screen_type === "free_text"
+          ? (scene.content.task as Record<string, unknown>)
+          : undefined,
+      sceneInstruction:
+        scene.screen_type === "free_text"
+          ? (scene.content.instruction as string | undefined)
+          : undefined,
+    })
+  ) {
+    const taskOutcome =
+      scene.screen_type === "free_text" && freitextRetryFeedback
+        ? buildFreitextRetryTaskOutcome({
+            ratio,
+            summaryFeedback: freitextRetryFeedback.summaryFeedback,
+            nextStepAdvice: freitextRetryFeedback.nextStepAdvice,
+          })
+        : buildTaskOutcome({
+            passed: false,
+            ratio,
+            awardedSlices: 0,
+            awardedBackpackPieces: 0,
+          });
     return {
       ok: false,
       status: 409,

@@ -23,6 +23,10 @@ export async function POST(
   const session = await requireSessionAccount(request);
   if (!session.ok) return session.response;
 
+  if (!checkRateLimit(`game_runs_attempt_account:${session.accountId}`, 60, 60_000)) {
+    return jsonError(429, routeMsg.tooManyRequests);
+  }
+
   const params = await context.params;
   const runId = params.runId?.trim();
   if (!runId) return jsonError(400, routeMsg.invalidRequest);

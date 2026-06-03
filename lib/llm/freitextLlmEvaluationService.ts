@@ -27,7 +27,8 @@ const freitextJudgePrompt = ChatPromptTemplate.fromMessages([
     [
       "You evaluate short written learner answers for classroom Italian practice.",
       "Learners attend a gifted-education school; multilingual answers are acceptable for explanations.",
-      "Score THREE independent dimensions on a continuous 0..1 interval:",
+      "Score FOUR independent dimensions on a continuous 0..1 interval:",
+      "- taskFulfillmentScore: how fully the answer fulfills the teacher prompt, instruction, evaluation criteria, and target structures (task content, not grammar alone).",
       "- grammarScore: morphology, agreement, tense, completeness of Italian sentence(s).",
       "- vocabularyScore: appropriateness, precision, lexical range for intended meaning.",
       "- registerScore: fit of tone (formality, politeness) vs communicated register target.",
@@ -106,21 +107,26 @@ export async function invokeFreitextLlmJudge(
 
 export type WeightInput = Pick<
   FreitextLlmStepContentParsed["evaluation"],
-  "grammarWeight" | "vocabularyWeight" | "registerWeight"
+  "grammarWeight" | "vocabularyWeight" | "registerWeight" | "taskFulfillmentWeight"
 >;
 
-export function weightedSkillRatio(
-  weights: WeightInput,
-  grammarScore: number,
-  vocabScore: number,
-  registerScore: number,
-): number {
-  const denom = weights.grammarWeight + weights.vocabularyWeight + weights.registerWeight;
+export type FreitextSkillScores = {
+  grammarScore: number;
+  vocabularyScore: number;
+  registerScore: number;
+  taskFulfillmentScore: number;
+};
+
+export function weightedSkillRatio(weights: WeightInput, scores: FreitextSkillScores): number {
+  const taskWeight = weights.taskFulfillmentWeight;
+  const denom =
+    weights.grammarWeight + weights.vocabularyWeight + weights.registerWeight + taskWeight;
   if (!(denom > 0)) return 0;
   const weighted =
-    (weights.grammarWeight * grammarScore +
-      weights.vocabularyWeight * vocabScore +
-      weights.registerWeight * registerScore) /
+    (taskWeight * scores.taskFulfillmentScore +
+      weights.grammarWeight * scores.grammarScore +
+      weights.vocabularyWeight * scores.vocabularyScore +
+      weights.registerWeight * scores.registerScore) /
     denom;
   return Math.min(1, Math.max(0, weighted));
 }
@@ -147,7 +153,9 @@ export function calculateScore(
 
 export function normalizeFeedbackForLearner(text: string, maxLength = 220): string {
   const trimmed = text.trim().replace(/\s+/gu, " ");
-  if (!trimmed) return "Nice effort — try tweaking your answer slightly and press Check again.";
+  if (!trimmed) {
+    return "Bel tentativo — migliora un po' la risposta e premi di nuovo Controlla.";
+  }
 
   return trimmed.length <= maxLength ? trimmed : `${trimmed.slice(0, Math.max(0, maxLength - 1))}…`;
 }

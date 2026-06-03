@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { normalizeDragDropContentResult } from "@/lib/game/tasks/drag-drop/normalize-drag-drop-content";
+import { normalizeFreitextContentResult } from "@/lib/game/tasks/freitext/normalize-freitext-content";
 import { normalizeMatchingContentResult } from "@/lib/game/tasks/matching/normalize-matching-content";
 import {
   sanitizeSceneContentForClient,
@@ -59,6 +60,22 @@ describe("sanitizeTaskPayloadForClient", () => {
     });
   });
 
+  it("removes evaluation rubric from free_text", () => {
+    const sanitized = sanitizeTaskPayloadForClient("free_text", {
+      prompt: "Presentati",
+      minWords: 2,
+      evaluation: {
+        grammarWeight: 1,
+        vocabularyWeight: 1,
+        registerWeight: 1,
+        passThreshold: 0.6,
+        evaluationCriteria: ["Use a greeting"],
+      },
+    });
+    expect(sanitized).toEqual({ prompt: "Presentati", minWords: 2 });
+    expect(sanitized).not.toHaveProperty("evaluation");
+  });
+
   it("leaves other task types unchanged", () => {
     const payload = { prompt: "x", answers: ["secret"] };
     expect(sanitizeTaskPayloadForClient("cloze", payload)).toEqual(payload);
@@ -97,6 +114,30 @@ describe("sanitizeSceneContentForClient", () => {
     if (!normalized.ok) throw new Error("expected ok");
     expect(normalized.content.targets).toHaveLength(1);
     expect(normalized.content.items).toHaveLength(1);
+  });
+
+  it("still normalizes free_text after evaluation rubric is stripped", () => {
+    const sanitized = sanitizeSceneContentForClient("task", "free_text", {
+      title: "Presentati",
+      instruction: "Scrivi due frasi in italiano.",
+      task: {
+        prompt: "Come ti presenteresti?",
+        minWords: 2,
+        maxWords: 40,
+        showWordCount: true,
+        evaluation: {
+          grammarWeight: 1,
+          vocabularyWeight: 1,
+          registerWeight: 1,
+          passThreshold: 0.6,
+        },
+      },
+    });
+    const normalized = normalizeFreitextContentResult(
+      sanitized.task as Record<string, unknown>,
+      sanitized.instruction as string,
+    );
+    expect(normalized.ok).toBe(true);
   });
 
   it("still normalizes matching after answer keys are stripped", () => {

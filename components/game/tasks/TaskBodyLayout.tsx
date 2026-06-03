@@ -2,6 +2,8 @@
 
 import { useId, type ReactNode } from "react";
 
+import { cn } from "@/lib/utils";
+
 type TaskBodyLayoutProps = {
   /** Per-question or task-level prompt (`content.task.prompt`); fixed above the scroll area. */
   prompt?: string | null;
@@ -9,13 +11,15 @@ type TaskBodyLayoutProps = {
   beforeScroll?: ReactNode;
   /** Main exercise UI; only this region scrolls when content overflows. */
   children: ReactNode | ((promptLabelId: string) => ReactNode);
+  /** When true, children fill the remaining height (e.g. full-height freetext textarea). */
+  fillScroll?: boolean;
 };
 
 /**
  * Shared task body shell for all task types: prompt (normal) + optional meta + scrollable content.
  * Pair with TaskChrome instruction (bold) for the scene-level copy hierarchy.
  */
-export function TaskBodyLayout({ prompt, beforeScroll, children }: TaskBodyLayoutProps) {
+export function TaskBodyLayout({ prompt, beforeScroll, children, fillScroll }: TaskBodyLayoutProps) {
   const promptLabelId = useId();
   const promptText = prompt?.trim();
   const usesRenderProp = typeof children === "function";
@@ -41,7 +45,10 @@ export function TaskBodyLayout({ prompt, beforeScroll, children }: TaskBodyLayou
       {beforeScroll}
       <div
         data-task-body-scroll
-        className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain"
+        className={cn(
+          "min-h-0 flex-1 overscroll-y-contain",
+          fillScroll ? "flex flex-col overflow-hidden" : "overflow-y-auto",
+        )}
       >
         {scrollContent}
       </div>

@@ -22,6 +22,12 @@ function stripMatchingAnswers(task: Record<string, unknown>): Record<string, unk
   return next;
 }
 
+function stripFreitextRubric(task: Record<string, unknown>): Record<string, unknown> {
+  const next = { ...task };
+  delete next.evaluation;
+  return next;
+}
+
 function stripDragDropAnswers(task: Record<string, unknown>): Record<string, unknown> {
   const next = { ...task };
   if (Array.isArray(next.targets)) {
@@ -47,6 +53,8 @@ export function sanitizeTaskPayloadForClient(
       return stripMatchingAnswers(taskPayload);
     case "drag_drop":
       return stripDragDropAnswers(taskPayload);
+    case "free_text":
+      return stripFreitextRubric(taskPayload);
     default:
       return { ...taskPayload };
   }

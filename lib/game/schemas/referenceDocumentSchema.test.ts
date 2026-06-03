@@ -88,6 +88,9 @@ describe("task content schemas with step referenceDocument", () => {
       },
     });
     expect(parsed.ok).toBe(true);
+    if (parsed.ok) {
+      expect(parsed.value.evaluation.taskFulfillmentWeight).toBe(1);
+    }
   });
 
   it("rejects invalid referenceDocument shape", () => {
