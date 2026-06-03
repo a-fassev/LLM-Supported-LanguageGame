@@ -270,6 +270,41 @@ Validated at catalog load (`parseMultipleChoiceContent`). Web v1 renders **text-
 
 Fixture scenes in quest-01: `scenes/04.json` (minimal flat), `scenes/05.json` (rich `questions[]`). See also `docs/multiple-choice-task-integration-plan.md`.
 
+#### `matching` — `content.task`
+
+Validated at catalog load (`parseMatchingContent`). Web v1 renders **text-only** cards with tap-to-pair and drag-to-pair (connector lines). Pool authoring (`poolPairs` + `sampleSize`) is schema-valid but **not materialized** in web v1.
+
+```jsonc
+{
+  "prompt": "Optional question line in the task body",
+  "leftItems": [
+    { "id": "left-ciao", "label": "Ciao" }
+  ],
+  "rightItems": [
+    { "id": "right-hello", "label": "Hello" },
+    { "id": "right-bye", "label": "Goodbye" }
+  ],
+  "correctPairs": [
+    { "leftItemId": "left-ciao", "rightItemId": "right-hello" }
+  ],
+  "presentation": {
+    "leftLabel": "Italiano",
+    "rightLabel": "Traduzione",
+    "shuffleRightOrder": true
+  }
+}
+```
+
+| Rule | Notes |
+| ---- | ----- |
+| Items | Unique `id` per column; display `label` (legacy `text` accepted). |
+| Pairs | Each `leftItemId` appears **exactly once** in `correctPairs`; each `rightItemId` at most once. Extra right items are distractors. |
+| Order | Left column keeps authoring order; right column shuffles when `shuffleRightOrder !== false` (default shuffle). |
+| Scene copy | `title` in header; `instruction` in `TaskChrome`; `prompt` in `TaskBodyLayout`. Do **not** repeat the same meaning in instruction and prompt. Interaction hint (*Trascina una linea o tocca due carte.*) is fixed in `MATCHING_DRAG_HINT` (`lib/game/tasks/matching/matching-types.ts`) → `TaskBodyLayout` `beforeScroll` (`text-xs` muted). |
+| Attempt | `{ taskType: "Matching", matching: { pairs: { [leftId]: rightId } } }` — one entry per left item. |
+
+Fixture scenes in quest-01 (after MC): `scenes/06.json` (minimal), `07.json` (medium), `08.json` (rich). See `docs/matching-task-integration-plan.md`.
+
 ---
 
 ## 6. Scoring (pizza + backpack)

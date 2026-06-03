@@ -8,6 +8,7 @@ import {
   parseQuestFile,
   parseSceneFile,
 } from "@/lib/game/schemas/contentCatalogSchema";
+import { parseMatchingContent } from "@/lib/game/schemas/matchingContentSchema";
 import { parseMultipleChoiceContent } from "@/lib/game/schemas/multipleChoiceContentSchema";
 
 export type CatalogScene = SceneFileParsed & {
@@ -95,6 +96,26 @@ async function loadScenes(chapterId: string, questId: string, scenesDir: string)
       const mcParsed = parseMultipleChoiceContent(scene.content.task);
       if (!mcParsed.ok) {
         err(`${filePath}: content.task: ${mcParsed.issues}`);
+      }
+    }
+
+    if (scene.scene_type === "task" && scene.screen_type === "matching") {
+      const matchingParsed = parseMatchingContent(scene.content.task);
+      if (!matchingParsed.ok) {
+        err(`${filePath}: content.task: ${matchingParsed.issues}`);
+      }
+      const task = matchingParsed.value;
+      const hasConcrete =
+        Array.isArray(task.leftItems) &&
+        task.leftItems.length > 0 &&
+        Array.isArray(task.rightItems) &&
+        task.rightItems.length > 0 &&
+        Array.isArray(task.correctPairs) &&
+        task.correctPairs.length > 0;
+      if (!hasConcrete) {
+        err(
+          `${filePath}: content.task: matching scenes in web catalog require concrete leftItems, rightItems, and correctPairs (poolPairs authoring is not supported yet)`,
+        );
       }
     }
 

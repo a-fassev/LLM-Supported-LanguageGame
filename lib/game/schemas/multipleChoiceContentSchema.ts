@@ -30,9 +30,47 @@ const mcQuestionSchema = z
   })
   .strict();
 
+const mcClientQuestionSchema = z
+  .object({
+    id: z.string().optional(),
+    selectionMode: z.string().optional(),
+    preserveOptionOrder: z.boolean().optional(),
+    prompt: z.string().optional(),
+    options: z.array(mcOptionSchema).min(2),
+  })
+  .strict();
+
 export function isMcMultiSelect(selectionMode: string | undefined): boolean {
   const mode = (selectionMode ?? "single").trim().toLowerCase();
   return mode === "multi" || mode === "multiple";
+}
+
+function refineMcQuestionOptionsOnly(
+  question: {
+    options: { id: string; label?: string }[];
+  },
+  pathPrefix: (string | number)[],
+  ctx: z.RefinementCtx,
+): void {
+  const optionIds = new Set<string>();
+  for (let i = 0; i < question.options.length; i++) {
+    const opt = question.options[i];
+    if (!opt.label?.trim()) {
+      ctx.addIssue({
+        code: "custom",
+        message: "option label required",
+        path: [...pathPrefix, "options", i, "label"],
+      });
+    }
+    if (optionIds.has(opt.id)) {
+      ctx.addIssue({
+        code: "custom",
+        message: "duplicate option id",
+        path: [...pathPrefix, "options", i, "id"],
+      });
+    }
+    optionIds.add(opt.id);
+  }
 }
 
 function refineMcQuestion(
@@ -168,7 +206,54 @@ export const multipleChoiceContentSchema = z
     );
   });
 
+/** Player-facing snapshot payload (answer keys stripped in sceneToDto). */
+export const multipleChoiceClientContentSchema = z
+  .object({
+    ...taskContentCommonFields,
+    prompt: z.string().optional(),
+    subtitle: z.string().optional(),
+    selectionMode: z.string().optional(),
+    referenceDocument: referenceDocumentSchema.optional(),
+    preserveOptionOrder: z.boolean().optional(),
+    options: z.array(mcOptionSchema).min(2).optional(),
+    questions: z.array(mcClientQuestionSchema).min(1).optional(),
+  })
+  .strict()
+  .superRefine((value, ctx) => {
+    const questions = value.questions;
+    const hasQuestions = Array.isArray(questions) && questions.length > 0;
+    const hasFlat = Array.isArray(value.options) && value.options.length >= 2;
+
+    if (!hasQuestions && !hasFlat) {
+      ctx.addIssue({
+        code: "custom",
+        message: "multiple choice requires options (flat) or questions[]",
+        path: ["options"],
+      });
+      return;
+    }
+
+    if (hasQuestions && hasFlat) {
+      ctx.addIssue({
+        code: "custom",
+        message: "use either flat options or questions[], not both",
+        path: ["questions"],
+      });
+      return;
+    }
+
+    if (hasQuestions) {
+      questions.forEach((q, index) => {
+        refineMcQuestionOptionsOnly({ options: q.options }, ["questions", index], ctx);
+      });
+      return;
+    }
+
+    refineMcQuestionOptionsOnly({ options: value.options ?? [] }, [], ctx);
+  });
+
 export type MultipleChoiceTaskContent = z.infer<typeof multipleChoiceContentSchema>;
+export type MultipleChoiceClientTaskContent = z.infer<typeof multipleChoiceClientContentSchema>;
 
 export function parseMultipleChoiceContent(raw: unknown):
   | { ok: true; value: MultipleChoiceTaskContent }
@@ -177,6 +262,17 @@ export function parseMultipleChoiceContent(raw: unknown):
   if (!parsed.success) {
     const issues = parsed.error.issues.map((i) => `${i.path.join(".") || "root"}: ${i.message}`).join("; ");
     return { ok: false, issues: issues || "invalid multiple choice payload" };
+  }
+  return { ok: true, value: parsed.data };
+}
+
+export function parseMultipleChoiceClientContent(raw: unknown):
+  | { ok: true; value: MultipleChoiceClientTaskContent }
+  | { ok: false; issues: string } {
+  const parsed = multipleChoiceClientContentSchema.safeParse(raw);
+  if (!parsed.success) {
+    const issues = parsed.error.issues.map((i) => `${i.path.join(".") || "root"}: ${i.message}`).join("; ");
+    return { ok: false, issues: issues || "invalid multiple choice client payload" };
   }
   return { ok: true, value: parsed.data };
 }

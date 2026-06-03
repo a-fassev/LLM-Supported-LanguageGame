@@ -12,11 +12,11 @@
     },
     "task": {
       "leftItems": [
-        { "id": "left-binario", "text": "binario" }
+        { "id": "left-binario", "label": "binario" }
       ],
       "rightItems": [
-        { "id": "right-track", "text": "platform track" },
-        { "id": "right-ticket", "text": "ticket" }
+        { "id": "right-track", "label": "platform track" },
+        { "id": "right-ticket", "label": "ticket" }
       ],
       "correctPairs": [
         { "leftItemId": "left-binario", "rightItemId": "right-track" }

@@ -14,7 +14,7 @@ description: |
 
 An **LLM-supported Italian learning game** for **children** in a **gifted-education school**, built as part of the **TUM IT-based learning** course. The experience is a **browser game**: a **sequential** journey through chapters and quests on a **city-map** hub, with **large language models** used only for **a small subset** of tasks (short free-text checks). Most interactions stay **predictably checkable** on the server.
 
-Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (login, menu, chapter map, leaderboard, quest play with pause/documento) ships on the web branch; **multiple choice** has a full exercise UI—other task types still use placeholders until rolled out. UI structure: `docs/web-game-ui-architecture.md`. Deferred milestones: `.cursor/plans/long-term-todos.md`.
+Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (login, menu, chapter map, leaderboard, quest play with pause/documento) ships on the web branch; **multiple choice** and **matching** have full exercise UIs—other task types still use placeholders until rolled out. UI structure: `docs/web-game-ui-architecture.md`. Deferred milestones: `.cursor/plans/long-term-todos.md`.
 
 ## Who it is for
 
@@ -102,12 +102,14 @@ Image references live throughout **content config**—chapter tiles, quest tiles
 | Error spotting             | Find/fix deliberate mistakes; confirm corrections.                                                                                                                                             |
 | Drag & drop                | Order fragments, fill slots, sort into categories, match referents.                                                                                                                            |
 | Free text                  | Brief **Italian** answer; **language model** checks against **authored criteria**—set expectations for a short **checking** moment; failures/timeouts mean **try again**, not “almost passed”. |
-| Matching                   | Pair columns (words, meanings, pictures, clauses).                                                                                                                                             |
+| Matching                   | Pair two columns (tap a left card then a right card, or drag a line). Extra options on the right are distractors. × on a paired left card removes the link. |
 | Multiple choice / gap fill | Choose options or fill gaps in readable lines (prefer **sentence-like** rows, not broken chips).                                                                                               |
 | Bonus                      | Optional chapter-end activities for **extra pizza**; not required to advance.                                                                                                                  |
 
 
 **Pedagogical preference:** **little free-text** where possible, for clearer scoring and control.
+
+**Matching copy (authors):** One scene-level **instruction** in the task chrome; a distinct **prompt** above the columns if needed—avoid saying the same thing twice. The short tap/drag hint is built into the UI, not per-scene JSON.
 
 ## Access and platform
 

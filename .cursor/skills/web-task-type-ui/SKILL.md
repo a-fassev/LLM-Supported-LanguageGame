@@ -11,7 +11,7 @@ description: >-
 
 Branch: **`web-based-implementation`**. Canonical rules: **`AGENTS.md`**, learner UX: **`.cursor/skills/product/SKILL.md`**. Content shape: **`docs/quest-scene-content-format.md`**.
 
-**Reference implementation:** Multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, quest-01 `scenes/04.json` + `05.json`, `docs/multiple-choice-task-integration-plan.md` (historical detail).
+**Reference implementations:** Multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, quest-01 `scenes/04.json` + `05.json`, `docs/multiple-choice-task-integration-plan.md` (historical detail). Matching — `components/game/tasks/types/matching/`, `lib/game/tasks/matching/`, quest-01 `scenes/06.json`–`08.json` (after MC in quest-01: info×3 → MC×2 → matching×3).
 
 ## Methodology (always)
 
@@ -47,6 +47,7 @@ Do **not** edit Cursor plan files unless the user asks. Prefer updating `docs/qu
 **Client rules:**
 
 - Never use `correctOptionIds` / `correctPairs` / answers in UI logic.
+- Run snapshots strip answer keys in `game-progress-service` → `sceneToDto` → `sanitize-task-payload-for-client.ts`; normalizers use `parseMultipleChoiceClientContent` / `parseMatchingClientContent` after sanitize. Extend both when adding a scored type.
 - Post-**Controlla** feedback: `SuccessOverlay` + `taskOutcome`, not toasts for wrong answers.
 - API calls via `lib/api-client.ts`; errors via `clientMessages` / `toast-from-api` policy in `AGENTS.md`.
 
@@ -77,6 +78,7 @@ If the type has multiple items per scene (e.g. MC `questions[]`):
 - [ ] Catalog load fails on bad fixture JSON (CI catches authoring errors).
 - [ ] Server evaluator returns sensible ratio; unsupported scored scenes do not silent-pass (see `AGENTS.md`).
 - [ ] Instruction / prompt / scroll regions match `TaskBodyLayout` pattern.
+- [ ] Scored types: sanitizer + client schema + normalizer updated; snapshot responses omit answer keys.
 - [ ] `npm test` and `npm run lint` pass.
 - [ ] `docs/quest-scene-content-format.md` updated if JSON or UI contract changed.
 

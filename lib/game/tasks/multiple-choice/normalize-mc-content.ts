@@ -1,8 +1,9 @@
 import {
   isMcMultiSelect,
-  parseMultipleChoiceContent,
-  type MultipleChoiceTaskContent,
+  parseMultipleChoiceClientContent,
+  type MultipleChoiceClientTaskContent,
 } from "@/lib/game/schemas/multipleChoiceContentSchema";
+import { sanitizeTaskPayloadForClient } from "@/lib/game/content/sanitize-task-payload-for-client";
 import type { McOptionView, NormalizedMcContent, NormalizedMcQuestion } from "@/lib/game/tasks/multiple-choice/mc-types";
 
 export const MC_CONTENT_MISMATCH_MESSAGE =
@@ -39,7 +40,7 @@ function mapQuestion(
   };
 }
 
-function mapParsedToNormalized(parsed: MultipleChoiceTaskContent): NormalizedMcContent {
+function mapParsedToNormalized(parsed: MultipleChoiceClientTaskContent): NormalizedMcContent {
   const questionsList = parsed.questions;
   if (questionsList && questionsList.length > 0) {
     return {
@@ -49,9 +50,6 @@ function mapParsedToNormalized(parsed: MultipleChoiceTaskContent): NormalizedMcC
 
   if (!parsed.options || parsed.options.length < 2) {
     throw new Error("flat multiple choice missing options");
-  }
-  if (!parsed.correctOptionIds || parsed.correctOptionIds.length === 0) {
-    throw new Error("flat multiple choice missing correctOptionIds");
   }
 
   return {
@@ -70,7 +68,8 @@ function mapParsedToNormalized(parsed: MultipleChoiceTaskContent): NormalizedMcC
 }
 
 export function normalizeMcContentResult(taskPayload: Record<string, unknown>): NormalizeMcResult {
-  const parsed = parseMultipleChoiceContent(taskPayload);
+  const sanitized = sanitizeTaskPayloadForClient("multiple_choice", taskPayload);
+  const parsed = parseMultipleChoiceClientContent(sanitized);
   if (!parsed.ok) {
     return { ok: false, message: parsed.issues };
   }

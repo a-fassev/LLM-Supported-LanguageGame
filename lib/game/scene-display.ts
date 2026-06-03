@@ -18,7 +18,7 @@ export function readTaskSceneInstruction(scene: RunSceneDto): string | undefined
 
 /** Task-level prompt in the task body (`content.task.prompt`); not used for MC `questions[]` items. */
 export function readTaskScenePrompt(scene: RunSceneDto): string | undefined {
-  return readNonEmptyString(getTaskPayload(scene).prompt);
+  return readNonEmptyString(getTaskPayload(scene).prompt) ?? undefined;
 }
 
 /** Instruction strip for `TaskChrome` (scene instruction only; per-question prompts stay in the task body). */

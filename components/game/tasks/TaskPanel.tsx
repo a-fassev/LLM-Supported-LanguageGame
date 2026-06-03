@@ -5,16 +5,22 @@ import { readTaskScenePrompt } from "@/lib/game/scene-display";
 import { TaskBodyLayout } from "@/components/game/tasks/TaskBodyLayout";
 import { TaskPlaceholder } from "@/components/game/tasks/TaskPlaceholder";
 import { MultipleChoiceTask } from "@/components/game/tasks/types/multiple-choice/MultipleChoiceTask";
+import { MatchingTask } from "@/components/game/tasks/types/matching/MatchingTask";
 import { MC_CONTENT_MISMATCH_MESSAGE } from "@/lib/game/tasks/multiple-choice/normalize-mc-content";
+import { MATCHING_CONTENT_MISMATCH_MESSAGE } from "@/lib/game/tasks/matching/normalize-matching-content";
 import type { McSelectionsDraft } from "@/lib/game/tasks/multiple-choice/mc-types";
+import type { MatchingPairsDraft, MatchingPairsUpdater } from "@/lib/game/tasks/matching/matching-types";
 
 type TaskPanelProps = {
   scene: RunSceneDto;
   mcSelections: McSelectionsDraft | null;
   mcQuestionIndex: number;
   mcValidationError?: string | null;
+  matchingPairs: MatchingPairsDraft | null;
+  matchingValidationError?: string | null;
   taskDisabled?: boolean;
   onMcSelectionsChange: (selections: McSelectionsDraft) => void;
+  onMatchingPairsChange: (updater: MatchingPairsUpdater) => void;
 };
 
 export function TaskPanel({
@@ -22,8 +28,11 @@ export function TaskPanel({
   mcSelections,
   mcQuestionIndex,
   mcValidationError,
+  matchingPairs,
+  matchingValidationError,
   taskDisabled,
   onMcSelectionsChange,
+  onMatchingPairsChange,
 }: TaskPanelProps) {
   if (scene.screen_type === "multiple_choice") {
     if (!mcSelections) {
@@ -43,6 +52,27 @@ export function TaskPanel({
         validationError={mcValidationError}
         disabled={taskDisabled}
         onSelectionsChange={onMcSelectionsChange}
+      />
+    );
+  }
+
+  if (scene.screen_type === "matching") {
+    if (!matchingPairs) {
+      return (
+        <p className="text-sm text-destructive" role="alert">
+          {matchingValidationError ?? MATCHING_CONTENT_MISMATCH_MESSAGE}
+        </p>
+      );
+    }
+
+    return (
+      <MatchingTask
+        key={scene.id}
+        scene={scene}
+        pairs={matchingPairs}
+        validationError={matchingValidationError}
+        disabled={taskDisabled}
+        onPairsChange={onMatchingPairsChange}
       />
     );
   }

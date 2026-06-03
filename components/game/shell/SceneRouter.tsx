@@ -9,17 +9,21 @@ import { Button } from "@/components/ui/button";
 import { readTaskChromeInstructions } from "@/lib/game/scene-display";
 import { getMcQuestionNavState } from "@/lib/game/tasks/multiple-choice/mc-question-nav";
 import type { McSelectionsDraft } from "@/lib/game/tasks/multiple-choice/mc-types";
+import type { MatchingPairsDraft, MatchingPairsUpdater } from "@/lib/game/tasks/matching/matching-types";
 
 type SceneRouterProps = {
   scene: RunSceneDto;
   mcSelections: McSelectionsDraft | null;
   mcQuestionIndex: number;
   mcValidationError?: string | null;
+  matchingPairs: MatchingPairsDraft | null;
+  matchingValidationError?: string | null;
   canRetreat: boolean;
   sceneNavPending: boolean;
   taskSubmitting: boolean;
   onMcSelectionsChange: (selections: McSelectionsDraft) => void;
   onMcQuestionIndexChange: (index: number) => void;
+  onMatchingPairsChange: (updater: MatchingPairsUpdater) => void;
   onAdvanceStory: () => void;
   onRetreatScene: () => void;
   onSubmitTask: () => void;
@@ -43,11 +47,14 @@ export function SceneRouter({
   mcSelections,
   mcQuestionIndex,
   mcValidationError,
+  matchingPairs,
+  matchingValidationError,
   canRetreat,
   sceneNavPending,
   taskSubmitting,
   onMcSelectionsChange,
   onMcQuestionIndexChange,
+  onMatchingPairsChange,
   onAdvanceStory,
   onRetreatScene,
   onSubmitTask,
@@ -129,8 +136,11 @@ export function SceneRouter({
           mcSelections={mcSelections}
           mcQuestionIndex={mcNav?.safeIndex ?? mcQuestionIndex}
           mcValidationError={mcValidationError}
+          matchingPairs={matchingPairs}
+          matchingValidationError={matchingValidationError}
           taskDisabled={taskSubmitting}
           onMcSelectionsChange={onMcSelectionsChange}
+          onMatchingPairsChange={onMatchingPairsChange}
         />
       </TaskChrome>
     </div>

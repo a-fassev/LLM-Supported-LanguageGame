@@ -39,7 +39,12 @@ export function TaskBodyLayout({ prompt, beforeScroll, children }: TaskBodyLayou
         </span>
       ) : null}
       {beforeScroll}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain">{scrollContent}</div>
+      <div
+        data-task-body-scroll
+        className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain"
+      >
+        {scrollContent}
+      </div>
     </div>
   );
 }

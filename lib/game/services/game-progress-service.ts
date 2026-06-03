@@ -20,6 +20,7 @@ import {
   type CatalogScene,
   type ContentCatalog,
 } from "@/lib/game/content/catalog-loader";
+import { sanitizeSceneContentForClient } from "@/lib/game/content/sanitize-task-payload-for-client";
 import { meetsScoredPizzaMinimum, parsePizzaRewardRules, slicesFromRatio } from "@/lib/game/scoring/pizzaReward";
 import { evaluateTaskAttempt } from "@/lib/game/scoring/evaluateTaskAttempt";
 import { buildTaskOutcome, type TaskOutcomeDto } from "@/lib/game/task-outcome-messages";
@@ -178,13 +179,14 @@ type BuildSnapshotOptions = {
 };
 
 function sceneToDto(scene: CatalogScene): RunSceneDto {
+  const rawContent = scene.content as Record<string, unknown>;
   return {
     id: scene.id,
     sceneNumber: scene.sceneNumber,
     scene_type: scene.scene_type,
     screen_type: scene.screen_type,
     background: scene.background,
-    content: scene.content as Record<string, unknown>,
+    content: sanitizeSceneContentForClient(scene.scene_type, scene.screen_type, rawContent),
     ...(scene.scene_type === "task" ? { scoring: scene.scoring as Record<string, unknown> } : {}),
   };
 }

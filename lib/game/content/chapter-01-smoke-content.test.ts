@@ -6,7 +6,7 @@ describe("chapter-01 smoke content", () => {
     resetContentCatalogCacheForTests();
   });
 
-  it("keeps quest-01 story preview scenes before the MC fixtures", async () => {
+  it("keeps quest-01 story preview scenes before MC and matching fixtures", async () => {
     const catalog = await loadContentCatalog({ bypassCache: true });
     const quest = findCatalogQuest(catalog, "chapter-01", "quest-01");
     expect(quest?.scenes.map((scene) => scene.screen_type)).toEqual([
@@ -15,6 +15,9 @@ describe("chapter-01 smoke content", () => {
       "info",
       "multiple_choice",
       "multiple_choice",
+      "matching",
+      "matching",
+      "matching",
     ]);
   });
 
@@ -47,6 +50,56 @@ describe("chapter-01 smoke content", () => {
     expect(questions.some((q) => q.selectionMode === "multi")).toBe(true);
     const manyOptionsQuestion = questions.find((q) => (q.options ?? []).length >= 12);
     expect(manyOptionsQuestion).toBeTruthy();
+  });
+
+  it("keeps quest-01 scene 06 as minimal matching fixture", async () => {
+    const catalog = await loadContentCatalog({ bypassCache: true });
+    const quest = findCatalogQuest(catalog, "chapter-01", "quest-01");
+    const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-01-quest-01-scene-06");
+    expect(taskScene?.scene_type).toBe("task");
+    expect(taskScene?.screen_type).toBe("matching");
+
+    const task = taskScene?.content.task as {
+      leftItems?: unknown[];
+      rightItems?: unknown[];
+      correctPairs?: unknown[];
+    };
+    expect((task?.leftItems ?? []).length).toBe(3);
+    expect((task?.rightItems ?? []).length).toBe(4);
+    expect((task?.correctPairs ?? []).length).toBe(3);
+  });
+
+  it("keeps quest-01 scene 07 as medium matching fixture", async () => {
+    const catalog = await loadContentCatalog({ bypassCache: true });
+    const quest = findCatalogQuest(catalog, "chapter-01", "quest-01");
+    const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-01-quest-01-scene-07");
+    expect(taskScene?.screen_type).toBe("matching");
+
+    const task = taskScene?.content.task as {
+      leftItems?: unknown[];
+      rightItems?: unknown[];
+      correctPairs?: unknown[];
+    };
+    expect((task?.leftItems ?? []).length).toBe(6);
+    expect((task?.rightItems ?? []).length).toBe(8);
+    expect((task?.correctPairs ?? []).length).toBe(6);
+  });
+
+  it("keeps quest-01 scene 08 as rich matching fixture", async () => {
+    const catalog = await loadContentCatalog({ bypassCache: true });
+    const quest = findCatalogQuest(catalog, "chapter-01", "quest-01");
+    const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-01-quest-01-scene-08");
+    expect(taskScene?.screen_type).toBe("matching");
+    expect(taskScene?.content.referenceDocument).toBeTruthy();
+
+    const task = taskScene?.content.task as {
+      leftItems?: unknown[];
+      rightItems?: unknown[];
+      correctPairs?: unknown[];
+    };
+    expect((task?.leftItems ?? []).length).toBe(10);
+    expect((task?.rightItems ?? []).length).toBe(14);
+    expect((task?.correctPairs ?? []).length).toBe(10);
   });
 
   it("keeps quest-02 matching scene with at least one correct pair", async () => {

@@ -22,11 +22,19 @@ import { readNonEmptyString } from "@/lib/game/read-non-empty-string";
 import { readTaskSceneTitle } from "@/lib/game/scene-display";
 import { getTaskPayload } from "@/lib/game/get-task-payload";
 import { buildMcAttempt } from "@/lib/game/tasks/multiple-choice/build-mc-attempt";
+import { buildMatchingAttempt } from "@/lib/game/tasks/matching/build-matching-attempt";
 import {
   createEmptyMcSelections,
   MC_CONTENT_MISMATCH_MESSAGE,
   normalizeMcContentResult,
 } from "@/lib/game/tasks/multiple-choice/normalize-mc-content";
+import {
+  createEmptyMatchingPairs,
+  MATCHING_CONTENT_MISMATCH_MESSAGE,
+  normalizeMatchingContentResult,
+} from "@/lib/game/tasks/matching/normalize-matching-content";
+import { validateMatchingDraft } from "@/lib/game/tasks/matching/validate-matching-draft";
+import type { MatchingPairsDraft } from "@/lib/game/tasks/matching/matching-types";
 import { clampMcQuestionIndex } from "@/lib/game/tasks/multiple-choice/mc-question-nav";
 import { validateMcSelections } from "@/lib/game/tasks/multiple-choice/validate-mc-selections";
 import type { McSelectionsDraft } from "@/lib/game/tasks/multiple-choice/mc-types";
@@ -74,21 +82,6 @@ function buildPlaceholderAttempt(scene: RunSceneDto, typedText: string): unknown
       assignments[targetId] = fallbackItemId;
     }
     return { taskType: "DragDrop", dragDrop: { assignments } };
-  }
-
-  if (scene.screen_type === "matching") {
-    const pairs: Record<string, string> = {};
-    const leftItems = Array.isArray(task.leftItems) ? (task.leftItems as Record<string, unknown>[]) : [];
-    const rightItems = Array.isArray(task.rightItems) ? (task.rightItems as Record<string, unknown>[]) : [];
-    const fallbackRightId = readNonEmptyString(rightItems[0]?.id);
-    if (fallbackRightId) {
-      for (const left of leftItems) {
-        const leftId = readNonEmptyString(left.id);
-        if (!leftId) continue;
-        pairs[leftId] = fallbackRightId;
-      }
-    }
-    return { taskType: "Matching", matching: { pairs } };
   }
 
   if (scene.screen_type === "error_spotting") {
@@ -154,6 +147,49 @@ function syncMcDraftForScene(
   setters.setMcValidationError(null);
 }
 
+function syncMatchingDraftForScene(
+  scene: RunSceneDto | null,
+  setters: {
+    setMatchingPairs: (value: MatchingPairsDraft | null) => void;
+    setMatchingValidationError: (value: string | null) => void;
+  },
+) {
+  if (!scene || scene.scene_type !== "task" || scene.screen_type !== "matching") {
+    setters.setMatchingPairs(null);
+    setters.setMatchingValidationError(null);
+    return;
+  }
+  const normalized = normalizeMatchingContentResult(getTaskPayload(scene));
+  if (!normalized.ok) {
+    setters.setMatchingPairs(null);
+    setters.setMatchingValidationError(MATCHING_CONTENT_MISMATCH_MESSAGE);
+    return;
+  }
+  setters.setMatchingPairs(createEmptyMatchingPairs(normalized.content.leftItems.map((item) => item.id)));
+  setters.setMatchingValidationError(null);
+}
+
+function syncTaskDraftsForScene(
+  scene: RunSceneDto | null,
+  setters: {
+    setMcSelections: (value: McSelectionsDraft | null) => void;
+    setMcQuestionIndex: (value: number) => void;
+    setMcValidationError: (value: string | null) => void;
+    setMatchingPairs: (value: MatchingPairsDraft | null) => void;
+    setMatchingValidationError: (value: string | null) => void;
+  },
+) {
+  syncMcDraftForScene(scene, {
+    setMcSelections: setters.setMcSelections,
+    setMcQuestionIndex: setters.setMcQuestionIndex,
+    setMcValidationError: setters.setMcValidationError,
+  });
+  syncMatchingDraftForScene(scene, {
+    setMatchingPairs: setters.setMatchingPairs,
+    setMatchingValidationError: setters.setMatchingValidationError,
+  });
+}
+
 function readReference(scene: RunSceneDto | null): { title?: string; body: string } | null {
   if (!scene || scene.scene_type !== "task") return null;
   const task = getTaskPayload(scene);
@@ -180,6 +216,8 @@ export default function PlayPage() {
   const [mcSelections, setMcSelections] = useState<McSelectionsDraft | null>(null);
   const [mcQuestionIndex, setMcQuestionIndex] = useState(0);
   const [mcValidationError, setMcValidationError] = useState<string | null>(null);
+  const [matchingPairs, setMatchingPairs] = useState<MatchingPairsDraft | null>(null);
+  const [matchingValidationError, setMatchingValidationError] = useState<string | null>(null);
   const [sceneNavPending, setSceneNavPending] = useState(false);
   const [taskPending, setTaskPending] = useState(false);
   const [pauseOpen, setPauseOpen] = useState(false);
@@ -236,10 +274,12 @@ export default function PlayPage() {
         if (!mountedRef.current) return;
         if (snapshot.ok && snapshot.data.run) {
           setState((current) => mergeRunState(current, snapshot.data));
-          syncMcDraftForScene(snapshot.data.run?.currentScene ?? null, {
+          syncTaskDraftsForScene(snapshot.data.run?.currentScene ?? null, {
             setMcSelections,
             setMcQuestionIndex,
             setMcValidationError,
+            setMatchingPairs,
+            setMatchingValidationError,
           });
           setError(activeRunConflictMessage(result));
           toastBlockingApiError(result);
@@ -254,10 +294,12 @@ export default function PlayPage() {
     }
 
     setState((current) => mergeRunState(current, result.data));
-    syncMcDraftForScene(result.data.run?.currentScene ?? null, {
+    syncTaskDraftsForScene(result.data.run?.currentScene ?? null, {
       setMcSelections,
       setMcQuestionIndex,
       setMcValidationError,
+      setMatchingPairs,
+      setMatchingValidationError,
     });
     setLoading(false);
   }, [chapterId, clearSession, mountedRef, questId, router, token]);
@@ -295,13 +337,16 @@ export default function PlayPage() {
       return;
     }
     setState((current) => mergeRunState(current, result.data));
-    syncMcDraftForScene(result.data.run?.currentScene ?? null, {
+    syncTaskDraftsForScene(result.data.run?.currentScene ?? null, {
       setMcSelections,
       setMcQuestionIndex,
       setMcValidationError,
+      setMatchingPairs,
+      setMatchingValidationError,
     });
     setAttemptText("");
     setMcValidationError(null);
+    setMatchingValidationError(null);
     setSceneNavPending(false);
   }
 
@@ -323,13 +368,16 @@ export default function PlayPage() {
       return;
     }
     setState((current) => mergeRunState(current, result.data));
-    syncMcDraftForScene(result.data.run?.currentScene ?? null, {
+    syncTaskDraftsForScene(result.data.run?.currentScene ?? null, {
       setMcSelections,
       setMcQuestionIndex,
       setMcValidationError,
+      setMatchingPairs,
+      setMatchingValidationError,
     });
     setAttemptText("");
     setMcValidationError(null);
+    setMatchingValidationError(null);
     setSceneNavPending(false);
   }
 
@@ -357,6 +405,23 @@ export default function PlayPage() {
       }
       setMcValidationError(null);
       attempt = buildMcAttempt(selections);
+    } else if (currentScene.screen_type === "matching") {
+      const normalized = normalizeMatchingContentResult(getTaskPayload(currentScene));
+      if (!normalized.ok) {
+        setMatchingValidationError(MATCHING_CONTENT_MISMATCH_MESSAGE);
+        setTaskPending(false);
+        return;
+      }
+      const leftIds = normalized.content.leftItems.map((item) => item.id);
+      const draft = matchingPairs ?? createEmptyMatchingPairs(leftIds);
+      const validation = validateMatchingDraft(leftIds, draft);
+      if (!validation.ok) {
+        setMatchingValidationError(validation.message);
+        setTaskPending(false);
+        return;
+      }
+      setMatchingValidationError(null);
+      attempt = buildMatchingAttempt(leftIds, draft);
     } else {
       attempt = buildPlaceholderAttempt(currentScene, attemptText);
     }
@@ -381,13 +446,16 @@ export default function PlayPage() {
     }
 
     setState((current) => mergeAttemptState(current, result.data));
-    syncMcDraftForScene(result.data.run?.currentScene ?? null, {
+    syncTaskDraftsForScene(result.data.run?.currentScene ?? null, {
       setMcSelections,
       setMcQuestionIndex,
       setMcValidationError,
+      setMatchingPairs,
+      setMatchingValidationError,
     });
     setAttemptText("");
     setMcValidationError(null);
+    setMatchingValidationError(null);
     if (result.data.taskOutcome) {
       setBackgroundHoldKey(backgroundBeforeSubmit);
       setOutcome(result.data.taskOutcome);
@@ -440,6 +508,8 @@ export default function PlayPage() {
           mcSelections={mcSelections}
           mcQuestionIndex={mcQuestionIndex}
           mcValidationError={mcValidationError}
+          matchingPairs={matchingPairs}
+          matchingValidationError={matchingValidationError}
           canRetreat={canRetreat}
           sceneNavPending={sceneNavPending}
           taskSubmitting={taskPending}
@@ -450,6 +520,13 @@ export default function PlayPage() {
           onMcQuestionIndexChange={(index) => {
             setMcQuestionIndex(index);
             setMcValidationError(null);
+          }}
+          onMatchingPairsChange={(next) => {
+            setMatchingPairs((prev) => {
+              if (prev === null) return typeof next === "function" ? prev : next;
+              return typeof next === "function" ? next(prev) : next;
+            });
+            setMatchingValidationError(null);
           }}
           onAdvanceStory={onAdvanceStory}
           onRetreatScene={onRetreatScene}

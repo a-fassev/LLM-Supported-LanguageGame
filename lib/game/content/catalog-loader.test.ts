@@ -132,4 +132,38 @@ describe("catalog-loader", () => {
 
     await expect(loadContentCatalog({ rootDir: root, bypassCache: true })).rejects.toThrow(/expected exactly NN\.json/);
   });
+
+  it("fails when matching scene uses poolPairs without concrete items", async () => {
+    const root = await makeBaseCatalogRoot();
+    tempRoots.push(root);
+
+    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01", "scenes", "01.json"), {
+      id: "chapter-01-quest-01-scene-01",
+      scene_type: "story",
+      screen_type: "info",
+      background: "chapters/01/quests/01/bg",
+      content: { text: "hello" },
+    });
+    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01", "scenes", "02.json"), {
+      id: "chapter-01-quest-01-scene-02",
+      scene_type: "task",
+      screen_type: "matching",
+      background: "chapters/01/quests/01/bg-task",
+      content: {
+        title: "Pool matching",
+        task: {
+          poolPairs: [{ id: "p1", leftLabel: "ciao", rightLabel: "hello" }],
+          sampleSize: 1,
+        },
+      },
+      scoring: {
+        backpack: { pieces: 1 },
+        pizza: { mode: "flat", slices: 1 },
+      },
+    });
+
+    await expect(loadContentCatalog({ rootDir: root, bypassCache: true })).rejects.toThrow(
+      /require concrete leftItems, rightItems, and correctPairs/,
+    );
+  });
 });

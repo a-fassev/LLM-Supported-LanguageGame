@@ -101,6 +101,8 @@
     --team-red: oklch(0.62 0.2 28);
     --game-shell-padding: 2.5rem;
     --game-panel-padding: 1.5rem;
+    --matching-line-color: rgba(71, 107, 235, 0.9);
+    --matching-line-width: 5px;
 }
 
 @media (min-width: 768px) {
