@@ -7,7 +7,18 @@
     "title": "Completa la frase",
     "instruction": "Inserisci le parole mancanti.",
     "referenceDocument": null,
-    "task": {}
+    "task": {
+      "prompt": "Completa il testo.",
+      "lines": [
+        {
+          "segments": [
+            { "kind": "text", "text": "In Italia si dice spesso: " },
+            { "kind": "gap", "placeholder": "…", "maxLength": 16, "correctAnswers": ["Ciao", "ciao"] },
+            { "kind": "text", "text": "!" }
+          ]
+        }
+      ]
+    }
   },
   "scoring": {
     "backpack": { "pieces": 1 },

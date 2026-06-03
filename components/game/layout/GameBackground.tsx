@@ -52,9 +52,12 @@ export function GameBackground({
 
     if (!targetUrl) {
       displayedUrlRef.current = null;
-      setBaseUrl(null);
-      setOverlayUrl(null);
-      setOverlayVisible(false);
+      queueMicrotask(() => {
+        if (activeTargetUrlRef.current !== null) return;
+        setBaseUrl(null);
+        setOverlayUrl(null);
+        setOverlayVisible(false);
+      });
       return;
     }
 

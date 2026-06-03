@@ -7,19 +7,26 @@
     "title": "Completa la frase",
     "instruction": "Inserisci le parole mancanti.",
     "referenceDocument": null,
-    "task": {}
+    "task": {
+      "prompt": "Completa il testo.",
+      "lines": [
+        {
+          "segments": [
+            { "kind": "text", "text": "Prima di dormire si dice: " },
+            { "kind": "gap", "placeholder": "…", "maxLength": 20, "correctAnswers": ["Buonanotte", "buonanotte"] },
+            { "kind": "text", "text": "." }
+          ]
+        }
+      ]
+    }
   },
   "scoring": {
-    "backpack": {
-      "pieces": 1
-    },
+    "backpack": { "pieces": 1 },
     "pizza": {
       "mode": "scored",
       "maxSlices": 3,
       "minRatioToComplete": 0.8,
-      "mapping": {
-        "kind": "linear"
-      }
+      "mapping": { "kind": "linear" }
     }
   }
 }

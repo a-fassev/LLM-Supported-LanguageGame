@@ -8,7 +8,9 @@ import {
   parseQuestFile,
   parseSceneFile,
 } from "@/lib/game/schemas/contentCatalogSchema";
+import { parseClozeTextContent } from "@/lib/game/schemas/clozeTextContentSchema";
 import { parseDragDropContent } from "@/lib/game/schemas/dragDropContentSchema";
+import { parseErrorSpottingContent } from "@/lib/game/schemas/errorSpottingContentSchema";
 import { parseMatchingContent } from "@/lib/game/schemas/matchingContentSchema";
 import { parseMultipleChoiceContent } from "@/lib/game/schemas/multipleChoiceContentSchema";
 import { parseFreitextLlmStepContent } from "@/lib/llm/freitextLlmContentSchema";
@@ -137,6 +139,20 @@ async function loadScenes(chapterId: string, questId: string, scenesDir: string)
       const freitextParsed = parseFreitextLlmStepContent(merged);
       if (!freitextParsed.ok) {
         err(`${filePath}: content.task: ${freitextParsed.issues}`);
+      }
+    }
+
+    if (scene.scene_type === "task" && scene.screen_type === "error_spotting") {
+      const errorSpottingParsed = parseErrorSpottingContent(scene.content.task);
+      if (!errorSpottingParsed.ok) {
+        err(`${filePath}: content.task: ${errorSpottingParsed.issues}`);
+      }
+    }
+
+    if (scene.scene_type === "task" && scene.screen_type === "cloze") {
+      const clozeParsed = parseClozeTextContent(scene.content.task);
+      if (!clozeParsed.ok) {
+        err(`${filePath}: content.task: ${clozeParsed.issues}`);
       }
     }
 

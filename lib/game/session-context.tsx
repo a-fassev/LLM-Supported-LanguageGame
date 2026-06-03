@@ -42,7 +42,10 @@ function writeToken(token: string | null): void {
 export function GameSessionProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [account, setAccount] = useState<SessionAccountDto | null>(null);
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setIsReady] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return readToken() === null;
+  });
 
   const clearSession = useCallback(() => {
     writeToken(null);
@@ -73,7 +76,6 @@ export function GameSessionProvider({ children }: { children: ReactNode }) {
     const currentToken = readToken();
 
     if (!currentToken) {
-      setIsReady(true);
       return;
     }
 

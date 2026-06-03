@@ -310,7 +310,7 @@ describe("evaluateTaskAttempt", () => {
     expect(r.code).toBe("payload_invalid");
   });
 
-  it("zeroes error spotting on false positive selection", () => {
+  it("ignores false positive selection when true error is fixed", () => {
     const content = {
       segments: [
         { id: "e1", isError: true, acceptedCorrections: ["fix"] },
@@ -323,6 +323,52 @@ describe("evaluateTaskAttempt", () => {
     const r = evaluateErrorSpotting(content, attempt);
     expect(r.ok).toBe(true);
     if (!r.ok) throw new Error("fail");
-    expect(r.ratio).toBe(0);
+    expect(r.ratio).toBe(1);
+    expect(r.itemsCorrect).toBe(1);
+    expect(r.itemsTotal).toBe(1);
+  });
+
+  it("scores missed true errors when learner leaves them unselected", () => {
+    const content = {
+      segments: [
+        { id: "e1", isError: true, acceptedCorrections: ["uno"] },
+        { id: "e2", isError: true, acceptedCorrections: ["due"] },
+      ],
+    };
+    const attempt = {
+      taskType: "ErrorSpotting" as const,
+      errorSpotting: {
+        selectedSegmentIds: ["e1"],
+        corrections: { e1: "uno" },
+      },
+    };
+    const r = evaluateErrorSpotting(content, attempt);
+    expect(r.ok).toBe(true);
+    if (!r.ok) throw new Error("fail");
+    expect(r.ratio).toBe(0.5);
+    expect(r.itemsCorrect).toBe(1);
+    expect(r.itemsTotal).toBe(2);
+  });
+
+  it("scores partial fixes without false-positive penalty", () => {
+    const content = {
+      segments: [
+        { id: "e1", isError: true, acceptedCorrections: ["uno"] },
+        { id: "e2", isError: true, acceptedCorrections: ["due"] },
+      ],
+    };
+    const attempt = {
+      taskType: "ErrorSpotting" as const,
+      errorSpotting: {
+        selectedSegmentIds: ["e1", "noise"],
+        corrections: { e1: "uno", noise: "x" },
+      },
+    };
+    const r = evaluateErrorSpotting(content, attempt);
+    expect(r.ok).toBe(true);
+    if (!r.ok) throw new Error("fail");
+    expect(r.ratio).toBe(0.5);
+    expect(r.itemsCorrect).toBe(1);
+    expect(r.itemsTotal).toBe(2);
   });
 });

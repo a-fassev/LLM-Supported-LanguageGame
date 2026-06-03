@@ -42,7 +42,14 @@ describe("task content schemas with step referenceDocument", () => {
     const parsed = parseClozeTextContent({
       prompt: "Q",
       referenceDocument: stepReferenceDocument,
-      lines: [{ segments: [{ kind: "text", text: "ciao" }] }],
+      lines: [
+        {
+          segments: [
+            { kind: "text", text: "ciao " },
+            { kind: "gap", correctAnswers: ["mondo"] },
+          ],
+        },
+      ],
     });
     expect(parsed.ok).toBe(true);
   });
@@ -62,7 +69,11 @@ describe("task content schemas with step referenceDocument", () => {
     const parsed = parseErrorSpottingContent({
       prompt: "Q",
       referenceDocument: stepReferenceDocument,
-      segments: [{ kind: "sentence", text: "ciao" }],
+      segments: [
+        { id: "a", text: "Maria", isError: false },
+        { id: "b", text: " vai", isError: true, acceptedCorrections: ["va"] },
+        { id: "c", text: " a scuola.", isError: false },
+      ],
     });
     expect(parsed.ok).toBe(true);
   });

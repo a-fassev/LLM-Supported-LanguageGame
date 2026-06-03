@@ -22,6 +22,10 @@ describe("chapter-01 smoke content", () => {
       "drag_drop",
       "drag_drop",
       "free_text",
+      "error_spotting",
+      "error_spotting",
+      "cloze",
+      "cloze",
     ]);
   });
 
@@ -162,6 +166,69 @@ describe("chapter-01 smoke content", () => {
     expect(typeof task?.prompt).toBe("string");
     expect(task?.minWords).toBe(2);
     expect(taskScene?.scoring.pizza).toMatchObject({ mode: "scored", minRatioToComplete: 0.7 });
+  });
+
+  it("keeps quest-01 scene 13 as short error_spotting fixture", async () => {
+    const catalog = await loadContentCatalog({ bypassCache: true });
+    const quest = findCatalogQuest(catalog, "chapter-01", "quest-01");
+    const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-01-quest-01-scene-13");
+    expect(taskScene?.screen_type).toBe("error_spotting");
+
+    const task = taskScene?.content.task as {
+      segments?: { isError?: boolean; acceptedCorrections?: string[] }[];
+    };
+    const errorSegments = (task?.segments ?? []).filter((segment) => segment.isError === true);
+    expect(errorSegments.length).toBe(2);
+    expect(errorSegments.every((segment) => (segment.acceptedCorrections ?? []).length > 0)).toBe(true);
+    expect(taskScene?.scoring.pizza).toMatchObject({ mode: "flat", slices: 2 });
+  });
+
+  it("keeps quest-01 scene 14 as long error_spotting fixture", async () => {
+    const catalog = await loadContentCatalog({ bypassCache: true });
+    const quest = findCatalogQuest(catalog, "chapter-01", "quest-01");
+    const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-01-quest-01-scene-14");
+    expect(taskScene?.screen_type).toBe("error_spotting");
+
+    const task = taskScene?.content.task as {
+      segments?: { text?: string; isError?: boolean }[];
+    };
+    const joinedText = (task?.segments ?? []).map((segment) => segment.text ?? "").join("");
+    expect(joinedText.length).toBeGreaterThan(4800);
+    expect((task?.segments ?? []).length).toBeGreaterThan(500);
+    const errorSegments = (task?.segments ?? []).filter((segment) => segment.isError === true);
+    expect(errorSegments.length).toBe(6);
+    expect(taskScene?.scoring.pizza).toMatchObject({ mode: "scored", minRatioToComplete: 1 });
+  });
+
+  it("keeps quest-01 scene 15 as minimal cloze fixture", async () => {
+    const catalog = await loadContentCatalog({ bypassCache: true });
+    const quest = findCatalogQuest(catalog, "chapter-01", "quest-01");
+    const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-01-quest-01-scene-15");
+    expect(taskScene?.screen_type).toBe("cloze");
+
+    const task = taskScene?.content.task as { lines?: { segments: { kind: string }[] }[] } | undefined;
+    const gapCount = (task?.lines ?? []).reduce(
+      (total, line) => total + line.segments.filter((segment) => segment.kind === "gap").length,
+      0,
+    );
+    expect(gapCount).toBe(2);
+    expect(taskScene?.scoring.pizza).toMatchObject({ mode: "scored", minRatioToComplete: 1 });
+  });
+
+  it("keeps quest-01 scene 16 as rich cloze fixture", async () => {
+    const catalog = await loadContentCatalog({ bypassCache: true });
+    const quest = findCatalogQuest(catalog, "chapter-01", "quest-01");
+    const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-01-quest-01-scene-16");
+    expect(taskScene?.screen_type).toBe("cloze");
+    expect(taskScene?.content.referenceDocument).toBeTruthy();
+
+    const task = taskScene?.content.task as { lines?: { segments: { kind: string }[] }[] } | undefined;
+    const gapCount = (task?.lines ?? []).reduce(
+      (total, line) => total + line.segments.filter((segment) => segment.kind === "gap").length,
+      0,
+    );
+    expect(gapCount).toBeGreaterThanOrEqual(6);
+    expect(taskScene?.scoring.pizza).toMatchObject({ mode: "scored", minRatioToComplete: 0.67 });
   });
 
   it("keeps quest-02 matching scene with at least one correct pair", async () => {

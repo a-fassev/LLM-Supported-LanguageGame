@@ -5,9 +5,16 @@
   "background": "chapters/03/quests/01/bg-task-01",
   "content": {
     "title": "Trova l'errore",
-    "instruction": "Correggi gli errori nel testo.",
+    "instruction": "Tocca il verbo sbagliato e scrivi la forma corretta.",
     "referenceDocument": null,
-    "task": {}
+    "task": {
+      "prompt": "Trova l'errore nel testo.",
+      "segments": [
+        { "id": "a", "text": "Maria", "isError": false },
+        { "id": "b", "text": " vai", "isError": true, "acceptedCorrections": ["va"] },
+        { "id": "c", "text": " a scuola ogni giorno.", "isError": false }
+      ]
+    }
   },
   "scoring": {
     "backpack": { "pieces": 1 },

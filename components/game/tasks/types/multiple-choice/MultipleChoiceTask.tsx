@@ -30,7 +30,7 @@ export function MultipleChoiceTask({
   onSelectionsChange,
 }: MultipleChoiceTaskProps) {
   const normalizedResult = useMemo(() => normalizeMcContentResult(getTaskPayload(scene)), [scene]);
-  const optionOrderCache = useMemo(() => new Map<string, McOptionView[]>(), [scene.id]);
+  const optionOrderCache = useMemo(() => new Map<string, McOptionView[]>(), []);
 
   const content = normalizedResult.ok ? normalizedResult.content : null;
   const questionCount = content?.questions.length ?? 0;

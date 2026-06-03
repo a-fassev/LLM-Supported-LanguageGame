@@ -47,6 +47,22 @@ import {
   normalizeFreitextContentResult,
 } from "@/lib/game/tasks/freitext/normalize-freitext-content";
 import { validateFreitextDraft } from "@/lib/game/tasks/freitext/validate-freitext-draft";
+import { buildErrorSpottingAttempt } from "@/lib/game/tasks/error-spotting/build-error-spotting-attempt";
+import {
+  createEmptyErrorSpottingDraft,
+  ERROR_SPOTTING_CONTENT_MISMATCH_MESSAGE,
+  normalizeErrorSpottingContentResult,
+} from "@/lib/game/tasks/error-spotting/normalize-error-spotting-content";
+import { validateErrorSpottingDraft } from "@/lib/game/tasks/error-spotting/validate-error-spotting-draft";
+import type { ErrorSpottingDraft } from "@/lib/game/tasks/error-spotting/error-spotting-types";
+import { buildClozeAttempt } from "@/lib/game/tasks/cloze/build-cloze-attempt";
+import { countClozeGaps, createEmptyClozeAnswers } from "@/lib/game/tasks/cloze/cloze-gap-order";
+import {
+  CLOZE_CONTENT_MISMATCH_MESSAGE,
+  normalizeClozeContentResult,
+} from "@/lib/game/tasks/cloze/normalize-cloze-content";
+import { validateClozeDraft } from "@/lib/game/tasks/cloze/validate-cloze-draft";
+import type { ClozeAnswersDraft } from "@/lib/game/tasks/cloze/cloze-types";
 import { readTaskSceneInstruction } from "@/lib/game/scene-display";
 import type { MatchingPairsDraft } from "@/lib/game/tasks/matching/matching-types";
 import type { DragDropAssignmentsDraft } from "@/lib/game/tasks/drag-drop/drag-drop-types";
@@ -68,26 +84,7 @@ type RunState = {
   run: RunDto | null;
 };
 
-function buildPlaceholderAttempt(scene: RunSceneDto, typedText: string): unknown {
-  const task = getTaskPayload(scene);
-  // IMPORTANT: never read authored "correct*" fields in client placeholders.
-  if (scene.screen_type === "cloze") {
-    const lines = Array.isArray(task.lines) ? (task.lines as Record<string, unknown>[]) : [];
-    const answers: string[] = [];
-    for (const line of lines) {
-      const segments = Array.isArray(line.segments) ? (line.segments as Record<string, unknown>[]) : [];
-      for (const segment of segments) {
-        if (String(segment.kind ?? "").toLowerCase() !== "gap") continue;
-        answers.push(typedText ?? "");
-      }
-    }
-    return { taskType: "ClozeText", clozeText: { answers } };
-  }
-
-  if (scene.screen_type === "error_spotting") {
-    return { taskType: "ErrorSpotting", errorSpotting: { selectedSegmentIds: [], corrections: {} } };
-  }
-
+function buildPlaceholderAttempt(_scene: RunSceneDto, typedText: string): unknown {
   return { rawText: typedText };
 }
 
@@ -218,6 +215,80 @@ function syncMatchingDraftForScene(
   setters.setMatchingValidationError(null);
 }
 
+function syncErrorSpottingDraftForScene(
+  scene: RunSceneDto | null,
+  setters: {
+    setErrorSpottingDraft: (value: ErrorSpottingDraft | null) => void;
+    setErrorSpottingValidationError: (value: string | null) => void;
+  },
+) {
+  if (!scene || scene.scene_type !== "task" || scene.screen_type !== "error_spotting") {
+    setters.setErrorSpottingDraft(null);
+    setters.setErrorSpottingValidationError(null);
+    return;
+  }
+  const normalized = normalizeErrorSpottingContentResult(getTaskPayload(scene));
+  if (!normalized.ok) {
+    setters.setErrorSpottingDraft(null);
+    setters.setErrorSpottingValidationError(ERROR_SPOTTING_CONTENT_MISMATCH_MESSAGE);
+    return;
+  }
+  setters.setErrorSpottingDraft(createEmptyErrorSpottingDraft());
+  setters.setErrorSpottingValidationError(null);
+}
+
+type ClozeDraftPreserveContext = {
+  sceneId: string;
+  answers: ClozeAnswersDraft;
+};
+
+function clozePreserveForTransition(
+  nextScene: RunSceneDto | null,
+  previousSceneId: string | undefined,
+  answers: ClozeAnswersDraft | null,
+): ClozeDraftPreserveContext | null {
+  if (
+    !nextScene ||
+    nextScene.scene_type !== "task" ||
+    nextScene.screen_type !== "cloze" ||
+    !previousSceneId ||
+    nextScene.id !== previousSceneId ||
+    !answers
+  ) {
+    return null;
+  }
+  return { sceneId: previousSceneId, answers };
+}
+
+function syncClozeDraftForScene(
+  scene: RunSceneDto | null,
+  setters: {
+    setClozeAnswers: (value: ClozeAnswersDraft | null) => void;
+    setClozeValidationError: (value: string | null) => void;
+  },
+  preserve: ClozeDraftPreserveContext | null,
+) {
+  if (!scene || scene.scene_type !== "task" || scene.screen_type !== "cloze") {
+    setters.setClozeAnswers(null);
+    setters.setClozeValidationError(null);
+    return;
+  }
+  const normalized = normalizeClozeContentResult(getTaskPayload(scene));
+  if (!normalized.ok) {
+    setters.setClozeAnswers(null);
+    setters.setClozeValidationError(CLOZE_CONTENT_MISMATCH_MESSAGE);
+    return;
+  }
+  const gapCount = countClozeGaps(normalized.content.lines);
+  if (preserve && preserve.sceneId === scene.id && preserve.answers.length === gapCount) {
+    setters.setClozeAnswers([...preserve.answers]);
+    setters.setClozeValidationError(null);
+    return;
+  }
+  setters.setClozeAnswers(createEmptyClozeAnswers(gapCount));
+  setters.setClozeValidationError(null);
+}
+
 function syncTaskDraftsForScene(
   scene: RunSceneDto | null,
   setters: {
@@ -230,7 +301,12 @@ function syncTaskDraftsForScene(
     setDragDropValidationError: (value: string | null) => void;
     setFreetextAnswer: (value: string) => void;
     setFreetextValidationError: (value: string | null) => void;
+    setErrorSpottingDraft: (value: ErrorSpottingDraft | null) => void;
+    setErrorSpottingValidationError: (value: string | null) => void;
+    setClozeAnswers: (value: ClozeAnswersDraft | null) => void;
+    setClozeValidationError: (value: string | null) => void;
   },
+  clozePreserve: ClozeDraftPreserveContext | null = null,
 ) {
   syncMcDraftForScene(scene, {
     setMcSelections: setters.setMcSelections,
@@ -249,6 +325,14 @@ function syncTaskDraftsForScene(
     setFreetextAnswer: setters.setFreetextAnswer,
     setFreetextValidationError: setters.setFreetextValidationError,
   });
+  syncErrorSpottingDraftForScene(scene, {
+    setErrorSpottingDraft: setters.setErrorSpottingDraft,
+    setErrorSpottingValidationError: setters.setErrorSpottingValidationError,
+  });
+  syncClozeDraftForScene(scene, {
+    setClozeAnswers: setters.setClozeAnswers,
+    setClozeValidationError: setters.setClozeValidationError,
+  }, clozePreserve);
 }
 
 function readReference(scene: RunSceneDto | null): { title?: string; body: string } | null {
@@ -283,6 +367,10 @@ export default function PlayPage() {
   const [dragDropValidationError, setDragDropValidationError] = useState<string | null>(null);
   const [freetextAnswer, setFreetextAnswer] = useState("");
   const [freetextValidationError, setFreetextValidationError] = useState<string | null>(null);
+  const [errorSpottingDraft, setErrorSpottingDraft] = useState<ErrorSpottingDraft | null>(null);
+  const [errorSpottingValidationError, setErrorSpottingValidationError] = useState<string | null>(null);
+  const [clozeAnswers, setClozeAnswers] = useState<ClozeAnswersDraft | null>(null);
+  const [clozeValidationError, setClozeValidationError] = useState<string | null>(null);
   const [sceneNavPending, setSceneNavPending] = useState(false);
   const [taskPending, setTaskPending] = useState(false);
   const [pauseOpen, setPauseOpen] = useState(false);
@@ -293,6 +381,10 @@ export default function PlayPage() {
   const [backgroundHoldKey, setBackgroundHoldKey] = useState<string | null>(null);
 
   const currentScene = state.run?.currentScene ?? null;
+  const clampedMcQuestionIndex = useMemo(() => {
+    if (!currentScene || currentScene.screen_type !== "multiple_choice") return mcQuestionIndex;
+    return clampMcQuestionIndex(currentScene, mcQuestionIndex);
+  }, [currentScene, mcQuestionIndex]);
   const referenceDocument = useMemo(() => readReference(currentScene), [currentScene]);
   const taskHeaderTitle = useMemo(() => {
     if (!currentScene || currentScene.scene_type !== "task") return null;
@@ -349,6 +441,10 @@ export default function PlayPage() {
             setDragDropValidationError,
             setFreetextAnswer,
             setFreetextValidationError,
+            setErrorSpottingDraft,
+            setErrorSpottingValidationError,
+            setClozeAnswers,
+            setClozeValidationError,
           });
           setError(activeRunConflictMessage(result));
           toastBlockingApiError(result);
@@ -373,6 +469,10 @@ export default function PlayPage() {
       setDragDropValidationError,
       setFreetextAnswer,
       setFreetextValidationError,
+      setErrorSpottingDraft,
+      setErrorSpottingValidationError,
+      setClozeAnswers,
+      setClozeValidationError,
     });
     setLoading(false);
   }, [chapterId, clearSession, mountedRef, questId, router, token]);
@@ -384,14 +484,6 @@ export default function PlayPage() {
       setAttemptText("");
     })();
   }, [loadRun, mountedRef]);
-
-  useEffect(() => {
-    if (!currentScene || currentScene.screen_type !== "multiple_choice") return;
-    const clamped = clampMcQuestionIndex(currentScene, mcQuestionIndex);
-    if (clamped !== mcQuestionIndex) {
-      setMcQuestionIndex(clamped);
-    }
-  }, [currentScene, mcQuestionIndex]);
 
   async function onAdvanceStory() {
     if (!token || !state.run || !currentScene) return;
@@ -409,18 +501,27 @@ export default function PlayPage() {
       setSceneNavPending(false);
       return;
     }
+    const nextScene = result.data.run?.currentScene ?? null;
     setState((current) => mergeRunState(current, result.data));
-    syncTaskDraftsForScene(result.data.run?.currentScene ?? null, {
-      setMcSelections,
-      setMcQuestionIndex,
-      setMcValidationError,
-      setMatchingPairs,
-      setMatchingValidationError,
-      setDragDropAssignments,
-      setDragDropValidationError,
-      setFreetextAnswer,
-      setFreetextValidationError,
-    });
+    syncTaskDraftsForScene(
+      nextScene,
+      {
+        setMcSelections,
+        setMcQuestionIndex,
+        setMcValidationError,
+        setMatchingPairs,
+        setMatchingValidationError,
+        setDragDropAssignments,
+        setDragDropValidationError,
+        setFreetextAnswer,
+        setFreetextValidationError,
+        setErrorSpottingDraft,
+        setErrorSpottingValidationError,
+        setClozeAnswers,
+        setClozeValidationError,
+      },
+      clozePreserveForTransition(nextScene, currentScene.id, clozeAnswers),
+    );
     setAttemptText("");
     setMcValidationError(null);
     setMatchingValidationError(null);
@@ -445,23 +546,34 @@ export default function PlayPage() {
       setSceneNavPending(false);
       return;
     }
+    const nextScene = result.data.run?.currentScene ?? null;
     setState((current) => mergeRunState(current, result.data));
-    syncTaskDraftsForScene(result.data.run?.currentScene ?? null, {
-      setMcSelections,
-      setMcQuestionIndex,
-      setMcValidationError,
-      setMatchingPairs,
-      setMatchingValidationError,
-      setDragDropAssignments,
-      setDragDropValidationError,
-      setFreetextAnswer,
-      setFreetextValidationError,
-    });
+    syncTaskDraftsForScene(
+      nextScene,
+      {
+        setMcSelections,
+        setMcQuestionIndex,
+        setMcValidationError,
+        setMatchingPairs,
+        setMatchingValidationError,
+        setDragDropAssignments,
+        setDragDropValidationError,
+        setFreetextAnswer,
+        setFreetextValidationError,
+        setErrorSpottingDraft,
+        setErrorSpottingValidationError,
+        setClozeAnswers,
+        setClozeValidationError,
+      },
+      clozePreserveForTransition(nextScene, currentScene.id, clozeAnswers),
+    );
     setAttemptText("");
     setMcValidationError(null);
     setMatchingValidationError(null);
     setDragDropValidationError(null);
     setFreetextValidationError(null);
+    setErrorSpottingValidationError(null);
+    setClozeValidationError(null);
     setSceneNavPending(false);
   }
 
@@ -523,6 +635,39 @@ export default function PlayPage() {
       }
       setDragDropValidationError(null);
       attempt = buildDragDropAttempt(normalized.content.targets, draft);
+    } else if (currentScene.screen_type === "error_spotting") {
+      const normalized = normalizeErrorSpottingContentResult(getTaskPayload(currentScene));
+      if (!normalized.ok) {
+        setErrorSpottingValidationError(ERROR_SPOTTING_CONTENT_MISMATCH_MESSAGE);
+        setTaskPending(false);
+        return;
+      }
+      const draft = errorSpottingDraft ?? createEmptyErrorSpottingDraft();
+      const validation = validateErrorSpottingDraft(draft);
+      if (!validation.ok) {
+        setErrorSpottingValidationError(validation.message);
+        setTaskPending(false);
+        return;
+      }
+      setErrorSpottingValidationError(null);
+      attempt = buildErrorSpottingAttempt(draft);
+    } else if (currentScene.screen_type === "cloze") {
+      const normalized = normalizeClozeContentResult(getTaskPayload(currentScene));
+      if (!normalized.ok) {
+        setClozeValidationError(CLOZE_CONTENT_MISMATCH_MESSAGE);
+        setTaskPending(false);
+        return;
+      }
+      const gapCount = countClozeGaps(normalized.content.lines);
+      const draft = clozeAnswers ?? createEmptyClozeAnswers(gapCount);
+      const validation = validateClozeDraft(draft, gapCount);
+      if (!validation.ok) {
+        setClozeValidationError(validation.message);
+        setTaskPending(false);
+        return;
+      }
+      setClozeValidationError(null);
+      attempt = buildClozeAttempt(draft);
     } else if (currentScene.screen_type === "free_text") {
       const normalized = normalizeFreitextContentResult(
         getTaskPayload(currentScene),
@@ -564,23 +709,34 @@ export default function PlayPage() {
       return;
     }
 
+    const nextScene = result.data.run?.currentScene ?? null;
     setState((current) => mergeAttemptState(current, result.data));
-    syncTaskDraftsForScene(result.data.run?.currentScene ?? null, {
-      setMcSelections,
-      setMcQuestionIndex,
-      setMcValidationError,
-      setMatchingPairs,
-      setMatchingValidationError,
-      setDragDropAssignments,
-      setDragDropValidationError,
-      setFreetextAnswer,
-      setFreetextValidationError,
-    });
+    syncTaskDraftsForScene(
+      nextScene,
+      {
+        setMcSelections,
+        setMcQuestionIndex,
+        setMcValidationError,
+        setMatchingPairs,
+        setMatchingValidationError,
+        setDragDropAssignments,
+        setDragDropValidationError,
+        setFreetextAnswer,
+        setFreetextValidationError,
+        setErrorSpottingDraft,
+        setErrorSpottingValidationError,
+        setClozeAnswers,
+        setClozeValidationError,
+      },
+      clozePreserveForTransition(nextScene, currentScene.id, clozeAnswers),
+    );
     setAttemptText("");
     setMcValidationError(null);
     setMatchingValidationError(null);
     setDragDropValidationError(null);
     setFreetextValidationError(null);
+    setErrorSpottingValidationError(null);
+    setClozeValidationError(null);
     if (result.data.taskOutcome) {
       setBackgroundHoldKey(backgroundBeforeSubmit);
       setOutcome(result.data.taskOutcome);
@@ -631,7 +787,7 @@ export default function PlayPage() {
         <SceneRouter
           scene={currentScene}
           mcSelections={mcSelections}
-          mcQuestionIndex={mcQuestionIndex}
+          mcQuestionIndex={clampedMcQuestionIndex}
           mcValidationError={mcValidationError}
           matchingPairs={matchingPairs}
           matchingValidationError={matchingValidationError}
@@ -639,6 +795,10 @@ export default function PlayPage() {
           dragDropValidationError={dragDropValidationError}
           freetextAnswer={freetextAnswer}
           freetextValidationError={freetextValidationError}
+          errorSpottingDraft={errorSpottingDraft}
+          errorSpottingValidationError={errorSpottingValidationError}
+          clozeAnswers={clozeAnswers}
+          clozeValidationError={clozeValidationError}
           canRetreat={canRetreat}
           sceneNavPending={sceneNavPending}
           taskSubmitting={taskPending}
@@ -667,6 +827,14 @@ export default function PlayPage() {
           onFreetextAnswerChange={(value) => {
             setFreetextAnswer(value);
             setFreetextValidationError(null);
+          }}
+          onErrorSpottingDraftChange={(draft) => {
+            setErrorSpottingDraft(draft);
+            setErrorSpottingValidationError(null);
+          }}
+          onClozeAnswersChange={(answers) => {
+            setClozeAnswers(answers);
+            setClozeValidationError(null);
           }}
           onAdvanceStory={onAdvanceStory}
           onRetreatScene={onRetreatScene}

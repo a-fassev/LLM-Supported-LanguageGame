@@ -11,7 +11,7 @@ description: >-
 
 Branch: **`web-based-implementation`**. Canonical rules: **`AGENTS.md`**, learner UX: **`.cursor/skills/product/SKILL.md`**. Content shape: **`docs/quest-scene-content-format.md`**.
 
-**Reference implementations:** Multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, quest-01 `scenes/04.json` + `05.json`, `docs/multiple-choice-task-integration-plan.md` (historical detail). Matching — `components/game/tasks/types/matching/`, `lib/game/tasks/matching/`, quest-01 `scenes/06.json`–`08.json`. Drag_drop — `components/game/tasks/types/drag-drop/`, `lib/game/tasks/drag-drop/`, quest-01 `scenes/09.json`–`11.json`, `docs/drag-drop-task-integration-plan.md`. **Free_text** — `components/game/tasks/types/free-text/`, `lib/game/tasks/freitext/`, quest-01 `scenes/12.json`, `docs/freitext-llm-implementation.md`.
+**Reference implementations:** Multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, quest-01 `scenes/04.json` + `05.json`, `docs/multiple-choice-task-integration-plan.md` (historical detail). Matching — `components/game/tasks/types/matching/`, `lib/game/tasks/matching/`, quest-01 `scenes/06.json`–`08.json`. Drag_drop — `components/game/tasks/types/drag-drop/`, `lib/game/tasks/drag-drop/`, quest-01 `scenes/09.json`–`11.json`, `docs/drag-drop-task-integration-plan.md`. **Free_text** — `components/game/tasks/types/free-text/`, `lib/game/tasks/freitext/`, quest-01 `scenes/12.json`, `docs/freitext-llm-implementation.md`. **Error_spotting** — `components/game/tasks/types/error-spotting/`, `lib/game/tasks/error-spotting/`, chapter-03 quest-01 `scenes/02.json`, chapter-01 quest-01 `scenes/13.json` + `14.json`.
 
 ## Methodology (always)
 
@@ -66,6 +66,25 @@ Execute in order; complete each phase before the next unless the user splits PRs
 | **4 — Docs & tests** | Contract documented | `docs/quest-scene-content-format.md` subsection, Vitest for normalize/validate/attempt builders |
 
 After phase 2, manual pass on `/play` with fixtures. After phase 3, verify scored path + retry overlay.
+
+## Error spotting (`error_spotting`)
+
+**Authoring — segment spacing (catalog-enforced):** Validated in `validate-error-spotting-segment-text.ts` + `errorSpottingContentSchema.ts`. Before shipping fixtures, check:
+
+- [ ] No **trailing** whitespace on any segment (`"Maria "` is invalid).
+- [ ] **First** segment has no leading space; **later** segments start with exactly **one** leading space (`"Maria"`, `" vai"`, `" a scuola."`).
+- [ ] **Punctuation** is on the word segment, not standalone (`" mattina."` not `"."` as its own segment).
+- [ ] Concatenating all `text` values reads naturally (no double space before `.`).
+
+Full spec: `docs/quest-scene-content-format.md` §error_spotting.
+
+**Scoring:** False-positive marks are ignored — do not reintroduce instant `ratio: 0` without product sign-off. Keep coverage in `taskScoring.test.ts`.
+
+**UI (locked):**
+
+- Tap word/phrase chip → inline correction field; unmark via **×** or Escape (no global reset button).
+- Field width from `correctionFieldWidth(segmentText)` — based on **original segment text** + chrome for × (not typed length). Body copy **`text-sm`** like other tasks.
+- Scroll QA fixtures: consecutive `chapter-01/quest-01/scenes/13.json` (short) + `14.json` (long).
 
 ## Multi-step tasks (optional)
 

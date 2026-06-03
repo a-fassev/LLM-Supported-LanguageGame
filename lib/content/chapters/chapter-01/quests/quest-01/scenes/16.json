@@ -1,0 +1,61 @@
+{
+  "id": "chapter-01-quest-01-scene-16",
+  "scene_type": "task",
+  "screen_type": "cloze",
+  "background": "chapters/01/quests/01/bg-task-01",
+  "content": {
+    "title": "Completa il dialogo",
+    "instruction": "Inserisci le parole mancanti in ogni spazio.",
+    "referenceDocument": {
+      "title": "Frasi utili",
+      "body": "In italiano si saluta con «Ciao!» e si chiede «Come stai?» quando si parla con un amico. Ricorda: «bene» descrive come va, «mercato» è un luogo dove si compra il cibo."
+    },
+    "task": {
+      "prompt": "Completa il dialogo tra due compagni di classe.",
+      "caseSensitive": false,
+      "lines": [
+        {
+          "segments": [
+            { "kind": "text", "text": "Marco: Ciao, mi chiamo " },
+            { "kind": "gap", "placeholder": "…", "maxLength": 20, "correctAnswers": ["Marco", "MARCO"] },
+            { "kind": "text", "text": "." }
+          ]
+        },
+        {
+          "segments": [
+            { "kind": "text", "text": "Sara: Come " },
+            { "kind": "gap", "placeholder": "…", "maxLength": 12, "correctAnswers": ["stai", "Stai"] },
+            { "kind": "text", "text": "?" }
+          ]
+        },
+        {
+          "segments": [
+            { "kind": "text", "text": "Marco: Io " },
+            { "kind": "gap", "placeholder": "…", "maxLength": 12, "correctAnswers": ["sto", "Sto"] },
+            { "kind": "text", "text": " bene, " },
+            { "kind": "gap", "placeholder": "…", "maxLength": 12, "correctAnswers": ["grazie", "Grazie"] },
+            { "kind": "text", "text": "." }
+          ]
+        },
+        {
+          "segments": [
+            { "kind": "text", "text": "Sara: " },
+            { "kind": "gap", "placeholder": "…", "maxLength": 12, "correctAnswers": ["Andiamo", "andiamo"] },
+            { "kind": "text", "text": " al " },
+            { "kind": "gap", "placeholder": "…", "maxLength": 16, "correctAnswers": ["mercato", "Mercato"] },
+            { "kind": "text", "text": " insieme?" }
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": { "pieces": 1 },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.67,
+      "mapping": { "kind": "linear" }
+    }
+  }
+}

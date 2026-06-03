@@ -88,14 +88,17 @@ function err(status: number, error: string, code: string): TaskAttemptEvalResult
   return { ok: false, status, error, code };
 }
 
-function gapInsensitive(root: boolean, seg: Record<string, unknown>): boolean {
+function gapInsensitive(rootInsensitive: boolean, seg: Record<string, unknown>): boolean {
   const ic = seg.ignoreCase;
+  if (typeof ic === "boolean") {
+    return ic;
+  }
   if (typeof ic === "string") {
     const t = ic.trim().toLowerCase();
     if (t === "true") return true;
     if (t === "false") return false;
   }
-  return root;
+  return rootInsensitive;
 }
 
 function clozeGapSpecs(content: Record<string, unknown>): { insensitive: boolean; answers: string[] }[] {
@@ -360,16 +363,9 @@ export function evaluateErrorSpotting(
   const errors = errorSegmentIds(content);
   if (errors.length === 0) return err(502, scoreMsg.errorSpottingNoErrors, "payload_invalid");
 
-  const trueIds = new Set(errors.map((e) => e.id));
   const selected = new Set(
     attempt.errorSpotting.selectedSegmentIds.map((x) => x.trim()).filter((x) => x.length > 0),
   );
-
-  for (const sid of selected) {
-    if (!trueIds.has(sid)) {
-      return { ok: true, ratio: 0, itemsCorrect: 0, itemsTotal: errors.length };
-    }
-  }
 
   let fixed = 0;
   for (const e of errors) {

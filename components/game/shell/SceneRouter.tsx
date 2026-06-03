@@ -14,6 +14,8 @@ import type {
   DragDropAssignmentsDraft,
   DragDropAssignmentsUpdater,
 } from "@/lib/game/tasks/drag-drop/drag-drop-types";
+import type { ErrorSpottingDraft } from "@/lib/game/tasks/error-spotting/error-spotting-types";
+import type { ClozeAnswersDraft } from "@/lib/game/tasks/cloze/cloze-types";
 
 type SceneRouterProps = {
   scene: RunSceneDto;
@@ -26,6 +28,10 @@ type SceneRouterProps = {
   dragDropValidationError?: string | null;
   freetextAnswer: string;
   freetextValidationError?: string | null;
+  errorSpottingDraft: ErrorSpottingDraft | null;
+  errorSpottingValidationError?: string | null;
+  clozeAnswers: ClozeAnswersDraft | null;
+  clozeValidationError?: string | null;
   canRetreat: boolean;
   sceneNavPending: boolean;
   taskSubmitting: boolean;
@@ -34,6 +40,8 @@ type SceneRouterProps = {
   onMatchingPairsChange: (updater: MatchingPairsUpdater) => void;
   onDragDropAssignmentsChange: (updater: DragDropAssignmentsUpdater) => void;
   onFreetextAnswerChange: (value: string) => void;
+  onErrorSpottingDraftChange: (draft: ErrorSpottingDraft) => void;
+  onClozeAnswersChange: (answers: ClozeAnswersDraft) => void;
   onAdvanceStory: () => void;
   onRetreatScene: () => void;
   onSubmitTask: () => void;
@@ -63,6 +71,10 @@ export function SceneRouter({
   dragDropValidationError,
   freetextAnswer,
   freetextValidationError,
+  errorSpottingDraft,
+  errorSpottingValidationError,
+  clozeAnswers,
+  clozeValidationError,
   canRetreat,
   sceneNavPending,
   taskSubmitting,
@@ -71,13 +83,15 @@ export function SceneRouter({
   onMatchingPairsChange,
   onDragDropAssignmentsChange,
   onFreetextAnswerChange,
+  onErrorSpottingDraftChange,
+  onClozeAnswersChange,
   onAdvanceStory,
   onRetreatScene,
   onSubmitTask,
 }: SceneRouterProps) {
   const mcNav = useMemo(
     () => getMcQuestionNavState(scene, mcQuestionIndex),
-    [scene.id, scene.screen_type, mcQuestionIndex],
+    [scene, mcQuestionIndex],
   );
 
   if (scene.scene_type === "story") {
@@ -159,11 +173,17 @@ export function SceneRouter({
           freetextAnswer={freetextAnswer}
           freetextValidationError={freetextValidationError}
           freetextEvaluating={taskSubmitting && scene.screen_type === "free_text"}
+          errorSpottingDraft={errorSpottingDraft}
+          errorSpottingValidationError={errorSpottingValidationError}
+          clozeAnswers={clozeAnswers}
+          clozeValidationError={clozeValidationError}
           taskDisabled={taskSubmitting}
           onMcSelectionsChange={onMcSelectionsChange}
           onMatchingPairsChange={onMatchingPairsChange}
           onDragDropAssignmentsChange={onDragDropAssignmentsChange}
           onFreetextAnswerChange={onFreetextAnswerChange}
+          onErrorSpottingDraftChange={onErrorSpottingDraftChange}
+          onClozeAnswersChange={onClozeAnswersChange}
         />
       </TaskChrome>
     </div>

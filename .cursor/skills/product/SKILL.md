@@ -14,7 +14,7 @@ description: |
 
 An **LLM-supported Italian learning game** for **children** in a **gifted-education school**, built as part of the **TUM IT-based learning** course. The experience is a **browser game**: a **sequential** journey through chapters and quests on a **city-map** hub, with **large language models** used only for **a small subset** of tasks (short free-text checks). Most interactions stay **predictably checkable** on the server.
 
-Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (login, menu, chapter map, leaderboard, quest play with pause/documento) ships on the web branch; **multiple choice**, **matching**, and **drag & drop** have full exercise UIs—other task types still use placeholders until rolled out. UI structure: `docs/web-game-ui-architecture.md`. Deferred milestones: `.cursor/plans/long-term-todos.md`.
+Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (login, menu, chapter map, leaderboard, quest play with pause/documento) ships on the web branch; **multiple choice**, **matching**, **drag & drop**, **error spotting**, and **free text** have full exercise UIs—other task types still use placeholders until rolled out. UI structure: `docs/web-game-ui-architecture.md`. Deferred milestones: `.cursor/plans/long-term-todos.md`.
 
 ## Who it is for
 
@@ -99,7 +99,7 @@ Image references live throughout **content config**—chapter tiles, quest tiles
 
 | Task type                  | Player action (short)                                                                                                                                                                          |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Error spotting             | Find/fix deliberate mistakes; confirm corrections.                                                                                                                                             |
+| Error spotting             | Tap a word in the flowing passage to mark it, type the correction inline, remove the mark with **×**. Marking a **wrong** word does not instantly fail the step—only **found and fixed** real errors count toward pizza; missed errors lower the score on **«Controlla»**. |
 | Drag & drop                | Drag word tiles from a bank into category zones (tap or drag). Several tiles can sit in one zone while sorting; **«Controlla»** works even if some zones or the bank are still empty—feedback comes from the check, not a “fill everything first” block. |
 | Free text                  | Brief **Italian** in a large text area; optional **word-count** hint (*Parole scritte: …*). After **«Controlla»**, show *Sto leggendo il tuo testo…* while the server scores (can take tens of seconds). **Retry** overlay uses **personalized Italian feedback** from the checker (what to improve); **success** stays generic praise + pizza/backpack. Timeouts mean **try again**, not hidden pass. Authors encode task rules in criteria/structures (e.g. required phrases)—children do not see the rubric. |
 | Matching                   | Pair two columns (tap a left card then a right card, or drag a line). Extra options on the right are distractors. × on a paired left card removes the link. |

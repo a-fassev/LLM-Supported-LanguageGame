@@ -6,8 +6,10 @@ export type ValidateDragDropDraftResult =
 
 /** Drag-drop submits any partial layout; scoring runs server-side on Controlla. */
 export function validateDragDropDraft(
-  _content: NormalizedDragDropContent,
-  _assignments: DragDropAssignmentsDraft,
+  content: NormalizedDragDropContent,
+  assignments: DragDropAssignmentsDraft,
 ): ValidateDragDropDraftResult {
+  void content;
+  void assignments;
   return { ok: true };
 }

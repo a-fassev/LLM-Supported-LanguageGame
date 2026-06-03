@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { normalizeDragDropContentResult } from "@/lib/game/tasks/drag-drop/normalize-drag-drop-content";
+import { normalizeErrorSpottingContentResult } from "@/lib/game/tasks/error-spotting/normalize-error-spotting-content";
 import { normalizeFreitextContentResult } from "@/lib/game/tasks/freitext/normalize-freitext-content";
-import { normalizeMatchingContentResult } from "@/lib/game/tasks/matching/normalize-matching-content";
 import {
   sanitizeSceneContentForClient,
   sanitizeTaskPayloadForClient,
@@ -76,9 +76,40 @@ describe("sanitizeTaskPayloadForClient", () => {
     expect(sanitized).not.toHaveProperty("evaluation");
   });
 
-  it("leaves other task types unchanged", () => {
-    const payload = { prompt: "x", answers: ["secret"] };
-    expect(sanitizeTaskPayloadForClient("cloze", payload)).toEqual(payload);
+  it("removes acceptedCorrections and isError from error_spotting segments", () => {
+    const sanitized = sanitizeTaskPayloadForClient("error_spotting", {
+      prompt: "Trova l'errore",
+      segments: [
+        { id: "a", text: "Maria", isError: false },
+        { id: "b", text: " vai", isError: true, acceptedCorrections: ["va"] },
+      ],
+    });
+    expect(sanitized).toEqual({
+      prompt: "Trova l'errore",
+      expectedErrorRange: { min: 1, max: 1 },
+      segments: [
+        { id: "a", text: "Maria" },
+        { id: "b", text: " vai" },
+      ],
+    });
+  });
+
+  it("removes correctAnswers from cloze gap segments", () => {
+    const sanitized = sanitizeTaskPayloadForClient("cloze", {
+      prompt: "Completa.",
+      lines: [
+        {
+          segments: [
+            { kind: "text", text: "Il " },
+            { kind: "gap", placeholder: "…", correctAnswers: ["gatto"] },
+          ],
+        },
+      ],
+    });
+    expect(sanitized).toEqual({
+      prompt: "Completa.",
+      lines: [{ segments: [{ kind: "text", text: "Il " }, { kind: "gap", placeholder: "…" }] }],
+    });
   });
 });
 
@@ -140,15 +171,18 @@ describe("sanitizeSceneContentForClient", () => {
     expect(normalized.ok).toBe(true);
   });
 
-  it("still normalizes matching after answer keys are stripped", () => {
-    const sanitized = sanitizeTaskPayloadForClient("matching", {
-      leftItems: [{ id: "l1", label: "A" }],
-      rightItems: [{ id: "r1", label: "B" }],
-      correctPairs: [{ leftItemId: "l1", rightItemId: "r1" }],
+  it("still normalizes error_spotting after answer keys are stripped", () => {
+    const sanitized = sanitizeTaskPayloadForClient("error_spotting", {
+      prompt: "Trova l'errore",
+      segments: [
+        { id: "a", text: "Maria", isError: false },
+        { id: "b", text: " vai", isError: true, acceptedCorrections: ["va"] },
+      ],
     });
-    const normalized = normalizeMatchingContentResult(sanitized);
+    const normalized = normalizeErrorSpottingContentResult(sanitized);
     expect(normalized.ok).toBe(true);
     if (!normalized.ok) throw new Error("expected ok");
-    expect(normalized.content.leftItems).toHaveLength(1);
+    expect(normalized.content.segments).toHaveLength(2);
+    expect(normalized.content.errorCount).toBe(1);
   });
 });

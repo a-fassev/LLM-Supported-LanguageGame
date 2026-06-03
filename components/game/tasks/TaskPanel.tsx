@@ -8,15 +8,21 @@ import { MultipleChoiceTask } from "@/components/game/tasks/types/multiple-choic
 import { MatchingTask } from "@/components/game/tasks/types/matching/MatchingTask";
 import { DragDropTask } from "@/components/game/tasks/types/drag-drop/DragDropTask";
 import { FreeTextTask } from "@/components/game/tasks/types/free-text/FreeTextTask";
+import { ErrorSpottingTask } from "@/components/game/tasks/types/error-spotting/ErrorSpottingTask";
+import { ClozeTextTask } from "@/components/game/tasks/types/cloze-text/ClozeTextTask";
 import { MC_CONTENT_MISMATCH_MESSAGE } from "@/lib/game/tasks/multiple-choice/normalize-mc-content";
 import { MATCHING_CONTENT_MISMATCH_MESSAGE } from "@/lib/game/tasks/matching/normalize-matching-content";
 import { DRAG_DROP_CONTENT_MISMATCH_MESSAGE } from "@/lib/game/tasks/drag-drop/normalize-drag-drop-content";
+import { ERROR_SPOTTING_CONTENT_MISMATCH_MESSAGE } from "@/lib/game/tasks/error-spotting/normalize-error-spotting-content";
+import { CLOZE_CONTENT_MISMATCH_MESSAGE } from "@/lib/game/tasks/cloze/normalize-cloze-content";
 import type { McSelectionsDraft } from "@/lib/game/tasks/multiple-choice/mc-types";
 import type { MatchingPairsDraft, MatchingPairsUpdater } from "@/lib/game/tasks/matching/matching-types";
 import type {
   DragDropAssignmentsDraft,
   DragDropAssignmentsUpdater,
 } from "@/lib/game/tasks/drag-drop/drag-drop-types";
+import type { ErrorSpottingDraft } from "@/lib/game/tasks/error-spotting/error-spotting-types";
+import type { ClozeAnswersDraft } from "@/lib/game/tasks/cloze/cloze-types";
 
 type TaskPanelProps = {
   scene: RunSceneDto;
@@ -30,11 +36,17 @@ type TaskPanelProps = {
   freetextAnswer: string;
   freetextValidationError?: string | null;
   freetextEvaluating?: boolean;
+  errorSpottingDraft: ErrorSpottingDraft | null;
+  errorSpottingValidationError?: string | null;
+  clozeAnswers: ClozeAnswersDraft | null;
+  clozeValidationError?: string | null;
   taskDisabled?: boolean;
   onMcSelectionsChange: (selections: McSelectionsDraft) => void;
   onMatchingPairsChange: (updater: MatchingPairsUpdater) => void;
   onDragDropAssignmentsChange: (updater: DragDropAssignmentsUpdater) => void;
   onFreetextAnswerChange: (value: string) => void;
+  onErrorSpottingDraftChange: (draft: ErrorSpottingDraft) => void;
+  onClozeAnswersChange: (answers: ClozeAnswersDraft) => void;
 };
 
 export function TaskPanel({
@@ -49,12 +61,60 @@ export function TaskPanel({
   freetextAnswer,
   freetextValidationError,
   freetextEvaluating,
+  errorSpottingDraft,
+  errorSpottingValidationError,
+  clozeAnswers,
+  clozeValidationError,
   taskDisabled,
   onMcSelectionsChange,
   onMatchingPairsChange,
   onDragDropAssignmentsChange,
   onFreetextAnswerChange,
+  onErrorSpottingDraftChange,
+  onClozeAnswersChange,
 }: TaskPanelProps) {
+  if (scene.screen_type === "cloze") {
+    if (!clozeAnswers) {
+      return (
+        <p className="text-sm text-destructive" role="alert">
+          {clozeValidationError ?? CLOZE_CONTENT_MISMATCH_MESSAGE}
+        </p>
+      );
+    }
+
+    return (
+      <ClozeTextTask
+        key={scene.id}
+        scene={scene}
+        answers={clozeAnswers}
+        validationError={clozeValidationError}
+        disabled={taskDisabled}
+        onAnswersChange={onClozeAnswersChange}
+      />
+    );
+  }
+
+  if (scene.screen_type === "error_spotting") {
+    if (!errorSpottingDraft) {
+      return (
+        <p className="text-sm text-destructive" role="alert">
+          {errorSpottingValidationError ?? ERROR_SPOTTING_CONTENT_MISMATCH_MESSAGE}
+        </p>
+      );
+    }
+
+    return (
+      <ErrorSpottingTask
+        key={scene.id}
+        scene={scene}
+        draft={errorSpottingDraft}
+        validationError={errorSpottingValidationError}
+        disabled={taskDisabled}
+        onDraftChange={onErrorSpottingDraftChange}
+      />
+    );
+  }
+
   if (scene.screen_type === "free_text") {
     return (
       <FreeTextTask

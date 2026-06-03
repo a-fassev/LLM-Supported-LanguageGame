@@ -342,6 +342,66 @@ Validated at catalog load (`parseDragDropContent`). Web v1 supports **`presentat
 
 Fixture scenes in quest-01 (after matching): `scenes/09.json` (minimal), `10.json` (medium + `referenceDocument`), `11.json` (bucket `matchMode: "all"`). See `docs/drag-drop-task-integration-plan.md`.
 
+#### `error_spotting` — `content.task`
+
+Validated at catalog load (`parseErrorSpottingContent`). Snapshots strip `isError` and `acceptedCorrections` from each segment; when `expectedErrorRange` is omitted, the sanitizer injects `{ min, max }` from the authored error count for caption display.
+
+```jsonc
+{
+  "prompt": "Trova l'errore nel testo.",
+  "counterCaption": "Nel testo ci sono {count} errori.",
+  "expectedErrorRange": { "min": 1, "max": 1 },
+  "segments": [
+    { "id": "a", "text": "Maria", "isError": false },
+    { "id": "b", "text": " vai", "isError": true, "acceptedCorrections": ["va"] },
+    { "id": "c", "text": " a scuola ogni giorno.", "isError": false }
+  ]
+}
+```
+
+| Rule | Notes |
+| ---- | ----- |
+| Segments | Unique non-empty `id`; display `text` inline as tappable chips. |
+| Spacing | **No trailing whitespace** on any segment. The **first** segment must not start with whitespace; every **later** segment must start with exactly **one** leading space. **Punctuation** (`. , ! ? ; :`) belongs on the preceding word segment — never as a standalone segment. |
+| Errors | `isError: true` requires non-empty `acceptedCorrections[]` (server-only, stripped on snapshot). |
+| Range | `expectedErrorRange` optional; when present, `min ≤ errorCount ≤ max`. |
+| Scoring | False-positive selections are **ignored** (no instant zero). `ratio = fixedTrueErrors / totalTrueErrors`. |
+| Scene copy | `instruction` → `TaskChrome`; `prompt` → `TaskBodyLayout`; error-count hint in `beforeScroll`. Tap segment → inline correction field; **×** or Escape clears mark. |
+| Attempt | `{ taskType: "ErrorSpotting", errorSpotting: { selectedSegmentIds: string[], corrections: Record<string, string> } }` |
+
+Fixture scenes: `chapter-03/quest-01/scenes/02.json` (minimal, flat), `chapter-01/quest-01/scenes/13.json` (short, flat) + `scenes/14.json` (long, scored). See `docs/error-spotting-task-integration-plan.md`.
+
+#### `cloze` — `content.task`
+
+Validated at catalog load (`parseClozeTextContent`). Snapshots strip `correctAnswers` from each `gap` segment; the client uses `parseClozeClientContent` only.
+
+```jsonc
+{
+  "prompt": "Completa il testo.",
+  "caseSensitive": false,
+  "lines": [
+    {
+      "segments": [
+        { "kind": "text", "text": "Il gatto " },
+        { "kind": "gap", "placeholder": "…", "maxLength": 16, "correctAnswers": ["mangia"] },
+        { "kind": "text", "text": " il topo." }
+      ]
+    }
+  ]
+}
+```
+
+| Rule | Notes |
+| ---- | ----- |
+| Segments | `kind: "text"` (or legacy `"literal"`) for literals; `kind: "gap"` for inputs. |
+| Gaps | Each gap needs `correctAnswers[]` with ≥1 non-empty string at catalog load (server-only). |
+| Case | Default insensitive when `caseSensitive` is omitted or `false`; per-gap `ignoreCase` overrides. |
+| Scene copy | `instruction` → `TaskChrome`; `prompt` → `TaskBodyLayout`. |
+| Controlla | Web requires every gap filled before submit; scoring is partial credit per gap (`evaluateCloze`). |
+| Attempt | `{ taskType: "ClozeText", clozeText: { answers: string[] } }` — one entry per gap, line order then left-to-right. |
+
+Fixture scenes: `chapter-01/quest-01/scenes/14.json` (minimal), `15.json` (rich + `referenceDocument`). See `docs/cloze-text-task-integration-plan.md`.
+
 #### `free_text` — `content.task`
 
 Validated at catalog load (`parseFreitextLlmStepContent` on merged `content.task` + scene `instruction`). **Scene completion** uses **`scoring.pizza.minRatioToComplete`** when `pizza.mode` is `scored`, and **`evaluation.passThreshold`** when `pizza.mode` is `flat`. **`evaluation.passThreshold`** and **`scoringPolicy`** feed the LLM rubric only — they do **not** gate completion on web. The LLM judge runs when evaluation is not skipped (`GAME_SMOKE_AUTO_PASS` skips all task types including `free_text`). Snapshots strip `task.evaluation` before the browser (see `sanitize-task-payload-for-client.ts`).
