@@ -25,11 +25,11 @@ type ClozeTextTaskProps = {
 
 type ClozeRenderSegment =
   | { kind: "text"; key: string; text: string }
-  | { kind: "gap"; key: string; gapIndex: number; placeholder?: string; maxLength?: number };
+  | { kind: "gap"; key: string; gapIndex: number; maxLength?: number };
 
 function gapInputWidthCh(maxLength: number | undefined): number {
-  const base = maxLength ?? 16;
-  return Math.min(24, Math.max(8, base));
+  const base = maxLength ?? 12;
+  return Math.min(18, Math.max(6, base));
 }
 
 function buildRenderLines(content: ClozeTextClientContentParsed): ClozeRenderSegment[][] {
@@ -50,7 +50,6 @@ function buildRenderLines(content: ClozeTextClientContentParsed): ClozeRenderSeg
         kind: "gap",
         key,
         gapIndex,
-        placeholder: segment.placeholder,
         maxLength: segment.maxLength,
       });
       gapIndex += 1;
@@ -122,12 +121,17 @@ export function ClozeTextTask({
                 <Input
                   key={segment.key}
                   type="text"
+                  name={`cloze-${scene.id}-g${segment.gapIndex}`}
                   value={answers[segment.gapIndex] ?? ""}
                   disabled={disabled}
-                  placeholder={segment.placeholder ?? "…"}
                   maxLength={segment.maxLength}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  data-1p-ignore
+                  data-lpignore="true"
                   aria-label={`Lacuna ${segment.gapIndex + 1} di ${gapCount}`}
-                  className="inline-flex h-11 min-h-11 shrink-0 px-2 text-sm"
+                  className="inline-flex h-8 min-h-8 shrink-0 px-1.5 py-0 text-sm focus-visible:border-ring focus-visible:ring-0"
                   style={{ width: `${widthCh}ch` }}
                   onChange={(event) => {
                     const next = [...answers];

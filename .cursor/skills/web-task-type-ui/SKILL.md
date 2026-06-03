@@ -11,7 +11,7 @@ description: >-
 
 Branch: **`web-based-implementation`**. Canonical rules: **`AGENTS.md`**, learner UX: **`.cursor/skills/product/SKILL.md`**. Content shape: **`docs/quest-scene-content-format.md`**.
 
-**Reference implementations:** Multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, quest-01 `scenes/04.json` + `05.json`, `docs/multiple-choice-task-integration-plan.md` (historical detail). Matching — `components/game/tasks/types/matching/`, `lib/game/tasks/matching/`, quest-01 `scenes/06.json`–`08.json`. Drag_drop — `components/game/tasks/types/drag-drop/`, `lib/game/tasks/drag-drop/`, quest-01 `scenes/09.json`–`11.json`, `docs/drag-drop-task-integration-plan.md`. **Free_text** — `components/game/tasks/types/free-text/`, `lib/game/tasks/freitext/`, quest-01 `scenes/12.json`, `docs/freitext-llm-implementation.md`. **Error_spotting** — `components/game/tasks/types/error-spotting/`, `lib/game/tasks/error-spotting/`, chapter-03 quest-01 `scenes/02.json`, chapter-01 quest-01 `scenes/13.json` + `14.json`.
+**Reference implementations:** Multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, quest-01 `scenes/04.json` + `05.json`, `docs/multiple-choice-task-integration-plan.md` (historical detail). Matching — `components/game/tasks/types/matching/`, `lib/game/tasks/matching/`, quest-01 `scenes/06.json`–`08.json`. Drag_drop — `components/game/tasks/types/drag-drop/`, `lib/game/tasks/drag-drop/`, quest-01 `scenes/09.json`–`11.json`, `docs/drag-drop-task-integration-plan.md`. **Free_text** — `components/game/tasks/types/free-text/`, `lib/game/tasks/freitext/`, quest-01 `scenes/12.json`, `docs/freitext-llm-implementation.md`. **Error_spotting** — `components/game/tasks/types/error-spotting/`, `lib/game/tasks/error-spotting/`, chapter-03 quest-01 `scenes/02.json`, chapter-01 quest-01 `scenes/13.json` + `14.json`. **Cloze** — `components/game/tasks/types/cloze-text/`, `lib/game/tasks/cloze/`, chapter-01 quest-01 `scenes/15.json` + `16.json`, `docs/cloze-text-task-integration-plan.md`.
 
 ## Methodology (always)
 
@@ -47,9 +47,9 @@ Do **not** edit Cursor plan files unless the user asks. Prefer updating `docs/qu
 **Client rules:**
 
 - Never use `correctOptionIds` / `correctPairs` / answers in UI logic.
-- Run snapshots strip answer keys in `game-progress-service` → `sceneToDto` → `sanitize-task-payload-for-client.ts`; normalizers use client parsers after sanitize (`parseMultipleChoiceClientContent`, `parseMatchingClientContent`, `parseDragDropClientContent`, **`parseFreitextClientContent`** — freetext also strips `task.evaluation`). **Do not** call `parseFreitextLlmStepContent` in UI normalizers.
+- Run snapshots strip answer keys in `game-progress-service` → `sceneToDto` → `sanitize-task-payload-for-client.ts`; normalizers use client parsers after sanitize (`parseMultipleChoiceClientContent`, `parseMatchingClientContent`, `parseDragDropClientContent`, **`parseFreitextClientContent`** — freetext also strips `task.evaluation`; **`parseClozeClientContent`** — cloze strips `correctAnswers` on gaps). **Do not** call `parseFreitextLlmStepContent` or full `parseClozeTextContent` in UI normalizers.
 - **Free_text server path:** async `evaluateFreitextLlmScene` in `completeTaskScene` (not `evaluateTaskAttempt`). `GAME_SMOKE_AUTO_PASS` skips LLM like other scored types. Use `TaskBodyLayout` `fillScroll` + full-height textarea; loading copy while attempt is in flight.
-- **Pre-Controlla validation:** MC/matching require a complete draft (inline error under prompt). **Drag-drop:** no completeness gate — always submit; wrong/empty zones fail via server ratio + `SuccessOverlay` retry.
+- **Pre-Controlla validation:** MC/matching/cloze require a complete draft (inline error under prompt; cloze: *Completa tutte le lacune.*). **Drag-drop:** no completeness gate — always submit; wrong/empty zones fail via server ratio + `SuccessOverlay` retry.
 - **Drag-drop `matchMode: "one"`:** UI may stack multiple tiles in one zone while sorting; scoring counts the target correct only when **exactly one** placed tile is in `correctItemIds`. Do not “fix” multi-tile zones back to single-slot replace.
 - Post-**Controlla** feedback: `SuccessOverlay` + `taskOutcome`, not toasts for wrong answers.
 - API calls via `lib/api-client.ts`; errors via `clientMessages` / `toast-from-api` policy in `AGENTS.md`.
@@ -85,6 +85,24 @@ Full spec: `docs/quest-scene-content-format.md` §error_spotting.
 - Tap word/phrase chip → inline correction field; unmark via **×** or Escape (no global reset button).
 - Field width from `correctionFieldWidth(segmentText)` — based on **original segment text** + chrome for × (not typed length). Body copy **`text-sm`** like other tasks.
 - Scroll QA fixtures: consecutive `chapter-01/quest-01/scenes/13.json` (short) + `14.json` (long).
+- Inline correction fields: `autoComplete="off"`, neutral `name`, `data-1p-ignore` / `data-lpignore="true"` (see `ErrorSpottingInlineField.tsx`).
+
+## Cloze (`cloze`)
+
+**Server:** `clozeTextContentSchema.ts`, `evaluateCloze` in `evaluateTaskAttempt.ts`, attempt `{ taskType: "ClozeText", clozeText: { answers: string[] } }` (gap order: `lines[]` then segments L→R).
+
+**Play:** `syncClozeDraftForScene`, `buildClozeAttempt`, `validateClozeDraft`; `clozePreserveForTransition` keeps answers after successful attempt when scene id unchanged (failed 409 retry keeps draft without sync reset).
+
+**Fixtures (chapter-01 quest-01):** `scenes/15.json` — minimal (2 gaps, `minRatioToComplete: 1`); `scenes/16.json` — rich (≥6 gaps, `referenceDocument`, `0.67`). Long **Bologna gita** narrative aligned with error_spotting `scenes/14.json` for scroll QA (`joinedText.length > 2000` in smoke test).
+
+**UI (locked):**
+
+- Inline `Input` per gap inside flowing `lines` (`TaskBodyLayout` scroll); body copy `text-sm`, `items-baseline` wrap.
+- Do **not** render `placeholder` on gap inputs (`segment.placeholder` in JSON is authoring-only).
+- Compact fields: `h-8`, `focus-visible:ring-0`, width from `maxLength` in `ch`.
+- Autofill off: `autoComplete="off"`, per-gap `name` like `cloze-{sceneId}-g{index}`, `autoCorrect="off"`, `autoCapitalize="off"`, `data-1p-ignore`, `data-lpignore="true"`.
+
+Full spec: `docs/quest-scene-content-format.md` §cloze.
 
 ## Multi-step tasks (optional)
 

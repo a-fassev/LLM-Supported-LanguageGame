@@ -53,10 +53,16 @@ export function ErrorSpottingInlineField({
     >
       <input
         type="text"
+        name={`error-spotting-correction-${ariaLabel.replace(/\s+/g, "-").toLowerCase()}`}
         value={value}
         disabled={disabled}
         maxLength={ERROR_SPOTTING_CORRECTION_MAX_LENGTH}
         placeholder={placeholder}
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        data-1p-ignore
+        data-lpignore="true"
         aria-label={ariaLabel}
         onChange={(event) => onChange(event.target.value)}
         onClick={(event) => {

@@ -398,9 +398,10 @@ Validated at catalog load (`parseClozeTextContent`). Snapshots strip `correctAns
 | Case | Default insensitive when `caseSensitive` is omitted or `false`; per-gap `ignoreCase` overrides. |
 | Scene copy | `instruction` → `TaskChrome`; `prompt` → `TaskBodyLayout`. |
 | Controlla | Web requires every gap filled before submit; scoring is partial credit per gap (`evaluateCloze`). |
+| UI placeholders | Optional `placeholder` on gap segments is **not** shown in the web UI (authoring/metadata only). |
 | Attempt | `{ taskType: "ClozeText", clozeText: { answers: string[] } }` — one entry per gap, line order then left-to-right. |
 
-Fixture scenes: `chapter-01/quest-01/scenes/14.json` (minimal), `15.json` (rich + `referenceDocument`). See `docs/cloze-text-task-integration-plan.md`.
+Fixture scenes: `chapter-01/quest-01/scenes/15.json` (minimal, 2 gaps, long Bologna narrative), `16.json` (rich, ≥6 gaps + `referenceDocument`). Scroll QA aligns with error_spotting `scenes/14.json`. See `docs/cloze-text-task-integration-plan.md`.
 
 #### `free_text` — `content.task`
 

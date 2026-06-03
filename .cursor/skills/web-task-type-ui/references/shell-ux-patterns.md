@@ -26,6 +26,15 @@ Use when layout or copy feedback sounds like “buttons scroll”, “text too b
 - Draft state on `/play` (`mcQuestionIndex`, selections, validation error); reset on every scene change via `sync*DraftForScene` after snapshot/advance/retreat/attempt.
 - Validate all items on **Controlla**; jump to first empty; error under prompt.
 
+## Cloze (inline gaps)
+
+| Problem | Fix |
+| ------- | --- |
+| Placeholder dots in empty gaps | Do not pass `placeholder` to gap `Input`; optional `segment.placeholder` is catalog-only. |
+| Focus ring dominates small inline fields | `focus-visible:ring-0` (match freetext textarea). |
+| Browser/password manager “Ausfüllen” on many fields | `autoComplete="off"`, neutral `name` per gap (`cloze-${sceneId}-g${index}`), `data-1p-ignore`, `data-lpignore="true"`. |
+| Short example does not test scroll | Long passage fixtures (e.g. same Bologna narrative as error_spotting scene 14); smoke test `joinedText.length > 2000`. |
+
 ## Drag-drop (blocks v1)
 
 | Problem | Fix |

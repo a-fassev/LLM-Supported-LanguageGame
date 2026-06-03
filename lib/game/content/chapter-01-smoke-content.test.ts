@@ -206,12 +206,20 @@ describe("chapter-01 smoke content", () => {
     const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-01-quest-01-scene-15");
     expect(taskScene?.screen_type).toBe("cloze");
 
-    const task = taskScene?.content.task as { lines?: { segments: { kind: string }[] }[] } | undefined;
+    const task = taskScene?.content.task as {
+      lines?: { segments: { kind: string; text?: string }[] }[];
+    } | undefined;
     const gapCount = (task?.lines ?? []).reduce(
       (total, line) => total + line.segments.filter((segment) => segment.kind === "gap").length,
       0,
     );
+    const joinedText = (task?.lines ?? [])
+      .flatMap((line) => line.segments)
+      .filter((segment) => segment.kind === "text")
+      .map((segment) => segment.text ?? "")
+      .join("");
     expect(gapCount).toBe(2);
+    expect(joinedText.length).toBeGreaterThan(2000);
     expect(taskScene?.scoring.pizza).toMatchObject({ mode: "scored", minRatioToComplete: 1 });
   });
 
@@ -222,12 +230,20 @@ describe("chapter-01 smoke content", () => {
     expect(taskScene?.screen_type).toBe("cloze");
     expect(taskScene?.content.referenceDocument).toBeTruthy();
 
-    const task = taskScene?.content.task as { lines?: { segments: { kind: string }[] }[] } | undefined;
+    const task = taskScene?.content.task as {
+      lines?: { segments: { kind: string; text?: string }[] }[];
+    } | undefined;
     const gapCount = (task?.lines ?? []).reduce(
       (total, line) => total + line.segments.filter((segment) => segment.kind === "gap").length,
       0,
     );
+    const joinedText = (task?.lines ?? [])
+      .flatMap((line) => line.segments)
+      .filter((segment) => segment.kind === "text")
+      .map((segment) => segment.text ?? "")
+      .join("");
     expect(gapCount).toBeGreaterThanOrEqual(6);
+    expect(joinedText.length).toBeGreaterThan(2000);
     expect(taskScene?.scoring.pizza).toMatchObject({ mode: "scored", minRatioToComplete: 0.67 });
   });
 
