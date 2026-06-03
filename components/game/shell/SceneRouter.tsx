@@ -1,15 +1,25 @@
+"use client";
+
+import { useMemo } from "react";
 import type { RunSceneDto } from "@/lib/api-client";
 import { StoryPanel } from "@/components/game/shell/StoryPanel";
 import { TaskChrome } from "@/components/game/shell/TaskChrome";
 import { TaskPanel } from "@/components/game/tasks/TaskPanel";
 import { Button } from "@/components/ui/button";
+import { readTaskChromeInstructions } from "@/lib/game/scene-display";
+import { getMcQuestionNavState } from "@/lib/game/tasks/multiple-choice/mc-question-nav";
+import type { McSelectionsDraft } from "@/lib/game/tasks/multiple-choice/mc-types";
+
 type SceneRouterProps = {
   scene: RunSceneDto;
-  attemptText: string;
+  mcSelections: McSelectionsDraft | null;
+  mcQuestionIndex: number;
+  mcValidationError?: string | null;
   canRetreat: boolean;
   sceneNavPending: boolean;
   taskSubmitting: boolean;
-  onAttemptTextChange: (value: string) => void;
+  onMcSelectionsChange: (selections: McSelectionsDraft) => void;
+  onMcQuestionIndexChange: (index: number) => void;
   onAdvanceStory: () => void;
   onRetreatScene: () => void;
   onSubmitTask: () => void;
@@ -28,28 +38,25 @@ function storyText(scene: RunSceneDto): string {
   );
 }
 
-function taskInstructions(scene: RunSceneDto): string | undefined {
-  const content = scene.content;
-  return (
-    readString(content.instruction) ??
-    readString(content.instructions) ??
-    readString((content.task as { instruction?: unknown } | undefined)?.instruction) ??
-    readString((content.task as { instructions?: unknown } | undefined)?.instructions) ??
-    undefined
-  );
-}
-
 export function SceneRouter({
   scene,
-  attemptText,
+  mcSelections,
+  mcQuestionIndex,
+  mcValidationError,
   canRetreat,
   sceneNavPending,
   taskSubmitting,
-  onAttemptTextChange,
+  onMcSelectionsChange,
+  onMcQuestionIndexChange,
   onAdvanceStory,
   onRetreatScene,
   onSubmitTask,
 }: SceneRouterProps) {
+  const mcNav = useMemo(
+    () => getMcQuestionNavState(scene, mcQuestionIndex),
+    [scene.id, scene.screen_type, mcQuestionIndex],
+  );
+
   if (scene.scene_type === "story") {
     return (
       <div className="flex h-full min-h-0 w-full flex-col">
@@ -73,18 +80,59 @@ export function SceneRouter({
     );
   }
 
+  const multiQuestionMc = mcNav != null && mcNav.questionCount > 1;
+
+  function handleTaskPrimary() {
+    if (multiQuestionMc && mcNav && !mcNav.isLastQuestion) {
+      onMcQuestionIndexChange(mcNav.safeIndex + 1);
+      return;
+    }
+    void onSubmitTask();
+  }
+
+  function handleTaskRetreat() {
+    if (multiQuestionMc && mcNav && !mcNav.isFirstQuestion) {
+      onMcQuestionIndexChange(mcNav.safeIndex - 1);
+      return;
+    }
+    void onRetreatScene();
+  }
+
+  const primaryLabel = taskSubmitting
+    ? multiQuestionMc && mcNav && !mcNav.isLastQuestion
+      ? "..."
+      : "Controllo..."
+    : multiQuestionMc && mcNav && !mcNav.isLastQuestion
+      ? "Avanti"
+      : "Controlla";
+
+  const retreatWithinQuestions = multiQuestionMc && mcNav != null && !mcNav.isFirstQuestion;
+  const retreatDisabled =
+    sceneNavPending ||
+    taskSubmitting ||
+    (!retreatWithinQuestions && !canRetreat);
+
   return (
-    <TaskChrome
-      instructions={taskInstructions(scene)}
-      primaryLabel={taskSubmitting ? "Controllo..." : "Controlla"}
-      primaryDisabled={taskSubmitting}
-      canRetreat={canRetreat}
-      retreatDisabled={!canRetreat || sceneNavPending || taskSubmitting}
-      retreatLabel={sceneNavPending ? "..." : "Indietro"}
-      onRetreat={onRetreatScene}
-      onPrimary={onSubmitTask}
-    >
-      <TaskPanel attemptText={attemptText} onAttemptTextChange={onAttemptTextChange} />
-    </TaskChrome>
+    <div className="flex h-full min-h-0 flex-1 flex-col">
+      <TaskChrome
+        instructions={readTaskChromeInstructions(scene)}
+        primaryLabel={primaryLabel}
+        primaryDisabled={taskSubmitting}
+        canRetreat={canRetreat || retreatWithinQuestions}
+        retreatDisabled={retreatDisabled}
+        retreatLabel={sceneNavPending ? "..." : "Indietro"}
+        onRetreat={handleTaskRetreat}
+        onPrimary={handleTaskPrimary}
+      >
+        <TaskPanel
+          scene={scene}
+          mcSelections={mcSelections}
+          mcQuestionIndex={mcNav?.safeIndex ?? mcQuestionIndex}
+          mcValidationError={mcValidationError}
+          taskDisabled={taskSubmitting}
+          onMcSelectionsChange={onMcSelectionsChange}
+        />
+      </TaskChrome>
+    </div>
   );
 }

@@ -19,7 +19,10 @@ describe("task content schemas with step referenceDocument", () => {
     const parsed = parseMultipleChoiceContent({
       prompt: "Q",
       referenceDocument: stepReferenceDocument,
-      options: [{ id: "a", label: "A" }],
+      options: [
+        { id: "a", label: "A" },
+        { id: "b", label: "B" },
+      ],
       correctOptionIds: ["a"],
     });
     expect(parsed.ok).toBe(true);

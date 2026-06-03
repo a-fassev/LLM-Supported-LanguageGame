@@ -32,7 +32,7 @@ export function QuestShell({
   contentClassName,
 }: QuestShellProps) {
   return (
-    <main className="game-shell-inset flex min-h-0 flex-col gap-4">
+    <main className="game-shell-inset flex h-full min-h-0 flex-col gap-4">
       <GameShellHeader
         variant="play"
         title={headerTitle ?? undefined}

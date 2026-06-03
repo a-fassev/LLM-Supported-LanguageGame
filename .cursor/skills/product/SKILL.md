@@ -14,7 +14,7 @@ description: |
 
 An **LLM-supported Italian learning game** for **children** in a **gifted-education school**, built as part of the **TUM IT-based learning** course. The experience is a **browser game**: a **sequential** journey through chapters and quests on a **city-map** hub, with **large language models** used only for **a small subset** of tasks (short free-text checks). Most interactions stay **predictably checkable** on the server.
 
-Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (login, menu, chapter map, leaderboard, quest play with pause/documento) ships on the web branch; per-task exercise UIs are still filling in. UI structure: `docs/web-game-ui-architecture.md`. Deferred milestones: `.cursor/plans/long-term-todos.md`.
+Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (login, menu, chapter map, leaderboard, quest play with pause/documento) ships on the web branch; **multiple choice** has a full exercise UI—other task types still use placeholders until rolled out. UI structure: `docs/web-game-ui-architecture.md`. Deferred milestones: `.cursor/plans/long-term-todos.md`.
 
 ## Who it is for
 
@@ -55,7 +55,8 @@ Each step is defined by JSON with:
 - **Chapter overview** is the main hub—not a free-roam character world.
 - **Chapter tiles** show unlock state; **tap a chapter** for quest overview, then start a **quest**. On chapter and quest lists, **pizza + backpack** stay visible in the header so progress is always in sight.
 - **Leaderboard:** compare progress by **total pizza slices**—**Overall** (all learners) or **Teams** (blue vs red). Players can **refresh** after playing; their own row should be easy to find without shaming low scores.
-- **Inside a quest**, the UI alternates **story mode** (narrative: **Pausa**, **«Indietro»** when not on the first scene, **«Avanti»**, full-step **background**, no performance HUD) and **task mode** (short **mission title** in the header, **pizza + backpack**, optional **documento** for shared reading text, one exercise surface, **«Indietro»** + **«Controlla»**).
+- **Inside a quest**, the UI alternates **story mode** (narrative: **Pausa**, **«Indietro»** when not on the first scene, **«Avanti»**, full-step **background**, no performance HUD) and **task mode** (short **mission title** in the header, **pizza + backpack**, optional **documento** for shared reading text, one exercise surface, **«Indietro»** + **«Controlla»**). When a task has **several questions in one scene**, the same footer uses **«Avanti»** between questions and **«Controlla»** only on the last—children should not see a second row of navigation inside the exercise.
+- **Task copy (authoring):** a short **scene instruction** (what to do overall) stays above the exercise; each **question prompt** sits with its options—do not merge both into one long paragraph.
 - **«Indietro»** lets children re-read the previous story beat or task setup; rewards already earned stay saved—going back is for clarity, not to undo pizza or backpack progress.
 - After **«Controlla»**, a **full-screen success overlay** (not a pop-up toast) shows Italian praise, how much pizza/backpack they earned, and **«Riprova»** when the score was below the step minimum—children stay on the same scene until they pass. On **success**, the **same step background** stays visible behind the overlay until they tap **«Avanti»**—the next scene’s art appears only after they continue, so the reward moment does not jump visually.
 - **Chapter and quest lists** show **locked** vs **open** missions from saved progress; locked quests are enforced server-side too, so children do not enter content that should still be closed.

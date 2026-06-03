@@ -1,0 +1,74 @@
+{
+  "id": "chapter-01-quest-01-scene-05",
+  "scene_type": "task",
+  "screen_type": "multiple_choice",
+  "background": "chapters/01/quests/01/bg-task-01",
+  "content": {
+    "title": "Fixture con titolo molto lungo per verificare come il gioco mostra intestazioni estese nell’header senza tagliare parole in modo strano su schermi piccoli e grandi",
+    "instruction": "Questa è un’istruzione di scena volutamente lunghissima: in questa missione trovi tre domande diverse (singola con molte opzioni, scelta multipla con checkbox e singola breve). Leggi con calma, usa «Avanti» e «Indietro» nel controller per passare da una domanda all’altra, e ricorda che il testo qui serve solo per provare layout, spaziature e scroll quando l’autore scrive molte righe di spiegazione prima dell’esercizio vero e proprio.",
+    "referenceDocument": {
+      "title": "Biglietto della stazione",
+      "body": "Questo è un testo lungo di esempio per il pulsante Documento. Puoi leggerlo mentre rispondi alle domande. Non serve per la risposta corretta: è solo contenuto di prova per vedere come si comporta il pannello con molto testo su schermi piccoli e grandi."
+    },
+    "task": {
+      "questions": [
+        {
+          "id": "q1-many-options",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Scegli UNA sola risposta corretta (singola scelta). Immagina di essere alla stazione di Bologna: senti un annuncio confuso, ci sono rumori, qualcuno ti chiede informazioni e tu devi capire quale frase è la più adatta per parlare con il personale in italiano. Questo prompt è scritto apposta con molte righe di testo, così possiamo vedere come si comporta l’interfaccia quando la domanda è lunga mentre sotto restano tante opzioni scrollabili senza schiacciare i pulsanti in basso.",
+          "options": [
+            { "id": "opt-01", "label": "Opzione 1 — breve" },
+            { "id": "opt-02", "label": "Opzione 2 — un po' più lunga per vedere il testo a capo" },
+            { "id": "opt-03", "label": "Opzione 3" },
+            { "id": "opt-04", "label": "Opzione 4" },
+            { "id": "opt-05", "label": "Opzione 5" },
+            { "id": "opt-06", "label": "Opzione 6" },
+            { "id": "opt-07", "label": "Opzione 7" },
+            { "id": "opt-08", "label": "Opzione 8" },
+            { "id": "opt-09", "label": "Opzione 9" },
+            { "id": "opt-10", "label": "Opzione 10" },
+            { "id": "opt-11", "label": "Opzione 11" },
+            { "id": "opt-12", "label": "Opzione 12 — la risposta corretta per questa fixture" },
+            { "id": "opt-13", "label": "Opzione 13" },
+            { "id": "opt-14", "label": "Opzione 14" },
+            { "id": "opt-15", "label": "Opzione 15 — ancora un'alternativa" }
+          ],
+          "correctOptionIds": ["opt-12"]
+        },
+        {
+          "id": "q2-multi",
+          "selectionMode": "multi",
+          "prompt": "Scegli TUTTE le risposte corrette (scelta multipla / checkbox).",
+          "options": [
+            { "id": "opt-buongiorno", "label": "Buongiorno!" },
+            { "id": "opt-ciao", "label": "Ciao!" },
+            { "id": "opt-notte", "label": "Buona notte." },
+            { "id": "opt-arrivederci", "label": "Arrivederci." }
+          ],
+          "correctOptionIds": ["opt-buongiorno", "opt-ciao"]
+        },
+        {
+          "id": "q3-single",
+          "selectionMode": "single",
+          "prompt": "Un passeggero dice: «Permesso, devo passare.» Cosa rispondi di solito?",
+          "options": [
+            { "id": "opt-prego", "label": "Prego, pure." },
+            { "id": "opt-grazie", "label": "Grazie." },
+            { "id": "opt-scusa", "label": "Scusa, non ho capito." }
+          ],
+          "correctOptionIds": ["opt-prego"]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": { "pieces": 1 },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 2,
+      "minRatioToComplete": 1,
+      "mapping": { "kind": "linear" }
+    }
+  }
+}

@@ -1,10 +1,10 @@
 # Web game UI architecture (high level)
 
-**Status:** v1 — **shell shipped** (2026-06-02). Product decisions **§10** locked. Routes under `app/(auth)/` and `app/(game)/`; shadcn primitives in `components/ui/`; **per-task-type renderers** still placeholders in `TaskPanel`.
+**Status:** v1 — **shell shipped** (2026-06-02). **Multiple choice** task UI shipped (2026-06-03). Product decisions **§10** locked. Routes under `app/(auth)/` and `app/(game)/`; shadcn primitives in `components/ui/`; other `screen_type`s still use `TaskPlaceholder` until implemented.
 
 **Purpose:** Structure the React + shadcn UI for the browser game: directory layout, screen map, shared quest chrome, data flow with existing `/api/*` + Supabase, styling via `app/globals.css`, and Italian player copy.
 
-**Related docs:** `AGENTS.md` (state, errors, API), `.cursor/skills/product/SKILL.md` (learner UX), `docs/quest-scene-content-format.md` (content JSON), `docs/web-stack-setup-plan.md` (Tailwind v4 + shadcn init — done).
+**Related docs:** `AGENTS.md` (state, errors, API), `.cursor/skills/product/SKILL.md` (learner UX), `.cursor/skills/web-task-type-ui/SKILL.md` (how to add each task type), `docs/quest-scene-content-format.md` (content JSON), `docs/web-stack-setup-plan.md` (Tailwind v4 + shadcn init — done).
 
 ---
 
@@ -51,7 +51,7 @@
 
 ### Intentionally out of scope (initial UI work)
 
-- **Per-task-type renderers** (Cloze, DragDrop, Matching, Error spotting, Multiple choice, …) — **`TaskPanel` placeholder** only until a later pass.
+- **Per-task-type renderers** — **Multiple choice** implemented under `components/game/tasks/types/multiple-choice/`; Cloze, DragDrop, Matching, Error spotting, … still **`TaskPlaceholder`** until each type is built (see **§5b** + **web-task-type-ui** skill).
 - **Freitext / LLM** — not in scope; no evaluate UI or loading states for LLM in this phase.
 - Unity-specific `SpecialScreen*` — not ported unless content uses them on web.
 - **“First playable milestone”** end-to-end slice — planned separately later; this doc does not define that checklist.
@@ -106,8 +106,10 @@ components/
     │   └── QuestList.tsx
     └── tasks/
         ├── TaskPanel.tsx         # dispatches by screen_type
-        └── types/                # one folder per task type (later)
-            └── TaskPlaceholder.tsx
+        ├── TaskBodyLayout.tsx    # shared prompt + fixed meta + scrollable exercise (all types)
+        ├── TaskPlaceholder.tsx
+        └── types/                # one folder per task type
+            └── multiple-choice/  # reference implementation
 
 lib/
 ├── api-client.ts                 # fetch + auth header + jsonOk/jsonError parse (to add)
@@ -115,7 +117,7 @@ lib/
 │   ├── session-context.tsx       # bearer token + account snapshot (client)
 │   ├── unlock-display.ts         # pure helpers: locked chapter/quest from bootstrap (display only)
 │   ├── quest-progress-id.ts      # chapterId:questId keys for completedQuestIds
-│   ├── scene-display.ts          # readTaskSceneTitle for play header
+│   ├── scene-display.ts          # readTaskSceneTitle, readTaskChromeInstructions, readTaskScenePrompt
 │   └── content/
 │       └── resolve-asset-url.ts  # background key → /public/content-assets/...
 ```
@@ -208,6 +210,35 @@ ASCII regions (all quest play modes):
 | Hub lists | `ChapterGrid` / `QuestList` as **`<button>`** rows (keyboard + disabled when locked) | — |
 
 **CSS:** `GameBackground` uses `h-dvh`; outer **`game-shell-inset`** (`--game-shell-padding`); inner panels use **`game-panel`** + **`game-panel-inset`** (`--game-panel-padding`). Define translucent panel look once in `globals.css` (`--game-panel-bg`, spacing tokens).
+
+### 5b. Task body layout (all task types)
+
+Every task scene uses the same **copy + scroll contract**. Implement new types inside this frame; do not fork a second instruction strip or prompt box.
+
+| Region | Source (JSON) | Component | Style | Scroll |
+| ------ | ------------- | --------- | ----- | ------ |
+| Play header title | `content.title` | `GameShellHeader` | Hub title styles; **single line + ellipsis** | — |
+| Instruction | `content.instruction` | `TaskChrome` | `text-sm`, **semibold** | No (fixed) |
+| Prompt | `content.task.prompt` or per-item field (e.g. MC `questions[i].prompt`) | `TaskBodyLayout` | `text-sm`, normal | No (fixed) |
+| Meta | — (validation, progress, hints) | `TaskBodyLayout` `beforeScroll` | Usually `text-xs` / `text-sm` | No |
+| Exercise | Type-specific widgets | `TaskBodyLayout` children | e.g. option labels `text-sm` | **Yes** (overflow only here) |
+| Actions | — | `TaskChrome` footer | **Indietro** + **Controlla** / **Avanti** | No (fixed) |
+
+```text
+TaskChrome
+├── instruction (scene)
+├── TaskBodyLayout
+│   ├── prompt (task / per question)
+│   ├── beforeScroll (errors, "Domanda 1 di N", …)
+│   └── [scroll] exercise UI
+└── footer: Indietro | Controlla / Avanti
+```
+
+**Helpers:** `lib/game/scene-display.ts` (`readTaskSceneTitle`, `readTaskSceneInstruction`, `readTaskChromeInstructions`, `readTaskScenePrompt`).
+
+**Adding a task type:** Follow **`.cursor/skills/web-task-type-ui/SKILL.md`** (methodology: understand → clarify → code; phases: schema/catalog → UI → play submit → docs/tests). **Reference:** `components/game/tasks/types/multiple-choice/` + `lib/game/tasks/multiple-choice/`. Content contracts: `docs/quest-scene-content-format.md` (§5.2 + task-specific subsections).
+
+**Multi-step tasks (e.g. MC `questions[]`):** Reuse shell **Avanti** / **Indietro** for item navigation (`SceneRouter` + `lib/game/tasks/multiple-choice/mc-question-nav.ts` as pattern); validate all items on final **Controlla**.
 
 ---
 
@@ -435,12 +466,13 @@ sequenceDiagram
 - **Gate:** Layout or middleware redirects unauthenticated users to `/login`; game routes attach `Authorization: Bearer …` via `lib/api-client.ts`.
 - **Out of scope v1:** Cookie-based session, refresh tokens, “remember me”.
 
-### 10.7 Task types and Freitext (locked — later)
+### 10.7 Task types and Freitext
 
-- **Decision:** Build **shell** (quest play, Controlla, success/retry overlay, documento, pause) first; **do not** implement individual task UIs or LLM in the same pass.
-- **`TaskPanel`:** single placeholder (e.g. “Attività in arrivo” + minimal stub attempt if needed for server-tested scenes).
-- **Content:** Scenes with unsupported `screen_type` may return `task_eval_not_implemented` — show inline Italian message from `clientMessages`, not a toast.
-- **Freitext / LLM:** excluded until a dedicated milestone; no `/evaluate` client, no “checking…” UX yet.
+- **Shell (done):** Quest play, Controlla, success/retry overlay, documento, pause, shared **TaskChrome** + **TaskBodyLayout** (§5b).
+- **Per-type UI:** Roll out one `screen_type` at a time using **`.cursor/skills/web-task-type-ui/SKILL.md`**. **Multiple choice** is the reference implementation (2026-06-03).
+- **Placeholder:** Unsupported `screen_type`s still render `TaskPlaceholder` inside `TaskBodyLayout` (optional flat `task.prompt`).
+- **Server:** Unsupported **scored** types may return `task_eval_not_implemented` — inline Italian from `clientMessages`, not a toast.
+- **Freitext / LLM:** excluded until a dedicated milestone; no dedicated evaluate UI yet.
 
 ---
 
@@ -463,7 +495,8 @@ sequenceDiagram
 | **P4** | `/play` shell: snapshot, start run, story scenes + advance |
 | **P5** | Task shell: Controlla → attempt, `SuccessOverlay` from `taskOutcome`, documento; `TaskPlaceholder` |
 | **P6** | Pause overlay + exit paths; Sonner for fatal errors |
-| **P7+** | Per-task-type components under `components/game/tasks/types/*` (Freitext/LLM last or separate) |
+| **P7** | Multiple choice (`TaskBodyLayout` + MC renderer) — **done** |
+| **P7+** | Remaining types under `components/game/tasks/types/*` via **web-task-type-ui** skill (Freitext/LLM last or separate) |
 
 Each phase: Italian copy, one layout primitive reused, no new global stores. Phases are **technical building blocks**, not the deferred “playable milestone” checklist.
 
@@ -512,4 +545,6 @@ Single resolver (`resolveAssetUrl`) + preload helper (`preloadAssetUrl`). See `d
 
 ---
 
-*Next step:* Expand **§5** (exact layout tokens) and **§4.2** (per `screen_type` content field bindings), or a separate implementation todo doc. **§10** product/tech choices are locked; playable milestone checklist is **not** in this file.
+*Changelog:* 2026-06-03 — §5b task body layout + **web-task-type-ui** skill link; MC marked shipped; §10.7 / P7 updated.
+
+*Next step:* Implement next `screen_type` using **`.cursor/skills/web-task-type-ui/SKILL.md`**. **§10** product/tech choices are locked; playable milestone checklist is **not** in this file.

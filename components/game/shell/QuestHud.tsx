@@ -1,3 +1,5 @@
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Backpack, Pizza } from "lucide-react";
 
 type QuestHudProps = {
@@ -7,7 +9,14 @@ type QuestHudProps = {
 
 export function QuestHud({ totalSlices, totalBackpackPieces }: QuestHudProps) {
   return (
-    <div className="game-panel flex h-12 items-center gap-3 px-3 text-base font-medium">
+    <div
+      className={cn(
+        buttonVariants({ variant: "outline", size: "lg" }),
+        "pointer-events-none cursor-default select-none",
+      )}
+      role="group"
+      aria-label="Pizza e zaino"
+    >
       <div className="flex items-center gap-2">
         <Pizza className="h-5 w-5 shrink-0" aria-hidden />
         <span className="tabular-nums">{totalSlices}</span>

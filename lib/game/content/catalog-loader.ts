@@ -8,6 +8,7 @@ import {
   parseQuestFile,
   parseSceneFile,
 } from "@/lib/game/schemas/contentCatalogSchema";
+import { parseMultipleChoiceContent } from "@/lib/game/schemas/multipleChoiceContentSchema";
 
 export type CatalogScene = SceneFileParsed & {
   sceneNumber: number;
@@ -88,6 +89,13 @@ async function loadScenes(chapterId: string, questId: string, scenesDir: string)
     const expectedId = sceneIdExpected(chapterId, questId, n);
     if (scene.id !== expectedId) {
       err(`${filePath}: scene id '${scene.id}' must be '${expectedId}'`);
+    }
+
+    if (scene.scene_type === "task" && scene.screen_type === "multiple_choice") {
+      const mcParsed = parseMultipleChoiceContent(scene.content.task);
+      if (!mcParsed.ok) {
+        err(`${filePath}: content.task: ${mcParsed.issues}`);
+      }
     }
 
     scenes.push({ ...scene, sceneNumber: n, filename });

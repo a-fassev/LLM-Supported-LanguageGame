@@ -58,7 +58,17 @@ describe("catalog-loader", () => {
       scene_type: "task",
       screen_type: "multiple_choice",
       background: "chapters/01/quests/01/bg-task",
-      content: { title: "x", task: {} },
+      content: {
+        title: "x",
+        task: {
+          selectionMode: "single",
+          options: [
+            { id: "a", label: "A" },
+            { id: "b", label: "B" },
+          ],
+          correctOptionIds: ["a"],
+        },
+      },
       scoring: {
         backpack: { pieces: 1 },
         pizza: { mode: "flat", slices: 1 },

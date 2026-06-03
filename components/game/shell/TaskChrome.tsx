@@ -1,5 +1,8 @@
 import { Button } from "@/components/ui/button";
 
+/** Vertical rhythm between instruction, task body, and chrome footer. */
+const TASK_CHROME_GAP = "gap-2";
+
 type TaskChromeProps = {
   instructions?: string;
   primaryLabel: string;
@@ -23,14 +26,15 @@ export function TaskChrome({
   onPrimary,
   children,
 }: TaskChromeProps) {
-  const intro =
-    instructions?.trim() || "Completa l'attività e premi «Controlla».";
+  const intro = instructions?.trim();
 
   return (
-    <section className="flex h-full min-h-0 w-full flex-col gap-4 overflow-y-auto">
-      <p className="shrink-0 text-base leading-relaxed md:text-lg">{intro}</p>
-      <div className="min-h-[260px] flex-1">{children}</div>
-      <div className="flex shrink-0 items-center justify-between gap-3">
+    <section className={`flex h-full min-h-0 w-full flex-col overflow-hidden ${TASK_CHROME_GAP}`}>
+      {intro ? (
+        <p className="shrink-0 text-sm font-semibold leading-snug text-foreground">{intro}</p>
+      ) : null}
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">{children}</div>
+      <footer className={`flex shrink-0 items-center justify-between ${TASK_CHROME_GAP}`}>
         {onRetreat ? (
           <Button size="lg" variant="outline" onClick={onRetreat} disabled={retreatDisabled ?? !canRetreat}>
             {retreatLabel}
@@ -41,7 +45,7 @@ export function TaskChrome({
         <Button size="lg" onClick={onPrimary} disabled={primaryDisabled}>
           {primaryLabel}
         </Button>
-      </div>
+      </footer>
     </section>
   );
 }

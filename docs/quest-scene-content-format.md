@@ -182,10 +182,38 @@ Shared shell for every task scene:
 
 | Field | Required | Description |
 | ----- | -------- | ----------- |
-| `title` | yes | Task heading in the quest shell. |
-| `instruction` | no | Short line above the task area. |
+| `title` | yes | Task heading in the quest shell (`GameShellHeader`; long titles truncate with ellipsis). |
+| `instruction` | no | Scene-level line in **`TaskChrome`** (bold, fixed above the exercise). Not the per-question prompt. |
 | `referenceDocument` | no | Text for **documento** on this scene only. If omitted, the button is hidden or empty. |
-| `task` | yes | **Placeholder** — type-specific exercise data. Shape depends on `screen_type`; spec TBD. Empty object `{}` is valid until task schemas exist. |
+| `task` | yes | Type-specific exercise data. Shape depends on `screen_type` (see below). Often includes a **`prompt`** for the task body (see layout below). |
+
+#### Web UI — copy hierarchy and layout (all task types)
+
+The web client uses the same shell for every `screen_type`. Implement new task renderers inside this frame; do not add a second instruction strip or a duplicate prompt box.
+
+| Layer | JSON / source | Component | Typography | Scroll |
+| ----- | ------------- | --------- | ---------- | ------ |
+| Header | `content.title` | `GameShellHeader` | Large title (hub header styles) | — |
+| Instruction | `content.instruction` (or legacy `instructions` / `task.instruction`) | `TaskChrome` | `text-sm`, **semibold**, fixed | No |
+| Prompt | `content.task.prompt` for flat tasks; per-item `prompt` when the schema defines it (e.g. MC `questions[]`) | `TaskBodyLayout` | `text-sm`, normal weight, fixed | No |
+| Meta | — (validation, progress, type hints) | `TaskBodyLayout` `beforeScroll` | Usually `text-xs` / `text-sm` | No |
+| Exercise | `content.task` (type-specific) | Children of `TaskBodyLayout` | Type-specific (e.g. MC option labels `text-sm`) | **Yes** — only this region scrolls when content overflows |
+| Actions | — | `TaskChrome` footer | Buttons (`Indietro`, `Controlla`, or MC multi-question `Avanti`) | No |
+
+Helpers in `lib/game/scene-display.ts`:
+
+- `readTaskSceneTitle`, `readTaskSceneInstruction`, `readTaskScenePrompt` — resolve copy from `content` / `content.task`.
+- `readTaskChromeInstructions` — instruction for `TaskChrome`; no default placeholder string for `multiple_choice` (prompt-only scenes are OK).
+
+Shared layout: `components/game/tasks/TaskBodyLayout.tsx`. Example for a future task type:
+
+```tsx
+<TaskBodyLayout prompt={promptFromContent} beforeScroll={optionalMeta}>
+  <YourTaskWidget />
+</TaskBodyLayout>
+```
+
+`TaskPanel` dispatches by `screen_type`; each type supplies prompt + scrollable body. **Multiple choice** uses per-question `prompt` from `questions[i]` and puts options in the scroll area (see below).
 
 `referenceDocument` shape:
 
@@ -198,30 +226,49 @@ Shared shell for every task scene:
 
 Plain text only (no HTML).
 
-**Example** (task body still undefined):
+#### `multiple_choice` — `content.task`
+
+Validated at catalog load (`parseMultipleChoiceContent`). Web v1 renders **text-only** options and per-question `prompt`.
+
+**Flat (single question):**
 
 ```jsonc
 {
-  "id": "chapter-01-quest-01-scene-04",
-  "scene_type": "task",
-  "screen_type": "multiple_choice",
-  "background": "chapters/01/quests/01/bg-task",
-  "content": {
-    "title": "Al binario",
-    "instruction": "Scegli la parola corretta.",
-    "referenceDocument": null,
-    "task": {}
-  },
-  "scoring": {
-    "pizza": {
-      "mode": "scored",
-      "maxSlices": 3,
-      "minRatioToComplete": 1,
-      "mapping": { "kind": "linear" }
-    }
-  }
+  "selectionMode": "single",
+  "prompt": "Optional question line in the task panel",
+  "options": [
+    { "id": "opt-a", "label": "Ciao!" },
+    { "id": "opt-b", "label": "Grazie." }
+  ],
+  "correctOptionIds": ["opt-a"]
 }
 ```
+
+**Multiple questions:**
+
+```jsonc
+{
+  "questions": [
+    {
+      "id": "q1",
+      "selectionMode": "single",
+      "prompt": "…",
+      "options": [ /* min 2 */ ],
+      "correctOptionIds": ["…"]
+    }
+  ]
+}
+```
+
+| Rule | Notes |
+| ---- | ----- |
+| Options | Min 2 per question; unique `id`; display `label` (legacy `text` accepted). |
+| Single-select | Exactly one `correctOptionId`. |
+| Multi-select | `selectionMode`: `multi` or `multiple`; set equality on server. |
+| Order | `preserveOptionOrder: true` keeps author order; otherwise UI shuffles on display. |
+| Scene copy | `title` in header; `instruction` in `TaskChrome`; per-question `prompt` in `TaskBodyLayout`. No `subtitle` in web v1. See **Web UI — copy hierarchy and layout**. |
+
+Fixture scenes in quest-01: `scenes/04.json` (minimal flat), `scenes/05.json` (rich `questions[]`). See also `docs/multiple-choice-task-integration-plan.md`.
 
 ---
 
@@ -526,3 +573,4 @@ Steps **P1–P5** depend on **§11 A–C** (loader + validation). UI (**E–G**)
 - 2026-06-02 — §12.0 legacy Supabase policy: greenfield OK, reuse auth/wallet only when sensible.
 - 2026-06-02 — §13 locked decisions; `dialogue`; `cloze`; per-scene backpack; id convention; `public/content-assets/`; scope A–C vs UI/Supabase.
 - 2026-06-03 — Removed story `screen_type` **`dialogue`**; all story scenes use **`info`** only.
+- 2026-06-03 — §5.2 **Web UI — copy hierarchy and layout**: `TaskChrome` instruction + `TaskBodyLayout` prompt + scrollable exercise body for all task types; MC per-question `prompt` unchanged.

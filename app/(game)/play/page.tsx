@@ -20,6 +20,16 @@ import {
 import { useGameSession } from "@/lib/game/session-context";
 import { readNonEmptyString } from "@/lib/game/read-non-empty-string";
 import { readTaskSceneTitle } from "@/lib/game/scene-display";
+import { getTaskPayload } from "@/lib/game/get-task-payload";
+import { buildMcAttempt } from "@/lib/game/tasks/multiple-choice/build-mc-attempt";
+import {
+  createEmptyMcSelections,
+  MC_CONTENT_MISMATCH_MESSAGE,
+  normalizeMcContentResult,
+} from "@/lib/game/tasks/multiple-choice/normalize-mc-content";
+import { clampMcQuestionIndex } from "@/lib/game/tasks/multiple-choice/mc-question-nav";
+import { validateMcSelections } from "@/lib/game/tasks/multiple-choice/validate-mc-selections";
+import type { McSelectionsDraft } from "@/lib/game/tasks/multiple-choice/mc-types";
 import { useMountedRef } from "@/lib/game/use-mounted-ref";
 import { toastBlockingApiError } from "@/lib/game/toast-from-api";
 import { GameBackground } from "@/components/game/layout/GameBackground";
@@ -35,12 +45,6 @@ type RunState = {
   run: RunDto | null;
 };
 
-function getTaskPayload(scene: RunSceneDto): Record<string, unknown> {
-  const task = (scene.content.task as Record<string, unknown> | undefined) ?? null;
-  if (task && typeof task === "object") return task;
-  return scene.content;
-}
-
 function buildPlaceholderAttempt(scene: RunSceneDto, typedText: string): unknown {
   const task = getTaskPayload(scene);
   // IMPORTANT: never read authored "correct*" fields in client placeholders.
@@ -55,25 +59,6 @@ function buildPlaceholderAttempt(scene: RunSceneDto, typedText: string): unknown
       }
     }
     return { taskType: "ClozeText", clozeText: { answers } };
-  }
-
-  if (scene.screen_type === "multiple_choice") {
-    const questions = Array.isArray(task.questions) ? (task.questions as Record<string, unknown>[]) : null;
-    if (questions && questions.length > 0) {
-      const selections = questions.map((question) => {
-        const firstOption = Array.isArray(question.options)
-          ? (question.options as Record<string, unknown>[]).find((item) => typeof item.id === "string")
-          : undefined;
-        const optionId = readNonEmptyString(firstOption?.id);
-        return optionId ? [optionId] : [];
-      });
-      return { taskType: "MultipleChoice", multipleChoice: { selections } };
-    }
-    const firstOption = Array.isArray(task.options)
-      ? (task.options as Record<string, unknown>[]).find((item) => typeof item.id === "string")
-      : undefined;
-    const optionId = readNonEmptyString(firstOption?.id);
-    return { taskType: "MultipleChoice", multipleChoice: { selections: [optionId ? [optionId] : []] } };
   }
 
   if (scene.screen_type === "drag_drop") {
@@ -143,6 +128,32 @@ function activeRunConflictMessage(error: ApiErrorResult): string {
   return `${error.error} Missione attiva: ${existingChapterId} / ${existingQuestId}.`;
 }
 
+function syncMcDraftForScene(
+  scene: RunSceneDto | null,
+  setters: {
+    setMcSelections: (value: McSelectionsDraft | null) => void;
+    setMcQuestionIndex: (value: number) => void;
+    setMcValidationError: (value: string | null) => void;
+  },
+) {
+  if (!scene || scene.scene_type !== "task" || scene.screen_type !== "multiple_choice") {
+    setters.setMcSelections(null);
+    setters.setMcQuestionIndex(0);
+    setters.setMcValidationError(null);
+    return;
+  }
+  const normalized = normalizeMcContentResult(getTaskPayload(scene));
+  if (!normalized.ok) {
+    setters.setMcSelections(null);
+    setters.setMcQuestionIndex(0);
+    setters.setMcValidationError(MC_CONTENT_MISMATCH_MESSAGE);
+    return;
+  }
+  setters.setMcSelections(createEmptyMcSelections(normalized.content.questions.length));
+  setters.setMcQuestionIndex(0);
+  setters.setMcValidationError(null);
+}
+
 function readReference(scene: RunSceneDto | null): { title?: string; body: string } | null {
   if (!scene || scene.scene_type !== "task") return null;
   const task = getTaskPayload(scene);
@@ -166,6 +177,9 @@ export default function PlayPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [attemptText, setAttemptText] = useState("");
+  const [mcSelections, setMcSelections] = useState<McSelectionsDraft | null>(null);
+  const [mcQuestionIndex, setMcQuestionIndex] = useState(0);
+  const [mcValidationError, setMcValidationError] = useState<string | null>(null);
   const [sceneNavPending, setSceneNavPending] = useState(false);
   const [taskPending, setTaskPending] = useState(false);
   const [pauseOpen, setPauseOpen] = useState(false);
@@ -222,6 +236,11 @@ export default function PlayPage() {
         if (!mountedRef.current) return;
         if (snapshot.ok && snapshot.data.run) {
           setState((current) => mergeRunState(current, snapshot.data));
+          syncMcDraftForScene(snapshot.data.run?.currentScene ?? null, {
+            setMcSelections,
+            setMcQuestionIndex,
+            setMcValidationError,
+          });
           setError(activeRunConflictMessage(result));
           toastBlockingApiError(result);
           setLoading(false);
@@ -235,6 +254,11 @@ export default function PlayPage() {
     }
 
     setState((current) => mergeRunState(current, result.data));
+    syncMcDraftForScene(result.data.run?.currentScene ?? null, {
+      setMcSelections,
+      setMcQuestionIndex,
+      setMcValidationError,
+    });
     setLoading(false);
   }, [chapterId, clearSession, mountedRef, questId, router, token]);
 
@@ -245,6 +269,14 @@ export default function PlayPage() {
       setAttemptText("");
     })();
   }, [loadRun, mountedRef]);
+
+  useEffect(() => {
+    if (!currentScene || currentScene.screen_type !== "multiple_choice") return;
+    const clamped = clampMcQuestionIndex(currentScene, mcQuestionIndex);
+    if (clamped !== mcQuestionIndex) {
+      setMcQuestionIndex(clamped);
+    }
+  }, [currentScene, mcQuestionIndex]);
 
   async function onAdvanceStory() {
     if (!token || !state.run || !currentScene) return;
@@ -263,7 +295,13 @@ export default function PlayPage() {
       return;
     }
     setState((current) => mergeRunState(current, result.data));
+    syncMcDraftForScene(result.data.run?.currentScene ?? null, {
+      setMcSelections,
+      setMcQuestionIndex,
+      setMcValidationError,
+    });
     setAttemptText("");
+    setMcValidationError(null);
     setSceneNavPending(false);
   }
 
@@ -285,7 +323,13 @@ export default function PlayPage() {
       return;
     }
     setState((current) => mergeRunState(current, result.data));
+    syncMcDraftForScene(result.data.run?.currentScene ?? null, {
+      setMcSelections,
+      setMcQuestionIndex,
+      setMcValidationError,
+    });
     setAttemptText("");
+    setMcValidationError(null);
     setSceneNavPending(false);
   }
 
@@ -295,7 +339,27 @@ export default function PlayPage() {
     setError(null);
     const backgroundBeforeSubmit = currentScene.background;
 
-    const attempt = buildPlaceholderAttempt(currentScene, attemptText);
+    let attempt: unknown;
+    if (currentScene.screen_type === "multiple_choice") {
+      const normalized = normalizeMcContentResult(getTaskPayload(currentScene));
+      if (!normalized.ok) {
+        setMcValidationError(MC_CONTENT_MISMATCH_MESSAGE);
+        setTaskPending(false);
+        return;
+      }
+      const selections = mcSelections ?? createEmptyMcSelections(normalized.content.questions.length);
+      const validation = validateMcSelections(normalized.content, selections);
+      if (!validation.ok) {
+        setMcValidationError(validation.message);
+        setMcQuestionIndex(validation.firstUnansweredIndex);
+        setTaskPending(false);
+        return;
+      }
+      setMcValidationError(null);
+      attempt = buildMcAttempt(selections);
+    } else {
+      attempt = buildPlaceholderAttempt(currentScene, attemptText);
+    }
     const result = await attemptRun(token, state.run.runId, { sceneId: currentScene.id, attempt });
     if (!mountedRef.current) return;
     if (!result.ok) {
@@ -317,7 +381,13 @@ export default function PlayPage() {
     }
 
     setState((current) => mergeAttemptState(current, result.data));
+    syncMcDraftForScene(result.data.run?.currentScene ?? null, {
+      setMcSelections,
+      setMcQuestionIndex,
+      setMcValidationError,
+    });
     setAttemptText("");
+    setMcValidationError(null);
     if (result.data.taskOutcome) {
       setBackgroundHoldKey(backgroundBeforeSubmit);
       setOutcome(result.data.taskOutcome);
@@ -355,8 +425,9 @@ export default function PlayPage() {
         onOpenDocument={referenceDocument ? () => setDocumentOpen(true) : undefined}
         showContentPanel={currentScene.scene_type === "task"}
       >
+        <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
         {error ? (
-          <div className="w-full max-w-2xl">
+          <div className="w-full max-w-2xl shrink-0">
             <Alert variant="destructive">
               <AlertTitle>Errore</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
@@ -366,15 +437,25 @@ export default function PlayPage() {
 
         <SceneRouter
           scene={currentScene}
-          attemptText={attemptText}
+          mcSelections={mcSelections}
+          mcQuestionIndex={mcQuestionIndex}
+          mcValidationError={mcValidationError}
           canRetreat={canRetreat}
           sceneNavPending={sceneNavPending}
           taskSubmitting={taskPending}
-          onAttemptTextChange={setAttemptText}
+          onMcSelectionsChange={(next) => {
+            setMcSelections(next);
+            setMcValidationError(null);
+          }}
+          onMcQuestionIndexChange={(index) => {
+            setMcQuestionIndex(index);
+            setMcValidationError(null);
+          }}
           onAdvanceStory={onAdvanceStory}
           onRetreatScene={onRetreatScene}
           onSubmitTask={onSubmitTask}
         />
+        </div>
       </QuestShell>
 
       <PauseOverlay

@@ -177,7 +177,8 @@
   .game-panel-inset.game-hub-header {
     --game-hub-header-padding-block: 0.375rem;
     padding-block: var(--game-hub-header-padding-block);
-    padding-inline: var(--game-hub-header-padding-block) var(--game-panel-padding);
+    padding-inline-start: var(--game-hub-header-padding-block);
+    padding-inline-end: 0;
   }
 
   @media (min-width: 768px) {
@@ -186,10 +187,18 @@
     }
   }
 
+  /* Hub nav: HUD/actions align with inset of the content panel below (play header: no extra inset). */
+  .game-hub-header__actions {
+    padding-inline-end: var(--game-panel-padding);
+  }
+
   .game-hub-header__title {
     min-width: 0;
     flex: 1;
     margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 1.75rem;
     font-weight: 700;
     line-height: 1.1;
