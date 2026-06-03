@@ -11,7 +11,7 @@ description: >-
 
 Branch: **`web-based-implementation`**. Canonical rules: **`AGENTS.md`**, learner UX: **`.cursor/skills/product/SKILL.md`**. Content shape: **`docs/quest-scene-content-format.md`**.
 
-**Reference implementations:** Multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, quest-01 `scenes/04.json` + `05.json`, `docs/multiple-choice-task-integration-plan.md` (historical detail). Matching — `components/game/tasks/types/matching/`, `lib/game/tasks/matching/`, quest-01 `scenes/06.json`–`08.json` (after MC in quest-01: info×3 → MC×2 → matching×3).
+**Reference implementations:** Multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, quest-01 `scenes/04.json` + `05.json`, `docs/multiple-choice-task-integration-plan.md` (historical detail). Matching — `components/game/tasks/types/matching/`, `lib/game/tasks/matching/`, quest-01 `scenes/06.json`–`08.json`. Drag_drop — `components/game/tasks/types/drag-drop/`, `lib/game/tasks/drag-drop/`, quest-01 `scenes/09.json`–`11.json`, `docs/drag-drop-task-integration-plan.md`.
 
 ## Methodology (always)
 
@@ -47,7 +47,9 @@ Do **not** edit Cursor plan files unless the user asks. Prefer updating `docs/qu
 **Client rules:**
 
 - Never use `correctOptionIds` / `correctPairs` / answers in UI logic.
-- Run snapshots strip answer keys in `game-progress-service` → `sceneToDto` → `sanitize-task-payload-for-client.ts`; normalizers use `parseMultipleChoiceClientContent` / `parseMatchingClientContent` after sanitize. Extend both when adding a scored type.
+- Run snapshots strip answer keys in `game-progress-service` → `sceneToDto` → `sanitize-task-payload-for-client.ts`; normalizers use `parseMultipleChoiceClientContent` / `parseMatchingClientContent` / `parseDragDropClientContent` after sanitize. Extend when adding a scored type.
+- **Pre-Controlla validation:** MC/matching require a complete draft (inline error under prompt). **Drag-drop:** no completeness gate — always submit; wrong/empty zones fail via server ratio + `SuccessOverlay` retry.
+- **Drag-drop `matchMode: "one"`:** UI may stack multiple tiles in one zone while sorting; scoring counts the target correct only when **exactly one** placed tile is in `correctItemIds`. Do not “fix” multi-tile zones back to single-slot replace.
 - Post-**Controlla** feedback: `SuccessOverlay` + `taskOutcome`, not toasts for wrong answers.
 - API calls via `lib/api-client.ts`; errors via `clientMessages` / `toast-from-api` policy in `AGENTS.md`.
 

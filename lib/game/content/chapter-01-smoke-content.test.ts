@@ -18,6 +18,9 @@ describe("chapter-01 smoke content", () => {
       "matching",
       "matching",
       "matching",
+      "drag_drop",
+      "drag_drop",
+      "drag_drop",
     ]);
   });
 
@@ -100,6 +103,48 @@ describe("chapter-01 smoke content", () => {
     expect((task?.leftItems ?? []).length).toBe(10);
     expect((task?.rightItems ?? []).length).toBe(14);
     expect((task?.correctPairs ?? []).length).toBe(10);
+  });
+
+  it("keeps quest-01 scene 09 as minimal drag_drop fixture", async () => {
+    const catalog = await loadContentCatalog({ bypassCache: true });
+    const quest = findCatalogQuest(catalog, "chapter-01", "quest-01");
+    const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-01-quest-01-scene-09");
+    expect(taskScene?.screen_type).toBe("drag_drop");
+
+    const task = taskScene?.content.task as {
+      items?: unknown[];
+      targets?: unknown[];
+    };
+    expect((task?.items ?? []).length).toBe(3);
+    expect((task?.targets ?? []).length).toBe(3);
+  });
+
+  it("keeps quest-01 scene 10 as medium drag_drop with referenceDocument", async () => {
+    const catalog = await loadContentCatalog({ bypassCache: true });
+    const quest = findCatalogQuest(catalog, "chapter-01", "quest-01");
+    const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-01-quest-01-scene-10");
+    expect(taskScene?.screen_type).toBe("drag_drop");
+    expect(taskScene?.content.referenceDocument).toBeTruthy();
+
+    const task = taskScene?.content.task as {
+      items?: unknown[];
+      targets?: unknown[];
+    };
+    expect((task?.items ?? []).length).toBe(6);
+    expect((task?.targets ?? []).length).toBe(6);
+  });
+
+  it("keeps quest-01 scene 11 as drag_drop bucket fixture", async () => {
+    const catalog = await loadContentCatalog({ bypassCache: true });
+    const quest = findCatalogQuest(catalog, "chapter-01", "quest-01");
+    const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-01-quest-01-scene-11");
+    expect(taskScene?.screen_type).toBe("drag_drop");
+
+    const task = taskScene?.content.task as {
+      targets?: { matchMode?: string }[];
+    };
+    expect((task?.targets ?? []).length).toBe(1);
+    expect(task?.targets?.[0]?.matchMode).toBe("all");
   });
 
   it("keeps quest-02 matching scene with at least one correct pair", async () => {

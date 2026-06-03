@@ -34,7 +34,15 @@ import {
   normalizeMatchingContentResult,
 } from "@/lib/game/tasks/matching/normalize-matching-content";
 import { validateMatchingDraft } from "@/lib/game/tasks/matching/validate-matching-draft";
+import { buildDragDropAttempt } from "@/lib/game/tasks/drag-drop/build-drag-drop-attempt";
+import { createEmptyDragDropAssignments } from "@/lib/game/tasks/drag-drop/drag-drop-assignment-actions";
+import {
+  DRAG_DROP_CONTENT_MISMATCH_MESSAGE,
+  normalizeDragDropContentResult,
+} from "@/lib/game/tasks/drag-drop/normalize-drag-drop-content";
+import { validateDragDropDraft } from "@/lib/game/tasks/drag-drop/validate-drag-drop-draft";
 import type { MatchingPairsDraft } from "@/lib/game/tasks/matching/matching-types";
+import type { DragDropAssignmentsDraft } from "@/lib/game/tasks/drag-drop/drag-drop-types";
 import { clampMcQuestionIndex } from "@/lib/game/tasks/multiple-choice/mc-question-nav";
 import { validateMcSelections } from "@/lib/game/tasks/multiple-choice/validate-mc-selections";
 import type { McSelectionsDraft } from "@/lib/game/tasks/multiple-choice/mc-types";
@@ -67,21 +75,6 @@ function buildPlaceholderAttempt(scene: RunSceneDto, typedText: string): unknown
       }
     }
     return { taskType: "ClozeText", clozeText: { answers } };
-  }
-
-  if (scene.screen_type === "drag_drop") {
-    const assignments: Record<string, string | string[]> = {};
-    const targets = Array.isArray(task.targets) ? (task.targets as Record<string, unknown>[]) : [];
-    const firstItem = Array.isArray(task.items)
-      ? (task.items as Record<string, unknown>[]).find((item) => typeof item.id === "string")
-      : undefined;
-    const fallbackItemId = readNonEmptyString(firstItem?.id);
-    for (const target of targets) {
-      const targetId = readNonEmptyString(target.id);
-      if (!targetId || !fallbackItemId) continue;
-      assignments[targetId] = fallbackItemId;
-    }
-    return { taskType: "DragDrop", dragDrop: { assignments } };
   }
 
   if (scene.screen_type === "error_spotting") {
@@ -147,6 +140,30 @@ function syncMcDraftForScene(
   setters.setMcValidationError(null);
 }
 
+function syncDragDropDraftForScene(
+  scene: RunSceneDto | null,
+  setters: {
+    setDragDropAssignments: (value: DragDropAssignmentsDraft | null) => void;
+    setDragDropValidationError: (value: string | null) => void;
+  },
+) {
+  if (!scene || scene.scene_type !== "task" || scene.screen_type !== "drag_drop") {
+    setters.setDragDropAssignments(null);
+    setters.setDragDropValidationError(null);
+    return;
+  }
+  const normalized = normalizeDragDropContentResult(getTaskPayload(scene));
+  if (!normalized.ok) {
+    setters.setDragDropAssignments(null);
+    setters.setDragDropValidationError(DRAG_DROP_CONTENT_MISMATCH_MESSAGE);
+    return;
+  }
+  setters.setDragDropAssignments(
+    createEmptyDragDropAssignments(normalized.content.targets.map((target) => target.id)),
+  );
+  setters.setDragDropValidationError(null);
+}
+
 function syncMatchingDraftForScene(
   scene: RunSceneDto | null,
   setters: {
@@ -177,6 +194,8 @@ function syncTaskDraftsForScene(
     setMcValidationError: (value: string | null) => void;
     setMatchingPairs: (value: MatchingPairsDraft | null) => void;
     setMatchingValidationError: (value: string | null) => void;
+    setDragDropAssignments: (value: DragDropAssignmentsDraft | null) => void;
+    setDragDropValidationError: (value: string | null) => void;
   },
 ) {
   syncMcDraftForScene(scene, {
@@ -187,6 +206,10 @@ function syncTaskDraftsForScene(
   syncMatchingDraftForScene(scene, {
     setMatchingPairs: setters.setMatchingPairs,
     setMatchingValidationError: setters.setMatchingValidationError,
+  });
+  syncDragDropDraftForScene(scene, {
+    setDragDropAssignments: setters.setDragDropAssignments,
+    setDragDropValidationError: setters.setDragDropValidationError,
   });
 }
 
@@ -218,6 +241,8 @@ export default function PlayPage() {
   const [mcValidationError, setMcValidationError] = useState<string | null>(null);
   const [matchingPairs, setMatchingPairs] = useState<MatchingPairsDraft | null>(null);
   const [matchingValidationError, setMatchingValidationError] = useState<string | null>(null);
+  const [dragDropAssignments, setDragDropAssignments] = useState<DragDropAssignmentsDraft | null>(null);
+  const [dragDropValidationError, setDragDropValidationError] = useState<string | null>(null);
   const [sceneNavPending, setSceneNavPending] = useState(false);
   const [taskPending, setTaskPending] = useState(false);
   const [pauseOpen, setPauseOpen] = useState(false);
@@ -280,6 +305,8 @@ export default function PlayPage() {
             setMcValidationError,
             setMatchingPairs,
             setMatchingValidationError,
+            setDragDropAssignments,
+            setDragDropValidationError,
           });
           setError(activeRunConflictMessage(result));
           toastBlockingApiError(result);
@@ -300,6 +327,8 @@ export default function PlayPage() {
       setMcValidationError,
       setMatchingPairs,
       setMatchingValidationError,
+      setDragDropAssignments,
+      setDragDropValidationError,
     });
     setLoading(false);
   }, [chapterId, clearSession, mountedRef, questId, router, token]);
@@ -343,10 +372,13 @@ export default function PlayPage() {
       setMcValidationError,
       setMatchingPairs,
       setMatchingValidationError,
+      setDragDropAssignments,
+      setDragDropValidationError,
     });
     setAttemptText("");
     setMcValidationError(null);
     setMatchingValidationError(null);
+    setDragDropValidationError(null);
     setSceneNavPending(false);
   }
 
@@ -374,10 +406,13 @@ export default function PlayPage() {
       setMcValidationError,
       setMatchingPairs,
       setMatchingValidationError,
+      setDragDropAssignments,
+      setDragDropValidationError,
     });
     setAttemptText("");
     setMcValidationError(null);
     setMatchingValidationError(null);
+    setDragDropValidationError(null);
     setSceneNavPending(false);
   }
 
@@ -422,6 +457,23 @@ export default function PlayPage() {
       }
       setMatchingValidationError(null);
       attempt = buildMatchingAttempt(leftIds, draft);
+    } else if (currentScene.screen_type === "drag_drop") {
+      const normalized = normalizeDragDropContentResult(getTaskPayload(currentScene));
+      if (!normalized.ok) {
+        setDragDropValidationError(DRAG_DROP_CONTENT_MISMATCH_MESSAGE);
+        setTaskPending(false);
+        return;
+      }
+      const targetIds = normalized.content.targets.map((target) => target.id);
+      const draft = dragDropAssignments ?? createEmptyDragDropAssignments(targetIds);
+      const validation = validateDragDropDraft(normalized.content, draft);
+      if (!validation.ok) {
+        setDragDropValidationError(validation.message);
+        setTaskPending(false);
+        return;
+      }
+      setDragDropValidationError(null);
+      attempt = buildDragDropAttempt(normalized.content.targets, draft);
     } else {
       attempt = buildPlaceholderAttempt(currentScene, attemptText);
     }
@@ -452,10 +504,13 @@ export default function PlayPage() {
       setMcValidationError,
       setMatchingPairs,
       setMatchingValidationError,
+      setDragDropAssignments,
+      setDragDropValidationError,
     });
     setAttemptText("");
     setMcValidationError(null);
     setMatchingValidationError(null);
+    setDragDropValidationError(null);
     if (result.data.taskOutcome) {
       setBackgroundHoldKey(backgroundBeforeSubmit);
       setOutcome(result.data.taskOutcome);
@@ -510,6 +565,8 @@ export default function PlayPage() {
           mcValidationError={mcValidationError}
           matchingPairs={matchingPairs}
           matchingValidationError={matchingValidationError}
+          dragDropAssignments={dragDropAssignments}
+          dragDropValidationError={dragDropValidationError}
           canRetreat={canRetreat}
           sceneNavPending={sceneNavPending}
           taskSubmitting={taskPending}
@@ -527,6 +584,13 @@ export default function PlayPage() {
               return typeof next === "function" ? next(prev) : next;
             });
             setMatchingValidationError(null);
+          }}
+          onDragDropAssignmentsChange={(next) => {
+            setDragDropAssignments((prev) => {
+              if (prev === null) return typeof next === "function" ? prev : next;
+              return typeof next === "function" ? next(prev) : next;
+            });
+            setDragDropValidationError(null);
           }}
           onAdvanceStory={onAdvanceStory}
           onRetreatScene={onRetreatScene}

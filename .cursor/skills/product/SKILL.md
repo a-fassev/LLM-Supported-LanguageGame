@@ -14,7 +14,7 @@ description: |
 
 An **LLM-supported Italian learning game** for **children** in a **gifted-education school**, built as part of the **TUM IT-based learning** course. The experience is a **browser game**: a **sequential** journey through chapters and quests on a **city-map** hub, with **large language models** used only for **a small subset** of tasks (short free-text checks). Most interactions stay **predictably checkable** on the server.
 
-Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (login, menu, chapter map, leaderboard, quest play with pause/documento) ships on the web branch; **multiple choice** and **matching** have full exercise UIs—other task types still use placeholders until rolled out. UI structure: `docs/web-game-ui-architecture.md`. Deferred milestones: `.cursor/plans/long-term-todos.md`.
+Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (login, menu, chapter map, leaderboard, quest play with pause/documento) ships on the web branch; **multiple choice**, **matching**, and **drag & drop** have full exercise UIs—other task types still use placeholders until rolled out. UI structure: `docs/web-game-ui-architecture.md`. Deferred milestones: `.cursor/plans/long-term-todos.md`.
 
 ## Who it is for
 
@@ -100,7 +100,7 @@ Image references live throughout **content config**—chapter tiles, quest tiles
 | Task type                  | Player action (short)                                                                                                                                                                          |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Error spotting             | Find/fix deliberate mistakes; confirm corrections.                                                                                                                                             |
-| Drag & drop                | Order fragments, fill slots, sort into categories, match referents.                                                                                                                            |
+| Drag & drop                | Drag word tiles from a bank into category zones (tap or drag). Several tiles can sit in one zone while sorting; **«Controlla»** works even if some zones or the bank are still empty—feedback comes from the check, not a “fill everything first” block. |
 | Free text                  | Brief **Italian** answer; **language model** checks against **authored criteria**—set expectations for a short **checking** moment; failures/timeouts mean **try again**, not “almost passed”. |
 | Matching                   | Pair two columns (tap a left card then a right card, or drag a line). Extra options on the right are distractors. × on a paired left card removes the link. |
 | Multiple choice / gap fill | Choose options or fill gaps in readable lines (prefer **sentence-like** rows, not broken chips).                                                                                               |
@@ -110,6 +110,8 @@ Image references live throughout **content config**—chapter tiles, quest tiles
 **Pedagogical preference:** **little free-text** where possible, for clearer scoring and control.
 
 **Matching copy (authors):** One scene-level **instruction** in the task chrome; a distinct **prompt** above the columns if needed—avoid saying the same thing twice. The short tap/drag hint is built into the UI, not per-scene JSON.
+
+**Drag-drop copy (authors):** Same instruction / prompt split as matching. Do not tell children they must place every card before **«Controlla»** unless pedagogy truly requires it—they may check a partial sort and get **«Riprova»** if the score is too low.
 
 ## Access and platform
 

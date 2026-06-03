@@ -26,6 +26,15 @@ Use when layout or copy feedback sounds like “buttons scroll”, “text too b
 - Draft state on `/play` (`mcQuestionIndex`, selections, validation error); reset on every scene change via `sync*DraftForScene` after snapshot/advance/retreat/attempt.
 - Validate all items on **Controlla**; jump to first empty; error under prompt.
 
+## Drag-drop (blocks v1)
+
+| Problem | Fix |
+| ------- | --- |
+| Item bank scrolls away on long category lists | Bank in `TaskBodyLayout` **`beforeScroll`**; only target blocks in scrollable `children`. |
+| Drag breaks while scrolling zones | Pointer listeners on **`document`**, not only the scroll root. |
+| Ghost tile offset from finger/cursor | Portal preview on `document.body` with grab offset from pointer down. |
+| Controlla blocked with empty zones or bank tiles | Do **not** require filled zones or `requireBankEmpty` on client — POST partial layout; server scores. |
+
 ## Do not
 
 - Put `correct*` fields in client components.

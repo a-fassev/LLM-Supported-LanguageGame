@@ -10,6 +10,10 @@ import { readTaskChromeInstructions } from "@/lib/game/scene-display";
 import { getMcQuestionNavState } from "@/lib/game/tasks/multiple-choice/mc-question-nav";
 import type { McSelectionsDraft } from "@/lib/game/tasks/multiple-choice/mc-types";
 import type { MatchingPairsDraft, MatchingPairsUpdater } from "@/lib/game/tasks/matching/matching-types";
+import type {
+  DragDropAssignmentsDraft,
+  DragDropAssignmentsUpdater,
+} from "@/lib/game/tasks/drag-drop/drag-drop-types";
 
 type SceneRouterProps = {
   scene: RunSceneDto;
@@ -18,12 +22,15 @@ type SceneRouterProps = {
   mcValidationError?: string | null;
   matchingPairs: MatchingPairsDraft | null;
   matchingValidationError?: string | null;
+  dragDropAssignments: DragDropAssignmentsDraft | null;
+  dragDropValidationError?: string | null;
   canRetreat: boolean;
   sceneNavPending: boolean;
   taskSubmitting: boolean;
   onMcSelectionsChange: (selections: McSelectionsDraft) => void;
   onMcQuestionIndexChange: (index: number) => void;
   onMatchingPairsChange: (updater: MatchingPairsUpdater) => void;
+  onDragDropAssignmentsChange: (updater: DragDropAssignmentsUpdater) => void;
   onAdvanceStory: () => void;
   onRetreatScene: () => void;
   onSubmitTask: () => void;
@@ -49,12 +56,15 @@ export function SceneRouter({
   mcValidationError,
   matchingPairs,
   matchingValidationError,
+  dragDropAssignments,
+  dragDropValidationError,
   canRetreat,
   sceneNavPending,
   taskSubmitting,
   onMcSelectionsChange,
   onMcQuestionIndexChange,
   onMatchingPairsChange,
+  onDragDropAssignmentsChange,
   onAdvanceStory,
   onRetreatScene,
   onSubmitTask,
@@ -138,9 +148,12 @@ export function SceneRouter({
           mcValidationError={mcValidationError}
           matchingPairs={matchingPairs}
           matchingValidationError={matchingValidationError}
+          dragDropAssignments={dragDropAssignments}
+          dragDropValidationError={dragDropValidationError}
           taskDisabled={taskSubmitting}
           onMcSelectionsChange={onMcSelectionsChange}
           onMatchingPairsChange={onMatchingPairsChange}
+          onDragDropAssignmentsChange={onDragDropAssignmentsChange}
         />
       </TaskChrome>
     </div>

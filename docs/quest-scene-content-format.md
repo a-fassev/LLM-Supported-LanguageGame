@@ -305,6 +305,43 @@ Validated at catalog load (`parseMatchingContent`). Web v1 renders **text-only**
 
 Fixture scenes in quest-01 (after MC): `scenes/06.json` (minimal), `07.json` (medium), `08.json` (rich). See `docs/matching-task-integration-plan.md`.
 
+#### `drag_drop` — `content.task`
+
+Validated at catalog load (`parseDragDropContent`). Web v1 supports **`presentation.targetMode: "blocks"`** only (category bank + drop zones). **`lines`** mode is rejected in the web catalog until server scoring exists.
+
+```jsonc
+{
+  "prompt": "Dove va ogni parola?",
+  "presentation": { "targetMode": "blocks" },
+  "shuffleItemOrder": true,
+  "requireBankEmpty": false,
+  "items": [
+    { "id": "item-mela", "label": "mela" }
+  ],
+  "targets": [
+    {
+      "id": "cat-frutta",
+      "title": "Frutta",
+      "matchMode": "one",
+      "correctItemIds": ["item-mela"]
+    }
+  ]
+}
+```
+
+| Rule | Notes |
+| ---- | ----- |
+| Items | Unique `id`; display `label` (legacy `text` accepted). |
+| Targets | Unique `id`; `correctItemIds` required for catalog/scoring (stripped on client snapshot). |
+| `matchMode` | **`one`** (default): scoring — exactly **one** placed tile must be in `correctItemIds` (OR list). UI may show multiple tiles per zone while editing; more than one at Controlla scores that target wrong. **`all`**: every listed id must be in the bucket. |
+| Flags | `shuffleItemOrder` (default on). `requireBankEmpty` is **legacy** in JSON (ignored on web; do not block Controlla). |
+| Controlla | Web always accepts **partial** layouts (empty zones, cards still in bank). Server `evaluateDragDrop` scores; retry via `taskOutcome` when below `minRatioToComplete`. |
+| Presentation | Optional `sourceLabel` / `targetLabel`; defaults in `lib/game/tasks/drag-drop/drag-drop-types.ts`. |
+| Scene copy | `instruction` → `TaskChrome`; `prompt` → `TaskBodyLayout`; optional `subtitle` or default drag hint in `beforeScroll`. |
+| Attempt | `{ taskType: "DragDrop", dragDrop: { assignments: { [targetId]: string \| string[] } } } }` — arrays for `all` buckets. |
+
+Fixture scenes in quest-01 (after matching): `scenes/09.json` (minimal), `10.json` (medium + `referenceDocument`), `11.json` (bucket `matchMode: "all"`). See `docs/drag-drop-task-integration-plan.md`.
+
 ---
 
 ## 6. Scoring (pizza + backpack)

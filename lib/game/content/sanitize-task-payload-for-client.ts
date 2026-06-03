@@ -22,6 +22,20 @@ function stripMatchingAnswers(task: Record<string, unknown>): Record<string, unk
   return next;
 }
 
+function stripDragDropAnswers(task: Record<string, unknown>): Record<string, unknown> {
+  const next = { ...task };
+  if (Array.isArray(next.targets)) {
+    next.targets = next.targets.map((entry) => {
+      if (!entry || typeof entry !== "object" || Array.isArray(entry)) return entry;
+      const target = { ...(entry as Record<string, unknown>) };
+      delete target.correctItemIds;
+      return target;
+    });
+  }
+  delete next.lines;
+  return next;
+}
+
 export function sanitizeTaskPayloadForClient(
   screenType: string,
   taskPayload: Record<string, unknown>,
@@ -31,6 +45,8 @@ export function sanitizeTaskPayloadForClient(
       return stripMcAnswers(taskPayload);
     case "matching":
       return stripMatchingAnswers(taskPayload);
+    case "drag_drop":
+      return stripDragDropAnswers(taskPayload);
     default:
       return { ...taskPayload };
   }

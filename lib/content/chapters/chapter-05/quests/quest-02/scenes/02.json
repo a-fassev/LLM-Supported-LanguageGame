@@ -7,7 +7,19 @@
     "title": "Ordina le parole",
     "instruction": "Trascina le parole nella posizione corretta.",
     "referenceDocument": null,
-    "task": {}
+    "task": {
+      "prompt": "Metti la parola nella casella.",
+      "presentation": { "targetMode": "blocks" },
+      "shuffleItemOrder": false,
+      "items": [{ "id": "ch05-q02-stub-item", "label": "parola" }],
+      "targets": [
+        {
+          "id": "ch05-q02-stub-target",
+          "title": "Casella",
+          "correctItemIds": ["ch05-q02-stub-item"]
+        }
+      ]
+    }
   },
   "scoring": {
     "backpack": {

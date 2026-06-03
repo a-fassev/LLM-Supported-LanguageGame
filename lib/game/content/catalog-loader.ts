@@ -8,6 +8,7 @@ import {
   parseQuestFile,
   parseSceneFile,
 } from "@/lib/game/schemas/contentCatalogSchema";
+import { parseDragDropContent } from "@/lib/game/schemas/dragDropContentSchema";
 import { parseMatchingContent } from "@/lib/game/schemas/matchingContentSchema";
 import { parseMultipleChoiceContent } from "@/lib/game/schemas/multipleChoiceContentSchema";
 
@@ -96,6 +97,13 @@ async function loadScenes(chapterId: string, questId: string, scenesDir: string)
       const mcParsed = parseMultipleChoiceContent(scene.content.task);
       if (!mcParsed.ok) {
         err(`${filePath}: content.task: ${mcParsed.issues}`);
+      }
+    }
+
+    if (scene.scene_type === "task" && scene.screen_type === "drag_drop") {
+      const dragParsed = parseDragDropContent(scene.content.task);
+      if (!dragParsed.ok) {
+        err(`${filePath}: content.task: ${dragParsed.issues}`);
       }
     }
 

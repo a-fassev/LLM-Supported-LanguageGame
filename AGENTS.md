@@ -229,7 +229,7 @@ LLM-Supported-LanguageGame-1/
 
 **Scene contract (authoring):** Per-scene JSON — `scene_type` (`story` | `task`), `screen_type`, `content`, `background`, optional `scoring`. Story scenes use `screen_type: "info"` only (`content.text`). Legacy step fields in older docs map to this model; see `docs/quest-scene-content-format.md`.
 
-**Task types (schemas):** `ClozeText`, `MultipleChoice`, `DragDrop`, `Matching`, `ErrorSpotting`, `FreitextLlm`, plus `SpecialScreen`* variants (web UI: **multiple choice** and **matching** implemented end-to-end; other types still placeholder in `TaskPanel` until rolled out).
+**Task types (schemas):** `ClozeText`, `MultipleChoice`, `DragDrop`, `Matching`, `ErrorSpotting`, `FreitextLlm`, plus `SpecialScreen`* variants (web UI: **multiple choice**, **matching**, and **drag_drop** (`screen_type: "drag_drop"`) implemented end-to-end; other types still placeholder in `TaskPanel` until rolled out).
 
 **Scoring:** `evaluateTaskAttempt` + pizza rules in service; rewards recorded on scene completion; wallet in `player_wallets`. Do not auto-pass unsupported **scored** task types in service logic—unsupported scored scenes must fail clearly (`task_eval_not_implemented`) until an evaluator exists. For smoke/placeholder authoring, use `scoring.pizza.mode: "flat"` or, for local/staging walkthrough only, `GAME_SMOKE_AUTO_PASS=true` in `.env.local` (skips evaluation, full ratio)—never enable in production Azure unless intentional.
 
@@ -287,7 +287,7 @@ JSON helpers: `lib/http.ts` (`jsonOk`, `jsonError`). User-facing message keys: `
 
 ### Adding a task type
 
-**Agent guide:** `.cursor/skills/web-task-type-ui/SKILL.md`. **Reference implementations:** multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, quest-01 `scenes/04.json` + `05.json`; matching — `components/game/tasks/types/matching/`, `lib/game/tasks/matching/`, quest-01 `scenes/06.json`–`08.json`.
+**Agent guide:** `.cursor/skills/web-task-type-ui/SKILL.md`. **Reference implementations:** multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, quest-01 `scenes/04.json` + `05.json`; matching — `components/game/tasks/types/matching/`, `lib/game/tasks/matching/`, quest-01 `scenes/06.json`–`08.json`; drag_drop — `components/game/tasks/types/drag-drop/`, `lib/game/tasks/drag-drop/`, quest-01 `scenes/09.json`–`11.json`.
 
 **Server (all types):**
 
@@ -301,11 +301,11 @@ JSON helpers: `lib/http.ts` (`jsonOk`, `jsonError`). User-facing message keys: `
 
 1. **Data** — Strict Zod + `catalog-loader.ts` fail-at-load for invalid fixtures; 1–2 fixture scenes; extend `chapter-*-smoke-content.test.ts`.
 2. **UI** — `TaskPanel` dispatch → `components/game/tasks/types/<kebab>/`; shared `TaskBodyLayout` + `TaskChrome`. Never read `correct*` fields in client code.
-3. **Play** — Type-specific draft on `/play`, `sync*DraftForScene` after snapshot/advance/retreat/attempt, `build*Attempt`, client pre-submit validation; wire `SceneRouter` when multi-step chrome is needed.
+3. **Play** — Type-specific draft on `/play`, `sync*DraftForScene` after snapshot/advance/retreat/attempt, `build*Attempt`, client pre-submit validation where needed; wire `SceneRouter` when multi-step chrome is needed. **Drag-drop:** `validateDragDropDraft` is a no-op — **Controlla** always POSTs partial layouts (empty zones / cards still in bank); `evaluateDragDrop` scores server-side. **Matching / MC:** still block Controlla until every pair or question is answered.
 4. **Docs & tests** — `docs/quest-scene-content-format.md`; pure helpers under `lib/game/tasks/<kebab>/`.
 5. **Snapshot answers** — Strip server-only answer keys in `sceneToDto` via `lib/game/content/sanitize-task-payload-for-client.ts` (MC + Matching today). Add a `*ClientContentSchema` and parse it in the type normalizer after sanitize. Full payload with answers stays in catalog load and `evaluateTaskAttempt` only.
 
-**Task shell copy (web):** `content.title` → play header (single line, ellipsis + `title` tooltip). `content.instruction` → `TaskChrome` only via `readTaskChromeInstructions()` (`lib/game/scene-display.ts`, semibold `text-sm`). Task-level or per-item prompt → `TaskBodyLayout` only (normal `text-sm`). Payload reads via `getTaskPayload(scene)` (`lib/game/get-task-payload.ts`). Do not merge instruction + prompt. Footer buttons stay fixed; only the options/list region scrolls inside `TaskBodyLayout`.
+**Task shell copy (web):** `content.title` → play header (single line, ellipsis + `title` tooltip). `content.instruction` → `TaskChrome` only via `readTaskChromeInstructions()` (`lib/game/scene-display.ts`, semibold `text-sm`). Task-level or per-item prompt → `TaskBodyLayout` only (normal `text-sm`). Payload reads via `getTaskPayload(scene)` (`lib/game/get-task-payload.ts`). Do not merge instruction + prompt. Footer buttons stay fixed; only the options/list region scrolls inside `TaskBodyLayout`. **Drag-drop layout:** source bank in `TaskBodyLayout` `beforeScroll` (fixed); category drop zones in scrollable `children`; pointer drag uses `document` listeners + portal preview on `body` (see web-task-type-ui `shell-ux-patterns`).
 
 **Multi-item scenes (optional):** Reuse shell **Avanti** / **Indietro** in `SceneRouter` (see `getMcQuestionNavState` in `lib/game/tasks/multiple-choice/mc-question-nav.ts`)—no in-task Precedente/Prossima rows. **Avanti** until the last item, then **Controlla**; **Indietro** walks items before scene retreat. Submit validates all items; on failure jump to first incomplete with error under the prompt.
 

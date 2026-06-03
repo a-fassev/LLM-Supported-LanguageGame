@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { normalizeDragDropContentResult } from "@/lib/game/tasks/drag-drop/normalize-drag-drop-content";
 import { normalizeMatchingContentResult } from "@/lib/game/tasks/matching/normalize-matching-content";
 import {
   sanitizeSceneContentForClient,
@@ -31,6 +32,19 @@ describe("sanitizeTaskPayloadForClient", () => {
         options: [{ id: "a", label: "A" }],
       },
     ]);
+  });
+
+  it("removes correctItemIds from drag_drop targets", () => {
+    const sanitized = sanitizeTaskPayloadForClient("drag_drop", {
+      items: [{ id: "a", label: "A" }],
+      targets: [{ id: "t1", title: "T", correctItemIds: ["a"] }],
+      lines: [{ segments: [{ kind: "slot", targetId: "t1" }] }],
+    });
+    expect(sanitized).toEqual({
+      items: [{ id: "a", label: "A" }],
+      targets: [{ id: "t1", title: "T" }],
+    });
+    expect(sanitized).not.toHaveProperty("lines");
   });
 
   it("removes correctPairs from matching", () => {
@@ -71,6 +85,18 @@ describe("sanitizeSceneContentForClient", () => {
   it("does not mutate story scene content", () => {
     const content = { text: "Ciao" };
     expect(sanitizeSceneContentForClient("story", "info", content)).toEqual(content);
+  });
+
+  it("still normalizes drag_drop after answer keys are stripped", () => {
+    const sanitized = sanitizeTaskPayloadForClient("drag_drop", {
+      items: [{ id: "a", label: "A" }],
+      targets: [{ id: "t1", correctItemIds: ["a"] }],
+    });
+    const normalized = normalizeDragDropContentResult(sanitized);
+    expect(normalized.ok).toBe(true);
+    if (!normalized.ok) throw new Error("expected ok");
+    expect(normalized.content.targets).toHaveLength(1);
+    expect(normalized.content.items).toHaveLength(1);
   });
 
   it("still normalizes matching after answer keys are stripped", () => {
