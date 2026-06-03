@@ -1,11 +1,14 @@
 {
   "id": "chapter-04",
-  "title": "Venezia",
+  "title": "Bologna — quarto giorno",
   "order": 4,
-  "locked": true,
+  "locked": false,
   "quests": [
     "quest-01",
-    "quest-02"
+    "quest-02",
+    "quest-03",
+    "quest-04",
+    "quest-01-bonus"
   ],
   "background": "chapters/04/chapter/bg-missions"
 }

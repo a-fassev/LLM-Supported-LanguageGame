@@ -1,0 +1,231 @@
+{
+  "id": "chapter-04-quest-02-scene-14",
+  "scene_type": "task",
+  "screen_type": "cloze",
+  "background": "chapters/04/quests/02/bg-giardini-margherita",
+  "content": {
+    "title": "Sara rivuole Marco?",
+    "instruction": "Metti i verbi in parentesi al congiuntivo o all'infinito e completa con le parole mancanti (preposizioni con o senza articolo, che, cui, mi, più, proprio). Parole disponibili: che — cui — mi — più — proprio",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Mentre accompagni Sara a casa sua, parlate ancora un po'. Metti i verbi in parentesi al congiuntivo o all'infinito e completa con le parole mancanti.",
+      "caseSensitive": false,
+      "lines": [
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "Sara:        Senti Federica, io rivorrei Marco, ma forse sta insieme con Laura. Per me è importante "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "io conosca",
+                "Io conosca"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (io, conoscere) la verità e "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "tu mi aiuti",
+                "Tu mi aiuti"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (tu, mi aiutare).\n\nTu:            Ma dai. Marco sarebbe "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "proprio",
+                "Proprio"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " stupido, perché tu sei mille volte "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "più",
+                "Più"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " bella e intelligente di lei. E poi è meglio "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "che tu non sappia",
+                "Che tu non sappia"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (tu, non sapere) la verità, Sara.\n\nSara:        Ma devo comunque sapere la verità. Basta "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "che io vada",
+                "Che io vada"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (io, andare) "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "al",
+                "Al"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " bar "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "che",
+                "Che"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " gli piacciono "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "di",
+                "Di"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " sapere se è uscito con lei. "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "Mi accompagni",
+                "mi accompagni"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (accompagni)?\n\nTu:            Sara, ascoltami. Non mi piace per niente quest'idea. È importante "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "che tu guardi",
+                "Che tu guardi"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (tu, guardare) avanti. È veramente meglio "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "di non pensare",
+                "Di non pensare"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (tu, non pensare) più "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "a",
+                "A"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " quello stupido. Secondo me, è improbabile "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "che Marco e Laura vadano",
+                "Che Marco e Laura vadano"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (Marco e Laura, andare) negli stessi bar in "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "cui",
+                "Cui"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " andavate voi.\n\nSara:        Boh, tanto, hai detto che è stupido, no?! Ah ah. Ti ringrazio tanto Fede. È bellissimo "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "di avere",
+                "Di avere"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " (io, avere) un'amica come te."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.81,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

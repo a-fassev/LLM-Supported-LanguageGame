@@ -1,0 +1,51 @@
+{
+  "id": "chapter-04-quest-03-scene-04",
+  "scene_type": "task",
+  "screen_type": "free_text",
+  "background": "chapters/04/quests/03/bg-room-evening",
+  "content": {
+    "title": "Scrivi una mail di consolazione",
+    "instruction": "Riassumi i consigli dell'articolo in una mail a Sara (80-120 parole). Usa il congiuntivo e l'infinito dove serve.",
+    "referenceDocument": {
+      "title": "Wie tröste ich jemanden bei Liebeskummer?",
+      "body": "Daniela van Santen ist Liebeskummer-Coach. Zu ihr kommen Menschen, die vor lauter Liebeskrankheit nicht mehr weiterwissen. Auf die Frage, was das Wichtigste beim Trösten sei, rät sie, dass es im Grunde nur ein optimales Vorgehen gebe: „Zuhören, zuhören, zuhören, trösten und nachfragen, wie es so geht. Und zwar immer und immer wieder. Lieber zu häufig als zu selten.\" Unglücklich Verliebte neigen oft dazu, die Geschichten, die sie belasten, so oft zu erzählen, bis man sie simultan mitsprechen kann. Und spätestens beim zehnten Mal verliert auch die beste Freundin ein wenig die Geduld. „Doch in der Trösterposition darf man niemals sagen, dass es jetzt genug sei\", betont Daniela van Santen. „Sprüche wie ‚Jetzt reiß dich mal zusammen' sind vollkommen unangebracht.\"\n\nFünf Tipps für den perfekten Liebeskummertrost:\n\n1. Zuhören, Zuhören und fragen! Auch wenn der Betroffene die Geschichte zum 100sten Mal erzählt, muss man da als guter Freund/gute Freundin durch. Mit der eigenen Meinung hinter dem Berg halten, denn die spielt in der ersten Zeit keine Rolle. Die betroffene Person möchte sich jetzt eigentlich nur aussprechen und ausweinen.\n\n2. Sprich auf keinen Fall über deine eigenen Erfahrungen. Die gute Idee dahinter, nach dem Motto „Mir ging es doch auch schon mal so schlecht\", bringt in diesem Fall keinen Trost.\n\n3. Behalte Sprüche wie „Das wird schon wieder\", „Andere Mütter haben auch hübsche Söhne/Töchter\" für dich. Bei wirklichem Liebeskummer sind sie unangebracht, sie helfen nicht weiter, und die betroffene Person fühlt sich nicht ernst genommen, wird vielleicht sogar traurig oder wütend.\n\n4. Sich die Rachegedanken des Gegenübers anzuhören ist eine Sache — zu ermuntern oder sogar beim Umsetzen zu helfen, strikt verboten. Rachegedanken helfen beim Verarbeiten, durchziehen sollte man sie nie. Später wird man sich nur dafür schämen.\n\n5. Bitte niemals von der eigenen glücklichen Beziehung erzählen. Für diese Gespräche müssen dann andere Freunde herhalten, denn Personen mit Liebeskummer tut so etwas einfach nur zu weh.\n\n(Fonte: http://jetzt.sueddeutsche.de/texte/anzeigen/562054, Marie-Charlotte Maas, 6.04.2016)"
+    },
+    "task": {
+      "prompt": "Hai trovato un articolo in tedesco con consigli su come consolare qualcuno che ha il mal d'amore. Riassumi i consigli più importanti in una mail in italiano a Sara. Spiegale cosa, secondo i consigli, dovresti e non dovresti fare per aiutarla. Usa il congiuntivo e l'infinito dove serve.\n\nSuggerimenti: saluto informale (Cara Sara / Ciao Sara); 3-4 consigli adattati a Sara; chiusura incoraggiante (Un abbraccio / A presto); circa 80-120 parole.",
+      "targetLanguage": "it",
+      "showWordCount": true,
+      "minWords": 50,
+      "maxWords": 150,
+      "evaluation": {
+        "grammarWeight": 1,
+        "vocabularyWeight": 1,
+        "registerWeight": 1,
+        "taskFulfillmentWeight": 1,
+        "passThreshold": 0.65,
+        "registerTarget": "informal",
+        "scoringPolicy": "threshold_pass",
+        "maxPoints": 5,
+        "evaluationCriteria": [
+          "Transfer at least three of the five German article tips into Italian",
+          "Adapt advice to Sara's breakup situation, not a neutral summary only",
+          "Use congiuntivo after expressions like voglio che, penso che, è importante che and infinito where same subject or after prepositions",
+          "Informal Italian salutation and closing; empathetic B1 tone"
+        ]
+      }
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.65,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

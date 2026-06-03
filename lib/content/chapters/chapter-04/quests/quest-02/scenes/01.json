@@ -2,8 +2,8 @@
   "id": "chapter-04-quest-02-scene-01",
   "scene_type": "story",
   "screen_type": "info",
-  "background": "chapters/04/quests/02/bg-dialogue-01",
+  "background": "chapters/04/quests/02/bg-giardini-margherita",
   "content": {
-    "text": "Al pontile si parla velocemente. Prova a ricostruire la frase."
+    "text": "Cammini per i Giardini Margherita. Il sole splende, le famiglie fanno picnic sull'erba, qualcuno suona la chitarra sotto un albero. Su una panchina vicino al laghetto c'è una ragazza seduta, un po' rannicchiata su se stessa — e guardandola meglio la riconosci: è Sara, una compagna di classe del Liceo Galvani. Sembra triste."
   }
 }

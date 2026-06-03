@@ -1,0 +1,9 @@
+{
+  "id": "chapter-04-quest-02-scene-04",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/04/quests/02/bg-giardini-margherita",
+  "content": {
+    "text": "Sara\n„Oh ciao... sì, certo. Scusami, sono un po' giù oggi. È da quando sono tornata da Palermo... insomma, è successa una cosa. Ma dai, raccontami tu! Com'è stata la tua settimana? Senti, ho ancora qualche foto della Sicilia sul telefono — vuoi vedere?\""
+  }
+}

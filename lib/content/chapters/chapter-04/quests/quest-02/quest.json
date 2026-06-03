@@ -1,6 +1,6 @@
 {
   "id": "quest-02",
-  "title": "La gondola",
+  "title": "Sara ai Giardini Margherita",
   "order": 2,
   "kind": "main",
   "requiresQuestId": "quest-01",

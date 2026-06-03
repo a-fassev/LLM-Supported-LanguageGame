@@ -11,7 +11,7 @@ description: >-
 
 Branch: **`web-based-implementation`**. Contracts: **`docs/quest-scene-content-format.md`**, **`AGENTS.md`** (game domain). Learner UX: **`.cursor/skills/product/SKILL.md`**. New **task types** or play UI: **`.cursor/skills/web-task-type-ui/SKILL.md`** (fixtures stay in **`chapter-00`**).
 
-**Reference rollouts:** `chapter-01` … `chapter-03` each have `docs/chapter-NN-implementation-overview.md`, optional `chapter-NN-implementation-plan.md`, `scripts/generate-chapter-NN-catalog.mjs`, and `lib/game/content/chapter-NN-catalog.test.ts` (optional `chapter-NN-task-scoring.test.ts` for answer keys). Start from [chapter-01-implementation-overview.md](../../../docs/chapter-01-implementation-overview.md) for the template.
+**Reference rollouts:** `chapter-01` … `chapter-04` each have `docs/chapter-NN-implementation-overview.md`, optional `chapter-NN-implementation-plan.md`, `scripts/generate-chapter-NN-catalog.mjs`, and `lib/game/content/chapter-NN-catalog.test.ts` (optional `chapter-NN-task-scoring.test.ts` for answer keys). Start from [chapter-01-implementation-overview.md](../../../docs/chapter-01-implementation-overview.md) for the template.
 
 ---
 
@@ -44,18 +44,18 @@ Chapter NN authoring:
 | ----- | ------ |
 | **0. Overview** | Short doc or section: quest ids, scene counts, task types, unlock chain, bonus `requiresQuestId`. Mirror [chapter-01-implementation-overview.md](../../../docs/chapter-01-implementation-overview.md). |
 | **1. Cleanup** | If replacing placeholders: **delete** `lib/content/chapters/chapter-NN/` entirely — do not patch legacy fixture quests. |
-| **2. Assets** | Stable `background` keys on **chapter.json**, every **quest.json**, every **scene**; PNGs can follow ([public/content-assets/README.md](../../../public/content-assets/README.md)). |
-| **3. Skeleton + content** | For large chapters: implement in `scripts/generate-chapter-NN-catalog.mjs` (copy `generate-chapter-01-catalog.mjs`), run `node scripts/generate-chapter-NN-catalog.mjs`, **commit** output under `lib/content/chapters/chapter-NN/`. The script **wipes** that folder on each run — do not hand-edit scene JSON if the generator stays canonical. Smaller deltas: edit JSON directly (no generator). |
+| **2. Assets** | Stable `background` keys on **chapter.json**, every **quest.json**, every **scene**; `referenceDocument.figures[].image` for documento galleries. PNGs can follow ([public/content-assets/README.md](../../../public/content-assets/README.md)). **Scene `background`** = full-viewport play; **`figures[]`** = documento overlay only (not the scene background). |
+| **3. Skeleton + content** | For large chapters: implement in `scripts/generate-chapter-NN-catalog.mjs` (copy `generate-chapter-01-catalog.mjs`), run `node scripts/generate-chapter-NN-catalog.mjs`, **commit** output under `lib/content/chapters/chapter-NN/`. The script **wipes** that folder on each run — do not hand-edit scene JSON if the generator stays canonical. **Chapter 04+ pattern:** generator also ensures `public/content-assets/…` dirs for each key and writes `public/content-assets/chapters/NN/ASSET_KEYS.txt` (drop-in PNG checklist). Smaller deltas: edit JSON directly (no generator). |
 | **4–5. Story + tasks** | Same phase when using a generator (strings/constants in the `.mjs`). Story §1 rules; tasks per spec + validators. Italian from raw **verbatim** unless user approves new bridge scenes. |
 | **6. Scoring** | Task scenes: `scoring.pizza` + `scoring.backpack`; story scenes have **no** scoring. Start from overview draft bands; team may rebalance later. |
-| **7. QA** | `chapter-NN-catalog.test.ts` + optional `chapter-NN-task-scoring.test.ts`; `loadContentCatalog({ bypassCache: true })` must pass. `npm run build` does **not** regenerate catalogs. |
+| **7. QA** | `chapter-NN-catalog.test.ts` + optional `chapter-NN-task-scoring.test.ts`; `loadContentCatalog({ bypassCache: true })` must pass. For cloze gaps with multiple `correctAnswers`, test **every** variant in task-scoring tests (not only the first). `npm run build` does **not** regenerate catalogs. |
 
 ### Generator vs runtime loader
 
 | Step | What |
 | ---- | ---- |
 | **Authoring** | Edit `scripts/generate-chapter-NN-catalog.mjs` (or scene JSON if no generator). Re-run generator → fresh `chapter.json`, `quest.json`, `scenes/*.json`. |
-| **Git / deploy** | Commit generated JSON; assets separately under `public/content-assets/chapters/NN/`. |
+| **Git / deploy** | Commit generated JSON; assets separately under `public/content-assets/chapters/NN/` (paths listed in `ASSET_KEYS.txt` when the generator writes it). |
 | **Runtime** | `loadContentCatalog()` in `lib/game/content/catalog-loader.ts` reads + Zod-validates only — no content invention at request time. |
 
 ---
@@ -108,7 +108,7 @@ Chapter NN authoring:
 
 - Completed missions: hub **Completata**, not replayable; server `quest_already_completed`.
 - **Indietro** (retreat): no wallet rollback; scene rewards once per `(run_id, scene_id)`.
-- Manual **`locked: true`** on `chapter.json` for classroom pilots (e.g. chapters **4–6**; chapter-03 may be unlocked independently).
+- Manual **`locked: true`** on `chapter.json` for classroom pilots (today: chapters **5–6** locked; **03–04** unlocked — flip in generator/`chapter.json` when ready).
 
 ---
 
@@ -128,6 +128,8 @@ Chapter NN authoring:
 | New task type without web stack | Follow **web-task-type-ui** + `chapter-00` fixtures first |
 | Raw „Freitext mit Auto-Check“ → `free_text` / LLM | **`cloze`** with `correctAnswers` |
 | Hand-edit `chapter-NN/scenes/*.json` while generator is canonical | Edit `generate-chapter-NN-catalog.mjs` and re-run (script deletes tree) |
+| German raw labels in `content.instruction` (*Wortbank*, …) | Italian learner copy (*Parole disponibili*, …); German stays in `docs/content_raw/` only |
+| Cloze tests that only check `correctAnswers[0]` | Test every listed alternate per gap in `chapter-NN-task-scoring.test.ts` |
 
 ---
 

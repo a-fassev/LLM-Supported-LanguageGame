@@ -1,32 +1,9 @@
 {
   "id": "chapter-04-quest-01-scene-02",
-  "scene_type": "task",
-  "screen_type": "cloze",
-  "background": "chapters/04/quests/01/bg-task-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/04/quests/01/bg-room-morning",
   "content": {
-    "title": "Completa la frase",
-    "instruction": "Inserisci le parole mancanti.",
-    "referenceDocument": null,
-    "task": {
-      "prompt": "Completa il testo.",
-      "lines": [
-        {
-          "segments": [
-            { "kind": "text", "text": "La risposta educata è: " },
-            { "kind": "gap", "placeholder": "…", "maxLength": 16, "correctAnswers": ["Grazie", "grazie"] },
-            { "kind": "text", "text": "." }
-          ]
-        }
-      ]
-    }
-  },
-  "scoring": {
-    "backpack": { "pieces": 1 },
-    "pizza": {
-      "mode": "scored",
-      "maxSlices": 3,
-      "minRatioToComplete": 0.8,
-      "mapping": { "kind": "linear" }
-    }
+    "text": "Tu\nOggi è sabato — niente scuola. La signora Ferrari ieri mi ha detto che i Giardini Margherita sono particolarmente belli in questo periodo: fiori d'estate, tanta gente fuori. Una bella giornata per una passeggiata."
   }
 }

@@ -2,8 +2,8 @@
   "id": "chapter-04-quest-01-scene-01",
   "scene_type": "story",
   "screen_type": "info",
-  "background": "chapters/04/quests/01/bg-info-01",
+  "background": "chapters/04/quests/01/bg-room-morning",
   "content": {
-    "text": "A Venezia trovi nuove parole utili per orientarti sul canal grande."
+    "text": "Un nuovo giorno a Bologna. Il sole entra caldo nella tua camera. Sulla scrivania ci sono i ricordi dei tuoi giorni precedenti: la rivista „Made in Italy\" di Lorenzo, il volantino del Museo della Storia di Bologna."
   }
 }
