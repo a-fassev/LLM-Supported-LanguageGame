@@ -1,3 +1,5 @@
+import { compareLeaderboardPlayers } from "@/lib/game/leaderboard-player-sort";
+import { gameClientMessages as msg } from "@/lib/game/clientMessages";
 import {
   computeLeaderboardTeamAggregates,
   getStudentAccountLeaderboardSelfContext,
@@ -6,7 +8,6 @@ import {
   type LeaderboardTeamAggregateRow,
   type StudentTeamColor,
 } from "@/lib/game/repositories/game-progress-repository";
-import { gameClientMessages as msg } from "@/lib/game/clientMessages";
 
 export type LeaderboardPlayerClientDto = {
   rank: number;
@@ -17,12 +18,18 @@ export type LeaderboardPlayerClientDto = {
   isSelf: boolean;
 };
 
+export type LeaderboardTeamMemberClientDto = {
+  username: string;
+  isSelf: boolean;
+};
+
 export type LeaderboardTeamClientDto = {
   rank: number;
   team: StudentTeamColor;
   totalSlices: number;
   totalBackpackPieces: number;
   memberCount: number;
+  members: LeaderboardTeamMemberClientDto[];
 };
 
 export type LeaderboardSelfClientDto = {
@@ -57,14 +64,36 @@ function mapOverallRows(
   }));
 }
 
-function mapTeamRows(rows: LeaderboardTeamAggregateRow[]): LeaderboardTeamClientDto[] {
-  return rows.map((row, index) => ({
-    rank: index + 1,
-    team: row.team,
-    totalSlices: row.totalSlices,
-    totalBackpackPieces: row.totalBackpackPieces,
-    memberCount: row.memberCount,
-  }));
+function mapTeamRows(
+  aggregates: LeaderboardTeamAggregateRow[],
+  players: LeaderboardPlayerRow[],
+  accountId: string,
+): LeaderboardTeamClientDto[] {
+  const membersByTeam: Record<StudentTeamColor, LeaderboardTeamMemberClientDto[]> = {
+    blue: [],
+    red: [],
+  };
+
+  const playersByPerformance = [...players].sort(compareLeaderboardPlayers);
+
+  for (const player of playersByPerformance) {
+    membersByTeam[player.team].push({
+      username: player.username,
+      isSelf: player.accountId === accountId,
+    });
+  }
+
+  return aggregates.map((row, index) => {
+    const members = membersByTeam[row.team];
+    return {
+      rank: index + 1,
+      team: row.team,
+      totalSlices: row.totalSlices,
+      totalBackpackPieces: row.totalBackpackPieces,
+      memberCount: members.length,
+      members,
+    };
+  });
 }
 
 export async function getLeaderboardState(accountId: string): Promise<LeaderboardResult> {
@@ -102,6 +131,6 @@ export async function getLeaderboardState(accountId: string): Promise<Leaderboar
       overallRank,
     },
     overall: mapOverallRows(playerRows, accountId),
-    teams: mapTeamRows(teamAggregates),
+    teams: mapTeamRows(teamAggregates, playerRows, accountId),
   };
 }

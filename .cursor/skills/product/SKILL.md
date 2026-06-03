@@ -14,7 +14,7 @@ description: |
 
 An **LLM-supported Italian learning game** for **children** in a **gifted-education school**, built as part of the **TUM IT-based learning** course. The experience is a **browser game**: a **sequential** journey through chapters and quests on a **city-map** hub, with **large language models** used only for **a small subset** of tasks (short free-text checks). Most interactions stay **predictably checkable** on the server.
 
-Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (login, menu, chapter map, leaderboard, quest play with pause/documento) ships on the web branch; per-task exercise UIs are still filling in. UI structure: `docs/web-game-ui-architecture.md`. Deferred milestones: `.cursor/plans/long-term-todos.md`.
+Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (login, menu, chapter map, shop shell, leaderboard, quest play with pause/documento) ships on the web branch; **multiple choice**, **matching**, **drag & drop**, **error spotting**, and **free text** have full exercise UIs—other task types still use placeholders until rolled out. UI structure: `docs/web-game-ui-architecture.md`. Deferred milestones: `.cursor/plans/long-term-todos.md`.
 
 ## Who it is for
 
@@ -26,6 +26,7 @@ Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (lo
 Play is **strictly sequential**:
 
 - **Chapters** unlock one after another; a player must **finish a chapter** before the next opens.
+- **Classroom withhold:** authors can mark a whole chapter **unavailable** in content (`locked` in `chapter.json`)—children still see the city on the map as **Bloccato**, even if they already finished earlier chapters. That is intentional pacing for lessons (e.g. only Bologna and Firenze open this week), not “you have not finished the previous city yet.”
 - Within a chapter, **quests** unlock in order; quest **N+1** stays locked until quest **N** is complete.
 - A **chapter** is an ordered list of **quests**. At the end of a chapter there may be **optional bonus quests**—extra **pizza slices**, but **not required** to unlock the next chapter.
 
@@ -39,7 +40,7 @@ Each step is defined by JSON with:
 | Field         | Role                                                                  |
 | ------------- | --------------------------------------------------------------------- |
 | `scene_type`  | `story` (narrative) or `task` (exercise)                              |
-| `screen_type` | `info` / `dialogue` story shell, or a specific **task type** for task steps |
+| `screen_type` | `info` for story steps, or a specific **task type** for task steps |
 | `content`     | Type-specific payload (story beats, prompts, options, etc.)           |
 | `background`  | Background image for this step                                        |
 | `scoring`     | How **pizza slices** are awarded for this step (task and bonus steps) |
@@ -51,17 +52,21 @@ Each step is defined by JSON with:
 
 ### World and flow
 
-- **Main menu** offers **Continue** into the chapter map and a **Leaderboard** entry (rankings are optional motivation, not required to progress).
+- **Main menu** offers **Continue** into the chapter map (**Gioca**), **Negozio** (room shop — shell today; later furnish the room with pizza slices), and **Classifica** (rankings are optional motivation, not required to progress).
+- **Shop (Negozio):** same hub chrome as chapter lists (back to menu, **pizza + backpack** in the header, scrollable panel). Placeholder copy until catalog and room preview ship; spending pizza and saving room layout are not live yet.
 - **Chapter overview** is the main hub—not a free-roam character world.
-- **Chapter tiles** show unlock state; **tap a chapter** for quest overview, then start a **quest**. On chapter and quest lists, **pizza + backpack** stay visible in the header so progress is always in sight.
+- **Chapter tiles** show unlock state (**Sbloccato** / **Bloccato** / **Completato** when every mission in the chapter is done); **tap an open chapter** for quest overview, then start a **quest**. Locked chapters are not playable—deep links bounce back to the chapter map. A chapter can show main story done but stay open if a bonus mission is still available. On chapter and quest lists, **pizza + backpack** stay visible in the header so progress is always in sight.
 - **Leaderboard:** compare progress by **total pizza slices**—**Overall** (all learners) or **Teams** (blue vs red). Players can **refresh** after playing; their own row should be easy to find without shaming low scores.
-- **Inside a quest**, the UI alternates **story mode** (narrative: **Pausa**, **«Indietro»** when not on the first scene, **«Avanti»**, full-step **background**, no performance HUD) and **task mode** (short **mission title** in the header, **pizza + backpack**, optional **documento** for shared reading text, one exercise surface, **«Indietro»** + **«Controlla»**).
+- **Inside a quest**, the UI alternates **story mode** (narrative: **Pausa**, **«Indietro»** when not on the first scene, **«Avanti»**, full-step **background**, no performance HUD) and **task mode** (short **mission title** in the header, **pizza + backpack**, optional **documento** for shared material while exercising, one exercise surface, **«Indietro»** + **«Controlla»**). **Documento** can show a short intro, **profile blocks** (e.g. Steckbrief), and/or **photos with captions** (one image or a small gallery)—children open it from the header when the step provides it; it is not a second exercise screen. When a task has **several questions in one scene**, the same footer uses **«Avanti»** between questions and **«Controlla»** only on the last—children should not see a second row of navigation inside the exercise.
+- **Task copy (authoring):** a short **scene instruction** (what to do overall) stays above the exercise; each **question prompt** sits with its options—do not merge both into one long paragraph.
 - **«Indietro»** lets children re-read the previous story beat or task setup; rewards already earned stay saved—going back is for clarity, not to undo pizza or backpack progress.
-- After **«Controlla»**, a **full-screen success overlay** (not a pop-up toast) shows Italian praise, how much pizza/backpack they earned, and **«Riprova»** when the score was below the step minimum—children stay on the same scene until they pass.
-- **Chapter and quest lists** show **locked** vs **open** missions from saved progress; locked quests are enforced server-side too, so children do not enter content that should still be closed.
+- After **«Controlla»**, a **full-screen success overlay** (not a pop-up toast) shows Italian praise, how much pizza/backpack they earned (hidden if they already earned rewards for that step, e.g. after **Indietro** and a second pass), and **«Riprova»** when the score was below the step minimum—children stay on the same scene until they pass. On **success**, the **same step** (background **and** the task they just finished—title, exercise, their answers) stays visible behind the overlay until they tap **«Avanti»** (mid-quest) or **«Alla lista missioni»** when the whole mission is finished; the next scene’s art and a blank next exercise must not appear early. Only then does the run move on visually.
+- **Chapter and quest lists** show **locked** (**Bloccata/o**, muted) vs **open** vs **completed** (**Completata/o**, not clickable, normal brightness, no replay from the list). Completed missions are blocked server-side too (`quest_already_completed`). Re-doing a task after **Indietro** does not grant pizza or backpack again.
 - **Mission names** on lists are **short Italian titles**, not internal act numbers or `Step 2/7` in the shell.
-- **Bonus quests** sit in the same list as story quests (often at the bottom), are **optional for chapter unlock**, and may be **offered** after the last main quest—children can still **Pausa** / go back.
-- **Navigation menus** (main menu, chapters, classifica, login) share **Italian** chrome and consistent **background** treatment so the app feels like one product.
+- After **any** quest ends (main or bonus), children normally return to the **chapter mission list** (`/chapters/[chapterId]`): story endings show a short **«Missione completata!»** overlay, then **«Alla lista missioni»** (or **«Avanti»** mid-quest); the last **task** of a quest shows pizza/backpack praise first, then **«Alla lista missioni»** when the run is finished. The **next** quest is chosen from the list when unlocked—no automatic start of the following quest on `/play`.
+- **End of the journey:** when they finish the **last quest** of the closing chapter (today: bonus after chapter 6), they still get story beats after the bonus exercise, then **«Percorso completato!»** and **«Torna al menu»**—not another chapter list. Raw “pick any order” on a map is not shown in the UI; missions unlock **one after another** on the list even when the story mentions two stops at once.
+- **Bonus quests** sit in the same list (often at the bottom), are **optional for chapter unlock**, and use the same **matching** UI as main quests. List titles use the prefix **`Extra:`** (Italian for optional add-on; e.g. `Extra: sfida vocabolario`) so children see they are not required main missions. There is **no** extra pop-up to “offer” the bonus after the last main quest—when **quest N+1** unlocks (including bonus), it appears **unlocked** on the mission list like any other quest.
+- **Navigation menus** (main menu, chapters, negozio, classifica, login) share **Italian** chrome and consistent **background** treatment so the app feels like one product.
 - **Reading-doc rule:** when one shared text applies across tasks, **documento** reopens the same passage; when tasks need different texts, **documento** follows the **active step**.
 
 ### Teams and classroom competition
@@ -74,7 +79,7 @@ Each step is defined by JSON with:
 
 | Currency         | What it means for the child                                                                                                                                                                                                                                                                                            |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Pizza slices** | **Performance**—how well they did on a **task** (or **bonus**) step. Awarded **variably** from authored **scoring** rules (e.g. more correct answers → more slices). Same answers should always yield the same slices (**fair**, server-side). Used for **leaderboard** rank and optional rewards (e.g. mascot skins). |
+| **Pizza slices** | **Performance**—how well they did on a **task** (or **bonus**) step. Awarded **variably** from authored **scoring** rules (e.g. more correct answers → more slices). Same answers should always yield the same slices (**fair**, server-side). Used for **leaderboard** rank, planned **Negozio** room items (shell only today), and optional rewards (e.g. mascot skins). |
 | **Backpack %**   | **Completion**—**0–100%** progress through the **whole game**. Increments by a **fixed** amount per **completed step**, regardless of exercise score. Reaches **100%** when everything required is done.                                                                                                               |
 
 
@@ -88,8 +93,8 @@ The look is **image-driven**: backgrounds and UI chrome often use **sprites on b
 
 **Backgrounds:**
 
-- **Static** — hub screens (main menu, dashboard-style navigation).
-- **Dynamic** — chapter/quest overviews, story, and tasks; each screen pulls the right image from **context**.
+- **Static** — hub screens (main menu, dashboard-style navigation); login and register use distinct art; switching between them should feel smooth (no flash of a blank or wrong image).
+- **Dynamic** — chapter/quest overviews, story, and tasks; each screen pulls the right image from **context**. Scene-to-scene changes should crossfade gently, not cut abruptly.
 
 Image references live throughout **content config**—chapter tiles, quest tiles, buttons, and steps—not only a single hero per screen.
 
@@ -98,15 +103,19 @@ Image references live throughout **content config**—chapter tiles, quest tiles
 
 | Task type                  | Player action (short)                                                                                                                                                                          |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Error spotting             | Find/fix deliberate mistakes; confirm corrections.                                                                                                                                             |
-| Drag & drop                | Order fragments, fill slots, sort into categories, match referents.                                                                                                                            |
-| Free text                  | Brief **Italian** answer; **language model** checks against **authored criteria**—set expectations for a short **checking** moment; failures/timeouts mean **try again**, not “almost passed”. |
-| Matching                   | Pair columns (words, meanings, pictures, clauses).                                                                                                                                             |
+| Error spotting             | Tap a word in the flowing passage to mark it, type the correction inline, remove the mark with **×**. Marking a **wrong** word does not instantly fail the step—only **found and fixed** real errors count toward pizza; missed errors lower the score on **«Controlla»**. |
+| Drag & drop                | Drag word tiles from a bank into category zones (tap or drag). Several tiles can sit in one zone while sorting; **«Controlla»** works even if some zones or the bank are still empty—feedback comes from the check, not a “fill everything first” block. |
+| Free text                  | Brief **Italian** in a large text area; optional **word-count** hint (*Parole scritte: …*). **Documento** may hold a **photo**, menu image, or longer text the child needs while writing—the checker must use that material when scoring (not only the on-screen prompt). After **«Controlla»**, show *Sto leggendo il tuo testo…* while the server scores (can take tens of seconds). **Retry** overlay uses **personalized Italian feedback** from the checker (what to improve); **success** stays generic praise + pizza/backpack. Timeouts mean **try again**, not hidden pass. Authors encode task rules in criteria/structures (e.g. required phrases)—children do not see the rubric. |
+| Matching                   | Pair two columns (tap a left card then a right card, or drag a line). Extra options on the right are distractors. × on a paired left card removes the link. |
 | Multiple choice / gap fill | Choose options or fill gaps in readable lines (prefer **sentence-like** rows, not broken chips).                                                                                               |
-| Bonus                      | Optional chapter-end activities for **extra pizza**; not required to advance.                                                                                                                  |
+| Bonus (quest kind)         | Optional chapter-end **matching** (or story intro + matching) for **extra pizza**; scored like other tasks when authored that way; **not required** to unlock the next chapter.                                                                                |
 
 
 **Pedagogical preference:** **little free-text** where possible, for clearer scoring and control.
+
+**Matching copy (authors):** One scene-level **instruction** in the task chrome; a distinct **prompt** above the columns if needed—avoid saying the same thing twice. The short tap/drag hint is built into the UI, not per-scene JSON.
+
+**Drag-drop copy (authors):** Same instruction / prompt split as matching. Do not tell children they must place every card before **«Controlla»** unless pedagogy truly requires it—they may check a partial sort and get **«Riprova»** if the score is too low.
 
 ## Access and platform
 

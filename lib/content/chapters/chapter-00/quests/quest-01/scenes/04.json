@@ -1,0 +1,60 @@
+{
+  "id": "chapter-00-quest-01-scene-04",
+  "scene_type": "task",
+  "screen_type": "multiple_choice",
+  "background": "chapters/00/quests/01/bg-task-01",
+  "content": {
+    "title": "Scegli la risposta",
+    "instruction": "Fixture singola scelta (radio) — layout compatto.",
+    "referenceDocument": {
+      "documentId": "ch00-fixture-gallery",
+      "title": "Compagni di classe (fixture)",
+      "body": "Esempio per il team: galleria a due colonne nel documento, come nel quiz del capitolo 2. I nomi sono solo placeholder grafici.",
+      "figures": [
+        {
+          "image": "chapters/00/quests/01/ref-fixture-person-marco",
+          "caption": "Marco"
+        },
+        {
+          "image": "chapters/00/quests/01/ref-fixture-person-sofia",
+          "caption": "Sofia"
+        },
+        {
+          "image": "chapters/00/quests/01/ref-fixture-person-luca",
+          "caption": "Luca"
+        },
+        {
+          "image": "chapters/00/quests/01/ref-fixture-person-giulia",
+          "caption": "Giulia"
+        },
+        {
+          "image": "chapters/00/quests/01/ref-fixture-person-emma",
+          "caption": "Emma"
+        },
+        {
+          "image": "chapters/00/quests/01/ref-fixture-person-noah",
+          "caption": "Noah"
+        }
+      ]
+    },
+    "task": {
+      "selectionMode": "single",
+      "prompt": "Un compagno dice: «Ciao!»",
+      "options": [
+        { "id": "opt-ciao", "label": "Ciao!" },
+        { "id": "opt-grazie", "label": "Grazie." },
+        { "id": "opt-notte", "label": "Buona notte." }
+      ],
+      "correctOptionIds": ["opt-ciao"]
+    }
+  },
+  "scoring": {
+    "backpack": { "pieces": 1 },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 2,
+      "minRatioToComplete": 1,
+      "mapping": { "kind": "linear" }
+    }
+  }
+}

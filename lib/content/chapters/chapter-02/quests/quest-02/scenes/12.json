@@ -1,0 +1,60 @@
+{
+  "id": "chapter-02-quest-02-scene-12",
+  "scene_type": "task",
+  "screen_type": "free_text",
+  "background": "chapters/02/quests/02/bg-nutelleria-task",
+  "content": {
+    "title": "Descrivi la professione",
+    "instruction": "Scrivi una frase in italiano con un pronome relativo (che, cui o dove).",
+    "referenceDocument": {
+      "title": "il/la giardiniere/a",
+      "body": "Guarda la foto e scrivi una frase con che, cui o dove.",
+      "figures": [
+        {
+          "image": "chapters/02/quests/02/ref-prof-giardiniere",
+          "caption": "il/la giardiniere/a"
+        }
+      ]
+    },
+    "task": {
+      "prompt": "Descrivi la professione del/la giardiniere/a con una frase. Usa che, cui o dove.",
+      "targetLanguage": "it",
+      "showWordCount": true,
+      "minWords": 5,
+      "maxWords": 80,
+      "evaluation": {
+        "grammarWeight": 1,
+        "vocabularyWeight": 1,
+        "registerWeight": 1,
+        "taskFulfillmentWeight": 1,
+        "passThreshold": 0.65,
+        "registerTarget": "neutral",
+        "scoringPolicy": "threshold_pass",
+        "maxPoints": 5,
+        "evaluationCriteria": [
+          "Use at least one relative pronoun (che, cui, or dove) correctly",
+          "Describe the profession plausibly in Italian at B1 level"
+        ],
+        "targetStructures": [
+          "che",
+          "cui",
+          "dove"
+        ]
+      }
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 2,
+      "minRatioToComplete": 0.65,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

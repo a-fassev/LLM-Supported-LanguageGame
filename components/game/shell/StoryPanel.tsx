@@ -1,21 +1,19 @@
 import { cn } from "@/lib/utils";
+import { TASK_PLAY_BODY_TEXT } from "@/lib/game/task-typography";
 
 type StoryPanelProps = {
-  variant: "dialog" | "interaction";
   text: string;
 };
 
-export function StoryPanel({ variant, text }: StoryPanelProps) {
+export function StoryPanel({ text }: StoryPanelProps) {
   return (
     <section
       className={cn(
-        "game-panel game-panel-inset text-base leading-relaxed md:text-lg",
-        variant === "dialog"
-          ? "mx-auto my-auto w-full max-w-3xl"
-          : "mx-auto mt-auto w-fit max-w-xl md:max-w-2xl",
+        "game-panel game-panel-inset mx-auto mt-auto w-fit max-w-xl md:max-w-2xl",
+        TASK_PLAY_BODY_TEXT,
       )}
     >
-      <p>{text}</p>
+      <p className="whitespace-pre-line">{text}</p>
     </section>
   );
 }

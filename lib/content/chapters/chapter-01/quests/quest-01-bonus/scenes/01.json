@@ -2,8 +2,8 @@
   "id": "chapter-01-quest-01-bonus-scene-01",
   "scene_type": "story",
   "screen_type": "info",
-  "background": "chapters/01/quests/bonus/bg-info-01",
+  "background": "chapters/01/quests/bonus/bg-bonus",
   "content": {
-    "text": "Missione bonus: ripassa i saluti e guadagna pizza extra."
+    "text": "Hai finito il tuo primo giorno a Bologna. Hai conosciuto la tua nuova classe, hai esplorato il centro e hai imparato tante cose nuove."
   }
 }

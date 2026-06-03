@@ -1,0 +1,9 @@
+{
+  "id": "chapter-06-quest-01-scene-03",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/06/quests/01/bg-room-morning",
+  "content": {
+    "text": "Sulla mappa si accendono due pin nello stesso momento."
+  }
+}

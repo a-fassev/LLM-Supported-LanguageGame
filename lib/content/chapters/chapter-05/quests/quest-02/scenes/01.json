@@ -1,9 +1,9 @@
 {
   "id": "chapter-05-quest-02-scene-01",
   "scene_type": "story",
-  "screen_type": "dialogue",
-  "background": "chapters/05/quests/02/bg-dialogue-01",
+  "screen_type": "info",
+  "background": "chapters/05/quests/02/bg-room-desk",
   "content": {
-    "text": "Alla pizzeria si parla velocemente. Prova a ricostruire la frase."
+    "text": "Sara\n„Prima della discussione in classe dobbiamo essere sicuri di aver capito tutto.\""
   }
 }

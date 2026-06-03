@@ -1,8 +1,8 @@
 {
   "id": "quest-01-bonus",
-  "title": "Extra: al bar",
-  "order": 3,
+  "title": "Extra: parole della lezione 3",
+  "order": 5,
   "kind": "bonus",
-  "requiresQuestId": "quest-02",
-  "autoStartQuestId": null
+  "requiresQuestId": "quest-04",
+  "background": "chapters/03/quests/bonus/bg-overview"
 }

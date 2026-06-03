@@ -1,0 +1,9 @@
+{
+  "id": "chapter-02-quest-02-scene-04",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/02/quests/02/bg-nutelleria",
+  "content": {
+    "text": "Tu\n\"Ciao Dario! Cosa è successo?\""
+  }
+}

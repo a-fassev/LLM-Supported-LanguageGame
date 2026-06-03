@@ -1,8 +1,8 @@
 {
   "id": "quest-02",
-  "title": "Alla stazione",
+  "title": "Il primo giorno",
   "order": 2,
   "kind": "main",
   "requiresQuestId": "quest-01",
-  "autoStartQuestId": null
+  "background": "chapters/01/quests/02/bg-overview"
 }

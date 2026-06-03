@@ -1,0 +1,9 @@
+{
+  "id": "chapter-05-quest-01-bonus-scene-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/05/quests/bonus/bg-neutral",
+  "content": {
+    "text": "Hai completato il capitolo 5 della tua avventura a Bologna."
+  }
+}

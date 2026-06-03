@@ -1,0 +1,531 @@
+{
+  "id": "chapter-04-quest-01-bonus-scene-04",
+  "scene_type": "task",
+  "screen_type": "matching",
+  "background": "chapters/04/quests/bonus/bg-neutral",
+  "content": {
+    "title": "Sfida bonus",
+    "instruction": "Abbina ogni parola italiana al suo equivalente inglese.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Collega ogni parola italiana al suo equivalente inglese.",
+      "sampleSize": 10,
+      "poolPairs": [
+        {
+          "id": "ch04v001",
+          "leftLabel": "la regione autonoma",
+          "rightLabel": "autonomous region"
+        },
+        {
+          "id": "ch04v002",
+          "leftLabel": "il divertimento",
+          "rightLabel": "amusement / fun"
+        },
+        {
+          "id": "ch04v003",
+          "leftLabel": "il poeta",
+          "rightLabel": "poet"
+        },
+        {
+          "id": "ch04v004",
+          "leftLabel": "il/la musicista",
+          "rightLabel": "musician"
+        },
+        {
+          "id": "ch04v005",
+          "leftLabel": "il successo",
+          "rightLabel": "success"
+        },
+        {
+          "id": "ch04v006",
+          "leftLabel": "la poesia",
+          "rightLabel": "poetry / poem"
+        },
+        {
+          "id": "ch04v007",
+          "leftLabel": "innamorarsi (di); innamorato, -a (di)",
+          "rightLabel": "to fall in love (with); in love (with)"
+        },
+        {
+          "id": "ch04v008",
+          "leftLabel": "rubare (il cuore)",
+          "rightLabel": "to steal (the heart)"
+        },
+        {
+          "id": "ch04v009",
+          "leftLabel": "impazzire",
+          "rightLabel": "to go crazy"
+        },
+        {
+          "id": "ch04v010",
+          "leftLabel": "fissarsi su",
+          "rightLabel": "to fixate on"
+        },
+        {
+          "id": "ch04v011",
+          "leftLabel": "lasciare",
+          "rightLabel": "to leave"
+        },
+        {
+          "id": "ch04v012",
+          "leftLabel": "l'emozione f.",
+          "rightLabel": "emotion"
+        },
+        {
+          "id": "ch04v013",
+          "leftLabel": "rivolere (il/la partner)",
+          "rightLabel": "to want (one's partner) back"
+        },
+        {
+          "id": "ch04v014",
+          "leftLabel": "risolvere (i problemi d'amore), risolto",
+          "rightLabel": "to solve (love problems)"
+        },
+        {
+          "id": "ch04v015",
+          "leftLabel": "prendere in giro",
+          "rightLabel": "to make fun of / to tease"
+        },
+        {
+          "id": "ch04v016",
+          "leftLabel": "piangere, pianto",
+          "rightLabel": "to cry"
+        },
+        {
+          "id": "ch04v017",
+          "leftLabel": "subire",
+          "rightLabel": "to endure / to suffer"
+        },
+        {
+          "id": "ch04v018",
+          "leftLabel": "la tortura",
+          "rightLabel": "torture"
+        },
+        {
+          "id": "ch04v019",
+          "leftLabel": "vale la pena (di)",
+          "rightLabel": "it's worth it (to)"
+        },
+        {
+          "id": "ch04v020",
+          "leftLabel": "all'improvviso",
+          "rightLabel": "suddenly"
+        },
+        {
+          "id": "ch04v021",
+          "leftLabel": "togliere, tolto",
+          "rightLabel": "to take away / to remove"
+        },
+        {
+          "id": "ch04v022",
+          "leftLabel": "il respiro",
+          "rightLabel": "breath"
+        },
+        {
+          "id": "ch04v023",
+          "leftLabel": "il limite",
+          "rightLabel": "limit"
+        },
+        {
+          "id": "ch04v024",
+          "leftLabel": "conviene",
+          "rightLabel": "it is appropriate / it is better"
+        },
+        {
+          "id": "ch04v025",
+          "leftLabel": "il castello",
+          "rightLabel": "castle"
+        },
+        {
+          "id": "ch04v026",
+          "leftLabel": "la letteratura",
+          "rightLabel": "literature"
+        },
+        {
+          "id": "ch04v027",
+          "leftLabel": "strappare",
+          "rightLabel": "to tear"
+        },
+        {
+          "id": "ch04v028",
+          "leftLabel": "lo strappo",
+          "rightLabel": "tear / rupture"
+        },
+        {
+          "id": "ch04v029",
+          "leftLabel": "l'effetto",
+          "rightLabel": "effect"
+        },
+        {
+          "id": "ch04v030",
+          "leftLabel": "in effetti",
+          "rightLabel": "indeed"
+        },
+        {
+          "id": "ch04v031",
+          "leftLabel": "(essere) in giro",
+          "rightLabel": "to be out / to be around"
+        },
+        {
+          "id": "ch04v032",
+          "leftLabel": "la raccomandazione",
+          "rightLabel": "recommendation"
+        },
+        {
+          "id": "ch04v033",
+          "leftLabel": "gli occhiali (da sole)",
+          "rightLabel": "(sun)glasses"
+        },
+        {
+          "id": "ch04v034",
+          "leftLabel": "fra/tra",
+          "rightLabel": "in / within (time)"
+        },
+        {
+          "id": "ch04v035",
+          "leftLabel": "pentirsi di qc.",
+          "rightLabel": "to regret something"
+        },
+        {
+          "id": "ch04v036",
+          "leftLabel": "la scrittura",
+          "rightLabel": "writing / handwriting"
+        },
+        {
+          "id": "ch04v037",
+          "leftLabel": "il verso",
+          "rightLabel": "verse"
+        },
+        {
+          "id": "ch04v038",
+          "leftLabel": "l'illustrazione f.",
+          "rightLabel": "illustration"
+        },
+        {
+          "id": "ch04v039",
+          "leftLabel": "pericoloso, -a",
+          "rightLabel": "dangerous"
+        },
+        {
+          "id": "ch04v040",
+          "leftLabel": "il motorino",
+          "rightLabel": "moped"
+        },
+        {
+          "id": "ch04v041",
+          "leftLabel": "tirare",
+          "rightLabel": "to pull"
+        },
+        {
+          "id": "ch04v042",
+          "leftLabel": "tirare su",
+          "rightLabel": "to cheer up / to lift up"
+        },
+        {
+          "id": "ch04v043",
+          "leftLabel": "la Pianura Padana",
+          "rightLabel": "the Po Valley"
+        },
+        {
+          "id": "ch04v044",
+          "leftLabel": "disperato, -a",
+          "rightLabel": "desperate"
+        },
+        {
+          "id": "ch04v045",
+          "leftLabel": "creativo, -a",
+          "rightLabel": "creative"
+        },
+        {
+          "id": "ch04v046",
+          "leftLabel": "il rimedio",
+          "rightLabel": "remedy"
+        },
+        {
+          "id": "ch04v047",
+          "leftLabel": "il mal d'amore",
+          "rightLabel": "lovesickness / heartache"
+        },
+        {
+          "id": "ch04v048",
+          "leftLabel": "guastare",
+          "rightLabel": "to spoil / to ruin"
+        },
+        {
+          "id": "ch04v049",
+          "leftLabel": "l'amicizia",
+          "rightLabel": "friendship"
+        },
+        {
+          "id": "ch04v050",
+          "leftLabel": "vietare",
+          "rightLabel": "to forbid"
+        },
+        {
+          "id": "ch04v051",
+          "leftLabel": "la nostalgia",
+          "rightLabel": "nostalgia / homesickness"
+        },
+        {
+          "id": "ch04v052",
+          "leftLabel": "il canale",
+          "rightLabel": "channel / canal"
+        },
+        {
+          "id": "ch04v053",
+          "leftLabel": "da una parte ... dall'altra",
+          "rightLabel": "on one hand ... on the other"
+        },
+        {
+          "id": "ch04v054",
+          "leftLabel": "la terra",
+          "rightLabel": "earth / land"
+        },
+        {
+          "id": "ch04v055",
+          "leftLabel": "il pigiama",
+          "rightLabel": "pyjamas"
+        },
+        {
+          "id": "ch04v056",
+          "leftLabel": "favoloso, -a",
+          "rightLabel": "fabulous"
+        },
+        {
+          "id": "ch04v057",
+          "leftLabel": "nonostante prep.",
+          "rightLabel": "in spite of"
+        },
+        {
+          "id": "ch04v058",
+          "leftLabel": "TVB (Ti voglio bene)",
+          "rightLabel": "I love you (friendship/family)"
+        },
+        {
+          "id": "ch04v059",
+          "leftLabel": "cancellare",
+          "rightLabel": "to cancel / to delete"
+        },
+        {
+          "id": "ch04v060",
+          "leftLabel": "il ricordo",
+          "rightLabel": "memory / souvenir"
+        },
+        {
+          "id": "ch04v061",
+          "leftLabel": "il tramonto",
+          "rightLabel": "sunset"
+        },
+        {
+          "id": "ch04v062",
+          "leftLabel": "l'orizzonte m.",
+          "rightLabel": "horizon"
+        },
+        {
+          "id": "ch04v063",
+          "leftLabel": "colorare; colorarsi",
+          "rightLabel": "to colour; to become coloured"
+        },
+        {
+          "id": "ch04v064",
+          "leftLabel": "il benessere",
+          "rightLabel": "wellbeing"
+        },
+        {
+          "id": "ch04v065",
+          "leftLabel": "garantire, -sc-",
+          "rightLabel": "to guarantee"
+        },
+        {
+          "id": "ch04v066",
+          "leftLabel": "celebre",
+          "rightLabel": "famous"
+        },
+        {
+          "id": "ch04v067",
+          "leftLabel": "la collezione",
+          "rightLabel": "collection"
+        },
+        {
+          "id": "ch04v068",
+          "leftLabel": "lasciarsi",
+          "rightLabel": "to break up / to part"
+        },
+        {
+          "id": "ch04v069",
+          "leftLabel": "il senso",
+          "rightLabel": "sense / meaning"
+        },
+        {
+          "id": "ch04v070",
+          "leftLabel": "bilingue",
+          "rightLabel": "bilingual"
+        },
+        {
+          "id": "ch04v071",
+          "leftLabel": "il carattere",
+          "rightLabel": "character"
+        },
+        {
+          "id": "ch04v072",
+          "leftLabel": "il ponte",
+          "rightLabel": "bridge"
+        },
+        {
+          "id": "ch04v073",
+          "leftLabel": "l'aeroporto",
+          "rightLabel": "airport"
+        },
+        {
+          "id": "ch04v074",
+          "leftLabel": "ciò che",
+          "rightLabel": "that which / what"
+        },
+        {
+          "id": "ch04v075",
+          "leftLabel": "ci vuole / ci vogliono",
+          "rightLabel": "one needs / it takes"
+        },
+        {
+          "id": "ch04v076",
+          "leftLabel": "la magia",
+          "rightLabel": "magic"
+        },
+        {
+          "id": "ch04v077",
+          "leftLabel": "la citazione",
+          "rightLabel": "quotation"
+        },
+        {
+          "id": "ch04v078",
+          "leftLabel": "appendere, appeso",
+          "rightLabel": "to hang up"
+        },
+        {
+          "id": "ch04v079",
+          "leftLabel": "estivo, -a",
+          "rightLabel": "summery / summer (adj.)"
+        },
+        {
+          "id": "ch04v080",
+          "leftLabel": "girare",
+          "rightLabel": "to turn / to go around / to wander"
+        },
+        {
+          "id": "ch04v081",
+          "leftLabel": "il tragitto",
+          "rightLabel": "journey / route"
+        },
+        {
+          "id": "ch04v082",
+          "leftLabel": "la plastica",
+          "rightLabel": "plastic"
+        },
+        {
+          "id": "ch04v083",
+          "leftLabel": "il graffito",
+          "rightLabel": "graffiti"
+        },
+        {
+          "id": "ch04v084",
+          "leftLabel": "rispettare",
+          "rightLabel": "to respect"
+        },
+        {
+          "id": "ch04v085",
+          "leftLabel": "il giudice",
+          "rightLabel": "judge"
+        },
+        {
+          "id": "ch04v086",
+          "leftLabel": "la lotta",
+          "rightLabel": "fight / struggle"
+        },
+        {
+          "id": "ch04v087",
+          "leftLabel": "l'eroe, l'eroina",
+          "rightLabel": "hero, heroine"
+        },
+        {
+          "id": "ch04v088",
+          "leftLabel": "il muro",
+          "rightLabel": "wall"
+        },
+        {
+          "id": "ch04v089",
+          "leftLabel": "lo sguardo",
+          "rightLabel": "look / gaze"
+        },
+        {
+          "id": "ch04v090",
+          "leftLabel": "il bacio",
+          "rightLabel": "kiss"
+        },
+        {
+          "id": "ch04v091",
+          "leftLabel": "legittimo, -a",
+          "rightLabel": "legitimate"
+        },
+        {
+          "id": "ch04v092",
+          "leftLabel": "proibire, -sc-",
+          "rightLabel": "to forbid"
+        },
+        {
+          "id": "ch04v093",
+          "leftLabel": "la scritta",
+          "rightLabel": "inscription / writing"
+        },
+        {
+          "id": "ch04v094",
+          "leftLabel": "noleggiare",
+          "rightLabel": "to rent"
+        },
+        {
+          "id": "ch04v095",
+          "leftLabel": "il gommone",
+          "rightLabel": "rubber dinghy"
+        },
+        {
+          "id": "ch04v096",
+          "leftLabel": "condividere",
+          "rightLabel": "to share"
+        },
+        {
+          "id": "ch04v097",
+          "leftLabel": "sopportare",
+          "rightLabel": "to endure / to bear"
+        },
+        {
+          "id": "ch04v098",
+          "leftLabel": "considerare",
+          "rightLabel": "to consider"
+        },
+        {
+          "id": "ch04v099",
+          "leftLabel": "intorno a; guardarsi intorno",
+          "rightLabel": "around; to look around"
+        }
+      ],
+      "presentation": {
+        "leftLabel": "italiano",
+        "rightLabel": "english",
+        "shuffleRightOrder": true
+      }
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 2,
+      "minRatioToComplete": 0.6,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

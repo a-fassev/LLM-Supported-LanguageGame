@@ -1,0 +1,113 @@
+{
+  "id": "chapter-03-quest-03-scene-15",
+  "scene_type": "task",
+  "screen_type": "cloze",
+  "background": "chapters/03/quests/03/bg-museum-side",
+  "content": {
+    "title": "Accrescitivi e diminutivi — Teil B",
+    "instruction": "Completa le frasi di Valentina sulla Cioccoshow. Forma dalla parola tra parentesi la forma giusta con -ino, -etto, -ello o -one.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Completa le frasi di Valentina sulla Cioccoshow. Forma dalla parola tra parentesi la forma giusta con -ino, -etto, -ello o -one.",
+      "caseSensitive": false,
+      "lines": [
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "1. Sulla piazza c'è un (tavolo) "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "tavolone",
+                "Tavolone"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " enorme con tutti i tipi di cioccolato.\n\n2. Ti consiglio di assaggiare un (pezzo) "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "pezzetto",
+                "Pezzetto"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " piccolo di cioccolato fondente prima di scegliere.\n\n3. Vedrai, dopo un'ora alla Cioccoshow tutti diventiamo dei (goloso) "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "golosoni",
+                "Golosoni"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "!\n\n4. Per i bambini c'è una zona speciale con tante (casa) "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "casette",
+                "Casette"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " di cioccolato.\n\n5. Lo stand della Nutella è in un (palazzo) "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "palazzone",
+                "Palazzone"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " di vetro al centro della piazza.\n\n6. Compra un (libro) "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "libretto",
+                "Libretto",
+                "librone",
+                "Librone"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " con tutte le ricette al cioccolato — è un bel souvenir!"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 2,
+      "minRatioToComplete": 0.83,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

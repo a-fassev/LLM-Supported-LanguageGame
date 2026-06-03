@@ -1,0 +1,255 @@
+{
+  "id": "chapter-03-quest-04-scene-11",
+  "scene_type": "task",
+  "screen_type": "cloze",
+  "background": "chapters/03/quests/04/bg-piazza-cioccoshow",
+  "content": {
+    "title": "Scoprire una nuova città",
+    "instruction": "Tiziana ha trovato dei buoni consigli. Completa con i verbi alla forma impersonale. Wortbank: chiamare · comprare/comprarsi (3x) · dovere/mangiare · fare · godersi · informarsi · potere/avere · potere/conoscere · potere/trovare · volere/conoscere · non/perdersi · seguire",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Tiziana ha trovato dei buoni consigli. Completa con i verbi alla forma impersonale.",
+      "caseSensitive": false,
+      "lines": [
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "Per scoprire una nuova città "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "si compra",
+                "Si compra"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " una "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "buona",
+                "Buona"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " guida della città o "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "ci si informa",
+                "Ci si informa"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " in internet prima del viaggio. In questo modo "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "si possono avere",
+                "Si possono avere"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " molte attrazioni già prima di visitare la nuova città. Ma se "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "si vuole conoscere",
+                "Si vuole conoscere"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " veramente bene la città, "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "si fa",
+                "Si fa"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " una "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "buona",
+                "Buona"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " visita guidata. Se "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "si chiama",
+                "Si chiama"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " l'ufficio del turismo, "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "si possono trovare",
+                "Si possono trovare"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " delle "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "buone",
+                "Buone"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " informazioni utili. Nell'ufficio del turismo "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "si compra",
+                "Si compra"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " una pianta della città. In questo modo "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "non si perdono",
+                "Non si perdono"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " facilmente tutti i monumenti. Per scoprire le specialità, "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "si mangia",
+                "Si mangia"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " nei "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "buoni",
+                "Buoni"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " ristoranti e "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "si comprano",
+                "Si comprano"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " i prodotti tipici. Se "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "si seguono",
+                "Si seguono"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " questi "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "buoni",
+                "Buoni"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " consigli, "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "ci si gode",
+                "Ci si gode"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " a pieno la nuova città."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.85,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

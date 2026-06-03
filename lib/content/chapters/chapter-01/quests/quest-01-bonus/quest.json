@@ -1,8 +1,8 @@
 {
   "id": "quest-01-bonus",
-  "title": "Extra: i saluti",
-  "order": 3,
+  "title": "Extra: sfida vocabolario",
+  "order": 5,
   "kind": "bonus",
-  "requiresQuestId": "quest-02",
-  "autoStartQuestId": null
+  "requiresQuestId": "quest-04",
+  "background": "chapters/01/quests/bonus/bg-overview"
 }

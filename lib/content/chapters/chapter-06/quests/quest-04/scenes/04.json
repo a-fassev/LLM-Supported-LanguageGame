@@ -1,0 +1,9 @@
+{
+  "id": "chapter-06-quest-04-scene-04",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/06/quests/04/bg-piazza-maggiore",
+  "content": {
+    "text": "Hai finito il quiz. Prima della schermata finale si apre ancora l'ultimo controllo dei vocaboli."
+  }
+}

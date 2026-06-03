@@ -42,7 +42,10 @@ function writeToken(token: string | null): void {
 export function GameSessionProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [account, setAccount] = useState<SessionAccountDto | null>(null);
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setIsReady] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return readToken() === null;
+  });
 
   const clearSession = useCallback(() => {
     writeToken(null);
@@ -69,24 +72,42 @@ export function GameSessionProvider({ children }: { children: ReactNode }) {
   }, [clearSession]);
 
   useEffect(() => {
+    let cancelled = false;
+    const currentToken = readToken();
+
+    if (!currentToken) {
+      return;
+    }
+
     void (async () => {
-      const currentToken = readToken();
-      if (!currentToken) {
-        setIsReady(true);
-        return;
-      }
+      try {
+        const result = await Promise.race([
+          getSession(currentToken),
+          new Promise<Awaited<ReturnType<typeof getSession>>>((resolve) => {
+            window.setTimeout(
+              () => resolve({ ok: false, status: 0, error: "Session check timed out." }),
+              10_000,
+            );
+          }),
+        ]);
 
-      const result = await getSession(currentToken);
-      if (!result.ok) {
-        clearSession();
-        setIsReady(true);
-        return;
-      }
+        if (cancelled) return;
 
-      setToken(currentToken);
-      setAccount(result.data);
-      setIsReady(true);
+        if (!result.ok) {
+          clearSession();
+          return;
+        }
+
+        setToken(currentToken);
+        setAccount(result.data);
+      } finally {
+        if (!cancelled) setIsReady(true);
+      }
     })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [clearSession]);
 
   const setSession = useCallback((input: { token: string; account?: SessionAccountDto | null }) => {

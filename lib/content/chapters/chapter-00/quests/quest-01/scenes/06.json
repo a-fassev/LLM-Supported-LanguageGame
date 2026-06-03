@@ -1,0 +1,44 @@
+{
+  "id": "chapter-00-quest-01-scene-06",
+  "scene_type": "task",
+  "screen_type": "matching",
+  "background": "chapters/00/quests/01/bg-task-01",
+  "content": {
+    "title": "Abbina le parole",
+    "instruction": "Collega ogni parola italiana alla traduzione giusta.",
+    "task": {
+      "prompt": "Scegli la traduzione corretta per ogni parola.",
+      "leftItems": [
+        { "id": "left-ciao", "label": "Ciao" },
+        { "id": "left-grazie", "label": "Grazie" },
+        { "id": "left-notte", "label": "Notte" }
+      ],
+      "rightItems": [
+        { "id": "right-hello", "label": "Hello" },
+        { "id": "right-thanks", "label": "Thanks" },
+        { "id": "right-goodnight", "label": "Good night" },
+        { "id": "right-bye", "label": "Goodbye" }
+      ],
+      "correctPairs": [
+        { "leftItemId": "left-ciao", "rightItemId": "right-hello" },
+        { "leftItemId": "left-grazie", "rightItemId": "right-thanks" },
+        { "leftItemId": "left-notte", "rightItemId": "right-goodnight" }
+      ],
+      "presentation": {
+        "leftLabel": "Italiano",
+        "rightLabel": "Traduzione",
+        "shuffleRightOrder": true
+      }
+    }
+  },
+  "scoring": {
+    "backpack": { "pieces": 1 },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.6,
+      "rounding": "floor",
+      "mapping": { "kind": "linear" }
+    }
+  }
+}

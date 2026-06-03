@@ -1,0 +1,9 @@
+{
+  "id": "chapter-03-quest-01-bonus-scene-03",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/03/quests/bonus/bg-neutral",
+  "content": {
+    "text": "Risolvi questo compito bonus per guadagnare fette di pizza extra!"
+  }
+}

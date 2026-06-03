@@ -1,0 +1,9 @@
+{
+  "id": "chapter-02-quest-03-scene-02",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/02/quests/03/bg-desk",
+  "content": {
+    "text": "Tu\nEcco il primo vero compito per il Liceo Galvani. La Signora Wagner ci ha chiesto di scegliere un italiano famoso, di leggere il profilo e di fare un identikit. E dopo c'è anche un quiz su altre persone famose. Vediamo chi sono..."
+  }
+}

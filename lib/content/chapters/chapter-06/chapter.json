@@ -1,9 +1,15 @@
 {
   "id": "chapter-06",
-  "title": "Milano",
+  "title": "Bologna — sesto giorno",
   "order": 6,
+  "locked": false,
+  "gameFinale": true,
   "quests": [
     "quest-01",
-    "quest-02"
-  ]
+    "quest-02",
+    "quest-03",
+    "quest-04",
+    "quest-01-bonus"
+  ],
+  "background": "chapters/06/chapter/bg-missions"
 }

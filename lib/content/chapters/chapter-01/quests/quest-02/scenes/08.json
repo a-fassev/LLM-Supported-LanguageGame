@@ -1,0 +1,114 @@
+{
+  "id": "chapter-01-quest-02-scene-08",
+  "scene_type": "task",
+  "screen_type": "error_spotting",
+  "background": "chapters/01/quests/02/bg-task-error",
+  "content": {
+    "title": "Trova gli errori",
+    "instruction": "Leggi il testo e trova i 5 errori. Clicca sulle informazioni sbagliate e scrivi la correzione.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Leggi il testo e trova i 5 errori sulle abitudini italiane al bar e al ristorante. Clicca sulle informazioni sbagliate.",
+      "expectedErrorRange": {
+        "min": 5,
+        "max": 5
+      },
+      "segments": [
+        {
+          "id": "a1",
+          "text": "Come comportarsi in Italia: consigli per turisti\n\nIn Italia, se vuoi risparmiare al bar,",
+          "isError": false
+        },
+        {
+          "id": "a3",
+          "text": " siediti sempre a un tavolino",
+          "isError": true,
+          "acceptedCorrections": [
+            "bisogna stare in piedi al banco",
+            "devi stare in piedi al banco",
+            "stare in piedi al banco"
+          ]
+        },
+        {
+          "id": "a4",
+          "text": " : il prezzo è lo stesso che al banco. Per quanto riguarda il caffè,",
+          "isError": false
+        },
+        {
+          "id": "a5",
+          "text": " gli italiani bevono il cappuccino a tutte le ore del giorno",
+          "isError": true,
+          "acceptedCorrections": [
+            "gli italiani bevono il cappuccino solo la mattina",
+            "il cappuccino si beve solo la mattina",
+            "solo la mattina, mai dopo pranzo"
+          ]
+        },
+        {
+          "id": "a6",
+          "text": " , anche dopo pranzo e dopo cena. Al ristorante, quando arrivi,",
+          "isError": false
+        },
+        {
+          "id": "a7",
+          "text": " scegli tu stesso il tavolo",
+          "isError": true,
+          "acceptedCorrections": [
+            "si aspetta che il personale assegni il tavolo",
+            "aspetta che il personale ti assegni il tavolo",
+            "il personale assegna il tavolo"
+          ]
+        },
+        {
+          "id": "a8",
+          "text": " senza aspettare. Un pasto italiano normale è composto da",
+          "isError": false
+        },
+        {
+          "id": "a9",
+          "text": " un solo piatto, di solito pizza o pasta",
+          "isError": true,
+          "acceptedCorrections": [
+            "più portate",
+            "un pasto completo ha più portate",
+            "diverse portate"
+          ]
+        },
+        {
+          "id": "a10",
+          "text": " . Se mangi con gli amici, ognuno paga il proprio:",
+          "isError": false
+        },
+        {
+          "id": "a11",
+          "text": " il conto separato è la regola in Italia",
+          "isError": true,
+          "acceptedCorrections": [
+            "si paga insieme",
+            "si divide il conto",
+            "pagano insieme"
+          ]
+        },
+        {
+          "id": "a12",
+          "text": " . La mancia non è obbligatoria, ma sulla ricevuta si trova spesso il \"coperto\", una piccola somma per il pane e il servizio.",
+          "isError": false
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.6,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

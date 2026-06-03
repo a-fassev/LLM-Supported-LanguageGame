@@ -1,0 +1,160 @@
+{
+  "id": "chapter-05-quest-04-scene-04",
+  "scene_type": "task",
+  "screen_type": "cloze",
+  "background": "chapters/05/quests/04/bg-room-evening",
+  "content": {
+    "title": "Mail formale",
+    "instruction": "Completa la mail formale. Si controllano saluto iniziale, pronomi/imperativi e formula finale.",
+    "referenceDocument": {
+      "title": "Andiamo a Lucca se ... (lettera della professoressa)",
+      "body": "Caro Simone, la tua idea sembra piuttosto interessante, ma non pensare che sia facile organizzare una gita. Innanzitutto come reagiranno i tuoi compagni di classe alla tua proposta?\n\nChiedigli cosa ne pensano, fammi sapere se sono d'accordo, e se saranno d'accordo i vostri genitori (ci vogliono anche le loro autorizzazioni!). Dammi almeno tre motivi per cui dovrei portarvi a Lucca! Scrivili insieme ai tuoi compagni, discutetene e poi inviatemi la vostra risposta entro lunedì. Così vi dirò se possiamo andarci.\n\nMa prima di tutto chiariscimi questi tre punti: 1) Quanti giorni volete stare a Lucca e quanto tempo volete passare al festival? 2) Con quale mezzo di trasporto vorrete viaggiare (andata e ritorno)? 3) Quanto tempo ci rimarrà per i musei e per le chiese?\n\nInsomma, informati bene su tutto, prima di prendere una decisione! Cordiali saluti, Anna-Viviana Bardelli. P.S.: Non mi piace per niente la tua idea di pubblicare tutto in internet! Pensa prima alle possibili conseguenze!"
+    },
+    "task": {
+      "prompt": "Completa la mail formale con pronomi e forme dell'imperativo di cortesia.",
+      "caseSensitive": false,
+      "lines": [
+        {
+          "segments": [
+            {
+              "kind": "gap",
+              "maxLength": 128,
+              "correctAnswers": [
+                "Egregio Dirigente scolastico, Gentile Professor Sallusti",
+                "Egregio Dirigente scolastico, Gentile Professore Sallusti"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": ",\n\n"
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "Le"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " scriviamo questa lettera per presentar"
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "Le"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " un progetto. Anche se Lei è molto impegnato, "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "ci"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " conceda cinque minuti del Suo tempo e "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "legga"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " quello che Le proponiamo.\n\nAbbiamo pensato di andare a Lucca per partecipare al festival, ma non "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "pensi"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " che vogliamo solo divertirci.\n\n"
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "Si ricordi"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " che la nostra classe si è sempre comportata bene.\n\nPer favore, non "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "ci proibisca"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " di organizzare la gita e "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "ci risponda"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " il prima possibile.\n\n"
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "La ringraziamo molto"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " per la Sua cortese attenzione.\n\n"
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "Distinti saluti"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": ",\n\ngli studenti della 2C"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.82,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

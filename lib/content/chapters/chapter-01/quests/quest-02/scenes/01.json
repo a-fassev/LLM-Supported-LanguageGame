@@ -1,9 +1,9 @@
 {
   "id": "chapter-01-quest-02-scene-01",
   "scene_type": "story",
-  "screen_type": "dialogue",
-  "background": "chapters/01/quests/02/bg-dialogue-01",
+  "screen_type": "info",
+  "background": "chapters/01/quests/02/bg-class",
   "content": {
-    "text": "Hai il biglietto? Dobbiamo trovare il binario corretto."
+    "text": "Sei in Italia per un anno di scambio. Oggi è il tuo primo giorno al Liceo Galvani di Bologna. Lunedì mattina, ore 8:00. Entri in classe: gli studenti chiacchierano, qualcuno ti guarda con curiosità."
   }
 }

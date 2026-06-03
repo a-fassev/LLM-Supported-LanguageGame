@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { compareLeaderboardPlayers } from "@/lib/game/leaderboard-player-sort";
 import { toQuestProgressId } from "@/lib/game/quest-progress-id";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export type WalletTotals = {
   totalSlices: number;
@@ -213,6 +214,80 @@ export async function getCompletedQuestIds(accountId: string): Promise<string[] 
     ids.add(toQuestProgressId(chapterId, questId));
   }
   return [...ids];
+}
+
+export type GetSceneMaterializationResult =
+  | { ok: true; materializedTask: Record<string, unknown> | null }
+  | { ok: false };
+
+export async function getSceneMaterialization(
+  runId: string,
+  sceneId: string,
+): Promise<GetSceneMaterializationResult> {
+  const { data, error } = await admin()
+    .from("player_scene_materializations")
+    .select("materialized_task")
+    .eq("run_id", runId)
+    .eq("scene_id", sceneId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[game-repo] getSceneMaterialization", error);
+    return { ok: false };
+  }
+  const raw = (data as { materialized_task?: unknown } | null)?.materialized_task;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    return { ok: true, materializedTask: null };
+  }
+  return { ok: true, materializedTask: raw as Record<string, unknown> };
+}
+
+/** Inserts materialization only when none exists (avoids concurrent overwrite races). */
+export async function insertSceneMaterializationIfAbsent(
+  runId: string,
+  sceneId: string,
+  materializedTask: Record<string, unknown>,
+): Promise<boolean> {
+  const { error } = await admin().from("player_scene_materializations").insert({
+    run_id: runId,
+    scene_id: sceneId,
+    materialized_task: materializedTask,
+  });
+
+  if (error) {
+    if (error.code === "23505") return false;
+    console.error("[game-repo] insertSceneMaterializationIfAbsent", error);
+    return false;
+  }
+  return true;
+}
+
+export async function getRecentCompletedQuestRuns(
+  accountId: string,
+  limit = 5,
+): Promise<QuestRunRow[] | null> {
+  const { data, error } = await admin()
+    .from("player_quest_runs")
+    .select("id, account_id, chapter_id, quest_id, current_scene_id, status")
+    .eq("account_id", accountId)
+    .eq("status", "completed")
+    .order("completed_at", { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error("[game-repo] getRecentCompletedQuestRuns", error);
+    return null;
+  }
+  if (!data?.length) return [];
+
+  return data.map((row) => ({
+    runId: row.id as string,
+    accountId: row.account_id as string,
+    chapterId: row.chapter_id as string,
+    questId: row.quest_id as string,
+    currentSceneId: row.current_scene_id as string,
+    status: row.status as QuestRunStatus,
+  }));
 }
 
 export async function getCompletedSceneIds(runId: string): Promise<string[] | null> {
@@ -449,10 +524,7 @@ export async function listLeaderboardPlayerRows(
     });
   }
 
-  rows.sort((a, b) => {
-    if (b.totalSlices !== a.totalSlices) return b.totalSlices - a.totalSlices;
-    return a.username.localeCompare(b.username);
-  });
+  rows.sort(compareLeaderboardPlayers);
 
   return rows.slice(0, Math.max(1, limit));
 }

@@ -13,9 +13,17 @@ export const gameClientMessages = {
   runNotFound: "Partita non trovata.",
   activeRunExists: "Hai gia una partita in corso in un'altra missione.",
   questLocked: "Questa missione e ancora bloccata.",
+  questAlreadyCompleted: "Hai già completato questa missione.",
+  chapterLocked: "Questo capitolo non e ancora disponibile.",
   invalidSceneProgression: "Progressione scena non valida.",
   taskEvaluationNotImplemented: "Valutazione task non ancora disponibile.",
   taskMinRatioNotMet: "Non abbastanza risposte corrette per completare l'attivita.",
+  freitextAnswerEmpty: "Scrivi qualcosa prima di toccare Controlla.",
+  freitextPayloadInvalid: "Contenuto attività freitext non valido.",
+  llmNotConfigured: "Il valutatore non è disponibile. Riprova più tardi.",
+  modelTimedOut: "Il valutatore ha impiegato troppo tempo. Riprova.",
+  freitextEvaluatorError: "Il valutatore non è disponibile. Riprova.",
+  couldNotMaterializeMatching: "Impossibile preparare l'attività di abbinamento.",
 } as const;
 
 /** Auth screens (login/register) — learner-facing Italian. */

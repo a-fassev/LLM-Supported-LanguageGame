@@ -1,10 +1,10 @@
 # Web game UI architecture (high level)
 
-**Status:** v1 — **shell shipped** (2026-06-02). Product decisions **§10** locked. Routes under `app/(auth)/` and `app/(game)/`; shadcn primitives in `components/ui/`; **per-task-type renderers** still placeholders in `TaskPanel`.
+**Status:** v1 — **shell shipped** (2026-06-02). **Six task types** implemented (multiple choice, matching, drag_drop, free_text, error_spotting, cloze). Product decisions **§10** locked. Routes under `app/(auth)/` and `app/(game)/`; shadcn primitives in `components/ui/`; unknown `screen_type` values still use `TaskPlaceholder`.
 
 **Purpose:** Structure the React + shadcn UI for the browser game: directory layout, screen map, shared quest chrome, data flow with existing `/api/*` + Supabase, styling via `app/globals.css`, and Italian player copy.
 
-**Related docs:** `AGENTS.md` (state, errors, API), `.cursor/skills/product/SKILL.md` (learner UX), `docs/quest-scene-content-format.md` (content JSON), `docs/web-stack-setup-plan.md` (Tailwind v4 + shadcn init — done).
+**Related docs:** `AGENTS.md` (state, errors, API), `.cursor/skills/product/SKILL.md` (learner UX), `.cursor/skills/web-task-type-ui/SKILL.md` (how to add each task type), `docs/quest-scene-content-format.md` (content JSON), `docs/web-stack-setup-plan.md` (Tailwind v4 + shadcn init — done).
 
 ---
 
@@ -51,8 +51,8 @@
 
 ### Intentionally out of scope (initial UI work)
 
-- **Per-task-type renderers** (Cloze, DragDrop, Matching, Error spotting, Multiple choice, …) — **`TaskPanel` placeholder** only until a later pass.
-- **Freitext / LLM** — not in scope; no evaluate UI or loading states for LLM in this phase.
+- **Per-task-type renderers** — Implemented under `components/game/tasks/types/` for multiple choice, matching, drag_drop, free_text, error_spotting, and cloze (see **§5b** + **web-task-type-ui** skill). Unsupported `screen_type` values use **`TaskPlaceholder`**.
+- **Freitext / LLM** — implemented (`screen_type: "free_text"`, `components/game/tasks/types/free-text/`); Controlla blocks with loading copy while the server runs the judge.
 - Unity-specific `SpecialScreen*` — not ported unless content uses them on web.
 - **“First playable milestone”** end-to-end slice — planned separately later; this doc does not define that checklist.
 
@@ -72,6 +72,7 @@ app/
 ├── (game)/
 │   ├── layout.tsx                # optional: GameSessionProvider (client)
 │   ├── menu/page.tsx             # main menu
+│   ├── shop/page.tsx             # room shop shell (Negozio)
 │   ├── leaderboard/page.tsx
 │   ├── chapters/page.tsx         # chapter overview
 │   ├── chapters/[chapterId]/
@@ -102,12 +103,15 @@ components/
     │   ├── RegisterForm.tsx
     │   ├── MainMenuActions.tsx
     │   ├── LeaderboardView.tsx
+    │   ├── ShopView.tsx
     │   ├── ChapterGrid.tsx
     │   └── QuestList.tsx
     └── tasks/
         ├── TaskPanel.tsx         # dispatches by screen_type
-        └── types/                # one folder per task type (later)
-            └── TaskPlaceholder.tsx
+        ├── TaskBodyLayout.tsx    # shared prompt + fixed meta + scrollable exercise (all types)
+        ├── TaskPlaceholder.tsx
+        └── types/                # one folder per task type
+            └── multiple-choice/  # reference implementation
 
 lib/
 ├── api-client.ts                 # fetch + auth header + jsonOk/jsonError parse (to add)
@@ -115,7 +119,7 @@ lib/
 │   ├── session-context.tsx       # bearer token + account snapshot (client)
 │   ├── unlock-display.ts         # pure helpers: locked chapter/quest from bootstrap (display only)
 │   ├── quest-progress-id.ts      # chapterId:questId keys for completedQuestIds
-│   ├── scene-display.ts          # readTaskSceneTitle for play header
+│   ├── scene-display.ts          # readTaskSceneTitle, readTaskChromeInstructions, readTaskScenePrompt
 │   └── content/
 │       └── resolve-asset-url.ts  # background key → /public/content-assets/...
 ```
@@ -150,7 +154,8 @@ Shared layout: **`CenteredCard`** on **`GameBackground`** (static asset per scre
 | ------ | ---------------- | -------- | ---------------------- |
 | **Login** | `/login` | username, password, submit, link to register | Accedi, Nome utente, Password, Registrati |
 | **Register** | `/register` | generated username (read-only), regenerate, password ×2, submit, link to login | Registrati, Genera nome, Password, Ripeti password, Hai già un account? Accedi |
-| **Main menu** | `/menu` | play, leaderboard, logout | **Gioca** → `/chapters` always; Classifica, Esci |
+| **Main menu** | `/menu` | play, shop, leaderboard, logout | **Gioca** → `/chapters` always; Negozio, Classifica, Esci |
+| **Shop** | `/shop` | back, HUD (bootstrap), empty panel (room + catalog later) | Negozio, Indietro |
 | **Leaderboard** | `/leaderboard` | refresh, tabs overall/teams, back | Aggiorna, Individuale, Squadre, Indietro |
 | **Chapter overview** | `/chapters` | back, chapter grid, HUD optional | Capitoli, Indietro |
 | **Quest overview** | `/chapters/[chapterId]` | back, quest list, HUD | Missioni, Indietro |
@@ -163,11 +168,10 @@ Single route hosts **all scenes** for the active run. Sub-views:
 
 | Mode | `scene_type` | `screen_type` (examples) | Chrome |
 | ---- | ------------ | ------------------------- | ------ |
-| **Story — dialog** | `story` | `dialogue` | Text box center-bottom; **Pausa**; **Avanti** only (no back); no HUD |
-| **Story — interaction** | `story` | `info` | Full background; text box center-right; same nav |
+| **Story** | `story` | `info` | Full background; **StoryPanel** (text bottom); **Pausa**; **Indietro** (if `canRetreat`) + **Avanti**; no HUD |
 | **Task** | `task` | `cloze`, `multiple_choice`, … | HUD; optional **Documento**; instruction strip; **TaskPanel**; **Controlla**; then success overlay → **Avanti** |
 
-**Backgrounds:** `currentScene.background` from run snapshot (dynamic). Hub screens use fixed keys in code or a small `lib/game/hub-assets.ts` map.
+**Backgrounds:** `currentScene.background` from run snapshot (dynamic). Hub screens use fixed keys from `lib/game/content/hub-background-keys.ts`.
 
 ### 4.3 Overlays (shadcn `Dialog` or `Sheet`)
 
@@ -205,10 +209,39 @@ ASCII regions (all quest play modes):
 | **HUD** (pizza count, backpack %) | no | yes |
 | **Documento** | no | if `referenceDocument` in content |
 | Bottom navigation | **Indietro** (if `canRetreat`) + **Avanti** → `retreat` / `advance` | **Indietro** + **Controlla** → `retreat` / `attempt`; overlay **Avanti** after success |
-| Center panel | `StoryPanel` variant `dialog` \| `interaction` | `TaskChrome` wraps instructions + `TaskPanel`; task **title** in `GameShellHeader` (`readTaskSceneTitle`) |
+| Center panel | `StoryPanel` (single layout) | `TaskChrome` wraps instructions + `TaskPanel`; task **title** in `GameShellHeader` (`readTaskSceneTitle`) |
 | Hub lists | `ChapterGrid` / `QuestList` as **`<button>`** rows (keyboard + disabled when locked) | — |
 
 **CSS:** `GameBackground` uses `h-dvh`; outer **`game-shell-inset`** (`--game-shell-padding`); inner panels use **`game-panel`** + **`game-panel-inset`** (`--game-panel-padding`). Define translucent panel look once in `globals.css` (`--game-panel-bg`, spacing tokens).
+
+### 5b. Task body layout (all task types)
+
+Every task scene uses the same **copy + scroll contract**. Implement new types inside this frame; do not fork a second instruction strip or prompt box.
+
+| Region | Source (JSON) | Component | Style | Scroll |
+| ------ | ------------- | --------- | ----- | ------ |
+| Play header title | `content.title` | `GameShellHeader` | Hub title styles; **single line + ellipsis** | — |
+| Instruction | `content.instruction` | `TaskChrome` | `TASK_PLAY_INSTRUCTION_TEXT` (**semibold**) | No (fixed) |
+| Prompt | `content.task.prompt` or per-item field (e.g. MC `questions[i].prompt`) | `TaskBodyLayout` | `TASK_PLAY_PROMPT_TEXT` (normal) | No (fixed) |
+| Meta | — (validation, progress, hints) | `TaskBodyLayout` `beforeScroll` | `TASK_PLAY_META_TEXT` | No |
+| Exercise | Type-specific widgets | `TaskBodyLayout` children | `TASK_PLAY_BODY_TEXT` (e.g. option labels) | **Yes** (overflow only here) |
+| Actions | — | `TaskChrome` footer | **Indietro** + **Controlla** / **Avanti** | No (fixed) |
+
+```text
+TaskChrome
+├── instruction (scene)
+├── TaskBodyLayout
+│   ├── prompt (task / per question)
+│   ├── beforeScroll (errors, "Domanda 1 di N", …)
+│   └── [scroll] exercise UI
+└── footer: Indietro | Controlla / Avanti
+```
+
+**Helpers:** `lib/game/scene-display.ts` (`readTaskSceneTitle`, `readTaskSceneInstruction`, `readTaskChromeInstructions`, `readTaskScenePrompt`).
+
+**Adding a task type:** Follow **`.cursor/skills/web-task-type-ui/SKILL.md`** (methodology: understand → clarify → code; phases: schema/catalog → UI → play submit → docs/tests). **Reference:** `components/game/tasks/types/multiple-choice/` + `lib/game/tasks/multiple-choice/`. Content contracts: `docs/quest-scene-content-format.md` (§5.2 + task-specific subsections).
+
+**Multi-step tasks (e.g. MC `questions[]`):** Reuse shell **Avanti** / **Indietro** for item navigation (`SceneRouter` + `lib/game/tasks/multiple-choice/mc-question-nav.ts` as pattern); validate all items on final **Controlla**.
 
 ---
 
@@ -338,7 +371,7 @@ Extend existing shadcn tokens with **game layer** (names illustrative):
 - Quest shell: full viewport; panels use shared `.game-panel`.
 - Team colours (leaderboard): `--team-blue`, `--team-red` in `@theme` — do not hardcode in components.
 
-**Background component:** `GameBackground` applies `background-image` from resolved URL; `object-fit: cover` on a fixed full-screen layer behind content.
+**Background component:** `GameBackground` (client) preloads assets, crossfades between layers on key change, and uses `object-cover` full-viewport images with CSS gradient fallback. Auth hosts one shared instance in `app/(auth)/layout.tsx`; play uses `QuestShell` + optional `run.nextSceneBackground` preload.
 
 ---
 
@@ -360,7 +393,7 @@ Extend existing shadcn tokens with **game layer** (names illustrative):
 - **Decision:** Story scenes have **no «Indietro»** (no previous scene) in v1.
 - **Only «Avanti»** calls `POST …/advance` and moves the run forward on the server.
 - **Why:** Going back would need a new API or risks UI/server mismatch. Re-reading is still possible by staying on the same scene until the player taps **Avanti**.
-- **Hub screens** (menu, chapters, quest list, leaderboard) keep **Indietro** for normal page back navigation.
+- **Hub screens** (menu, chapters, quest list, shop, leaderboard) keep **Indietro** for normal page back navigation.
 
 ### 10.4 Task success / retry overlay (locked)
 
@@ -393,6 +426,18 @@ Extend existing shadcn tokens with **game layer** (names illustrative):
 - Optional secondary line: percent correct from `ratio` on retry.
 - **success:** primary button **Avanti** → close overlay; render `run` from the same response (next scene).
 - **retry:** primary **Riprova** → close overlay; keep task draft.
+
+**Visible scene while overlay is open:** The attempt response may already advance `run.currentScene` on the server. `/play` keeps the **completed** scene visible until dismiss:
+
+| Hold | State | Purpose |
+| ---- | ----- | ------- |
+| Background | `backgroundHoldKey` | Crossfade stays on completed scene art (not next scene’s `background`). |
+| Chrome | `chromeHoldScene` → `displayScene` | Header title, `TaskPanel`, documento, MC question index match the **submitted** scene — not the next task behind the dialog. |
+| Drafts | `pendingDraftSyncSceneRef` | Defer `syncTaskDraftsForScene` until overlay closes so the player does not see empty inputs for the next scene. |
+
+Apply the same chrome + background hold when **quest complete** opens the overlay (`onAdvanceStory`). **Retry (409):** no draft sync — answers stay on screen.
+
+Implementation: `app/(game)/play/page.tsx` (`dismissSuccessOverlay` flushes pending draft sync). Reuse this pattern for any overlay shown while the server has already advanced the run.
 
 **Copy changes:** Edit `task-outcome-messages.ts` only (not scattered strings in components). Current examples:
 
@@ -434,12 +479,13 @@ sequenceDiagram
 - **Gate:** Layout or middleware redirects unauthenticated users to `/login`; game routes attach `Authorization: Bearer …` via `lib/api-client.ts`.
 - **Out of scope v1:** Cookie-based session, refresh tokens, “remember me”.
 
-### 10.7 Task types and Freitext (locked — later)
+### 10.7 Task types and Freitext
 
-- **Decision:** Build **shell** (quest play, Controlla, success/retry overlay, documento, pause) first; **do not** implement individual task UIs or LLM in the same pass.
-- **`TaskPanel`:** single placeholder (e.g. “Attività in arrivo” + minimal stub attempt if needed for server-tested scenes).
-- **Content:** Scenes with unsupported `screen_type` may return `task_eval_not_implemented` — show inline Italian message from `clientMessages`, not a toast.
-- **Freitext / LLM:** excluded until a dedicated milestone; no `/evaluate` client, no “checking…” UX yet.
+- **Shell (done):** Quest play, Controlla, success/retry overlay, documento, pause, shared **TaskChrome** + **TaskBodyLayout** (§5b).
+- **Per-type UI:** Roll out one `screen_type` at a time using **`.cursor/skills/web-task-type-ui/SKILL.md`**. **Multiple choice** is the reference implementation (2026-06-03).
+- **Placeholder:** Unsupported `screen_type`s still render `TaskPlaceholder` inside `TaskBodyLayout` (optional flat `task.prompt`).
+- **Server:** Unsupported **scored** types may return `task_eval_not_implemented` — inline Italian from `clientMessages`, not a toast.
+- **Freitext / LLM:** `FreeTextTask` + play-page draft; attempt POST runs `evaluateFreitextLlmScene` server-side; retry overlay shows LLM `summaryFeedback` (success overlay stays generic).
 
 ---
 
@@ -457,12 +503,13 @@ sequenceDiagram
 | ----- | ----------- |
 | **P0** | shadcn: button, input, label, card, dialog, tabs, scroll-area; game tokens in `globals.css`; `lib/api-client.ts` + session provider |
 | **P1** | Auth screens (login/register) + session gate |
-| **P2** | Main menu, leaderboard, static backgrounds |
+| **P2** | Main menu, shop shell, leaderboard, static backgrounds |
 | **P3** | Chapter + quest overview; bootstrap-driven grid/list; HUD on hubs |
 | **P4** | `/play` shell: snapshot, start run, story scenes + advance |
 | **P5** | Task shell: Controlla → attempt, `SuccessOverlay` from `taskOutcome`, documento; `TaskPlaceholder` |
 | **P6** | Pause overlay + exit paths; Sonner for fatal errors |
-| **P7+** | Per-task-type components under `components/game/tasks/types/*` (Freitext/LLM last or separate) |
+| **P7** | Multiple choice (`TaskBodyLayout` + MC renderer) — **done** |
+| **P7+** | Remaining types under `components/game/tasks/types/*` via **web-task-type-ui** skill (matching, drag_drop, **free_text** done; cloze, error_spotting, …) |
 
 Each phase: Italian copy, one layout primitive reused, no new global stores. Phases are **technical building blocks**, not the deferred “playable milestone” checklist.
 
@@ -476,6 +523,7 @@ Each phase: Italian copy, one layout primitive reused, no new global stores. Pha
 | Register | Registrati |
 | Logout | Esci |
 | Play | Gioca |
+| Shop | Negozio |
 | Leaderboard | Classifica |
 | Refresh | Aggiorna |
 | Individual / Team | Individuale / Squadre |
@@ -499,15 +547,18 @@ Content strings (`content.text`, task prompts) come from JSON — already Italia
 
 | Screen | Background source |
 | ------ | ------------------- |
-| Login, Register, Main menu | Static keys in code (e.g. `hubs/menu-bg`) → resolver; **gradient fallback** until files exist |
-| Chapter overview | Same pattern; tile art optional later |
+| Login, Register | Shared `GameBackground` in `app/(auth)/layout.tsx`; key from `authBackgroundKeyForPath()`; both auth PNGs preloaded via `authBackgroundPreloadKeys` |
+| Main menu, chapters, shop, leaderboard | Shared `HubBackgroundHost` in `app/(game)/layout.tsx` via `useRegisterHubBackground` on each page/`HubPage` |
+| Chapter overview | Pass `backgroundKey` / `preloadAssetKeys` to `HubPage` when art exists |
 | Quest overview | Dynamic key from catalog/quest when available; fallback gradient |
-| Story / Task scenes | `run.currentScene.background` from content JSON → resolver; fallback gradient |
+| Story / Task scenes | `run.currentScene.background` from snapshot; `run.nextSceneBackground` preloads the next catalog scene |
 
-Single resolver function (`resolveAssetUrl(key)`) returns a public URL or `null` (trigger CSS fallback in `GameBackground`).
+Single resolver (`resolveAssetUrl`) + preload helper (`preloadAssetUrl`). See `docs/background-transitions-qa.md` for manual QA.
 
-**Until assets exist:** Do not block UI on missing images; hubs and play should look intentional with tokens only.
+**Until assets exist:** Do not block UI on missing images; hubs and play should look intentional with tokens only. Auth login/register PNGs live under `public/content-assets/hubs/auth/` (see `public/content-assets/README.md`).
 
 ---
 
-*Next step:* Expand **§5** (exact layout tokens) and **§4.2** (per `screen_type` content field bindings), or a separate implementation todo doc. **§10** product/tech choices are locked; playable milestone checklist is **not** in this file.
+*Changelog:* 2026-06-03 — §5b task body layout + **web-task-type-ui** skill link; MC marked shipped; §10.7 / P7 updated.
+
+*Next step:* Implement next `screen_type` using **`.cursor/skills/web-task-type-ui/SKILL.md`**. **§10** product/tech choices are locked; playable milestone checklist is **not** in this file.

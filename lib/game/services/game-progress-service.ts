@@ -12,6 +12,12 @@ import {
   updateQuestRunPosition,
   type QuestRunRow,
 } from "@/lib/game/repositories/game-progress-repository";
+import {
+  isChapterManuallyLocked,
+  isQuestProgressionLockedForAccount,
+} from "@/lib/game/quest-progression-lock";
+import { isQuestCompleted } from "@/lib/game/unlock-display";
+import { resolveCatalogSceneForRun } from "@/lib/game/tasks/matching/resolve-matching-scene-task";
 import { gameClientMessages as msg } from "@/lib/game/clientMessages";
 import {
   findCatalogScene,
@@ -20,26 +26,17 @@ import {
   type CatalogScene,
   type ContentCatalog,
 } from "@/lib/game/content/catalog-loader";
-import { meetsScoredPizzaMinimum, parsePizzaRewardRules, slicesFromRatio } from "@/lib/game/scoring/pizzaReward";
+import { sanitizeSceneContentForClient } from "@/lib/game/content/sanitize-task-payload-for-client";
+import { parsePizzaRewardRules, slicesFromRatio } from "@/lib/game/scoring/pizzaReward";
+import { meetsTaskSceneCompletionMinimum } from "@/lib/game/tasks/freitext/meets-freitext-completion-minimum";
 import { evaluateTaskAttempt } from "@/lib/game/scoring/evaluateTaskAttempt";
+import { isGameFinaleCatalogQuest } from "@/lib/game/game-finale";
 import { buildTaskOutcome, type TaskOutcomeDto } from "@/lib/game/task-outcome-messages";
-import { toQuestProgressId } from "@/lib/game/quest-progress-id";
+import { buildFreitextRetryTaskOutcome } from "@/lib/game/tasks/freitext/build-freitext-retry-task-outcome";
+import { evaluateFreitextLlmScene } from "@/lib/game/tasks/freitext/evaluate-freitext-llm-scene";
+import type { BootstrapChapterDto, BootstrapQuestDto } from "@/lib/api-client";
 
-export type BootstrapQuestDto = {
-  id: string;
-  title: string;
-  order: number;
-  kind: "main" | "bonus";
-  requiresQuestId: string | null;
-  autoStartQuestId: string | null;
-};
-
-export type BootstrapChapterDto = {
-  id: string;
-  title: string;
-  order: number;
-  quests: BootstrapQuestDto[];
-};
+export type { BootstrapChapterDto, BootstrapQuestDto };
 
 export type BootstrapResult =
   | {
@@ -57,46 +54,20 @@ function toBootstrapChapters(): Promise<BootstrapChapterDto[]> {
       id: chapter.id,
       title: chapter.title,
       order: chapter.order,
+      locked: chapter.locked,
+      reference: chapter.reference,
+      gameFinale: chapter.gameFinale ?? false,
+      background: chapter.background,
       quests: chapter.questsExpanded.map((quest) => ({
         id: quest.id,
         title: quest.title,
         order: quest.order,
         kind: quest.kind,
         requiresQuestId: quest.requiresQuestId,
-        autoStartQuestId: quest.autoStartQuestId,
+        background: quest.background,
       })),
     })),
   );
-}
-
-function isQuestLockedForAccount(
-  catalog: ContentCatalog,
-  chapterId: string,
-  questId: string,
-  completedQuestIds: Set<string>,
-): boolean {
-  const chapterIndex = catalog.chapters.findIndex((chapter) => chapter.id === chapterId);
-  if (chapterIndex < 0) return true;
-  if (chapterIndex > 0) {
-    const previousChapter = catalog.chapters[chapterIndex - 1];
-    const requiredMainQuestProgressIds = previousChapter.questsExpanded
-      .filter((quest) => quest.kind !== "bonus")
-      .map((quest) => toQuestProgressId(previousChapter.id, quest.id));
-    const previousChapterComplete = requiredMainQuestProgressIds.every((requiredQuestProgressId) =>
-      completedQuestIds.has(requiredQuestProgressId),
-    );
-    if (!previousChapterComplete) return true;
-  }
-
-  const quest = findCatalogQuest(catalog, chapterId, questId);
-  if (!quest) return true;
-  if (
-    quest.requiresQuestId &&
-    !completedQuestIds.has(toQuestProgressId(chapterId, quest.requiresQuestId))
-  ) {
-    return true;
-  }
-  return false;
 }
 
 export async function bootstrapGameState(accountId: string): Promise<BootstrapResult> {
@@ -152,6 +123,8 @@ export type RunSnapshotDto = {
   completedSceneIds: string[];
   canRetreat: boolean;
   currentScene: RunSceneDto;
+  /** Background key of the next catalog scene, when one exists (for client preload). */
+  nextSceneBackground: string | null;
 };
 
 export type RunSnapshotResult =
@@ -173,16 +146,39 @@ export type RunSnapshotResult =
 
 type BuildSnapshotOptions = {
   includeWallet?: boolean;
+  catalog?: ContentCatalog;
 };
 
+function runBlockedByChapterLock(
+  catalog: ContentCatalog,
+  chapterId: string,
+  questId: string,
+): RunSnapshotResult {
+  return {
+    ok: false,
+    status: 409,
+    error: msg.chapterLocked,
+    code: "chapter_locked",
+    details: { chapterId, questId },
+  };
+}
+
+async function loadCatalogForRun(): Promise<ContentCatalog | null> {
+  return loadContentCatalog().catch((error) => {
+    console.error("[game-service] catalog load", error);
+    return null;
+  });
+}
+
 function sceneToDto(scene: CatalogScene): RunSceneDto {
+  const rawContent = scene.content as Record<string, unknown>;
   return {
     id: scene.id,
     sceneNumber: scene.sceneNumber,
     scene_type: scene.scene_type,
     screen_type: scene.screen_type,
     background: scene.background,
-    content: scene.content as Record<string, unknown>,
+    content: sanitizeSceneContentForClient(scene.scene_type, scene.screen_type, rawContent),
     ...(scene.scene_type === "task" ? { scoring: scene.scoring as Record<string, unknown> } : {}),
   };
 }
@@ -205,20 +201,33 @@ async function buildSnapshotFromRun(
     };
   }
 
-  const catalog = await loadContentCatalog().catch((error) => {
-    console.error("[game-service] run snapshot catalog", error);
-    return null;
-  });
+  const catalog =
+    options?.catalog ??
+    (await loadCatalogForRun());
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
 
-  const scene = findCatalogScene(catalog, run.chapterId, run.questId, run.currentSceneId);
-  if (!scene) {
+  if (run.status === "in_progress" && isChapterManuallyLocked(catalog, run.chapterId)) {
+    return runBlockedByChapterLock(catalog, run.chapterId, run.questId);
+  }
+
+  const catalogScene = findCatalogScene(catalog, run.chapterId, run.questId, run.currentSceneId);
+  if (!catalogScene) {
     return {
       ok: false,
       status: 500,
       error: msg.couldNotLoadRun,
       code: "scene_missing",
       details: { runId: run.runId, sceneId: run.currentSceneId },
+    };
+  }
+
+  const scene = await resolveCatalogSceneForRun(run.runId, catalogScene);
+  if (!scene) {
+    return {
+      ok: false,
+      status: 500,
+      error: msg.couldNotMaterializeMatching,
+      code: "materialization_failed",
     };
   }
 
@@ -237,7 +246,9 @@ async function buildSnapshotFromRun(
       status: run.status,
       completedSceneIds,
       canRetreat,
+      isGameFinaleQuest: isGameFinaleCatalogQuest(catalog, run.chapterId, run.questId),
       currentScene: sceneToDto(scene),
+      nextSceneBackground: quest ? nextSceneBackgroundInQuest(scene, quest.scenes) : null,
     },
   };
 }
@@ -245,6 +256,7 @@ async function buildSnapshotFromRun(
 export async function getRunSnapshot(accountId: string): Promise<RunSnapshotResult> {
   const ensured = await ensureWalletRow(accountId);
   if (!ensured) return { ok: false, status: 500, error: msg.couldNotLoadWallet };
+
   const run = await getActiveQuestRun(accountId);
   return buildSnapshotFromRun(accountId, run);
 }
@@ -272,13 +284,38 @@ export async function startOrResumeRun(
         },
       };
     }
-    return buildSnapshotFromRun(accountId, existingRun);
+    const resumeCatalog = await loadCatalogForRun();
+    if (!resumeCatalog) {
+      return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
+    }
+    if (isChapterManuallyLocked(resumeCatalog, existingRun.chapterId)) {
+      return runBlockedByChapterLock(resumeCatalog, existingRun.chapterId, existingRun.questId);
+    }
+    const resumeCompletedQuestIds = await getCompletedQuestIds(accountId);
+    if (resumeCompletedQuestIds === null) {
+      return { ok: false, status: 500, error: msg.couldNotLoadRun };
+    }
+    const resumeQuest = findCatalogQuest(
+      resumeCatalog,
+      existingRun.chapterId,
+      existingRun.questId,
+    );
+    if (
+      resumeQuest &&
+      isQuestCompleted(existingRun.chapterId, resumeQuest, new Set(resumeCompletedQuestIds))
+    ) {
+      return {
+        ok: false,
+        status: 409,
+        error: msg.questAlreadyCompleted,
+        code: "quest_already_completed",
+        details: { chapterId: existingRun.chapterId, questId: existingRun.questId },
+      };
+    }
+    return buildSnapshotFromRun(accountId, existingRun, { catalog: resumeCatalog });
   }
 
-  const catalog = await loadContentCatalog().catch((error) => {
-    console.error("[game-service] start run catalog", error);
-    return null;
-  });
+  const catalog = await loadCatalogForRun();
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
 
   const quest = findCatalogQuest(catalog, chapterId, questId);
@@ -295,7 +332,10 @@ export async function startOrResumeRun(
   if (completedQuestIds === null) {
     return { ok: false, status: 500, error: msg.couldNotLoadRun };
   }
-  if (isQuestLockedForAccount(catalog, chapterId, questId, new Set(completedQuestIds))) {
+  if (isChapterManuallyLocked(catalog, chapterId)) {
+    return runBlockedByChapterLock(catalog, chapterId, questId);
+  }
+  if (isQuestProgressionLockedForAccount(catalog, chapterId, questId, new Set(completedQuestIds))) {
     return {
       ok: false,
       status: 409,
@@ -308,12 +348,24 @@ export async function startOrResumeRun(
       },
     };
   }
+  if (isQuestCompleted(chapterId, quest, new Set(completedQuestIds))) {
+    return {
+      ok: false,
+      status: 409,
+      error: msg.questAlreadyCompleted,
+      code: "quest_already_completed",
+      details: { chapterId, questId },
+    };
+  }
   const firstScene = quest.scenes[0];
   const created = await createQuestRun(accountId, chapterId, questId, firstScene.id);
   if (!created) {
     const racedRun = await getActiveQuestRun(accountId);
     if (racedRun?.chapterId === chapterId && racedRun.questId === questId) {
-      return buildSnapshotFromRun(accountId, racedRun);
+      if (isChapterManuallyLocked(catalog, racedRun.chapterId)) {
+        return runBlockedByChapterLock(catalog, racedRun.chapterId, racedRun.questId);
+      }
+      return buildSnapshotFromRun(accountId, racedRun, { catalog });
     }
     if (racedRun) {
       return {
@@ -330,12 +382,17 @@ export async function startOrResumeRun(
     }
     return { ok: false, status: 500, error: msg.couldNotStartRun };
   }
-  return buildSnapshotFromRun(accountId, created);
+  return buildSnapshotFromRun(accountId, created, { catalog });
 }
 
 function nextSceneIdInQuest(scene: CatalogScene, questScenes: CatalogScene[]): string | null {
   const next = questScenes.find((s) => s.sceneNumber === scene.sceneNumber + 1);
   return next?.id ?? null;
+}
+
+function nextSceneBackgroundInQuest(scene: CatalogScene, questScenes: CatalogScene[]): string | null {
+  const next = questScenes.find((s) => s.sceneNumber === scene.sceneNumber + 1);
+  return next?.background ?? null;
 }
 
 function previousSceneIdInQuest(scene: CatalogScene, questScenes: CatalogScene[]): string | null {
@@ -358,6 +415,10 @@ export async function retreatRunScene(
 
   const catalog = await loadContentCatalog().catch(() => null);
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
+
+  if (isChapterManuallyLocked(catalog, run.chapterId)) {
+    return runBlockedByChapterLock(catalog, run.chapterId, run.questId);
+  }
 
   const quest = findCatalogQuest(catalog, run.chapterId, run.questId);
   const scene = findCatalogScene(catalog, run.chapterId, run.questId, sceneId);
@@ -409,6 +470,11 @@ export async function advanceStoryScene(
 
   const catalog = await loadContentCatalog().catch(() => null);
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
+
+  if (isChapterManuallyLocked(catalog, run.chapterId)) {
+    return runBlockedByChapterLock(catalog, run.chapterId, run.questId);
+  }
+
   const scene = findCatalogScene(catalog, run.chapterId, run.questId, sceneId);
   if (!scene || scene.scene_type !== "story") {
     return { ok: false, status: 400, error: msg.invalidSceneProgression, code: "scene_not_story" };
@@ -451,8 +517,26 @@ export async function completeTaskScene(
 
   const catalog = await loadContentCatalog().catch(() => null);
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
-  const scene = findCatalogScene(catalog, run.chapterId, run.questId, sceneId);
-  if (!scene || scene.scene_type !== "task") {
+
+  if (isChapterManuallyLocked(catalog, run.chapterId)) {
+    return runBlockedByChapterLock(catalog, run.chapterId, run.questId);
+  }
+
+  const catalogScene = findCatalogScene(catalog, run.chapterId, run.questId, sceneId);
+  if (!catalogScene || catalogScene.scene_type !== "task") {
+    return { ok: false, status: 400, error: msg.invalidSceneProgression, code: "scene_not_task" };
+  }
+
+  const scene = await resolveCatalogSceneForRun(runId, catalogScene);
+  if (!scene) {
+    return {
+      ok: false,
+      status: 500,
+      error: msg.couldNotMaterializeMatching,
+      code: "materialization_failed",
+    };
+  }
+  if (scene.scene_type !== "task") {
     return { ok: false, status: 400, error: msg.invalidSceneProgression, code: "scene_not_task" };
   }
 
@@ -466,30 +550,73 @@ export async function completeTaskScene(
   };
 
   const smokeAutoPass = process.env.GAME_SMOKE_AUTO_PASS === "true";
+  const skipEval = smokeAutoPass;
   let ratio = 1;
-  if (!smokeAutoPass && pizzaRules.kind !== "flat") {
-    const attemptTaskType = taskTypeMap[scene.screen_type];
-    if (!attemptTaskType) {
-      return { ok: false, status: 501, error: msg.taskEvaluationNotImplemented, code: "task_eval_not_implemented" };
+  let freitextRetryFeedback: { summaryFeedback: string; nextStepAdvice?: string } | null = null;
+
+  const shouldEvaluateTask =
+    !skipEval && (scene.screen_type === "free_text" || pizzaRules.kind !== "flat");
+
+  if (shouldEvaluateTask) {
+    if (scene.screen_type === "free_text") {
+      const evaluated = await evaluateFreitextLlmScene(
+        {
+          task: scene.content.task as Record<string, unknown>,
+          instruction: scene.content.instruction,
+          referenceDocument: scene.content.referenceDocument,
+        },
+        options?.attemptPayload,
+      );
+      if (!evaluated.ok) {
+        return { ok: false, status: evaluated.status, error: evaluated.error, code: evaluated.code };
+      }
+      ratio = evaluated.ratio;
+      freitextRetryFeedback = evaluated.feedback;
+    } else {
+      const attemptTaskType = taskTypeMap[scene.screen_type];
+      if (!attemptTaskType) {
+        return { ok: false, status: 501, error: msg.taskEvaluationNotImplemented, code: "task_eval_not_implemented" };
+      }
+      const evaluated = evaluateTaskAttempt(
+        attemptTaskType,
+        scene.content.task as Record<string, unknown>,
+        options?.attemptPayload,
+      );
+      if (!evaluated.ok) {
+        return { ok: false, status: evaluated.status, error: evaluated.error, code: evaluated.code };
+      }
+      ratio = Math.max(0, Math.min(1, evaluated.ratio));
     }
-    const evaluated = evaluateTaskAttempt(
-      attemptTaskType,
-      scene.content.task as Record<string, unknown>,
-      options?.attemptPayload,
-    );
-    if (!evaluated.ok) {
-      return { ok: false, status: evaluated.status, error: evaluated.error, code: evaluated.code };
-    }
-    ratio = Math.max(0, Math.min(1, evaluated.ratio));
   }
 
-  if (!meetsScoredPizzaMinimum(ratio, pizzaRules)) {
-    const taskOutcome = buildTaskOutcome({
-      passed: false,
+  if (
+    !meetsTaskSceneCompletionMinimum({
       ratio,
-      awardedSlices: 0,
-      awardedBackpackPieces: 0,
-    });
+      screenType: scene.screen_type,
+      pizzaRules,
+      taskPayload:
+        scene.screen_type === "free_text"
+          ? (scene.content.task as Record<string, unknown>)
+          : undefined,
+      sceneInstruction:
+        scene.screen_type === "free_text"
+          ? (scene.content.instruction as string | undefined)
+          : undefined,
+    })
+  ) {
+    const taskOutcome =
+      scene.screen_type === "free_text" && freitextRetryFeedback
+        ? buildFreitextRetryTaskOutcome({
+            ratio,
+            summaryFeedback: freitextRetryFeedback.summaryFeedback,
+            nextStepAdvice: freitextRetryFeedback.nextStepAdvice,
+          })
+        : buildTaskOutcome({
+            passed: false,
+            ratio,
+            awardedSlices: 0,
+            awardedBackpackPieces: 0,
+          });
     return {
       ok: false,
       status: 409,
@@ -530,11 +657,13 @@ export async function completeTaskScene(
   const snapshot = await buildSnapshotFromRun(accountId, updatedRun);
   if (!snapshot.ok) return snapshot;
 
+  const walletAwarded = completion.inserted;
   const taskOutcome = buildTaskOutcome({
     passed: true,
     ratio,
-    awardedSlices,
-    awardedBackpackPieces: awardedBackpack,
+    awardedSlices: walletAwarded ? awardedSlices : 0,
+    awardedBackpackPieces: walletAwarded ? awardedBackpack : 0,
+    rewardsAlreadyClaimed: !walletAwarded,
   });
   return { ...snapshot, taskOutcome };
 }

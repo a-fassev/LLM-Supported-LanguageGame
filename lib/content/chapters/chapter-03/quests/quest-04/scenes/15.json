@@ -1,0 +1,146 @@
+{
+  "id": "chapter-03-quest-04-scene-15",
+  "scene_type": "task",
+  "screen_type": "drag_drop",
+  "background": "chapters/03/quests/04/bg-piazza-cioccoshow",
+  "content": {
+    "title": "Made in Italy: i prodotti delle città",
+    "instruction": "Trascina ogni prodotto dalla rivista sulla città da cui viene. Se un prodotto non è italiano, trascinalo nel campo „Non italiano\". Usa la rivista se ti serve.",
+    "referenceDocument": {
+      "title": "Made in Italy — I prodotti delle nostre città",
+      "body": "Made in Italy — I prodotti delle nostre città\n\nConoscete il vero Made in Italy? Attenzione: alcuni „classici italiani\" che troverete all'estero non sono italiani per niente!\n\nTorino (Piemonte)\n\n• Il gianduiotto: il cioccolatino più famoso d'Italia, fatto con cacao, zucchero e nocciole piemontesi.\n\n• La FIAT 500: la macchina simbolo dell'Italia, prodotta dalla FIAT (fondata a Torino nel 1899).\n\n• Il „Pinguino\": il primo gelato al mondo su stecco ricoperto di cioccolato, inventato nel 1939.\n\nBologna (Emilia-Romagna)\n\n• I tortellini: piccola pasta ripiena, simbolo della cucina bolognese.\n\n• Il ragù alla bolognese: la vera salsa di carne per le tagliatelle (mai con gli spaghetti!).\n\n• La mortadella: il salume rosa più famoso d'Italia.\n\nAlba (Piemonte)\n\n• La Nutella: la crema al cioccolato e nocciole, prodotta dalla Ferrero dal 1964.\n\nNapoli (Campania)\n\n• La pizza Margherita: la vera pizza napoletana, con pomodoro, mozzarella di bufala e basilico.\n\nParma (Emilia-Romagna)\n\n• Il parmigiano reggiano: il „re dei formaggi\".\n\n• Il prosciutto di Parma: stagionato per almeno 12 mesi.\n\n⚠ Attenzione! NON sono italiani:\n\n• Spaghetti Bolognese: non esistono in Italia! In Emilia-Romagna il ragù si serve con le tagliatelle.\n\n• Caesar Salad: nasce in Messico negli anni '20.\n\n• Hawaiian Pizza (con ananas): inventata in Canada nel 1962."
+    },
+    "task": {
+      "prompt": "Trascina ogni prodotto dalla rivista sulla città da cui viene. Se un prodotto non è italiano, trascinalo nel campo „Non italiano\".",
+      "presentation": {
+        "targetMode": "blocks"
+      },
+      "shuffleItemOrder": true,
+      "items": [
+        {
+          "id": "gianduiotto",
+          "label": "il gianduiotto"
+        },
+        {
+          "id": "fiat500",
+          "label": "la FIAT 500"
+        },
+        {
+          "id": "pinguino",
+          "label": "il Pinguino (gelato su stecco)"
+        },
+        {
+          "id": "tortellini",
+          "label": "i tortellini"
+        },
+        {
+          "id": "ragu",
+          "label": "il ragù alla bolognese"
+        },
+        {
+          "id": "mortadella",
+          "label": "la mortadella"
+        },
+        {
+          "id": "nutella",
+          "label": "la Nutella"
+        },
+        {
+          "id": "pizza-margherita",
+          "label": "la pizza Margherita"
+        },
+        {
+          "id": "parmigiano",
+          "label": "il parmigiano reggiano"
+        },
+        {
+          "id": "prosciutto-parma",
+          "label": "il prosciutto di Parma"
+        },
+        {
+          "id": "spaghetti-bolognese",
+          "label": "gli spaghetti bolognese"
+        },
+        {
+          "id": "caesar-salad",
+          "label": "la Caesar Salad"
+        },
+        {
+          "id": "pizza-hawaiana",
+          "label": "la pizza hawaiana (con ananas)"
+        }
+      ],
+      "targets": [
+        {
+          "id": "torino",
+          "title": "Torino",
+          "matchMode": "all",
+          "correctItemIds": [
+            "gianduiotto",
+            "fiat500",
+            "pinguino"
+          ]
+        },
+        {
+          "id": "bologna",
+          "title": "Bologna",
+          "matchMode": "all",
+          "correctItemIds": [
+            "tortellini",
+            "ragu",
+            "mortadella"
+          ]
+        },
+        {
+          "id": "alba",
+          "title": "Alba",
+          "matchMode": "all",
+          "correctItemIds": [
+            "nutella"
+          ]
+        },
+        {
+          "id": "napoli",
+          "title": "Napoli",
+          "matchMode": "all",
+          "correctItemIds": [
+            "pizza-margherita"
+          ]
+        },
+        {
+          "id": "parma",
+          "title": "Parma",
+          "matchMode": "all",
+          "correctItemIds": [
+            "parmigiano",
+            "prosciutto-parma"
+          ]
+        },
+        {
+          "id": "non-italiano",
+          "title": "Non italiano",
+          "matchMode": "all",
+          "correctItemIds": [
+            "spaghetti-bolognese",
+            "caesar-salad",
+            "pizza-hawaiana"
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.69,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

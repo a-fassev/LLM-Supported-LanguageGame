@@ -1,0 +1,12 @@
+{
+  "id": "chapter-00",
+  "title": "Area di prova (team)",
+  "order": 0,
+  "reference": true,
+  "quests": [
+    "quest-01",
+    "quest-02",
+    "quest-01-bonus"
+  ],
+  "background": "chapters/00/chapter/bg-missions"
+}

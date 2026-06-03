@@ -1,0 +1,103 @@
+{
+  "id": "chapter-05-quest-03-scene-04",
+  "scene_type": "task",
+  "screen_type": "drag_drop",
+  "background": "chapters/05/quests/03/bg-caffe-giardini",
+  "content": {
+    "title": "Pro e contro",
+    "instruction": "Trascina ogni affermazione nella casella giusta (Lucca PRO / Lucca CONTRO / Firenze PRO / Firenze CONTRO).",
+    "task": {
+      "prompt": "Trascina le otto affermazioni nei campi Lucca PRO / Lucca CONTRO / Firenze PRO / Firenze CONTRO.",
+      "presentation": {
+        "targetMode": "blocks"
+      },
+      "shuffleItemOrder": true,
+      "items": [
+        {
+          "id": "card-1",
+          "label": "Il pacchetto scuola include viaggio, alloggio e biglietto festival."
+        },
+        {
+          "id": "card-2",
+          "label": "Lucca unisce festival, cultura pop e città storica."
+        },
+        {
+          "id": "card-3",
+          "label": "Su Lucca abbiamo già argomenti testuali pronti."
+        },
+        {
+          "id": "card-4",
+          "label": "Per alcuni il cosplay non è motivante."
+        },
+        {
+          "id": "card-5",
+          "label": "C'è il rischio di dedicare poco tempo a musei e chiese."
+        },
+        {
+          "id": "card-6",
+          "label": "Il calcio storico a Firenze è una tradizione locale molto forte."
+        },
+        {
+          "id": "card-7",
+          "label": "Firenze sembra più familiare ed è facile da giustificare come città d'arte."
+        },
+        {
+          "id": "card-8",
+          "label": "Per Firenze non abbiamo ancora un pacchetto scuola pronto né una risposta elaborata per la professoressa."
+        }
+      ],
+      "targets": [
+        {
+          "id": "lucca-pro",
+          "title": "Lucca PRO",
+          "matchMode": "all",
+          "correctItemIds": [
+            "card-1",
+            "card-2",
+            "card-3"
+          ]
+        },
+        {
+          "id": "lucca-contro",
+          "title": "Lucca CONTRO",
+          "matchMode": "all",
+          "correctItemIds": [
+            "card-4",
+            "card-5"
+          ]
+        },
+        {
+          "id": "firenze-pro",
+          "title": "Firenze PRO",
+          "matchMode": "all",
+          "correctItemIds": [
+            "card-6",
+            "card-7"
+          ]
+        },
+        {
+          "id": "firenze-contro",
+          "title": "Firenze CONTRO",
+          "matchMode": "all",
+          "correctItemIds": [
+            "card-8"
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.75,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "id": "chapter-04-quest-04-scene-09",
+  "scene_type": "task",
+  "screen_type": "cloze",
+  "background": "chapters/04/quests/04/bg-room-morning-phone",
+  "content": {
+    "title": "SMS alla mamma",
+    "instruction": "Scrivi dei messaggi a tua mamma per raccontarle dell'invito. Completa le frasi usando le informazioni dell'invito di Giulia.",
+    "referenceDocument": {
+      "title": "INVITO — Divertiti nella Pianura Padana!",
+      "body": "Come superare la fine di una storia d'amore e rinascere più forti di prima! Un weekend a Comacchio — i rimedi contro il mal d'amore esistono davvero!\n\nVietati sono però i pensieri negativi e la nostalgia!\n\nSi chiamano cioccolato, gelato, ballare, fenicotteri, risotto di mare, spaghetti ai crostacei (la nostra specialità!!!) e budino (non guasta mai 😊). Ma soprattutto ... AMICIZIA!\n\nTi invito a visitare la mia bellissima città, la „piccola Venezia\" con tutti i suoi canali. Comacchio nasce e vive tra terra e acqua. Da una parte trovi il mare, dall'altra Il Parco del Delta del Po.\n\nChe ne dici? La sera andiamo al cinema, in pizzeria o restiamo a casa per una festa in pigiama e mangiamo un chilo di Nutella... scegli tu!\n\nTutto sommato sarà il weekend ideale per due ragazze favolose come noi! La vita è bella nonostante tutto — perciò ne dobbiamo approfittare pienamente! TVB Giulia\n\nProgramma: i 5 passi contro il mal d'amore\n\n(A) 1° passo — Abbiamo cinque spiagge che sono ideali per il nostro weekend di relax. Non solo per riposarci al sole..., ma anche per cancellare i tuoi ricordi!\n\n(B) 2° passo — Visitiamo il Ponte degli Sbirri, il Palazzo Bellini e poi il celebre Trepponti, tutti i nostri bellissimi monumenti che ti mostrano la bellezza della vita.\n\n(C) 3° passo — Non dimentichiamo il tramonto... l'orizzonte si colora di effetti straordinari... il benessere è garantito!\n\n(D) 4° passo — Prima facciamo una passeggiata lungo Il Loggiato dei Cappuccini, il più lungo d'Italia, e dopo andiamo in bici, forse vedremo persino qualche fenicottero? (una bella sorpresa!)\n\n(E) 5° passo — E se il tempo sarà brutto... ? Non ti preoccupare! Comunque si può sempre andare al museo... poco lontano si trova il Museo d'Arte Contemporanea Remo Brindisi dove si trova una ricca collezione d'arte del Novecento: Picasso, Andy Warhol e Giorgio De Chirico e... molti altri."
+    },
+    "task": {
+      "prompt": "Scrivi dei messaggi a tua mamma per raccontarle dell'invito. Completa le frasi usando le informazioni dell'invito di Giulia.",
+      "caseSensitive": false,
+      "lines": [
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "Mamma, ascolta che bello! 😍\n\n[16:03]    1. Giulia è grande! Mi ha "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "invitata a Comacchio (con Sara) per un weekend",
+                "invitata a Comacchio per un weekend",
+                "invitata a passare un weekend a Comacchio per superare il mal d'amore di Sara",
+                "Invitata a Comacchio (con Sara) per un weekend"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "\n\n[16:05]    2. Giulia ha preparato un "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "programma fantastico",
+                "invito con cinque passi contro il mal d'amore",
+                "weekend pieno di attività",
+                "Programma fantastico"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "\n\n[16:07]    3. Comacchio si chiama anche "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "„piccola Venezia\" perché ha tanti canali",
+                "„piccola Venezia\", perché nasce e vive tra terra e acqua",
+                "\"piccola Venezia\" perché ha tanti canali"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "\n\n[16:10]    4. Ci sono cinque "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "spiagge ideali per riposarsi al sole e cancellare i ricordi tristi",
+                "Spiagge ideali per riposarsi al sole e cancellare i ricordi tristi"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "\n\n[16:13]    5. Se il tempo sarà brutto, "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "andiamo al Museo d'Arte Contemporanea Remo Brindisi (dove ci sono opere di Picasso, Andy Warhol e Giorgio De Chirico)",
+                "andiamo al Museo d'Arte Contemporanea Remo Brindisi",
+                "Andiamo al Museo d'Arte Contemporanea Remo Brindisi"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "\n\n[16:15]    6. La sera andiamo "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "al cinema, in pizzeria o restiamo a casa per una festa in pigiama (e mangiamo Nutella)",
+                "al cinema, in pizzeria o restiamo a casa per una festa in pigiama",
+                "Al cinema, in pizzeria o restiamo a casa per una festa in pigiama"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "\n\n[16:17]    7. Lei ha scritto di quattro "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "passi contro il mal d'amore (le spiagge, i monumenti come il Trepponti, il tramonto, la passeggiata al Loggiato dei Cappuccini)",
+                "passi contro il mal d'amore",
+                "Passi contro il mal d'amore"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "\n\n[16:21]    8. Vietati sono "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 64,
+              "correctAnswers": [
+                "i pensieri negativi e la nostalgia",
+                "I pensieri negativi e la nostalgia"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.75,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

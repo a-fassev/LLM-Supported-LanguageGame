@@ -1,0 +1,8 @@
+{
+  "id": "quest-01-bonus",
+  "title": "Extra: parole della lezione 6",
+  "order": 5,
+  "kind": "bonus",
+  "requiresQuestId": "quest-04",
+  "background": "chapters/06/quests/bonus/bg-overview"
+}

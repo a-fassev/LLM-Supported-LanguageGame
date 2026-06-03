@@ -1,0 +1,9 @@
+{
+  "id": "chapter-03-quest-02-scene-04",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/03/quests/02/bg-museum-hall",
+  "content": {
+    "text": "Tu\nInteressante. Vediamo quanto mi ricordo di tutto questo — alla fine della mostra c'è un piccolo quiz per i visitatori."
+  }
+}

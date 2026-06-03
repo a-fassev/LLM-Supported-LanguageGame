@@ -1,0 +1,9 @@
+{
+  "id": "chapter-06-quest-04-scene-02",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/06/quests/04/bg-piazza-maggiore",
+  "content": {
+    "text": "Tu\n„Ultima prova. Dopo questo, il percorso è completo.\""
+  }
+}

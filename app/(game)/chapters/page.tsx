@@ -6,7 +6,11 @@ import { HubPage } from "@/components/game/layout/HubPage";
 import { QuestHud } from "@/components/game/shell/QuestHud";
 import { ChapterGrid } from "@/components/game/screens/ChapterGrid";
 import { useBootstrap } from "@/lib/game/use-bootstrap";
-import { isChapterLocked } from "@/lib/game/unlock-display";
+import {
+  isChapterFullyComplete,
+  isChapterLocked,
+  isChapterMainProgressComplete,
+} from "@/lib/game/unlock-display";
 
 export default function ChaptersPage() {
   const router = useRouter();
@@ -21,6 +25,8 @@ export default function ChaptersPage() {
       .map((chapter, _, ordered) => ({
         chapter,
         locked: isChapterLocked(chapter, ordered, completedSet),
+        mainComplete: isChapterMainProgressComplete(chapter, completedSet),
+        fullyComplete: isChapterFullyComplete(chapter, completedSet),
       }));
   }, [data]);
 

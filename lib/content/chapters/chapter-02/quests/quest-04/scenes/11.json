@@ -1,0 +1,182 @@
+{
+  "id": "chapter-02-quest-04-scene-11",
+  "scene_type": "task",
+  "screen_type": "drag_drop",
+  "background": "chapters/02/quests/04/bg-trattoria-task",
+  "content": {
+    "title": "Lettera di motivazione",
+    "instruction": "Trascina la formula giusta in ogni lacuna della lettera.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Completa la lettera di motivazione con le formule giuste (S. 51).",
+      "presentation": {
+        "targetMode": "blocks"
+      },
+      "shuffleItemOrder": true,
+      "items": [
+        {
+          "id": "f-gentili",
+          "label": "Gentili Signore e Signori,"
+        },
+        {
+          "id": "f-cassari",
+          "label": "Gentile Signora Cassari,"
+        },
+        {
+          "id": "f-devalli",
+          "label": "Gentile Signor De Valli,"
+        },
+        {
+          "id": "f-direttore",
+          "label": "Egregio Direttore,"
+        },
+        {
+          "id": "f-dottoressa",
+          "label": "Stimata Dottoressa,"
+        },
+        {
+          "id": "f-candidarmi",
+          "label": "con la presente desidero candidarmi …"
+        },
+        {
+          "id": "f-chiedere",
+          "label": "vorrei chiedere/presentare …"
+        },
+        {
+          "id": "f-prego",
+          "label": "Vi prego di …"
+        },
+        {
+          "id": "f-inizio",
+          "label": "all'inizio"
+        },
+        {
+          "id": "f-primo",
+          "label": "per primo"
+        },
+        {
+          "id": "f-poi",
+          "label": "poi"
+        },
+        {
+          "id": "f-piu-tardi",
+          "label": "più tardi …"
+        },
+        {
+          "id": "f-inoltre",
+          "label": "inoltre"
+        },
+        {
+          "id": "f-in-piu",
+          "label": "in più"
+        },
+        {
+          "id": "f-infine",
+          "label": "infine"
+        },
+        {
+          "id": "f-alla-fine",
+          "label": "alla fine"
+        },
+        {
+          "id": "f-contatti-sing",
+          "label": "Se desidera ulteriori informazioni, non esiti a contattarmi."
+        },
+        {
+          "id": "f-contatti-pl",
+          "label": "Se desiderate ulteriori informazioni, non esitate a contattarmi."
+        },
+        {
+          "id": "f-attesa",
+          "label": "In attesa di una Vostra gentile risposta, invio i miei più cordiali saluti"
+        },
+        {
+          "id": "f-notizie",
+          "label": "Gradirei molto ricevere presto Vostre notizie."
+        },
+        {
+          "id": "f-ringraziando",
+          "label": "RingraziandoVi anticipatamente, porgo i miei più distinti saluti."
+        }
+      ],
+      "targets": [
+        {
+          "id": "slot-1",
+          "title": "(1) — saluto iniziale",
+          "correctItemIds": [
+            "f-gentili",
+            "f-cassari",
+            "f-devalli",
+            "f-direttore",
+            "f-dottoressa"
+          ]
+        },
+        {
+          "id": "slot-2",
+          "title": "(2) — presentare la candidatura",
+          "correctItemIds": [
+            "f-candidarmi",
+            "f-chiedere"
+          ]
+        },
+        {
+          "id": "slot-3",
+          "title": "(3) — inizio del corpo centrale",
+          "correctItemIds": [
+            "f-inizio",
+            "f-primo"
+          ]
+        },
+        {
+          "id": "slot-4",
+          "title": "(4) — collegare un'informazione in più",
+          "correctItemIds": [
+            "f-inoltre",
+            "f-in-piu"
+          ]
+        },
+        {
+          "id": "slot-5",
+          "title": "(5) — passaggio successivo",
+          "correctItemIds": [
+            "f-poi",
+            "f-piu-tardi",
+            "f-infine",
+            "f-alla-fine"
+          ]
+        },
+        {
+          "id": "slot-6",
+          "title": "(6) — invito al contatto",
+          "correctItemIds": [
+            "f-contatti-sing",
+            "f-contatti-pl"
+          ]
+        },
+        {
+          "id": "slot-7",
+          "title": "(7) — formula di chiusura",
+          "correctItemIds": [
+            "f-attesa",
+            "f-notizie",
+            "f-ringraziando"
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.71,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

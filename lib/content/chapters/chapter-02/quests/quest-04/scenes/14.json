@@ -1,0 +1,60 @@
+{
+  "id": "chapter-02-quest-04-scene-14",
+  "scene_type": "task",
+  "screen_type": "free_text",
+  "background": "chapters/02/quests/04/bg-trattoria-task",
+  "content": {
+    "title": "Descrivi il menù",
+    "instruction": "Scrivi una frase in italiano con un pronome relativo (che, cui o dove).",
+    "referenceDocument": {
+      "title": "gli antipasti",
+      "body": "Descrivi questa parte del menù con una frase. Usa che, cui o dove.",
+      "figures": [
+        {
+          "image": "chapters/02/quests/04/ref-menu-antipasti",
+          "caption": "gli antipasti"
+        }
+      ]
+    },
+    "task": {
+      "prompt": "Descrivi gli antipasti con una frase. Usa che, cui o dove.",
+      "targetLanguage": "it",
+      "showWordCount": true,
+      "minWords": 5,
+      "maxWords": 80,
+      "evaluation": {
+        "grammarWeight": 1,
+        "vocabularyWeight": 1,
+        "registerWeight": 1,
+        "taskFulfillmentWeight": 1,
+        "passThreshold": 0.65,
+        "registerTarget": "neutral",
+        "scoringPolicy": "threshold_pass",
+        "maxPoints": 5,
+        "evaluationCriteria": [
+          "Use at least one relative pronoun (che, cui, or dove) correctly",
+          "Describe the menu category plausibly (position in an Italian meal and typical dishes)"
+        ],
+        "targetStructures": [
+          "che",
+          "cui",
+          "dove"
+        ]
+      }
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 2,
+      "minRatioToComplete": 0.65,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

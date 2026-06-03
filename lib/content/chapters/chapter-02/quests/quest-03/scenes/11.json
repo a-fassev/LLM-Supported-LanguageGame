@@ -1,0 +1,121 @@
+{
+  "id": "chapter-02-quest-03-scene-11",
+  "scene_type": "task",
+  "screen_type": "multiple_choice",
+  "background": "chapters/02/quests/03/bg-desk-task",
+  "content": {
+    "title": "Chi sono io? (6/6)",
+    "instruction": "Metti il pronome relativo e il participio, poi scegli la persona. Usa il documento con le foto se ti serve.",
+    "referenceDocument": {
+      "documentId": "ch02-quiz-persons",
+      "title": "Chi sono?",
+      "body": "Ecco le sei persone del quiz. Il nome sotto ogni foto ti aiuta a scegliere.",
+      "figures": [
+        {
+          "image": "chapters/02/quests/03/ref-quiz-verdi",
+          "caption": "Giuseppe Verdi"
+        },
+        {
+          "image": "chapters/02/quests/03/ref-quiz-colombo",
+          "caption": "Cristoforo Colombo"
+        },
+        {
+          "image": "chapters/02/quests/03/ref-quiz-montessori",
+          "caption": "Maria Montessori"
+        },
+        {
+          "image": "chapters/02/quests/03/ref-quiz-michelangelo",
+          "caption": "Michelangelo Buonarroti"
+        },
+        {
+          "image": "chapters/02/quests/03/ref-quiz-ferrante",
+          "caption": "Elena Ferrante"
+        },
+        {
+          "image": "chapters/02/quests/03/ref-quiz-da-vinci",
+          "caption": "Leonardo da Vinci"
+        }
+      ]
+    },
+    "task": {
+      "questions": [
+        {
+          "id": "q6/6-grammar",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Come si chiama la scrittrice, famosissima in tutto il mondo, ___ ha ___ (scrivere) quattro romanzi su Napoli e ___ non si sa molto?",
+          "options": [
+            {
+              "id": "g6-a",
+              "label": "che · ha scritto · di cui non si sa"
+            },
+            {
+              "id": "g6-b",
+              "label": "che · ha scritto · che non si sa"
+            },
+            {
+              "id": "g6-c",
+              "label": "cui · ha scritto · di cui non si sa"
+            },
+            {
+              "id": "g6-d",
+              "label": "che · ha scrivere · di cui non si sa"
+            }
+          ],
+          "correctOptionIds": [
+            "g6-a"
+          ]
+        },
+        {
+          "id": "q6/6-person",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "A quale persona si riferisce questa frase?",
+          "options": [
+            {
+              "id": "verdi",
+              "label": "Giuseppe Verdi"
+            },
+            {
+              "id": "colombo",
+              "label": "Cristoforo Colombo"
+            },
+            {
+              "id": "montessori",
+              "label": "Maria Montessori"
+            },
+            {
+              "id": "michelangelo",
+              "label": "Michelangelo Buonarroti"
+            },
+            {
+              "id": "ferrante",
+              "label": "Elena Ferrante"
+            },
+            {
+              "id": "da-vinci",
+              "label": "Leonardo da Vinci"
+            }
+          ],
+          "correctOptionIds": [
+            "ferrante"
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 2,
+      "minRatioToComplete": 1,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

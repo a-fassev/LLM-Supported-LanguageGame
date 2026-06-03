@@ -1,4 +1,5 @@
 import type { BootstrapChapterDto, BootstrapQuestDto } from "@/lib/api-client";
+import { getPreviousProgressionChapter, isReferenceChapter } from "@/lib/game/chapter-progression";
 import { toQuestProgressId } from "@/lib/game/quest-progress-id";
 
 function requiredQuestIds(chapter: BootstrapChapterDto): string[] {
@@ -16,10 +17,30 @@ export function isChapterLocked(
   orderedChapters: BootstrapChapterDto[],
   completedQuestIds: Set<string>,
 ): boolean {
-  const chapterIndex = orderedChapters.findIndex((item) => item.id === chapter.id);
-  if (chapterIndex <= 0) return false;
-  const previousChapter = orderedChapters[chapterIndex - 1];
+  if (chapter.locked) return true;
+  if (isReferenceChapter(chapter)) return false;
+  const previousChapter = getPreviousProgressionChapter(orderedChapters, chapter.id);
+  if (!previousChapter) return false;
   return !areAllRequiredDone(previousChapter, completedQuestIds);
+}
+
+/** All main quests in the chapter are completed (bonus may still be open). */
+export function isChapterMainProgressComplete(
+  chapter: BootstrapChapterDto,
+  completedQuestIds: Set<string>,
+): boolean {
+  return areAllRequiredDone(chapter, completedQuestIds);
+}
+
+/** Every quest in the chapter (main + bonus) is completed — nothing left to play. */
+export function isChapterFullyComplete(
+  chapter: BootstrapChapterDto,
+  completedQuestIds: Set<string>,
+): boolean {
+  if (chapter.quests.length === 0) return false;
+  return chapter.quests.every((quest) =>
+    completedQuestIds.has(toQuestProgressId(chapter.id, quest.id)),
+  );
 }
 
 export function isQuestLocked(

@@ -1,9 +1,9 @@
 {
   "id": "chapter-02-quest-02-scene-01",
   "scene_type": "story",
-  "screen_type": "dialogue",
-  "background": "chapters/02/quests/02/bg-dialogue-01",
+  "screen_type": "info",
+  "background": "chapters/02/quests/02/bg-nutelleria",
   "content": {
-    "text": "Al mercato si parla velocemente. Prova a ricostruire la frase."
+    "text": "Cammini sotto i portici e ti fermi davanti a un locale che hai sentito nominare tante volte: la Nutelleria. Profumo di crêpe e di cioccolato. Entri e ti siedi a un tavolino vicino alla finestra."
   }
 }

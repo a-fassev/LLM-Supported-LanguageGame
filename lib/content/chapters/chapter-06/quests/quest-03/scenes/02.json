@@ -1,0 +1,9 @@
+{
+  "id": "chapter-06-quest-03-scene-02",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/06/quests/03/bg-parco-caffe",
+  "content": {
+    "text": "Signora\n„Non basta dire mi piace: dimmi perché proprio quello.\""
+  }
+}

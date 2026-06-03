@@ -1,0 +1,9 @@
+{
+  "id": "chapter-02-quest-02-scene-03",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/02/quests/02/bg-nutelleria",
+  "content": {
+    "text": "Dario\n\"Ehi, ciao! Anche tu qui? Vieni, siediti con me. Non posso credere a quello che mi è successo oggi!\""
+  }
+}

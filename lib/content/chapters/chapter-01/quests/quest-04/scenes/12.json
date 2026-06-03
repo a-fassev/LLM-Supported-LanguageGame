@@ -1,0 +1,138 @@
+{
+  "id": "chapter-01-quest-04-scene-12",
+  "scene_type": "task",
+  "screen_type": "drag_drop",
+  "background": "chapters/01/quests/04/bg-bar-task",
+  "content": {
+    "title": "Abbina i numeri",
+    "instruction": "Trascina ogni numero con la sua unità di misura accanto alla frase giusta.",
+    "referenceDocument": {
+      "title": "Le Grotte di Castellana",
+      "body": "La visita alle Grotte di Castellana — aperte tutto l'anno — è possibile con guide turistiche.\n\nCi sono due itinerari: l'itinerario parziale della lunghezza di un chilometro e della durata di 50 minuti, l'itinerario completo della lunghezza di tre chilometri e della durata di quasi due ore.\n\nLa temperatura, costante tutto l'anno, è di circa 18 °C, mentre il tasso di umidità è superiore al 90%.\n\nLa Grave, prima e più grande caverna del sistema sotterraneo, è l'unico ambiente naturalmente collegato con l'esterno: 100 metri di lunghezza, per 50 di larghezza, per 60 di profondità.\n\nLa parte delle grotte aperta al pubblico è costituita da ambienti molto vari per forma e dimensioni. Stalattiti, stalagmiti, colonne, preziosi cristalli occhieggiano ovunque.\n\nInfine, l'ultima e più bella caverna del sistema sotterraneo, la Grotta Bianca, definita per la ricchezza e il biancore dell'alabastro, è la più splendente del mondo."
+    },
+    "task": {
+      "prompt": "Trascina ogni numero con la sua unità di misura accanto alla frase giusta.",
+      "presentation": {
+        "targetMode": "blocks"
+      },
+      "shuffleItemOrder": true,
+      "items": [
+        {
+          "id": "card-1km",
+          "label": "1 chilometro"
+        },
+        {
+          "id": "card-3km",
+          "label": "3 chilometri"
+        },
+        {
+          "id": "card-50min",
+          "label": "50 minuti"
+        },
+        {
+          "id": "card-2ore",
+          "label": "2 ore"
+        },
+        {
+          "id": "card-18c",
+          "label": "18 gradi"
+        },
+        {
+          "id": "card-90pct",
+          "label": "90 per cento"
+        },
+        {
+          "id": "card-100m",
+          "label": "100 metri"
+        },
+        {
+          "id": "card-50m-l",
+          "label": "50 metri (larghezza)"
+        },
+        {
+          "id": "card-60m",
+          "label": "60 metri"
+        }
+      ],
+      "targets": [
+        {
+          "id": "t1",
+          "title": "è lungo l'itinerario parziale",
+          "correctItemIds": [
+            "card-1km"
+          ]
+        },
+        {
+          "id": "t2",
+          "title": "è lungo l'itinerario completo",
+          "correctItemIds": [
+            "card-3km"
+          ]
+        },
+        {
+          "id": "t3",
+          "title": "dura la visita (primo itinerario)",
+          "correctItemIds": [
+            "card-50min"
+          ]
+        },
+        {
+          "id": "t4",
+          "title": "dura la visita (secondo itinerario)",
+          "correctItemIds": [
+            "card-2ore"
+          ]
+        },
+        {
+          "id": "t5",
+          "title": "è la temperatura nella grotta",
+          "correctItemIds": [
+            "card-18c"
+          ]
+        },
+        {
+          "id": "t6",
+          "title": "è l'umidità nella grotta",
+          "correctItemIds": [
+            "card-90pct"
+          ]
+        },
+        {
+          "id": "t7",
+          "title": "è lunga la più grande caverna",
+          "correctItemIds": [
+            "card-100m"
+          ]
+        },
+        {
+          "id": "t8",
+          "title": "è larga la più grande caverna",
+          "correctItemIds": [
+            "card-50m-l"
+          ]
+        },
+        {
+          "id": "t9",
+          "title": "è profonda la più grande caverna",
+          "correctItemIds": [
+            "card-60m"
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.67,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

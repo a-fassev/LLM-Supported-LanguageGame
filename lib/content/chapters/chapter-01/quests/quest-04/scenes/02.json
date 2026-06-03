@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-04-scene-02",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/04/bg-bar",
+  "content": {
+    "text": "Tonio\n\"Ciao, ragazzo/a! Cosa ti posso offrire? Un caffè, un'acqua? ... Aspetta, non ti ho mai visto qui. Sei nuovo/a a Bologna?\""
+  }
+}

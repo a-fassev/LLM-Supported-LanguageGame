@@ -1,0 +1,8 @@
+{
+  "id": "quest-02",
+  "title": "Alla stazione",
+  "order": 2,
+  "kind": "main",
+  "requiresQuestId": "quest-01",
+  "background": "chapters/00/quests/02/bg-overview"
+}

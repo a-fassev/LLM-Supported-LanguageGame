@@ -1,16 +1,9 @@
 {
   "id": "chapter-01-quest-01-bonus-scene-02",
-  "scene_type": "task",
-  "screen_type": "bonus",
-  "background": "chapters/01/quests/bonus/bg-task-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/bonus/bg-bonus",
   "content": {
-    "title": "Bonus saluti",
-    "instruction": "Completa la sfida bonus.",
-    "referenceDocument": null,
-    "task": {}
-  },
-  "scoring": {
-    "backpack": { "pieces": 1 },
-    "pizza": { "mode": "flat", "slices": 2 }
+    "text": "Prima di chiudere il capitolo, mettiti alla prova: quante parole di questa lezione ricordi davvero?"
   }
 }

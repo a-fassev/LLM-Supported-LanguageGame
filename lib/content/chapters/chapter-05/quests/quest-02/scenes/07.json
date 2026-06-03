@@ -1,0 +1,9 @@
+{
+  "id": "chapter-05-quest-02-scene-07",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/05/quests/02/bg-room-desk",
+  "content": {
+    "text": "Chiudete i quaderni. È ora di portare la discussione al caffè sotto i portici — i Giardini Margherita vi aspettano."
+  }
+}

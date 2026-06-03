@@ -1,6 +1,14 @@
 {
   "id": "chapter-02",
-  "title": "Firenze",
+  "title": "Bologna — secondo giorno",
   "order": 2,
-  "quests": ["quest-01", "quest-02"]
+  "locked": false,
+  "quests": [
+    "quest-01",
+    "quest-02",
+    "quest-03",
+    "quest-04",
+    "quest-01-bonus"
+  ],
+  "background": "chapters/02/chapter/bg-missions"
 }

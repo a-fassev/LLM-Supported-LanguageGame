@@ -134,6 +134,3 @@ export function parsePizzaRewardRules(rewardRules: Record<string, unknown> | nul
   };
 }
 
-export function requiresTaskAttemptPayload(rules: ParsedPizzaRules): boolean {
-  return rules.kind === "scored";
-}

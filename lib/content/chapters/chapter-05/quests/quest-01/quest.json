@@ -1,8 +1,8 @@
 {
   "id": "quest-01",
-  "title": "Il Vesuvio",
+  "title": "Dopo Comacchio",
   "order": 1,
   "kind": "main",
   "requiresQuestId": null,
-  "autoStartQuestId": "quest-02"
+  "background": "chapters/05/quests/01/bg-overview"
 }

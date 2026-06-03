@@ -38,13 +38,17 @@ export type BootstrapQuestDto = {
   order: number;
   kind: "main" | "bonus";
   requiresQuestId: string | null;
-  autoStartQuestId: string | null;
+  background: string;
 };
 
 export type BootstrapChapterDto = {
   id: string;
   title: string;
   order: number;
+  locked: boolean;
+  reference: boolean;
+  gameFinale: boolean;
+  background: string;
   quests: BootstrapQuestDto[];
 };
 
@@ -72,12 +76,18 @@ export type LeaderboardPlayerDto = {
   isSelf: boolean;
 };
 
+export type LeaderboardTeamMemberDto = {
+  username: string;
+  isSelf: boolean;
+};
+
 export type LeaderboardTeamDto = {
   rank: number;
   team: TeamColor;
   totalSlices: number;
   totalBackpackPieces: number;
   memberCount: number;
+  members: LeaderboardTeamMemberDto[];
 };
 
 export type LeaderboardDto = {
@@ -104,7 +114,11 @@ export type RunDto = {
   status: "in_progress" | "completed" | "abandoned";
   completedSceneIds: string[];
   canRetreat: boolean;
+  /** Last quest of a `gameFinale` chapter — use with `status === "completed"` for finale overlay. */
+  isGameFinaleQuest: boolean;
   currentScene: RunSceneDto;
+  /** Next scene background key from catalog, when present (client preload). */
+  nextSceneBackground: string | null;
 };
 
 export type TaskOutcomeDto = {
@@ -238,7 +252,7 @@ export function getRunSnapshot(token: string) {
 }
 
 export function advanceRun(token: string, runId: string, input: { sceneId: string }) {
-  return requestJson<RunSnapshotDto>(`/api/game/runs/${runId}/advance`, {
+  return requestJson<AttemptRunDto>(`/api/game/runs/${runId}/advance`, {
     method: "POST",
     token,
     body: input,

@@ -1,0 +1,117 @@
+{
+  "id": "chapter-04-quest-02-scene-16",
+  "scene_type": "task",
+  "screen_type": "error_spotting",
+  "background": "chapters/04/quests/02/bg-giardini-margherita",
+  "content": {
+    "title": "Trova gli errori",
+    "instruction": "In ogni frase c'è un verbo che non va bene. Clicca sul verbo sbagliato e scrivi la forma giusta.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Sara è confusa e dice delle frasi sbagliate. In ogni frase c'è un verbo che NON va bene: o usa il congiuntivo quando dovrebbe usare l'infinito (perché il soggetto è lo stesso), o usa l'infinito quando dovrebbe usare il congiuntivo (perché i soggetti sono diversi). Clicca sul verbo sbagliato e scrivi la forma giusta.",
+      "expectedErrorRange": {
+        "min": 4,
+        "max": 4
+      },
+      "segments": [
+        {
+          "id": "es1-a",
+          "text": "1. Sara: „Voglio che",
+          "isError": false
+        },
+        {
+          "id": "es1-err",
+          "text": " che io dimentichi",
+          "isError": true,
+          "acceptedCorrections": [
+            "dimenticare",
+            "Dimenticare"
+          ]
+        },
+        {
+          "id": "es1-b",
+          "text": " Marco al più presto possibile.\"",
+          "isError": false
+        },
+        {
+          "id": "es2-a",
+          "text": " 2. Sara: „Spero",
+          "isError": false
+        },
+        {
+          "id": "es2-err",
+          "text": " di Marco mi chiami",
+          "isError": true,
+          "acceptedCorrections": [
+            "che Marco mi chiami",
+            "Che Marco mi chiami"
+          ]
+        },
+        {
+          "id": "es2-b",
+          "text": " stasera per spiegarmi tutto.\"",
+          "isError": false
+        },
+        {
+          "id": "es3-all",
+          "text": " 3. Sara: „Penso di essere stata troppo gelosa con lui.\"",
+          "isError": false
+        },
+        {
+          "id": "es4-a",
+          "text": " 4. Sara: „È meglio",
+          "isError": false
+        },
+        {
+          "id": "es4-err",
+          "text": " che io non vedere",
+          "isError": true,
+          "acceptedCorrections": [
+            "che io non veda",
+            "Che io non veda"
+          ]
+        },
+        {
+          "id": "es4-b",
+          "text": " Marco a scuola domani.\"",
+          "isError": false
+        },
+        {
+          "id": "es5-a",
+          "text": " 5. Sara: „Federica, ti ringrazio",
+          "isError": false
+        },
+        {
+          "id": "es5-err",
+          "text": " di tu sei",
+          "isError": true,
+          "acceptedCorrections": [
+            "che tu sei",
+            "Che tu sei",
+            "di essere una buona amica",
+            "Di essere una buona amica"
+          ]
+        },
+        {
+          "id": "es5-b",
+          "text": " una buona amica.\"",
+          "isError": false
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.75,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

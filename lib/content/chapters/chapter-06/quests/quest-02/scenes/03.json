@@ -1,0 +1,102 @@
+{
+  "id": "chapter-06-quest-02-scene-03",
+  "scene_type": "task",
+  "screen_type": "matching",
+  "background": "chapters/06/quests/02/bg-ristorante",
+  "content": {
+    "title": "Prof per sempre!",
+    "instruction": "Trova nel testo le frasi giuste e indica la riga.",
+    "referenceDocument": {
+      "title": "Testo A1 (S. 112/113)",
+      "body": "Testo A1 (S. 112/113) — Prof per sempre!\n\n1 È il Sognatore. [...]. Ci mancava solo\n2 questa [...].\n3 \"Salve, prof, cosa ho fatto?\" [...].\n4 Sorride.\n5 \"Ho deciso di passare a trovarti, magari ti\n6 andava di finire il discorso dell'altro giorno.\"\n7 Ecco, lo sapevo. I prof sono prof fino alla\n8 morte, devono farti le lezioni anche sotto\n9 casa tua.\n10 \"Prof, lasciamo perdere il discorso dell'altra\n11 volta...\" [...].\n12 \"Andiamo a prendere un gelato.\"\n13 Mi sorride. Sì, ha detto così: un ge-la-to.\n14 I prof mangiano il gelato. Sì, i prof mangiano\n15 il gelato e si sporcano la bocca come fanno\n16 tutti gli altri.\n17 \"Il suo blog è bello, a volte un po' troppo\n18 filosofico, ma quando posso lo leggo.\"\n19 Il prof ringrazia continuando a leccare il suo\n20 gelato al pistacchio e al caffè - soliti gusti\n21 pallosi da prof - e mi ricorda Terminator che\n22 lecca le mie scarpe da tennis.\n23 \"Allora, cosa ti è successo l'altro giorno?\"\n24 Lo sapevo che non mollava la presa. I prof\n25 sono come i boa, ti si arrotolano attorno\n26 quando sei distratto, poi aspettano che butti\n27 fuori l'aria e stringono, e a ogni espirazione\n28 stringono di più, [...].\n29 \"Ma a lei che gliene importa, prof?\"\n30 Il Sognatore mi guarda fisso negli occhi.\n31 \"Forse avevi bisogno di una mano, di un\n32 consiglio ...\""
+    },
+    "task": {
+      "prompt": "Abbina ogni affermazione alla riga corretta del testo.",
+      "leftItems": [
+        {
+          "id": "stmt-1",
+          "label": "I prof non ti lasciano mai in pace."
+        },
+        {
+          "id": "stmt-2",
+          "label": "Anche i prof possono essere curiosi."
+        },
+        {
+          "id": "stmt-3",
+          "label": "I prof non mangiano in modo strano."
+        },
+        {
+          "id": "stmt-4",
+          "label": "I prof devono sempre spiegare tutto a tutti."
+        },
+        {
+          "id": "stmt-5",
+          "label": "I prof amano anche aiutare gli altri."
+        }
+      ],
+      "rightItems": [
+        {
+          "id": "row-24",
+          "label": "Riga 24"
+        },
+        {
+          "id": "row-23",
+          "label": "Riga 23"
+        },
+        {
+          "id": "row-15-16",
+          "label": "Righe 15–16"
+        },
+        {
+          "id": "row-8-9",
+          "label": "Righe 8–9"
+        },
+        {
+          "id": "row-31-32",
+          "label": "Righe 31–32"
+        }
+      ],
+      "correctPairs": [
+        {
+          "leftItemId": "stmt-1",
+          "rightItemId": "row-24"
+        },
+        {
+          "leftItemId": "stmt-2",
+          "rightItemId": "row-23"
+        },
+        {
+          "leftItemId": "stmt-3",
+          "rightItemId": "row-15-16"
+        },
+        {
+          "leftItemId": "stmt-4",
+          "rightItemId": "row-8-9"
+        },
+        {
+          "leftItemId": "stmt-5",
+          "rightItemId": "row-31-32"
+        }
+      ],
+      "presentation": {
+        "leftLabel": "affermazione",
+        "rightLabel": "riga",
+        "shuffleRightOrder": true
+      }
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.8,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

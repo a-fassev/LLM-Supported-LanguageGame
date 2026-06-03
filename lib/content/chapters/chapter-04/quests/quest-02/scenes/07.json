@@ -1,0 +1,72 @@
+{
+  "id": "chapter-04-quest-02-scene-07",
+  "scene_type": "task",
+  "screen_type": "free_text",
+  "background": "chapters/04/quests/02/bg-giardini-margherita",
+  "content": {
+    "title": "Le foto di Sara",
+    "instruction": "Guarda le quattro foto nel documento. Per la foto D scrivi almeno 2-3 frasi in italiano.",
+    "referenceDocument": {
+      "title": "Le foto di Sara in Sicilia",
+      "body": "Guarda le quattro foto del viaggio di Sara in Sicilia. Per tre foto Sara ha già scritto una breve descrizione. La quarta foto è ancora senza descrizione: scrivi tu almeno 2-3 frasi per descriverla. Usa un vocabolario vario e fai attenzione ai verbi.",
+      "figures": [
+        {
+          "image": "chapters/04/quests/02/ref-foto-acqua-verde",
+          "caption": "Foto A — Acqua Verde. „Questa foto mostra Acqua Verde, un grande parco acquatico che si trova a solo un'ora da Palermo. Si vedono delle persone che scendono dagli scivoli — sembra che si stiano divertendo tantissimo! Ci sono andata con la mia famiglia il secondo giorno della vacanza.\"",
+          "alt": "Parco acquatico Acqua Verde"
+        },
+        {
+          "image": "chapters/04/quests/02/ref-foto-mercato-palermo",
+          "caption": "Foto B — Al mercato di Palermo. „In questa foto sono al mercato di Palermo. Indosso un cappello di paglia per ripararmi dal sole e sto assaggiando un succo d'arancia fresco. I mercati siciliani sono pieni di colori, di profumi e di gente — adoro questa atmosfera.\"",
+          "alt": "Mercato di Palermo"
+        },
+        {
+          "image": "chapters/04/quests/02/ref-foto-vucciria",
+          "caption": "Foto C — Il mercato della Vucciria. „Questo è il famoso mercato della Vucciria a Palermo. Si vedono bancarelle di frutta e verdura coloratissime: arance, limoni, peperoni rossi. È stato meraviglioso girare tra le bancarelle e parlare con i venditori — tutti sono stati gentilissimi con noi turisti.\"",
+          "alt": "Mercato della Vucciria"
+        },
+        {
+          "image": "chapters/04/quests/02/ref-foto-cattedrale",
+          "caption": "Foto D — La cattedrale di Palermo — da descrivere",
+          "alt": "Cattedrale di Palermo"
+        }
+      ]
+    },
+    "task": {
+      "prompt": "Descrivi la foto D (la cattedrale di Palermo) in almeno 2-3 frasi in italiano. Usa un vocabolario vario.",
+      "targetLanguage": "it",
+      "showWordCount": true,
+      "minWords": 8,
+      "maxWords": 80,
+      "evaluation": {
+        "grammarWeight": 1,
+        "vocabularyWeight": 1,
+        "registerWeight": 1,
+        "taskFulfillmentWeight": 1,
+        "passThreshold": 0.65,
+        "registerTarget": "informal",
+        "scoringPolicy": "threshold_pass",
+        "maxPoints": 5,
+        "evaluationCriteria": [
+          "Describe the cathedral photo with varied B1 vocabulary (architecture, horse carriage, sunlight, wish to visit)",
+          "Write at least two complete sentences about what is visible in photo D",
+          "Use appropriate Italian verbs and adjective agreement for the learner avatar gender in feedback"
+        ]
+      }
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.65,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

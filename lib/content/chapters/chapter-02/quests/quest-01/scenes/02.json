@@ -1,21 +1,9 @@
 {
   "id": "chapter-02-quest-01-scene-02",
-  "scene_type": "task",
-  "screen_type": "cloze",
-  "background": "chapters/02/quests/01/bg-task-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/02/quests/01/bg-room-morning",
   "content": {
-    "title": "Completa la frase",
-    "instruction": "Inserisci le parole mancanti.",
-    "referenceDocument": null,
-    "task": {}
-  },
-  "scoring": {
-    "backpack": { "pieces": 1 },
-    "pizza": {
-      "mode": "scored",
-      "maxSlices": 3,
-      "minRatioToComplete": 0.8,
-      "mapping": { "kind": "linear" }
-    }
+    "text": "Tu\nOggi ho un po' di tempo libero. Devo finire un progetto per la scuola su un italiano famoso. E poi ho letto che un ristorante qui in centro cerca personale per l'estate — magari vado a vedere. Ma prima voglio fare un giro per la città..."
   }
 }

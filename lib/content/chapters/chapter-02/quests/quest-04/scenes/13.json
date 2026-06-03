@@ -1,0 +1,9 @@
+{
+  "id": "chapter-02-quest-04-scene-13",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/02/quests/04/bg-trattoria",
+  "content": {
+    "text": "Signor Marini\n\"Bene, bene! Bella lettera. Adesso però la prova vera: se vuoi lavorare qui da Marini, devi conoscere un po' la nostra cucina. Ti faccio vedere il nostro menù. Descrivimi com'è strutturato un menù italiano: cosa sono le varie parti? Usa frasi con che, cui o dove, va bene?\""
+  }
+}

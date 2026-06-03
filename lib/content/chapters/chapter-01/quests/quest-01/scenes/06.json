@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-01-scene-06",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/01/bg-room",
+  "content": {
+    "text": "Per i compiti riceverai fette di pizza. Puoi usarle per personalizzare il tuo avatar con nuovi vestiti e accessori."
+  }
+}

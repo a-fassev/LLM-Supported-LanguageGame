@@ -1,8 +1,8 @@
 {
   "id": "quest-01",
-  "title": "Il Canal Grande",
+  "title": "La mattina a casa",
   "order": 1,
   "kind": "main",
   "requiresQuestId": null,
-  "autoStartQuestId": "quest-02"
+  "background": "chapters/04/quests/01/bg-overview"
 }

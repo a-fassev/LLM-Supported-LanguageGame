@@ -38,7 +38,15 @@ function successHeadline(ratio: number): string {
   return "Bene! Ce l'hai fatta!";
 }
 
-function successBody(ratio: number, slices: number, backpackPieces: number): string {
+function successBody(
+  ratio: number,
+  slices: number,
+  backpackPieces: number,
+  rewardsAlreadyClaimed?: boolean,
+): string {
+  if (rewardsAlreadyClaimed) {
+    return "Hai gia guadagnato le ricompense per questa attivita. Continua l'avventura!";
+  }
   const praise =
     ratio >= 1 - 1e-9
       ? "Hai fatto centro - complimenti!"
@@ -61,6 +69,8 @@ export function buildTaskOutcome(params: {
   ratio: number;
   awardedSlices: number;
   awardedBackpackPieces: number;
+  /** Scene was passed again after rewards were already stored for this run/scene. */
+  rewardsAlreadyClaimed?: boolean;
 }): TaskOutcomeDto {
   const ratio = Math.min(1, Math.max(0, params.ratio));
   if (params.passed) {
@@ -70,7 +80,12 @@ export function buildTaskOutcome(params: {
       awardedSlices: params.awardedSlices,
       awardedBackpackPieces: params.awardedBackpackPieces,
       headline: successHeadline(ratio),
-      body: successBody(ratio, params.awardedSlices, params.awardedBackpackPieces),
+      body: successBody(
+        ratio,
+        params.awardedSlices,
+        params.awardedBackpackPieces,
+        params.rewardsAlreadyClaimed,
+      ),
     };
   }
   return {

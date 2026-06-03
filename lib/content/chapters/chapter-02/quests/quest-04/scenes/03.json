@@ -1,0 +1,9 @@
+{
+  "id": "chapter-02-quest-04-scene-03",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/02/quests/04/bg-trattoria",
+  "content": {
+    "text": "Entri nel ristorante. Un uomo sulla cinquantina, con il grembiule bianco, sta pulendo un tavolo vicino alla finestra. Ti vede e si avvicina."
+  }
+}

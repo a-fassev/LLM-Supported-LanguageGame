@@ -1,8 +1,8 @@
 {
   "id": "quest-01",
-  "title": "Arrivo",
+  "title": "La tua camera",
   "order": 1,
   "kind": "main",
   "requiresQuestId": null,
-  "autoStartQuestId": "quest-02"
+  "background": "chapters/01/quests/01/bg-overview"
 }

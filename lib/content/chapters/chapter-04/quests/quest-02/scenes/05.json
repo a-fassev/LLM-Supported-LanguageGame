@@ -1,0 +1,9 @@
+{
+  "id": "chapter-04-quest-02-scene-05",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/04/quests/02/bg-giardini-margherita",
+  "content": {
+    "text": "Sara prende il telefono e ti mostra quattro foto della sua vacanza estiva. Tre di queste le ha già descritte brevemente nel suo diario — per la quarta ti chiede aiuto."
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "chapter-06-quest-01-bonus-scene-06",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/06/quests/bonus/bg-finale",
+  "content": {
+    "text": "Il tuo percorso a Bologna è completo. Nella tua stanza brilla l'arredo finale — hai raccolto tutte le ricompense del viaggio."
+  }
+}

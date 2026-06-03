@@ -2,5 +2,13 @@
   "id": "chapter-01",
   "title": "Bologna",
   "order": 1,
-  "quests": ["quest-01", "quest-02", "quest-01-bonus"]
+  "locked": false,
+  "quests": [
+    "quest-01",
+    "quest-02",
+    "quest-03",
+    "quest-04",
+    "quest-01-bonus"
+  ],
+  "background": "chapters/01/chapter/bg-missions"
 }

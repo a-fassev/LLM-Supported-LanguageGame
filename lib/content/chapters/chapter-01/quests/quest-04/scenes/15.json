@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-04-scene-15",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/04/bg-bar",
+  "content": {
+    "text": "Tu\nChe tipo simpatico, Tonio. Bologna mi piace già."
+  }
+}

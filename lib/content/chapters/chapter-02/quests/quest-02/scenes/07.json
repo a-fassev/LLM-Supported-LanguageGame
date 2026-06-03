@@ -1,0 +1,371 @@
+{
+  "id": "chapter-02-quest-02-scene-07",
+  "scene_type": "task",
+  "screen_type": "cloze",
+  "background": "chapters/02/quests/02/bg-nutelleria-task",
+  "content": {
+    "title": "Anch'io farò l'archeologo!",
+    "instruction": "Scegli l'avverbio o l'aggettivo, poi completa con i possessivi (con o senza articolo) e i verbi al futuro.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Parla con Dario del suo sogno. Scegli l'avverbio o l'aggettivo, poi completa con i possessivi (con o senza articolo) e i verbi al futuro.",
+      "caseSensitive": false,
+      "lines": [
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "Tu: Allora, com'è andata con l'archeologa?\nDario: "
+            },
+            {
+              "kind": "text",
+              "text": "*Benissimo/Buonissimo*"
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "Benissimo",
+                "benissimo"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "! Sai, ho deciso che "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "farò",
+                "Farò"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " l'archeologo anch'io!\nTu: Davvero? Ma non "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "avrai",
+                "Avrai"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " bisogno di voti più alti per farlo? Sono questi che ti "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "mancano",
+                "Mancano"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": ".\nDario: Sì, certo. Da domani "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "studierò",
+                "Studierò"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " tutti i giorni. Così gli insegnanti mi "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "daranno",
+                "Daranno"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "kind": "text",
+              "text": "*bene/buoni*"
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "buoni",
+                "Buoni"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " voti. "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "I miei",
+                "i miei"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " genitori "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "saranno",
+                "Saranno"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " contentissimi. Che dici: "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "la",
+                "La"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " mamma mi "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "comprerà",
+                "Comprerà"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " il libro sull'archeologia che abbiamo visto ieri? "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "Prenderò",
+                "prenderò"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " un "
+            },
+            {
+              "kind": "text",
+              "text": "*bene/buon*"
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "buon",
+                "Buon"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " voto naturalmente! "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "Smetterò",
+                "smetterò"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " anche di chiacchierare con gli altri, anche se "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "sarà",
+                "Sarà"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " "
+            },
+            {
+              "kind": "text",
+              "text": "*difficile/difficilmente*"
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "difficile",
+                "Difficile"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": ".\nTu: Così alla fine "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "farai",
+                "Farai"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " un'ottima maturità. Non "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "sarà",
+                "Sarà"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " mica "
+            },
+            {
+              "kind": "text",
+              "text": "*facile/facilmente*"
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "facile",
+                "Facile"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": ".\nDario: Ma che cosa "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "penserete",
+                "Penserete"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " voi di questa "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "mia",
+                "Mia"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " idea?\nTu: Boh, la "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "accetteranno",
+                "Accetteranno"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": ".\nDario: E tu? Sai già cosa "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "farai",
+                "Farai"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " dopo "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "la",
+                "La"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " maturità?\nTu: Sì, ho già una mezza idea sul "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "futuro",
+                "Futuro"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": ". Sai che mi piace molto la musica e proprio ieri ho sentito un'intervista...\nDario: Ah, interessante, dimmi tutto. "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "Potremmo",
+                "potremmo"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " mangiare qualcosa insieme e tu racconti. Che ne dici?"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.85,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

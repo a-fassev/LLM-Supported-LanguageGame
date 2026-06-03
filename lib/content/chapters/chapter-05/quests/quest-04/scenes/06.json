@@ -1,0 +1,9 @@
+{
+  "id": "chapter-05-quest-04-scene-06",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/05/quests/04/bg-room-evening",
+  "content": {
+    "text": "Premi \"Invia\". Dopo pochi secondi arriva la conferma di ricezione."
+  }
+}

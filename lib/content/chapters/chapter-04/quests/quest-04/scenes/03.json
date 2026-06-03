@@ -1,0 +1,9 @@
+{
+  "id": "chapter-04-quest-04-scene-03",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/04/quests/04/bg-room-morning-phone",
+  "content": {
+    "text": "Tu\nComacchio? Sara me ne ha parlato — la piccola città con i canali, a sud di Venezia. Diamo un'occhiata all'invito."
+  }
+}

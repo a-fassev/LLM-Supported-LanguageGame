@@ -1,0 +1,113 @@
+{
+  "id": "chapter-01-quest-04-scene-10",
+  "scene_type": "task",
+  "screen_type": "matching",
+  "background": "chapters/01/quests/04/bg-bar-task",
+  "content": {
+    "title": "Parole inglesi e italiane",
+    "instruction": "Collega ogni parola inglese alla parola italiana corrispondente.",
+    "referenceDocument": {
+      "title": "Le Grotte di Castellana",
+      "body": "La visita alle Grotte di Castellana — aperte tutto l'anno — è possibile con guide turistiche.\n\nCi sono due itinerari: l'itinerario parziale della lunghezza di un chilometro e della durata di 50 minuti, l'itinerario completo della lunghezza di tre chilometri e della durata di quasi due ore.\n\nLa temperatura, costante tutto l'anno, è di circa 18 °C, mentre il tasso di umidità è superiore al 90%.\n\nLa Grave, prima e più grande caverna del sistema sotterraneo, è l'unico ambiente naturalmente collegato con l'esterno: 100 metri di lunghezza, per 50 di larghezza, per 60 di profondità.\n\nLa parte delle grotte aperta al pubblico è costituita da ambienti molto vari per forma e dimensioni. Stalattiti, stalagmiti, colonne, preziosi cristalli occhieggiano ovunque.\n\nInfine, l'ultima e più bella caverna del sistema sotterraneo, la Grotta Bianca, definita per la ricchezza e il biancore dell'alabastro, è la più splendente del mondo."
+    },
+    "task": {
+      "prompt": "Collega ogni parola inglese alla parola italiana corrispondente.",
+      "leftItems": [
+        {
+          "id": "en1",
+          "label": "cave"
+        },
+        {
+          "id": "en2",
+          "label": "route"
+        },
+        {
+          "id": "en3",
+          "label": "itinerary"
+        },
+        {
+          "id": "en4",
+          "label": "exterior"
+        },
+        {
+          "id": "en5",
+          "label": "column"
+        },
+        {
+          "id": "en6",
+          "label": "explorer"
+        }
+      ],
+      "rightItems": [
+        {
+          "id": "it1",
+          "label": "la grotta"
+        },
+        {
+          "id": "it2",
+          "label": "il percorso"
+        },
+        {
+          "id": "it3",
+          "label": "l'itinerario"
+        },
+        {
+          "id": "it4",
+          "label": "l'esterno"
+        },
+        {
+          "id": "it5",
+          "label": "la colonna"
+        },
+        {
+          "id": "it6",
+          "label": "l'esploratore"
+        },
+        {
+          "id": "it7",
+          "label": "la stalattite"
+        }
+      ],
+      "correctPairs": [
+        {
+          "leftItemId": "en1",
+          "rightItemId": "it1"
+        },
+        {
+          "leftItemId": "en2",
+          "rightItemId": "it2"
+        },
+        {
+          "leftItemId": "en3",
+          "rightItemId": "it3"
+        },
+        {
+          "leftItemId": "en4",
+          "rightItemId": "it4"
+        },
+        {
+          "leftItemId": "en5",
+          "rightItemId": "it5"
+        },
+        {
+          "leftItemId": "en6",
+          "rightItemId": "it6"
+        }
+      ],
+      "presentation": {
+        "leftLabel": "inglese",
+        "rightLabel": "italiano",
+        "shuffleRightOrder": true
+      }
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "flat",
+      "slices": 2
+    }
+  }
+}

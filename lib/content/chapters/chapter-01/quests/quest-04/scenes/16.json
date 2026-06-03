@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-04-scene-16",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/04/bg-bar",
+  "content": {
+    "text": "Esci dal bar sorridente. La tua prima giornata a Bologna volge al termine."
+  }
+}

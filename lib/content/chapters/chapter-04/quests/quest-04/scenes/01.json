@@ -1,0 +1,9 @@
+{
+  "id": "chapter-04-quest-04-scene-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/04/quests/04/bg-room-morning-phone",
+  "content": {
+    "text": "La mattina dopo ti svegli e vedi un messaggio vocale sul telefono. È di Sara."
+  }
+}

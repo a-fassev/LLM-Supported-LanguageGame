@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { RunSceneDto } from "@/lib/api-client";
-import { readTaskSceneTitle } from "@/lib/game/scene-display";
+import { readTaskScenePrompt, readTaskSceneTitle } from "@/lib/game/scene-display";
 
 function taskScene(content: Record<string, unknown>): RunSceneDto {
   return {
@@ -28,5 +28,12 @@ describe("readTaskSceneTitle", () => {
   it("returns null when missing", () => {
     const scene = taskScene({ instruction: "Leggi bene." });
     expect(readTaskSceneTitle(scene)).toBeNull();
+  });
+});
+
+describe("readTaskScenePrompt", () => {
+  it("reads content.task.prompt", () => {
+    const scene = taskScene({ task: { prompt: "Completa la frase." } });
+    expect(readTaskScenePrompt(scene)).toBe("Completa la frase.");
   });
 });

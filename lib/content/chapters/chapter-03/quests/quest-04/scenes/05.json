@@ -1,0 +1,9 @@
+{
+  "id": "chapter-03-quest-04-scene-05",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/03/quests/04/bg-piazza-cioccoshow",
+  "content": {
+    "text": "Tu\n„Grazie! Sembri uno che se ne intende.\""
+  }
+}

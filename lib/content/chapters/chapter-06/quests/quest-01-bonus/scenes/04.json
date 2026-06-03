@@ -1,0 +1,471 @@
+{
+  "id": "chapter-06-quest-01-bonus-scene-04",
+  "scene_type": "task",
+  "screen_type": "matching",
+  "background": "chapters/06/quests/bonus/bg-neutral",
+  "content": {
+    "title": "Sfida bonus",
+    "instruction": "Abbina ogni parola italiana al suo equivalente inglese.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Collega ogni parola italiana al suo equivalente inglese.",
+      "sampleSize": 10,
+      "poolPairs": [
+        {
+          "id": "ch06v001",
+          "leftLabel": "la (ri)scoperta",
+          "rightLabel": "(re)discovery"
+        },
+        {
+          "id": "ch06v002",
+          "leftLabel": "la letteratura",
+          "rightLabel": "literature"
+        },
+        {
+          "id": "ch06v003",
+          "leftLabel": "il lettore/la lettrice",
+          "rightLabel": "reader"
+        },
+        {
+          "id": "ch06v004",
+          "leftLabel": "il romanzo",
+          "rightLabel": "novel"
+        },
+        {
+          "id": "ch06v005",
+          "leftLabel": "il giallo",
+          "rightLabel": "crime novel"
+        },
+        {
+          "id": "ch06v006",
+          "leftLabel": "la fiaba",
+          "rightLabel": "fairy tale"
+        },
+        {
+          "id": "ch06v007",
+          "leftLabel": "c'era una volta",
+          "rightLabel": "once upon a time"
+        },
+        {
+          "id": "ch06v008",
+          "leftLabel": "il paragone",
+          "rightLabel": "comparison"
+        },
+        {
+          "id": "ch06v009",
+          "leftLabel": "la biografia",
+          "rightLabel": "biography"
+        },
+        {
+          "id": "ch06v010",
+          "leftLabel": "la creatività",
+          "rightLabel": "creativity"
+        },
+        {
+          "id": "ch06v011",
+          "leftLabel": "la citazione",
+          "rightLabel": "quotation"
+        },
+        {
+          "id": "ch06v012",
+          "leftLabel": "la recensione",
+          "rightLabel": "review"
+        },
+        {
+          "id": "ch06v013",
+          "leftLabel": "la caricatura",
+          "rightLabel": "caricature"
+        },
+        {
+          "id": "ch06v014",
+          "leftLabel": "precedente",
+          "rightLabel": "previous"
+        },
+        {
+          "id": "ch06v015",
+          "leftLabel": "eccitante",
+          "rightLabel": "exciting"
+        },
+        {
+          "id": "ch06v016",
+          "leftLabel": "strutturare (un racconto)",
+          "rightLabel": "to structure a story"
+        },
+        {
+          "id": "ch06v017",
+          "leftLabel": "divorare (un romanzo)",
+          "rightLabel": "to devour a novel"
+        },
+        {
+          "id": "ch06v018",
+          "leftLabel": "la casa editrice",
+          "rightLabel": "publisher"
+        },
+        {
+          "id": "ch06v019",
+          "leftLabel": "crescere",
+          "rightLabel": "to grow"
+        },
+        {
+          "id": "ch06v020",
+          "leftLabel": "modificare",
+          "rightLabel": "to modify / change"
+        },
+        {
+          "id": "ch06v021",
+          "leftLabel": "affascinante",
+          "rightLabel": "fascinating"
+        },
+        {
+          "id": "ch06v022",
+          "leftLabel": "la gentilezza",
+          "rightLabel": "kindness / politeness"
+        },
+        {
+          "id": "ch06v023",
+          "leftLabel": "immenso, -a",
+          "rightLabel": "immense / enormous"
+        },
+        {
+          "id": "ch06v024",
+          "leftLabel": "delicato, -a",
+          "rightLabel": "delicate / sensitive"
+        },
+        {
+          "id": "ch06v025",
+          "leftLabel": "grato, -a",
+          "rightLabel": "grateful"
+        },
+        {
+          "id": "ch06v026",
+          "leftLabel": "grazie a",
+          "rightLabel": "thanks to"
+        },
+        {
+          "id": "ch06v027",
+          "leftLabel": "la gioia",
+          "rightLabel": "joy"
+        },
+        {
+          "id": "ch06v028",
+          "leftLabel": "la tristezza",
+          "rightLabel": "sadness"
+        },
+        {
+          "id": "ch06v029",
+          "leftLabel": "la rabbia",
+          "rightLabel": "anger / rage"
+        },
+        {
+          "id": "ch06v030",
+          "leftLabel": "l'attrezzatura",
+          "rightLabel": "equipment"
+        },
+        {
+          "id": "ch06v031",
+          "leftLabel": "la lacrima",
+          "rightLabel": "tear"
+        },
+        {
+          "id": "ch06v032",
+          "leftLabel": "il vantaggio",
+          "rightLabel": "advantage"
+        },
+        {
+          "id": "ch06v033",
+          "leftLabel": "l'infanzia",
+          "rightLabel": "childhood"
+        },
+        {
+          "id": "ch06v034",
+          "leftLabel": "sporcare",
+          "rightLabel": "to make dirty"
+        },
+        {
+          "id": "ch06v035",
+          "leftLabel": "filosofico, -a",
+          "rightLabel": "philosophical"
+        },
+        {
+          "id": "ch06v036",
+          "leftLabel": "arrotolarsi",
+          "rightLabel": "to roll / wind oneself up"
+        },
+        {
+          "id": "ch06v037",
+          "leftLabel": "attorno",
+          "rightLabel": "around"
+        },
+        {
+          "id": "ch06v038",
+          "leftLabel": "distratto, -a",
+          "rightLabel": "distracted"
+        },
+        {
+          "id": "ch06v039",
+          "leftLabel": "stringere",
+          "rightLabel": "to press / squeeze / tighten"
+        },
+        {
+          "id": "ch06v040",
+          "leftLabel": "(non mi) importa (di qc.)",
+          "rightLabel": "something matters / does not matter to me"
+        },
+        {
+          "id": "ch06v041",
+          "leftLabel": "fisso, -a",
+          "rightLabel": "fixed / steady"
+        },
+        {
+          "id": "ch06v042",
+          "leftLabel": "entrambi",
+          "rightLabel": "both"
+        },
+        {
+          "id": "ch06v043",
+          "leftLabel": "pazzesco, -a",
+          "rightLabel": "crazy"
+        },
+        {
+          "id": "ch06v044",
+          "leftLabel": "il/la secchione/a",
+          "rightLabel": "swot / nerd"
+        },
+        {
+          "id": "ch06v045",
+          "leftLabel": "il cammino",
+          "rightLabel": "path / way"
+        },
+        {
+          "id": "ch06v046",
+          "leftLabel": "oscuro, -a",
+          "rightLabel": "dark"
+        },
+        {
+          "id": "ch06v047",
+          "leftLabel": "concentrarsi (su)",
+          "rightLabel": "to concentrate on"
+        },
+        {
+          "id": "ch06v048",
+          "leftLabel": "il principe/la principessa",
+          "rightLabel": "prince / princess"
+        },
+        {
+          "id": "ch06v049",
+          "leftLabel": "sposare; sposarsi",
+          "rightLabel": "to marry; to get married"
+        },
+        {
+          "id": "ch06v050",
+          "leftLabel": "scappare",
+          "rightLabel": "to flee / escape"
+        },
+        {
+          "id": "ch06v051",
+          "leftLabel": "rotondo, -a",
+          "rightLabel": "round"
+        },
+        {
+          "id": "ch06v052",
+          "leftLabel": "pubblicitario, -a",
+          "rightLabel": "advertising"
+        },
+        {
+          "id": "ch06v053",
+          "leftLabel": "il vizio",
+          "rightLabel": "vice / flaw"
+        },
+        {
+          "id": "ch06v054",
+          "leftLabel": "il fiato; tutto d'un fiato",
+          "rightLabel": "breath; in one breath"
+        },
+        {
+          "id": "ch06v055",
+          "leftLabel": "magico, -a",
+          "rightLabel": "magical"
+        },
+        {
+          "id": "ch06v056",
+          "leftLabel": "sparire",
+          "rightLabel": "to disappear"
+        },
+        {
+          "id": "ch06v057",
+          "leftLabel": "il brano",
+          "rightLabel": "text passage / music piece"
+        },
+        {
+          "id": "ch06v058",
+          "leftLabel": "il confine",
+          "rightLabel": "border"
+        },
+        {
+          "id": "ch06v059",
+          "leftLabel": "passare una notte in bianco",
+          "rightLabel": "to spend a sleepless night"
+        },
+        {
+          "id": "ch06v060",
+          "leftLabel": "andare in bianco",
+          "rightLabel": "to fail"
+        },
+        {
+          "id": "ch06v061",
+          "leftLabel": "la bandiera",
+          "rightLabel": "flag"
+        },
+        {
+          "id": "ch06v062",
+          "leftLabel": "alzare bandiera bianca",
+          "rightLabel": "to wave the white flag / surrender"
+        },
+        {
+          "id": "ch06v063",
+          "leftLabel": "il silenzio",
+          "rightLabel": "silence"
+        },
+        {
+          "id": "ch06v064",
+          "leftLabel": "è lo stesso",
+          "rightLabel": "it is all the same"
+        },
+        {
+          "id": "ch06v065",
+          "leftLabel": "la tempesta",
+          "rightLabel": "storm"
+        },
+        {
+          "id": "ch06v066",
+          "leftLabel": "l'uragano",
+          "rightLabel": "hurricane"
+        },
+        {
+          "id": "ch06v067",
+          "leftLabel": "spazzare (via)",
+          "rightLabel": "to sweep away"
+        },
+        {
+          "id": "ch06v068",
+          "leftLabel": "il terremoto",
+          "rightLabel": "earthquake"
+        },
+        {
+          "id": "ch06v069",
+          "leftLabel": "(far) crollare",
+          "rightLabel": "to collapse / cause to collapse"
+        },
+        {
+          "id": "ch06v070",
+          "leftLabel": "la somma",
+          "rightLabel": "sum"
+        },
+        {
+          "id": "ch06v071",
+          "leftLabel": "il gas",
+          "rightLabel": "gas"
+        },
+        {
+          "id": "ch06v072",
+          "leftLabel": "il vapore",
+          "rightLabel": "steam / vapor"
+        },
+        {
+          "id": "ch06v073",
+          "leftLabel": "la lava",
+          "rightLabel": "lava"
+        },
+        {
+          "id": "ch06v074",
+          "leftLabel": "il territorio",
+          "rightLabel": "territory"
+        },
+        {
+          "id": "ch06v075",
+          "leftLabel": "la nazione",
+          "rightLabel": "nation"
+        },
+        {
+          "id": "ch06v076",
+          "leftLabel": "la provincia",
+          "rightLabel": "province"
+        },
+        {
+          "id": "ch06v077",
+          "leftLabel": "il sorriso",
+          "rightLabel": "smile"
+        },
+        {
+          "id": "ch06v078",
+          "leftLabel": "la vignetta",
+          "rightLabel": "cartoon / caricature"
+        },
+        {
+          "id": "ch06v079",
+          "leftLabel": "l'uccello",
+          "rightLabel": "bird"
+        },
+        {
+          "id": "ch06v080",
+          "leftLabel": "prendere",
+          "rightLabel": "to catch / take"
+        },
+        {
+          "id": "ch06v081",
+          "leftLabel": "il bastone",
+          "rightLabel": "stick"
+        },
+        {
+          "id": "ch06v082",
+          "leftLabel": "la tranquillità",
+          "rightLabel": "calm / tranquility"
+        },
+        {
+          "id": "ch06v083",
+          "leftLabel": "l'abbreviazione",
+          "rightLabel": "abbreviation"
+        },
+        {
+          "id": "ch06v084",
+          "leftLabel": "il paesino",
+          "rightLabel": "small village"
+        },
+        {
+          "id": "ch06v085",
+          "leftLabel": "nobile",
+          "rightLabel": "noble"
+        },
+        {
+          "id": "ch06v086",
+          "leftLabel": "rallegrarsi",
+          "rightLabel": "to rejoice / be happy"
+        },
+        {
+          "id": "ch06v087",
+          "leftLabel": "tratto da",
+          "rightLabel": "taken from / adapted from"
+        }
+      ],
+      "presentation": {
+        "leftLabel": "italiano",
+        "rightLabel": "english",
+        "shuffleRightOrder": true
+      }
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 2,
+      "minRatioToComplete": 0.6,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

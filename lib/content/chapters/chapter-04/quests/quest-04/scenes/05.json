@@ -1,0 +1,125 @@
+{
+  "id": "chapter-04-quest-04-scene-05",
+  "scene_type": "task",
+  "screen_type": "multiple_choice",
+  "background": "chapters/04/quests/04/bg-room-morning-phone",
+  "content": {
+    "title": "Hai capito l'invito?",
+    "instruction": "Leggi attentamente l'invito di Giulia nel documento. Poi rispondi alle domande.",
+    "referenceDocument": {
+      "title": "INVITO — Divertiti nella Pianura Padana!",
+      "body": "Come superare la fine di una storia d'amore e rinascere più forti di prima! Un weekend a Comacchio — i rimedi contro il mal d'amore esistono davvero!\n\nVietati sono però i pensieri negativi e la nostalgia!\n\nSi chiamano cioccolato, gelato, ballare, fenicotteri, risotto di mare, spaghetti ai crostacei (la nostra specialità!!!) e budino (non guasta mai 😊). Ma soprattutto ... AMICIZIA!\n\nTi invito a visitare la mia bellissima città, la „piccola Venezia\" con tutti i suoi canali. Comacchio nasce e vive tra terra e acqua. Da una parte trovi il mare, dall'altra Il Parco del Delta del Po.\n\nChe ne dici? La sera andiamo al cinema, in pizzeria o restiamo a casa per una festa in pigiama e mangiamo un chilo di Nutella... scegli tu!\n\nTutto sommato sarà il weekend ideale per due ragazze favolose come noi! La vita è bella nonostante tutto — perciò ne dobbiamo approfittare pienamente! TVB Giulia\n\nProgramma: i 5 passi contro il mal d'amore\n\n(A) 1° passo — Abbiamo cinque spiagge che sono ideali per il nostro weekend di relax. Non solo per riposarci al sole..., ma anche per cancellare i tuoi ricordi!\n\n(B) 2° passo — Visitiamo il Ponte degli Sbirri, il Palazzo Bellini e poi il celebre Trepponti, tutti i nostri bellissimi monumenti che ti mostrano la bellezza della vita.\n\n(C) 3° passo — Non dimentichiamo il tramonto... l'orizzonte si colora di effetti straordinari... il benessere è garantito!\n\n(D) 4° passo — Prima facciamo una passeggiata lungo Il Loggiato dei Cappuccini, il più lungo d'Italia, e dopo andiamo in bici, forse vedremo persino qualche fenicottero? (una bella sorpresa!)\n\n(E) 5° passo — E se il tempo sarà brutto... ? Non ti preoccupare! Comunque si può sempre andare al museo... poco lontano si trova il Museo d'Arte Contemporanea Remo Brindisi dove si trova una ricca collezione d'arte del Novecento: Picasso, Andy Warhol e Giorgio De Chirico e... molti altri."
+    },
+    "task": {
+      "prompt": "Leggi attentamente l'invito di Giulia. Poi rispondi alle domande.",
+      "questions": [
+        {
+          "id": "invito-q1",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Perché Giulia invita Sara (e te) a Comacchio?",
+          "options": [
+            {
+              "id": "invito-q1-opt-a",
+              "label": "Per festeggiare il compleanno di Giulia."
+            },
+            {
+              "id": "invito-q1-opt-b",
+              "label": "Per aiutare Sara a superare il mal d'amore."
+            },
+            {
+              "id": "invito-q1-opt-c",
+              "label": "Per visitare il Parco Nazionale del Po insieme."
+            }
+          ],
+          "correctOptionIds": [
+            "invito-q1-opt-b"
+          ]
+        },
+        {
+          "id": "invito-q2",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Quante spiagge ci sono vicino a Comacchio secondo l'invito?",
+          "options": [
+            {
+              "id": "invito-q2-opt-a",
+              "label": "Tre"
+            },
+            {
+              "id": "invito-q2-opt-b",
+              "label": "Cinque"
+            },
+            {
+              "id": "invito-q2-opt-c",
+              "label": "Sette"
+            }
+          ],
+          "correctOptionIds": [
+            "invito-q2-opt-b"
+          ]
+        },
+        {
+          "id": "invito-q3",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Qual è una specialità della cucina di Giulia?",
+          "options": [
+            {
+              "id": "invito-q3-opt-a",
+              "label": "Il risotto di mare e gli spaghetti ai crostacei"
+            },
+            {
+              "id": "invito-q3-opt-b",
+              "label": "I tortellini al ragù e la mortadella"
+            },
+            {
+              "id": "invito-q3-opt-c",
+              "label": "La pizza Margherita e il gelato al cioccolato"
+            }
+          ],
+          "correctOptionIds": [
+            "invito-q3-opt-a"
+          ]
+        },
+        {
+          "id": "invito-q4",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Cosa propone Giulia in caso di brutto tempo?",
+          "options": [
+            {
+              "id": "invito-q4-opt-a",
+              "label": "Restare a casa per una festa in pigiama con la Nutella"
+            },
+            {
+              "id": "invito-q4-opt-b",
+              "label": "Andare al Museo d'Arte Contemporanea Remo Brindisi"
+            },
+            {
+              "id": "invito-q4-opt-c",
+              "label": "Visitare il Trepponti e il Palazzo Bellini"
+            }
+          ],
+          "correctOptionIds": [
+            "invito-q4-opt-b"
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 2,
+      "minRatioToComplete": 0.75,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

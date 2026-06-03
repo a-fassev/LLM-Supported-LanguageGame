@@ -1,0 +1,8 @@
+{
+  "id": "quest-01-bonus",
+  "title": "Extra: i saluti",
+  "order": 3,
+  "kind": "bonus",
+  "requiresQuestId": "quest-02",
+  "background": "chapters/00/quests/bonus/bg-overview"
+}

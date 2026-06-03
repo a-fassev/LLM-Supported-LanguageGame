@@ -1,0 +1,9 @@
+{
+  "id": "chapter-02-quest-03-scene-13",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/02/quests/03/bg-desk",
+  "content": {
+    "text": "Salvi il compito sul portale della scuola e chiudi il computer. Ti resta un ultimo posto da visitare oggi: il ristorante."
+  }
+}

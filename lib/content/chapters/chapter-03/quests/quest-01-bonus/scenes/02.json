@@ -1,19 +1,9 @@
 {
   "id": "chapter-03-quest-01-bonus-scene-02",
-  "scene_type": "task",
-  "screen_type": "bonus",
-  "background": "chapters/03/quests/bonus/bg-task-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/03/quests/bonus/bg-neutral",
   "content": {
-    "title": "Sfida bonus",
-    "instruction": "Completa la sfida per ottenere pizza extra.",
-    "referenceDocument": null,
-    "task": {}
-  },
-  "scoring": {
-    "backpack": { "pieces": 1 },
-    "pizza": {
-      "mode": "flat",
-      "slices": 3
-    }
+    "text": "Prima di chiudere il capitolo, mettiti alla prova: quante parole di questa lezione ricordi davvero?"
   }
 }

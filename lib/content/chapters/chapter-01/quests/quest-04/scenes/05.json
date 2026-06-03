@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-04-scene-05",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/04/bg-bar",
+  "content": {
+    "text": "Tonio prende una brochure dal bancone e te la passa."
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "chapter-06-quest-02-scene-06",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/06/quests/02/bg-ristorante",
+  "content": {
+    "text": "Chiudi il libro e torni al lavoro con la testa piena di idee."
+  }
+}

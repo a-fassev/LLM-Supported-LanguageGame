@@ -1,6 +1,6 @@
 import { parseClozeTextContent } from "@/lib/game/schemas/clozeTextContentSchema";
 import { parseCutsceneContent } from "@/lib/game/schemas/cutsceneContentSchema";
-import { parseDragDropContent } from "@/lib/game/schemas/dragDropContentSchema";
+import { parseDragDropAuthoringContent } from "@/lib/game/schemas/dragDropContentSchema";
 import { parseErrorSpottingContent } from "@/lib/game/schemas/errorSpottingContentSchema";
 import { parseMatchingContent } from "@/lib/game/schemas/matchingContentSchema";
 import { parseMultipleChoiceContent } from "@/lib/game/schemas/multipleChoiceContentSchema";
@@ -42,7 +42,7 @@ function parseTaskContent(taskType: string, payload: unknown): { ok: true } | { 
       return r.ok ? { ok: true } : { ok: false, issues: r.issues };
     }
     case "DragDrop": {
-      const r = parseDragDropContent(payload);
+      const r = parseDragDropAuthoringContent(payload);
       return r.ok ? { ok: true } : { ok: false, issues: r.issues };
     }
     case "MultipleChoice": {

@@ -1,0 +1,9 @@
+{
+  "id": "chapter-05-quest-02-scene-05",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/05/quests/02/bg-room-desk",
+  "content": {
+    "text": "Confrontate le risposte e chiudete i fogli."
+  }
+}

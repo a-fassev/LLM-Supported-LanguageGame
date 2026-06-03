@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-04-scene-11",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/04/bg-bar",
+  "content": {
+    "text": "Tonio\n\"Perfetto! Vedi, le lingue si assomigliano più di quanto pensiamo. Ah, un'ultima cosa: nella brochure ci sono tanti numeri, ma mia nipote dice che non si capisce bene cosa significano. Mi aiuti a spiegarli?\""
+  }
+}

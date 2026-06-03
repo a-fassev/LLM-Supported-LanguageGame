@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-04-scene-04",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/04/bg-bar",
+  "content": {
+    "text": "Tonio\n\"Ah, benvenuto/a allora! Io sono Tonio. Il bar è mio, ma io non sono di Bologna. Vengo dalla Puglia, da un paesino vicino a Castellana Grotte. Lo conosci? No? Eh, è un posto incredibile. Ci sono delle grotte sotterranee tra le più belle del mondo. Aspetta, ti faccio vedere una cosa...\""
+  }
+}

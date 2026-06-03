@@ -1,0 +1,9 @@
+{
+  "id": "chapter-03-quest-04-scene-04",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/03/quests/04/bg-piazza-cioccoshow",
+  "content": {
+    "text": "Lorenzo Conti\n„Ehi, ciao! L'hai già provato questo? È il gianduiotto, l'originale di Torino. Se devi mangiare un solo pezzo di cioccolato nella tua vita, mangia questo. Dai, te ne offro uno!\""
+  }
+}

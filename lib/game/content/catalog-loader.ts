@@ -8,6 +8,13 @@ import {
   parseQuestFile,
   parseSceneFile,
 } from "@/lib/game/schemas/contentCatalogSchema";
+import { parseClozeTextContent } from "@/lib/game/schemas/clozeTextContentSchema";
+import { parseDragDropContent } from "@/lib/game/schemas/dragDropContentSchema";
+import { parseErrorSpottingContent } from "@/lib/game/schemas/errorSpottingContentSchema";
+import { parseMatchingContent } from "@/lib/game/schemas/matchingContentSchema";
+import { parseMultipleChoiceContent } from "@/lib/game/schemas/multipleChoiceContentSchema";
+import { parseFreitextLlmStepContent } from "@/lib/llm/freitextLlmContentSchema";
+import { mergeFreitextSceneContent } from "@/lib/game/tasks/freitext/merge-freitext-scene-content";
 
 export type CatalogScene = SceneFileParsed & {
   sceneNumber: number;
@@ -90,6 +97,70 @@ async function loadScenes(chapterId: string, questId: string, scenesDir: string)
       err(`${filePath}: scene id '${scene.id}' must be '${expectedId}'`);
     }
 
+    if (scene.scene_type === "task" && scene.screen_type === "multiple_choice") {
+      const mcParsed = parseMultipleChoiceContent(scene.content.task);
+      if (!mcParsed.ok) {
+        err(`${filePath}: content.task: ${mcParsed.issues}`);
+      }
+    }
+
+    if (scene.scene_type === "task" && scene.screen_type === "drag_drop") {
+      const dragParsed = parseDragDropContent(scene.content.task);
+      if (!dragParsed.ok) {
+        err(`${filePath}: content.task: ${dragParsed.issues}`);
+      }
+    }
+
+    if (scene.scene_type === "task" && scene.screen_type === "matching") {
+      const matchingParsed = parseMatchingContent(scene.content.task);
+      if (!matchingParsed.ok) {
+        err(`${filePath}: content.task: ${matchingParsed.issues}`);
+      }
+      const task = matchingParsed.value;
+      const hasConcrete =
+        Array.isArray(task.leftItems) &&
+        task.leftItems.length > 0 &&
+        Array.isArray(task.rightItems) &&
+        task.rightItems.length > 0 &&
+        Array.isArray(task.correctPairs) &&
+        task.correctPairs.length > 0;
+      const hasPool =
+        Array.isArray(task.poolPairs) &&
+        task.poolPairs.length > 0 &&
+        typeof task.sampleSize === "number";
+      if (!hasConcrete && !hasPool) {
+        err(
+          `${filePath}: content.task: matching scenes require concrete leftItems/rightItems/correctPairs or poolPairs+sampleSize`,
+        );
+      }
+    }
+
+    if (scene.scene_type === "task" && scene.screen_type === "free_text") {
+      const merged = mergeFreitextSceneContent(
+        scene.content.task as Record<string, unknown>,
+        scene.content.instruction,
+        scene.content.referenceDocument,
+      );
+      const freitextParsed = parseFreitextLlmStepContent(merged);
+      if (!freitextParsed.ok) {
+        err(`${filePath}: content.task: ${freitextParsed.issues}`);
+      }
+    }
+
+    if (scene.scene_type === "task" && scene.screen_type === "error_spotting") {
+      const errorSpottingParsed = parseErrorSpottingContent(scene.content.task);
+      if (!errorSpottingParsed.ok) {
+        err(`${filePath}: content.task: ${errorSpottingParsed.issues}`);
+      }
+    }
+
+    if (scene.scene_type === "task" && scene.screen_type === "cloze") {
+      const clozeParsed = parseClozeTextContent(scene.content.task);
+      if (!clozeParsed.ok) {
+        err(`${filePath}: content.task: ${clozeParsed.issues}`);
+      }
+    }
+
     scenes.push({ ...scene, sceneNumber: n, filename });
   }
   return scenes;
@@ -125,15 +196,6 @@ function validateQuestFlow(chapter: ChapterFileParsed, quests: CatalogQuest[]) {
       err(
         `chapter '${chapter.id}' quest '${q.id}' requiresQuestId '${q.requiresQuestId}' must match previous main quest '${expectedRequires}'`,
       );
-    }
-    if (q.autoStartQuestId !== null) {
-      const target = byId.get(q.autoStartQuestId);
-      if (!target || target.kind !== "main") {
-        err(`chapter '${chapter.id}' quest '${q.id}' autoStartQuestId '${q.autoStartQuestId}' must point to a main quest`);
-      }
-      if (q.autoStartQuestId === q.id) {
-        err(`chapter '${chapter.id}' quest '${q.id}' autoStartQuestId cannot self-reference`);
-      }
     }
   }
 }
@@ -171,10 +233,14 @@ async function loadCatalogInternal(contentRoot: string): Promise<ContentCatalog>
 
   loaded.sort((a, b) => a.order - b.order);
   for (let i = 0; i < loaded.length; i++) {
-    const expected = i + 1;
+    const expected = i;
     if (loaded[i].order !== expected) {
-      err(`chapter order must be contiguous from 1 (missing order ${expected})`);
+      err(`chapter order must be contiguous from 0 (missing order ${expected})`);
     }
+  }
+  const referenceChapters = loaded.filter((chapter) => chapter.reference);
+  if (referenceChapters.length > 1) {
+    err(`at most one chapter may have reference: true (found: ${referenceChapters.map((c) => c.id).join(", ")})`);
   }
   return { chapters: loaded };
 }

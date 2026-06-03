@@ -1,0 +1,391 @@
+{
+  "id": "chapter-01-quest-01-bonus-scene-04",
+  "scene_type": "task",
+  "screen_type": "matching",
+  "background": "chapters/01/quests/bonus/bg-task",
+  "content": {
+    "title": "Sfida bonus",
+    "instruction": "Abbina ogni parola italiana al suo equivalente inglese.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Collega ogni parola italiana al suo equivalente inglese.",
+      "sampleSize": 10,
+      "poolPairs": [
+        {
+          "id": "bv01",
+          "leftLabel": "l'agriturismo",
+          "rightLabel": "farm holiday"
+        },
+        {
+          "id": "bv02",
+          "leftLabel": "la gita culturale",
+          "rightLabel": "cultural trip"
+        },
+        {
+          "id": "bv03",
+          "leftLabel": "gli scavi",
+          "rightLabel": "excavations"
+        },
+        {
+          "id": "bv04",
+          "leftLabel": "il parco nazionale",
+          "rightLabel": "national park"
+        },
+        {
+          "id": "bv05",
+          "leftLabel": "la natura",
+          "rightLabel": "nature"
+        },
+        {
+          "id": "bv06",
+          "leftLabel": "la campagna",
+          "rightLabel": "countryside"
+        },
+        {
+          "id": "bv07",
+          "leftLabel": "in campagna",
+          "rightLabel": "in the countryside"
+        },
+        {
+          "id": "bv08",
+          "leftLabel": "il campeggio",
+          "rightLabel": "camping"
+        },
+        {
+          "id": "bv09",
+          "leftLabel": "la tenda",
+          "rightLabel": "tent"
+        },
+        {
+          "id": "bv10",
+          "leftLabel": "il monte",
+          "rightLabel": "mountain"
+        },
+        {
+          "id": "bv11",
+          "leftLabel": "la cima",
+          "rightLabel": "summit"
+        },
+        {
+          "id": "bv12",
+          "leftLabel": "in cima",
+          "rightLabel": "at the top"
+        },
+        {
+          "id": "bv13",
+          "leftLabel": "la montagna",
+          "rightLabel": "mountain range"
+        },
+        {
+          "id": "bv14",
+          "leftLabel": "il mare",
+          "rightLabel": "sea"
+        },
+        {
+          "id": "bv15",
+          "leftLabel": "la spiaggia",
+          "rightLabel": "beach"
+        },
+        {
+          "id": "bv16",
+          "leftLabel": "in campeggio",
+          "rightLabel": "at the campsite"
+        },
+        {
+          "id": "bv17",
+          "leftLabel": "in piscina",
+          "rightLabel": "at the pool"
+        },
+        {
+          "id": "bv18",
+          "leftLabel": "in spiaggia",
+          "rightLabel": "at the beach"
+        },
+        {
+          "id": "bv19",
+          "leftLabel": "il fiume",
+          "rightLabel": "river"
+        },
+        {
+          "id": "bv20",
+          "leftLabel": "il lago",
+          "rightLabel": "lake"
+        },
+        {
+          "id": "bv21",
+          "leftLabel": "l'ostello",
+          "rightLabel": "youth hostel"
+        },
+        {
+          "id": "bv22",
+          "leftLabel": "la cartina",
+          "rightLabel": "map"
+        },
+        {
+          "id": "bv23",
+          "leftLabel": "andare in bici",
+          "rightLabel": "to go by bike"
+        },
+        {
+          "id": "bv24",
+          "leftLabel": "andare in barca",
+          "rightLabel": "to go by boat"
+        },
+        {
+          "id": "bv25",
+          "leftLabel": "andare in macchina",
+          "rightLabel": "to go by car"
+        },
+        {
+          "id": "bv26",
+          "leftLabel": "andare in treno",
+          "rightLabel": "to go by train"
+        },
+        {
+          "id": "bv27",
+          "leftLabel": "andare a cavallo",
+          "rightLabel": "to go horseback riding"
+        },
+        {
+          "id": "bv28",
+          "leftLabel": "l'esperienza",
+          "rightLabel": "experience"
+        },
+        {
+          "id": "bv29",
+          "leftLabel": "la visita",
+          "rightLabel": "visit"
+        },
+        {
+          "id": "bv30",
+          "leftLabel": "la visita guidata",
+          "rightLabel": "guided tour"
+        },
+        {
+          "id": "bv31",
+          "leftLabel": "visitare",
+          "rightLabel": "to visit"
+        },
+        {
+          "id": "bv32",
+          "leftLabel": "godere",
+          "rightLabel": "to enjoy"
+        },
+        {
+          "id": "bv33",
+          "leftLabel": "godersi",
+          "rightLabel": "to enjoy oneself"
+        },
+        {
+          "id": "bv34",
+          "leftLabel": "il kite surf",
+          "rightLabel": "kitesurfing"
+        },
+        {
+          "id": "bv35",
+          "leftLabel": "il trekking",
+          "rightLabel": "trekking"
+        },
+        {
+          "id": "bv36",
+          "leftLabel": "la canoa",
+          "rightLabel": "canoe"
+        },
+        {
+          "id": "bv37",
+          "leftLabel": "la barca",
+          "rightLabel": "boat"
+        },
+        {
+          "id": "bv38",
+          "leftLabel": "andare in canoa",
+          "rightLabel": "to go canoeing"
+        },
+        {
+          "id": "bv39",
+          "leftLabel": "di nuovo",
+          "rightLabel": "again"
+        },
+        {
+          "id": "bv40",
+          "leftLabel": "di segreto",
+          "rightLabel": "secretly"
+        },
+        {
+          "id": "bv41",
+          "leftLabel": "di preciso",
+          "rightLabel": "exactly"
+        },
+        {
+          "id": "bv42",
+          "leftLabel": "comunicare",
+          "rightLabel": "to communicate"
+        },
+        {
+          "id": "bv43",
+          "leftLabel": "la telefonata",
+          "rightLabel": "phone call"
+        },
+        {
+          "id": "bv44",
+          "leftLabel": "la piattaforma",
+          "rightLabel": "platform"
+        },
+        {
+          "id": "bv45",
+          "leftLabel": "internet",
+          "rightLabel": "internet"
+        },
+        {
+          "id": "bv46",
+          "leftLabel": "in internet",
+          "rightLabel": "on the internet"
+        },
+        {
+          "id": "bv47",
+          "leftLabel": "l'accesso",
+          "rightLabel": "access"
+        },
+        {
+          "id": "bv48",
+          "leftLabel": "allegare",
+          "rightLabel": "to attach"
+        },
+        {
+          "id": "bv49",
+          "leftLabel": "aggiungere",
+          "rightLabel": "to add"
+        },
+        {
+          "id": "bv50",
+          "leftLabel": "inviare",
+          "rightLabel": "to send"
+        },
+        {
+          "id": "bv51",
+          "leftLabel": "il saluto",
+          "rightLabel": "greeting"
+        },
+        {
+          "id": "bv52",
+          "leftLabel": "i miei migliori saluti",
+          "rightLabel": "best regards"
+        },
+        {
+          "id": "bv53",
+          "leftLabel": "la formula",
+          "rightLabel": "greeting formula"
+        },
+        {
+          "id": "bv54",
+          "leftLabel": "giovane",
+          "rightLabel": "young"
+        },
+        {
+          "id": "bv55",
+          "leftLabel": "anziano",
+          "rightLabel": "elderly"
+        },
+        {
+          "id": "bv56",
+          "leftLabel": "anziana",
+          "rightLabel": "old"
+        },
+        {
+          "id": "bv57",
+          "leftLabel": "buono",
+          "rightLabel": "good"
+        },
+        {
+          "id": "bv58",
+          "leftLabel": "buona",
+          "rightLabel": "kind"
+        },
+        {
+          "id": "bv59",
+          "leftLabel": "cattivo",
+          "rightLabel": "bad"
+        },
+        {
+          "id": "bv60",
+          "leftLabel": "cattiva",
+          "rightLabel": "mean"
+        },
+        {
+          "id": "bv61",
+          "leftLabel": "meraviglioso",
+          "rightLabel": "wonderful"
+        },
+        {
+          "id": "bv62",
+          "leftLabel": "meravigliosa",
+          "rightLabel": "marvelous"
+        },
+        {
+          "id": "bv63",
+          "leftLabel": "fantastico",
+          "rightLabel": "fantastic"
+        },
+        {
+          "id": "bv64",
+          "leftLabel": "fantastica",
+          "rightLabel": "fantastic"
+        },
+        {
+          "id": "bv65",
+          "leftLabel": "simpatico",
+          "rightLabel": "likeable"
+        },
+        {
+          "id": "bv66",
+          "leftLabel": "simpatica",
+          "rightLabel": "nice"
+        },
+        {
+          "id": "bv67",
+          "leftLabel": "dolce",
+          "rightLabel": "sweet"
+        },
+        {
+          "id": "bv68",
+          "leftLabel": "fortunato",
+          "rightLabel": "lucky"
+        },
+        {
+          "id": "bv69",
+          "leftLabel": "fortunata",
+          "rightLabel": "fortunate"
+        },
+        {
+          "id": "bv70",
+          "leftLabel": "straniero",
+          "rightLabel": "foreign"
+        },
+        {
+          "id": "bv71",
+          "leftLabel": "straniera",
+          "rightLabel": "foreigner"
+        }
+      ],
+      "presentation": {
+        "leftLabel": "italiano",
+        "rightLabel": "english",
+        "shuffleRightOrder": true
+      }
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.6,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

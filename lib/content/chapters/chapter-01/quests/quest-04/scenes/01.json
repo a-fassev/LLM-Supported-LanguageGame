@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-04-scene-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/04/bg-bar",
+  "content": {
+    "text": "Cammini per le vie del centro di Bologna, sotto i portici. Hai sete e decidi di fermarti in un piccolo bar. Dentro c'è odore di caffè e di cornetti appena fatti."
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "id": "chapter-03-quest-04-scene-08",
+  "scene_type": "task",
+  "screen_type": "multiple_choice",
+  "background": "chapters/03/quests/04/bg-piazza-cioccoshow",
+  "content": {
+    "title": "La storia di Lorenzo: Torino, la mia città",
+    "instruction": "Leggi attentamente la storia di Lorenzo. Poi rispondi alle domande. Usa il documento se ti serve.",
+    "referenceDocument": {
+      "title": "Lorenzo Conti racconta",
+      "body": "„In Piemonte si mangia bene. E a Torino (e in tutto il Piemonte) si ama il buon cioccolato. Infatti Torino è la città italiana del cioccolato e ogni anno qui da noi si celebra il festival del cioccolato: il CioccolaTò. I cioccolatini più famosi sono i Gianduiotti — fatti con cacao buono, zucchero e nocciole piemontesi. Per colazione si può mangiare un altro prodotto famoso che si produce ad Alba, una città vicino a Torino: la Nutella. Il primo barattolo di Nutella esce dalla fabbrica nell'aprile del 1964.\n\nA Torino si fanno anche i buoni grissini — un pane croccante fatto a forma di bastoncino. Spesso i grissini si mangiano avvolti in una fetta di prosciutto, ma se qualcuno li preferisce senza, non c'è problema.\n\nA Torino si gioca anche a calcio. Ecco la maglietta della famosa squadra a Torino: la Juventus, oppure la Juve. La squadra non ha solo uno stadio bellissimo e un buon allenatore, ma anche un soprannome interessante: i torinesi la chiamano „Vecchia Signora\".\n\nIn Torino si possono vedere le Alpi e la Mole Antonelliana — il simbolo di Torino. All'interno della Mole si può visitare il Museo Nazionale del Cinema. Lì ci si può informare sulla storia del cinema, guardare qualche film e passare alcune ore interessanti.\n\nA Torino non si devono perdere i musei! Un consiglio: se si prenota, non si deve fare la fila! Tanti dicono che il Museo Egizio sia qualcosa di spettacolare. Con 30.000 pezzi è il museo egizio più importante dopo quello del Cairo. Lì si possono ammirare opere d'arte dell'antico Egitto.\n\nA Torino si producono automobili. Nel corso degli anni la FIAT — fondata nel 1899 — ha prodotto tanti modelli famosi come la FIAT 500. Fino agli anni '80 la FIAT produceva le sue macchine nel Lingotto. Sul tetto del Lingotto si trova la vecchia pista di collaudo della FIAT. Oggi il Lingotto è un centro polifunzionale con alcuni negozi, bar, ristoranti, cinema ed un centro congressi.\""
+    },
+    "task": {
+      "prompt": "Lorenzo ti racconta della sua città Torino e di cosa l'Italia ha regalato al mondo. Leggi attentamente. Poi rispondi alle domande.",
+      "questions": [
+        {
+          "id": "lorenzo-q1",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Per fare i gianduiotti si ha bisogno di…",
+          "options": [
+            {
+              "id": "lorenzo-q1-opt-a",
+              "label": "cacao, zucchero e nocciole piemontesi"
+            },
+            {
+              "id": "lorenzo-q1-opt-b",
+              "label": "cioccolato bianco, latte e fragole"
+            },
+            {
+              "id": "lorenzo-q1-opt-c",
+              "label": "caffè, zucchero e mandorle"
+            }
+          ],
+          "correctOptionIds": [
+            "lorenzo-q1-opt-a"
+          ]
+        },
+        {
+          "id": "lorenzo-q2",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "La Nutella nasce…",
+          "options": [
+            {
+              "id": "lorenzo-q2-opt-a",
+              "label": "a Torino nel 1899"
+            },
+            {
+              "id": "lorenzo-q2-opt-b",
+              "label": "ad Alba nel 1964"
+            },
+            {
+              "id": "lorenzo-q2-opt-c",
+              "label": "a Milano negli anni '80"
+            }
+          ],
+          "correctOptionIds": [
+            "lorenzo-q2-opt-b"
+          ]
+        },
+        {
+          "id": "lorenzo-q3",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Come si chiama la famosa squadra di calcio di Torino?",
+          "options": [
+            {
+              "id": "lorenzo-q3-opt-a",
+              "label": "il Torino o „Vecchia Signora\""
+            },
+            {
+              "id": "lorenzo-q3-opt-b",
+              "label": "la Juventus o „Juve\", soprannominata „Vecchia Signora\""
+            },
+            {
+              "id": "lorenzo-q3-opt-c",
+              "label": "il Lingotto"
+            }
+          ],
+          "correctOptionIds": [
+            "lorenzo-q3-opt-b"
+          ]
+        },
+        {
+          "id": "lorenzo-q4",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Cosa si può fare all'interno della Mole Antonelliana?",
+          "options": [
+            {
+              "id": "lorenzo-q4-opt-a",
+              "label": "si possono comprare gianduiotti"
+            },
+            {
+              "id": "lorenzo-q4-opt-b",
+              "label": "si possono ammirare opere d'arte dell'antico Egitto"
+            },
+            {
+              "id": "lorenzo-q4-opt-c",
+              "label": "si può visitare il Museo Nazionale del Cinema"
+            }
+          ],
+          "correctOptionIds": [
+            "lorenzo-q4-opt-c"
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 2,
+      "minRatioToComplete": 0.75,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

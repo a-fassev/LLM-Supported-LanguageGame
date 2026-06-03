@@ -1,36 +1,9 @@
 {
   "id": "chapter-01-quest-02-scene-02",
-  "scene_type": "task",
-  "screen_type": "matching",
-  "background": "chapters/01/quests/02/bg-task-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/02/bg-class",
   "content": {
-    "title": "Parole della stazione",
-    "instruction": "Abbina ogni parola alla traduzione corretta.",
-    "referenceDocument": {
-      "title": "Biglietto",
-      "body": "BOLOGNA CENTRALE - Binario 3 - Posto 12A"
-    },
-    "task": {
-      "leftItems": [
-        { "id": "left-binario", "text": "binario" }
-      ],
-      "rightItems": [
-        { "id": "right-track", "text": "platform track" },
-        { "id": "right-ticket", "text": "ticket" }
-      ],
-      "correctPairs": [
-        { "leftItemId": "left-binario", "rightItemId": "right-track" }
-      ]
-    }
-  },
-  "scoring": {
-    "backpack": { "pieces": 1 },
-    "pizza": {
-      "mode": "scored",
-      "maxSlices": 3,
-      "minRatioToComplete": 0.6,
-      "rounding": "floor",
-      "mapping": { "kind": "linear" }
-    }
+    "text": "Prof.ssa Ricci\n\"Buongiorno a tutti! Bentornati! Spero che le vacanze siano andate bene. Oggi cominciamo con una cosa semplice: ognuno di voi racconta qualcosa delle vacanze estive. Chi vuole iniziare?\""
   }
 }

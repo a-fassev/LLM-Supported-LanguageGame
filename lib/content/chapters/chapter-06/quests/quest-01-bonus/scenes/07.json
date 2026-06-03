@@ -1,0 +1,9 @@
+{
+  "id": "chapter-06-quest-01-bonus-scene-07",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/06/quests/bonus/bg-finale",
+  "content": {
+    "text": "Tu\n„Grazie per questa avventura. L'Italia è ancora più grande quando la scopri con le tue parole.\""
+  }
+}

@@ -1,0 +1,3836 @@
+{
+  "id": "chapter-00-quest-01-scene-14",
+  "scene_type": "task",
+  "screen_type": "error_spotting",
+  "background": "chapters/00/quests/01/bg-task-01",
+  "content": {
+    "title": "Correggi il racconto",
+    "instruction": "Leggi tutto il testo con calma. Seleziona ogni errore e scrivi la correzione.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Trova tutti gli errori nel racconto della gita scolastica.",
+      "segments": [
+        {
+          "id": "s1",
+          "text": "La nostra classe di quinta elementare",
+          "isError": false
+        },
+        {
+          "id": "s2",
+          "text": " ha organizzato",
+          "isError": false
+        },
+        {
+          "id": "s3",
+          "text": " una gita",
+          "isError": false
+        },
+        {
+          "id": "s4",
+          "text": " lunghissima",
+          "isError": false
+        },
+        {
+          "id": "s5",
+          "text": " a Bologna",
+          "isError": false
+        },
+        {
+          "id": "s6",
+          "text": " lo scorso",
+          "isError": false
+        },
+        {
+          "id": "s7",
+          "text": " domenicha",
+          "isError": true,
+          "acceptedCorrections": [
+            "domenica"
+          ]
+        },
+        {
+          "id": "s8",
+          "text": " con",
+          "isError": false
+        },
+        {
+          "id": "s9",
+          "text": " tre autobus",
+          "isError": false
+        },
+        {
+          "id": "s10",
+          "text": " gialli",
+          "isError": false
+        },
+        {
+          "id": "s11",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s12",
+          "text": " tanta",
+          "isError": false
+        },
+        {
+          "id": "s13",
+          "text": " curiosità.",
+          "isError": false
+        },
+        {
+          "id": "s14",
+          "text": " La maestra",
+          "isError": false
+        },
+        {
+          "id": "s15",
+          "text": " Elisa",
+          "isError": false
+        },
+        {
+          "id": "s16",
+          "text": " ci",
+          "isError": false
+        },
+        {
+          "id": "s17",
+          "text": " ha detto",
+          "isError": false
+        },
+        {
+          "id": "s18",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s19",
+          "text": " portare",
+          "isError": false
+        },
+        {
+          "id": "s20",
+          "text": " scarpe",
+          "isError": false
+        },
+        {
+          "id": "s21",
+          "text": " comode,",
+          "isError": false
+        },
+        {
+          "id": "s22",
+          "text": " un quaderno",
+          "isError": false
+        },
+        {
+          "id": "s23",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s24",
+          "text": " anche",
+          "isError": false
+        },
+        {
+          "id": "s25",
+          "text": " una",
+          "isError": false
+        },
+        {
+          "id": "s26",
+          "text": " merenda",
+          "isError": false
+        },
+        {
+          "id": "s27",
+          "text": " leggera",
+          "isError": false
+        },
+        {
+          "id": "s28",
+          "text": " perché",
+          "isError": false
+        },
+        {
+          "id": "s29",
+          "text": " avremmo",
+          "isError": false
+        },
+        {
+          "id": "s30",
+          "text": " camminato",
+          "isError": false
+        },
+        {
+          "id": "s31",
+          "text": " per ore",
+          "isError": false
+        },
+        {
+          "id": "s32",
+          "text": " nel centro",
+          "isError": false
+        },
+        {
+          "id": "s33",
+          "text": " storico.",
+          "isError": false
+        },
+        {
+          "id": "s34",
+          "text": " Alle",
+          "isError": false
+        },
+        {
+          "id": "s35",
+          "text": " otto",
+          "isError": false
+        },
+        {
+          "id": "s36",
+          "text": " del mattino",
+          "isError": false
+        },
+        {
+          "id": "s37",
+          "text": " siamo",
+          "isError": false
+        },
+        {
+          "id": "s38",
+          "text": " partiti",
+          "isError": false
+        },
+        {
+          "id": "s39",
+          "text": " dalla",
+          "isError": false
+        },
+        {
+          "id": "s40",
+          "text": " scuola",
+          "isError": false
+        },
+        {
+          "id": "s41",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s42",
+          "text": " Modena",
+          "isError": false
+        },
+        {
+          "id": "s43",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s44",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s45",
+          "text": " cantato",
+          "isError": false
+        },
+        {
+          "id": "s46",
+          "text": " canzoni",
+          "isError": false
+        },
+        {
+          "id": "s47",
+          "text": " italiane",
+          "isError": false
+        },
+        {
+          "id": "s48",
+          "text": " fino",
+          "isError": false
+        },
+        {
+          "id": "s49",
+          "text": " a",
+          "isError": false
+        },
+        {
+          "id": "s50",
+          "text": " vedere",
+          "isError": false
+        },
+        {
+          "id": "s51",
+          "text": " le",
+          "isError": false
+        },
+        {
+          "id": "s52",
+          "text": " prime",
+          "isError": false
+        },
+        {
+          "id": "s53",
+          "text": " torri.",
+          "isError": false
+        },
+        {
+          "id": "s54",
+          "text": " Quando",
+          "isError": false
+        },
+        {
+          "id": "s55",
+          "text": " siamo",
+          "isError": false
+        },
+        {
+          "id": "s56",
+          "text": " arrivati",
+          "isError": false
+        },
+        {
+          "id": "s57",
+          "text": " sotto",
+          "isError": false
+        },
+        {
+          "id": "s58",
+          "text": " i portici,",
+          "isError": false
+        },
+        {
+          "id": "s59",
+          "text": " i",
+          "isError": false
+        },
+        {
+          "id": "s60",
+          "text": " studenti",
+          "isError": false
+        },
+        {
+          "id": "s61",
+          "text": " ha",
+          "isError": true,
+          "acceptedCorrections": [
+            "hanno"
+          ]
+        },
+        {
+          "id": "s62",
+          "text": " visitato",
+          "isError": false
+        },
+        {
+          "id": "s63",
+          "text": " la biblioteca",
+          "isError": false
+        },
+        {
+          "id": "s64",
+          "text": " Salaborsa,",
+          "isError": false
+        },
+        {
+          "id": "s65",
+          "text": " poi",
+          "isError": false
+        },
+        {
+          "id": "s66",
+          "text": " la piazza",
+          "isError": false
+        },
+        {
+          "id": "s67",
+          "text": " Maggiore",
+          "isError": false
+        },
+        {
+          "id": "s68",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s69",
+          "text": " infine",
+          "isError": false
+        },
+        {
+          "id": "s70",
+          "text": " le",
+          "isError": false
+        },
+        {
+          "id": "s71",
+          "text": " Due",
+          "isError": false
+        },
+        {
+          "id": "s72",
+          "text": " Torri.",
+          "isError": false
+        },
+        {
+          "id": "s73",
+          "text": " Durante",
+          "isError": false
+        },
+        {
+          "id": "s74",
+          "text": " la pausa",
+          "isError": false
+        },
+        {
+          "id": "s75",
+          "text": " pranzo",
+          "isError": false
+        },
+        {
+          "id": "s76",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s77",
+          "text": " mangiato",
+          "isError": false
+        },
+        {
+          "id": "s78",
+          "text": " tigelle",
+          "isError": false
+        },
+        {
+          "id": "s79",
+          "text": " calde",
+          "isError": false
+        },
+        {
+          "id": "s80",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s81",
+          "text": " bevuto",
+          "isError": false
+        },
+        {
+          "id": "s82",
+          "text": " acqua",
+          "isError": false
+        },
+        {
+          "id": "s83",
+          "text": " fresca",
+          "isError": false
+        },
+        {
+          "id": "s84",
+          "text": " all'ombra",
+          "isError": false
+        },
+        {
+          "id": "s85",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s86",
+          "text": " un portico.",
+          "isError": false
+        },
+        {
+          "id": "s87",
+          "text": " Marco",
+          "isError": false
+        },
+        {
+          "id": "s88",
+          "text": " ha",
+          "isError": false
+        },
+        {
+          "id": "s89",
+          "text": " comprati",
+          "isError": true,
+          "acceptedCorrections": [
+            "comprato"
+          ]
+        },
+        {
+          "id": "s90",
+          "text": " un libri",
+          "isError": true,
+          "acceptedCorrections": [
+            "libri"
+          ]
+        },
+        {
+          "id": "s91",
+          "text": " sulle",
+          "isError": false
+        },
+        {
+          "id": "s92",
+          "text": " leggende",
+          "isError": false
+        },
+        {
+          "id": "s93",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s94",
+          "text": " Bologna",
+          "isError": false
+        },
+        {
+          "id": "s95",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s96",
+          "text": " lo",
+          "isError": false
+        },
+        {
+          "id": "s97",
+          "text": " ha",
+          "isError": false
+        },
+        {
+          "id": "s98",
+          "text": " mostrato",
+          "isError": false
+        },
+        {
+          "id": "s99",
+          "text": " a",
+          "isError": false
+        },
+        {
+          "id": "s100",
+          "text": " tutti",
+          "isError": false
+        },
+        {
+          "id": "s101",
+          "text": " con",
+          "isError": false
+        },
+        {
+          "id": "s102",
+          "text": " entusiasmo.",
+          "isError": false
+        },
+        {
+          "id": "s103",
+          "text": " Nel",
+          "isError": false
+        },
+        {
+          "id": "s104",
+          "text": " pomeriggio",
+          "isError": false
+        },
+        {
+          "id": "s105",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s106",
+          "text": " seguito",
+          "isError": false
+        },
+        {
+          "id": "s107",
+          "text": " una",
+          "isError": false
+        },
+        {
+          "id": "s108",
+          "text": " guida",
+          "isError": false
+        },
+        {
+          "id": "s109",
+          "text": " che",
+          "isError": false
+        },
+        {
+          "id": "s110",
+          "text": " ci",
+          "isError": false
+        },
+        {
+          "id": "s111",
+          "text": " ha",
+          "isError": false
+        },
+        {
+          "id": "s112",
+          "text": " raccontato",
+          "isError": false
+        },
+        {
+          "id": "s113",
+          "text": " storie",
+          "isError": false
+        },
+        {
+          "id": "s114",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s115",
+          "text": " mercanti,",
+          "isError": false
+        },
+        {
+          "id": "s116",
+          "text": " studenti",
+          "isError": false
+        },
+        {
+          "id": "s117",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s118",
+          "text": " inventori",
+          "isError": false
+        },
+        {
+          "id": "s119",
+          "text": " famosi.",
+          "isError": false
+        },
+        {
+          "id": "s120",
+          "text": " Sofia",
+          "isError": false
+        },
+        {
+          "id": "s121",
+          "text": " ha",
+          "isError": false
+        },
+        {
+          "id": "s122",
+          "text": " scritto",
+          "isError": false
+        },
+        {
+          "id": "s123",
+          "text": " dieci",
+          "isError": false
+        },
+        {
+          "id": "s124",
+          "text": " pagine",
+          "isError": false
+        },
+        {
+          "id": "s125",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s126",
+          "text": " appunti",
+          "isError": false
+        },
+        {
+          "id": "s127",
+          "text": " mentre",
+          "isError": false
+        },
+        {
+          "id": "s128",
+          "text": " Luca",
+          "isError": false
+        },
+        {
+          "id": "s129",
+          "text": " disegnava",
+          "isError": false
+        },
+        {
+          "id": "s130",
+          "text": " archi",
+          "isError": false
+        },
+        {
+          "id": "s131",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s132",
+          "text": " finestre",
+          "isError": false
+        },
+        {
+          "id": "s133",
+          "text": " su",
+          "isError": false
+        },
+        {
+          "id": "s134",
+          "text": " ogni",
+          "isError": false
+        },
+        {
+          "id": "s135",
+          "text": " angolo.",
+          "isError": false
+        },
+        {
+          "id": "s136",
+          "text": " Prima",
+          "isError": false
+        },
+        {
+          "id": "s137",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s138",
+          "text": " tornare,",
+          "isError": false
+        },
+        {
+          "id": "s139",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s140",
+          "text": " assaggiato",
+          "isError": false
+        },
+        {
+          "id": "s141",
+          "text": " un pezzo",
+          "isError": false
+        },
+        {
+          "id": "s142",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s143",
+          "text": " pizza",
+          "isError": false
+        },
+        {
+          "id": "s144",
+          "text": " rossa",
+          "isError": false
+        },
+        {
+          "id": "s145",
+          "text": " perque",
+          "isError": true,
+          "acceptedCorrections": [
+            "perché",
+            "perche",
+            "percé",
+            "percè"
+          ]
+        },
+        {
+          "id": "s146",
+          "text": " era",
+          "isError": false
+        },
+        {
+          "id": "s147",
+          "text": " buono",
+          "isError": true,
+          "acceptedCorrections": [
+            "buona"
+          ]
+        },
+        {
+          "id": "s148",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s149",
+          "text": " profumava",
+          "isError": false
+        },
+        {
+          "id": "s150",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s151",
+          "text": " basilico",
+          "isError": false
+        },
+        {
+          "id": "s152",
+          "text": " in",
+          "isError": false
+        },
+        {
+          "id": "s153",
+          "text": " tutta",
+          "isError": false
+        },
+        {
+          "id": "s154",
+          "text": " la strada.",
+          "isError": false
+        },
+        {
+          "id": "s155",
+          "text": " Sul",
+          "isError": false
+        },
+        {
+          "id": "s156",
+          "text": " pullman",
+          "isError": false
+        },
+        {
+          "id": "s157",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s158",
+          "text": " ritorno",
+          "isError": false
+        },
+        {
+          "id": "s159",
+          "text": " eravamo",
+          "isError": false
+        },
+        {
+          "id": "s160",
+          "text": " stanchi",
+          "isError": false
+        },
+        {
+          "id": "s161",
+          "text": " ma",
+          "isError": false
+        },
+        {
+          "id": "s162",
+          "text": " felici,",
+          "isError": false
+        },
+        {
+          "id": "s163",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s164",
+          "text": " molti",
+          "isError": false
+        },
+        {
+          "id": "s165",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s166",
+          "text": " noi",
+          "isError": false
+        },
+        {
+          "id": "s167",
+          "text": " hanno",
+          "isError": false
+        },
+        {
+          "id": "s168",
+          "text": " promesso",
+          "isError": false
+        },
+        {
+          "id": "s169",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s170",
+          "text": " tornare",
+          "isError": false
+        },
+        {
+          "id": "s171",
+          "text": " con",
+          "isError": false
+        },
+        {
+          "id": "s172",
+          "text": " le",
+          "isError": false
+        },
+        {
+          "id": "s173",
+          "text": " famiglie",
+          "isError": false
+        },
+        {
+          "id": "s174",
+          "text": " durante",
+          "isError": false
+        },
+        {
+          "id": "s175",
+          "text": " le",
+          "isError": false
+        },
+        {
+          "id": "s176",
+          "text": " vacanze.",
+          "isError": false
+        },
+        {
+          "id": "s177",
+          "text": " La maestra",
+          "isError": false
+        },
+        {
+          "id": "s178",
+          "text": " ha",
+          "isError": false
+        },
+        {
+          "id": "s179",
+          "text": " detto",
+          "isError": false
+        },
+        {
+          "id": "s180",
+          "text": " che",
+          "isError": false
+        },
+        {
+          "id": "s181",
+          "text": " avremmo",
+          "isError": false
+        },
+        {
+          "id": "s182",
+          "text": " scritto",
+          "isError": false
+        },
+        {
+          "id": "s183",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s184",
+          "text": " tema",
+          "isError": false
+        },
+        {
+          "id": "s185",
+          "text": " la",
+          "isError": false
+        },
+        {
+          "id": "s186",
+          "text": " settimana",
+          "isError": false
+        },
+        {
+          "id": "s187",
+          "text": " dopo",
+          "isError": false
+        },
+        {
+          "id": "s188",
+          "text": " per",
+          "isError": false
+        },
+        {
+          "id": "s189",
+          "text": " ricordare",
+          "isError": false
+        },
+        {
+          "id": "s190",
+          "text": " ogni",
+          "isError": false
+        },
+        {
+          "id": "s191",
+          "text": " dettaglio",
+          "isError": false
+        },
+        {
+          "id": "s192",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s193",
+          "text": " questa",
+          "isError": false
+        },
+        {
+          "id": "s194",
+          "text": " avventura",
+          "isError": false
+        },
+        {
+          "id": "s195",
+          "text": " meravigliosa",
+          "isError": false
+        },
+        {
+          "id": "s196",
+          "text": " nella",
+          "isError": false
+        },
+        {
+          "id": "s197",
+          "text": " città",
+          "isError": false
+        },
+        {
+          "id": "s198",
+          "text": " rossa.",
+          "isError": false
+        },
+        {
+          "id": "s199",
+          "text": " Il giorno",
+          "isError": false
+        },
+        {
+          "id": "s200",
+          "text": " successivo",
+          "isError": false
+        },
+        {
+          "id": "s201",
+          "text": " in",
+          "isError": false
+        },
+        {
+          "id": "s202",
+          "text": " classe",
+          "isError": false
+        },
+        {
+          "id": "s203",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s204",
+          "text": " riletto",
+          "isError": false
+        },
+        {
+          "id": "s205",
+          "text": " insieme",
+          "isError": false
+        },
+        {
+          "id": "s206",
+          "text": " le",
+          "isError": false
+        },
+        {
+          "id": "s207",
+          "text": " note",
+          "isError": false
+        },
+        {
+          "id": "s208",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s209",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s210",
+          "text": " disegnato",
+          "isError": false
+        },
+        {
+          "id": "s211",
+          "text": " una",
+          "isError": false
+        },
+        {
+          "id": "s212",
+          "text": " mappa",
+          "isError": false
+        },
+        {
+          "id": "s213",
+          "text": " con",
+          "isError": false
+        },
+        {
+          "id": "s214",
+          "text": " tutti",
+          "isError": false
+        },
+        {
+          "id": "s215",
+          "text": " i",
+          "isError": false
+        },
+        {
+          "id": "s216",
+          "text": " luoghi",
+          "isError": false
+        },
+        {
+          "id": "s217",
+          "text": " visitati,",
+          "isError": false
+        },
+        {
+          "id": "s218",
+          "text": " dall'Università",
+          "isError": false
+        },
+        {
+          "id": "s219",
+          "text": " al",
+          "isError": false
+        },
+        {
+          "id": "s220",
+          "text": " mercato",
+          "isError": false
+        },
+        {
+          "id": "s221",
+          "text": " delle",
+          "isError": false
+        },
+        {
+          "id": "s222",
+          "text": " Erbe,",
+          "isError": false
+        },
+        {
+          "id": "s223",
+          "text": " dal",
+          "isError": false
+        },
+        {
+          "id": "s224",
+          "text": " museo",
+          "isError": false
+        },
+        {
+          "id": "s225",
+          "text": " medioevale",
+          "isError": false
+        },
+        {
+          "id": "s226",
+          "text": " al",
+          "isError": false
+        },
+        {
+          "id": "s227",
+          "text": " giardino",
+          "isError": false
+        },
+        {
+          "id": "s228",
+          "text": " quieto",
+          "isError": false
+        },
+        {
+          "id": "s229",
+          "text": " dietro",
+          "isError": false
+        },
+        {
+          "id": "s230",
+          "text": " San",
+          "isError": false
+        },
+        {
+          "id": "s231",
+          "text": " Petronio.",
+          "isError": false
+        },
+        {
+          "id": "s232",
+          "text": " Ogni",
+          "isError": false
+        },
+        {
+          "id": "s233",
+          "text": " bambino",
+          "isError": false
+        },
+        {
+          "id": "s234",
+          "text": " ha",
+          "isError": false
+        },
+        {
+          "id": "s235",
+          "text": " aggiunto",
+          "isError": false
+        },
+        {
+          "id": "s236",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s237",
+          "text": " ricordo",
+          "isError": false
+        },
+        {
+          "id": "s238",
+          "text": " personale:",
+          "isError": false
+        },
+        {
+          "id": "s239",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s240",
+          "text": " suono,",
+          "isError": false
+        },
+        {
+          "id": "s241",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s242",
+          "text": " profumo,",
+          "isError": false
+        },
+        {
+          "id": "s243",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s244",
+          "text": " colore,",
+          "isError": false
+        },
+        {
+          "id": "s245",
+          "text": " una",
+          "isError": false
+        },
+        {
+          "id": "s246",
+          "text": " frase",
+          "isError": false
+        },
+        {
+          "id": "s247",
+          "text": " detta",
+          "isError": false
+        },
+        {
+          "id": "s248",
+          "text": " da",
+          "isError": false
+        },
+        {
+          "id": "s249",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s250",
+          "text": " commerciante",
+          "isError": false
+        },
+        {
+          "id": "s251",
+          "text": " gentile",
+          "isError": false
+        },
+        {
+          "id": "s252",
+          "text": " sotto",
+          "isError": false
+        },
+        {
+          "id": "s253",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s254",
+          "text": " arco",
+          "isError": false
+        },
+        {
+          "id": "s255",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s256",
+          "text": " mattoni",
+          "isError": false
+        },
+        {
+          "id": "s257",
+          "text": " rossi.",
+          "isError": false
+        },
+        {
+          "id": "s258",
+          "text": " Alla",
+          "isError": false
+        },
+        {
+          "id": "s259",
+          "text": " fine",
+          "isError": false
+        },
+        {
+          "id": "s260",
+          "text": " del",
+          "isError": false
+        },
+        {
+          "id": "s261",
+          "text": " mese",
+          "isError": false
+        },
+        {
+          "id": "s262",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s263",
+          "text": " preparato",
+          "isError": false
+        },
+        {
+          "id": "s264",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s265",
+          "text": " piccolo",
+          "isError": false
+        },
+        {
+          "id": "s266",
+          "text": " teatro",
+          "isError": false
+        },
+        {
+          "id": "s267",
+          "text": " in",
+          "isError": false
+        },
+        {
+          "id": "s268",
+          "text": " italiano",
+          "isError": false
+        },
+        {
+          "id": "s269",
+          "text": " per",
+          "isError": false
+        },
+        {
+          "id": "s270",
+          "text": " le",
+          "isError": false
+        },
+        {
+          "id": "s271",
+          "text": " famiglie,",
+          "isError": false
+        },
+        {
+          "id": "s272",
+          "text": " recitando",
+          "isError": false
+        },
+        {
+          "id": "s273",
+          "text": " la",
+          "isError": false
+        },
+        {
+          "id": "s274",
+          "text": " storia",
+          "isError": false
+        },
+        {
+          "id": "s275",
+          "text": " della",
+          "isError": false
+        },
+        {
+          "id": "s276",
+          "text": " nostra",
+          "isError": false
+        },
+        {
+          "id": "s277",
+          "text": " gita",
+          "isError": false
+        },
+        {
+          "id": "s278",
+          "text": " parola",
+          "isError": false
+        },
+        {
+          "id": "s279",
+          "text": " dopo",
+          "isError": false
+        },
+        {
+          "id": "s280",
+          "text": " parola,",
+          "isError": false
+        },
+        {
+          "id": "s281",
+          "text": " con",
+          "isError": false
+        },
+        {
+          "id": "s282",
+          "text": " sorrisi",
+          "isError": false
+        },
+        {
+          "id": "s283",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s284",
+          "text": " qualche",
+          "isError": false
+        },
+        {
+          "id": "s285",
+          "text": " imitazione",
+          "isError": false
+        },
+        {
+          "id": "s286",
+          "text": " delle",
+          "isError": false
+        },
+        {
+          "id": "s287",
+          "text": " torri",
+          "isError": false
+        },
+        {
+          "id": "s288",
+          "text": " che",
+          "isError": false
+        },
+        {
+          "id": "s289",
+          "text": " sembravano",
+          "isError": false
+        },
+        {
+          "id": "s290",
+          "text": " toccare",
+          "isError": false
+        },
+        {
+          "id": "s291",
+          "text": " le",
+          "isError": false
+        },
+        {
+          "id": "s292",
+          "text": " nuvole.",
+          "isError": false
+        },
+        {
+          "id": "s293",
+          "text": " Dopo",
+          "isError": false
+        },
+        {
+          "id": "s294",
+          "text": " il",
+          "isError": false
+        },
+        {
+          "id": "s295",
+          "text": " teatro,",
+          "isError": false
+        },
+        {
+          "id": "s296",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s297",
+          "text": " creato",
+          "isError": false
+        },
+        {
+          "id": "s298",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s299",
+          "text": " album",
+          "isError": false
+        },
+        {
+          "id": "s300",
+          "text": " con",
+          "isError": false
+        },
+        {
+          "id": "s301",
+          "text": " foto,",
+          "isError": false
+        },
+        {
+          "id": "s302",
+          "text": " disegni",
+          "isError": false
+        },
+        {
+          "id": "s303",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s304",
+          "text": " frasi",
+          "isError": false
+        },
+        {
+          "id": "s305",
+          "text": " nuove",
+          "isError": false
+        },
+        {
+          "id": "s306",
+          "text": " imparate",
+          "isError": false
+        },
+        {
+          "id": "s307",
+          "text": " durante",
+          "isError": false
+        },
+        {
+          "id": "s308",
+          "text": " la",
+          "isError": false
+        },
+        {
+          "id": "s309",
+          "text": " gita.",
+          "isError": false
+        },
+        {
+          "id": "s310",
+          "text": " Ogni",
+          "isError": false
+        },
+        {
+          "id": "s311",
+          "text": " pagina",
+          "isError": false
+        },
+        {
+          "id": "s312",
+          "text": " raccontava",
+          "isError": false
+        },
+        {
+          "id": "s313",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s314",
+          "text": " momento",
+          "isError": false
+        },
+        {
+          "id": "s315",
+          "text": " diverso:",
+          "isError": false
+        },
+        {
+          "id": "s316",
+          "text": " l'arrivo,",
+          "isError": false
+        },
+        {
+          "id": "s317",
+          "text": " il",
+          "isError": false
+        },
+        {
+          "id": "s318",
+          "text": " pranzo,",
+          "isError": false
+        },
+        {
+          "id": "s319",
+          "text": " la",
+          "isError": false
+        },
+        {
+          "id": "s320",
+          "text": " visita",
+          "isError": false
+        },
+        {
+          "id": "s321",
+          "text": " guidata,",
+          "isError": false
+        },
+        {
+          "id": "s322",
+          "text": " il",
+          "isError": false
+        },
+        {
+          "id": "s323",
+          "text": " gelato,",
+          "isError": false
+        },
+        {
+          "id": "s324",
+          "text": " il",
+          "isError": false
+        },
+        {
+          "id": "s325",
+          "text": " ritorno",
+          "isError": false
+        },
+        {
+          "id": "s326",
+          "text": " stanco",
+          "isError": false
+        },
+        {
+          "id": "s327",
+          "text": " ma",
+          "isError": false
+        },
+        {
+          "id": "s328",
+          "text": " contento.",
+          "isError": false
+        },
+        {
+          "id": "s329",
+          "text": " Abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s330",
+          "text": " anche",
+          "isError": false
+        },
+        {
+          "id": "s331",
+          "text": " scritto",
+          "isError": false
+        },
+        {
+          "id": "s332",
+          "text": " una",
+          "isError": false
+        },
+        {
+          "id": "s333",
+          "text": " lettera",
+          "isError": false
+        },
+        {
+          "id": "s334",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s335",
+          "text": " ringraziamento",
+          "isError": false
+        },
+        {
+          "id": "s336",
+          "text": " alla",
+          "isError": false
+        },
+        {
+          "id": "s337",
+          "text": " guida",
+          "isError": false
+        },
+        {
+          "id": "s338",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s339",
+          "text": " ai",
+          "isError": false
+        },
+        {
+          "id": "s340",
+          "text": " genitori",
+          "isError": false
+        },
+        {
+          "id": "s341",
+          "text": " volontari",
+          "isError": false
+        },
+        {
+          "id": "s342",
+          "text": " che",
+          "isError": false
+        },
+        {
+          "id": "s343",
+          "text": " ci",
+          "isError": false
+        },
+        {
+          "id": "s344",
+          "text": " hanno",
+          "isError": false
+        },
+        {
+          "id": "s345",
+          "text": " accompagnato",
+          "isError": false
+        },
+        {
+          "id": "s346",
+          "text": " con",
+          "isError": false
+        },
+        {
+          "id": "s347",
+          "text": " pazienza",
+          "isError": false
+        },
+        {
+          "id": "s348",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s349",
+          "text": " buonumore.",
+          "isError": false
+        },
+        {
+          "id": "s350",
+          "text": " La",
+          "isError": false
+        },
+        {
+          "id": "s351",
+          "text": " maestra",
+          "isError": false
+        },
+        {
+          "id": "s352",
+          "text": " ha",
+          "isError": false
+        },
+        {
+          "id": "s353",
+          "text": " detto",
+          "isError": false
+        },
+        {
+          "id": "s354",
+          "text": " che",
+          "isError": false
+        },
+        {
+          "id": "s355",
+          "text": " imparare",
+          "isError": false
+        },
+        {
+          "id": "s356",
+          "text": " l'italiano",
+          "isError": false
+        },
+        {
+          "id": "s357",
+          "text": " significa",
+          "isError": false
+        },
+        {
+          "id": "s358",
+          "text": " anche",
+          "isError": false
+        },
+        {
+          "id": "s359",
+          "text": " vivere",
+          "isError": false
+        },
+        {
+          "id": "s360",
+          "text": " la",
+          "isError": false
+        },
+        {
+          "id": "s361",
+          "text": " lingua",
+          "isError": false
+        },
+        {
+          "id": "s362",
+          "text": " nelle",
+          "isError": false
+        },
+        {
+          "id": "s363",
+          "text": " strade,",
+          "isError": false
+        },
+        {
+          "id": "s364",
+          "text": " nei",
+          "isError": false
+        },
+        {
+          "id": "s365",
+          "text": " mercati,",
+          "isError": false
+        },
+        {
+          "id": "s366",
+          "text": " nelle",
+          "isError": false
+        },
+        {
+          "id": "s367",
+          "text": " piazze",
+          "isError": false
+        },
+        {
+          "id": "s368",
+          "text": " piene",
+          "isError": false
+        },
+        {
+          "id": "s369",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s370",
+          "text": " voci",
+          "isError": false
+        },
+        {
+          "id": "s371",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s372",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s373",
+          "text": " colori.",
+          "isError": false
+        },
+        {
+          "id": "s374",
+          "text": " Un",
+          "isError": false
+        },
+        {
+          "id": "s375",
+          "text": " anno",
+          "isError": false
+        },
+        {
+          "id": "s376",
+          "text": " dopo,",
+          "isError": false
+        },
+        {
+          "id": "s377",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s378",
+          "text": " riletto",
+          "isError": false
+        },
+        {
+          "id": "s379",
+          "text": " lo",
+          "isError": false
+        },
+        {
+          "id": "s380",
+          "text": " stesso",
+          "isError": false
+        },
+        {
+          "id": "s381",
+          "text": " diario",
+          "isError": false
+        },
+        {
+          "id": "s382",
+          "text": " completo",
+          "isError": false
+        },
+        {
+          "id": "s383",
+          "text": " in",
+          "isError": false
+        },
+        {
+          "id": "s384",
+          "text": " classe:",
+          "isError": false
+        },
+        {
+          "id": "s385",
+          "text": " La nostra classe di quinta elementare",
+          "isError": false
+        },
+        {
+          "id": "s386",
+          "text": " ha organizzato",
+          "isError": false
+        },
+        {
+          "id": "s387",
+          "text": " una gita",
+          "isError": false
+        },
+        {
+          "id": "s388",
+          "text": " lunghissima",
+          "isError": false
+        },
+        {
+          "id": "s389",
+          "text": " a Bologna",
+          "isError": false
+        },
+        {
+          "id": "s390",
+          "text": " lo scorso",
+          "isError": false
+        },
+        {
+          "id": "s391",
+          "text": " domenicha",
+          "isError": false
+        },
+        {
+          "id": "s392",
+          "text": " con",
+          "isError": false
+        },
+        {
+          "id": "s393",
+          "text": " tre autobus",
+          "isError": false
+        },
+        {
+          "id": "s394",
+          "text": " gialli",
+          "isError": false
+        },
+        {
+          "id": "s395",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s396",
+          "text": " tanta",
+          "isError": false
+        },
+        {
+          "id": "s397",
+          "text": " curiosità.",
+          "isError": false
+        },
+        {
+          "id": "s398",
+          "text": " La maestra",
+          "isError": false
+        },
+        {
+          "id": "s399",
+          "text": " Elisa",
+          "isError": false
+        },
+        {
+          "id": "s400",
+          "text": " ci",
+          "isError": false
+        },
+        {
+          "id": "s401",
+          "text": " ha detto",
+          "isError": false
+        },
+        {
+          "id": "s402",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s403",
+          "text": " portare",
+          "isError": false
+        },
+        {
+          "id": "s404",
+          "text": " scarpe",
+          "isError": false
+        },
+        {
+          "id": "s405",
+          "text": " comode,",
+          "isError": false
+        },
+        {
+          "id": "s406",
+          "text": " un quaderno",
+          "isError": false
+        },
+        {
+          "id": "s407",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s408",
+          "text": " anche",
+          "isError": false
+        },
+        {
+          "id": "s409",
+          "text": " una",
+          "isError": false
+        },
+        {
+          "id": "s410",
+          "text": " merenda",
+          "isError": false
+        },
+        {
+          "id": "s411",
+          "text": " leggera",
+          "isError": false
+        },
+        {
+          "id": "s412",
+          "text": " perché",
+          "isError": false
+        },
+        {
+          "id": "s413",
+          "text": " avremmo",
+          "isError": false
+        },
+        {
+          "id": "s414",
+          "text": " camminato",
+          "isError": false
+        },
+        {
+          "id": "s415",
+          "text": " per ore",
+          "isError": false
+        },
+        {
+          "id": "s416",
+          "text": " nel centro",
+          "isError": false
+        },
+        {
+          "id": "s417",
+          "text": " storico.",
+          "isError": false
+        },
+        {
+          "id": "s418",
+          "text": " Alle",
+          "isError": false
+        },
+        {
+          "id": "s419",
+          "text": " otto",
+          "isError": false
+        },
+        {
+          "id": "s420",
+          "text": " del mattino",
+          "isError": false
+        },
+        {
+          "id": "s421",
+          "text": " siamo",
+          "isError": false
+        },
+        {
+          "id": "s422",
+          "text": " partiti",
+          "isError": false
+        },
+        {
+          "id": "s423",
+          "text": " dalla",
+          "isError": false
+        },
+        {
+          "id": "s424",
+          "text": " scuola",
+          "isError": false
+        },
+        {
+          "id": "s425",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s426",
+          "text": " Modena",
+          "isError": false
+        },
+        {
+          "id": "s427",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s428",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s429",
+          "text": " cantato",
+          "isError": false
+        },
+        {
+          "id": "s430",
+          "text": " canzoni",
+          "isError": false
+        },
+        {
+          "id": "s431",
+          "text": " italiane",
+          "isError": false
+        },
+        {
+          "id": "s432",
+          "text": " fino",
+          "isError": false
+        },
+        {
+          "id": "s433",
+          "text": " a",
+          "isError": false
+        },
+        {
+          "id": "s434",
+          "text": " vedere",
+          "isError": false
+        },
+        {
+          "id": "s435",
+          "text": " le",
+          "isError": false
+        },
+        {
+          "id": "s436",
+          "text": " prime",
+          "isError": false
+        },
+        {
+          "id": "s437",
+          "text": " torri.",
+          "isError": false
+        },
+        {
+          "id": "s438",
+          "text": " Quando",
+          "isError": false
+        },
+        {
+          "id": "s439",
+          "text": " siamo",
+          "isError": false
+        },
+        {
+          "id": "s440",
+          "text": " arrivati",
+          "isError": false
+        },
+        {
+          "id": "s441",
+          "text": " sotto",
+          "isError": false
+        },
+        {
+          "id": "s442",
+          "text": " i portici,",
+          "isError": false
+        },
+        {
+          "id": "s443",
+          "text": " i",
+          "isError": false
+        },
+        {
+          "id": "s444",
+          "text": " studenti",
+          "isError": false
+        },
+        {
+          "id": "s445",
+          "text": " ha",
+          "isError": false
+        },
+        {
+          "id": "s446",
+          "text": " visitato",
+          "isError": false
+        },
+        {
+          "id": "s447",
+          "text": " la biblioteca",
+          "isError": false
+        },
+        {
+          "id": "s448",
+          "text": " Salaborsa,",
+          "isError": false
+        },
+        {
+          "id": "s449",
+          "text": " poi",
+          "isError": false
+        },
+        {
+          "id": "s450",
+          "text": " la piazza",
+          "isError": false
+        },
+        {
+          "id": "s451",
+          "text": " Maggiore",
+          "isError": false
+        },
+        {
+          "id": "s452",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s453",
+          "text": " infine",
+          "isError": false
+        },
+        {
+          "id": "s454",
+          "text": " le",
+          "isError": false
+        },
+        {
+          "id": "s455",
+          "text": " Due",
+          "isError": false
+        },
+        {
+          "id": "s456",
+          "text": " Torri.",
+          "isError": false
+        },
+        {
+          "id": "s457",
+          "text": " Durante",
+          "isError": false
+        },
+        {
+          "id": "s458",
+          "text": " la pausa",
+          "isError": false
+        },
+        {
+          "id": "s459",
+          "text": " pranzo",
+          "isError": false
+        },
+        {
+          "id": "s460",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s461",
+          "text": " mangiato",
+          "isError": false
+        },
+        {
+          "id": "s462",
+          "text": " tigelle",
+          "isError": false
+        },
+        {
+          "id": "s463",
+          "text": " calde",
+          "isError": false
+        },
+        {
+          "id": "s464",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s465",
+          "text": " bevuto",
+          "isError": false
+        },
+        {
+          "id": "s466",
+          "text": " acqua",
+          "isError": false
+        },
+        {
+          "id": "s467",
+          "text": " fresca",
+          "isError": false
+        },
+        {
+          "id": "s468",
+          "text": " all'ombra",
+          "isError": false
+        },
+        {
+          "id": "s469",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s470",
+          "text": " un portico.",
+          "isError": false
+        },
+        {
+          "id": "s471",
+          "text": " Marco",
+          "isError": false
+        },
+        {
+          "id": "s472",
+          "text": " ha",
+          "isError": false
+        },
+        {
+          "id": "s473",
+          "text": " comprati",
+          "isError": false
+        },
+        {
+          "id": "s474",
+          "text": " un libri",
+          "isError": false
+        },
+        {
+          "id": "s475",
+          "text": " sulle",
+          "isError": false
+        },
+        {
+          "id": "s476",
+          "text": " leggende",
+          "isError": false
+        },
+        {
+          "id": "s477",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s478",
+          "text": " Bologna",
+          "isError": false
+        },
+        {
+          "id": "s479",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s480",
+          "text": " lo",
+          "isError": false
+        },
+        {
+          "id": "s481",
+          "text": " ha",
+          "isError": false
+        },
+        {
+          "id": "s482",
+          "text": " mostrato",
+          "isError": false
+        },
+        {
+          "id": "s483",
+          "text": " a",
+          "isError": false
+        },
+        {
+          "id": "s484",
+          "text": " tutti",
+          "isError": false
+        },
+        {
+          "id": "s485",
+          "text": " con",
+          "isError": false
+        },
+        {
+          "id": "s486",
+          "text": " entusiasmo.",
+          "isError": false
+        },
+        {
+          "id": "s487",
+          "text": " Nel",
+          "isError": false
+        },
+        {
+          "id": "s488",
+          "text": " pomeriggio",
+          "isError": false
+        },
+        {
+          "id": "s489",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s490",
+          "text": " seguito",
+          "isError": false
+        },
+        {
+          "id": "s491",
+          "text": " una",
+          "isError": false
+        },
+        {
+          "id": "s492",
+          "text": " guida",
+          "isError": false
+        },
+        {
+          "id": "s493",
+          "text": " che",
+          "isError": false
+        },
+        {
+          "id": "s494",
+          "text": " ci",
+          "isError": false
+        },
+        {
+          "id": "s495",
+          "text": " ha",
+          "isError": false
+        },
+        {
+          "id": "s496",
+          "text": " raccontato",
+          "isError": false
+        },
+        {
+          "id": "s497",
+          "text": " storie",
+          "isError": false
+        },
+        {
+          "id": "s498",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s499",
+          "text": " mercanti,",
+          "isError": false
+        },
+        {
+          "id": "s500",
+          "text": " studenti",
+          "isError": false
+        },
+        {
+          "id": "s501",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s502",
+          "text": " inventori",
+          "isError": false
+        },
+        {
+          "id": "s503",
+          "text": " famosi.",
+          "isError": false
+        },
+        {
+          "id": "s504",
+          "text": " Sofia",
+          "isError": false
+        },
+        {
+          "id": "s505",
+          "text": " ha",
+          "isError": false
+        },
+        {
+          "id": "s506",
+          "text": " scritto",
+          "isError": false
+        },
+        {
+          "id": "s507",
+          "text": " dieci",
+          "isError": false
+        },
+        {
+          "id": "s508",
+          "text": " pagine",
+          "isError": false
+        },
+        {
+          "id": "s509",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s510",
+          "text": " appunti",
+          "isError": false
+        },
+        {
+          "id": "s511",
+          "text": " mentre",
+          "isError": false
+        },
+        {
+          "id": "s512",
+          "text": " Luca",
+          "isError": false
+        },
+        {
+          "id": "s513",
+          "text": " disegnava",
+          "isError": false
+        },
+        {
+          "id": "s514",
+          "text": " archi",
+          "isError": false
+        },
+        {
+          "id": "s515",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s516",
+          "text": " finestre",
+          "isError": false
+        },
+        {
+          "id": "s517",
+          "text": " su",
+          "isError": false
+        },
+        {
+          "id": "s518",
+          "text": " ogni",
+          "isError": false
+        },
+        {
+          "id": "s519",
+          "text": " angolo.",
+          "isError": false
+        },
+        {
+          "id": "s520",
+          "text": " Prima",
+          "isError": false
+        },
+        {
+          "id": "s521",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s522",
+          "text": " tornare,",
+          "isError": false
+        },
+        {
+          "id": "s523",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s524",
+          "text": " assaggiato",
+          "isError": false
+        },
+        {
+          "id": "s525",
+          "text": " un pezzo",
+          "isError": false
+        },
+        {
+          "id": "s526",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s527",
+          "text": " pizza",
+          "isError": false
+        },
+        {
+          "id": "s528",
+          "text": " rossa",
+          "isError": false
+        },
+        {
+          "id": "s529",
+          "text": " perque",
+          "isError": false
+        },
+        {
+          "id": "s530",
+          "text": " era",
+          "isError": false
+        },
+        {
+          "id": "s531",
+          "text": " buono",
+          "isError": false
+        },
+        {
+          "id": "s532",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s533",
+          "text": " profumava",
+          "isError": false
+        },
+        {
+          "id": "s534",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s535",
+          "text": " basilico",
+          "isError": false
+        },
+        {
+          "id": "s536",
+          "text": " in",
+          "isError": false
+        },
+        {
+          "id": "s537",
+          "text": " tutta",
+          "isError": false
+        },
+        {
+          "id": "s538",
+          "text": " la strada.",
+          "isError": false
+        },
+        {
+          "id": "s539",
+          "text": " Sul",
+          "isError": false
+        },
+        {
+          "id": "s540",
+          "text": " pullman",
+          "isError": false
+        },
+        {
+          "id": "s541",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s542",
+          "text": " ritorno",
+          "isError": false
+        },
+        {
+          "id": "s543",
+          "text": " eravamo",
+          "isError": false
+        },
+        {
+          "id": "s544",
+          "text": " stanchi",
+          "isError": false
+        },
+        {
+          "id": "s545",
+          "text": " ma",
+          "isError": false
+        },
+        {
+          "id": "s546",
+          "text": " felici,",
+          "isError": false
+        },
+        {
+          "id": "s547",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s548",
+          "text": " molti",
+          "isError": false
+        },
+        {
+          "id": "s549",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s550",
+          "text": " noi",
+          "isError": false
+        },
+        {
+          "id": "s551",
+          "text": " hanno",
+          "isError": false
+        },
+        {
+          "id": "s552",
+          "text": " promesso",
+          "isError": false
+        },
+        {
+          "id": "s553",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s554",
+          "text": " tornare",
+          "isError": false
+        },
+        {
+          "id": "s555",
+          "text": " con",
+          "isError": false
+        },
+        {
+          "id": "s556",
+          "text": " le",
+          "isError": false
+        },
+        {
+          "id": "s557",
+          "text": " famiglie",
+          "isError": false
+        },
+        {
+          "id": "s558",
+          "text": " durante",
+          "isError": false
+        },
+        {
+          "id": "s559",
+          "text": " le",
+          "isError": false
+        },
+        {
+          "id": "s560",
+          "text": " vacanze.",
+          "isError": false
+        },
+        {
+          "id": "s561",
+          "text": " La maestra",
+          "isError": false
+        },
+        {
+          "id": "s562",
+          "text": " ha",
+          "isError": false
+        },
+        {
+          "id": "s563",
+          "text": " detto",
+          "isError": false
+        },
+        {
+          "id": "s564",
+          "text": " che",
+          "isError": false
+        },
+        {
+          "id": "s565",
+          "text": " avremmo",
+          "isError": false
+        },
+        {
+          "id": "s566",
+          "text": " scritto",
+          "isError": false
+        },
+        {
+          "id": "s567",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s568",
+          "text": " tema",
+          "isError": false
+        },
+        {
+          "id": "s569",
+          "text": " la",
+          "isError": false
+        },
+        {
+          "id": "s570",
+          "text": " settimana",
+          "isError": false
+        },
+        {
+          "id": "s571",
+          "text": " dopo",
+          "isError": false
+        },
+        {
+          "id": "s572",
+          "text": " per",
+          "isError": false
+        },
+        {
+          "id": "s573",
+          "text": " ricordare",
+          "isError": false
+        },
+        {
+          "id": "s574",
+          "text": " ogni",
+          "isError": false
+        },
+        {
+          "id": "s575",
+          "text": " dettaglio",
+          "isError": false
+        },
+        {
+          "id": "s576",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s577",
+          "text": " questa",
+          "isError": false
+        },
+        {
+          "id": "s578",
+          "text": " avventura",
+          "isError": false
+        },
+        {
+          "id": "s579",
+          "text": " meravigliosa",
+          "isError": false
+        },
+        {
+          "id": "s580",
+          "text": " nella",
+          "isError": false
+        },
+        {
+          "id": "s581",
+          "text": " città",
+          "isError": false
+        },
+        {
+          "id": "s582",
+          "text": " rossa.",
+          "isError": false
+        },
+        {
+          "id": "s583",
+          "text": " Il giorno",
+          "isError": false
+        },
+        {
+          "id": "s584",
+          "text": " successivo",
+          "isError": false
+        },
+        {
+          "id": "s585",
+          "text": " in",
+          "isError": false
+        },
+        {
+          "id": "s586",
+          "text": " classe",
+          "isError": false
+        },
+        {
+          "id": "s587",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s588",
+          "text": " riletto",
+          "isError": false
+        },
+        {
+          "id": "s589",
+          "text": " insieme",
+          "isError": false
+        },
+        {
+          "id": "s590",
+          "text": " le",
+          "isError": false
+        },
+        {
+          "id": "s591",
+          "text": " note",
+          "isError": false
+        },
+        {
+          "id": "s592",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s593",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s594",
+          "text": " disegnato",
+          "isError": false
+        },
+        {
+          "id": "s595",
+          "text": " una",
+          "isError": false
+        },
+        {
+          "id": "s596",
+          "text": " mappa",
+          "isError": false
+        },
+        {
+          "id": "s597",
+          "text": " con",
+          "isError": false
+        },
+        {
+          "id": "s598",
+          "text": " tutti",
+          "isError": false
+        },
+        {
+          "id": "s599",
+          "text": " i",
+          "isError": false
+        },
+        {
+          "id": "s600",
+          "text": " luoghi",
+          "isError": false
+        },
+        {
+          "id": "s601",
+          "text": " visitati,",
+          "isError": false
+        },
+        {
+          "id": "s602",
+          "text": " dall'Università",
+          "isError": false
+        },
+        {
+          "id": "s603",
+          "text": " al",
+          "isError": false
+        },
+        {
+          "id": "s604",
+          "text": " mercato",
+          "isError": false
+        },
+        {
+          "id": "s605",
+          "text": " delle",
+          "isError": false
+        },
+        {
+          "id": "s606",
+          "text": " Erbe,",
+          "isError": false
+        },
+        {
+          "id": "s607",
+          "text": " dal",
+          "isError": false
+        },
+        {
+          "id": "s608",
+          "text": " museo",
+          "isError": false
+        },
+        {
+          "id": "s609",
+          "text": " medioevale",
+          "isError": false
+        },
+        {
+          "id": "s610",
+          "text": " al",
+          "isError": false
+        },
+        {
+          "id": "s611",
+          "text": " giardino",
+          "isError": false
+        },
+        {
+          "id": "s612",
+          "text": " quieto",
+          "isError": false
+        },
+        {
+          "id": "s613",
+          "text": " dietro",
+          "isError": false
+        },
+        {
+          "id": "s614",
+          "text": " San",
+          "isError": false
+        },
+        {
+          "id": "s615",
+          "text": " Petronio.",
+          "isError": false
+        },
+        {
+          "id": "s616",
+          "text": " Ogni",
+          "isError": false
+        },
+        {
+          "id": "s617",
+          "text": " bambino",
+          "isError": false
+        },
+        {
+          "id": "s618",
+          "text": " ha",
+          "isError": false
+        },
+        {
+          "id": "s619",
+          "text": " aggiunto",
+          "isError": false
+        },
+        {
+          "id": "s620",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s621",
+          "text": " ricordo",
+          "isError": false
+        },
+        {
+          "id": "s622",
+          "text": " personale:",
+          "isError": false
+        },
+        {
+          "id": "s623",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s624",
+          "text": " suono,",
+          "isError": false
+        },
+        {
+          "id": "s625",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s626",
+          "text": " profumo,",
+          "isError": false
+        },
+        {
+          "id": "s627",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s628",
+          "text": " colore,",
+          "isError": false
+        },
+        {
+          "id": "s629",
+          "text": " una",
+          "isError": false
+        },
+        {
+          "id": "s630",
+          "text": " frase",
+          "isError": false
+        },
+        {
+          "id": "s631",
+          "text": " detta",
+          "isError": false
+        },
+        {
+          "id": "s632",
+          "text": " da",
+          "isError": false
+        },
+        {
+          "id": "s633",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s634",
+          "text": " commerciante",
+          "isError": false
+        },
+        {
+          "id": "s635",
+          "text": " gentile",
+          "isError": false
+        },
+        {
+          "id": "s636",
+          "text": " sotto",
+          "isError": false
+        },
+        {
+          "id": "s637",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s638",
+          "text": " arco",
+          "isError": false
+        },
+        {
+          "id": "s639",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s640",
+          "text": " mattoni",
+          "isError": false
+        },
+        {
+          "id": "s641",
+          "text": " rossi.",
+          "isError": false
+        },
+        {
+          "id": "s642",
+          "text": " Alla",
+          "isError": false
+        },
+        {
+          "id": "s643",
+          "text": " fine",
+          "isError": false
+        },
+        {
+          "id": "s644",
+          "text": " del",
+          "isError": false
+        },
+        {
+          "id": "s645",
+          "text": " mese",
+          "isError": false
+        },
+        {
+          "id": "s646",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s647",
+          "text": " preparato",
+          "isError": false
+        },
+        {
+          "id": "s648",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s649",
+          "text": " piccolo",
+          "isError": false
+        },
+        {
+          "id": "s650",
+          "text": " teatro",
+          "isError": false
+        },
+        {
+          "id": "s651",
+          "text": " in",
+          "isError": false
+        },
+        {
+          "id": "s652",
+          "text": " italiano",
+          "isError": false
+        },
+        {
+          "id": "s653",
+          "text": " per",
+          "isError": false
+        },
+        {
+          "id": "s654",
+          "text": " le",
+          "isError": false
+        },
+        {
+          "id": "s655",
+          "text": " famiglie,",
+          "isError": false
+        },
+        {
+          "id": "s656",
+          "text": " recitando",
+          "isError": false
+        },
+        {
+          "id": "s657",
+          "text": " la",
+          "isError": false
+        },
+        {
+          "id": "s658",
+          "text": " storia",
+          "isError": false
+        },
+        {
+          "id": "s659",
+          "text": " della",
+          "isError": false
+        },
+        {
+          "id": "s660",
+          "text": " nostra",
+          "isError": false
+        },
+        {
+          "id": "s661",
+          "text": " gita",
+          "isError": false
+        },
+        {
+          "id": "s662",
+          "text": " parola",
+          "isError": false
+        },
+        {
+          "id": "s663",
+          "text": " dopo",
+          "isError": false
+        },
+        {
+          "id": "s664",
+          "text": " parola,",
+          "isError": false
+        },
+        {
+          "id": "s665",
+          "text": " con",
+          "isError": false
+        },
+        {
+          "id": "s666",
+          "text": " sorrisi",
+          "isError": false
+        },
+        {
+          "id": "s667",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s668",
+          "text": " qualche",
+          "isError": false
+        },
+        {
+          "id": "s669",
+          "text": " imitazione",
+          "isError": false
+        },
+        {
+          "id": "s670",
+          "text": " delle",
+          "isError": false
+        },
+        {
+          "id": "s671",
+          "text": " torri",
+          "isError": false
+        },
+        {
+          "id": "s672",
+          "text": " che",
+          "isError": false
+        },
+        {
+          "id": "s673",
+          "text": " sembravano",
+          "isError": false
+        },
+        {
+          "id": "s674",
+          "text": " toccare",
+          "isError": false
+        },
+        {
+          "id": "s675",
+          "text": " le",
+          "isError": false
+        },
+        {
+          "id": "s676",
+          "text": " nuvole.",
+          "isError": false
+        },
+        {
+          "id": "s677",
+          "text": " Dopo",
+          "isError": false
+        },
+        {
+          "id": "s678",
+          "text": " il",
+          "isError": false
+        },
+        {
+          "id": "s679",
+          "text": " teatro,",
+          "isError": false
+        },
+        {
+          "id": "s680",
+          "text": " abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s681",
+          "text": " creato",
+          "isError": false
+        },
+        {
+          "id": "s682",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s683",
+          "text": " album",
+          "isError": false
+        },
+        {
+          "id": "s684",
+          "text": " con",
+          "isError": false
+        },
+        {
+          "id": "s685",
+          "text": " foto,",
+          "isError": false
+        },
+        {
+          "id": "s686",
+          "text": " disegni",
+          "isError": false
+        },
+        {
+          "id": "s687",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s688",
+          "text": " frasi",
+          "isError": false
+        },
+        {
+          "id": "s689",
+          "text": " nuove",
+          "isError": false
+        },
+        {
+          "id": "s690",
+          "text": " imparate",
+          "isError": false
+        },
+        {
+          "id": "s691",
+          "text": " durante",
+          "isError": false
+        },
+        {
+          "id": "s692",
+          "text": " la",
+          "isError": false
+        },
+        {
+          "id": "s693",
+          "text": " gita.",
+          "isError": false
+        },
+        {
+          "id": "s694",
+          "text": " Ogni",
+          "isError": false
+        },
+        {
+          "id": "s695",
+          "text": " pagina",
+          "isError": false
+        },
+        {
+          "id": "s696",
+          "text": " raccontava",
+          "isError": false
+        },
+        {
+          "id": "s697",
+          "text": " un",
+          "isError": false
+        },
+        {
+          "id": "s698",
+          "text": " momento",
+          "isError": false
+        },
+        {
+          "id": "s699",
+          "text": " diverso:",
+          "isError": false
+        },
+        {
+          "id": "s700",
+          "text": " l'arrivo,",
+          "isError": false
+        },
+        {
+          "id": "s701",
+          "text": " il",
+          "isError": false
+        },
+        {
+          "id": "s702",
+          "text": " pranzo,",
+          "isError": false
+        },
+        {
+          "id": "s703",
+          "text": " la",
+          "isError": false
+        },
+        {
+          "id": "s704",
+          "text": " visita",
+          "isError": false
+        },
+        {
+          "id": "s705",
+          "text": " guidata,",
+          "isError": false
+        },
+        {
+          "id": "s706",
+          "text": " il",
+          "isError": false
+        },
+        {
+          "id": "s707",
+          "text": " gelato,",
+          "isError": false
+        },
+        {
+          "id": "s708",
+          "text": " il",
+          "isError": false
+        },
+        {
+          "id": "s709",
+          "text": " ritorno",
+          "isError": false
+        },
+        {
+          "id": "s710",
+          "text": " stanco",
+          "isError": false
+        },
+        {
+          "id": "s711",
+          "text": " ma",
+          "isError": false
+        },
+        {
+          "id": "s712",
+          "text": " contento.",
+          "isError": false
+        },
+        {
+          "id": "s713",
+          "text": " Abbiamo",
+          "isError": false
+        },
+        {
+          "id": "s714",
+          "text": " anche",
+          "isError": false
+        },
+        {
+          "id": "s715",
+          "text": " scritto",
+          "isError": false
+        },
+        {
+          "id": "s716",
+          "text": " una",
+          "isError": false
+        },
+        {
+          "id": "s717",
+          "text": " lettera",
+          "isError": false
+        },
+        {
+          "id": "s718",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s719",
+          "text": " ringraziamento",
+          "isError": false
+        },
+        {
+          "id": "s720",
+          "text": " alla",
+          "isError": false
+        },
+        {
+          "id": "s721",
+          "text": " guida",
+          "isError": false
+        },
+        {
+          "id": "s722",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s723",
+          "text": " ai",
+          "isError": false
+        },
+        {
+          "id": "s724",
+          "text": " genitori",
+          "isError": false
+        },
+        {
+          "id": "s725",
+          "text": " volontari",
+          "isError": false
+        },
+        {
+          "id": "s726",
+          "text": " che",
+          "isError": false
+        },
+        {
+          "id": "s727",
+          "text": " ci",
+          "isError": false
+        },
+        {
+          "id": "s728",
+          "text": " hanno",
+          "isError": false
+        },
+        {
+          "id": "s729",
+          "text": " accompagnato",
+          "isError": false
+        },
+        {
+          "id": "s730",
+          "text": " con",
+          "isError": false
+        },
+        {
+          "id": "s731",
+          "text": " pazienza",
+          "isError": false
+        },
+        {
+          "id": "s732",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s733",
+          "text": " buonumore.",
+          "isError": false
+        },
+        {
+          "id": "s734",
+          "text": " La",
+          "isError": false
+        },
+        {
+          "id": "s735",
+          "text": " maestra",
+          "isError": false
+        },
+        {
+          "id": "s736",
+          "text": " ha",
+          "isError": false
+        },
+        {
+          "id": "s737",
+          "text": " detto",
+          "isError": false
+        },
+        {
+          "id": "s738",
+          "text": " che",
+          "isError": false
+        },
+        {
+          "id": "s739",
+          "text": " imparare",
+          "isError": false
+        },
+        {
+          "id": "s740",
+          "text": " l'italiano",
+          "isError": false
+        },
+        {
+          "id": "s741",
+          "text": " significa",
+          "isError": false
+        },
+        {
+          "id": "s742",
+          "text": " anche",
+          "isError": false
+        },
+        {
+          "id": "s743",
+          "text": " vivere",
+          "isError": false
+        },
+        {
+          "id": "s744",
+          "text": " la",
+          "isError": false
+        },
+        {
+          "id": "s745",
+          "text": " lingua",
+          "isError": false
+        },
+        {
+          "id": "s746",
+          "text": " nelle",
+          "isError": false
+        },
+        {
+          "id": "s747",
+          "text": " strade,",
+          "isError": false
+        },
+        {
+          "id": "s748",
+          "text": " nei",
+          "isError": false
+        },
+        {
+          "id": "s749",
+          "text": " mercati,",
+          "isError": false
+        },
+        {
+          "id": "s750",
+          "text": " nelle",
+          "isError": false
+        },
+        {
+          "id": "s751",
+          "text": " piazze",
+          "isError": false
+        },
+        {
+          "id": "s752",
+          "text": " piene",
+          "isError": false
+        },
+        {
+          "id": "s753",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s754",
+          "text": " voci",
+          "isError": false
+        },
+        {
+          "id": "s755",
+          "text": " e",
+          "isError": false
+        },
+        {
+          "id": "s756",
+          "text": " di",
+          "isError": false
+        },
+        {
+          "id": "s757",
+          "text": " colori.",
+          "isError": false
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 1,
+      "rounding": "nearest",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

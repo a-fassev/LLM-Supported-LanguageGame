@@ -1,0 +1,9 @@
+{
+  "id": "chapter-03-quest-04-scene-07",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/03/quests/04/bg-piazza-cioccoshow",
+  "content": {
+    "text": "Tu\nUn torinese che si vanta di Torino — interessante. Sentiamo cos'ha da dire."
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "chapter-01-quest-04-scene-03",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/01/quests/04/bg-bar",
+  "content": {
+    "text": "Tu\n\"Sì, sono appena arrivato/a. Studio al Liceo Galvani.\""
+  }
+}

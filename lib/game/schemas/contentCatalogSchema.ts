@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { referenceDocumentSchema } from "@/lib/game/schemas/referenceDocumentSchema";
 import { pizzaRulesSchema } from "@/lib/game/scoring/pizzaReward";
 
 const idPartSchema = z.string().regex(/^[a-z0-9-]+$/);
@@ -9,8 +10,13 @@ export const chapterFileSchema = z
   .object({
     id: chapterIdSchema,
     title: z.string().min(1),
-    order: z.number().int().min(1),
+    order: z.number().int().min(0),
+    locked: z.boolean().optional().default(false),
+    reference: z.boolean().optional().default(false),
+    /** When true, completing the chapter's last quest triggers the game-finale overlay (menu). */
+    gameFinale: z.boolean().optional().default(false),
     quests: z.array(questIdSchema).min(1),
+    background: z.string().min(1),
   })
   .strict();
 
@@ -21,11 +27,11 @@ export const questFileSchema = z
     order: z.number().int().min(1),
     kind: z.enum(["main", "bonus"]),
     requiresQuestId: questIdSchema.nullable(),
-    autoStartQuestId: questIdSchema.nullable(),
+    background: z.string().min(1),
   })
   .strict();
 
-export const storyScreenTypeSchema = z.enum(["info", "dialogue"]);
+export const storyScreenTypeSchema = z.enum(["info"]);
 export const taskScreenTypeSchema = z.enum([
   "cloze",
   "error_spotting",
@@ -35,13 +41,6 @@ export const taskScreenTypeSchema = z.enum([
   "multiple_choice",
   "bonus",
 ]);
-
-export const referenceDocumentSchema = z
-  .object({
-    title: z.string().min(1),
-    body: z.string().min(1),
-  })
-  .strict();
 
 const taskContentSchema = z
   .object({

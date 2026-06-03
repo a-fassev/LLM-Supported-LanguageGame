@@ -15,8 +15,9 @@ async function makeBaseCatalogRoot() {
   await writeJson(path.join(chapterDir, "chapter.json"), {
     id: "chapter-01",
     title: "Bologna",
-    order: 1,
+    order: 0,
     quests: ["quest-01"],
+    background: "chapters/01/chapter/bg-missions",
   });
   await writeJson(path.join(chapterDir, "quests", "quest-01", "quest.json"), {
     id: "quest-01",
@@ -24,7 +25,7 @@ async function makeBaseCatalogRoot() {
     order: 1,
     kind: "main",
     requiresQuestId: null,
-    autoStartQuestId: null,
+    background: "chapters/01/quests/01/bg-overview",
   });
   return root;
 }
@@ -58,7 +59,17 @@ describe("catalog-loader", () => {
       scene_type: "task",
       screen_type: "multiple_choice",
       background: "chapters/01/quests/01/bg-task",
-      content: { title: "x", task: {} },
+      content: {
+        title: "x",
+        task: {
+          selectionMode: "single",
+          options: [
+            { id: "a", label: "A" },
+            { id: "b", label: "B" },
+          ],
+          correctOptionIds: ["a"],
+        },
+      },
       scoring: {
         backpack: { pieces: 1 },
         pizza: { mode: "flat", slices: 1 },
@@ -85,7 +96,7 @@ describe("catalog-loader", () => {
     await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01", "scenes", "03.json"), {
       id: "chapter-01-quest-01-scene-03",
       scene_type: "story",
-      screen_type: "dialogue",
+      screen_type: "info",
       background: "chapters/01/quests/01/bg",
       content: { text: "ciao" },
     });
@@ -121,5 +132,80 @@ describe("catalog-loader", () => {
     });
 
     await expect(loadContentCatalog({ rootDir: root, bypassCache: true })).rejects.toThrow(/expected exactly NN\.json/);
+  });
+
+  it("loads matching scene with poolPairs and sampleSize without concrete items", async () => {
+    const root = await makeBaseCatalogRoot();
+    tempRoots.push(root);
+
+    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01", "scenes", "01.json"), {
+      id: "chapter-01-quest-01-scene-01",
+      scene_type: "story",
+      screen_type: "info",
+      background: "chapters/01/quests/01/bg",
+      content: { text: "hello" },
+    });
+    await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01", "scenes", "02.json"), {
+      id: "chapter-01-quest-01-scene-02",
+      scene_type: "task",
+      screen_type: "matching",
+      background: "chapters/01/quests/01/bg-task",
+      content: {
+        title: "Pool matching",
+        task: {
+          poolPairs: [{ id: "p1", leftLabel: "ciao", rightLabel: "hello" }],
+          sampleSize: 1,
+        },
+      },
+      scoring: {
+        backpack: { pieces: 1 },
+        pizza: { mode: "flat", slices: 1 },
+      },
+    });
+
+    const catalog = await loadContentCatalog({ rootDir: root, bypassCache: true });
+    const quest = catalog.chapters[0]?.questsExpanded[0];
+    const task = quest?.scenes[1];
+    expect(task?.screen_type).toBe("matching");
+    expect((task?.content.task as { poolPairs?: unknown[] }).poolPairs).toHaveLength(1);
+  });
+
+  it("rejects more than one reference chapter", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "lg-content-ref-"));
+    tempRoots.push(root);
+
+    for (const [chapterId, order] of [
+      ["chapter-00", 0],
+      ["chapter-99", 1],
+    ] as const) {
+      const chapterDir = path.join(root, "chapters", chapterId);
+      await writeJson(path.join(chapterDir, "chapter.json"), {
+        id: chapterId,
+        title: "Ref",
+        order,
+        reference: true,
+        quests: ["quest-01"],
+        background: "chapters/00/chapter/bg-missions",
+      });
+      await writeJson(path.join(chapterDir, "quests", "quest-01", "quest.json"), {
+        id: "quest-01",
+        title: "Q",
+        order: 1,
+        kind: "main",
+        requiresQuestId: null,
+        background: "chapters/00/quests/01/bg-overview",
+      });
+      await writeJson(path.join(chapterDir, "quests", "quest-01", "scenes", "01.json"), {
+        id: `${chapterId}-quest-01-scene-01`,
+        scene_type: "story",
+        screen_type: "info",
+        background: "chapters/00/quests/01/bg",
+        content: { text: "hello" },
+      });
+    }
+
+    await expect(loadContentCatalog({ rootDir: root, bypassCache: true })).rejects.toThrow(
+      /at most one chapter may have reference: true/,
+    );
   });
 });

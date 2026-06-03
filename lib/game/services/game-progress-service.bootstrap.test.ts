@@ -24,12 +24,17 @@ describe("bootstrapGameState", () => {
     vi.clearAllMocks();
     mocks.ensureWalletRow.mockResolvedValue(true);
     mocks.getWalletTotals.mockResolvedValue({ totalSlices: 3, totalBackpackPieces: 1 });
+    mocks.getCompletedQuestIds.mockResolvedValue([]);
     mocks.loadContentCatalog.mockResolvedValue({
       chapters: [
         {
           id: "chapter-01",
           title: "Bologna",
           order: 1,
+          locked: false,
+          reference: false,
+          gameFinale: false,
+          background: "chapters/01/chapter/bg-missions",
           questsExpanded: [
             {
               id: "quest-01",
@@ -37,7 +42,7 @@ describe("bootstrapGameState", () => {
               order: 1,
               kind: "main",
               requiresQuestId: null,
-              autoStartQuestId: null,
+              background: "chapters/01/quests/01/bg-overview",
               scenes: [],
             },
           ],
@@ -53,11 +58,16 @@ describe("bootstrapGameState", () => {
       ok: true,
       totalSlices: 3,
       totalBackpackPieces: 1,
+      completedQuestIds: [],
       chapters: [
         {
           id: "chapter-01",
           title: "Bologna",
           order: 1,
+          locked: false,
+          reference: false,
+          gameFinale: false,
+          background: "chapters/01/chapter/bg-missions",
           quests: [
             {
               id: "quest-01",
@@ -65,7 +75,7 @@ describe("bootstrapGameState", () => {
               order: 1,
               kind: "main",
               requiresQuestId: null,
-              autoStartQuestId: null,
+              background: "chapters/01/quests/01/bg-overview",
             },
           ],
         },

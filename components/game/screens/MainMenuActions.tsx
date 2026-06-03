@@ -26,6 +26,9 @@ export function MainMenuActions() {
   return (
     <div className="flex flex-col gap-3">
       <Button onClick={() => router.push("/chapters")}>Gioca</Button>
+      <Button variant="secondary" onClick={() => router.push("/shop")}>
+        Negozio
+      </Button>
       <Button variant="secondary" onClick={() => router.push("/leaderboard")}>
         Classifica
       </Button>

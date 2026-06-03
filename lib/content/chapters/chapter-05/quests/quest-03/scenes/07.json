@@ -1,0 +1,9 @@
+{
+  "id": "chapter-05-quest-03-scene-07",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/05/quests/03/bg-caffe-giardini",
+  "content": {
+    "text": "Tornate a casa con la lista degli argomenti pronta. La sera scriverete la mail alla professoressa."
+  }
+}
