@@ -122,6 +122,8 @@ export type RunSnapshotDto = {
   status: "in_progress" | "completed" | "abandoned";
   completedSceneIds: string[];
   canRetreat: boolean;
+  /** Last quest of a `gameFinale` chapter — use with `status === "completed"` for finale overlay. */
+  isGameFinaleQuest: boolean;
   currentScene: RunSceneDto;
   /** Background key of the next catalog scene, when one exists (for client preload). */
   nextSceneBackground: string | null;
