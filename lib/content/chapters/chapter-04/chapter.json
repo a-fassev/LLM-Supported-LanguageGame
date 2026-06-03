@@ -2,6 +2,7 @@
   "id": "chapter-04",
   "title": "Venezia",
   "order": 4,
+  "locked": true,
   "quests": [
     "quest-01",
     "quest-02"

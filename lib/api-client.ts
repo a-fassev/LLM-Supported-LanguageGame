@@ -45,6 +45,7 @@ export type BootstrapChapterDto = {
   id: string;
   title: string;
   order: number;
+  locked: boolean;
   quests: BootstrapQuestDto[];
 };
 

@@ -16,6 +16,7 @@ export function isChapterLocked(
   orderedChapters: BootstrapChapterDto[],
   completedQuestIds: Set<string>,
 ): boolean {
+  if (chapter.locked) return true;
   const chapterIndex = orderedChapters.findIndex((item) => item.id === chapter.id);
   if (chapterIndex <= 0) return false;
   const previousChapter = orderedChapters[chapterIndex - 1];

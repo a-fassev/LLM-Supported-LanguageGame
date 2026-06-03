@@ -14,7 +14,8 @@ import {
   type QuestRunRow,
 } from "@/lib/game/repositories/game-progress-repository";
 import {
-  isQuestLockedForAccount,
+  isChapterManuallyLocked,
+  isQuestProgressionLockedForAccount,
   resolveAutoStartQuest,
   type QuestAutoStartDto,
 } from "@/lib/game/resolve-auto-start-quest";
@@ -34,21 +35,9 @@ import { evaluateTaskAttempt } from "@/lib/game/scoring/evaluateTaskAttempt";
 import { buildTaskOutcome, type TaskOutcomeDto } from "@/lib/game/task-outcome-messages";
 import { buildFreitextRetryTaskOutcome } from "@/lib/game/tasks/freitext/build-freitext-retry-task-outcome";
 import { evaluateFreitextLlmScene } from "@/lib/game/tasks/freitext/evaluate-freitext-llm-scene";
-export type BootstrapQuestDto = {
-  id: string;
-  title: string;
-  order: number;
-  kind: "main" | "bonus";
-  requiresQuestId: string | null;
-  autoStartQuestId: string | null;
-};
+import type { BootstrapChapterDto, BootstrapQuestDto } from "@/lib/api-client";
 
-export type BootstrapChapterDto = {
-  id: string;
-  title: string;
-  order: number;
-  quests: BootstrapQuestDto[];
-};
+export type { BootstrapChapterDto, BootstrapQuestDto };
 
 export type BootstrapResult =
   | {
@@ -66,6 +55,7 @@ function toBootstrapChapters(): Promise<BootstrapChapterDto[]> {
       id: chapter.id,
       title: chapter.title,
       order: chapter.order,
+      locked: chapter.locked,
       quests: chapter.questsExpanded.map((quest) => ({
         id: quest.id,
         title: quest.title,
@@ -158,7 +148,29 @@ export type RunSnapshotResult =
 
 type BuildSnapshotOptions = {
   includeWallet?: boolean;
+  catalog?: ContentCatalog;
 };
+
+function runBlockedByChapterLock(
+  catalog: ContentCatalog,
+  chapterId: string,
+  questId: string,
+): RunSnapshotResult {
+  return {
+    ok: false,
+    status: 409,
+    error: msg.chapterLocked,
+    code: "chapter_locked",
+    details: { chapterId, questId },
+  };
+}
+
+async function loadCatalogForRun(): Promise<ContentCatalog | null> {
+  return loadContentCatalog().catch((error) => {
+    console.error("[game-service] catalog load", error);
+    return null;
+  });
+}
 
 function sceneToDto(scene: CatalogScene): RunSceneDto {
   const rawContent = scene.content as Record<string, unknown>;
@@ -191,11 +203,14 @@ async function buildSnapshotFromRun(
     };
   }
 
-  const catalog = await loadContentCatalog().catch((error) => {
-    console.error("[game-service] run snapshot catalog", error);
-    return null;
-  });
+  const catalog =
+    options?.catalog ??
+    (await loadCatalogForRun());
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
+
+  if (run.status === "in_progress" && isChapterManuallyLocked(catalog, run.chapterId)) {
+    return runBlockedByChapterLock(catalog, run.chapterId, run.questId);
+  }
 
   const catalogScene = findCatalogScene(catalog, run.chapterId, run.questId, run.currentSceneId);
   if (!catalogScene) {
@@ -299,13 +314,17 @@ export async function startOrResumeRun(
         },
       };
     }
-    return buildSnapshotFromRun(accountId, existingRun);
+    const resumeCatalog = await loadCatalogForRun();
+    if (!resumeCatalog) {
+      return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
+    }
+    if (isChapterManuallyLocked(resumeCatalog, existingRun.chapterId)) {
+      return runBlockedByChapterLock(resumeCatalog, existingRun.chapterId, existingRun.questId);
+    }
+    return buildSnapshotFromRun(accountId, existingRun, { catalog: resumeCatalog });
   }
 
-  const catalog = await loadContentCatalog().catch((error) => {
-    console.error("[game-service] start run catalog", error);
-    return null;
-  });
+  const catalog = await loadCatalogForRun();
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
 
   const quest = findCatalogQuest(catalog, chapterId, questId);
@@ -322,7 +341,10 @@ export async function startOrResumeRun(
   if (completedQuestIds === null) {
     return { ok: false, status: 500, error: msg.couldNotLoadRun };
   }
-  if (isQuestLockedForAccount(catalog, chapterId, questId, new Set(completedQuestIds))) {
+  if (isChapterManuallyLocked(catalog, chapterId)) {
+    return runBlockedByChapterLock(catalog, chapterId, questId);
+  }
+  if (isQuestProgressionLockedForAccount(catalog, chapterId, questId, new Set(completedQuestIds))) {
     return {
       ok: false,
       status: 409,
@@ -340,7 +362,10 @@ export async function startOrResumeRun(
   if (!created) {
     const racedRun = await getActiveQuestRun(accountId);
     if (racedRun?.chapterId === chapterId && racedRun.questId === questId) {
-      return buildSnapshotFromRun(accountId, racedRun);
+      if (isChapterManuallyLocked(catalog, racedRun.chapterId)) {
+        return runBlockedByChapterLock(catalog, racedRun.chapterId, racedRun.questId);
+      }
+      return buildSnapshotFromRun(accountId, racedRun, { catalog });
     }
     if (racedRun) {
       return {
@@ -357,7 +382,7 @@ export async function startOrResumeRun(
     }
     return { ok: false, status: 500, error: msg.couldNotStartRun };
   }
-  return buildSnapshotFromRun(accountId, created);
+  return buildSnapshotFromRun(accountId, created, { catalog });
 }
 
 function nextSceneIdInQuest(scene: CatalogScene, questScenes: CatalogScene[]): string | null {
@@ -390,6 +415,10 @@ export async function retreatRunScene(
 
   const catalog = await loadContentCatalog().catch(() => null);
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
+
+  if (isChapterManuallyLocked(catalog, run.chapterId)) {
+    return runBlockedByChapterLock(catalog, run.chapterId, run.questId);
+  }
 
   const quest = findCatalogQuest(catalog, run.chapterId, run.questId);
   const scene = findCatalogScene(catalog, run.chapterId, run.questId, sceneId);
@@ -441,6 +470,11 @@ export async function advanceStoryScene(
 
   const catalog = await loadContentCatalog().catch(() => null);
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
+
+  if (isChapterManuallyLocked(catalog, run.chapterId)) {
+    return runBlockedByChapterLock(catalog, run.chapterId, run.questId);
+  }
+
   const scene = findCatalogScene(catalog, run.chapterId, run.questId, sceneId);
   if (!scene || scene.scene_type !== "story") {
     return { ok: false, status: 400, error: msg.invalidSceneProgression, code: "scene_not_story" };
@@ -483,6 +517,11 @@ export async function completeTaskScene(
 
   const catalog = await loadContentCatalog().catch(() => null);
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
+
+  if (isChapterManuallyLocked(catalog, run.chapterId)) {
+    return runBlockedByChapterLock(catalog, run.chapterId, run.questId);
+  }
+
   const catalogScene = findCatalogScene(catalog, run.chapterId, run.questId, sceneId);
   if (!catalogScene || catalogScene.scene_type !== "task") {
     return { ok: false, status: 400, error: msg.invalidSceneProgression, code: "scene_not_task" };

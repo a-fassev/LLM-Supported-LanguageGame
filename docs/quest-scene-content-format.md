@@ -51,6 +51,14 @@ Scene order is the **numeric prefix** on filenames (`01`, `02`, …).
 }
 ```
 
+| Field | Description |
+| ----- | ----------- |
+| `id` | Chapter id (`chapter-NN`). |
+| `title` | Hub title. |
+| `order` | Sort order on the chapter map (1-based). |
+| `locked` | Optional, default `false`. When `true`, the chapter is **not playable** (hub shows locked; server rejects start, resume, snapshot (in-progress run), advance, attempt, and retreat with API code `chapter_locked`). Use for classroom pilots—change in git and deploy; independent of learner progress. |
+| `quests` | Ordered quest folder ids for this chapter. |
+
 ### `quest.json`
 
 ```jsonc
@@ -76,7 +84,8 @@ Reading text for tasks lives on **each task scene**, not on the quest (see §5.2
 
 - The game is played **in order**: chapters by `chapter.order`, quests by `chapter.json` → `quests`, scenes by filename `01.json`, `02.json`, …
 - **Next chapter** unlocks when every **main** quest in the current chapter is complete. Bonus quests are optional and do not block the next chapter.
-- No extra unlock JSON on chapters beyond catalog order and completed runs (§12).
+- Optional **`locked: true`** on a chapter (see table above) manually withholds that chapter until authors remove the flag and deploy.
+- Progression otherwise uses catalog order and completed runs only (§12).
 
 ---
 

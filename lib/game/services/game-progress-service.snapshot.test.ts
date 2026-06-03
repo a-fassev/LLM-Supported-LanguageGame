@@ -115,6 +115,25 @@ describe("getRunSnapshot", () => {
     expect(result.run?.autoStartQuest).toEqual({ chapterId: "chapter-01", questId: "quest-01-bonus" });
   });
 
+  it("rejects snapshot for in-progress run in manually locked chapter", async () => {
+    repoMocks.getActiveQuestRun.mockResolvedValue({
+      runId: "run-1",
+      accountId: "acc-1",
+      chapterId: "chapter-03",
+      questId: "quest-01",
+      currentSceneId: "chapter-03-quest-01-scene-01",
+      status: "in_progress" as const,
+    });
+    catalogMocks.loadContentCatalog.mockResolvedValue({
+      chapters: [{ id: "chapter-03", locked: true, questsExpanded: [] }],
+    });
+
+    const result = await getRunSnapshot("acc-1");
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("expected error");
+    expect(result.code).toBe("chapter_locked");
+  });
+
   it("returns materialization_failed when matching pool cannot be resolved", async () => {
     const activeRun = {
       runId: "run-1",

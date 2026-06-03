@@ -10,6 +10,7 @@ export const chapterFileSchema = z
     id: chapterIdSchema,
     title: z.string().min(1),
     order: z.number().int().min(1),
+    locked: z.boolean().optional().default(false),
     quests: z.array(questIdSchema).min(1),
   })
   .strict();

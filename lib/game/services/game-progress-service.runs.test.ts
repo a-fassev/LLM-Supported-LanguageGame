@@ -169,6 +169,65 @@ describe("game-progress-service run flows", () => {
     expect(repoMocks.createQuestRun).not.toHaveBeenCalled();
   });
 
+  it("rejects quest start when chapter is manually locked", async () => {
+    repoMocks.getActiveQuestRun.mockResolvedValue(null);
+    catalogMocks.loadContentCatalog.mockResolvedValue({
+      chapters: [
+        {
+          id: "chapter-03",
+          locked: true,
+          questsExpanded: [{ id: "quest-01", kind: "main" }],
+        },
+      ],
+    });
+    catalogMocks.findCatalogQuest.mockReturnValue({
+      id: "quest-01",
+      requiresQuestId: null,
+      scenes: [{ id: "chapter-03-quest-01-scene-01" }],
+    });
+    repoMocks.getCompletedQuestIds.mockResolvedValue([
+      "chapter-01:quest-01",
+      "chapter-01:quest-02",
+      "chapter-02:quest-01",
+      "chapter-02:quest-02",
+    ]);
+
+    const result = await startOrResumeRun("acc-1", "chapter-03", "quest-01");
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.status).toBe(409);
+      expect(result.code).toBe("chapter_locked");
+    }
+    expect(repoMocks.createQuestRun).not.toHaveBeenCalled();
+  });
+
+  it("rejects resume when chapter is manually locked", async () => {
+    repoMocks.getActiveQuestRun.mockResolvedValue({
+      runId: "run-1",
+      accountId: "acc-1",
+      chapterId: "chapter-03",
+      questId: "quest-01",
+      currentSceneId: "chapter-03-quest-01-scene-01",
+      status: "in_progress",
+    });
+    catalogMocks.loadContentCatalog.mockResolvedValue({
+      chapters: [
+        {
+          id: "chapter-03",
+          locked: true,
+          questsExpanded: [{ id: "quest-01", kind: "main" }],
+        },
+      ],
+    });
+
+    const result = await startOrResumeRun("acc-1", "chapter-03", "quest-01");
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.status).toBe(409);
+      expect(result.code).toBe("chapter_locked");
+    }
+  });
+
   it("rejects quest start when required quest is incomplete", async () => {
     repoMocks.getActiveQuestRun.mockResolvedValue(null);
     catalogMocks.loadContentCatalog.mockResolvedValue({

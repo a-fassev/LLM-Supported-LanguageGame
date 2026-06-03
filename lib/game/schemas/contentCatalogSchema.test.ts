@@ -22,6 +22,27 @@ describe("contentCatalogSchema", () => {
     expect(quest.ok).toBe(true);
   });
 
+  it("parses chapter locked flag and defaults to false", () => {
+    const locked = parseChapterFile({
+      id: "chapter-03",
+      title: "Roma",
+      order: 3,
+      locked: true,
+      quests: ["quest-01"],
+    });
+    const unlocked = parseChapterFile({
+      id: "chapter-01",
+      title: "Bologna",
+      order: 1,
+      quests: ["quest-01"],
+    });
+
+    expect(locked.ok).toBe(true);
+    if (locked.ok) expect(locked.value.locked).toBe(true);
+    expect(unlocked.ok).toBe(true);
+    if (unlocked.ok) expect(unlocked.value.locked).toBe(false);
+  });
+
   it("rejects story scene with scoring", () => {
     const scene = parseSceneFile({
       id: "chapter-01-quest-01-scene-01",

@@ -26,6 +26,7 @@ Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (lo
 Play is **strictly sequential**:
 
 - **Chapters** unlock one after another; a player must **finish a chapter** before the next opens.
+- **Classroom withhold:** authors can mark a whole chapter **unavailable** in content (`locked` in `chapter.json`)—children still see the city on the map as **Bloccato**, even if they already finished earlier chapters. That is intentional pacing for lessons (e.g. only Bologna and Firenze open this week), not “you have not finished the previous city yet.”
 - Within a chapter, **quests** unlock in order; quest **N+1** stays locked until quest **N** is complete.
 - A **chapter** is an ordered list of **quests**. At the end of a chapter there may be **optional bonus quests**—extra **pizza slices**, but **not required** to unlock the next chapter.
 
@@ -53,7 +54,7 @@ Each step is defined by JSON with:
 
 - **Main menu** offers **Continue** into the chapter map and a **Leaderboard** entry (rankings are optional motivation, not required to progress).
 - **Chapter overview** is the main hub—not a free-roam character world.
-- **Chapter tiles** show unlock state; **tap a chapter** for quest overview, then start a **quest**. On chapter and quest lists, **pizza + backpack** stay visible in the header so progress is always in sight.
+- **Chapter tiles** show unlock state (**Sbloccato** / **Bloccato**); **tap an open chapter** for quest overview, then start a **quest**. Locked chapters are not playable—deep links bounce back to the chapter map. On chapter and quest lists, **pizza + backpack** stay visible in the header so progress is always in sight.
 - **Leaderboard:** compare progress by **total pizza slices**—**Overall** (all learners) or **Teams** (blue vs red). Players can **refresh** after playing; their own row should be easy to find without shaming low scores.
 - **Inside a quest**, the UI alternates **story mode** (narrative: **Pausa**, **«Indietro»** when not on the first scene, **«Avanti»**, full-step **background**, no performance HUD) and **task mode** (short **mission title** in the header, **pizza + backpack**, optional **documento** for shared reading text, one exercise surface, **«Indietro»** + **«Controlla»**). When a task has **several questions in one scene**, the same footer uses **«Avanti»** between questions and **«Controlla»** only on the last—children should not see a second row of navigation inside the exercise.
 - **Task copy (authoring):** a short **scene instruction** (what to do overall) stays above the exercise; each **question prompt** sits with its options—do not merge both into one long paragraph.

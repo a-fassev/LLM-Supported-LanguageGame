@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveAutoStartQuest } from "@/lib/game/resolve-auto-start-quest";
+import { isQuestLockedForAccount, resolveAutoStartQuest } from "@/lib/game/resolve-auto-start-quest";
 import type { ContentCatalog } from "@/lib/game/content/catalog-loader";
 import type { QuestRunRow } from "@/lib/game/repositories/game-progress-repository";
 
@@ -10,6 +10,7 @@ function catalogFixture(): ContentCatalog {
         id: "chapter-01",
         title: "Capitolo 1",
         order: 1,
+        locked: false,
         quests: ["quest-01", "quest-02", "quest-01-bonus"],
         questsExpanded: [
           {
@@ -55,6 +56,20 @@ function completedRun(): QuestRunRow {
     status: "completed",
   };
 }
+
+describe("isQuestLockedForAccount", () => {
+  it("returns true when chapter is manually locked", () => {
+    const catalog: ContentCatalog = {
+      chapters: [
+        {
+          ...catalogFixture().chapters[0],
+          locked: true,
+        },
+      ],
+    };
+    expect(isQuestLockedForAccount(catalog, "chapter-01", "quest-01", new Set())).toBe(true);
+  });
+});
 
 describe("resolveAutoStartQuest", () => {
   it("offers bonus when main quest completed and bonus not done", () => {

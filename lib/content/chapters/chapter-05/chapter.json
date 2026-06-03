@@ -2,6 +2,7 @@
   "id": "chapter-05",
   "title": "Napoli",
   "order": 5,
+  "locked": true,
   "quests": [
     "quest-01",
     "quest-02"

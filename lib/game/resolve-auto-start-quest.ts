@@ -10,16 +10,22 @@ export type QuestAutoStartDto = {
   questId: string;
 };
 
-export function isQuestLockedForAccount(
+export function isChapterManuallyLocked(catalog: ContentCatalog, chapterId: string): boolean {
+  const chapter = catalog.chapters?.find((item) => item.id === chapterId);
+  return chapter?.locked === true;
+}
+
+export function isQuestProgressionLockedForAccount(
   catalog: ContentCatalog,
   chapterId: string,
   questId: string,
   completedQuestIds: Set<string>,
 ): boolean {
-  const chapterIndex = catalog.chapters.findIndex((chapter) => chapter.id === chapterId);
+  const chapters = catalog.chapters ?? [];
+  const chapterIndex = chapters.findIndex((chapter) => chapter.id === chapterId);
   if (chapterIndex < 0) return true;
   if (chapterIndex > 0) {
-    const previousChapter = catalog.chapters[chapterIndex - 1];
+    const previousChapter = chapters[chapterIndex - 1];
     const requiredMainQuestProgressIds = previousChapter.questsExpanded
       .filter((quest) => quest.kind !== "bonus")
       .map((quest) => toQuestProgressId(previousChapter.id, quest.id));
@@ -38,6 +44,16 @@ export function isQuestLockedForAccount(
     return true;
   }
   return false;
+}
+
+export function isQuestLockedForAccount(
+  catalog: ContentCatalog,
+  chapterId: string,
+  questId: string,
+  completedQuestIds: Set<string>,
+): boolean {
+  if (isChapterManuallyLocked(catalog, chapterId)) return true;
+  return isQuestProgressionLockedForAccount(catalog, chapterId, questId, completedQuestIds);
 }
 
 export function resolveAutoStartQuest(

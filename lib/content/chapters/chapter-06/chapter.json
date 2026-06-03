@@ -2,6 +2,7 @@
   "id": "chapter-06",
   "title": "Milano",
   "order": 6,
+  "locked": true,
   "quests": [
     "quest-01",
     "quest-02"

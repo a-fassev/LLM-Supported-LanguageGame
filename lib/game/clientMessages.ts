@@ -13,6 +13,7 @@ export const gameClientMessages = {
   runNotFound: "Partita non trovata.",
   activeRunExists: "Hai gia una partita in corso in un'altra missione.",
   questLocked: "Questa missione e ancora bloccata.",
+  chapterLocked: "Questo capitolo non e ancora disponibile.",
   invalidSceneProgression: "Progressione scena non valida.",
   taskEvaluationNotImplemented: "Valutazione task non ancora disponibile.",
   taskMinRatioNotMet: "Non abbastanza risposte corrette per completare l'attivita.",
