@@ -388,7 +388,7 @@ describe("game-progress-service run flows", () => {
     expect(repoMocks.completeSceneOnce).not.toHaveBeenCalled();
   });
 
-  it("evaluates free_text when GAME_SMOKE_AUTO_PASS is true", async () => {
+  it("skips free_text LLM when GAME_SMOKE_AUTO_PASS is true", async () => {
     vi.stubEnv("GAME_SMOKE_AUTO_PASS", "true");
 
     const taskScene = makeFreetextTaskScene();
@@ -436,11 +436,6 @@ describe("game-progress-service run flows", () => {
     repoMocks.updateQuestRunPosition.mockResolvedValue(true);
     repoMocks.getCompletedSceneIds.mockResolvedValue([taskScene.id]);
     repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 3, totalBackpackPieces: 1 });
-    evaluateFreitextLlmSceneMock.mockResolvedValue({
-      ok: true,
-      ratio: 0.85,
-      feedback: { summaryFeedback: "Bene!", nextStepAdvice: "Continua così." },
-    });
 
     const result = await completeTaskScene("acc-1", "run-1", taskScene.id, {
       attemptPayload: {
@@ -451,10 +446,10 @@ describe("game-progress-service run flows", () => {
 
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.taskOutcome?.ratio).toBe(0.85);
+      expect(result.taskOutcome?.ratio).toBe(1);
       expect(result.taskOutcome?.awardedSlices).toBeGreaterThan(0);
     }
-    expect(evaluateFreitextLlmSceneMock).toHaveBeenCalled();
+    expect(evaluateFreitextLlmSceneMock).not.toHaveBeenCalled();
     expect(repoMocks.completeSceneOnce).toHaveBeenCalled();
     expect(repoMocks.incrementWalletTotals).toHaveBeenCalled();
 

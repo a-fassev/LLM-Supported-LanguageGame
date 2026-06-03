@@ -479,7 +479,7 @@ export async function completeTaskScene(
   };
 
   const smokeAutoPass = process.env.GAME_SMOKE_AUTO_PASS === "true";
-  const skipEval = smokeAutoPass && scene.screen_type !== "free_text";
+  const skipEval = smokeAutoPass;
   let ratio = 1;
   let freitextRetryFeedback: { summaryFeedback: string; nextStepAdvice?: string } | null = null;
 

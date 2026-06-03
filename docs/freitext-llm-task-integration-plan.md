@@ -32,7 +32,7 @@
 - **Retry overlay:** Always `summaryFeedback` (normalized); append `nextStepAdvice` only when present and short.
 - **Rate limits:** No freitext-specific stricter cap in v1.
 - **Validation copy:** Fixed Italian strings in `lib/game/tasks/freitext/freitext-messages.ts`.
-- **Smoke exception:** `GAME_SMOKE_AUTO_PASS` still runs real LLM for `free_text`; other types skip eval.
+- **Smoke:** `GAME_SMOKE_AUTO_PASS` skips evaluation for **all** task types (including `free_text`), `ratio = 1`.
 
 | Topic | Decision |
 | ----- | -------- |
@@ -48,8 +48,8 @@
 | **Client validation** | Non-empty answer; `minWords` / `maxWords` (Italian); hard cap **8000** characters. |
 | **Word count UI** | Stats row when `showWordCount`, `showCharacterCount`, or min/max words set (*Parole:*, *Caratteri:*). |
 | **Catalog validation** | Merged payload validated with `parseFreitextLlmStepContent` — fail catalog load on invalid JSON. |
-| **Env missing** | `503` + `evaluator_unavailable` — **even when** `GAME_SMOKE_AUTO_PASS=true` (smoke cannot fake an LLM pass without the scorer). |
-| **`GAME_SMOKE_AUTO_PASS` (freitext exception)** | See **§2.2** — freitext **still runs the LLM** and uses the real `ratio`; other task types keep today’s skip-eval / `ratio = 1` behavior. |
+| **Env missing** | `503` + `evaluator_unavailable` when the LLM path runs (not when `GAME_SMOKE_AUTO_PASS` skips eval). |
+| **`GAME_SMOKE_AUTO_PASS`** | Skips eval for **all** scored types including `free_text`; `ratio = 1`. See **§2.2**. |
 | **Rate limits** | Existing attempt route limits; optional stricter per-account cap for LLM after load testing. |
 | **Sanitizer** | No answer keys to strip; `evaluation` may stay client-visible in v1. |
 | **Delivery mode** | Phases 1→3 in order (data → UI → play/server). |
@@ -66,42 +66,11 @@ Align with other scored tasks: feedback after **Controlla** goes through **`Succ
 
 **Not in v1:** grammar / vocabulary / register breakdown panels (store in attempt payload server-side if useful later; do not render in UI).
 
-### 2.2 `GAME_SMOKE_AUTO_PASS` — freitext exception (locked)
+### 2.2 `GAME_SMOKE_AUTO_PASS` (current)
 
-Today `completeTaskScene` treats `GAME_SMOKE_AUTO_PASS=true` as **skip all task evaluation** and `ratio = 1` for every scored type.
+`completeTaskScene` uses `skipEval = (GAME_SMOKE_AUTO_PASS === "true")` for **every** scored task type, including **`free_text`**. When smoke is on: no `evaluateTaskAttempt`, no `evaluateFreitextLlmScene`, `ratio = 1` (then normal pizza completion rules).
 
-**New rule (small, explicit exception):**
-
-| `screen_type` | When `GAME_SMOKE_AUTO_PASS=true` |
-| ------------- | -------------------------------- |
-| `multiple_choice`, `matching`, `drag_drop`, … | Unchanged — **skip** `evaluateTaskAttempt`, `ratio = 1`. |
-| **`free_text`** | **Do not skip** — always run `evaluateFreitextLlmScene` (LLM + real `ratio`) when `scoring.pizza.mode !== "flat"`. |
-
-Rationale: local/staging walkthrough can fast-forward deterministic tasks while still exercising the **full freitext path** (loading state, overlay, pass/fail, NVIDIA integration) once keys are in `.env.local`.
-
-**Still required for freitext in smoke mode:**
-
-- Valid attempt body (`answerText`).  
-- NVIDIA env configured — otherwise `503 evaluator_unavailable` (no silent `ratio = 1` fallback for freitext).  
-- Client loading UX unchanged (learner still waits for the judge).
-
-**Implementation sketch** (`game-progress-service.ts`):
-
-```text
-smokeAutoPass = env GAME_SMOKE_AUTO_PASS === "true"
-skipEval =
-  smokeAutoPass && scene.screen_type !== "free_text"
-
-if !skipEval && pizzaRules.kind !== "flat":
-  if screen_type === "free_text":
-    ratio ← await evaluateFreitextLlmScene(...)
-  else:
-    ratio ← evaluateTaskAttempt(...)
-```
-
-**Docs to align on implement:** `AGENTS.md` (scoring bullet), `.env.example` comment (freitext exception), and replace `game-progress-service.runs.test.ts` case that expects freitext auto-pass without LLM.
-
-**Production:** `GAME_SMOKE_AUTO_PASS` must remain off in Azure; the freitext exception only matters when the flag is intentionally set locally/staging.
+**Supersedes:** An earlier plan had a freitext-only exception (always run LLM under smoke). That exception was **removed** so local walkthrough behaves uniformly without NVIDIA keys on freetext scenes.
 
 ---
 

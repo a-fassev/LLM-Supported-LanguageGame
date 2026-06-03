@@ -344,7 +344,7 @@ Fixture scenes in quest-01 (after matching): `scenes/09.json` (minimal), `10.jso
 
 #### `free_text` — `content.task`
 
-Validated at catalog load (`parseFreitextLlmStepContent` on merged `content.task` + scene `instruction`). **Scene completion** uses **`scoring.pizza.minRatioToComplete`** when `pizza.mode` is `scored`, and **`evaluation.passThreshold`** when `pizza.mode` is `flat`. **`evaluation.passThreshold`** and **`scoringPolicy`** feed the LLM rubric only — they do **not** gate completion on web. The server always runs the LLM judge for `free_text`, including when `pizza.mode` is `flat` (flat only fixes slice count, not evaluation). Snapshots strip `task.evaluation` before the browser (see `sanitize-task-payload-for-client.ts`).
+Validated at catalog load (`parseFreitextLlmStepContent` on merged `content.task` + scene `instruction`). **Scene completion** uses **`scoring.pizza.minRatioToComplete`** when `pizza.mode` is `scored`, and **`evaluation.passThreshold`** when `pizza.mode` is `flat`. **`evaluation.passThreshold`** and **`scoringPolicy`** feed the LLM rubric only — they do **not** gate completion on web. The LLM judge runs when evaluation is not skipped (`GAME_SMOKE_AUTO_PASS` skips all task types including `free_text`). Snapshots strip `task.evaluation` before the browser (see `sanitize-task-payload-for-client.ts`).
 
 ```jsonc
 {

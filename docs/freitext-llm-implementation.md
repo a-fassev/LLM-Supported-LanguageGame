@@ -6,7 +6,7 @@
 ## Delivered
 
 - **Fixtures:** `chapter-01/quest-01/scenes/12.json` (minimal smoke), `chapter-03/quest-02/scenes/02.json` (rich + documento).
-- **Server:** `evaluateFreitextLlmScene` + `completeTaskScene` branch; smoke exception for `free_text`. LLM judge scores **grammar, vocabulary, register, task fulfillment** (`taskFulfillmentScore` + `taskFulfillmentWeight`, default weight 1).
+- **Server:** `evaluateFreitextLlmScene` + `completeTaskScene` branch. LLM judge scores **grammar, vocabulary, register, task fulfillment** (`taskFulfillmentScore` + `taskFulfillmentWeight`, default weight 1). `GAME_SMOKE_AUTO_PASS` skips the LLM like other task types.
 - **UI:** `FreeTextTask`, play draft/submit, loading copy, retry overlay with LLM summary.
 - **Tests:** catalog smoke, service mocks, validation/outcome helpers.
 
@@ -21,7 +21,7 @@
 ## Local QA
 
 1. Set `NVIDIA_*` in `.env.local` (see `.env.example`).
-2. Optional: `GAME_SMOKE_AUTO_PASS=true` — deterministic tasks auto-pass; **freitext still calls LLM**.
+2. Optional: `GAME_SMOKE_AUTO_PASS=true` — all task types auto-pass without LLM (local smoke only).
 3. Play quest-01 through scene 12 or chapter-03 quest-02 scene 02.
 
 ### Checklist (manual, with real keys)

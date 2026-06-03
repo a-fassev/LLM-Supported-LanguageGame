@@ -48,7 +48,7 @@ Do **not** edit Cursor plan files unless the user asks. Prefer updating `docs/qu
 
 - Never use `correctOptionIds` / `correctPairs` / answers in UI logic.
 - Run snapshots strip answer keys in `game-progress-service` → `sceneToDto` → `sanitize-task-payload-for-client.ts`; normalizers use client parsers after sanitize (`parseMultipleChoiceClientContent`, `parseMatchingClientContent`, `parseDragDropClientContent`, **`parseFreitextClientContent`** — freetext also strips `task.evaluation`). **Do not** call `parseFreitextLlmStepContent` in UI normalizers.
-- **Free_text server path:** async `evaluateFreitextLlmScene` in `completeTaskScene` (not `evaluateTaskAttempt`). `GAME_SMOKE_AUTO_PASS` still runs the LLM for freetext. Use `TaskBodyLayout` `fillScroll` + full-height textarea; loading copy while attempt is in flight.
+- **Free_text server path:** async `evaluateFreitextLlmScene` in `completeTaskScene` (not `evaluateTaskAttempt`). `GAME_SMOKE_AUTO_PASS` skips LLM like other scored types. Use `TaskBodyLayout` `fillScroll` + full-height textarea; loading copy while attempt is in flight.
 - **Pre-Controlla validation:** MC/matching require a complete draft (inline error under prompt). **Drag-drop:** no completeness gate — always submit; wrong/empty zones fail via server ratio + `SuccessOverlay` retry.
 - **Drag-drop `matchMode: "one"`:** UI may stack multiple tiles in one zone while sorting; scoring counts the target correct only when **exactly one** placed tile is in `correctItemIds`. Do not “fix” multi-tile zones back to single-slot replace.
 - Post-**Controlla** feedback: `SuccessOverlay` + `taskOutcome`, not toasts for wrong answers.
