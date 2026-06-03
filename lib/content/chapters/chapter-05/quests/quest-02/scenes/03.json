@@ -1,0 +1,9 @@
+{
+  "id": "chapter-05-quest-02-scene-03",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/05/quests/02/bg-room-desk",
+  "content": {
+    "text": "Sara\n„Rispondiamo con precisione, poi andiamo al caffè.\""
+  }
+}

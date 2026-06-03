@@ -1,0 +1,9 @@
+{
+  "id": "chapter-05-quest-02-scene-06",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/05/quests/02/bg-room-desk",
+  "content": {
+    "text": "Sara\n„Perfetto. Adesso possiamo discutere in modo serio.\""
+  }
+}

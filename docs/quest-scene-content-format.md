@@ -34,7 +34,7 @@ lib/content/
 | `quest.json` | Quest title, kind, unlock (`requiresQuestId`) |
 | `scenes/NN.json` | One scene (envelope + `content`) |
 
-Scene order is the **numeric prefix** on filenames (`01`, `02`, …).
+Scene order is the **numeric prefix** on filenames (`01`, `02`, …). When mapping a raw act to multiple files, keep the **same order** as in `docs/content_raw/` between story (`info`) and task scenes (e.g. exercises before a narrator line that summarizes their result).
 
 ---
 
@@ -431,6 +431,7 @@ Validated at catalog load (`parseClozeTextContent`). Snapshots strip `correctAns
 | ---- | ----- |
 | Segments | `kind: "text"` (or legacy `"literal"`) for literals; `kind: "gap"` for inputs. |
 | Gaps | Each gap needs `correctAnswers[]` with ≥1 non-empty string at catalog load (server-only). |
+| Raw A/B (one of two positions) | One **`gap` per line** with the **full correct phrase** in `correctAnswers[]` (e.g. `un solo studente`). Do not author a partial answer plus trailing literal text that repeats the noun; word-order alternates must both be complete phrases. |
 | Case | Default insensitive when `caseSensitive` is omitted or `false`; per-gap `ignoreCase` overrides. |
 | Scene copy | `instruction` → `TaskChrome`; `prompt` → `TaskBodyLayout`. |
 | Controlla | Web requires every gap filled before submit; scoring is partial credit per gap (`evaluateCloze`). |

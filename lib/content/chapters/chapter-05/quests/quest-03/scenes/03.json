@@ -1,0 +1,9 @@
+{
+  "id": "chapter-05-quest-03-scene-03",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/05/quests/03/bg-caffe-giardini",
+  "content": {
+    "text": "Sara\n„Mettiamo tutto in ordine: pro e contro, poi rifiniamo le frasi.\""
+  }
+}

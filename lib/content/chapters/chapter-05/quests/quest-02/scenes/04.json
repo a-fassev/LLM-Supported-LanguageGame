@@ -1,0 +1,148 @@
+{
+  "id": "chapter-05-quest-02-scene-04",
+  "scene_type": "task",
+  "screen_type": "multiple_choice",
+  "background": "chapters/05/quests/02/bg-room-desk",
+  "content": {
+    "title": "Perché andare a Lucca?",
+    "instruction": "Leggi i testi (p. 104/105) e scegli la risposta migliore.",
+    "referenceDocument": {
+      "title": "Lettera di Simone e offerta per gruppi scolastici",
+      "body": "Testo A (S. 104_B1): Simone e il Lucca Comics and Games\n\nSimone è anche un grande fan del Lucca Comics and Games. Lui e i suoi amici lo frequentano tutti gli anni. Simone vuole convincere la sua insegnante di storia dell'arte a fare una gita al Lucca Comics and Games. Perciò le scrive un'e-mail.\n\nGentile Professoressa, ha mai sentito del Lucca Comics and Games? Fra un po' avrà di nuovo luogo questo bellissimo festival a Lucca. Perché Le parlo del festival adesso?\n\nQuest'anno faremo una gita scolastica, ma non abbiamo ancora deciso dove e, secondo me, quella sarebbe la meta perfetta, abbia fiducia in noi.\n\nSarebbe davvero bello andare a Lucca. Ci dia, per favore, la possibilità di partecipare al Lucca Comics. Ci siamo meritati un premio perché quest'anno ci siamo comportati veramente bene! Questo festival è divertentissimo! Vedrà! Piacerà anche a Lei.\n\nPotremmo vestirci tutti come i personaggi dei fumetti, La prego, sia gentile e si vesta anche Lei come noi, così potremmo trascorrere insieme una bellissima giornata a Lucca, una delle più belle città culturali che io conosca.\n\nSicuramente interessantissima anche per Lei che insegna storia dell'arte! Non finisca per dirci di no! Esaudisca il nostro desiderio! Mi dica se è d'accordo ad andare al Lucca Comics. Si conceda anche Lei tre giornate diverse e ci porti a vedere il festival dei fumetti più famoso in Italia! Stia tranquilla! Faremo i bravi. Forse potrebbe venire con noi anche il professor Mori che è toscano. Le allego il programma del festival, così mi dice che ne pensa. Saluti, Simone.\n\n---\n\nTesto B (S. 105): Offerta speciale per gruppi scolastici\n\nDa sempre organizzare una gita scolastica rappresenta una sfida per insegnanti e studenti. Si devono mettere d'accordo tra di loro persone di età diverse, con gusti e interessi diversi, ma bisogna soprattutto rispettare le disposizioni ministeriali.\n\nNoi lavoriamo per voi e vi proponiamo una meta in grado di soddisfare tutti: dal Ministro dell'Istruzione e della Ricerca all'ultimo degli studenti. Un viaggio a LUCCA!!! DUE GIORNI AL LUCCA COMICS AND GAMES!!!\n\nVisitate tutti gli stand di video-giochi e fumetti. Divertitevi insieme agli altri cosplayer. Non perdetevi la caccia al tesoro tra le mura storiche e scoprite la storia di Lucca. Partecipate al gioco per vincere una cena per tutta la classe. Scaricate l'app del Lucca Comics e sfidate la fortuna. Fate i selfie con i vostri eroi e le vostre eroine dei fumetti.\n\nLuogo dell'evento: Lucca, piazza Napoleone. Pacchetto: treno Roma–Lucca (andata/ritorno) + prenotazione albergo + biglietto festival. Prezzo: 250,00 € a persona. Invito finale: consultare sito/commenti e prenotare rapidamente."
+    },
+    "task": {
+      "prompt": "Leggi il testo A e il testo B e rispondi alle cinque domande a scelta multipla.",
+      "questions": [
+        {
+          "id": "lucca-q1",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Qual è il punto centrale dell'offerta?",
+          "options": [
+            {
+              "id": "lucca-q1-opt-a",
+              "label": "Una settimana al mare con attività sportive"
+            },
+            {
+              "id": "lucca-q1-opt-b",
+              "label": "Due giorni al Lucca Comics and Games con attività del festival"
+            },
+            {
+              "id": "lucca-q1-opt-c",
+              "label": "Solo visite a musei senza festival"
+            }
+          ],
+          "correctOptionIds": [
+            "lucca-q1-opt-b"
+          ]
+        },
+        {
+          "id": "lucca-q2",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Quale elemento è incluso nel pacchetto?",
+          "options": [
+            {
+              "id": "lucca-q2-opt-a",
+              "label": "Volo Bologna–Lucca e pensione completa"
+            },
+            {
+              "id": "lucca-q2-opt-b",
+              "label": "Treno andata/ritorno, prenotazione albergo e biglietto festival"
+            },
+            {
+              "id": "lucca-q2-opt-c",
+              "label": "Solo ingresso al festival"
+            }
+          ],
+          "correctOptionIds": [
+            "lucca-q2-opt-b"
+          ]
+        },
+        {
+          "id": "lucca-q3",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Quale argomento della lettera parla direttamente alla prof?",
+          "options": [
+            {
+              "id": "lucca-q3-opt-a",
+              "label": "La classe vuole saltare le lezioni"
+            },
+            {
+              "id": "lucca-q3-opt-b",
+              "label": "Lucca offre anche valore culturale e artistico"
+            },
+            {
+              "id": "lucca-q3-opt-c",
+              "label": "La classe vuole comprare gadget"
+            }
+          ],
+          "correctOptionIds": [
+            "lucca-q3-opt-b"
+          ]
+        },
+        {
+          "id": "lucca-q4",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Qual è il ruolo dei genitori?",
+          "options": [
+            {
+              "id": "lucca-q4-opt-a",
+              "label": "Non devono essere informati"
+            },
+            {
+              "id": "lucca-q4-opt-b",
+              "label": "Devono essere informati e dare il consenso"
+            },
+            {
+              "id": "lucca-q4-opt-c",
+              "label": "Decide tutto solo la prof"
+            }
+          ],
+          "correctOptionIds": [
+            "lucca-q4-opt-b"
+          ]
+        },
+        {
+          "id": "lucca-q5",
+          "selectionMode": "single",
+          "preserveOptionOrder": true,
+          "prompt": "Qual è l'obiettivo comunicativo complessivo?",
+          "options": [
+            {
+              "id": "lucca-q5-opt-a",
+              "label": "Ottenere un sì motivato per una gita scolastica formale"
+            },
+            {
+              "id": "lucca-q5-opt-b",
+              "label": "Organizzare un viaggio privato senza scuola"
+            },
+            {
+              "id": "lucca-q5-opt-c",
+              "label": "Criticare l'evento su internet"
+            }
+          ],
+          "correctOptionIds": [
+            "lucca-q5-opt-a"
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.8,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

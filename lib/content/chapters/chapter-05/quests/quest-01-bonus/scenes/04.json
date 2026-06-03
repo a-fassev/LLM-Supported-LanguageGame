@@ -1,0 +1,431 @@
+{
+  "id": "chapter-05-quest-01-bonus-scene-04",
+  "scene_type": "task",
+  "screen_type": "matching",
+  "background": "chapters/05/quests/bonus/bg-neutral",
+  "content": {
+    "title": "Sfida bonus",
+    "instruction": "Abbina ogni parola italiana al suo equivalente inglese.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Collega ogni parola italiana al suo equivalente inglese.",
+      "sampleSize": 10,
+      "poolPairs": [
+        {
+          "id": "ch05v001",
+          "leftLabel": "la tattica",
+          "rightLabel": "tactics"
+        },
+        {
+          "id": "ch05v002",
+          "leftLabel": "la strategia",
+          "rightLabel": "strategy"
+        },
+        {
+          "id": "ch05v003",
+          "leftLabel": "la classifica",
+          "rightLabel": "ranking / top-ten list"
+        },
+        {
+          "id": "ch05v004",
+          "leftLabel": "la sfida",
+          "rightLabel": "challenge"
+        },
+        {
+          "id": "ch05v005",
+          "leftLabel": "il/la capitano/a",
+          "rightLabel": "captain"
+        },
+        {
+          "id": "ch05v006",
+          "leftLabel": "il calciatore/la calciatrice",
+          "rightLabel": "footballer"
+        },
+        {
+          "id": "ch05v007",
+          "leftLabel": "attaccare",
+          "rightLabel": "to attack"
+        },
+        {
+          "id": "ch05v008",
+          "leftLabel": "difendere",
+          "rightLabel": "to defend"
+        },
+        {
+          "id": "ch05v009",
+          "leftLabel": "sconfiggere",
+          "rightLabel": "to defeat"
+        },
+        {
+          "id": "ch05v010",
+          "leftLabel": "l'avversario/a",
+          "rightLabel": "opponent"
+        },
+        {
+          "id": "ch05v011",
+          "leftLabel": "lo spettatore/la spettatrice",
+          "rightLabel": "spectator"
+        },
+        {
+          "id": "ch05v012",
+          "leftLabel": "l'arbitro/a",
+          "rightLabel": "referee"
+        },
+        {
+          "id": "ch05v013",
+          "leftLabel": "il torneo",
+          "rightLabel": "tournament"
+        },
+        {
+          "id": "ch05v014",
+          "leftLabel": "il tifoso/la tifosa",
+          "rightLabel": "fan"
+        },
+        {
+          "id": "ch05v015",
+          "leftLabel": "il possesso; essere in possesso di qc.",
+          "rightLabel": "possession; to possess something"
+        },
+        {
+          "id": "ch05v016",
+          "leftLabel": "segnare (un gol)",
+          "rightLabel": "to score a goal"
+        },
+        {
+          "id": "ch05v017",
+          "leftLabel": "l'eroe/l'eroina",
+          "rightLabel": "hero / heroine"
+        },
+        {
+          "id": "ch05v018",
+          "leftLabel": "i fumetti",
+          "rightLabel": "comics"
+        },
+        {
+          "id": "ch05v019",
+          "leftLabel": "gratuito, -a",
+          "rightLabel": "free of charge"
+        },
+        {
+          "id": "ch05v020",
+          "leftLabel": "attirare",
+          "rightLabel": "to attract"
+        },
+        {
+          "id": "ch05v021",
+          "leftLabel": "il costume",
+          "rightLabel": "costume / dress"
+        },
+        {
+          "id": "ch05v022",
+          "leftLabel": "la costa",
+          "rightLabel": "coast"
+        },
+        {
+          "id": "ch05v023",
+          "leftLabel": "decorare",
+          "rightLabel": "to decorate"
+        },
+        {
+          "id": "ch05v024",
+          "leftLabel": "incoraggiare",
+          "rightLabel": "to encourage"
+        },
+        {
+          "id": "ch05v025",
+          "leftLabel": "deludere",
+          "rightLabel": "to disappoint"
+        },
+        {
+          "id": "ch05v026",
+          "leftLabel": "siccome",
+          "rightLabel": "because / since"
+        },
+        {
+          "id": "ch05v027",
+          "leftLabel": "non vedere l'ora di",
+          "rightLabel": "to be unable to wait for"
+        },
+        {
+          "id": "ch05v028",
+          "leftLabel": "come al solito",
+          "rightLabel": "as usual"
+        },
+        {
+          "id": "ch05v029",
+          "leftLabel": "popolare",
+          "rightLabel": "popular"
+        },
+        {
+          "id": "ch05v030",
+          "leftLabel": "il secolo",
+          "rightLabel": "century"
+        },
+        {
+          "id": "ch05v031",
+          "leftLabel": "complicato, -a",
+          "rightLabel": "complicated"
+        },
+        {
+          "id": "ch05v032",
+          "leftLabel": "il punto",
+          "rightLabel": "point"
+        },
+        {
+          "id": "ch05v033",
+          "leftLabel": "composto, -a da/di",
+          "rightLabel": "made up of / composed of"
+        },
+        {
+          "id": "ch05v034",
+          "leftLabel": "comporre",
+          "rightLabel": "to compose / form"
+        },
+        {
+          "id": "ch05v035",
+          "leftLabel": "avvenire",
+          "rightLabel": "to happen"
+        },
+        {
+          "id": "ch05v036",
+          "leftLabel": "la sagra",
+          "rightLabel": "village festival / fair"
+        },
+        {
+          "id": "ch05v037",
+          "leftLabel": "la meta",
+          "rightLabel": "destination"
+        },
+        {
+          "id": "ch05v038",
+          "leftLabel": "respirare",
+          "rightLabel": "to breathe"
+        },
+        {
+          "id": "ch05v039",
+          "leftLabel": "meritare / meritarsi",
+          "rightLabel": "to deserve"
+        },
+        {
+          "id": "ch05v040",
+          "leftLabel": "guadagnare (soldi)",
+          "rightLabel": "to earn money"
+        },
+        {
+          "id": "ch05v041",
+          "leftLabel": "trascorrere",
+          "rightLabel": "to spend / pass time"
+        },
+        {
+          "id": "ch05v042",
+          "leftLabel": "insegnare",
+          "rightLabel": "to teach"
+        },
+        {
+          "id": "ch05v043",
+          "leftLabel": "concedere / concedersi",
+          "rightLabel": "to grant / allow oneself"
+        },
+        {
+          "id": "ch05v044",
+          "leftLabel": "i social; sui social",
+          "rightLabel": "social media; on social media"
+        },
+        {
+          "id": "ch05v045",
+          "leftLabel": "l'accompagnatore/l'accompagnatrice",
+          "rightLabel": "chaperone / companion"
+        },
+        {
+          "id": "ch05v046",
+          "leftLabel": "cortese",
+          "rightLabel": "polite / courteous"
+        },
+        {
+          "id": "ch05v047",
+          "leftLabel": "piuttosto",
+          "rightLabel": "rather / quite"
+        },
+        {
+          "id": "ch05v048",
+          "leftLabel": "innanzitutto",
+          "rightLabel": "first of all"
+        },
+        {
+          "id": "ch05v049",
+          "leftLabel": "reagire",
+          "rightLabel": "to react"
+        },
+        {
+          "id": "ch05v050",
+          "leftLabel": "l'autorizzazione",
+          "rightLabel": "permission / authorization"
+        },
+        {
+          "id": "ch05v051",
+          "leftLabel": "ci vuole / ci vogliono",
+          "rightLabel": "it takes / one needs"
+        },
+        {
+          "id": "ch05v052",
+          "leftLabel": "andata e ritorno",
+          "rightLabel": "outward and return trip"
+        },
+        {
+          "id": "ch05v053",
+          "leftLabel": "il festival",
+          "rightLabel": "festival"
+        },
+        {
+          "id": "ch05v054",
+          "leftLabel": "la decisione",
+          "rightLabel": "decision"
+        },
+        {
+          "id": "ch05v055",
+          "leftLabel": "cordiale",
+          "rightLabel": "cordial"
+        },
+        {
+          "id": "ch05v056",
+          "leftLabel": "evitare",
+          "rightLabel": "to avoid"
+        },
+        {
+          "id": "ch05v057",
+          "leftLabel": "incredibile",
+          "rightLabel": "incredible"
+        },
+        {
+          "id": "ch05v058",
+          "leftLabel": "lo sbaglio",
+          "rightLabel": "mistake"
+        },
+        {
+          "id": "ch05v059",
+          "leftLabel": "il talento",
+          "rightLabel": "talent"
+        },
+        {
+          "id": "ch05v060",
+          "leftLabel": "la concentrazione",
+          "rightLabel": "concentration"
+        },
+        {
+          "id": "ch05v061",
+          "leftLabel": "sostituire",
+          "rightLabel": "to replace"
+        },
+        {
+          "id": "ch05v062",
+          "leftLabel": "il re/la regina",
+          "rightLabel": "king / queen"
+        },
+        {
+          "id": "ch05v063",
+          "leftLabel": "il tablet",
+          "rightLabel": "tablet"
+        },
+        {
+          "id": "ch05v064",
+          "leftLabel": "la macchia",
+          "rightLabel": "stain"
+        },
+        {
+          "id": "ch05v065",
+          "leftLabel": "occorrere/occorrono",
+          "rightLabel": "to be needed / to take"
+        },
+        {
+          "id": "ch05v066",
+          "leftLabel": "permettersi",
+          "rightLabel": "to allow oneself"
+        },
+        {
+          "id": "ch05v067",
+          "leftLabel": "il passatempo",
+          "rightLabel": "pastime"
+        },
+        {
+          "id": "ch05v068",
+          "leftLabel": "le sciocchezze",
+          "rightLabel": "nonsense / stupid stuff"
+        },
+        {
+          "id": "ch05v069",
+          "leftLabel": "litigare",
+          "rightLabel": "to argue"
+        },
+        {
+          "id": "ch05v070",
+          "leftLabel": "verificare",
+          "rightLabel": "to check / verify"
+        },
+        {
+          "id": "ch05v071",
+          "leftLabel": "tingere",
+          "rightLabel": "to dye"
+        },
+        {
+          "id": "ch05v072",
+          "leftLabel": "l'esplosione",
+          "rightLabel": "explosion"
+        },
+        {
+          "id": "ch05v073",
+          "leftLabel": "il suono",
+          "rightLabel": "sound"
+        },
+        {
+          "id": "ch05v074",
+          "leftLabel": "dimostrare",
+          "rightLabel": "to demonstrate / show"
+        },
+        {
+          "id": "ch05v075",
+          "leftLabel": "travestirsi",
+          "rightLabel": "to dress up"
+        },
+        {
+          "id": "ch05v076",
+          "leftLabel": "i fuochi d'artificio",
+          "rightLabel": "fireworks"
+        },
+        {
+          "id": "ch05v077",
+          "leftLabel": "riconoscere",
+          "rightLabel": "to recognize"
+        },
+        {
+          "id": "ch05v078",
+          "leftLabel": "lo stile",
+          "rightLabel": "style"
+        },
+        {
+          "id": "ch05v079",
+          "leftLabel": "lo strumento",
+          "rightLabel": "instrument / tool"
+        }
+      ],
+      "presentation": {
+        "leftLabel": "italiano",
+        "rightLabel": "english",
+        "shuffleRightOrder": true
+      }
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 2,
+      "minRatioToComplete": 0.6,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

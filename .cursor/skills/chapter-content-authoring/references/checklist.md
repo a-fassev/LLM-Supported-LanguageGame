@@ -7,7 +7,7 @@ Run before marking a chapter authoring PR ready.
 - [ ] `lib/content/chapters/chapter-NN/chapter.json` — `id`, `title`, `order` (contiguous), `quests[]` order, **`background`**, `locked` if pilot
 - [ ] `quests[]` lists every folder under `quests/`
 - [ ] `loadContentCatalog({ bypassCache: true })` succeeds
-- [ ] `lib/game/content/chapter-NN-catalog.test.ts` added or updated
+- [ ] `lib/game/content/chapter-NN-catalog.test.ts` added or updated (scene-order assertions when story/task sequence is fragile)
 
 ## Per quest (`quest.json`)
 

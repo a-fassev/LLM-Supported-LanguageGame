@@ -1,0 +1,134 @@
+{
+  "id": "chapter-05-quest-04-scene-05",
+  "scene_type": "task",
+  "screen_type": "matching",
+  "background": "chapters/05/quests/04/bg-room-evening",
+  "content": {
+    "title": "Imperativi di cortesia",
+    "instruction": "Collega ogni infinito alla forma corretta dell'imperativo di cortesia (Lei).",
+    "task": {
+      "prompt": "Collega ogni infinito alla forma corretta dell'imperativo di cortesia (Lei).",
+      "leftItems": [
+        {
+          "id": "inf-essere",
+          "label": "essere"
+        },
+        {
+          "id": "inf-avere",
+          "label": "avere"
+        },
+        {
+          "id": "inf-andare",
+          "label": "andare"
+        },
+        {
+          "id": "inf-dare",
+          "label": "dare"
+        },
+        {
+          "id": "inf-dire",
+          "label": "dire"
+        },
+        {
+          "id": "inf-fare",
+          "label": "fare"
+        },
+        {
+          "id": "inf-stare",
+          "label": "stare"
+        },
+        {
+          "id": "inf-sapere",
+          "label": "sapere"
+        }
+      ],
+      "rightItems": [
+        {
+          "id": "imp-abbia",
+          "label": "abbia"
+        },
+        {
+          "id": "imp-vada",
+          "label": "vada"
+        },
+        {
+          "id": "imp-dia",
+          "label": "dia"
+        },
+        {
+          "id": "imp-dica",
+          "label": "dica"
+        },
+        {
+          "id": "imp-faccia",
+          "label": "faccia"
+        },
+        {
+          "id": "imp-stia",
+          "label": "stia"
+        },
+        {
+          "id": "imp-sappia",
+          "label": "sappia"
+        },
+        {
+          "id": "imp-sia",
+          "label": "sia"
+        }
+      ],
+      "correctPairs": [
+        {
+          "leftItemId": "inf-essere",
+          "rightItemId": "imp-sia"
+        },
+        {
+          "leftItemId": "inf-avere",
+          "rightItemId": "imp-abbia"
+        },
+        {
+          "leftItemId": "inf-andare",
+          "rightItemId": "imp-vada"
+        },
+        {
+          "leftItemId": "inf-dare",
+          "rightItemId": "imp-dia"
+        },
+        {
+          "leftItemId": "inf-dire",
+          "rightItemId": "imp-dica"
+        },
+        {
+          "leftItemId": "inf-fare",
+          "rightItemId": "imp-faccia"
+        },
+        {
+          "leftItemId": "inf-stare",
+          "rightItemId": "imp-stia"
+        },
+        {
+          "leftItemId": "inf-sapere",
+          "rightItemId": "imp-sappia"
+        }
+      ],
+      "presentation": {
+        "leftLabel": "infinito",
+        "rightLabel": "imperativo (Lei)",
+        "shuffleRightOrder": true
+      }
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.75,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

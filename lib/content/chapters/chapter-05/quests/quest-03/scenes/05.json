@@ -1,0 +1,146 @@
+{
+  "id": "chapter-05-quest-03-scene-05",
+  "scene_type": "task",
+  "screen_type": "cloze",
+  "background": "chapters/05/quests/03/bg-caffe-giardini",
+  "content": {
+    "title": "Posizione dell'aggettivo",
+    "instruction": "Completa ogni frase con la forma corretta (aggettivo prima o dopo il nome, come in classe). L'aggettivo di riferimento è tra parentesi.",
+    "task": {
+      "prompt": "Inserisci la forma corretta in ogni frase. Una lacuna per riga — frase completa con articolo e aggettivo al posto giusto.",
+      "caseSensitive": false,
+      "lines": [
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "1. Giulio è "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "un solo studente"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " in classe. (solo)"
+            }
+          ]
+        },
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "2. Sofia è "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "una povera ragazza"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": ". (povero)"
+            }
+          ]
+        },
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "3. Rita e Franco sono "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "vecchi amici"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": ". (vecchio)"
+            }
+          ]
+        },
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "4. Nando è "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "un ragazzo solo"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": ". (solo)"
+            }
+          ]
+        },
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "5. È "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "un evento caro",
+                "un caro evento"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": ". (caro)"
+            }
+          ]
+        },
+        {
+          "segments": [
+            {
+              "kind": "text",
+              "text": "6. Parla di "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 80,
+              "correctAnswers": [
+                "un vecchio amico",
+                "un amico vecchio"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": ". (vecchio)"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 1
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 3,
+      "minRatioToComplete": 0.83,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
+  }
+}

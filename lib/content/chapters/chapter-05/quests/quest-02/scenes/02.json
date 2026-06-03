@@ -1,51 +1,9 @@
 {
   "id": "chapter-05-quest-02-scene-02",
-  "scene_type": "task",
-  "screen_type": "drag_drop",
-  "background": "chapters/05/quests/02/bg-task-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/05/quests/02/bg-room-desk",
   "content": {
-    "title": "Ordina le parole",
-    "instruction": "Trascina le parole nella posizione corretta.",
-    "referenceDocument": null,
-    "task": {
-      "prompt": "Metti la parola nella casella.",
-      "presentation": { "targetMode": "blocks" },
-      "shuffleItemOrder": false,
-      "items": [{ "id": "ch05-q02-stub-item", "label": "parola" }],
-      "targets": [
-        {
-          "id": "ch05-q02-stub-target",
-          "title": "Casella",
-          "correctItemIds": ["ch05-q02-stub-item"]
-        }
-      ]
-    }
-  },
-  "scoring": {
-    "backpack": {
-      "pieces": 1
-    },
-    "pizza": {
-      "mode": "scored",
-      "maxSlices": 2,
-      "minRatioToComplete": 0.5,
-      "mapping": {
-        "kind": "bands",
-        "bands": [
-          {
-            "minRatio": 0,
-            "slices": 0
-          },
-          {
-            "minRatio": 0.5,
-            "slices": 1
-          },
-          {
-            "minRatio": 1,
-            "slices": 2
-          }
-        ]
-      }
-    }
+    "text": "Mettete sul tavolo la lettera di Simone e la pubblicità del pacchetto per gruppi scolastici."
   }
 }

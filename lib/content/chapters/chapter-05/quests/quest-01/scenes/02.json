@@ -1,32 +1,9 @@
 {
   "id": "chapter-05-quest-01-scene-02",
-  "scene_type": "task",
-  "screen_type": "cloze",
-  "background": "chapters/05/quests/01/bg-task-01",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/05/quests/01/bg-room-afternoon",
   "content": {
-    "title": "Completa la frase",
-    "instruction": "Inserisci le parole mancanti.",
-    "referenceDocument": null,
-    "task": {
-      "prompt": "Completa il testo.",
-      "lines": [
-        {
-          "segments": [
-            { "kind": "text", "text": "Stasera ci vediamo e diciamo: " },
-            { "kind": "gap", "placeholder": "…", "maxLength": 20, "correctAnswers": ["A domani", "a domani"] },
-            { "kind": "text", "text": "!" }
-          ]
-        }
-      ]
-    }
-  },
-  "scoring": {
-    "backpack": { "pieces": 1 },
-    "pizza": {
-      "mode": "scored",
-      "maxSlices": 3,
-      "minRatioToComplete": 0.8,
-      "mapping": { "kind": "linear" }
-    }
+    "text": "Sara\n„Novità importante: quest'anno possiamo proporre una gita più grande. Hai tempo?\""
   }
 }

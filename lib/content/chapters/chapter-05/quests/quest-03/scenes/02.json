@@ -1,0 +1,9 @@
+{
+  "id": "chapter-05-quest-03-scene-02",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/05/quests/03/bg-caffe-giardini",
+  "content": {
+    "text": "Compagno\n„Lucca è bella, però Firenze con il calcio storico è unica.\""
+  }
+}

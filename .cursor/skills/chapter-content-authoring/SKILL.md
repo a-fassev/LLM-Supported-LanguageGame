@@ -11,7 +11,7 @@ description: >-
 
 Branch: **`web-based-implementation`**. Contracts: **`docs/quest-scene-content-format.md`**, **`AGENTS.md`** (game domain). Learner UX: **`.cursor/skills/product/SKILL.md`**. New **task types** or play UI: **`.cursor/skills/web-task-type-ui/SKILL.md`** (fixtures stay in **`chapter-00`**).
 
-**Reference rollouts:** `chapter-01` … `chapter-04` each have `docs/chapter-NN-implementation-overview.md`, optional `chapter-NN-implementation-plan.md`, `scripts/generate-chapter-NN-catalog.mjs`, and `lib/game/content/chapter-NN-catalog.test.ts` (optional `chapter-NN-task-scoring.test.ts` for answer keys). Start from [chapter-01-implementation-overview.md](../../../docs/chapter-01-implementation-overview.md) for the template.
+**Reference rollouts:** `chapter-01` … `chapter-05` each have `docs/chapter-NN-implementation-overview.md`, optional `chapter-NN-implementation-plan.md`, `scripts/generate-chapter-NN-catalog.mjs`, and `lib/game/content/chapter-NN-catalog.test.ts` (optional `chapter-NN-task-scoring.test.ts` for answer keys). Start from [chapter-01-implementation-overview.md](../../../docs/chapter-01-implementation-overview.md) for the template.
 
 ---
 
@@ -48,7 +48,7 @@ Chapter NN authoring:
 | **3. Skeleton + content** | For large chapters: implement in `scripts/generate-chapter-NN-catalog.mjs` (copy `generate-chapter-01-catalog.mjs`), run `node scripts/generate-chapter-NN-catalog.mjs`, **commit** output under `lib/content/chapters/chapter-NN/`. The script **wipes** that folder on each run — do not hand-edit scene JSON if the generator stays canonical. **Chapter 04+ pattern:** generator also ensures `public/content-assets/…` dirs for each key and writes `public/content-assets/chapters/NN/ASSET_KEYS.txt` (drop-in PNG checklist). Smaller deltas: edit JSON directly (no generator). |
 | **4–5. Story + tasks** | Same phase when using a generator (strings/constants in the `.mjs`). Story §1 rules; tasks per spec + validators. Italian from raw **verbatim** unless user approves new bridge scenes. |
 | **6. Scoring** | Task scenes: `scoring.pizza` + `scoring.backpack`; story scenes have **no** scoring. Start from overview draft bands; team may rebalance later. |
-| **7. QA** | `chapter-NN-catalog.test.ts` + optional `chapter-NN-task-scoring.test.ts`; `loadContentCatalog({ bypassCache: true })` must pass. For cloze gaps with multiple `correctAnswers`, test **every** variant in task-scoring tests (not only the first). `npm run build` does **not** regenerate catalogs. |
+| **7. QA** | `chapter-NN-catalog.test.ts` + optional `chapter-NN-task-scoring.test.ts`; `loadContentCatalog({ bypassCache: true })` must pass. For cloze gaps with multiple `correctAnswers`, test **every** variant in task-scoring tests (not only the first). When story/task order is easy to regress, assert `screen_type` / key `content.text` on critical scene indices in catalog tests. `npm run build` does **not** regenerate catalogs. |
 
 ### Generator vs runtime loader
 
@@ -83,6 +83,7 @@ Chapter NN authoring:
 ### Story (`story` + `info`)
 
 - **One raw beat → one scene file** — no multi-beat scenes.
+- **Preserve raw order** when interleaving story and task scenes in a quest (filename order = play order). Do not place a narrator beat that summarizes task outcomes **before** the tasks it refers to unless product approves a rewrite.
 - `content.text` formatting — see [references/raw-mapping.md](references/raw-mapping.md).
 - Use `\n` between speaker line and dialogue; web uses `StoryPanel` `whitespace-pre-line`.
 - Do **not** put `[Narratore]` bracket tags in visible text unless product asks.
@@ -104,11 +105,13 @@ Chapter NN authoring:
 
 „Freitext“ in raw **does not** mean `free_text` when „Auto-Check“ or a printed solution key is present — that is **typed cloze**. Example: chapter-03 congiuntivo / *si impersonale* ([overview](../../../docs/chapter-03-implementation-overview.md)).
 
+**Cloze — raw „fill one of two positions“ (A/B):** Web ships **one scored `gap` per line** with the **complete phrase** (`un solo studente`, not `un solo` + literal `studente`). List two `correctAnswers` only when both are full phrases (`un evento caro` / `un caro evento`). Reference: chapter-05 aggettivo ([overview](../../../docs/chapter-05-implementation-overview.md)).
+
 ### Progression & product (do not re-litigate in content PRs)
 
 - Completed missions: hub **Completata**, not replayable; server `quest_already_completed`.
 - **Indietro** (retreat): no wallet rollback; scene rewards once per `(run_id, scene_id)`.
-- Manual **`locked: true`** on `chapter.json` for classroom pilots (today: chapters **5–6** locked; **03–04** unlocked — flip in generator/`chapter.json` when ready).
+- Manual **`locked: true`** on `chapter.json` for classroom pilots (today: **chapter-06** locked; **03–05** unlocked — flip in generator/`chapter.json` when ready).
 
 ---
 
@@ -130,6 +133,8 @@ Chapter NN authoring:
 | Hand-edit `chapter-NN/scenes/*.json` while generator is canonical | Edit `generate-chapter-NN-catalog.mjs` and re-run (script deletes tree) |
 | German raw labels in `content.instruction` (*Wortbank*, …) | Italian learner copy (*Parole disponibili*, …); German stays in `docs/content_raw/` only |
 | Cloze tests that only check `correctAnswers[0]` | Test every listed alternate per gap in `chapter-NN-task-scoring.test.ts` |
+| Partial cloze answer + literal noun (`un solo` + `studente`) | One **full-phrase** gap per line; see Tasks § cloze A/B |
+| Story/task scene order swapped vs raw act | Match raw beat order; add `chapter-NN-catalog.test.ts` scene-order checks when fragile |
 
 ---
 

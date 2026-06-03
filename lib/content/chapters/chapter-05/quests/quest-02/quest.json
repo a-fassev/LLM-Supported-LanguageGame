@@ -1,6 +1,6 @@
 {
   "id": "quest-02",
-  "title": "La pizza",
+  "title": "Pianificare la gita",
   "order": 2,
   "kind": "main",
   "requiresQuestId": "quest-01",

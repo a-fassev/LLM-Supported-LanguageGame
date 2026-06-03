@@ -1,0 +1,9 @@
+{
+  "id": "chapter-05-quest-04-scene-03",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/05/quests/04/bg-room-evening",
+  "content": {
+    "text": "Sul monitor compare il modello di lettera. È il momento di scrivere alla professoressa e al dirigente."
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "chapter-05-quest-01-scene-03",
+  "scene_type": "story",
+  "screen_type": "info",
+  "background": "chapters/05/quests/01/bg-room-afternoon",
+  "content": {
+    "text": "Tu\n„Se prepariamo bene gli argomenti, possiamo davvero incidere sulla decisione.\""
+  }
+}
