@@ -293,7 +293,7 @@ CREATE INDEX player_scene_materializations_run_idx
   ON public.player_scene_materializations (run_id);
 ```
 
-Repository: `getSceneMaterialization`, `upsertSceneMaterialization`. Service applies materialization when building snapshot DTOs and before `evaluateTaskAttempt`.
+Repository: `getSceneMaterialization` (`GetSceneMaterializationResult` — `{ ok: false }` on DB errors), `insertSceneMaterializationIfAbsent` (insert-only, not upsert). Service applies materialization via `resolveCatalogSceneForRun` when building snapshot DTOs and before `evaluateTaskAttempt`. **Race rule:** if insert loses and re-read has no row, return `null` → `materialization_failed` — never return a fresh in-memory shuffle.
 
 **Note:** Migration is **Phase 1** work; apply with MCP when implementation starts (not before).
 
@@ -355,11 +355,11 @@ No bonus-specific React task type. Treat bonus as **matching with a server-prepa
 | `evaluateMatching` + scored pizza | ✅ | Must run on **materialized** task |
 | `MatchingTask` + play draft/attempt | ✅ | Needs materialized snapshot |
 | `sanitize` strips `correctPairs` | ✅ | Must not leak `poolPairs` |
-| `sceneToDto` | ✅ | No materialization hook yet |
-| Quest-complete auto-start | ❌ | Overlay → chapter map only; needs Phase 3b |
-| `autoStartQuestId` → bonus | ❌ blocked in catalog-loader | Allow bonus target (Phase 1.8) |
-| `player_scene_materializations` table | ❌ | Add migration + repository |
-| Bonus fixtures | ⚠️ placeholder `screen_type: "bonus"`, empty `task` | Rewrite to `matching` + pool |
+| `sceneToDto` + `resolveCatalogSceneForRun` | ✅ | Materialized task in snapshots/attempts |
+| Quest-complete auto-start | ✅ | `autoStartQuest` on completed main run |
+| `autoStartQuestId` → bonus | ✅ | `catalog-loader` validates bonus target |
+| `player_scene_materializations` table | ✅ | `supabase/migrations/20260603160000_player_scene_materializations.sql` |
+| Bonus fixtures | ✅ | `matching` + `poolPairs` (e.g. chapter-00 `quest-01-bonus`) |
 | `screen_type: "bonus"` in catalog enum | ⚠️ | Remove after migration |
 
 ---
@@ -386,7 +386,7 @@ Execute in order. Phases map to skill **1 — Data**, **2 — UI**, **3 — Play
 | # | Work | Files / notes |
 | - | ---- | ------------- |
 | 1.1 | Supabase migration `player_scene_materializations` | `supabase/migrations/` → **apply via Supabase MCP** on linked project |
-| 1.2 | Repository `getSceneMaterialization` / `upsertSceneMaterialization` | `lib/game/repositories/game-progress-repository.ts` |
+| 1.2 | Repository `getSceneMaterialization` / `insertSceneMaterializationIfAbsent` | `lib/game/repositories/game-progress-repository.ts` |
 | 1.3 | Pure `materializeMatchingPool(poolPairs, sampleSize, options?)` | `lib/game/tasks/matching/materialize-matching-pool.ts` + `*.test.ts` (optional injected RNG for deterministic tests) |
 | 1.4 | Catalog loader: allow pool-only matching when `parseMatchingContent` passes | `lib/game/content/catalog-loader.ts`; extend `catalog-loader.test.ts` |
 | 1.5 | Pilot fixtures: `quest-01-bonus/scenes/02.json` + `quest-02/quest.json` `autoStartQuestId` | Pool size author’s choice (≥10); `sampleSize: 10`; scored pizza on scene 02 |

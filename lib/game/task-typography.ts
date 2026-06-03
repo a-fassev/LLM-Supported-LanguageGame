@@ -16,6 +16,10 @@ export const TASK_PLAY_PROMPT_TEXT =
 export const TASK_PLAY_ERROR_TEXT =
   `${TASK_PLAY_BODY_TEXT} text-destructive`;
 
+/** Pre-submit validation under prompt (meta size, destructive — e.g. incomplete draft). */
+export const TASK_PLAY_VALIDATION_ERROR_TEXT =
+  "text-sm leading-relaxed text-destructive md:text-base";
+
 export const TASK_PLAY_META_TEXT =
   "text-sm leading-relaxed text-muted-foreground md:text-base";
 

@@ -564,6 +564,7 @@ export async function completeTaskScene(
         {
           task: scene.content.task as Record<string, unknown>,
           instruction: scene.content.instruction,
+          referenceDocument: scene.content.referenceDocument,
         },
         options?.attemptPayload,
       );

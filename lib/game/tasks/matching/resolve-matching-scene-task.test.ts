@@ -46,7 +46,7 @@ function poolScene(): CatalogScene {
 describe("resolveCatalogSceneForRun", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    repoMocks.getSceneMaterialization.mockResolvedValue(null);
+    repoMocks.getSceneMaterialization.mockResolvedValue({ ok: true, materializedTask: null });
     repoMocks.insertSceneMaterializationIfAbsent.mockResolvedValue(true);
   });
 
@@ -56,7 +56,7 @@ describe("resolveCatalogSceneForRun", () => {
       rightItems: [{ id: "right_a", label: "hello" }],
       correctPairs: [{ leftItemId: "left_a", rightItemId: "right_a" }],
     };
-    repoMocks.getSceneMaterialization.mockResolvedValue(persisted);
+    repoMocks.getSceneMaterialization.mockResolvedValue({ ok: true, materializedTask: persisted });
 
     const resolved = await resolveCatalogSceneForRun("run-1", poolScene());
     expect(resolved?.content.task).toEqual(persisted);
@@ -81,10 +81,20 @@ describe("resolveCatalogSceneForRun", () => {
       correctPairs: [{ leftItemId: "left_a", rightItemId: "right_a" }],
     };
     repoMocks.insertSceneMaterializationIfAbsent.mockResolvedValue(false);
-    repoMocks.getSceneMaterialization.mockResolvedValueOnce(null).mockResolvedValueOnce(raced);
+    repoMocks.getSceneMaterialization
+      .mockResolvedValueOnce({ ok: true, materializedTask: null })
+      .mockResolvedValueOnce({ ok: true, materializedTask: raced });
 
     const resolved = await resolveCatalogSceneForRun("run-1", poolScene());
     expect(resolved?.content.task).toEqual(raced);
     expect(repoMocks.insertSceneMaterializationIfAbsent).toHaveBeenCalledOnce();
+  });
+
+  it("returns null when materialization read fails", async () => {
+    repoMocks.getSceneMaterialization.mockResolvedValue({ ok: false });
+
+    const resolved = await resolveCatalogSceneForRun("run-1", poolScene());
+    expect(resolved).toBeNull();
+    expect(repoMocks.insertSceneMaterializationIfAbsent).not.toHaveBeenCalled();
   });
 });

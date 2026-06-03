@@ -30,8 +30,6 @@ export type DragDropAssignmentsUpdater =
 export const DRAG_DROP_DRAG_HINT =
   "Tocca una carta e trascinala nella zona della categoria corretta. Puoi spostarle di nuovo se sbagli.";
 export const DRAG_DROP_ZONE_HINT = "Trascina qui";
-export const DRAG_DROP_INCOMPLETE_ZONES_MESSAGE = "Completa tutte le zone di rilascio.";
-export const DRAG_DROP_BANK_NOT_EMPTY_MESSAGE = "Posiziona tutte le carte.";
 export const DRAG_DROP_CONTENT_MISMATCH_MESSAGE =
   "Contenuto drag-and-drop non valido. Ricarica la pagina o riprova più tardi.";
 

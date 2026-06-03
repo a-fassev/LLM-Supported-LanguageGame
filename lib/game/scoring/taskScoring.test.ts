@@ -4,6 +4,7 @@ import {
   evaluateDragDrop,
   evaluateErrorSpotting,
   evaluateMatching,
+  evaluateMultipleChoice,
   evaluateSpecialScreen,
   evaluateTaskAttempt,
 } from "./evaluateTaskAttempt";
@@ -94,6 +95,61 @@ describe("evaluateTaskAttempt", () => {
     expect(r.ratio).toBe(1);
   });
 
+  it("scores multiple choice partial credit and multi-select", () => {
+    const content = {
+      questions: [
+        {
+          selectionMode: "single",
+          correctOptionIds: ["a"],
+          options: [
+            { id: "a", label: "A" },
+            { id: "b", label: "B" },
+          ],
+        },
+        {
+          selectionMode: "multi",
+          correctOptionIds: ["x", "y"],
+          options: [
+            { id: "x", label: "X" },
+            { id: "y", label: "Y" },
+            { id: "z", label: "Z" },
+          ],
+        },
+      ],
+    };
+    const partial = evaluateMultipleChoice(content, {
+      taskType: "MultipleChoice",
+      multipleChoice: { selections: [["a"], ["x"]] },
+    });
+    expect(partial.ok).toBe(true);
+    if (!partial.ok) throw new Error("fail");
+    expect(partial.ratio).toBe(0.5);
+
+    const full = evaluateMultipleChoice(content, {
+      taskType: "MultipleChoice",
+      multipleChoice: { selections: [["a"], ["x", "y"]] },
+    });
+    expect(full.ok).toBe(true);
+    if (!full.ok) throw new Error("fail");
+    expect(full.ratio).toBe(1);
+  });
+
+  it("returns attempt_mismatch when multiple choice selection count differs", () => {
+    const content = {
+      questions: [
+        { selectionMode: "single", correctOptionIds: ["a"], options: [{ id: "a", label: "A" }] },
+        { selectionMode: "single", correctOptionIds: ["b"], options: [{ id: "b", label: "B" }] },
+      ],
+    };
+    const r = evaluateMultipleChoice(content, {
+      taskType: "MultipleChoice",
+      multipleChoice: { selections: [["a"]] },
+    });
+    expect(r.ok).toBe(false);
+    if (r.ok) throw new Error("expected fail");
+    expect(r.code).toBe("attempt_mismatch");
+  });
+
   it("scores dragdrop by target", () => {
     const content = {
       presentation: { targetMode: "blocks" },
@@ -110,6 +166,24 @@ describe("evaluateTaskAttempt", () => {
     expect(r.ok).toBe(true);
     if (!r.ok) throw new Error("fail");
     expect(r.ratio).toBe(0.5);
+  });
+
+  it("scores all-empty dragdrop assignments as ratio 0", () => {
+    const content = {
+      presentation: { targetMode: "blocks" },
+      targets: [
+        { id: "t1", correctItemIds: ["a"] },
+        { id: "t2", correctItemIds: ["b"] },
+      ],
+    };
+    const attempt = {
+      taskType: "DragDrop" as const,
+      dragDrop: { assignments: { t1: "", t2: "" } },
+    };
+    const r = evaluateDragDrop(content, attempt);
+    expect(r.ok).toBe(true);
+    if (!r.ok) throw new Error("fail");
+    expect(r.ratio).toBe(0);
   });
 
   it("scores dragdrop blocks mode with alternative correctItemIds (OR per target)", () => {

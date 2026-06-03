@@ -85,15 +85,6 @@ export function normalizeMcContentResult(taskPayload: Record<string, unknown>): 
   }
 }
 
-/** Strict normalize — use after catalog-validated content or when mismatch must surface in UI. */
-export function normalizeMcContent(taskPayload: Record<string, unknown>): NormalizedMcContent {
-  const result = normalizeMcContentResult(taskPayload);
-  if (!result.ok) {
-    throw new Error(result.message);
-  }
-  return result.content;
-}
-
 export function createEmptyMcSelections(questionCount: number): string[][] {
   return Array.from({ length: questionCount }, () => []);
 }

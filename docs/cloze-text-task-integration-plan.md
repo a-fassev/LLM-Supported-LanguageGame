@@ -31,7 +31,7 @@
 | **v1 interaction** | **Free-text inline `<input>`** per gap (shadcn `Input`), embedded in the line flow. No dropdown word bank in v1. |
 | **`placeholder` / `maxLength`** | If set on a gap segment, apply to the input (`placeholder` attribute, `maxLength`; clamp max to **256**). |
 | **Case matching** | **`caseSensitive: false`** (default) → case-insensitive unless a gap sets `ignoreCase` to `"false"` / `false`. Multiple accepted strings per gap (e.g. `Marco`, `MARCO`). Server `gapInsensitive()` must accept **`ignoreCase` as boolean or string** (fix during implementation — scoring today only parses string reliably). |
-| **Copy hierarchy (web)** | `content.title` → play header. `content.instruction` → **`TaskChrome`** (semibold `text-sm`). `content.task.prompt` → **`TaskBodyLayout`** (normal `text-sm`). Do not merge instruction + prompt. |
+| **Copy hierarchy (web)** | `content.title` → play header. `content.instruction` → **`TaskChrome`** (`TASK_PLAY_INSTRUCTION_TEXT`). `content.task.prompt` → **`TaskBodyLayout`** (`TASK_PLAY_PROMPT_TEXT`). Do not merge instruction + prompt. |
 | **Multi-step** | **None.** All gaps on one screen. Shell footer: **Indietro** / **Controlla** only. |
 | **Pre-submit validation** | On **Controlla**, every gap must have a **non-empty** trimmed value. Inline error under prompt: *Completa tutte le lacune.* **No** client-side answer correctness — server ratio + `SuccessOverlay` / `taskOutcome` on retry. |
 | **Scoring feedback** | Partial credit per gap (`ratio = correct / total`). Below `scoring.pizza.minRatioToComplete` → **409** + retry overlay (same as other scored tasks). |
@@ -73,13 +73,13 @@
 
 ```text
 TaskBodyLayout
-├── prompt (fixed, normal text-sm)
+├── prompt (fixed, TASK_PLAY_PROMPT_TEXT)
 ├── beforeScroll (validation error only, if any)
 └── scroll area [data-task-body-scroll]
     └── ClozeTextTask
         └── for each line in lines[]
             └── div.cloze-line-row (flex flex-wrap items-baseline gap-x-1.5 gap-y-2)
-                ├── span.cloze-literal (text-sm, whitespace-normal)
+                ├── span.cloze-literal (TASK_PLAY_BODY_TEXT, whitespace-normal)
                 └── Input.cloze-gap-inline (inline width ~8–16ch, min tap target 44px height)
 ```
 
@@ -344,7 +344,7 @@ lib/game/schemas/
 
 | Topic | Choice |
 | ----- | ------ |
-| Typography | Literals + inputs: `text-sm`; instruction stays in `TaskChrome` |
+| Typography | Literals: `TASK_PLAY_BODY_TEXT`; gap inputs: `TASK_PLAY_INLINE_FIELD_TEXT`; instruction stays in `TaskChrome` |
 | Gap input | shadcn `Input`, `aria-label` per gap index (*Lacuna 1 di N*) |
 | Spacing | Small gap between literal and input (`gap-x-1.5` in row flex) |
 | Scroll | `TaskBodyLayout` children only; `fillScroll` if needed for very short prompts |

@@ -3,6 +3,7 @@
 import { useId, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+import { TASK_PLAY_PROMPT_TEXT } from "@/lib/game/task-typography";
 
 type TaskBodyLayoutProps = {
   /** Per-question or task-level prompt (`content.task.prompt`); fixed above the scroll area. */
@@ -34,7 +35,7 @@ export function TaskBodyLayout({ prompt, beforeScroll, children, fillScroll }: T
       className="flex h-full min-h-0 min-w-0 flex-col gap-2"
     >
       {promptText ? (
-        <p id={promptLabelId} className="shrink-0 text-sm font-normal leading-snug text-foreground">
+        <p id={promptLabelId} className={cn("shrink-0", TASK_PLAY_PROMPT_TEXT)}>
           {promptText}
         </p>
       ) : usesRenderProp ? (

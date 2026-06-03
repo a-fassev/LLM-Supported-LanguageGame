@@ -139,6 +139,7 @@ async function loadScenes(chapterId: string, questId: string, scenesDir: string)
       const merged = mergeFreitextSceneContent(
         scene.content.task as Record<string, unknown>,
         scene.content.instruction,
+        scene.content.referenceDocument,
       );
       const freitextParsed = parseFreitextLlmStepContent(merged);
       if (!freitextParsed.ok) {

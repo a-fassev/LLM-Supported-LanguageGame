@@ -48,7 +48,7 @@ export function SuccessOverlay({
             <DialogDescription className="text-base leading-relaxed">{outcome.body}</DialogDescription>
           </DialogHeader>
           {showRewardSummary ? (
-            <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/60 px-3 py-2 text-sm font-medium">
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/60 px-3 py-2 text-base font-medium leading-relaxed">
               <span>🍕 +{outcome.awardedSlices}</span>
               <span>🎒 +{outcome.awardedBackpackPieces}</span>
               <span className="tabular-nums">{Math.round(outcome.ratio * 100)}%</span>

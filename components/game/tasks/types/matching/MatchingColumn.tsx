@@ -2,6 +2,8 @@
 
 import { useId } from "react";
 import { MatchingCard } from "@/components/game/tasks/types/matching/MatchingCard";
+import { cn } from "@/lib/utils";
+import { TASK_PLAY_SECTION_LABEL_TEXT } from "@/lib/game/task-typography";
 import type { MatchingItemView } from "@/lib/game/tasks/matching/matching-types";
 
 type MatchingColumnProps = {
@@ -41,7 +43,7 @@ export function MatchingColumn({
 
   return (
     <div className="min-w-0 flex-1">
-      <p id={headerId} className="mb-1.5 text-xs font-bold text-foreground">
+      <p id={headerId} className={cn("mb-1.5", TASK_PLAY_SECTION_LABEL_TEXT)}>
         {header}
       </p>
       <div role="group" aria-labelledby={headerId} className="flex flex-col gap-2.5">

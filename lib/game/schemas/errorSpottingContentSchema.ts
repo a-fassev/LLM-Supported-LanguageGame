@@ -28,10 +28,6 @@ const errorSpottingClientSegmentSchema = z
   })
   .strict();
 
-function countTrueErrors(segments: { isError?: boolean }[]): number {
-  return segments.filter((segment) => segment.isError === true).length;
-}
-
 function refineErrorSpottingSegments(
   segments: z.infer<typeof errorSpottingSegmentSchema>[],
   ctx: z.RefinementCtx,
@@ -224,6 +220,3 @@ export function parseErrorSpottingClientContent(raw: unknown):
   return { ok: true, value: parsed.data };
 }
 
-export function countErrorSpottingTrueErrors(segments: { isError?: boolean }[]): number {
-  return countTrueErrors(segments);
-}

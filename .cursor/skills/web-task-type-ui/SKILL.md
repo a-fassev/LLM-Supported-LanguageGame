@@ -28,8 +28,8 @@ Do **not** edit Cursor plan files unless the user asks. Prefer updating `docs/qu
 | Layer | Shared (all tasks) | Per task type |
 | ----- | ------------------ | ------------- |
 | Scene shell | `QuestShell`, `GameShellHeader`, `SceneRouter` | — |
-| Chrome | `TaskChrome` — scene **instruction** (bold `text-sm`), fixed footer **Indietro** / primary | Primary label logic only if multi-step (see MC: **Avanti** → **Controlla**) |
-| Body frame | `TaskBodyLayout` — **prompt** (normal `text-sm`), `beforeScroll` meta, **scrollable** children | Prompt source: `content.task.prompt` or per-item field (e.g. MC `questions[i].prompt`) |
+| Chrome | `TaskChrome` — scene **instruction** (`TASK_PLAY_INSTRUCTION_TEXT`), fixed footer **Indietro** / primary | Primary label logic only if multi-step (see MC: **Avanti** → **Controlla**) |
+| Body frame | `TaskBodyLayout` — **prompt** (`TASK_PLAY_PROMPT_TEXT`), `beforeScroll` meta (`TASK_PLAY_META_TEXT`), **scrollable** children | Prompt source: `content.task.prompt` or per-item field (e.g. MC `questions[i].prompt`) |
 | Dispatch | `TaskPanel` → `components/game/tasks/types/<kebab-name>/` | `*Task.tsx`, option widgets, local helpers |
 | Content | `getTaskPayload(scene)`, `readTaskSceneInstruction`, `readTaskChromeInstructions`, `readTaskScenePrompt` | Zod under `lib/game/schemas/` |
 | Catalog | `catalog-loader.ts` fails load on invalid task JSON | `parseYourTaskContent` at load for that `screen_type` |
@@ -42,13 +42,33 @@ Do **not** edit Cursor plan files unless the user asks. Prefer updating `docs/qu
 - **`content.title`** → play header (truncate single line).
 - **`content.instruction`** → `TaskChrome` only.
 - **`content.task.prompt`** (or per-question prompt) → `TaskBodyLayout` only.
-- Do not merge instruction + prompt into one block. Same font size; instruction **semibold**, prompt **normal**.
+- Do not merge instruction + prompt into one block. Typography tokens in `lib/game/task-typography.ts` (body matches `StoryPanel`: `text-base md:text-lg`); instruction **semibold**, prompt **normal**.
+
+## Play-scene typography
+
+Import from **`lib/game/task-typography.ts`** — never hardcode `text-sm` / `text-base` on play task UI.
+
+| Token | Use |
+| ----- | --- |
+| `TASK_PLAY_BODY_TEXT` | Flowing copy: option labels, cards, chips, cloze literals, freetext textarea, error-spotting flow |
+| `TASK_PLAY_INSTRUCTION_TEXT` | `TaskChrome` instruction |
+| `TASK_PLAY_PROMPT_TEXT` | `TaskBodyLayout` prompt |
+| `TASK_PLAY_ERROR_TEXT` | Content mismatch / broken task state (`role="alert"`) |
+| `TASK_PLAY_VALIDATION_ERROR_TEXT` | Pre-submit inline validation (meta size, destructive) |
+| `TASK_PLAY_META_TEXT` | Progress, drag hints, captions, char counts — one half-step smaller, muted |
+| `TASK_PLAY_SECTION_LABEL_TEXT` | Column headers, drag-drop category titles |
+| `TASK_PLAY_INLINE_FIELD_TEXT` | Cloze gap inputs, error-spotting inline corrections only |
+
+**Inline fields:** Use `TASK_PLAY_INLINE_FIELD_TEXT` (`leading-none`), not `TASK_PLAY_BODY_TEXT`. If both appear in `cn()`, tailwind-merge keeps `leading-relaxed` from body text and breaks `items-baseline` rows.
+
+Compose classes with **`cn()`** from `@/lib/utils`. Reference: `StoryPanel.tsx`, `TaskChrome.tsx`, `TaskBodyLayout.tsx`.
 
 **Client rules:**
 
 - Never use `correctOptionIds` / `correctPairs` / answers in UI logic.
 - Run snapshots strip answer keys in `game-progress-service` → `sceneToDto` → `sanitize-task-payload-for-client.ts`; normalizers use client parsers after sanitize (`parseMultipleChoiceClientContent`, `parseMatchingClientContent`, `parseDragDropClientContent`, **`parseFreitextClientContent`** — freetext also strips `task.evaluation`; **`parseClozeClientContent`** — cloze strips `correctAnswers` on gaps). **Do not** call `parseFreitextLlmStepContent` or full `parseClozeTextContent` in UI normalizers.
-- **Free_text server path:** async `evaluateFreitextLlmScene` in `completeTaskScene` (not `evaluateTaskAttempt`). `GAME_SMOKE_AUTO_PASS` skips LLM like other scored types. Use `TaskBodyLayout` `fillScroll` + full-height textarea; loading copy while attempt is in flight.
+- **Free_text server path:** async `evaluateFreitextLlmScene` in `completeTaskScene` (not `evaluateTaskAttempt`). `GAME_SMOKE_AUTO_PASS` skips LLM like other scored types. Shell `content.referenceDocument` is merged when the task has none (`mergeFreitextSceneContent`; catalog `body` → `bodyText`). The judge prompt must include reference text — not only the parsed payload. **Scored** pizza: `minRatioToComplete` gates completion; `evaluation.passThreshold` is rubric-only. Use `TaskBodyLayout` `fillScroll` + full-height textarea; loading copy while attempt is in flight.
+- **Matching pool (bonus):** `resolveCatalogSceneForRun` + `insertSceneMaterializationIfAbsent`; on insert race failure with no DB row, return `null` → `materialization_failed` (never return a new local shuffle). `getSceneMaterialization` uses `GetSceneMaterializationResult` — DB read errors are not “no row”.
 - **Pre-Controlla validation:** MC/matching/cloze require a complete draft (inline error under prompt; cloze: *Completa tutte le lacune.*). **Drag-drop:** no completeness gate — always submit; wrong/empty zones fail via server ratio + `SuccessOverlay` retry.
 - **Drag-drop `matchMode: "one"`:** UI may stack multiple tiles in one zone while sorting; scoring counts the target correct only when **exactly one** placed tile is in `correctItemIds`. Do not “fix” multi-tile zones back to single-slot replace.
 - Post-**Controlla** feedback: `SuccessOverlay` + `taskOutcome`, not toasts for wrong answers.
@@ -83,7 +103,7 @@ Full spec: `docs/quest-scene-content-format.md` §error_spotting.
 **UI (locked):**
 
 - Tap word/phrase chip → inline correction field; unmark via **×** or Escape (no global reset button).
-- Field width from `correctionFieldWidth(segmentText)` — based on **original segment text** + chrome for × (not typed length). Body copy **`text-sm`** like other tasks.
+- Field width from `correctionFieldWidth(segmentText)` — based on **original segment text** + chrome for × (not typed length). Body copy uses `TASK_PLAY_BODY_TEXT`; inline input uses `TASK_PLAY_INLINE_FIELD_TEXT`.
 - Scroll QA fixtures: consecutive `chapter-00/quest-01/scenes/13.json` (short) + `14.json` (long).
 - Inline correction fields: `autoComplete="off"`, neutral `name`, `data-1p-ignore` / `data-lpignore="true"` (see `ErrorSpottingInlineField.tsx`).
 
@@ -91,15 +111,15 @@ Full spec: `docs/quest-scene-content-format.md` §error_spotting.
 
 **Server:** `clozeTextContentSchema.ts`, `evaluateCloze` in `evaluateTaskAttempt.ts`, attempt `{ taskType: "ClozeText", clozeText: { answers: string[] } }` (gap order: `lines[]` then segments L→R).
 
-**Play:** `syncClozeDraftForScene`, `buildClozeAttempt`, `validateClozeDraft`; `clozePreserveForTransition` keeps answers after successful attempt when scene id unchanged (failed 409 retry keeps draft without sync reset).
+**Play:** `syncClozeDraftForScene`, `buildClozeAttempt`, `validateClozeDraft`; **409 retry** keeps answers by skipping `syncTaskDraftsForScene`. `clozePreserveForTransition` only applies when sync runs with the same scene id (unusual after success because the server advances immediately).
 
 **Fixtures (chapter-00 quest-01):** `scenes/15.json` — minimal (2 gaps, `minRatioToComplete: 1`); `scenes/16.json` — rich (≥6 gaps, `referenceDocument`, `0.67`). Long **Bologna gita** narrative aligned with error_spotting `scenes/14.json` for scroll QA (`joinedText.length > 2000` in smoke test).
 
 **UI (locked):**
 
-- Inline `Input` per gap inside flowing `lines` (`TaskBodyLayout` scroll); body copy `text-sm`, `items-baseline` wrap.
+- Inline `Input` per gap inside flowing `lines` (`TaskBodyLayout` scroll); literals use `TASK_PLAY_BODY_TEXT`, gap inputs use `TASK_PLAY_INLINE_FIELD_TEXT`, `items-baseline` wrap.
 - Do **not** render `placeholder` on gap inputs (`segment.placeholder` in JSON is authoring-only).
-- Compact fields: `h-8`, `focus-visible:ring-0`, width from `maxLength` in `ch`.
+- Compact fields: `h-9`, `focus-visible:ring-0`, width from `maxLength` in `ch`.
 - Autofill off: `autoComplete="off"`, per-gap `name` like `cloze-{sceneId}-g{index}`, `autoCorrect="off"`, `autoCapitalize="off"`, `data-1p-ignore`, `data-lpignore="true"`.
 
 Full spec: `docs/quest-scene-content-format.md` §cloze.

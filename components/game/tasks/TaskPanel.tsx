@@ -23,6 +23,7 @@ import type {
 } from "@/lib/game/tasks/drag-drop/drag-drop-types";
 import type { ErrorSpottingDraft } from "@/lib/game/tasks/error-spotting/error-spotting-types";
 import type { ClozeAnswersDraft } from "@/lib/game/tasks/cloze/cloze-types";
+import { TASK_PLAY_ERROR_TEXT } from "@/lib/game/task-typography";
 
 type TaskPanelProps = {
   scene: RunSceneDto;
@@ -76,7 +77,7 @@ export function TaskPanel({
   if (scene.screen_type === "cloze") {
     if (!clozeAnswers) {
       return (
-        <p className="text-sm text-destructive" role="alert">
+        <p className={TASK_PLAY_ERROR_TEXT} role="alert">
           {clozeValidationError ?? CLOZE_CONTENT_MISMATCH_MESSAGE}
         </p>
       );
@@ -97,7 +98,7 @@ export function TaskPanel({
   if (scene.screen_type === "error_spotting") {
     if (!errorSpottingDraft) {
       return (
-        <p className="text-sm text-destructive" role="alert">
+        <p className={TASK_PLAY_ERROR_TEXT} role="alert">
           {errorSpottingValidationError ?? ERROR_SPOTTING_CONTENT_MISMATCH_MESSAGE}
         </p>
       );
@@ -132,7 +133,7 @@ export function TaskPanel({
   if (scene.screen_type === "multiple_choice") {
     if (!mcSelections) {
       return (
-        <p className="text-sm text-destructive" role="alert">
+        <p className={TASK_PLAY_ERROR_TEXT} role="alert">
           {mcValidationError ?? MC_CONTENT_MISMATCH_MESSAGE}
         </p>
       );
@@ -154,7 +155,7 @@ export function TaskPanel({
   if (scene.screen_type === "drag_drop") {
     if (!dragDropAssignments) {
       return (
-        <p className="text-sm text-destructive" role="alert">
+        <p className={TASK_PLAY_ERROR_TEXT} role="alert">
           {dragDropValidationError ?? DRAG_DROP_CONTENT_MISMATCH_MESSAGE}
         </p>
       );
@@ -175,7 +176,7 @@ export function TaskPanel({
   if (scene.screen_type === "matching") {
     if (!matchingPairs) {
       return (
-        <p className="text-sm text-destructive" role="alert">
+        <p className={TASK_PLAY_ERROR_TEXT} role="alert">
           {matchingValidationError ?? MATCHING_CONTENT_MISMATCH_MESSAGE}
         </p>
       );

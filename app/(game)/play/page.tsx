@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import {
   type RunSnapshotDto,
   type TaskOutcomeDto,
 } from "@/lib/api-client";
+import { gameClientMessages } from "@/lib/game/clientMessages";
 import { useGameSession } from "@/lib/game/session-context";
 import { readNonEmptyString } from "@/lib/game/read-non-empty-string";
 import { readTaskSceneTitle } from "@/lib/game/scene-display";
@@ -84,10 +85,6 @@ type RunState = {
   totalBackpackPieces: number;
   run: RunDto | null;
 };
-
-function buildPlaceholderAttempt(_scene: RunSceneDto, typedText: string): unknown {
-  return { rawText: typedText };
-}
 
 function mergeRunState(_current: RunState, data: RunSnapshotDto): RunState {
   return {
@@ -208,6 +205,7 @@ function syncFreetextDraftForScene(
   const normalized = normalizeFreitextContentResult(
     getTaskPayload(scene),
     readTaskSceneInstruction(scene),
+    scene.content.referenceDocument,
   );
   if (!normalized.ok) {
     setters.setFreetextAnswer("");
@@ -365,7 +363,7 @@ function readReference(scene: RunSceneDto | null): { title?: string; body: strin
   const task = getTaskPayload(scene);
   const ref = (task.referenceDocument ?? scene.content.referenceDocument) as Record<string, unknown> | undefined;
   if (!ref) return null;
-  const body = readNonEmptyString(ref.body);
+  const body = readNonEmptyString(ref.body) ?? readNonEmptyString(ref.bodyText);
   if (!body) return null;
   const title = readNonEmptyString(ref.title) ?? "Documento";
   return { title, body };
@@ -382,7 +380,6 @@ export default function PlayPage() {
   const [state, setState] = useState<RunState>({ totalSlices: 0, totalBackpackPieces: 0, run: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [attemptText, setAttemptText] = useState("");
   const [mcSelections, setMcSelections] = useState<McSelectionsDraft | null>(null);
   const [mcQuestionIndex, setMcQuestionIndex] = useState(0);
   const [mcValidationError, setMcValidationError] = useState<string | null>(null);
@@ -404,17 +401,23 @@ export default function PlayPage() {
   const [outcome, setOutcome] = useState<TaskOutcomeDto | null>(null);
   /** Keeps task-success overlay on the completed scene background until dismissed. */
   const [backgroundHoldKey, setBackgroundHoldKey] = useState<string | null>(null);
+  /** Keeps quest chrome on the completed task scene while the success overlay is open. */
+  const [chromeHoldScene, setChromeHoldScene] = useState<RunSceneDto | null>(null);
+  const pendingDraftSyncSceneRef = useRef<RunSceneDto | null>(null);
 
   const currentScene = state.run?.currentScene ?? null;
+  const displayScene =
+    successOpen && chromeHoldScene !== null ? chromeHoldScene : currentScene;
   const clampedMcQuestionIndex = useMemo(() => {
-    if (!currentScene || currentScene.screen_type !== "multiple_choice") return mcQuestionIndex;
-    return clampMcQuestionIndex(currentScene, mcQuestionIndex);
-  }, [currentScene, mcQuestionIndex]);
-  const referenceDocument = useMemo(() => readReference(currentScene), [currentScene]);
+    const sceneForMc = displayScene ?? currentScene;
+    if (!sceneForMc || sceneForMc.screen_type !== "multiple_choice") return mcQuestionIndex;
+    return clampMcQuestionIndex(sceneForMc, mcQuestionIndex);
+  }, [currentScene, displayScene, mcQuestionIndex]);
+  const referenceDocument = useMemo(() => readReference(displayScene), [displayScene]);
   const taskHeaderTitle = useMemo(() => {
-    if (!currentScene || currentScene.scene_type !== "task") return null;
-    return readTaskSceneTitle(currentScene);
-  }, [currentScene]);
+    if (!displayScene || displayScene.scene_type !== "task") return null;
+    return readTaskSceneTitle(displayScene);
+  }, [displayScene]);
   const canRetreat =
     state.run?.canRetreat === true && (currentScene?.sceneNumber ?? 1) > 1;
 
@@ -429,9 +432,29 @@ export default function PlayPage() {
       : (currentScene?.background ?? null);
 
   const dismissSuccessOverlay = useCallback(() => {
+    const pending = pendingDraftSyncSceneRef.current;
+    if (pending) {
+      syncTaskDraftsForScene(pending, {
+        setMcSelections,
+        setMcQuestionIndex,
+        setMcValidationError,
+        setMatchingPairs,
+        setMatchingValidationError,
+        setDragDropAssignments,
+        setDragDropValidationError,
+        setFreetextAnswer,
+        setFreetextValidationError,
+        setErrorSpottingDraft,
+        setErrorSpottingValidationError,
+        setClozeAnswers,
+        setClozeValidationError,
+      });
+      pendingDraftSyncSceneRef.current = null;
+    }
     setSuccessOpen(false);
     setOutcome(null);
     setBackgroundHoldKey(null);
+    setChromeHoldScene(null);
   }, []);
 
   const chapterPathForRun = useCallback(
@@ -538,6 +561,11 @@ export default function PlayPage() {
     });
     const run = result.data.run;
     if (run?.status === "completed" && run.autoStartQuest) {
+      const holdScene = run.currentScene ?? null;
+      if (holdScene) {
+        setBackgroundHoldKey(holdScene.background ?? null);
+        setChromeHoldScene(holdScene);
+      }
       setOutcome(questCompleteOutcome(run));
       setSuccessOpen(true);
     }
@@ -548,13 +576,14 @@ export default function PlayPage() {
     void (async () => {
       await loadRun();
       if (!mountedRef.current) return;
-      setAttemptText("");
     })();
   }, [loadRun, mountedRef]);
 
   async function onAdvanceStory() {
     if (!token || !state.run || !currentScene) return;
     setSceneNavPending(true);
+    const sceneBeforeAdvance = currentScene;
+    const backgroundBeforeAdvance = currentScene.background ?? null;
     const result = await advanceRun(token, state.run.runId, { sceneId: currentScene.id });
     if (!mountedRef.current) return;
     if (!result.ok) {
@@ -589,11 +618,12 @@ export default function PlayPage() {
       },
       clozePreserveForTransition(nextScene, currentScene.id, clozeAnswers),
     );
-    setAttemptText("");
     setMcValidationError(null);
     setMatchingValidationError(null);
     setDragDropValidationError(null);
     if (result.data.run?.status === "completed") {
+      setBackgroundHoldKey(backgroundBeforeAdvance);
+      setChromeHoldScene(sceneBeforeAdvance);
       setOutcome(questCompleteOutcome(result.data.run, result.data.taskOutcome));
       setSuccessOpen(true);
     }
@@ -638,7 +668,6 @@ export default function PlayPage() {
       },
       clozePreserveForTransition(nextScene, currentScene.id, clozeAnswers),
     );
-    setAttemptText("");
     setMcValidationError(null);
     setMatchingValidationError(null);
     setDragDropValidationError(null);
@@ -653,6 +682,7 @@ export default function PlayPage() {
     setTaskPending(true);
     setError(null);
     const backgroundBeforeSubmit = currentScene.background;
+    const sceneBeforeSubmit = currentScene;
 
     let attempt: unknown;
     if (currentScene.screen_type === "multiple_choice") {
@@ -743,6 +773,7 @@ export default function PlayPage() {
       const normalized = normalizeFreitextContentResult(
         getTaskPayload(currentScene),
         readTaskSceneInstruction(currentScene),
+        currentScene.content.referenceDocument,
       );
       if (!normalized.ok) {
         setFreetextValidationError(FREITEXT_CONTENT_MISMATCH_MESSAGE);
@@ -758,7 +789,9 @@ export default function PlayPage() {
       setFreetextValidationError(null);
       attempt = buildFreitextAttempt(freetextAnswer.trim());
     } else {
-      attempt = buildPlaceholderAttempt(currentScene, attemptText);
+      setError(gameClientMessages.taskEvaluationNotImplemented);
+      setTaskPending(false);
+      return;
     }
     const result = await attemptRun(token, state.run.runId, { sceneId: currentScene.id, attempt });
     if (!mountedRef.current) return;
@@ -782,37 +815,39 @@ export default function PlayPage() {
 
     const nextScene = result.data.run?.currentScene ?? null;
     setState((current) => mergeAttemptState(current, result.data));
-    syncTaskDraftsForScene(
-      nextScene,
-      {
-        setMcSelections,
-        setMcQuestionIndex,
-        setMcValidationError,
-        setMatchingPairs,
-        setMatchingValidationError,
-        setDragDropAssignments,
-        setDragDropValidationError,
-        setFreetextAnswer,
-        setFreetextValidationError,
-        setErrorSpottingDraft,
-        setErrorSpottingValidationError,
-        setClozeAnswers,
-        setClozeValidationError,
-      },
-      clozePreserveForTransition(nextScene, currentScene.id, clozeAnswers),
-    );
-    setAttemptText("");
+    if (result.data.taskOutcome) {
+      pendingDraftSyncSceneRef.current = nextScene;
+      setBackgroundHoldKey(backgroundBeforeSubmit);
+      setChromeHoldScene(sceneBeforeSubmit);
+      setOutcome(result.data.taskOutcome);
+      setSuccessOpen(true);
+    } else {
+      syncTaskDraftsForScene(
+        nextScene,
+        {
+          setMcSelections,
+          setMcQuestionIndex,
+          setMcValidationError,
+          setMatchingPairs,
+          setMatchingValidationError,
+          setDragDropAssignments,
+          setDragDropValidationError,
+          setFreetextAnswer,
+          setFreetextValidationError,
+          setErrorSpottingDraft,
+          setErrorSpottingValidationError,
+          setClozeAnswers,
+          setClozeValidationError,
+        },
+        clozePreserveForTransition(nextScene, currentScene.id, clozeAnswers),
+      );
+    }
     setMcValidationError(null);
     setMatchingValidationError(null);
     setDragDropValidationError(null);
     setFreetextValidationError(null);
     setErrorSpottingValidationError(null);
     setClozeValidationError(null);
-    if (result.data.taskOutcome) {
-      setBackgroundHoldKey(backgroundBeforeSubmit);
-      setOutcome(result.data.taskOutcome);
-      setSuccessOpen(true);
-    }
     setTaskPending(false);
   }
 
@@ -837,13 +872,13 @@ export default function PlayPage() {
         <>
       <QuestShell
         headerTitle={taskHeaderTitle}
-        showHud={currentScene.scene_type === "task"}
+        showHud={displayScene?.scene_type === "task"}
         showDocument={Boolean(referenceDocument)}
         totalSlices={state.totalSlices}
         totalBackpackPieces={state.totalBackpackPieces}
         onOpenPause={() => setPauseOpen(true)}
         onOpenDocument={referenceDocument ? () => setDocumentOpen(true) : undefined}
-        showContentPanel={currentScene.scene_type === "task"}
+        showContentPanel={displayScene?.scene_type === "task"}
       >
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden">
         {error ? (
@@ -856,7 +891,7 @@ export default function PlayPage() {
         ) : null}
 
         <SceneRouter
-          scene={currentScene}
+          scene={displayScene ?? currentScene}
           mcSelections={mcSelections}
           mcQuestionIndex={clampedMcQuestionIndex}
           mcValidationError={mcValidationError}

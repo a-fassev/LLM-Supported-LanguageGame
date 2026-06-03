@@ -44,8 +44,9 @@ export async function resolveMatchingSceneTaskForRun(
     return catalogTask;
   }
 
-  const existing = await getSceneMaterialization(runId, scene.id);
-  if (existing) return existing;
+  const existingRead = await getSceneMaterialization(runId, scene.id);
+  if (!existingRead.ok) return null;
+  if (existingRead.materializedTask) return existingRead.materializedTask;
 
   const poolPairs = normalizePoolPairs(catalogTask.poolPairs);
   if (!poolPairs) return null;
@@ -76,8 +77,10 @@ export async function resolveMatchingSceneTaskForRun(
   const inserted = await insertSceneMaterializationIfAbsent(runId, scene.id, materialized);
   if (inserted) return materialized;
 
-  const raced = await getSceneMaterialization(runId, scene.id);
-  return raced ?? materialized;
+  const racedRead = await getSceneMaterialization(runId, scene.id);
+  if (!racedRead.ok) return null;
+  if (racedRead.materializedTask) return racedRead.materializedTask;
+  return null;
 }
 
 export async function resolveCatalogSceneForRun(

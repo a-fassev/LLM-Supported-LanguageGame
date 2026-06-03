@@ -6,6 +6,7 @@ import { useReservedFlexHeight } from "@/components/game/tasks/types/drag-drop/u
 import type { DragDropItemView } from "@/lib/game/tasks/drag-drop/drag-drop-types";
 import { DRAG_DROP_SLOT_MIN_HEIGHT_CLASS, DRAG_DROP_ZONE_HINT } from "@/lib/game/tasks/drag-drop/drag-drop-types";
 import { cn } from "@/lib/utils";
+import { TASK_PLAY_META_TEXT } from "@/lib/game/task-typography";
 
 type DragDropDropZoneProps = {
   sceneId: string;
@@ -97,7 +98,8 @@ export const DragDropDropZone = forwardRef<HTMLDivElement, DragDropDropZoneProps
       {!hasTiles ? (
         <span
           className={cn(
-            "pointer-events-none flex w-full items-center justify-start text-left text-xs italic text-muted-foreground",
+            "pointer-events-none flex w-full items-center justify-start text-left italic",
+            TASK_PLAY_META_TEXT,
             DRAG_DROP_SLOT_MIN_HEIGHT_CLASS,
           )}
         >

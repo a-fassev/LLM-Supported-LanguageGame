@@ -1,4 +1,5 @@
 import { parseFreitextClientContent } from "@/lib/game/schemas/freitextClientContentSchema";
+import { sanitizeTaskPayloadForClient } from "@/lib/game/content/sanitize-task-payload-for-client";
 import { mergeFreitextSceneContent } from "@/lib/game/tasks/freitext/merge-freitext-scene-content";
 import { FREITEXT_CONTENT_MISMATCH_MESSAGE } from "@/lib/game/tasks/freitext/freitext-messages";
 
@@ -19,9 +20,11 @@ export type NormalizeFreitextResult =
 export function normalizeFreitextContentResult(
   taskPayload: Record<string, unknown>,
   sceneInstruction?: string | null,
+  shellReferenceDocument?: unknown,
 ): NormalizeFreitextResult {
-  const merged = mergeFreitextSceneContent(taskPayload, sceneInstruction);
-  const parsed = parseFreitextClientContent(merged);
+  const merged = mergeFreitextSceneContent(taskPayload, sceneInstruction, shellReferenceDocument);
+  const sanitized = sanitizeTaskPayloadForClient("free_text", merged) as Record<string, unknown>;
+  const parsed = parseFreitextClientContent(sanitized);
   if (!parsed.ok) {
     return { ok: false, message: parsed.issues };
   }

@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { TASK_PLAY_INSTRUCTION_TEXT } from "@/lib/game/task-typography";
 
 /** Vertical rhythm between instruction, task body, and chrome footer. */
 const TASK_CHROME_GAP = "gap-2";
@@ -31,7 +33,7 @@ export function TaskChrome({
   return (
     <section className={`flex h-full min-h-0 w-full flex-col overflow-hidden ${TASK_CHROME_GAP}`}>
       {intro ? (
-        <p className="shrink-0 text-sm font-semibold leading-snug text-foreground">{intro}</p>
+        <p className={cn("shrink-0", TASK_PLAY_INSTRUCTION_TEXT)}>{intro}</p>
       ) : null}
       <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">{children}</div>
       <footer className={`flex shrink-0 items-center justify-between ${TASK_CHROME_GAP}`}>

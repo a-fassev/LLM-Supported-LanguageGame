@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import type { RunSceneDto } from "@/lib/api-client";
 import { TaskBodyLayout } from "@/components/game/tasks/TaskBodyLayout";
+import { cn } from "@/lib/utils";
 import { ErrorSpottingChip } from "@/components/game/tasks/types/error-spotting/ErrorSpottingChip";
 import { ErrorSpottingInlineField } from "@/components/game/tasks/types/error-spotting/ErrorSpottingInlineField";
 import { getTaskPayload } from "@/lib/game/get-task-payload";
@@ -13,6 +14,12 @@ import {
   ERROR_SPOTTING_CONTENT_MISMATCH_MESSAGE,
   normalizeErrorSpottingContentResult,
 } from "@/lib/game/tasks/error-spotting/normalize-error-spotting-content";
+import {
+  TASK_PLAY_BODY_TEXT,
+  TASK_PLAY_ERROR_TEXT,
+  TASK_PLAY_META_TEXT,
+  TASK_PLAY_VALIDATION_ERROR_TEXT,
+} from "@/lib/game/task-typography";
 import type { ErrorSpottingDraft } from "@/lib/game/tasks/error-spotting/error-spotting-types";
 
 type ErrorSpottingTaskProps = {
@@ -72,7 +79,7 @@ export function ErrorSpottingTask({
 
   if (!normalizedResult.ok || !content) {
     return (
-      <p className="text-sm text-destructive" role="alert">
+      <p className={TASK_PLAY_ERROR_TEXT} role="alert">
         {validationError ?? ERROR_SPOTTING_CONTENT_MISMATCH_MESSAGE}
       </p>
     );
@@ -83,16 +90,16 @@ export function ErrorSpottingTask({
       prompt={prompt}
       beforeScroll={
         <>
-          {caption ? <p className="text-xs text-muted-foreground">{caption}</p> : null}
+          {caption ? <p className={TASK_PLAY_META_TEXT}>{caption}</p> : null}
           {validationError ? (
-            <p className="text-sm text-destructive" role="alert">
+            <p className={TASK_PLAY_VALIDATION_ERROR_TEXT} role="alert">
               {validationError}
             </p>
           ) : null}
         </>
       }
     >
-      <p className="flex flex-wrap items-baseline gap-x-0.5 gap-y-1.5 text-sm leading-relaxed">
+      <p className={cn("flex flex-wrap items-baseline gap-x-0.5 gap-y-1.5", TASK_PLAY_BODY_TEXT)}>
         {content.segments.map((segment) => {
             const segmentLabel = segment.text.trim() || segment.id;
             const marked = selectedIds.has(segment.id);

@@ -4,7 +4,6 @@ import {
   getStableMcDisplayOptions,
   mcQuestionCacheKey,
 } from "@/lib/game/tasks/multiple-choice/mc-display-options";
-import { nextMcRadioSelection } from "@/lib/game/tasks/multiple-choice/mc-option-keyboard";
 import {
   createEmptyMcSelections,
   isMcMultiSelect,
@@ -130,13 +129,4 @@ describe("multiple-choice helpers", () => {
     expect(new Set(shuffled.map((o) => o.id))).toEqual(new Set(["1", "2", "3"]));
   });
 
-  it("moves radio selection with arrow keys", () => {
-    const options = [
-      { id: "a", label: "A" },
-      { id: "b", label: "B" },
-      { id: "c", label: "C" },
-    ];
-    expect(nextMcRadioSelection(options, ["a"], "next")).toEqual(["b"]);
-    expect(nextMcRadioSelection(options, ["a"], "prev")).toEqual(["c"]);
-  });
 });

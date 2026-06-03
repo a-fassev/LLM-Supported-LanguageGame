@@ -64,7 +64,7 @@ describe("getRunSnapshot", () => {
     repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 0, totalBackpackPieces: 0 });
     repoMocks.getActiveQuestRun.mockResolvedValue(null);
     repoMocks.getCompletedSceneIds.mockResolvedValue([]);
-    repoMocks.getSceneMaterialization.mockResolvedValue(null);
+    repoMocks.getSceneMaterialization.mockResolvedValue({ ok: true, materializedTask: null });
     repoMocks.insertSceneMaterializationIfAbsent.mockResolvedValue(true);
   });
 

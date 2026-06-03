@@ -207,10 +207,10 @@ The web client uses the same shell for every `screen_type`. Implement new task r
 | Layer | JSON / source | Component | Typography | Scroll |
 | ----- | ------------- | --------- | ---------- | ------ |
 | Header | `content.title` | `GameShellHeader` | Large title (hub header styles) | — |
-| Instruction | `content.instruction` (or legacy `instructions` / `task.instruction`) | `TaskChrome` | `text-sm`, **semibold**, fixed | No |
-| Prompt | `content.task.prompt` for flat tasks; per-item `prompt` when the schema defines it (e.g. MC `questions[]`) | `TaskBodyLayout` | `text-sm`, normal weight, fixed | No |
-| Meta | — (validation, progress, type hints) | `TaskBodyLayout` `beforeScroll` | Usually `text-xs` / `text-sm` | No |
-| Exercise | `content.task` (type-specific) | Children of `TaskBodyLayout` | Type-specific (e.g. MC option labels `text-sm`) | **Yes** — only this region scrolls when content overflows |
+| Instruction | `content.instruction` (or legacy `instructions` / `task.instruction`) | `TaskChrome` | `TASK_PLAY_INSTRUCTION_TEXT` (`text-base md:text-lg`, **semibold**), fixed | No |
+| Prompt | `content.task.prompt` for flat tasks; per-item `prompt` when the schema defines it (e.g. MC `questions[]`) | `TaskBodyLayout` | `TASK_PLAY_PROMPT_TEXT` (normal weight), fixed | No |
+| Meta | — (validation, progress, type hints) | `TaskBodyLayout` `beforeScroll` | `TASK_PLAY_META_TEXT` (`text-sm md:text-base`, muted) | No |
+| Exercise | `content.task` (type-specific) | Children of `TaskBodyLayout` | `TASK_PLAY_BODY_TEXT` (e.g. MC option labels) | **Yes** — only this region scrolls when content overflows |
 | Actions | — | `TaskChrome` footer | Buttons (`Indietro`, `Controlla`, or MC multi-question `Avanti`) | No |
 
 Helpers in `lib/game/scene-display.ts`:
@@ -328,7 +328,7 @@ Use **`scoring.pizza.mode: "scored"`** on bonus scenes (per-scene `maxSlices`, `
 | Items | Unique `id` per column; display `label` (legacy `text` accepted). |
 | Pairs | Each `leftItemId` appears **exactly once** in `correctPairs`; each `rightItemId` at most once. Extra right items are distractors. |
 | Order | Left column keeps authoring order; right column shuffles when `shuffleRightOrder !== false` (default shuffle). |
-| Scene copy | `title` in header; `instruction` in `TaskChrome`; `prompt` in `TaskBodyLayout`. Do **not** repeat the same meaning in instruction and prompt. Interaction hint (*Trascina una linea o tocca due carte.*) is fixed in `MATCHING_DRAG_HINT` (`lib/game/tasks/matching/matching-types.ts`) → `TaskBodyLayout` `beforeScroll` (`text-xs` muted). |
+| Scene copy | `title` in header; `instruction` in `TaskChrome`; `prompt` in `TaskBodyLayout`. Do **not** repeat the same meaning in instruction and prompt. Interaction hint (*Trascina una linea o tocca due carte.*) is fixed in `MATCHING_DRAG_HINT` (`lib/game/tasks/matching/matching-types.ts`) → `TaskBodyLayout` `beforeScroll` (`TASK_PLAY_META_TEXT`). |
 | Attempt | `{ taskType: "Matching", matching: { pairs: { [leftId]: rightId } } }` — one entry per left item. |
 
 Fixture scenes in quest-01 (after MC): `scenes/06.json` (minimal), `07.json` (medium), `08.json` (rich). See `docs/matching-task-integration-plan.md`.
@@ -433,7 +433,7 @@ Fixture scenes: `chapter-00/quest-01/scenes/15.json` (minimal, 2 gaps, long Bolo
 
 #### `free_text` — `content.task`
 
-Validated at catalog load (`parseFreitextLlmStepContent` on merged `content.task` + scene `instruction`). **Scene completion** uses **`scoring.pizza.minRatioToComplete`** when `pizza.mode` is `scored`, and **`evaluation.passThreshold`** when `pizza.mode` is `flat`. **`evaluation.passThreshold`** and **`scoringPolicy`** feed the LLM rubric only — they do **not** gate completion on web. The LLM judge runs when evaluation is not skipped (`GAME_SMOKE_AUTO_PASS` skips all task types including `free_text`). Snapshots strip `task.evaluation` before the browser (see `sanitize-task-payload-for-client.ts`).
+Validated at catalog load (`parseFreitextLlmStepContent` on merged `content.task` + scene `instruction` + shell `content.referenceDocument` when the task payload has no `referenceDocument`). **Scene completion** uses **`scoring.pizza.minRatioToComplete`** when `pizza.mode` is `scored` ( **`evaluation.passThreshold` is ignored** for the pass/fail bar), and **`evaluation.passThreshold`** when `pizza.mode` is `flat`. **`evaluation.passThreshold`** on scored scenes and **`scoringPolicy`** feed the LLM rubric only — they do **not** gate completion on web. The LLM judge runs when evaluation is not skipped (`GAME_SMOKE_AUTO_PASS` skips all task types including `free_text`). Snapshots strip `task.evaluation` before the browser (see `sanitize-task-payload-for-client.ts`).
 
 ```jsonc
 {

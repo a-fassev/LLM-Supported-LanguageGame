@@ -31,6 +31,8 @@ export type EvaluateFreitextLlmSceneResult =
 export type FreitextSceneContentInput = {
   task: Record<string, unknown>;
   instruction?: string | null;
+  /** Scene shell `content.referenceDocument` when not duplicated on the task payload. */
+  referenceDocument?: unknown;
 };
 
 export async function evaluateFreitextLlmScene(
@@ -66,7 +68,11 @@ export async function evaluateFreitextLlmScene(
     };
   }
 
-  const merged = mergeFreitextSceneContent(content.task, content.instruction);
+  const merged = mergeFreitextSceneContent(
+    content.task,
+    content.instruction,
+    content.referenceDocument,
+  );
   const payload = parseFreitextLlmStepContent(merged);
   if (!payload.ok) {
     return {

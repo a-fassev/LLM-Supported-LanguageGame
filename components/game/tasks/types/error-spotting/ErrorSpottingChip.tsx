@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { TASK_PLAY_BODY_TEXT } from "@/lib/game/task-typography";
 
 type ErrorSpottingChipProps = {
   text: string;
@@ -17,7 +18,8 @@ export function ErrorSpottingChip({ text, hint, disabled, onToggle }: ErrorSpott
       title={hint}
       onClick={onToggle}
       className={cn(
-        "inline max-w-full cursor-pointer rounded-sm px-0.5 text-sm leading-relaxed",
+        "inline max-w-full cursor-pointer rounded-sm px-0.5",
+        TASK_PLAY_BODY_TEXT,
         "border-b border-dashed border-transparent",
         "transition-colors",
         "hover:border-primary/45 hover:bg-primary/5",

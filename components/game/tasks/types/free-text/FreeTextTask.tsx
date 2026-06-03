@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import type { RunSceneDto } from "@/lib/api-client";
 import { Textarea } from "@/components/ui/textarea";
 import { TaskBodyLayout } from "@/components/game/tasks/TaskBodyLayout";
+import { cn } from "@/lib/utils";
 import { getTaskPayload } from "@/lib/game/get-task-payload";
 import { readTaskSceneInstruction, readTaskScenePrompt } from "@/lib/game/scene-display";
 import {
@@ -15,6 +16,12 @@ import {
   FREITEXT_CONTENT_MISMATCH_MESSAGE,
   normalizeFreitextContentResult,
 } from "@/lib/game/tasks/freitext/normalize-freitext-content";
+import {
+  TASK_PLAY_BODY_TEXT,
+  TASK_PLAY_ERROR_TEXT,
+  TASK_PLAY_META_TEXT,
+  TASK_PLAY_VALIDATION_ERROR_TEXT,
+} from "@/lib/game/task-typography";
 
 type FreeTextTaskProps = {
   scene: RunSceneDto;
@@ -34,7 +41,12 @@ export function FreeTextTask({
   onAnswerChange,
 }: FreeTextTaskProps) {
   const normalizedResult = useMemo(
-    () => normalizeFreitextContentResult(getTaskPayload(scene), readTaskSceneInstruction(scene)),
+    () =>
+      normalizeFreitextContentResult(
+        getTaskPayload(scene),
+        readTaskSceneInstruction(scene),
+        scene.content.referenceDocument,
+      ),
     [scene],
   );
 
@@ -44,7 +56,7 @@ export function FreeTextTask({
   const fieldDisabled = disabled || evaluating;
 
   if (!normalizedResult.ok) {
-    return <p className="text-sm text-destructive">{FREITEXT_CONTENT_MISMATCH_MESSAGE}</p>;
+    return <p className={TASK_PLAY_ERROR_TEXT}>{FREITEXT_CONTENT_MISMATCH_MESSAGE}</p>;
   }
 
   return (
@@ -54,16 +66,16 @@ export function FreeTextTask({
       beforeScroll={
         <>
           {evaluating ? (
-            <p className="text-sm text-muted-foreground" aria-live="polite">
+            <p className={TASK_PLAY_META_TEXT} aria-live="polite">
               {FREITEXT_EVALUATING_MESSAGE}
             </p>
           ) : null}
           {validationError ? (
-            <p className="text-sm text-destructive" role="alert">
+            <p className={TASK_PLAY_VALIDATION_ERROR_TEXT} role="alert">
               {validationError}
             </p>
           ) : null}
-          {statsLine ? <p className="text-xs text-muted-foreground">{statsLine}</p> : null}
+          {statsLine ? <p className={TASK_PLAY_META_TEXT}>{statsLine}</p> : null}
         </>
       }
     >
@@ -72,8 +84,15 @@ export function FreeTextTask({
           value={answerText}
           onChange={(event) => onAnswerChange(event.target.value)}
           disabled={fieldDisabled}
+          autoComplete="off"
+          name={`freetext-${scene.id}`}
+          data-1p-ignore
+          data-lpignore="true"
           placeholder={FREITEXT_TEXTAREA_PLACEHOLDER}
-          className="h-full min-h-0 flex-1 resize-none text-sm focus-visible:border-ring focus-visible:ring-0"
+          className={cn(
+            "h-full min-h-0 flex-1 resize-none focus-visible:border-ring focus-visible:ring-0",
+            TASK_PLAY_BODY_TEXT,
+          )}
           aria-label={prompt ?? "Risposta"}
         />
       </div>

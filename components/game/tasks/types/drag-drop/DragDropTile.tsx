@@ -2,6 +2,7 @@
 
 import { DRAG_DROP_SLOT_MIN_HEIGHT_CLASS } from "@/lib/game/tasks/drag-drop/drag-drop-types";
 import { cn } from "@/lib/utils";
+import { TASK_PLAY_BODY_TEXT } from "@/lib/game/task-typography";
 
 type DragDropTileProps = {
   itemId: string;
@@ -39,7 +40,8 @@ export function DragDropTile({
         onPointerUp={onPointerUp}
         onKeyDown={onKeyDown}
         className={cn(
-          "box-border inline-flex h-full min-w-20 w-full max-w-full items-center justify-center rounded-md border bg-background/90 px-3 py-2 text-sm leading-snug transition-[color,opacity,box-shadow]",
+          "box-border inline-flex h-full min-w-20 w-full max-w-full items-center justify-center rounded-md border bg-background/90 px-3 py-2 transition-[color,opacity,box-shadow]",
+          TASK_PLAY_BODY_TEXT,
           DRAG_DROP_SLOT_MIN_HEIGHT_CLASS,
           showUnpair && "pr-9",
           "cursor-grab hover:bg-accent/40 active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-60",

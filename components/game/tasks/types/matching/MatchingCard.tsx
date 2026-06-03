@@ -2,6 +2,7 @@
 
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
+import { TASK_PLAY_BODY_TEXT } from "@/lib/game/task-typography";
 
 type MatchingCardProps = {
   id: string;
@@ -43,7 +44,8 @@ export const MatchingCard = forwardRef<HTMLButtonElement, MatchingCardProps>(fun
       onPointerUp={onPointerUp}
       onKeyDown={onKeyDown}
       className={cn(
-        "flex min-h-14 w-full items-center rounded-md border bg-background/90 px-3 py-3.5 text-left text-sm leading-snug transition-colors",
+        "flex min-h-16 w-full items-center rounded-md border bg-background/90 px-3 py-3.5 text-left transition-colors",
+        TASK_PLAY_BODY_TEXT,
         hasTrailingAction && "pr-9",
         "hover:bg-accent/40 disabled:cursor-not-allowed disabled:opacity-60",
         selected && side === "left" && "border-l-[3px] border-l-[var(--matching-line-color)] pl-[calc(0.75rem-3px)]",

@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { TASK_PLAY_INLINE_FIELD_TEXT } from "@/lib/game/task-typography";
 import { ERROR_SPOTTING_CORRECTION_MAX_LENGTH } from "@/lib/game/tasks/error-spotting/error-spotting-types";
 
 type ErrorSpottingInlineFieldProps = {
@@ -15,7 +16,7 @@ type ErrorSpottingInlineFieldProps = {
   onClear: () => void;
 };
 
-const APPROX_CHAR_WIDTH_PX = 8;
+const APPROX_CHAR_WIDTH_PX = 9;
 const INPUT_HORIZONTAL_PADDING_PX = 12;
 /** w-4 clear control + trailing margin */
 const CLEAR_CONTROL_WIDTH_PX = 20;
@@ -45,7 +46,7 @@ export function ErrorSpottingInlineField({
   return (
     <span
       className={cn(
-        "inline-flex h-[1.375rem] max-w-full items-center align-baseline rounded-sm border border-primary/30 bg-primary/5",
+        "inline-flex h-7 max-w-full min-h-7 items-center align-baseline rounded-sm border border-primary/30 bg-primary/5",
         disabled && "opacity-60",
       )}
       style={{ width: `${width}px` }}
@@ -75,7 +76,8 @@ export function ErrorSpottingInlineField({
           }
         }}
         className={cn(
-          "h-[1.375rem] min-w-0 flex-1 border-0 bg-transparent px-1.5 py-0 text-sm leading-none",
+          "h-7 min-h-7 min-w-0 flex-1 border-0 bg-transparent px-1.5 py-0",
+          TASK_PLAY_INLINE_FIELD_TEXT,
           "outline-none focus:outline-none focus-visible:outline-none placeholder:text-muted-foreground/70",
           "disabled:cursor-not-allowed",
         )}

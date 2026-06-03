@@ -56,12 +56,12 @@ describe("drag-drop helpers", () => {
     expect(draft.t2).toEqual(["b"]);
   });
 
-  it("allows multiple items in the same one-mode target zone", () => {
+  it("replaces the prior item when dropping on a one-mode target zone", () => {
     const targetIds = ["t1", "t2"];
     let draft = createEmptyDragDropAssignments(targetIds);
     draft = placeItemOnTarget(draft, "a", "t1", { id: "t1", matchMode: "one" }, targetIds);
     draft = placeItemOnTarget(draft, "b", "t1", { id: "t1", matchMode: "one" }, targetIds);
-    expect(draft.t1).toEqual(["a", "b"]);
+    expect(draft.t1).toEqual(["b"]);
     expect(draft.t2).toEqual([]);
   });
 });

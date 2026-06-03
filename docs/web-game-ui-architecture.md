@@ -1,6 +1,6 @@
 # Web game UI architecture (high level)
 
-**Status:** v1 — **shell shipped** (2026-06-02). **Multiple choice** task UI shipped (2026-06-03). Product decisions **§10** locked. Routes under `app/(auth)/` and `app/(game)/`; shadcn primitives in `components/ui/`; other `screen_type`s still use `TaskPlaceholder` until implemented.
+**Status:** v1 — **shell shipped** (2026-06-02). **Six task types** implemented (multiple choice, matching, drag_drop, free_text, error_spotting, cloze). Product decisions **§10** locked. Routes under `app/(auth)/` and `app/(game)/`; shadcn primitives in `components/ui/`; unknown `screen_type` values still use `TaskPlaceholder`.
 
 **Purpose:** Structure the React + shadcn UI for the browser game: directory layout, screen map, shared quest chrome, data flow with existing `/api/*` + Supabase, styling via `app/globals.css`, and Italian player copy.
 
@@ -51,7 +51,7 @@
 
 ### Intentionally out of scope (initial UI work)
 
-- **Per-task-type renderers** — **Multiple choice** implemented under `components/game/tasks/types/multiple-choice/`; Cloze, DragDrop, Matching, Error spotting, … still **`TaskPlaceholder`** until each type is built (see **§5b** + **web-task-type-ui** skill).
+- **Per-task-type renderers** — Implemented under `components/game/tasks/types/` for multiple choice, matching, drag_drop, free_text, error_spotting, and cloze (see **§5b** + **web-task-type-ui** skill). Unsupported `screen_type` values use **`TaskPlaceholder`**.
 - **Freitext / LLM** — implemented (`screen_type: "free_text"`, `components/game/tasks/types/free-text/`); Controlla blocks with loading copy while the server runs the judge.
 - Unity-specific `SpecialScreen*` — not ported unless content uses them on web.
 - **“First playable milestone”** end-to-end slice — planned separately later; this doc does not define that checklist.
@@ -218,10 +218,10 @@ Every task scene uses the same **copy + scroll contract**. Implement new types i
 | Region | Source (JSON) | Component | Style | Scroll |
 | ------ | ------------- | --------- | ----- | ------ |
 | Play header title | `content.title` | `GameShellHeader` | Hub title styles; **single line + ellipsis** | — |
-| Instruction | `content.instruction` | `TaskChrome` | `text-sm`, **semibold** | No (fixed) |
-| Prompt | `content.task.prompt` or per-item field (e.g. MC `questions[i].prompt`) | `TaskBodyLayout` | `text-sm`, normal | No (fixed) |
-| Meta | — (validation, progress, hints) | `TaskBodyLayout` `beforeScroll` | Usually `text-xs` / `text-sm` | No |
-| Exercise | Type-specific widgets | `TaskBodyLayout` children | e.g. option labels `text-sm` | **Yes** (overflow only here) |
+| Instruction | `content.instruction` | `TaskChrome` | `TASK_PLAY_INSTRUCTION_TEXT` (**semibold**) | No (fixed) |
+| Prompt | `content.task.prompt` or per-item field (e.g. MC `questions[i].prompt`) | `TaskBodyLayout` | `TASK_PLAY_PROMPT_TEXT` (normal) | No (fixed) |
+| Meta | — (validation, progress, hints) | `TaskBodyLayout` `beforeScroll` | `TASK_PLAY_META_TEXT` | No |
+| Exercise | Type-specific widgets | `TaskBodyLayout` children | `TASK_PLAY_BODY_TEXT` (e.g. option labels) | **Yes** (overflow only here) |
 | Actions | — | `TaskChrome` footer | **Indietro** + **Controlla** / **Avanti** | No (fixed) |
 
 ```text
@@ -424,7 +424,17 @@ Extend existing shadcn tokens with **game layer** (names illustrative):
 - **success:** primary button **Avanti** → close overlay; render `run` from the same response (next scene).
 - **retry:** primary **Riprova** → close overlay; keep task draft.
 
-**Visible background on success:** The attempt response may already advance `run.currentScene` on the server. The play page keeps the **completed** scene’s `background` visible (`backgroundHoldKey`) until the overlay closes, then crossfades to the new scene background. Reuse this hold pattern for any future overlay that advances scenes server-side before the player dismisses UI.
+**Visible scene while overlay is open:** The attempt response may already advance `run.currentScene` on the server. `/play` keeps the **completed** scene visible until dismiss:
+
+| Hold | State | Purpose |
+| ---- | ----- | ------- |
+| Background | `backgroundHoldKey` | Crossfade stays on completed scene art (not next scene’s `background`). |
+| Chrome | `chromeHoldScene` → `displayScene` | Header title, `TaskPanel`, documento, MC question index match the **submitted** scene — not the next task behind the dialog. |
+| Drafts | `pendingDraftSyncSceneRef` | Defer `syncTaskDraftsForScene` until overlay closes so the player does not see empty inputs for the next scene. |
+
+Apply the same chrome + background hold when **quest complete** opens the overlay (`onAdvanceStory`, or completed run with `autoStartQuest` on load). **Retry (409):** no draft sync — answers stay on screen.
+
+Implementation: `app/(game)/play/page.tsx` (`dismissSuccessOverlay` flushes pending draft sync). Reuse this pattern for any overlay shown while the server has already advanced the run.
 
 **Copy changes:** Edit `task-outcome-messages.ts` only (not scattered strings in components). Current examples:
 

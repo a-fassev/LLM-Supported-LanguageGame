@@ -66,6 +66,37 @@ describe("evaluateFreitextLlmScene", () => {
     }
   });
 
+  it("passes shell referenceDocument into the judge prompt", async () => {
+    judgeMock.mockResolvedValue({
+      grammarScore: 0.8,
+      vocabularyScore: 0.8,
+      registerScore: 0.8,
+      taskFulfillmentScore: 0.8,
+      summaryFeedback: "Bene.",
+    });
+
+    await evaluateFreitextLlmScene(
+      {
+        task: {
+          ...baseTask,
+          evaluation: {
+            ...baseTask.evaluation,
+            evaluationCriteria: ["Mention at least one item from the menu"],
+          },
+        },
+        referenceDocument: {
+          title: "Menu",
+          body: "Cappuccino - 1,50 EUR",
+        },
+      },
+      { taskType: "FreitextLlm", freitextLlm: { answerText: "Vorrei un cappuccino per favore." } },
+    );
+
+    expect(judgeMock).toHaveBeenCalled();
+    const firstArg = judgeMock.mock.calls[0]?.[0];
+    expect(firstArg.referenceDocument?.bodyText).toBe("Cappuccino - 1,50 EUR");
+  });
+
   it("rejects answers below minWords", async () => {
     const result = await evaluateFreitextLlmScene(
       { task: { ...baseTask, minWords: 3 } },

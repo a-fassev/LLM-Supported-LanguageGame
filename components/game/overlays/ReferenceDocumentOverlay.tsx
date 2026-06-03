@@ -3,6 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
+import { TASK_PLAY_BODY_TEXT } from "@/lib/game/task-typography";
 
 type ReferenceDocumentOverlayProps = {
   open: boolean;
@@ -29,7 +31,7 @@ export function ReferenceDocumentOverlay({
           </DialogHeader>
           <ScrollArea className="h-[50vh] rounded-lg border border-border">
             <div className="p-4">
-              <p className="whitespace-pre-wrap leading-relaxed">{body}</p>
+              <p className={cn("whitespace-pre-wrap", TASK_PLAY_BODY_TEXT)}>{body}</p>
             </div>
           </ScrollArea>
           <div className="flex justify-end">

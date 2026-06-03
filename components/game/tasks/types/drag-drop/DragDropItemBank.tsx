@@ -6,6 +6,7 @@ import { useReservedFlexHeight } from "@/components/game/tasks/types/drag-drop/u
 import type { DragDropItemView } from "@/lib/game/tasks/drag-drop/drag-drop-types";
 import { DRAG_DROP_SLOT_MIN_HEIGHT_CLASS } from "@/lib/game/tasks/drag-drop/drag-drop-types";
 import { cn } from "@/lib/utils";
+import { TASK_PLAY_META_TEXT, TASK_PLAY_SECTION_LABEL_TEXT } from "@/lib/game/task-typography";
 
 type DragDropItemBankProps = {
   sceneId: string;
@@ -31,7 +32,7 @@ export const DragDropItemBank = forwardRef<HTMLDivElement, DragDropItemBankProps
 
   return (
     <div ref={ref} className="shrink-0">
-      <p className="mb-1.5 text-xs font-bold text-foreground">{caption}</p>
+      <p className={cn("mb-1.5", TASK_PLAY_SECTION_LABEL_TEXT)}>{caption}</p>
       {hasItems ? (
         <div ref={areaRef} className="flex flex-wrap items-start justify-start gap-2" style={slotStyle}>
           {items.map((item) => (
@@ -56,7 +57,7 @@ export const DragDropItemBank = forwardRef<HTMLDivElement, DragDropItemBankProps
           )}
           style={slotStyle}
         >
-          <p className="w-full text-left text-xs italic text-muted-foreground">
+          <p className={cn("w-full text-left italic", TASK_PLAY_META_TEXT)}>
             Tutte le carte sono posizionate.
           </p>
         </div>

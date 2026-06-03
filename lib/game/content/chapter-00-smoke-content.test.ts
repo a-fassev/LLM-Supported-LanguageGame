@@ -247,6 +247,25 @@ describe("chapter-00 smoke content", () => {
     expect(taskScene?.scoring.pizza).toMatchObject({ mode: "scored", minRatioToComplete: 0.67 });
   });
 
+  it("keeps quest-01-bonus pool matching scene with scored pizza", async () => {
+    const catalog = await loadContentCatalog({ bypassCache: true });
+    const quest = findCatalogQuest(catalog, "chapter-00", "quest-01-bonus");
+    expect(quest?.kind).toBe("bonus");
+    const taskScene = quest?.scenes.find((scene) => scene.id === "chapter-00-quest-01-bonus-scene-02");
+    expect(taskScene?.screen_type).toBe("matching");
+
+    const task = taskScene?.content.task as {
+      poolPairs?: unknown[];
+      sampleSize?: number;
+      correctPairs?: unknown[];
+    };
+    expect(Array.isArray(task?.poolPairs)).toBe(true);
+    expect(task?.poolPairs?.length).toBeGreaterThan(0);
+    expect(task?.sampleSize).toBe(10);
+    expect(task?.correctPairs).toBeUndefined();
+    expect(taskScene?.scoring.pizza).toMatchObject({ mode: "scored" });
+  });
+
   it("keeps quest-02 matching scene with at least one correct pair", async () => {
     const catalog = await loadContentCatalog({ bypassCache: true });
     const quest = findCatalogQuest(catalog, "chapter-00", "quest-02");

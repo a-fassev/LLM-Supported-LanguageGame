@@ -9,6 +9,7 @@ import {
   MC_CONTENT_MISMATCH_MESSAGE,
   normalizeMcContentResult,
 } from "@/lib/game/tasks/multiple-choice/normalize-mc-content";
+import { TASK_PLAY_ERROR_TEXT, TASK_PLAY_META_TEXT } from "@/lib/game/task-typography";
 import type { McOptionView } from "@/lib/game/tasks/multiple-choice/mc-types";
 import type { McSelectionsDraft } from "@/lib/game/tasks/multiple-choice/mc-types";
 
@@ -44,11 +45,11 @@ export function MultipleChoiceTask({
   }, [question, optionOrderCache, safeIndex, scene.id]);
 
   if (!normalizedResult.ok) {
-    return <p className="text-sm text-destructive">{MC_CONTENT_MISMATCH_MESSAGE}</p>;
+    return <p className={TASK_PLAY_ERROR_TEXT}>{MC_CONTENT_MISMATCH_MESSAGE}</p>;
   }
 
   if (!question || !content) {
-    return <p className="text-sm text-muted-foreground">Contenuto della domanda non disponibile.</p>;
+    return <p className={TASK_PLAY_META_TEXT}>Contenuto della domanda non disponibile.</p>;
   }
 
   const selectedIds = selections[safeIndex] ?? [];

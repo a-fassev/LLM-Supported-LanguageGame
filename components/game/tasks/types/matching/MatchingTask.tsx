@@ -17,6 +17,7 @@ import {
   MATCHING_DRAG_THRESHOLD_PX,
 } from "@/lib/game/tasks/matching/matching-types";
 import { normalizeMatchingContentResult } from "@/lib/game/tasks/matching/normalize-matching-content";
+import { TASK_PLAY_ERROR_TEXT, TASK_PLAY_META_TEXT, TASK_PLAY_VALIDATION_ERROR_TEXT } from "@/lib/game/task-typography";
 import type { MatchingPairsDraft, MatchingPairsUpdater } from "@/lib/game/tasks/matching/matching-types";
 
 const TASK_BODY_SCROLL_SELECTOR = "[data-task-body-scroll]";
@@ -275,7 +276,7 @@ export function MatchingTask({
 
   if (!normalizedResult.ok || !content || !displayOrder) {
     return (
-      <p className="text-sm text-destructive" role="alert">
+      <p className={TASK_PLAY_ERROR_TEXT} role="alert">
         {MATCHING_CONTENT_MISMATCH_MESSAGE}
       </p>
     );
@@ -283,9 +284,9 @@ export function MatchingTask({
 
   const beforeScroll = (
     <>
-      <p className="text-xs text-muted-foreground">{MATCHING_DRAG_HINT}</p>
+      <p className={TASK_PLAY_META_TEXT}>{MATCHING_DRAG_HINT}</p>
       {validationError ? (
-        <p className="text-sm text-destructive" role="alert">
+        <p className={TASK_PLAY_VALIDATION_ERROR_TEXT} role="alert">
           {validationError}
         </p>
       ) : null}

@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
+import { TASK_PLAY_BODY_TEXT } from "@/lib/game/task-typography";
 import { isMcMultiSelect } from "@/lib/game/tasks/multiple-choice/normalize-mc-content";
 import type { McOptionView } from "@/lib/game/tasks/multiple-choice/mc-types";
 
@@ -42,7 +43,7 @@ export function McOptionList({
             <li key={option.id}>
               <div
                 className={cn(
-                  "flex items-start gap-3 rounded-lg border px-3 py-3",
+                  "flex items-center gap-3 rounded-lg border px-3 py-3",
                   checked ? "border-primary bg-primary/5" : "border-border bg-background/80",
                   disabled && "opacity-60",
                 )}
@@ -59,12 +60,13 @@ export function McOptionList({
                     }
                     onChange(selectedIds.filter((id) => id !== option.id));
                   }}
-                  className="mt-0.5"
+                  className="shrink-0"
                 />
                 <Label
                   htmlFor={controlId}
                   className={cn(
-                    "flex-1 cursor-pointer text-sm leading-snug font-normal",
+                    "flex-1 cursor-pointer font-normal",
+                    TASK_PLAY_BODY_TEXT,
                     disabled && "cursor-not-allowed",
                   )}
                 >
@@ -98,16 +100,17 @@ export function McOptionList({
           <div
             key={option.id}
             className={cn(
-              "flex items-start gap-3 rounded-lg border px-3 py-3",
+              "flex items-center gap-3 rounded-lg border px-3 py-3",
               checked ? "border-primary bg-primary/5" : "border-border bg-background/80",
               disabled && "opacity-60",
             )}
           >
-            <RadioGroupItem id={controlId} value={option.id} className="mt-0.5" />
+            <RadioGroupItem id={controlId} value={option.id} className="shrink-0" />
             <Label
               htmlFor={controlId}
               className={cn(
-                "flex-1 cursor-pointer text-sm leading-snug font-normal",
+                "flex-1 cursor-pointer font-normal",
+                TASK_PLAY_BODY_TEXT,
                 disabled && "cursor-not-allowed",
               )}
             >

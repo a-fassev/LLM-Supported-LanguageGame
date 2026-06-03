@@ -19,7 +19,6 @@ import {
   removeItemFromAssignments,
 } from "@/lib/game/tasks/drag-drop/drag-drop-assignment-actions";
 import { stableShuffleDragDropItems } from "@/lib/game/tasks/drag-drop/drag-drop-display-order";
-import { getDragDropValidationFocus } from "@/lib/game/tasks/drag-drop/get-drag-drop-validation-focus";
 import {
   DRAG_DROP_CONTENT_MISMATCH_MESSAGE,
   DRAG_DROP_DRAG_HINT,
@@ -29,6 +28,13 @@ import {
   type DragDropItemView,
 } from "@/lib/game/tasks/drag-drop/drag-drop-types";
 import { normalizeDragDropContentResult } from "@/lib/game/tasks/drag-drop/normalize-drag-drop-content";
+import { cn } from "@/lib/utils";
+import {
+  TASK_PLAY_ERROR_TEXT,
+  TASK_PLAY_META_TEXT,
+  TASK_PLAY_SECTION_LABEL_TEXT,
+  TASK_PLAY_VALIDATION_ERROR_TEXT,
+} from "@/lib/game/task-typography";
 
 const TASK_BODY_SCROLL_SELECTOR = "[data-task-body-scroll]";
 
@@ -90,7 +96,6 @@ export function DragDropTask({
     dragging: boolean;
   } | null>(null);
   const [dragPreview, setDragPreview] = useState<DragDropDragPreviewState | null>(null);
-  const lastValidationErrorRef = useRef<string | null>(null);
 
   const hintText = content?.subtitle?.trim() || DRAG_DROP_DRAG_HINT;
 
@@ -108,37 +113,6 @@ export function DragDropTask({
     zone.focus();
     setKeyboardZoneId(targetId);
   }, []);
-
-  const focusBank = useCallback(() => {
-    const bank = bankRef.current;
-    if (!bank) return;
-    const firstTile = bank.querySelector<HTMLButtonElement>("button[data-drag-drop-item-id]");
-    if (!firstTile) return;
-    const scrollParent = bank.closest(TASK_BODY_SCROLL_SELECTOR);
-    firstTile.scrollIntoView({ block: "nearest", behavior: "smooth" });
-    scrollParent?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-    firstTile.focus();
-  }, []);
-
-  useEffect(() => {
-    if (!content || !validationError || validationError === lastValidationErrorRef.current) return;
-    lastValidationErrorRef.current = validationError;
-
-    const focus = getDragDropValidationFocus(content, assignments, validationError);
-    if (!focus) return;
-
-    if (focus.kind === "bank") {
-      focusBank();
-      return;
-    }
-    focusZone(focus.targetId);
-  }, [assignments, content, focusBank, focusZone, validationError]);
-
-  useEffect(() => {
-    if (validationError === null) {
-      lastValidationErrorRef.current = null;
-    }
-  }, [validationError]);
 
   const placeItem = useCallback(
     (itemId: string, targetId: string) => {
@@ -357,7 +331,7 @@ export function DragDropTask({
 
   if (!content) {
     return (
-      <p className="text-sm text-destructive" role="alert">
+      <p className={TASK_PLAY_ERROR_TEXT} role="alert">
         {validationError ?? DRAG_DROP_CONTENT_MISMATCH_MESSAGE}
       </p>
     );
@@ -375,11 +349,11 @@ export function DragDropTask({
       beforeScroll={
         <div className="shrink-0 space-y-2">
           {validationError ? (
-            <p className="text-sm text-destructive" role="alert">
+            <p className={TASK_PLAY_VALIDATION_ERROR_TEXT} role="alert">
               {validationError}
             </p>
           ) : null}
-          <p className="text-xs text-muted-foreground">{hintText}</p>
+          <p className={TASK_PLAY_META_TEXT}>{hintText}</p>
           <DragDropItemBank
             ref={bankRef}
             sceneId={scene.id}
@@ -397,7 +371,7 @@ export function DragDropTask({
     >
       <div ref={rootRef} className={dragPreview ? "relative min-h-0 cursor-grabbing" : "relative min-h-0"}>
         <div>
-          <p className="mb-1.5 shrink-0 text-xs font-bold text-foreground">{content.targetLabel}</p>
+          <p className={cn("mb-1.5 shrink-0", TASK_PLAY_SECTION_LABEL_TEXT)}>{content.targetLabel}</p>
           {content.targets.map((target) => {
             const placedIds = assignments[target.id] ?? [];
             const placedItems = placedIds

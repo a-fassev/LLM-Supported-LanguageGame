@@ -215,10 +215,14 @@ export async function getCompletedQuestIds(accountId: string): Promise<string[] 
   return [...ids];
 }
 
+export type GetSceneMaterializationResult =
+  | { ok: true; materializedTask: Record<string, unknown> | null }
+  | { ok: false };
+
 export async function getSceneMaterialization(
   runId: string,
   sceneId: string,
-): Promise<Record<string, unknown> | null> {
+): Promise<GetSceneMaterializationResult> {
   const { data, error } = await admin()
     .from("player_scene_materializations")
     .select("materialized_task")
@@ -228,11 +232,13 @@ export async function getSceneMaterialization(
 
   if (error) {
     console.error("[game-repo] getSceneMaterialization", error);
-    return null;
+    return { ok: false };
   }
   const raw = (data as { materialized_task?: unknown } | null)?.materialized_task;
-  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
-  return raw as Record<string, unknown>;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    return { ok: true, materializedTask: null };
+  }
+  return { ok: true, materializedTask: raw as Record<string, unknown> };
 }
 
 /** Inserts materialization only when none exists (avoids concurrent overwrite races). */

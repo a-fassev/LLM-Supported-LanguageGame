@@ -12,6 +12,13 @@ import {
   normalizeClozeContentResult,
 } from "@/lib/game/tasks/cloze/normalize-cloze-content";
 import { CLOZE_DRAFT_LENGTH_MISMATCH_MESSAGE } from "@/lib/game/tasks/cloze/cloze-types";
+import { cn } from "@/lib/utils";
+import {
+  TASK_PLAY_BODY_TEXT,
+  TASK_PLAY_ERROR_TEXT,
+  TASK_PLAY_INLINE_FIELD_TEXT,
+  TASK_PLAY_VALIDATION_ERROR_TEXT,
+} from "@/lib/game/task-typography";
 import type { ClozeAnswersDraft } from "@/lib/game/tasks/cloze/cloze-types";
 import type { ClozeTextClientContentParsed } from "@/lib/game/schemas/clozeTextContentSchema";
 
@@ -75,7 +82,7 @@ export function ClozeTextTask({
 
   if (!normalizedResult.ok) {
     return (
-      <p className="text-sm text-destructive" role="alert">
+      <p className={TASK_PLAY_ERROR_TEXT} role="alert">
         {CLOZE_CONTENT_MISMATCH_MESSAGE}
       </p>
     );
@@ -83,7 +90,7 @@ export function ClozeTextTask({
 
   if (!content || answers.length !== gapCount) {
     return (
-      <p className="text-sm text-destructive" role="alert">
+      <p className={TASK_PLAY_ERROR_TEXT} role="alert">
         {CLOZE_DRAFT_LENGTH_MISMATCH_MESSAGE}
       </p>
     );
@@ -94,7 +101,7 @@ export function ClozeTextTask({
       prompt={prompt}
       beforeScroll={
         validationError ? (
-          <p className="text-sm text-destructive" role="alert">
+          <p className={TASK_PLAY_VALIDATION_ERROR_TEXT} role="alert">
             {validationError}
           </p>
         ) : null
@@ -109,7 +116,10 @@ export function ClozeTextTask({
                 return (
                   <span
                     key={segment.key}
-                    className={`text-sm ${hasNewline ? "whitespace-pre-wrap" : ""}`}
+                    className={cn(
+                      TASK_PLAY_BODY_TEXT,
+                      hasNewline && "whitespace-pre-wrap",
+                    )}
                   >
                     {segment.text}
                   </span>
@@ -131,7 +141,10 @@ export function ClozeTextTask({
                   data-1p-ignore
                   data-lpignore="true"
                   aria-label={`Lacuna ${segment.gapIndex + 1} di ${gapCount}`}
-                  className="inline-flex h-8 min-h-8 shrink-0 px-1.5 py-0 text-sm focus-visible:border-ring focus-visible:ring-0"
+                  className={cn(
+                    "inline-flex h-9 min-h-9 shrink-0 px-1.5 py-0 focus-visible:border-ring focus-visible:ring-0",
+                    TASK_PLAY_INLINE_FIELD_TEXT,
+                  )}
                   style={{ width: `${widthCh}ch` }}
                   onChange={(event) => {
                     const next = [...answers];

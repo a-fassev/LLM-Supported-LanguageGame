@@ -44,6 +44,14 @@ Use when layout or copy feedback sounds like “buttons scroll”, “text too b
 | Ghost tile offset from finger/cursor | Portal preview on `document.body` with grab offset from pointer down. |
 | Controlla blocked with empty zones or bank tiles | Do **not** require filled zones or `requireBankEmpty` on client — POST partial layout; server scores. |
 
+## Success overlay (task pass / quest complete)
+
+| Problem | Fix |
+| ------- | --- |
+| Next scene’s task visible behind overlay | Hold **display** on submitted scene: `chromeHoldScene` + `backgroundHoldKey` on `/play`; `SceneRouter` uses `displayScene`, MC index clamped on `displayScene`. |
+| Empty drafts for next scene while overlay open | Defer `syncTaskDraftsForScene` until overlay dismiss (`pendingDraftSyncSceneRef`). |
+| Retry 409 loses answers | Do **not** sync drafts on failed attempt — only on success after dismiss (or immediate sync when no overlay). |
+
 ## Do not
 
 - Put `correct*` fields in client components.

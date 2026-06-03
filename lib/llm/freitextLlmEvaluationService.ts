@@ -58,6 +58,9 @@ const freitextJudgePrompt = ChatPromptTemplate.fromMessages([
       "Teacher evaluation criteria:",
       "{criteria}",
       "",
+      "Reference material for the learner (if any):",
+      "{referenceDocument}",
+      "",
       "Learner answer:",
       "{answer}",
     ].join("\n"),
@@ -84,6 +87,10 @@ export async function invokeFreitextLlmJudge(
       ? content.evaluation.registerTarget
       : "neutral";
 
+  const referenceDocument = content.referenceDocument
+    ? `${content.referenceDocument.title}\n${content.referenceDocument.bodyText}`
+    : "(none)";
+
   const invoked = await freitextJudgePrompt.invoke({
     prompt: content.prompt.trim(),
     instruction: instruction === "" ? "(none)" : instruction,
@@ -91,6 +98,7 @@ export async function invokeFreitextLlmJudge(
     registerTarget,
     criteria,
     targetStructures: structures === "" ? "(none supplied)" : structures,
+    referenceDocument,
     answer: learnerAnswer.trim(),
   });
 

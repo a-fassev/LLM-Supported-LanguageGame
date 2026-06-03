@@ -56,9 +56,7 @@ export function placeItemOnTarget(
         next[tid] = next[tid].filter((id) => id !== itemId);
       }
     }
-    if (!next[targetId].includes(itemId)) {
-      next[targetId] = [...next[targetId], itemId];
-    }
+    next[targetId] = [itemId];
     return next;
   }
 

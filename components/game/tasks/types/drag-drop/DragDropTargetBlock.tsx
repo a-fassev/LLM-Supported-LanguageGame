@@ -1,6 +1,8 @@
 "use client";
 
 import { DragDropDropZone } from "@/components/game/tasks/types/drag-drop/DragDropDropZone";
+import { cn } from "@/lib/utils";
+import { TASK_PLAY_SECTION_LABEL_TEXT } from "@/lib/game/task-typography";
 import type { DragDropItemView, DragDropTargetView } from "@/lib/game/tasks/drag-drop/drag-drop-types";
 
 type DragDropTargetBlockProps = {
@@ -39,7 +41,7 @@ export function DragDropTargetBlock({
   return (
     <div className="mb-2.5">
       {target.title ? (
-        <p className="mb-1.5 text-sm font-semibold text-foreground">{target.title}</p>
+        <p className={cn("mb-1.5", TASK_PLAY_SECTION_LABEL_TEXT)}>{target.title}</p>
       ) : null}
       <DragDropDropZone
         ref={zoneRef}
