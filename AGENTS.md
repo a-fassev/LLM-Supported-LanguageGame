@@ -226,7 +226,7 @@ LLM-Supported-LanguageGame-1/
 
 **Progression:** Sequential chapters → quests → **scenes**; server advances by catalog scene order. Hub **display** locks use `lib/game/unlock-display.ts` from bootstrap **`completedQuestIds`** (`chapterId:questId` strings), and `POST /api/game/runs/start` enforces unlocks server-side (`requiresQuestId` + previous chapter completion, same qualified ids). **`POST /api/game/runs/[runId]/retreat`** moves `current_scene_id` to the previous catalog scene only — it does not delete scene completions or reverse wallet rewards. Snapshot includes **`canRetreat`** when `sceneNumber > 1`.
 
-**Scene contract (authoring):** Per-scene JSON — `scene_type` (`story` | `task`), `screen_type`, `content`, `background`, optional `scoring`. Legacy step fields in older docs map to this model; see `docs/quest-scene-content-format.md`.
+**Scene contract (authoring):** Per-scene JSON — `scene_type` (`story` | `task`), `screen_type`, `content`, `background`, optional `scoring`. Story scenes use `screen_type: "info"` only (`content.text`). Legacy step fields in older docs map to this model; see `docs/quest-scene-content-format.md`.
 
 **Task types (schemas):** `ClozeText`, `MultipleChoice`, `DragDrop`, `Matching`, `ErrorSpotting`, `FreitextLlm`, plus `SpecialScreen`* variants (web UI: placeholders in `TaskPanel` until per-type components land).
 

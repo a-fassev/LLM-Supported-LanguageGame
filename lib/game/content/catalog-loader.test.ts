@@ -85,7 +85,7 @@ describe("catalog-loader", () => {
     await writeJson(path.join(root, "chapters", "chapter-01", "quests", "quest-01", "scenes", "03.json"), {
       id: "chapter-01-quest-01-scene-03",
       scene_type: "story",
-      screen_type: "dialogue",
+      screen_type: "info",
       background: "chapters/01/quests/01/bg",
       content: { text: "ciao" },
     });

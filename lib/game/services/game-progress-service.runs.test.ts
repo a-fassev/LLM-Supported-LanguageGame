@@ -340,7 +340,7 @@ describe("game-progress-service run flows", () => {
       sceneNumber: 2,
       filename: "02.json",
       scene_type: "story" as const,
-      screen_type: "dialogue",
+      screen_type: "info",
       background: "bg",
       content: { text: "Two" },
       scoring: { backpack: { pieces: 0 }, pizza: { mode: "flat" as const, slices: 0 } },

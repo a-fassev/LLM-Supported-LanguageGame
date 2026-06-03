@@ -1,7 +1,7 @@
 {
   "id": "chapter-06-quest-02-scene-01",
   "scene_type": "story",
-  "screen_type": "dialogue",
+  "screen_type": "info",
   "background": "chapters/06/quests/02/bg-dialogue-01",
   "content": {
     "text": "Al naviglio si parla velocemente. Prova a ricostruire la frase."

@@ -1,7 +1,7 @@
 {
   "id": "chapter-01-quest-01-scene-02",
   "scene_type": "story",
-  "screen_type": "dialogue",
+  "screen_type": "info",
   "background": "chapters/01/quests/02/bg-dialogue-01",
   "content": {
     "text": "Ciao! Sono Sofia. Oggi impariamo i saluti in italiano — pronti?"

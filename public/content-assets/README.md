@@ -8,4 +8,4 @@ Example target path for key `chapters/01/quests/01/bg-story-arrivo`:
 
 `public/content-assets/chapters/01/quests/01/bg-story-arrivo.png`
 
-Story **dialogue** scenes use backgrounds that already include the avatar artwork; no separate avatar asset id in JSON.
+Story scenes may use backgrounds that include character artwork; no separate avatar asset id in JSON.

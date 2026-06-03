@@ -70,7 +70,7 @@ Scene order is the **numeric prefix** on filenames (`01`, `02`, …).
 | `requiresQuestId` | Previous **main** quest in the same chapter (`null` for the first quest in that chapter). |
 | `autoStartQuestId` | Optional. If set, start that quest when this one ends. If `null`, the loader may auto-start the **next main quest** in `chapter.json` → `quests` order (skips `kind: "bonus"` entries). Never auto-start a bonus quest. |
 
-Reading text for tasks lives on **each task scene**, not on the quest (see §5.3).
+Reading text for tasks lives on **each task scene**, not on the quest (see §5.2).
 
 **Progression (sequential play):**
 
@@ -128,8 +128,7 @@ No Controlla, no `scoring`. Player continues with **Avanti**.
 
 | `screen_type` | Player sees | Authored content (v1) |
 | ------------- | ----------- | --------------------- |
-| `info` | A **game-info** text block on the scene (rules, hints, scene setup). | Single `text` only. |
-| `dialogue` | Character line over the background. **Avatar is part of the background image**, not a separate asset id. No choices in v1 — only copy. | Single `text` only. |
+| `info` | Story text on the scene (rules, hints, setup, character lines). Avatar art, if any, is part of the **background** image — no separate avatar field. | Single `text` only. |
 
 ### Task (`scene_type: "task"`)
 
@@ -145,7 +144,7 @@ Exercise with **Controlla** and server-checked answers.
 | `multiple_choice` | Pick one or more options. |
 | `bonus` | Dedicated bonus exercise screen; pair with `quest.json` → `kind: "bonus"`. |
 
-Mechanics inside `content.task` are defined per type in a later pass (§5.3).
+Mechanics inside `content.task` are defined per type in a later pass (§5.2).
 
 ---
 
@@ -165,23 +164,7 @@ Mechanics inside `content.task` are defined per type in a later pass (§5.3).
 
 ---
 
-### 5.2 Story — `dialogue`
-
-```jsonc
-{
-  "text": "Ciao! Sono Marco. Benvenuto a Bologna!"
-}
-```
-
-| Field | Required | Description |
-| ----- | -------- | ----------- |
-| `text` | yes | Dialogue line shown on the scene. |
-
-Use a **dialogue** background asset that already includes the character art (see `public/content-assets/`).
-
----
-
-### 5.3 Task — all `screen_type`s
+### 5.2 Task — all `screen_type`s
 
 Shared shell for every task scene:
 
@@ -346,7 +329,7 @@ Likely needed later; intentionally omitted until product asks for them:
 | Topic | Why it might matter |
 | ----- | ------------------- |
 | `content.task` per `screen_type` | Exercise mechanics (options, gaps, rubric, …). |
-| Per-character dialogue backgrounds | Different `background` keys per `dialogue` scene if needed. |
+| Per-scene story backgrounds | Different `background` keys per story scene if needed (e.g. character art in the image). |
 | Per-scene navigation | e.g. disable back on a story beat. |
 | Chapter / quest hub art | Tiles on chapter map (may live in `chapter.json` extensions). |
 | Audio / TTS keys | Pronunciation or listening tasks. |
@@ -383,7 +366,7 @@ lib/content/chapters/
 ├── chapter-01/
 │   ├── chapter.json
 │   └── quests/
-│       ├── quest-01/          # Arrivo — 3 scenes (info → dialogue → multiple_choice)
+│       ├── quest-01/          # Arrivo — 3 scenes (info → info → multiple_choice)
 │       ├── quest-02/          # Alla stazione — 4 scenes (+ matching, bands scoring)
 │       └── quest-01-bonus/    # 2 scenes (info → bonus task, flat pizza)
 ├── chapter-02/
@@ -415,7 +398,7 @@ lib/content/chapters/
 | **C** | Backend | Zod envelope + per-`screen_type` `content` validation in CI (`npm test`). |
 | **D** | Backend | Loader tests + validation only (no quest APIs yet). |
 | **E** | Frontend | *Deferred* — chapter / quest UI. |
-| **F** | Frontend | *Deferred* — story shells (`info`, `dialogue`). |
+| **F** | Frontend | *Deferred* — story shell (`info`). |
 | **G** | Frontend | *Deferred* — task shell; empty `task` until per-type UI exists. |
 | **H** | Content / doc | Fill `content.task` per `screen_type` when task mechanics are specified (§10). |
 
@@ -516,7 +499,7 @@ Steps **P1–P5** depend on **§11 A–C** (loader + validation). UI (**E–G**)
 | 1 | Task types in catalog | All: `cloze`, `error_spotting`, `drag_drop`, `free_text`, `matching`, `multiple_choice`, `bonus`. |
 | 2 | Cloze | Own `screen_type`, not MC. |
 | 3 | Bonus | Own `screen_type` + `quest.kind: "bonus"`. |
-| 4 | Story character line | `screen_type`: **`dialogue`** (renamed from `interaction`); use everywhere in docs and new code. |
+| 4 | Story scenes | Single story `screen_type`: **`info`** only (`content.text`). |
 | 5 | Chapter unlock | Strict sequential play; next chapter when current chapter’s **main** quests are done. |
 | 6–7 | Quest unlock / auto-start | `requiresQuestId` = previous **main** in chapter; auto-start **next main** in `chapter.json` `quests` order; **never** auto-start bonus. |
 | 8 | Back to earlier task | Allowed; **no re-scoring**. |
@@ -527,7 +510,7 @@ Steps **P1–P5** depend on **§11 A–C** (loader + validation). UI (**E–G**)
 | 13 | `chapter.json` `quests` | Authoritative quest **order**; loader validates folders exist. Scenes ordered by `NN.json` only. |
 | 14 | `schemaVersion` | Not used. |
 | 15 | Assets | `public/content-assets/` tree; placeholders until art exists. |
-| 16 | Avatar | Baked into **dialogue** background; no avatar field in JSON. |
+| 16 | Avatar | Optional character art baked into **background** image; no avatar field in JSON. |
 | 17 | APIs / UI in format phase | Out of scope until later (**§11 E–G** deferred). |
 | 18 | `content.task` bodies | Spec + implementation **later**; `{}` valid for now. |
 | 19 | Runs | **One** `in_progress` run per account; resume at last saved scene after each complete. |
@@ -542,3 +525,4 @@ Steps **P1–P5** depend on **§11 A–C** (loader + validation). UI (**E–G**)
 - 2026-06-02 — §12 Supabase per-scene progress (later track) + preparations; §11 split from persistence.
 - 2026-06-02 — §12.0 legacy Supabase policy: greenfield OK, reuse auth/wallet only when sensible.
 - 2026-06-02 — §13 locked decisions; `dialogue`; `cloze`; per-scene backpack; id convention; `public/content-assets/`; scope A–C vs UI/Supabase.
+- 2026-06-03 — Removed story `screen_type` **`dialogue`**; all story scenes use **`info`** only.

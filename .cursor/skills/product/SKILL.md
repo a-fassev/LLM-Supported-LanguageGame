@@ -39,7 +39,7 @@ Each step is defined by JSON with:
 | Field         | Role                                                                  |
 | ------------- | --------------------------------------------------------------------- |
 | `scene_type`  | `story` (narrative) or `task` (exercise)                              |
-| `screen_type` | `info` / `dialogue` story shell, or a specific **task type** for task steps |
+| `screen_type` | `info` for story steps, or a specific **task type** for task steps |
 | `content`     | Type-specific payload (story beats, prompts, options, etc.)           |
 | `background`  | Background image for this step                                        |
 | `scoring`     | How **pizza slices** are awarded for this step (task and bonus steps) |

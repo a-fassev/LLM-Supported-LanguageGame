@@ -163,8 +163,7 @@ Single route hosts **all scenes** for the active run. Sub-views:
 
 | Mode | `scene_type` | `screen_type` (examples) | Chrome |
 | ---- | ------------ | ------------------------- | ------ |
-| **Story — dialog** | `story` | `dialogue` | Text box center-bottom; **Pausa**; **Avanti** only (no back); no HUD |
-| **Story — interaction** | `story` | `info` | Full background; text box center-right; same nav |
+| **Story** | `story` | `info` | Full background; **StoryPanel** (text bottom); **Pausa**; **Indietro** (if `canRetreat`) + **Avanti**; no HUD |
 | **Task** | `task` | `cloze`, `multiple_choice`, … | HUD; optional **Documento**; instruction strip; **TaskPanel**; **Controlla**; then success overlay → **Avanti** |
 
 **Backgrounds:** `currentScene.background` from run snapshot (dynamic). Hub screens use fixed keys in code or a small `lib/game/hub-assets.ts` map.
@@ -205,7 +204,7 @@ ASCII regions (all quest play modes):
 | **HUD** (pizza count, backpack %) | no | yes |
 | **Documento** | no | if `referenceDocument` in content |
 | Bottom navigation | **Indietro** (if `canRetreat`) + **Avanti** → `retreat` / `advance` | **Indietro** + **Controlla** → `retreat` / `attempt`; overlay **Avanti** after success |
-| Center panel | `StoryPanel` variant `dialog` \| `interaction` | `TaskChrome` wraps instructions + `TaskPanel`; task **title** in `GameShellHeader` (`readTaskSceneTitle`) |
+| Center panel | `StoryPanel` (single layout) | `TaskChrome` wraps instructions + `TaskPanel`; task **title** in `GameShellHeader` (`readTaskSceneTitle`) |
 | Hub lists | `ChapterGrid` / `QuestList` as **`<button>`** rows (keyboard + disabled when locked) | — |
 
 **CSS:** `GameBackground` uses `h-dvh`; outer **`game-shell-inset`** (`--game-shell-padding`); inner panels use **`game-panel`** + **`game-panel-inset`** (`--game-panel-padding`). Define translucent panel look once in `globals.css` (`--game-panel-bg`, spacing tokens).

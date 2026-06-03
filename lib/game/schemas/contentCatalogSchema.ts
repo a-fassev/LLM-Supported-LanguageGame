@@ -25,7 +25,7 @@ export const questFileSchema = z
   })
   .strict();
 
-export const storyScreenTypeSchema = z.enum(["info", "dialogue"]);
+export const storyScreenTypeSchema = z.enum(["info"]);
 export const taskScreenTypeSchema = z.enum([
   "cloze",
   "error_spotting",

@@ -51,12 +51,10 @@ export function SceneRouter({
   onSubmitTask,
 }: SceneRouterProps) {
   if (scene.scene_type === "story") {
-    const isDialogue = scene.screen_type === "dialogue";
-    const variant = isDialogue ? "dialog" : "interaction";
     return (
       <div className="flex h-full min-h-0 w-full flex-col">
         <div className="flex min-h-0 flex-1 flex-col">
-          <StoryPanel variant={variant} text={storyText(scene)} />
+          <StoryPanel text={storyText(scene)} />
         </div>
         <div className="flex shrink-0 items-center justify-between gap-3 pt-3">
           <Button
