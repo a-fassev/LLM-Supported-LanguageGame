@@ -1,8 +1,8 @@
 {
-  "id": "chapter-01-quest-02-scene-01",
+  "id": "chapter-00-quest-02-scene-01",
   "scene_type": "story",
   "screen_type": "info",
-  "background": "chapters/01/quests/02/bg-dialogue-01",
+  "background": "chapters/00/quests/02/bg-dialogue-01",
   "content": {
     "text": "Hai il biglietto? Dobbiamo trovare il binario corretto."
   }

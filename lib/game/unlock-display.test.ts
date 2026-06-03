@@ -1,11 +1,24 @@
 import { describe, expect, it } from "vitest";
 import { isChapterLocked, isQuestCompleted, isQuestLocked } from "@/lib/game/unlock-display";
 
+const chapter00 = {
+  id: "chapter-00",
+  title: "Area di prova (team)",
+  order: 0,
+  locked: false,
+  reference: true,
+  quests: [
+    { id: "quest-01", title: "Q1", order: 1, kind: "main" as const, requiresQuestId: null, autoStartQuestId: null },
+    { id: "quest-02", title: "Q2", order: 2, kind: "main" as const, requiresQuestId: "quest-01", autoStartQuestId: null },
+  ],
+};
+
 const chapter01 = {
   id: "chapter-01",
   title: "Bologna",
   order: 1,
   locked: false,
+  reference: false,
   quests: [
     { id: "quest-01", title: "Q1", order: 1, kind: "main" as const, requiresQuestId: null, autoStartQuestId: null },
     { id: "quest-02", title: "Q2", order: 2, kind: "main" as const, requiresQuestId: "quest-01", autoStartQuestId: null },
@@ -17,12 +30,29 @@ const chapter02 = {
   title: "Firenze",
   order: 2,
   locked: false,
+  reference: false,
   quests: [
     { id: "quest-01", title: "Q1", order: 1, kind: "main" as const, requiresQuestId: null, autoStartQuestId: null },
   ],
 };
 
 describe("unlock-display", () => {
+  const progressionOrder = [chapter00, chapter01, chapter02];
+
+  it("unlocks chapter-01 without completing reference chapter-00", () => {
+    expect(isChapterLocked(chapter01, progressionOrder, new Set())).toBe(false);
+  });
+
+  it("locks chapter-02 until chapter-01 main quests are completed", () => {
+    expect(isChapterLocked(chapter02, progressionOrder, new Set())).toBe(true);
+    const completed = new Set<string>(["chapter-01:quest-01", "chapter-01:quest-02"]);
+    expect(isChapterLocked(chapter02, progressionOrder, completed)).toBe(false);
+  });
+
+  it("keeps reference chapter playable when not manually locked", () => {
+    expect(isChapterLocked(chapter00, progressionOrder, new Set())).toBe(false);
+  });
+
   it("keeps chapter locked when only similarly named quests from other chapters are completed", () => {
     const completed = new Set<string>(["chapter-02:quest-01"]);
     expect(isChapterLocked(chapter02, [chapter01, chapter02], completed)).toBe(true);

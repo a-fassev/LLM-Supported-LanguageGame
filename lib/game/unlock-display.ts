@@ -1,4 +1,5 @@
 import type { BootstrapChapterDto, BootstrapQuestDto } from "@/lib/api-client";
+import { getPreviousProgressionChapter, isReferenceChapter } from "@/lib/game/chapter-progression";
 import { toQuestProgressId } from "@/lib/game/quest-progress-id";
 
 function requiredQuestIds(chapter: BootstrapChapterDto): string[] {
@@ -17,9 +18,9 @@ export function isChapterLocked(
   completedQuestIds: Set<string>,
 ): boolean {
   if (chapter.locked) return true;
-  const chapterIndex = orderedChapters.findIndex((item) => item.id === chapter.id);
-  if (chapterIndex <= 0) return false;
-  const previousChapter = orderedChapters[chapterIndex - 1];
+  if (isReferenceChapter(chapter)) return false;
+  const previousChapter = getPreviousProgressionChapter(orderedChapters, chapter.id);
+  if (!previousChapter) return false;
   return !areAllRequiredDone(previousChapter, completedQuestIds);
 }
 

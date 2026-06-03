@@ -22,6 +22,21 @@ describe("contentCatalogSchema", () => {
     expect(quest.ok).toBe(true);
   });
 
+  it("parses chapter order 0 and reference flag", () => {
+    const reference = parseChapterFile({
+      id: "chapter-00",
+      title: "Sandbox tecnica",
+      order: 0,
+      reference: true,
+      quests: ["quest-01"],
+    });
+    expect(reference.ok).toBe(true);
+    if (reference.ok) {
+      expect(reference.value.order).toBe(0);
+      expect(reference.value.reference).toBe(true);
+    }
+  });
+
   it("parses chapter locked flag and defaults to false", () => {
     const locked = parseChapterFile({
       id: "chapter-03",

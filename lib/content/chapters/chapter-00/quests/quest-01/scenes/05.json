@@ -1,8 +1,8 @@
 {
-  "id": "chapter-01-quest-01-scene-05",
+  "id": "chapter-00-quest-01-scene-05",
   "scene_type": "task",
   "screen_type": "multiple_choice",
-  "background": "chapters/01/quests/01/bg-task-01",
+  "background": "chapters/00/quests/01/bg-task-01",
   "content": {
     "title": "Fixture con titolo molto lungo per verificare come il gioco mostra intestazioni estese nell’header senza tagliare parole in modo strano su schermi piccoli e grandi",
     "instruction": "Questa è un’istruzione di scena volutamente lunghissima: in questa missione trovi tre domande diverse (singola con molte opzioni, scelta multipla con checkbox e singola breve). Leggi con calma, usa «Avanti» e «Indietro» nel controller per passare da una domanda all’altra, e ricorda che il testo qui serve solo per provare layout, spaziature e scroll quando l’autore scrive molte righe di spiegazione prima dell’esercizio vero e proprio.",

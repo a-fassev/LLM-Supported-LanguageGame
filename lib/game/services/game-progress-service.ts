@@ -56,6 +56,7 @@ function toBootstrapChapters(): Promise<BootstrapChapterDto[]> {
       title: chapter.title,
       order: chapter.order,
       locked: chapter.locked,
+      reference: chapter.reference,
       quests: chapter.questsExpanded.map((quest) => ({
         id: quest.id,
         title: quest.title,
@@ -535,6 +536,9 @@ export async function completeTaskScene(
       error: msg.couldNotMaterializeMatching,
       code: "materialization_failed",
     };
+  }
+  if (scene.scene_type !== "task") {
+    return { ok: false, status: 400, error: msg.invalidSceneProgression, code: "scene_not_task" };
   }
 
   const pizzaRules = parsePizzaRewardRules({ pizza: scene.scoring.pizza });

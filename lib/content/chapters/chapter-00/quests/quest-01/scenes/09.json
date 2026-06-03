@@ -1,8 +1,8 @@
 {
-  "id": "chapter-01-quest-01-scene-09",
+  "id": "chapter-00-quest-01-scene-09",
   "scene_type": "task",
   "screen_type": "drag_drop",
-  "background": "chapters/01/quests/01/bg-task-01",
+  "background": "chapters/00/quests/01/bg-task-01",
   "content": {
     "title": "Metti le parole al posto giusto",
     "instruction": "Trascina ogni parola nella categoria corretta.",

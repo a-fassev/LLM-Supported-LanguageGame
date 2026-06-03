@@ -1,8 +1,8 @@
 {
-  "id": "chapter-01-quest-01-scene-08",
+  "id": "chapter-00-quest-01-scene-08",
   "scene_type": "task",
   "screen_type": "matching",
-  "background": "chapters/01/quests/01/bg-task-01",
+  "background": "chapters/00/quests/01/bg-task-01",
   "content": {
     "title": "Fixture con titolo molto lungo per verificare abbinamenti con molte coppie, testo esteso e scroll nel pannello attività",
     "instruction": "Questa è un'istruzione di scena volutamente lunghissima: devi abbinare dieci espressioni italiane alle traduzioni inglesi corrette. Alcune opzioni a destra sono distrazioni. Usa il pulsante Documento se ti serve il biglietto di esempio. Trascina una linea oppure tocca due carte per collegare le coppie.",

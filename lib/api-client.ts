@@ -46,6 +46,7 @@ export type BootstrapChapterDto = {
   title: string;
   order: number;
   locked: boolean;
+  reference: boolean;
   quests: BootstrapQuestDto[];
 };
 
@@ -248,7 +249,7 @@ export function getRunSnapshot(token: string) {
 }
 
 export function advanceRun(token: string, runId: string, input: { sceneId: string }) {
-  return requestJson<RunSnapshotDto>(`/api/game/runs/${runId}/advance`, {
+  return requestJson<AttemptRunDto>(`/api/game/runs/${runId}/advance`, {
     method: "POST",
     token,
     body: input,

@@ -44,9 +44,10 @@ Scene order is the **numeric prefix** on filenames (`01`, `02`, …).
 
 ```jsonc
 {
-  "id": "chapter-01",
-  "title": "Bologna",
-  "order": 1,
+  "id": "chapter-00",
+  "title": "Area di prova (team)",
+  "order": 0,
+  "reference": true,
   "quests": ["quest-01", "quest-02", "quest-01-bonus"]
 }
 ```
@@ -55,9 +56,12 @@ Scene order is the **numeric prefix** on filenames (`01`, `02`, …).
 | ----- | ----------- |
 | `id` | Chapter id (`chapter-NN`). |
 | `title` | Hub title. |
-| `order` | Sort order on the chapter map (1-based). |
+| `order` | Sort order on the chapter map (**0-based**, contiguous `0 … n−1` across all chapters). |
 | `locked` | Optional, default `false`. When `true`, the chapter is **not playable** (hub shows locked; server rejects start, resume, snapshot (in-progress run), advance, attempt, and retreat with API code `chapter_locked`). Use for classroom pilots—change in git and deploy; independent of learner progress. |
+| `reference` | Optional, default `false`. When `true`, the chapter is a **team sandbox** (task-type fixtures): always playable when not `locked`, and **does not gate** the next progression chapter. At most one chapter in the catalog may set `reference: true`. |
 | `quests` | Ordered quest folder ids for this chapter. |
+
+**Progression chapters** (`chapter-01` …) use `order: 1` and up without `reference`. **Sandbox** lives in `chapter-00` (`order: 0`, `reference: true`) — all task-type smoke fixtures for web development.
 
 ### `quest.json`
 
@@ -393,7 +397,7 @@ Validated at catalog load (`parseErrorSpottingContent`). Snapshots strip `isErro
 | Scene copy | `instruction` → `TaskChrome`; `prompt` → `TaskBodyLayout`; error-count hint in `beforeScroll`. Tap segment → inline correction field; **×** or Escape clears mark. |
 | Attempt | `{ taskType: "ErrorSpotting", errorSpotting: { selectedSegmentIds: string[], corrections: Record<string, string> } }` |
 
-Fixture scenes: `chapter-03/quest-01/scenes/02.json` (minimal, flat), `chapter-01/quest-01/scenes/13.json` (short, flat) + `scenes/14.json` (long, scored). See `docs/error-spotting-task-integration-plan.md`.
+Fixture scenes: `chapter-03/quest-01/scenes/02.json` (minimal, flat), `chapter-00/quest-01/scenes/13.json` (short, flat) + `scenes/14.json` (long, scored). See `docs/error-spotting-task-integration-plan.md`.
 
 #### `cloze` — `content.task`
 
@@ -425,7 +429,7 @@ Validated at catalog load (`parseClozeTextContent`). Snapshots strip `correctAns
 | UI placeholders | Optional `placeholder` on gap segments is **not** shown in the web UI (authoring/metadata only). |
 | Attempt | `{ taskType: "ClozeText", clozeText: { answers: string[] } }` — one entry per gap, line order then left-to-right. |
 
-Fixture scenes: `chapter-01/quest-01/scenes/15.json` (minimal, 2 gaps, long Bologna narrative), `16.json` (rich, ≥6 gaps + `referenceDocument`). Scroll QA aligns with error_spotting `scenes/14.json`. See `docs/cloze-text-task-integration-plan.md`.
+Fixture scenes: `chapter-00/quest-01/scenes/15.json` (minimal, 2 gaps, long Bologna narrative), `16.json` (rich, ≥6 gaps + `referenceDocument`). Scroll QA aligns with error_spotting `scenes/14.json`. See `docs/cloze-text-task-integration-plan.md`.
 
 #### `free_text` — `content.task`
 

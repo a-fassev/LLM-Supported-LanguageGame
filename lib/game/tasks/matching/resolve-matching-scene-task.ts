@@ -32,10 +32,10 @@ export async function resolveMatchingSceneTaskForRun(
   scene: CatalogScene,
 ): Promise<Record<string, unknown> | null> {
   if (scene.scene_type !== "task" || scene.screen_type !== "matching") {
-    return scene.content.task as Record<string, unknown>;
+    return null;
   }
 
-  const catalogTask = scene.content.task as Record<string, unknown>;
+  const catalogTask = scene.content.task;
   if (matchingTaskHasConcreteItems(catalogTask)) {
     return catalogTask;
   }

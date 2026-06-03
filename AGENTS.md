@@ -223,7 +223,20 @@ LLM-Supported-LanguageGame-1/
 
 **Supabase today:** `student_accounts`, `student_sessions`, `player_wallets`, **`player_quest_runs`** (text `chapter_id` / `quest_id` / `current_scene_id`; at most one `in_progress` run per account), **`player_scene_completions`**, **`player_task_attempts`**, **`player_scene_materializations`** (`run_id`, `scene_id`, `materialized_task` jsonb — matching pool samples per run/scene). No `game_chapters` / `game_quests` / `game_quest_steps` (dropped in `20260602120000_remove_game_content_catalog.sql`; greenfield run schema in `20260602221000_player_scene_progress_greenfield.sql`). Apply `supabase/migrations/20260603160000_player_scene_materializations.sql` in every environment before bonus pool features ship.
 
-**Content:** `lib/content/chapters/**` + `catalog-loader.ts`. Scene order from `scenes/01.json`, `02.json`, …; scene ids derived in loader.
+**Content:** `lib/content/chapters/**` + `catalog-loader.ts`. Scene order from `scenes/01.json`, `02.json`, …; scene ids derived in loader. Chapter **`order`** is **0-based and contiguous** (`0 … n−1` after sort); `catalog-loader` fails on gaps.
+
+**Reference sandbox (`chapter-00`):** Optional team-only chapter with `"reference": true` and `"order": 0` (today: task-type fixtures under `lib/content/chapters/chapter-00/`). It is **always playable** when not `"locked": true` and **does not gate** the next progression chapter (`chapter-01` …)—see `lib/game/chapter-progression.ts` (`getPreviousProgressionChapter`) and matching hub/server unlock in `unlock-display.ts` / `resolve-auto-start-quest.ts`. At most one `reference: true` chapter per catalog. Learner narrative lives in **`chapter-01`+**; web task fixtures and smoke tests point at **`chapter-00`**, not `chapter-01`.
+
+**Removing `chapter-00` later (when the sandbox is no longer needed):** Content-only teardown plus renumbering—no unlock/run API changes required if no chapter sets `reference: true` anymore.
+
+1. Delete `lib/content/chapters/chapter-00/`.
+2. **Renumber `order`** on every remaining `chapter.json` so values stay contiguous from **0** (e.g. `chapter-01` → `order: 0`, `chapter-02` → `order: 1`, …). Skipping this breaks `loadContentCatalog()`.
+3. Update tests: remove or relocate `lib/game/content/chapter-00-smoke-content.test.ts`; adjust `lib/game/content/catalog-chapters.test.ts` (chapter count/ids).
+4. Update fixture paths in `AGENTS.md` (this section), `docs/quest-scene-content-format.md`, `.cursor/skills/web-task-type-ui/SKILL.md`.
+5. Optional Supabase cleanup: rows with `chapter_id = 'chapter-00'` or scene ids `chapter-00-*` (or ignore).
+6. Optional code cleanup: `reference` in `chapter.json` / `chapter-progression.ts` can remain unused.
+
+See also `docs/content-chapter-sandbox-migration.md` (one-time `chapter-01` → `chapter-00` player-data migration).
 
 **Progression:** Sequential chapters → quests → **scenes**; server advances by catalog scene order. Hub **display** locks use `lib/game/unlock-display.ts` from bootstrap **`completedQuestIds`** (`chapterId:questId` strings) and bootstrap **`chapters[].locked`**, and run APIs enforce unlocks server-side (`requiresQuestId` + previous chapter completion, same qualified ids). **`POST /api/game/runs/[runId]/retreat`** moves `current_scene_id` to the previous catalog scene only — it does not delete scene completions or reverse wallet rewards. Snapshot includes **`canRetreat`** when `sceneNumber > 1`.
 
@@ -293,7 +306,7 @@ JSON helpers: `lib/http.ts` (`jsonOk`, `jsonError`). User-facing message keys: `
 
 ### Adding a task type
 
-**Agent guide:** `.cursor/skills/web-task-type-ui/SKILL.md`. **Reference implementations:** multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, quest-01 `scenes/04.json` + `05.json`; matching — `components/game/tasks/types/matching/`, `lib/game/tasks/matching/`, quest-01 `scenes/06.json`–`08.json`; drag_drop — `components/game/tasks/types/drag-drop/`, `lib/game/tasks/drag-drop/`, quest-01 `scenes/09.json`–`11.json`; **free_text** — `components/game/tasks/types/free-text/`, `lib/game/tasks/freitext/`, quest-01 `scenes/12.json`, chapter-03 quest-02 `scenes/02.json`, `docs/freitext-llm-implementation.md`; **error_spotting** — `components/game/tasks/types/error-spotting/`, `lib/game/tasks/error-spotting/`, chapter-03 quest-01 `scenes/02.json`, chapter-01 quest-01 `scenes/13.json` + `scenes/14.json`; **cloze** — `components/game/tasks/types/cloze-text/`, `lib/game/tasks/cloze/`, chapter-01 quest-01 `scenes/15.json` (minimal, 2 gaps) + `scenes/16.json` (rich + `referenceDocument`), `docs/cloze-text-task-integration-plan.md`.
+**Agent guide:** `.cursor/skills/web-task-type-ui/SKILL.md`. **Reference implementations** (sandbox `chapter-00`, not learner `chapter-01`): multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, `chapter-00/quests/quest-01/scenes/04.json` + `05.json`; matching — `chapter-00/quests/quest-01/scenes/06.json`–`08.json`; drag_drop — `chapter-00/quests/quest-01/scenes/09.json`–`11.json`; **free_text** — `chapter-00/quests/quest-01/scenes/12.json`, chapter-03 quest-02 `scenes/02.json`, `docs/freitext-llm-implementation.md`; **error_spotting** — chapter-03 quest-01 `scenes/02.json`, `chapter-00/quests/quest-01/scenes/13.json` + `14.json`; **cloze** — `chapter-00/quests/quest-01/scenes/15.json` (minimal, 2 gaps) + `16.json` (rich + `referenceDocument`), `docs/cloze-text-task-integration-plan.md`.
 
 **Server (all types):**
 

@@ -247,10 +247,14 @@ async function loadCatalogInternal(contentRoot: string): Promise<ContentCatalog>
 
   loaded.sort((a, b) => a.order - b.order);
   for (let i = 0; i < loaded.length; i++) {
-    const expected = i + 1;
+    const expected = i;
     if (loaded[i].order !== expected) {
-      err(`chapter order must be contiguous from 1 (missing order ${expected})`);
+      err(`chapter order must be contiguous from 0 (missing order ${expected})`);
     }
+  }
+  const referenceChapters = loaded.filter((chapter) => chapter.reference);
+  if (referenceChapters.length > 1) {
+    err(`at most one chapter may have reference: true (found: ${referenceChapters.map((c) => c.id).join(", ")})`);
   }
   return { chapters: loaded };
 }

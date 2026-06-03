@@ -2,6 +2,7 @@ import {
   findCatalogQuest,
   type ContentCatalog,
 } from "@/lib/game/content/catalog-loader";
+import { getPreviousProgressionChapter } from "@/lib/game/chapter-progression";
 import { toQuestProgressId } from "@/lib/game/quest-progress-id";
 import type { QuestRunRow } from "@/lib/game/repositories/game-progress-repository";
 
@@ -24,8 +25,8 @@ export function isQuestProgressionLockedForAccount(
   const chapters = catalog.chapters ?? [];
   const chapterIndex = chapters.findIndex((chapter) => chapter.id === chapterId);
   if (chapterIndex < 0) return true;
-  if (chapterIndex > 0) {
-    const previousChapter = chapters[chapterIndex - 1];
+  const previousChapter = getPreviousProgressionChapter(chapters, chapterId);
+  if (previousChapter) {
     const requiredMainQuestProgressIds = previousChapter.questsExpanded
       .filter((quest) => quest.kind !== "bonus")
       .map((quest) => toQuestProgressId(previousChapter.id, quest.id));

@@ -1,8 +1,8 @@
 {
-  "id": "chapter-01-quest-01-scene-12",
+  "id": "chapter-00-quest-01-scene-12",
   "scene_type": "task",
   "screen_type": "free_text",
-  "background": "chapters/01/quests/01/bg-task-01",
+  "background": "chapters/00/quests/01/bg-task-01",
   "content": {
     "title": "Presentati",
     "instruction": "Scrivi due frasi in italiano.",
