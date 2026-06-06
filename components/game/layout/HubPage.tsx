@@ -13,8 +13,12 @@ type HubPageProps = {
   preloadAssetKeys?: readonly string[];
   onBack?: () => void;
   backLabel?: string;
+  backButtonClassName?: string;
   headerRight?: ReactNode;
   children: ReactNode;
+  headerClassName?: string;
+  titleClassName?: string;
+  titleContentClassName?: string;
   className?: string;
 };
 
@@ -24,8 +28,12 @@ export function HubPage({
   preloadAssetKeys,
   onBack,
   backLabel = "Indietro",
+  backButtonClassName,
   headerRight,
   children,
+  headerClassName,
+  titleClassName,
+  titleContentClassName,
   className,
 }: HubPageProps) {
   useRegisterHubBackground(backgroundKey, preloadAssetKeys);
@@ -43,12 +51,19 @@ export function HubPage({
               variant="outline"
               aria-label={backLabel}
               onClick={onBack}
+              className={cn(
+                "!bg-[#fbf0dc] !text-[#5a2612] hover:!bg-[#fbf0dc] hover:!text-[#5a2612]",
+                backButtonClassName,
+              )}
             >
               <ArrowLeft className="size-6 stroke-[2.75]" aria-hidden />
             </Button>
           ) : undefined
         }
         actions={headerRight}
+        className={headerClassName}
+        titleClassName={titleClassName}
+        titleContentClassName={titleContentClassName}
       />
       <section className={cn("game-panel game-panel-inset min-h-0 flex-1 overflow-y-auto", className)}>
         {children}

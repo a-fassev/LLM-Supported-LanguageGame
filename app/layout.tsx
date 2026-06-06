@@ -8,7 +8,7 @@ import { GameSessionProvider } from "@/lib/game/session-context";
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Enigma di Bologna",
+  title: "L'enigma di Bologna",
   description: "Gioco linguistico in italiano",
 };
 

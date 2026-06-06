@@ -39,7 +39,7 @@ export default function ChaptersPage() {
       title="Capitoli"
       onBack={() => router.push("/menu")}
       headerRight={headerRight}
-      className="flex min-h-0 flex-col"
+      className="scrollbar-hide flex min-h-0 flex-col overflow-x-hidden overflow-y-auto border-0 bg-transparent shadow-none ring-0 backdrop-blur-0"
     >
       {error ? <p className="shrink-0 text-sm text-destructive">{error}</p> : null}
       {loading && !data ? (

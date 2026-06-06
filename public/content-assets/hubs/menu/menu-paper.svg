@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 680" preserveAspectRatio="none" role="img" aria-label="">
+  <defs>
+    <filter id="paperShadow" x="-8%" y="-8%" width="116%" height="118%">
+      <feDropShadow dx="0" dy="22" stdDeviation="18" flood-color="#2d1b40" flood-opacity="0.23"/>
+      <feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#5c3516" flood-opacity="0.12"/>
+    </filter>
+    <filter id="softTexture" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.82" numOctaves="3" seed="19" result="noise"/>
+      <feColorMatrix in="noise" type="matrix" values="0 0 0 0 0.56 0 0 0 0 0.38 0 0 0 0 0.2 0 0 0 0.08 0" result="grain"/>
+      <feBlend in="SourceGraphic" in2="grain" mode="multiply"/>
+    </filter>
+    <linearGradient id="paperFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fffaf0"/>
+      <stop offset="0.58" stop-color="#f7e8cd"/>
+      <stop offset="1" stop-color="#ead7b4"/>
+    </linearGradient>
+    <linearGradient id="curlFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7e7c6"/>
+      <stop offset="1" stop-color="#d9bd8e"/>
+    </linearGradient>
+    <linearGradient id="tapeFill" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e8cf99" stop-opacity="0.74"/>
+      <stop offset="0.5" stop-color="#f5dfad" stop-opacity="0.58"/>
+      <stop offset="1" stop-color="#d8b978" stop-opacity="0.72"/>
+    </linearGradient>
+    <pattern id="ruleLines" width="920" height="46" patternUnits="userSpaceOnUse">
+      <path d="M72 45 H850" stroke="#6d5d8d" stroke-opacity="0.08" stroke-width="2"/>
+    </pattern>
+  </defs>
+
+  <g filter="url(#paperShadow)">
+    <path
+      d="M84 66
+         C82 47 95 34 116 36
+         C238 43 363 34 486 39
+         C604 44 725 34 847 42
+         C869 43 880 56 878 78
+         C869 225 883 374 872 522
+         C870 555 851 588 818 617
+         C674 622 527 612 382 620
+         C289 625 196 618 103 622
+         C79 623 65 609 67 586
+         C80 416 68 243 84 66Z"
+      fill="url(#paperFill)"
+      stroke="#8f5a33"
+      stroke-opacity="0.18"
+      stroke-width="2"
+      filter="url(#softTexture)"
+    />
+    <path d="M80 116 H872 V620 H70 V116Z" fill="url(#ruleLines)" opacity="0.9"/>
+    <path
+      d="M814 616
+         C833 591 853 565 872 522
+         C852 542 826 546 799 542
+         C811 563 813 587 814 616Z"
+      fill="url(#curlFill)"
+      stroke="#8f5a33"
+      stroke-opacity="0.14"
+      stroke-width="2"
+    />
+    <path d="M814 616 C813 584 808 560 799 542 C827 551 853 542 872 522" fill="none" stroke="#8f5a33" stroke-opacity="0.16" stroke-width="2"/>
+
+    <g opacity="0.92">
+      <path d="M168 38 L247 10 L272 82 L194 106Z" fill="url(#tapeFill)" stroke="#b28a55" stroke-opacity="0.18" stroke-width="2"/>
+      <path d="M177 49 L258 24" stroke="#fff6d8" stroke-opacity="0.22" stroke-width="4"/>
+      <path d="M187 77 L268 52" stroke="#8f5a33" stroke-opacity="0.08" stroke-width="3"/>
+    </g>
+
+    <g>
+      <rect x="125" y="56" width="34" height="58" rx="13" fill="#fffaf0"/>
+      <rect x="205" y="57" width="34" height="58" rx="13" fill="#fffaf0"/>
+      <rect x="285" y="58" width="34" height="58" rx="13" fill="#fffaf0"/>
+      <rect x="365" y="57" width="34" height="58" rx="13" fill="#fffaf0"/>
+      <rect x="445" y="58" width="34" height="58" rx="13" fill="#fffaf0"/>
+      <rect x="525" y="57" width="34" height="58" rx="13" fill="#fffaf0"/>
+      <rect x="605" y="58" width="34" height="58" rx="13" fill="#fffaf0"/>
+      <rect x="685" y="57" width="34" height="58" rx="13" fill="#fffaf0"/>
+      <rect x="765" y="58" width="34" height="58" rx="13" fill="#fffaf0"/>
+      <circle cx="142" cy="112" r="13" fill="#6c6da7" opacity="0.9"/>
+      <circle cx="222" cy="113" r="13" fill="#6c6da7" opacity="0.9"/>
+      <circle cx="302" cy="114" r="13" fill="#6c6da7" opacity="0.9"/>
+      <circle cx="382" cy="113" r="13" fill="#6c6da7" opacity="0.9"/>
+      <circle cx="462" cy="114" r="13" fill="#6c6da7" opacity="0.9"/>
+      <circle cx="542" cy="113" r="13" fill="#6c6da7" opacity="0.9"/>
+      <circle cx="622" cy="114" r="13" fill="#6c6da7" opacity="0.9"/>
+      <circle cx="702" cy="113" r="13" fill="#6c6da7" opacity="0.9"/>
+      <circle cx="782" cy="114" r="13" fill="#6c6da7" opacity="0.9"/>
+    </g>
+  </g>
+</svg>
