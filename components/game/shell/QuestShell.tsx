@@ -47,7 +47,7 @@ export function QuestShell({
             {showHud ? (
               <QuestHud totalSlices={totalSlices} totalBackpackPieces={totalBackpackPieces} />
             ) : null}
-            <Button size="lg" variant="outline" onClick={onOpenPause}>
+            <Button size="lg" variant="outline" onClick={onOpenPause} className="bg-[#fbf0dc] text-[#5a2612] hover:bg-[#fbf0dc] hover:text-[#5a2612]">
               <Pause className="mr-2 h-5 w-5" />
               Pausa
             </Button>
