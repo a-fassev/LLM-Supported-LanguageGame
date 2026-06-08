@@ -17,7 +17,7 @@
       ]
     },
     "task": {
-      "prompt": "Descrivi la professione del/la giornalista con una frase. Usa che, cui o dove.",
+      "prompt": "Descrivi la professione del/della giornalista con una frase. Usa che, cui o dove.",
       "targetLanguage": "it",
       "showWordCount": true,
       "minWords": 5,

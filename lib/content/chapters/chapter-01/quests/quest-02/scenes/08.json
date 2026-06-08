@@ -26,7 +26,10 @@
           "acceptedCorrections": [
             "bisogna stare in piedi al banco",
             "devi stare in piedi al banco",
-            "stare in piedi al banco"
+            "stare in piedi al banco",
+            "stai in piedi al banco",
+            "bisogna stare al banco",
+            "stai al banco"
           ]
         },
         {
@@ -71,7 +74,10 @@
           "acceptedCorrections": [
             "più portate",
             "un pasto completo ha più portate",
-            "diverse portate"
+            "diverse portate",
+            "ci sono più piatti",
+            "più piatti",
+            "un pasto completo ha più piatti"
           ]
         },
         {
@@ -86,7 +92,10 @@
           "acceptedCorrections": [
             "si paga insieme",
             "si divide il conto",
-            "pagano insieme"
+            "pagano insieme",
+            "c'è un conto per tutti",
+            "un conto per tutti",
+            "si fa un conto per tutti"
           ]
         },
         {
