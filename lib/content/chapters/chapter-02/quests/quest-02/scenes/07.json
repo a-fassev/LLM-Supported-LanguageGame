@@ -55,7 +55,7 @@
             },
             {
               "kind": "text",
-              "text": " bisogno di voti più alti per farlo? Sono questi che ti "
+              "text": " bisogno di voti molto alti per farlo? Sono questi che mi "
             },
             {
               "kind": "gap",
@@ -131,14 +131,28 @@
             },
             {
               "kind": "text",
-              "text": " contentissimi. Che dici: "
+              "text": " contentissimi, soprattutto "
             },
             {
               "kind": "gap",
               "maxLength": 48,
               "correctAnswers": [
-                "la",
-                "La"
+                "mio",
+                "Mio"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " padre perché gli piace tanto la storia. Che dici: "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "la mia",
+                "La mia",
+                "mia",
+                "Mia"
               ]
             },
             {
@@ -299,7 +313,7 @@
             },
             {
               "kind": "text",
-              "text": ".\nDario: E tu? Sai già cosa "
+              "text": " tutti i tuoi amici, non credi?\nDario: E tu? Sai già cosa "
             },
             {
               "kind": "gap",
@@ -323,19 +337,31 @@
             },
             {
               "kind": "text",
-              "text": " maturità?\nTu: Sì, ho già una mezza idea sul "
+              "text": " maturità?\nTu: Sì, ho già una mezza idea "
             },
             {
               "kind": "gap",
               "maxLength": 48,
               "correctAnswers": [
-                "futuro",
-                "Futuro"
+                "sul mio",
+                "Sul mio"
               ]
             },
             {
               "kind": "text",
-              "text": ". Sai che mi piace molto la musica e proprio ieri ho sentito un'intervista...\nDario: Ah, interessante, dimmi tutto. "
+              "text": " futuro. Sai che mi piace molto la musica e proprio ieri ho sentito un'intervista "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "alla nostra",
+                "Alla nostra"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " futura insegnante di musica...\nDario: Ah, interessante, dimmi tutto. "
             },
             {
               "kind": "gap",
