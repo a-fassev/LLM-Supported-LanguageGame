@@ -138,7 +138,7 @@ export function GameBackground({
   );
 
   return (
-    <div className={cn("relative isolate h-dvh w-full overflow-hidden", fallback, className)}>
+    <div className={cn("scrollbar-hide relative isolate h-dvh w-full overflow-x-hidden overflow-y-auto", fallback, className)}>
       {baseUrl ? renderLayer(baseUrl, overlayUrl && overlayVisible ? 0 : 1) : null}
       {overlayUrl ? renderLayer(overlayUrl, overlayVisible ? 1 : 0) : null}
       <div className="pointer-events-none absolute inset-0 -z-10 bg-black/20" />
