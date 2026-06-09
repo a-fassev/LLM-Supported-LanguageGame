@@ -1,23 +1,39 @@
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { ChatOpenAI } from "@langchain/openai";
+import { ChatGoogle } from "@langchain/google/node";
 
 import type { FreitextLlmStepContentParsed } from "@/lib/llm/freitextLlmContentSchema";
 import type { FreitextLlmEvaluatorEnv } from "@/lib/llm/freitextLlmEnv";
 import {
+  AllGeminiApiKeysRateLimitedError,
+  createGeminiApiKeyPool,
+  type GeminiApiKeyPool,
+} from "@/lib/llm/gemini-api-key-pool";
+import {
   freitextLlmStructuredOutputSchema,
 } from "@/lib/llm/freitextLlmModelSchema";
 
-function createFreitextModel(env: FreitextLlmEvaluatorEnv) {
-  return new ChatOpenAI({
-    model: env.nvidiaEvalModel,
+const DEFAULT_RATE_LIMIT_COOLDOWN_MS = 60_000;
+
+let cachedPool: GeminiApiKeyPool | null = null;
+let cachedPoolFingerprint = "";
+
+function getGeminiApiKeyPool(env: FreitextLlmEvaluatorEnv): GeminiApiKeyPool {
+  const fingerprint = env.geminiApiKeys.join("\0");
+  if (!cachedPool || cachedPoolFingerprint !== fingerprint) {
+    cachedPool = createGeminiApiKeyPool(env.geminiApiKeys);
+    cachedPoolFingerprint = fingerprint;
+  }
+  return cachedPool;
+}
+
+function createFreitextModel(apiKey: string, env: FreitextLlmEvaluatorEnv) {
+  return new ChatGoogle({
+    model: env.geminiModel,
+    apiKey,
     temperature: 0.2,
-    apiKey: env.nvidiaApiKey,
+    maxRetries: 0,
     streamUsage: false,
     ...(env.llmTimeoutMs > 0 ? { timeout: env.llmTimeoutMs } : {}),
-    maxRetries: env.llmMaxRetries,
-    configuration: {
-      baseURL: env.nvidiaBaseUrl,
-    },
   });
 }
 
@@ -67,17 +83,54 @@ const freitextJudgePrompt = ChatPromptTemplate.fromMessages([
   ],
 ]);
 
+export function isGeminiRateLimitError(error: unknown): boolean {
+  const status = readNumeric(error, "status") ?? readNumeric(error, "statusCode");
+  if (status === 429) return true;
+
+  const message = readString(error, "message") ?? stringFrom(error) ?? "";
+  const lower = message.toLowerCase();
+  if (lower.includes("rate limit") || lower.includes("resource_exhausted")) {
+    return true;
+  }
+
+  if (error && typeof error === "object" && "code" in error) {
+    const code = (error as Record<string, unknown>).code;
+    if (code === "RESOURCE_EXHAUSTED" || code === 429) return true;
+  }
+
+  return false;
+}
+
+function readRetryAfterMs(error: unknown): number | null {
+  if (!error || typeof error !== "object") return null;
+
+  const headers = (error as Record<string, unknown>).headers;
+  if (!headers || typeof headers !== "object") return null;
+
+  const retryAfter = (headers as Record<string, unknown>)["retry-after"];
+  if (typeof retryAfter === "string") {
+    const seconds = Number.parseInt(retryAfter, 10);
+    if (Number.isFinite(seconds) && seconds > 0) return seconds * 1000;
+  }
+
+  return null;
+}
+
+function toRateLimitError(cause?: unknown): Error & { status: number } {
+  const error = new Error("Gemini API rate limit exceeded") as Error & { status: number };
+  error.status = 429;
+  if (cause !== undefined) {
+    (error as Error & { cause?: unknown }).cause = cause;
+  }
+  return error;
+}
+
 export async function invokeFreitextLlmJudge(
   content: FreitextLlmStepContentParsed,
   learnerAnswer: string,
   env: FreitextLlmEvaluatorEnv,
   signal: AbortSignal,
 ) {
-  const model = createFreitextModel(env).withStructuredOutput(freitextLlmStructuredOutputSchema, {
-    name: "freitext_llm_judge",
-    strict: true,
-  });
-
   const instruction = content.instruction?.trim() ?? "";
   const criteria = content.evaluation.evaluationCriteria.join("; ");
   const structures = content.evaluation.targetStructures.join("; ");
@@ -102,15 +155,50 @@ export async function invokeFreitextLlmJudge(
     answer: learnerAnswer.trim(),
   });
 
-  const chat = await model.invoke(invoked, {
-    signal,
-    tags: ["feature:freitext-llm", "surface:learning-game"],
-    metadata: {
-      targetLanguageTag: content.targetLanguage ?? "",
-    },
-  });
+  const pool = getGeminiApiKeyPool(env);
+  const maxAttempts = Math.max(1, env.geminiApiKeys.length);
+  let lastRateLimitError: unknown;
 
-  return freitextLlmStructuredOutputSchema.parse(chat);
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    let selection;
+    try {
+      selection = pool.acquireKey();
+    } catch (error) {
+      if (error instanceof AllGeminiApiKeysRateLimitedError) {
+        throw toRateLimitError(lastRateLimitError);
+      }
+      throw error;
+    }
+
+    try {
+      const model = createFreitextModel(selection.apiKey, env).withStructuredOutput(
+        freitextLlmStructuredOutputSchema,
+      );
+
+      const chat = await model.invoke(invoked, {
+        signal,
+        tags: ["feature:freitext-llm", "surface:learning-game"],
+        metadata: {
+          targetLanguageTag: content.targetLanguage ?? "",
+          geminiKeyIndex: selection.index,
+        },
+      });
+
+      return freitextLlmStructuredOutputSchema.parse(chat);
+    } catch (error) {
+      if (isGeminiRateLimitError(error)) {
+        pool.markRateLimited(
+          selection.index,
+          readRetryAfterMs(error) ?? DEFAULT_RATE_LIMIT_COOLDOWN_MS,
+        );
+        lastRateLimitError = error;
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  throw toRateLimitError(lastRateLimitError);
 }
 
 export type WeightInput = Pick<
@@ -175,7 +263,7 @@ export function mapFreitextLlmProviderError(
   const message = readString(error, "message") ?? stringFrom(error) ?? "";
   const lower = message.toLowerCase();
 
-  if (status === 429 || lower.includes("rate limit")) {
+  if (status === 429 || lower.includes("rate limit") || lower.includes("resource_exhausted")) {
     return {
       status: 429,
       code: "RATE_LIMITED",

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  isGeminiRateLimitError,
   normalizeFeedbackForLearner,
   weightedSkillRatio,
 } from "@/lib/llm/freitextLlmEvaluationService";
@@ -41,6 +42,17 @@ describe("weightedSkillRatio", () => {
       },
     );
     expect(ratio).toBeCloseTo(0.5, 2);
+  });
+});
+
+describe("isGeminiRateLimitError", () => {
+  it("detects HTTP 429 and RESOURCE_EXHAUSTED style errors", () => {
+    expect(isGeminiRateLimitError({ status: 429, message: "busy" })).toBe(true);
+    expect(
+      isGeminiRateLimitError({ code: "RESOURCE_EXHAUSTED", message: "quota exceeded" }),
+    ).toBe(true);
+    expect(isGeminiRateLimitError(new Error("rate limit exceeded"))).toBe(true);
+    expect(isGeminiRateLimitError(new Error("invalid api key"))).toBe(false);
   });
 });
 

@@ -99,7 +99,7 @@ Optional CLIs when MCP is not enough: **GitHub** (`gh`) for PRs and CI; **Supaba
 | Styling           | **Tailwind CSS v4**, **shadcn/ui**     | `app/globals.css`, `components.json`, `components/ui/`; **`shadcn` npm package** required for `@import "shadcn/tailwind.css"` |
 | Data / auth       | **Supabase** (`@supabase/supabase-js`) | Postgres + RLS in linked project; `SUPABASE_SECRET_KEY` server-only |
 | Validation        | **Zod 4**                              | Step payloads, attempts, pizza rules                                |
-| LLM               | **LangChain** + OpenAI-compatible API  | **FreitextLlm** evaluate only (`lib/llm/`)                          |
+| LLM               | **LangChain** + **Google Gemini** (AI Studio) | **FreitextLlm** evaluate only (`lib/llm/`)                    |
 | Passwords         | **argon2**                             | Registration / login                                                |
 | Tests             | **Vitest 4**                           | `npm test` — Node environment, `**/*.test.ts`                       |
 | Lint              | **ESLint 9** + `eslint-config-next`    | `npm run lint` → `eslint .` (`next lint` removed in Next 16)        |
@@ -257,7 +257,7 @@ See also `docs/content-chapter-sandbox-migration.md` (one-time `chapter-01` → 
 
 **LLM (freitext only):** `lib/llm/` + `lib/game/tasks/freitext/evaluate-freitext-llm-scene.ts`; wired through run **attempt** (no separate public evaluate route). Judge returns four scores → `weightedSkillRatio`: **grammar**, **vocabulary**, **register**, **task fulfillment** (prompt + instruction + `evaluationCriteria` + `targetStructures`; weight `taskFulfillmentWeight`, default 1). Learners see only `summaryFeedback` / `nextStepAdvice` on retry overlay—not per-dimension breakdowns.
 
-**NVIDIA / local dev:** Keys in `.env.local` only. `MODEL_TIMEOUT` usually means the **model** is slow or hung on `chat/completions`, not that the app skipped the LLM. Prefer a fast dev model (e.g. `mistralai/ministral-14b-instruct-2512`); some large catalog models may never respond within `LLM_TASK_TIMEOUT_MS` even when the API key and base URL work.
+**Gemini / local dev:** Freitext judge keys in `.env.local` only (`GEMINI_API_KEY_1` … `GEMINI_API_KEY_4`, optional multi-project rotation; `GEMINI_EVAL_MODEL`, default `gemini-3.5-flash`). `MODEL_TIMEOUT` means the judge did not finish within `LLM_TASK_TIMEOUT_MS`. On `429`, the server rotates to the next configured key before returning `RATE_LIMITED` to the client.
 
 ---
 
