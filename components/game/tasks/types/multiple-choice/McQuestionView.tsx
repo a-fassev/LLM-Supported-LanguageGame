@@ -16,6 +16,8 @@ type McQuestionViewProps = {
   selectedIds: string[];
   validationError?: string | null;
   disabled?: boolean;
+  reviewMode?: boolean;
+  correctOptionIds?: string[];
   onChange: (selectedIds: string[]) => void;
 };
 
@@ -27,6 +29,8 @@ export function McQuestionView({
   selectedIds,
   validationError,
   disabled,
+  reviewMode,
+  correctOptionIds,
   onChange,
 }: McQuestionViewProps) {
   const multi = isMcMultiSelect(question.selectionMode);
@@ -60,6 +64,8 @@ export function McQuestionView({
           selectedIds={selectedIds}
           groupLabelId={promptLabelId}
           disabled={disabled}
+          reviewMode={reviewMode}
+          correctOptionIds={correctOptionIds}
           onChange={onChange}
         />
       )}

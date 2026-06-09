@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { RunSceneDto } from "@/lib/api-client";
+import type { MultipleChoiceTaskReview, RunSceneDto } from "@/lib/api-client";
 import { getTaskPayload } from "@/lib/game/get-task-payload";
 import { McQuestionView } from "@/components/game/tasks/types/multiple-choice/McQuestionView";
 import { getStableMcDisplayOptions } from "@/lib/game/tasks/multiple-choice/mc-display-options";
@@ -19,6 +19,8 @@ type MultipleChoiceTaskProps = {
   currentQuestionIndex: number;
   validationError?: string | null;
   disabled?: boolean;
+  reviewMode?: boolean;
+  taskReview?: MultipleChoiceTaskReview;
   onSelectionsChange: (selections: McSelectionsDraft) => void;
 };
 
@@ -28,6 +30,8 @@ export function MultipleChoiceTask({
   currentQuestionIndex,
   validationError,
   disabled,
+  reviewMode,
+  taskReview,
   onSelectionsChange,
 }: MultipleChoiceTaskProps) {
   const normalizedResult = useMemo(() => normalizeMcContentResult(getTaskPayload(scene)), [scene]);
@@ -53,6 +57,7 @@ export function MultipleChoiceTask({
   }
 
   const selectedIds = selections[safeIndex] ?? [];
+  const questionReview = taskReview?.questions.find((q) => q.questionIndex === safeIndex);
   return (
     <McQuestionView
       question={question}
@@ -61,7 +66,9 @@ export function MultipleChoiceTask({
       displayOptions={displayOptions}
       selectedIds={selectedIds}
       validationError={validationError}
-      disabled={disabled}
+      disabled={disabled || reviewMode}
+      reviewMode={reviewMode}
+      correctOptionIds={questionReview?.correctOptionIds}
       onChange={(nextIds) => {
         const next = selections.map((row, index) => (index === safeIndex ? nextIds : row));
         onSelectionsChange(next);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { RunSceneDto } from "@/lib/api-client";
+import type { MatchingTaskReview, RunSceneDto } from "@/lib/api-client";
 import { TaskBodyLayout } from "@/components/game/tasks/TaskBodyLayout";
 import { MatchingColumn } from "@/components/game/tasks/types/matching/MatchingColumn";
 import {
@@ -27,6 +27,8 @@ type MatchingTaskProps = {
   pairs: MatchingPairsDraft;
   validationError?: string | null;
   disabled?: boolean;
+  reviewMode?: boolean;
+  taskReview?: MatchingTaskReview;
   onPairsChange: (updater: MatchingPairsUpdater) => void;
 };
 
@@ -47,6 +49,8 @@ export function MatchingTask({
   pairs,
   validationError,
   disabled,
+  reviewMode,
+  taskReview,
   onPairsChange,
 }: MatchingTaskProps) {
   const normalizedResult = useMemo(() => normalizeMatchingContentResult(getTaskPayload(scene)), [scene]);
@@ -58,6 +62,32 @@ export function MatchingTask({
   }, [content, scene.id]);
 
   const leftIds = useMemo(() => displayOrder?.leftItems.map((item) => item.id) ?? [], [displayOrder]);
+
+  const rightLabelById = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const item of displayOrder?.rightItems ?? []) {
+      map.set(item.id, item.label);
+    }
+    return map;
+  }, [displayOrder]);
+
+  const reviewByLeftId = useMemo(() => {
+    if (!reviewMode || !taskReview) return undefined;
+    const out: Record<
+      string,
+      { isCorrect: boolean; learnerLabel: string | null; correctLabel: string }
+    > = {};
+    for (const pair of taskReview.pairs) {
+      out[pair.leftItemId] = {
+        isCorrect: pair.isCorrect,
+        learnerLabel: pair.learnerRightItemId
+          ? (rightLabelById.get(pair.learnerRightItemId) ?? pair.learnerRightItemId)
+          : null,
+        correctLabel: rightLabelById.get(pair.correctRightItemId) ?? pair.correctRightItemId,
+      };
+    }
+    return out;
+  }, [reviewMode, rightLabelById, taskReview]);
 
   const pairingAreaRef = useRef<HTMLDivElement>(null);
   const lineLayerRef = useRef<MatchingLineLayerHandle>(null);
@@ -316,7 +346,9 @@ export function MatchingTask({
             header={content.leftLabel}
             side="left"
             items={displayOrder.leftItems}
-            disabled={disabled}
+            disabled={disabled || reviewMode}
+            reviewMode={reviewMode}
+            reviewByLeftId={reviewByLeftId}
             selectedLeftId={selectedLeftId}
             pairedRightIds={pairedRightIds}
             pairs={pairs}
@@ -333,7 +365,7 @@ export function MatchingTask({
             header={content.rightLabel}
             side="right"
             items={displayOrder.rightItems}
-            disabled={disabled}
+            disabled={disabled || reviewMode}
             pairedRightIds={pairedRightIds}
             pairs={pairs}
             registerRef={registerRef}

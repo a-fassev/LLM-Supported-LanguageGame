@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { RunSceneDto } from "@/lib/api-client";
+import type { DragDropTaskReview, RunSceneDto } from "@/lib/api-client";
 import { TaskBodyLayout } from "@/components/game/tasks/TaskBodyLayout";
 import {
   DragDropDragPreview,
@@ -43,6 +43,8 @@ type DragDropTaskProps = {
   assignments: DragDropAssignmentsDraft;
   validationError?: string | null;
   disabled?: boolean;
+  reviewMode?: boolean;
+  taskReview?: DragDropTaskReview;
   onAssignmentsChange: (updater: DragDropAssignmentsUpdater) => void;
 };
 
@@ -51,6 +53,8 @@ export function DragDropTask({
   assignments,
   validationError,
   disabled,
+  reviewMode,
+  taskReview,
   onAssignmentsChange,
 }: DragDropTaskProps) {
   const normalizedResult = useMemo(() => normalizeDragDropContentResult(getTaskPayload(scene)), [scene]);
@@ -361,7 +365,7 @@ export function DragDropTask({
             items={bankItems}
             selectedItemId={selectedItemId}
             draggingItemId={draggingItemId}
-            disabled={disabled}
+            disabled={disabled || reviewMode}
             onItemPointerDown={handleItemPointerDown}
             onItemPointerUp={handleItemPointerUp}
             onItemKeyDown={handleItemKeyDown}
@@ -379,6 +383,10 @@ export function DragDropTask({
               .filter((item): item is DragDropItemView => Boolean(item));
 
             const zoneTabIndex = !disabled && activeKeyboardZoneId === target.id ? 0 : -1;
+            const targetReview = taskReview?.targets.find((t) => t.targetId === target.id);
+            const reviewCorrectLabels = targetReview?.correctItemIds
+              .map((id) => itemById.get(id)?.label ?? id)
+              .filter((label) => label.length > 0);
 
             return (
               <DragDropTargetBlock
@@ -389,7 +397,10 @@ export function DragDropTask({
                 selectedItemId={selectedItemId}
                 draggingItemId={draggingItemId}
                 zoneTabIndex={zoneTabIndex}
-                disabled={disabled}
+                disabled={disabled || reviewMode}
+                reviewMode={reviewMode}
+                reviewIsCorrect={targetReview?.isCorrect}
+                reviewCorrectLabels={reviewCorrectLabels}
                 zoneRef={(element) => setZoneRef(target.id, element)}
                 onTargetActivate={handleTargetActivate}
                 onZoneKeyDown={handleZoneKeyDown}

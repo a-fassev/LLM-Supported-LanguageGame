@@ -16,6 +16,8 @@ import {
   type RunSceneDto,
   type RunSnapshotDto,
   type TaskOutcomeDto,
+  type TaskReviewDto,
+  readTaskReview,
 } from "@/lib/api-client";
 import { gameClientMessages } from "@/lib/game/clientMessages";
 import { useGameSession } from "@/lib/game/session-context";
@@ -387,6 +389,8 @@ export default function PlayPage() {
   const [documentOpen, setDocumentOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [outcome, setOutcome] = useState<TaskOutcomeDto | null>(null);
+  const [taskReview, setTaskReview] = useState<TaskReviewDto | null>(null);
+  const [showSolution, setShowSolution] = useState(false);
   /** Keeps task-success overlay on the completed scene background until dismissed. */
   const [backgroundHoldKey, setBackgroundHoldKey] = useState<string | null>(null);
   /** Keeps quest chrome on the completed task scene while the success overlay is open. */
@@ -407,7 +411,9 @@ export default function PlayPage() {
     return readTaskSceneTitle(displayScene);
   }, [displayScene]);
   const canRetreat =
-    state.run?.canRetreat === true && (currentScene?.sceneNumber ?? 1) > 1;
+    state.run?.canRetreat === true &&
+    (currentScene?.sceneNumber ?? 1) > 1 &&
+    !successOpen;
 
   const backgroundPreloadKeys = useMemo(() => {
     const next = state.run?.nextSceneBackground;
@@ -441,6 +447,8 @@ export default function PlayPage() {
     }
     setSuccessOpen(false);
     setOutcome(null);
+    setTaskReview(null);
+    setShowSolution(false);
     setBackgroundHoldKey(null);
     setChromeHoldScene(null);
   }, []);
@@ -469,6 +477,19 @@ export default function PlayPage() {
     },
     [dismissSuccessOverlay, finishQuestToChapterHub, router],
   );
+
+  const postAttemptContinueLabel = useMemo(() => {
+    if (!state.run || state.run.status !== "completed") return undefined;
+    return isGameFinaleCompletedRun(state.run) ? "Torna al menu" : "Alla lista missioni";
+  }, [state.run]);
+
+  const handlePostAttemptContinue = useCallback(() => {
+    if (state.run?.status === "completed" && state.run) {
+      finishCompletedRun(state.run);
+      return;
+    }
+    dismissSuccessOverlay();
+  }, [dismissSuccessOverlay, finishCompletedRun, state.run]);
 
   const handleCompletedRun = useCallback(
     (
@@ -505,6 +526,13 @@ export default function PlayPage() {
     }
     setLoading(true);
     setError(null);
+    pendingDraftSyncSceneRef.current = null;
+    setSuccessOpen(false);
+    setOutcome(null);
+    setTaskReview(null);
+    setShowSolution(false);
+    setBackgroundHoldKey(null);
+    setChromeHoldScene(null);
 
     const result = chapterId && questId ? await startRun(token, { chapterId, questId }) : await getRunSnapshot(token);
     if (!mountedRef.current) return;
@@ -685,6 +713,7 @@ export default function PlayPage() {
 
   async function onSubmitTask() {
     if (!token || !state.run || !currentScene || currentScene.scene_type !== "task") return;
+    if (successOpen || showSolution) return;
     setTaskPending(true);
     setError(null);
     const backgroundBeforeSubmit = currentScene.background;
@@ -810,6 +839,8 @@ export default function PlayPage() {
       const taskOutcome = readTaskOutcome(result);
       if (taskOutcome) {
         setOutcome(taskOutcome);
+        setTaskReview(readTaskReview(result));
+        setShowSolution(false);
         setSuccessOpen(true);
       } else {
         toastBlockingApiError(result);
@@ -826,6 +857,8 @@ export default function PlayPage() {
       setBackgroundHoldKey(backgroundBeforeSubmit);
       setChromeHoldScene(sceneBeforeSubmit);
       setOutcome(result.data.taskOutcome);
+      setTaskReview(result.data.taskReview ?? null);
+      setShowSolution(false);
       setSuccessOpen(true);
     } else {
       syncTaskDraftsForScene(
@@ -914,6 +947,19 @@ export default function PlayPage() {
           canRetreat={canRetreat}
           sceneNavPending={sceneNavPending}
           taskSubmitting={taskPending}
+          reviewMode={
+            showSolution &&
+            taskReview !== null &&
+            displayScene?.screen_type !== "free_text"
+          }
+          taskReview={
+            displayScene?.screen_type === "free_text" ? null : taskReview
+          }
+          postAttemptOutcome={
+            showSolution && displayScene?.screen_type !== "free_text" ? outcome : null
+          }
+          postAttemptContinueLabel={postAttemptContinueLabel}
+          onPostAttemptContinue={handlePostAttemptContinue}
           onMcSelectionsChange={(next) => {
             setMcSelections(next);
             setMcValidationError(null);
@@ -964,8 +1010,31 @@ export default function PlayPage() {
       />
 
       <SuccessOverlay
-        open={successOpen}
+        open={successOpen && !showSolution}
         outcome={outcome}
+        freetextReview={
+          taskReview?.screenType === "free_text" ? taskReview : null
+        }
+        secondaryAction={
+          taskReview &&
+          displayScene?.scene_type === "task" &&
+          displayScene.screen_type !== "free_text" &&
+          !showSolution
+            ? {
+                label: "Mostra soluzione",
+                onClick: () => {
+                  if (
+                    displayScene?.screen_type === "multiple_choice" &&
+                    taskReview?.screenType === "multiple_choice" &&
+                    taskReview.questions.length > 1
+                  ) {
+                    setMcQuestionIndex(0);
+                  }
+                  setShowSolution(true);
+                },
+              }
+            : undefined
+        }
         primaryLabel={
           state.run?.status === "completed"
             ? isGameFinaleCompletedRun(state.run)

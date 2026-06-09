@@ -47,7 +47,7 @@ export function TaskBodyLayout({ prompt, beforeScroll, children, fillScroll }: T
       <div
         data-task-body-scroll
         className={cn(
-          "min-h-0 flex-1 overscroll-y-contain",
+          "min-h-0 flex-1 overscroll-y-contain p-px",
           fillScroll ? "flex flex-col overflow-hidden" : "overflow-y-auto",
         )}
       >

@@ -10,6 +10,7 @@ import {
   normalizeFeedbackForLearner,
   weightedSkillRatio,
 } from "@/lib/llm/freitextLlmEvaluationService";
+import type { FreitextDimensionReview } from "@/lib/game/task-review";
 import { parseFreitextAttempt } from "@/lib/game/tasks/freitext/build-freitext-attempt";
 import { mergeFreitextSceneContent } from "@/lib/game/tasks/freitext/merge-freitext-scene-content";
 import {
@@ -22,6 +23,7 @@ import {
 export type FreitextJudgeFeedback = {
   summaryFeedback: string;
   nextStepAdvice?: string;
+  dimensions?: FreitextDimensionReview[];
 };
 
 export type EvaluateFreitextLlmSceneResult =
@@ -130,6 +132,33 @@ export async function evaluateFreitextLlmScene(
       taskFulfillmentScore: modelOut.taskFulfillmentScore,
     });
 
+    const dimensions: FreitextDimensionReview[] = [
+      {
+        key: "taskFulfillment",
+        label: "Compito",
+        score: modelOut.taskFulfillmentScore,
+        feedback: normalizeFeedbackForLearner(modelOut.taskFulfillmentFeedback, 200),
+      },
+      {
+        key: "grammar",
+        label: "Grammatica",
+        score: modelOut.grammarScore,
+        feedback: normalizeFeedbackForLearner(modelOut.grammarFeedback, 200),
+      },
+      {
+        key: "vocabulary",
+        label: "Lessico",
+        score: modelOut.vocabularyScore,
+        feedback: normalizeFeedbackForLearner(modelOut.vocabularyFeedback, 200),
+      },
+      {
+        key: "register",
+        label: "Registro",
+        score: modelOut.registerScore,
+        feedback: normalizeFeedbackForLearner(modelOut.registerFeedback, 200),
+      },
+    ];
+
     return {
       ok: true,
       ratio: Math.max(0, Math.min(1, ratio)),
@@ -138,6 +167,7 @@ export async function evaluateFreitextLlmScene(
         nextStepAdvice: modelOut.nextStepAdvice?.trim()
           ? normalizeFeedbackForLearner(modelOut.nextStepAdvice, 120)
           : undefined,
+        dimensions,
       },
     };
   } catch (err) {

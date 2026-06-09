@@ -33,7 +33,13 @@ import { evaluateTaskAttempt } from "@/lib/game/scoring/evaluateTaskAttempt";
 import { isGameFinaleCatalogQuest } from "@/lib/game/game-finale";
 import { buildTaskOutcome, type TaskOutcomeDto } from "@/lib/game/task-outcome-messages";
 import { buildFreitextRetryTaskOutcome } from "@/lib/game/tasks/freitext/build-freitext-retry-task-outcome";
+import { parseFreitextAttempt } from "@/lib/game/tasks/freitext/build-freitext-attempt";
 import { evaluateFreitextLlmScene } from "@/lib/game/tasks/freitext/evaluate-freitext-llm-scene";
+import {
+  buildTaskReview,
+  type FreitextDimensionReview,
+  type TaskReviewDto,
+} from "@/lib/game/task-review";
 import type { BootstrapChapterDto, BootstrapQuestDto } from "@/lib/api-client";
 
 export type { BootstrapChapterDto, BootstrapQuestDto };
@@ -136,6 +142,7 @@ export type RunSnapshotResult =
       totalBackpackPieces: number;
       run: RunSnapshotDto | null;
       taskOutcome?: TaskOutcomeDto;
+      taskReview?: TaskReviewDto;
     }
   | {
       ok: false;
@@ -144,7 +151,53 @@ export type RunSnapshotResult =
       code?: string;
       details?: Record<string, unknown>;
       taskOutcome?: TaskOutcomeDto;
+      taskReview?: TaskReviewDto;
     };
+
+function assembleTaskReview(params: {
+  screenType: string;
+  sceneContent: Record<string, unknown>;
+  attemptPayload: unknown;
+  ratio: number;
+  freitextFeedback?: {
+    summaryFeedback: string;
+    nextStepAdvice?: string;
+    dimensions?: FreitextDimensionReview[];
+  };
+}): TaskReviewDto | undefined {
+  const taskPayload = params.sceneContent.task;
+  const taskContent =
+    taskPayload && typeof taskPayload === "object" && !Array.isArray(taskPayload)
+      ? (taskPayload as Record<string, unknown>)
+      : params.sceneContent;
+
+  if (params.screenType === "free_text") {
+    const parsed = parseFreitextAttempt(params.attemptPayload);
+    if (!parsed.ok) return undefined;
+    return (
+      buildTaskReview({
+        screenType: "free_text",
+        taskContent,
+        attemptPayload: params.attemptPayload,
+        freetext: {
+          answerText: parsed.answerText,
+          ratio: params.ratio,
+          summaryFeedback: params.freetextFeedback?.summaryFeedback ?? "",
+          nextStepAdvice: params.freetextFeedback?.nextStepAdvice,
+          dimensions: params.freetextFeedback?.dimensions,
+        },
+      }) ?? undefined
+    );
+  }
+
+  return (
+    buildTaskReview({
+      screenType: params.screenType,
+      taskContent,
+      attemptPayload: params.attemptPayload,
+    }) ?? undefined
+  );
+}
 
 type BuildSnapshotOptions = {
   includeWallet?: boolean;
@@ -554,7 +607,11 @@ export async function completeTaskScene(
   const smokeAutoPass = process.env.GAME_SMOKE_AUTO_PASS === "true";
   const skipEval = smokeAutoPass;
   let ratio = 1;
-  let freitextRetryFeedback: { summaryFeedback: string; nextStepAdvice?: string } | null = null;
+  let freitextRetryFeedback: {
+    summaryFeedback: string;
+    nextStepAdvice?: string;
+    dimensions?: FreitextDimensionReview[];
+  } | null = null;
 
   const shouldEvaluateTask =
     !skipEval && (scene.screen_type === "free_text" || pizzaRules.kind !== "flat");
@@ -591,6 +648,14 @@ export async function completeTaskScene(
     }
   }
 
+  const taskReview = assembleTaskReview({
+    screenType: scene.screen_type,
+    sceneContent: scene.content as Record<string, unknown>,
+    attemptPayload: options?.attemptPayload,
+    ratio,
+    freitextFeedback: freitextRetryFeedback ?? undefined,
+  });
+
   if (
     !meetsTaskSceneCompletionMinimum({
       ratio,
@@ -625,7 +690,8 @@ export async function completeTaskScene(
       error: msg.taskMinRatioNotMet,
       code: "task_min_ratio_not_met",
       taskOutcome,
-      details: { taskOutcome },
+      taskReview,
+      details: { taskOutcome, ...(taskReview ? { taskReview } : {}) },
     };
   }
   const awardedSlices = slicesFromRatio(ratio, pizzaRules);
@@ -667,5 +733,5 @@ export async function completeTaskScene(
     awardedBackpackPieces: walletAwarded ? awardedBackpack : 0,
     rewardsAlreadyClaimed: !walletAwarded,
   });
-  return { ...snapshot, taskOutcome };
+  return { ...snapshot, taskOutcome, taskReview };
 }

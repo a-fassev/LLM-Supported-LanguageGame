@@ -426,6 +426,10 @@ Extend existing shadcn tokens with **game layer** (names illustrative):
 - Optional secondary line: percent correct from `ratio` on retry.
 - **success:** primary button **Avanti** → close overlay; render `run` from the same response (next scene).
 - **retry:** primary **Riprova** → close overlay; keep task draft.
+- **Mostra soluzione** (secondary, when `taskReview` is present and `screen_type` is not `free_text`): closes the overlay and enables in-task review (`reviewMode` on `TaskPanel`). The task footer primary becomes **Avanti** / **Riprova** (or quest-complete labels) and continues the same flow as the overlay primary. **Multi-question MC:** review starts at question 1; **Avanti** / **Indietro** walk questions with per-question solution highlights until the last question, where **Avanti** / **Riprova** advances the run.
+- **`free_text`:** LLM **Valutazione** (summary on success, dimension scores + feedback) renders inside the overlay (`FreetextReviewOverlaySection`) — no **Mostra soluzione** button.
+
+**`taskReview` (attempt-only contract):** Built server-side in `completeTaskScene` from unsanitized catalog task + attempt payload. Returned on **200** and **409** (`details.taskReview`). Never included in run snapshots (`sanitize-task-payload-for-client` unchanged). Shape: discriminated union by `screenType` in `lib/game/task-review.ts` (MC, matching, drag_drop, error_spotting, cloze, free_text).
 
 **Visible scene while overlay is open:** The attempt response may already advance `run.currentScene` on the server. `/play` keeps the **completed** scene visible until dismiss:
 

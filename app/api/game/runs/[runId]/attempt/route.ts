@@ -48,6 +48,7 @@ export async function POST(
     const details = {
       ...result.details,
       ...(result.taskOutcome ? { taskOutcome: result.taskOutcome } : {}),
+      ...(result.taskReview ? { taskReview: result.taskReview } : {}),
     };
     return jsonError(result.status, result.error, result.code, details);
   }
@@ -57,5 +58,6 @@ export async function POST(
     totalBackpackPieces: result.totalBackpackPieces,
     run: result.run,
     ...(result.taskOutcome ? { taskOutcome: result.taskOutcome } : {}),
+    ...(result.taskReview ? { taskReview: result.taskReview } : {}),
   });
 }
