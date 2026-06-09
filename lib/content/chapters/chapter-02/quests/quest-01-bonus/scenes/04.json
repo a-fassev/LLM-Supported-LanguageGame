@@ -8,7 +8,7 @@
     "instruction": "Abbina ogni parola italiana al suo equivalente inglese.",
     "referenceDocument": null,
     "task": {
-      "prompt": "Abbina ogni parola italiana al suo equivalente inglese.",
+      "prompt": "Collega ogni parola italiana al suo equivalente inglese.",
       "sampleSize": 10,
       "poolPairs": [
         {
@@ -560,9 +560,9 @@
     },
     "pizza": {
       "mode": "scored",
-      "maxSlices": 3,
+      "maxSlices": 5,
       "minRatioToComplete": 0.6,
-      "rounding": "floor",
+      "rounding": "nearest",
       "mapping": {
         "kind": "linear"
       }

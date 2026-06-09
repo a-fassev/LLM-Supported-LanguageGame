@@ -40,23 +40,40 @@ import {
   type FreitextDimensionReview,
   type TaskReviewDto,
 } from "@/lib/game/task-review";
+import {
+  backpackProgressFromCatalog,
+  type BackpackProgressDto,
+} from "@/lib/game/backpack-progress";
 import type { BootstrapChapterDto, BootstrapQuestDto } from "@/lib/api-client";
 
 export type { BootstrapChapterDto, BootstrapQuestDto };
 
+export type WalletSnapshotFields = {
+  totalSlices: number;
+  totalBackpackPieces: number;
+} & BackpackProgressDto;
+
 export type BootstrapResult =
   | {
       ok: true;
-      totalSlices: number;
-      totalBackpackPieces: number;
       completedQuestIds: string[];
       chapters: BootstrapChapterDto[];
-    }
+    } & WalletSnapshotFields
   | { ok: false; status: number; error: string; code?: string; details?: Record<string, unknown> };
 
-function toBootstrapChapters(): Promise<BootstrapChapterDto[]> {
-  return loadContentCatalog().then((catalog) =>
-    catalog.chapters.map((chapter) => ({
+function walletWithBackpackProgress(
+  wallet: { totalSlices: number; totalBackpackPieces: number },
+  catalog: ContentCatalog,
+): WalletSnapshotFields {
+  return {
+    totalSlices: wallet.totalSlices,
+    totalBackpackPieces: wallet.totalBackpackPieces,
+    ...backpackProgressFromCatalog(catalog, wallet.totalBackpackPieces),
+  };
+}
+
+function toBootstrapChapters(catalog: ContentCatalog): BootstrapChapterDto[] {
+  return catalog.chapters.map((chapter) => ({
       id: chapter.id,
       title: chapter.title,
       order: chapter.order,
@@ -72,8 +89,7 @@ function toBootstrapChapters(): Promise<BootstrapChapterDto[]> {
         requiresQuestId: quest.requiresQuestId,
         background: quest.background,
       })),
-    })),
-  );
+    }));
 }
 
 export async function bootstrapGameState(accountId: string): Promise<BootstrapResult> {
@@ -82,14 +98,14 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
 
   const wallet = await getWalletTotals(accountId);
   if (wallet === null) return { ok: false, status: 500, error: msg.couldNotLoadWallet };
-  const [chapters, completedQuestIds] = await Promise.all([
-    toBootstrapChapters().catch((error) => {
+  const [catalog, completedQuestIds] = await Promise.all([
+    loadContentCatalog().catch((error) => {
       console.error("[game-service] bootstrap catalog", error);
       return null;
     }),
     getCompletedQuestIds(accountId),
   ]);
-  if (!chapters) {
+  if (!catalog) {
     return {
       ok: false,
       status: 500,
@@ -103,10 +119,9 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
 
   return {
     ok: true,
-    totalSlices: wallet.totalSlices,
-    totalBackpackPieces: wallet.totalBackpackPieces,
+    ...walletWithBackpackProgress(wallet, catalog),
     completedQuestIds,
-    chapters,
+    chapters: toBootstrapChapters(catalog),
   };
 }
 
@@ -138,12 +153,10 @@ export type RunSnapshotDto = {
 export type RunSnapshotResult =
   | {
       ok: true;
-      totalSlices: number;
-      totalBackpackPieces: number;
       run: RunSnapshotDto | null;
       taskOutcome?: TaskOutcomeDto;
       taskReview?: TaskReviewDto;
-    }
+    } & WalletSnapshotFields
   | {
       ok: false;
       status: number;
@@ -248,10 +261,17 @@ async function buildSnapshotFromRun(
     return { ok: false, status: 500, error: msg.couldNotLoadWallet };
   }
   if (!run) {
+    const catalog = options?.catalog ?? (await loadCatalogForRun());
+    if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
     return {
       ok: true,
-      totalSlices: wallet?.totalSlices ?? 0,
-      totalBackpackPieces: wallet?.totalBackpackPieces ?? 0,
+      ...walletWithBackpackProgress(
+        {
+          totalSlices: wallet?.totalSlices ?? 0,
+          totalBackpackPieces: wallet?.totalBackpackPieces ?? 0,
+        },
+        catalog,
+      ),
       run: null,
     };
   }
@@ -291,8 +311,13 @@ async function buildSnapshotFromRun(
   const canRetreat = quest ? previousSceneIdInQuest(scene, quest.scenes) !== null : false;
   return {
     ok: true,
-    totalSlices: wallet?.totalSlices ?? 0,
-    totalBackpackPieces: wallet?.totalBackpackPieces ?? 0,
+    ...walletWithBackpackProgress(
+      {
+        totalSlices: wallet?.totalSlices ?? 0,
+        totalBackpackPieces: wallet?.totalBackpackPieces ?? 0,
+      },
+      catalog,
+    ),
     run: {
       runId: run.runId,
       chapterId: run.chapterId,

@@ -27,6 +27,9 @@ describe("POST /api/game/runs/[runId]/attempt", () => {
       ok: true,
       totalSlices: 1,
       totalBackpackPieces: 0,
+      backpackProgressPercent: 0,
+      backpackCompletedTasks: 0,
+      backpackTotalTasks: 53,
       run: { runId: "run-1" },
     });
   });
@@ -57,6 +60,9 @@ describe("POST /api/game/runs/[runId]/attempt", () => {
       ok: true,
       totalSlices: 2,
       totalBackpackPieces: 1,
+      backpackProgressPercent: 2,
+      backpackCompletedTasks: 1,
+      backpackTotalTasks: 53,
       run: { runId: "run-1" },
       taskOutcome: { kind: "success", ratio: 1, awardedSlices: 2, awardedBackpackPieces: 1, headline: "x", body: "y" },
       taskReview: {

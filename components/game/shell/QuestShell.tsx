@@ -10,7 +10,7 @@ type QuestShellProps = {
   showHud: boolean;
   showDocument: boolean;
   totalSlices: number;
-  totalBackpackPieces: number;
+  backpackProgressPercent: number;
   onOpenPause: () => void;
   onOpenDocument?: () => void;
   children: React.ReactNode;
@@ -24,7 +24,7 @@ export function QuestShell({
   showHud,
   showDocument,
   totalSlices,
-  totalBackpackPieces,
+  backpackProgressPercent,
   onOpenPause,
   onOpenDocument,
   children,
@@ -45,7 +45,7 @@ export function QuestShell({
               </Button>
             ) : null}
             {showHud ? (
-              <QuestHud totalSlices={totalSlices} totalBackpackPieces={totalBackpackPieces} />
+              <QuestHud totalSlices={totalSlices} backpackProgressPercent={backpackProgressPercent} />
             ) : null}
             <Button size="lg" variant="outline" onClick={onOpenPause} className="bg-[#fbf0dc] text-[#5a2612] hover:bg-[#fbf0dc] hover:text-[#5a2612]">
               <Pause className="mr-2 h-5 w-5" />

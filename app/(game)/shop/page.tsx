@@ -11,7 +11,7 @@ export default function ShopPage() {
   const { loading, error, data } = useBootstrap({ refreshOnFocus: true });
 
   const headerRight = data ? (
-    <QuestHud totalSlices={data.totalSlices} totalBackpackPieces={data.totalBackpackPieces} />
+    <QuestHud totalSlices={data.totalSlices} backpackProgressPercent={data.backpackProgressPercent} />
   ) : null;
 
   return (

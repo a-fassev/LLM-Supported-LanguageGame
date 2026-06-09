@@ -178,7 +178,7 @@ export function LeaderboardView({ data, onRefresh, refreshing, className }: Lead
               </span>
             </div>
             <span className="shrink-0 text-right text-base text-muted-foreground tabular-nums">
-              🍕 {row.totalSlices} · 🎒 {row.totalBackpackPieces}%
+              🍕 {row.totalSlices} · 🎒 {row.backpackProgressPercent}%
             </span>
           </div>
         ))}

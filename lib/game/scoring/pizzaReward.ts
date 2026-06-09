@@ -31,7 +31,7 @@ const pizzaFlatSchema = z.object({
 
 const pizzaScoredSchema = z.object({
   mode: z.literal("scored"),
-  maxSlices: z.number().min(0).max(5),
+  maxSlices: z.number().min(0).max(15),
   minRatioToComplete: z.number().min(0).max(1).optional(),
   rounding: roundingSchema.optional(),
   mapping: mappingSchema,
@@ -77,7 +77,7 @@ export function meetsScoredPizzaMinimum(ratio: number, pizzaRules: ParsedPizzaRu
 export function slicesFromRatio(ratio: number, rules: ParsedPizzaRules): number {
   const r = Math.min(1, Math.max(0, ratio));
   if (rules.kind === "flat") {
-    return clampInt(rules.slices, 0, 5);
+    return clampInt(rules.slices, 0, 15);
   }
 
   const rounding = rules.rounding ?? "floor";
@@ -114,7 +114,7 @@ export function parsePizzaRewardRules(rewardRules: Record<string, unknown> | nul
           : typeof legacy?.slices === "number"
             ? legacy.slices
             : 0;
-      return { kind: "flat", slices: clampInt(v, 0, 5) };
+      return { kind: "flat", slices: clampInt(v, 0, 15) };
     }
     return { kind: "flat", slices: 0 };
   }
@@ -122,12 +122,12 @@ export function parsePizzaRewardRules(rewardRules: Record<string, unknown> | nul
   const p = parsed.data;
   if (p.mode === "flat") {
     const v = p.value ?? p.slices ?? 0;
-    return { kind: "flat", slices: clampInt(v, 0, 5) };
+    return { kind: "flat", slices: clampInt(v, 0, 15) };
   }
 
   return {
     kind: "scored",
-    maxSlices: clampInt(p.maxSlices, 0, 5),
+    maxSlices: clampInt(p.maxSlices, 0, 15),
     minRatioToComplete: p.minRatioToComplete ?? 1,
     rounding: p.rounding ?? "floor",
     mapping: p.mapping,

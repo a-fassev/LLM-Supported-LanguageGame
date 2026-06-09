@@ -8,6 +8,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { taskScoring } from "./lib/scoring-defaults.mjs";
 
 const ROOT = path.join(process.cwd(), "lib/content/chapters/chapter-06");
 const ASSETS_ROOT = path.join(process.cwd(), "public/content-assets");
@@ -82,20 +83,6 @@ function quoteItalianDialogue(text) {
     return trimmed;
   }
   return `„${trimmed}"`;
-}
-
-function scoredPizza(overrides = {}) {
-  return {
-    backpack: { pieces: 1 },
-    pizza: {
-      mode: "scored",
-      maxSlices: 3,
-      minRatioToComplete: 0.85,
-      rounding: "floor",
-      mapping: { kind: "linear" },
-      ...overrides,
-    },
-  };
 }
 
 function tu(text) {
@@ -469,7 +456,7 @@ writeJson("quests/quest-02/scenes/03.json", {
       },
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.8 }),
+  scoring: taskScoring("matching", { minRatioToComplete: 0.8 }),
 });
 
 const interviewQuestions = [
@@ -546,7 +533,7 @@ writeJson("quests/quest-02/scenes/04.json", {
       },
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.75 }),
+  scoring: taskScoring("matching", { minRatioToComplete: 0.75 }),
 });
 
 writeJson("quests/quest-02/scenes/05.json", {
@@ -621,7 +608,7 @@ writeJson("quests/quest-02/scenes/05.json", {
       ],
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.8 }),
+  scoring: taskScoring("cloze", { minRatioToComplete: 0.8 }),
 });
 
 writeJson(
@@ -745,7 +732,7 @@ writeJson("quests/quest-03/scenes/03.json", {
       ],
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.8 }),
+  scoring: taskScoring("cloze", { minRatioToComplete: 0.8 }),
 });
 
 writeJson(
@@ -914,7 +901,7 @@ writeJson("quests/quest-04/scenes/03.json", {
       questions: quizQuestions,
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.75 }),
+  scoring: taskScoring("multiple_choice", { minRatioToComplete: 0.75 }),
 });
 
 writeJson(
@@ -988,7 +975,7 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
       },
     },
   },
-  scoring: scoredPizza({ maxSlices: 2, minRatioToComplete: 0.6 }),
+  scoring: taskScoring("matching", { minRatioToComplete: 0.6 }),
 });
 
 writeJson(

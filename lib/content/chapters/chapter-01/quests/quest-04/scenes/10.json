@@ -106,8 +106,13 @@
       "pieces": 1
     },
     "pizza": {
-      "mode": "flat",
-      "slices": 2
+      "mode": "scored",
+      "maxSlices": 5,
+      "minRatioToComplete": 0.75,
+      "rounding": "nearest",
+      "mapping": {
+        "kind": "linear"
+      }
     }
   }
 }

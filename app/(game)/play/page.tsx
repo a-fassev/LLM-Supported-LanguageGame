@@ -91,14 +91,14 @@ import {
 
 type RunState = {
   totalSlices: number;
-  totalBackpackPieces: number;
+  backpackProgressPercent: number;
   run: RunDto | null;
 };
 
 function mergeRunState(_current: RunState, data: RunSnapshotDto): RunState {
   return {
     totalSlices: data.totalSlices,
-    totalBackpackPieces: data.totalBackpackPieces,
+    backpackProgressPercent: data.backpackProgressPercent,
     run: data.run,
   };
 }
@@ -115,7 +115,7 @@ const QUEST_COMPLETE_STANDARD: TaskOutcomeDto = {
 function mergeAttemptState(_current: RunState, data: AttemptRunDto): RunState {
   return {
     totalSlices: data.totalSlices,
-    totalBackpackPieces: data.totalBackpackPieces,
+    backpackProgressPercent: data.backpackProgressPercent,
     run: data.run,
   };
 }
@@ -367,7 +367,7 @@ export default function PlayPage() {
 
   const { token, clearSession } = useGameSession();
   const mountedRef = useMountedRef();
-  const [state, setState] = useState<RunState>({ totalSlices: 0, totalBackpackPieces: 0, run: null });
+  const [state, setState] = useState<RunState>({ totalSlices: 0, backpackProgressPercent: 0, run: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mcSelections, setMcSelections] = useState<McSelectionsDraft | null>(null);
@@ -914,7 +914,7 @@ export default function PlayPage() {
         showHud={displayScene?.scene_type === "task"}
         showDocument={Boolean(referenceDocument)}
         totalSlices={state.totalSlices}
-        totalBackpackPieces={state.totalBackpackPieces}
+        backpackProgressPercent={state.backpackProgressPercent}
         onOpenPause={() => setPauseOpen(true)}
         onOpenDocument={referenceDocument ? () => setDocumentOpen(true) : undefined}
         showContentPanel={displayScene?.scene_type === "task"}

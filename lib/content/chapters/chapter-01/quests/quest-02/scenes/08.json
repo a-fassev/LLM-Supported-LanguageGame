@@ -26,10 +26,7 @@
           "acceptedCorrections": [
             "bisogna stare in piedi al banco",
             "devi stare in piedi al banco",
-            "stare in piedi al banco",
-            "stai in piedi al banco",
-            "bisogna stare al banco",
-            "stai al banco"
+            "stare in piedi al banco"
           ]
         },
         {
@@ -74,10 +71,7 @@
           "acceptedCorrections": [
             "più portate",
             "un pasto completo ha più portate",
-            "diverse portate",
-            "ci sono più piatti",
-            "più piatti",
-            "un pasto completo ha più piatti"
+            "diverse portate"
           ]
         },
         {
@@ -92,10 +86,7 @@
           "acceptedCorrections": [
             "si paga insieme",
             "si divide il conto",
-            "pagano insieme",
-            "c'è un conto per tutti",
-            "un conto per tutti",
-            "si fa un conto per tutti"
+            "pagano insieme"
           ]
         },
         {
@@ -112,9 +103,9 @@
     },
     "pizza": {
       "mode": "scored",
-      "maxSlices": 3,
+      "maxSlices": 10,
       "minRatioToComplete": 0.6,
-      "rounding": "floor",
+      "rounding": "nearest",
       "mapping": {
         "kind": "linear"
       }

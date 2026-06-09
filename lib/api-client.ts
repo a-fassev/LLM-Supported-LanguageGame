@@ -52,9 +52,18 @@ export type BootstrapChapterDto = {
   quests: BootstrapQuestDto[];
 };
 
-export type BootstrapDto = {
+export type BackpackProgressDto = {
+  backpackProgressPercent: number;
+  backpackCompletedTasks: number;
+  backpackTotalTasks: number;
+};
+
+export type WalletSnapshotDto = {
   totalSlices: number;
   totalBackpackPieces: number;
+} & BackpackProgressDto;
+
+export type BootstrapDto = WalletSnapshotDto & {
   completedQuestIds: string[];
   chapters: BootstrapChapterDto[];
 };
@@ -64,6 +73,7 @@ export type LeaderboardSelfDto = {
   team: TeamColor;
   totalSlices: number;
   totalBackpackPieces: number;
+  backpackProgressPercent: number;
   overallRank: number;
 };
 
@@ -73,6 +83,7 @@ export type LeaderboardPlayerDto = {
   team: TeamColor;
   totalSlices: number;
   totalBackpackPieces: number;
+  backpackProgressPercent: number;
   isSelf: boolean;
 };
 
@@ -146,9 +157,7 @@ export type {
   TaskReviewDto,
 } from "@/lib/game/task-review";
 
-export type RunSnapshotDto = {
-  totalSlices: number;
-  totalBackpackPieces: number;
+export type RunSnapshotDto = WalletSnapshotDto & {
   run: RunDto | null;
 };
 

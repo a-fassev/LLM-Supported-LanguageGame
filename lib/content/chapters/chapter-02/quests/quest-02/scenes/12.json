@@ -7,17 +7,17 @@
     "title": "Descrivi la professione",
     "instruction": "Scrivi una frase in italiano con un pronome relativo (che, cui o dove).",
     "referenceDocument": {
-      "title": "il giardiniere / la giardiniera",
+      "title": "il/la giardiniere/a",
       "body": "Guarda la foto e scrivi una frase con che, cui o dove.",
       "figures": [
         {
           "image": "chapters/02/quests/02/ref-prof-giardiniere",
-          "caption": "il giardiniere / la giardiniera"
+          "caption": "il/la giardiniere/a"
         }
       ]
     },
     "task": {
-      "prompt": "Descrivi la professione del giardiniere o della giardiniera con una frase. Usa che, cui o dove.",
+      "prompt": "Descrivi la professione del/la giardiniere/a con una frase. Usa che, cui o dove.",
       "targetLanguage": "it",
       "showWordCount": true,
       "minWords": 5,
@@ -49,9 +49,9 @@
     },
     "pizza": {
       "mode": "scored",
-      "maxSlices": 2,
+      "maxSlices": 15,
       "minRatioToComplete": 0.65,
-      "rounding": "floor",
+      "rounding": "nearest",
       "mapping": {
         "kind": "linear"
       }

@@ -8,6 +8,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { taskScoring } from "./lib/scoring-defaults.mjs";
 
 const ROOT = path.join(process.cwd(), "lib/content/chapters/chapter-03");
 const CHAPTER_ID = "chapter-03";
@@ -35,20 +36,6 @@ function story(chapterId, questId, n, bg, text) {
 
 function gap(answers, maxLength = 48) {
   return { kind: "gap", maxLength, correctAnswers: answers };
-}
-
-function scoredPizza(overrides = {}) {
-  return {
-    backpack: { pieces: 1 },
-    pizza: {
-      mode: "scored",
-      maxSlices: 3,
-      minRatioToComplete: 0.85,
-      rounding: "floor",
-      mapping: { kind: "linear" },
-      ...overrides,
-    },
-  };
 }
 
 function tu(text) {
@@ -472,7 +459,7 @@ writeJson("quests/quest-02/scenes/05.json", {
       ],
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.67 }),
+  scoring: taskScoring("multiple_choice", { minRatioToComplete: 0.67 }),
 });
 
 writeJson(
@@ -631,7 +618,7 @@ writeJson("quests/quest-03/scenes/09.json", {
       ],
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.78 }),
+  scoring: taskScoring("cloze", { minRatioToComplete: 0.78 }),
 });
 
 writeJson(
@@ -725,7 +712,7 @@ writeJson("quests/quest-03/scenes/14.json", {
       },
     },
   },
-  scoring: scoredPizza({ maxSlices: 2, minRatioToComplete: 0.75 }),
+  scoring: taskScoring("matching", { minRatioToComplete: 0.75 }),
 });
 
 writeJson("quests/quest-03/scenes/15.json", {
@@ -763,7 +750,7 @@ writeJson("quests/quest-03/scenes/15.json", {
       ],
     },
   },
-  scoring: scoredPizza({ maxSlices: 2, minRatioToComplete: 0.83 }),
+  scoring: taskScoring("cloze", { minRatioToComplete: 0.83 }),
 });
 
 writeJson(
@@ -916,7 +903,7 @@ writeJson("quests/quest-04/scenes/08.json", {
       ],
     },
   },
-  scoring: scoredPizza({ maxSlices: 2, minRatioToComplete: 0.75 }),
+  scoring: taskScoring("multiple_choice", { minRatioToComplete: 0.75 }),
 });
 
 writeJson(
@@ -1004,7 +991,7 @@ writeJson("quests/quest-04/scenes/11.json", {
       ],
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.85 }),
+  scoring: taskScoring("cloze", { minRatioToComplete: 0.85 }),
 });
 
 writeJson(
@@ -1119,7 +1106,7 @@ writeJson("quests/quest-04/scenes/15.json", {
       ],
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.69 }),
+  scoring: taskScoring("drag_drop", { minRatioToComplete: 0.69 }),
 });
 
 writeJson(
@@ -1217,16 +1204,7 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
       },
     },
   },
-  scoring: {
-    backpack: { pieces: 1 },
-    pizza: {
-      mode: "scored",
-      maxSlices: 3,
-      minRatioToComplete: 0.6,
-      rounding: "floor",
-      mapping: { kind: "linear" },
-    },
-  },
+  scoring: taskScoring("matching", { minRatioToComplete: 0.6 }),
 });
 
 console.log("Generated chapter-03 catalog under", ROOT);

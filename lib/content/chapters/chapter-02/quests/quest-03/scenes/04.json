@@ -16,7 +16,7 @@
         },
         {
           "title": "Alessandro Del Piero",
-          "body": "Alessandro Del Piero è nato il 9 novembre 1974 a Conegliano, una piccola città in Veneto. Da bambino la sua famiglia non era ricca: il padre lavorava come elettricista e la madre faceva la casalinga. Lui giocava a calcio nelle strade del paese con il fratello maggiore, Stefano. A tredici anni è entrato nella squadra giovanile del Padova, e a diciotto anni è arrivato alla Juventus, una delle squadre più famose d'Italia. Ha giocato per la Juventus per diciannove anni: nessun altro giocatore ha mai fatto una cosa simile. Per questo i tifosi gli hanno dato il soprannome \"Pinturicchio\" e poi \"Capitano\". Con la Juventus ha vinto molti campionati italiani, ma il momento più bello della sua carriera è arrivato nel 2006: con la nazionale italiana ha vinto la Coppa del Mondo in Germania. Tutti gli italiani ricordano il suo gol nella semifinale contro i tedeschi. Oggi Del Piero non gioca più, ma lavora come commentatore in TV e aiuta i giovani calciatori con la sua fondazione. È sposato con Sonia e ha tre figli."
+          "body": "Alessandro Del Piero è nato il 9 novembre 1974 a Conegliano, una piccola città in Veneto. Da bambino la sua famiglia non era ricca: il padre lavorava come elettricista e la madre stava a casa. Lui giocava a calcio nelle strade del paese con il fratello maggiore Stefano. A tredici anni è entrato nella squadra giovanile del Padova, e a diciotto anni è arrivato alla Juventus, una delle squadre più famose d'Italia. Ha giocato per la Juventus per diciannove anni: nessun altro giocatore ha fatto la stessa cosa. Per questo i tifosi gli hanno dato il soprannome \"Pinturicchio\" e poi \"Capitano\". Con la Juventus ha vinto molti campionati italiani, ma il momento più bello della sua carriera è arrivato nel 2006: con la nazionale italiana ha vinto la Coppa del Mondo in Germania. Tutti gli italiani ricordano il suo gol nella semifinale contro i tedeschi. Oggi Del Piero non gioca più, ma lavora come commentatore in TV e aiuta i giovani calciatori con la sua fondazione. È sposato con Sonia e ha tre figli."
         },
         {
           "title": "Chiara Ferragni",
@@ -45,18 +45,18 @@
             },
             {
               "kind": "text",
-              "text": "\nanno di nascita: "
+              "text": "\netà (oppure data di nascita): "
             },
             {
               "kind": "gap",
               "maxLength": 48,
               "correctAnswers": [
-                "nato nel 1979",
-                "1979",
-                "nato nel 1974",
-                "1974",
-                "nata nel 1987",
-                "1987"
+                "nato il 22 settembre 1979",
+                "22 settembre 1979",
+                "nato il 9 novembre 1974",
+                "9 novembre 1974",
+                "nata il 7 maggio 1987",
+                "7 maggio 1987"
               ]
             },
             {
@@ -141,9 +141,9 @@
     },
     "pizza": {
       "mode": "scored",
-      "maxSlices": 2,
+      "maxSlices": 10,
       "minRatioToComplete": 0.85,
-      "rounding": "floor",
+      "rounding": "nearest",
       "mapping": {
         "kind": "linear"
       }

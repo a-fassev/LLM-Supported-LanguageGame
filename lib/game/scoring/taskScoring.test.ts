@@ -35,9 +35,9 @@ describe("pizzaReward", () => {
     expect(rules.slices).toBe(3);
   });
 
-  it("clamps flat slices in slicesFromRatio to max 5 (matches parse cap)", () => {
+  it("clamps flat slices in slicesFromRatio to max 15 (matches parse cap)", () => {
     const flat: ParsedPizzaRules = { kind: "flat", slices: 99 };
-    expect(slicesFromRatio(1, flat)).toBe(5);
+    expect(slicesFromRatio(1, flat)).toBe(15);
   });
 
   it("meetsScoredPizzaMinimum respects minRatioToComplete for scored rules only", () => {

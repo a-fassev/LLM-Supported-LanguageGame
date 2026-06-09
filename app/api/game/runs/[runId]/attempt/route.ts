@@ -3,6 +3,7 @@ import { getClientIp, jsonError, jsonOk } from "@/lib/http";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { apiRouteMessages as routeMsg } from "@/lib/game/clientMessages";
 import { completeTaskScene } from "@/lib/game/services/game-progress-service";
+import { walletSnapshotJson } from "@/lib/game/wallet-snapshot-json";
 
 export const runtime = "nodejs";
 
@@ -54,8 +55,7 @@ export async function POST(
   }
 
   return jsonOk({
-    totalSlices: result.totalSlices,
-    totalBackpackPieces: result.totalBackpackPieces,
+    ...walletSnapshotJson(result),
     run: result.run,
     ...(result.taskOutcome ? { taskOutcome: result.taskOutcome } : {}),
     ...(result.taskReview ? { taskReview: result.taskReview } : {}),

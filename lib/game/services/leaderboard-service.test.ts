@@ -3,6 +3,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   getStudentAccountLeaderboardSelfContext: vi.fn(),
   listLeaderboardPlayerRows: vi.fn(),
+  loadContentCatalog: vi.fn(),
+}));
+
+const mockBackpackCatalog = {
+  chapters: [
+    {
+      id: "chapter-01",
+      questsExpanded: [{ scenes: Array.from({ length: 10 }, () => ({ scene_type: "task" })) }],
+    },
+  ],
+};
+
+vi.mock("@/lib/game/content/catalog-loader", () => ({
+  loadContentCatalog: mocks.loadContentCatalog,
 }));
 
 vi.mock("@/lib/game/repositories/game-progress-repository", async (importOriginal) => {
@@ -21,6 +35,7 @@ const otherId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.loadContentCatalog.mockResolvedValue(mockBackpackCatalog);
 });
 
 describe("getLeaderboardState", () => {
@@ -47,12 +62,14 @@ describe("getLeaderboardState", () => {
       username: "top",
       isSelf: false,
       totalBackpackPieces: 3,
+      backpackProgressPercent: 30,
     });
     expect(result.overall[1]).toMatchObject({
       rank: 2,
       username: "me",
       isSelf: true,
       totalBackpackPieces: 1,
+      backpackProgressPercent: 10,
     });
     expect(result.teams[0]).toMatchObject({
       rank: 1,
@@ -71,6 +88,7 @@ describe("getLeaderboardState", () => {
       overallRank: 2,
       totalSlices: 5,
       totalBackpackPieces: 1,
+      backpackProgressPercent: 10,
     });
   });
 
