@@ -25,18 +25,7 @@ jobs:
         run: npm ci
 
       - name: Build app
-        run: npm run build -- --webpack
-
-      - name: Materialize Next external package links                                                                                                  
-          shell: bash                                                                                                                                    
-          run: |                                                                                                                                         
-            if [ -d .next/node_modules ]; then                                                                                                           
-              find .next/node_modules -maxdepth 1 -type l -print0 | while IFS= read -r -d '' link; do                                                    
-                target="$(readlink -f "$link")"                                                                                                          
-                rm "$link"                                                                                                                               
-                cp -R "$target" "$link"                                                                                                                  
-              done                                                                                                                                       
-            fi        
+        run: npm run build -- --webpack       
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
