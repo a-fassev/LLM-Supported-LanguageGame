@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import type { RunSceneDto } from "@/lib/api-client";
+import type { RunSceneDto, TaskOutcomeDto, TaskReviewDto } from "@/lib/api-client";
 import { StoryPanel } from "@/components/game/shell/StoryPanel";
 import { TaskChrome } from "@/components/game/shell/TaskChrome";
 import { TaskPanel } from "@/components/game/tasks/TaskPanel";
@@ -35,6 +35,12 @@ type SceneRouterProps = {
   canRetreat: boolean;
   sceneNavPending: boolean;
   taskSubmitting: boolean;
+  reviewMode?: boolean;
+  taskReview?: TaskReviewDto | null;
+  /** After «Mostra soluzione», footer primary continues the attempt flow (Avanti / Riprova). */
+  postAttemptOutcome?: TaskOutcomeDto | null;
+  postAttemptContinueLabel?: string;
+  onPostAttemptContinue?: () => void;
   onMcSelectionsChange: (selections: McSelectionsDraft) => void;
   onMcQuestionIndexChange: (index: number) => void;
   onMatchingPairsChange: (updater: MatchingPairsUpdater) => void;
@@ -78,6 +84,11 @@ export function SceneRouter({
   canRetreat,
   sceneNavPending,
   taskSubmitting,
+  reviewMode,
+  taskReview,
+  postAttemptOutcome,
+  postAttemptContinueLabel,
+  onPostAttemptContinue,
   onMcSelectionsChange,
   onMcQuestionIndexChange,
   onMatchingPairsChange,
@@ -118,8 +129,19 @@ export function SceneRouter({
   }
 
   const multiQuestionMc = mcNav != null && mcNav.questionCount > 1;
+  const inPostAttemptContinue = postAttemptOutcome != null;
+  const reviewMcBetweenQuestions =
+    inPostAttemptContinue && multiQuestionMc && mcNav != null && !mcNav.isLastQuestion;
 
   function handleTaskPrimary() {
+    if (reviewMcBetweenQuestions && mcNav) {
+      onMcQuestionIndexChange(mcNav.safeIndex + 1);
+      return;
+    }
+    if (inPostAttemptContinue) {
+      onPostAttemptContinue?.();
+      return;
+    }
     if (multiQuestionMc && mcNav && !mcNav.isLastQuestion) {
       onMcQuestionIndexChange(mcNav.safeIndex + 1);
       return;
@@ -128,6 +150,13 @@ export function SceneRouter({
   }
 
   function handleTaskRetreat() {
+    if (inPostAttemptContinue && multiQuestionMc && mcNav && !mcNav.isFirstQuestion) {
+      onMcQuestionIndexChange(mcNav.safeIndex - 1);
+      return;
+    }
+    if (inPostAttemptContinue) {
+      return;
+    }
     if (multiQuestionMc && mcNav && !mcNav.isFirstQuestion) {
       onMcQuestionIndexChange(mcNav.safeIndex - 1);
       return;
@@ -135,27 +164,35 @@ export function SceneRouter({
     void onRetreatScene();
   }
 
-  const primaryLabel = taskSubmitting
-    ? multiQuestionMc && mcNav && !mcNav.isLastQuestion
-      ? "..."
-      : "Controllo..."
-    : multiQuestionMc && mcNav && !mcNav.isLastQuestion
-      ? "Avanti"
-      : "Controlla";
+  const primaryLabel = reviewMcBetweenQuestions
+    ? "Avanti"
+    : inPostAttemptContinue
+      ? (postAttemptContinueLabel ??
+        (postAttemptOutcome?.kind === "success" ? "Avanti" : "Riprova"))
+      : taskSubmitting
+        ? multiQuestionMc && mcNav && !mcNav.isLastQuestion
+          ? "..."
+          : "Controllo..."
+        : multiQuestionMc && mcNav && !mcNav.isLastQuestion
+          ? "Avanti"
+          : "Controlla";
 
   const retreatWithinQuestions = multiQuestionMc && mcNav != null && !mcNav.isFirstQuestion;
-  const retreatDisabled =
-    sceneNavPending ||
-    taskSubmitting ||
-    (!retreatWithinQuestions && !canRetreat);
+  const retreatDisabled = inPostAttemptContinue
+    ? !retreatWithinQuestions
+    : sceneNavPending ||
+      taskSubmitting ||
+      (!retreatWithinQuestions && !canRetreat);
 
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col">
       <TaskChrome
         instructions={readTaskChromeInstructions(scene)}
         primaryLabel={primaryLabel}
-        primaryDisabled={taskSubmitting}
-        canRetreat={canRetreat || retreatWithinQuestions}
+        primaryDisabled={taskSubmitting && !inPostAttemptContinue}
+        canRetreat={
+          inPostAttemptContinue ? retreatWithinQuestions : canRetreat || retreatWithinQuestions
+        }
         retreatDisabled={retreatDisabled}
         retreatLabel={sceneNavPending ? "..." : "Indietro"}
         onRetreat={handleTaskRetreat}
@@ -177,7 +214,9 @@ export function SceneRouter({
           errorSpottingValidationError={errorSpottingValidationError}
           clozeAnswers={clozeAnswers}
           clozeValidationError={clozeValidationError}
-          taskDisabled={taskSubmitting}
+          taskDisabled={taskSubmitting || reviewMode}
+          reviewMode={reviewMode}
+          taskReview={taskReview}
           onMcSelectionsChange={onMcSelectionsChange}
           onMatchingPairsChange={onMatchingPairsChange}
           onDragDropAssignmentsChange={onDragDropAssignmentsChange}

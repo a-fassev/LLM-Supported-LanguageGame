@@ -2,6 +2,10 @@
 
 import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
+import {
+  TASK_REVIEW_CORRECT,
+  TASK_REVIEW_INCORRECT,
+} from "@/lib/game/task-review-styles";
 import { TASK_PLAY_BODY_TEXT } from "@/lib/game/task-typography";
 
 type MatchingCardProps = {
@@ -12,6 +16,7 @@ type MatchingCardProps = {
   paired?: boolean;
   hasTrailingAction?: boolean;
   disabled?: boolean;
+  reviewStatus?: "correct" | "incorrect" | null;
   onPointerDown?: (event: React.PointerEvent<HTMLButtonElement>) => void;
   onPointerUp?: (event: React.PointerEvent<HTMLButtonElement>) => void;
   onKeyDown?: (event: React.KeyboardEvent<HTMLButtonElement>) => void;
@@ -26,6 +31,7 @@ export const MatchingCard = forwardRef<HTMLButtonElement, MatchingCardProps>(fun
     paired = false,
     hasTrailingAction = false,
     disabled = false,
+    reviewStatus = null,
     onPointerDown,
     onPointerUp,
     onKeyDown,
@@ -49,8 +55,10 @@ export const MatchingCard = forwardRef<HTMLButtonElement, MatchingCardProps>(fun
         hasTrailingAction && "pr-9",
         "hover:bg-accent/40 disabled:cursor-not-allowed disabled:opacity-60",
         selected && side === "left" && "border-l-[3px] border-l-[var(--matching-line-color)] pl-[calc(0.75rem-3px)]",
-        paired && "border-primary/40 bg-primary/5",
-        !selected && !paired && "border-border",
+        paired && !reviewStatus && "border-primary/40 bg-primary/5",
+        reviewStatus === "correct" && TASK_REVIEW_CORRECT,
+        reviewStatus === "incorrect" && TASK_REVIEW_INCORRECT,
+        !selected && !paired && !reviewStatus && "border-border",
       )}
     >
       {label}

@@ -8,7 +8,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { TaskOutcomeDto } from "@/lib/api-client";
+import { FreetextReviewOverlaySection } from "@/components/game/overlays/FreetextReviewOverlaySection";
+import type { FreitextTaskReview, TaskOutcomeDto } from "@/lib/api-client";
+import { cn } from "@/lib/utils";
 
 type SuccessOverlayProps = {
   open: boolean;
@@ -21,6 +23,7 @@ type SuccessOverlayProps = {
     onClick: () => void;
   };
   showRewardSummary?: boolean;
+  freetextReview?: FreitextTaskReview | null;
 };
 
 export function SuccessOverlay({
@@ -31,16 +34,23 @@ export function SuccessOverlay({
   primaryLabel,
   secondaryAction,
   showRewardSummary = true,
+  freetextReview,
 }: SuccessOverlayProps) {
   if (!outcome) return null;
 
   const defaultPrimary = outcome.kind === "success" ? "Avanti" : "Riprova";
+  const hasFreetextReview = freetextReview != null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="game-panel max-w-md gap-0 border-0 p-0 shadow-lg ring-0 sm:max-w-md"
+        className={cn(
+          "game-panel gap-0 border-0 p-0 shadow-lg ring-0",
+          hasFreetextReview
+            ? "max-h-[min(85vh,36rem)] max-w-md overflow-y-auto sm:max-w-lg"
+            : "max-w-md sm:max-w-md",
+        )}
       >
         <div className="game-panel-inset flex flex-col gap-5 text-base">
           <DialogHeader className="gap-3 text-left">
@@ -53,6 +63,13 @@ export function SuccessOverlay({
               <span>🎒 +{outcome.awardedBackpackPieces}</span>
               <span className="tabular-nums">{Math.round(outcome.ratio * 100)}%</span>
             </div>
+          ) : null}
+          {freetextReview ? (
+            <FreetextReviewOverlaySection
+              review={freetextReview}
+              showSummary={outcome.kind === "success"}
+              showDimensions={outcome.kind === "success"}
+            />
           ) : null}
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
             {secondaryAction ? (

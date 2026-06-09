@@ -31,12 +31,10 @@ describe("evaluateFreitextLlmScene", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     envMock.mockReturnValue({
-      nvidiaApiKey: "key",
-      nvidiaBaseUrl: "https://example.test",
-      nvidiaEvalModel: "test-model",
+      geminiApiKeys: ["key-1"],
+      geminiModel: "gemini-3.5-flash",
       llmTimeoutMs: 5000,
       llmMaxRetries: 0,
-      gateTtlMinutes: 25,
     });
   });
 

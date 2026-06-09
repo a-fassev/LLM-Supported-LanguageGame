@@ -3,6 +3,7 @@
 import { useId } from "react";
 import { MatchingCard } from "@/components/game/tasks/types/matching/MatchingCard";
 import { cn } from "@/lib/utils";
+import { TASK_REVIEW_HINT_TEXT } from "@/lib/game/task-review-styles";
 import { TASK_PLAY_SECTION_LABEL_TEXT } from "@/lib/game/task-typography";
 import type { MatchingItemView } from "@/lib/game/tasks/matching/matching-types";
 
@@ -21,6 +22,11 @@ type MatchingColumnProps = {
   onRightPointerUp?: (rightId: string, event: React.PointerEvent<HTMLButtonElement>) => void;
   onRightKeyDown?: (rightId: string, event: React.KeyboardEvent<HTMLButtonElement>) => void;
   onUnpair?: (leftId: string) => void;
+  reviewMode?: boolean;
+  reviewByLeftId?: Record<
+    string,
+    { isCorrect: boolean; learnerLabel: string | null; correctLabel: string }
+  >;
 };
 
 export function MatchingColumn({
@@ -38,6 +44,8 @@ export function MatchingColumn({
   onRightPointerUp,
   onRightKeyDown,
   onUnpair,
+  reviewMode,
+  reviewByLeftId,
 }: MatchingColumnProps) {
   const headerId = useId();
 
@@ -51,8 +59,9 @@ export function MatchingColumn({
           ? items.map((item) => {
               const pairedRightId = pairs[item.id];
               const paired = Boolean(pairedRightId);
+              const review = reviewByLeftId?.[item.id];
               return (
-                <div key={item.id} className="relative w-full">
+                <div key={item.id} className="relative w-full space-y-1">
                   <MatchingCard
                     ref={(node) => registerRef(item.id, node)}
                     id={item.id}
@@ -60,13 +69,25 @@ export function MatchingColumn({
                     side="left"
                     selected={selectedLeftId === item.id}
                     paired={paired}
-                    hasTrailingAction={paired}
+                    hasTrailingAction={paired && !reviewMode}
                     disabled={disabled}
+                    reviewStatus={
+                      reviewMode && review
+                        ? review.isCorrect
+                          ? "correct"
+                          : "incorrect"
+                        : null
+                    }
                     onPointerDown={(event) => onLeftPointerDown?.(item.id, event)}
                     onPointerUp={(event) => onLeftPointerUp?.(item.id, event)}
                     onKeyDown={(event) => onLeftKeyDown?.(item.id, event)}
                   />
-                  {paired ? (
+                  {reviewMode && review && !review.isCorrect ? (
+                    <p className={TASK_REVIEW_HINT_TEXT}>
+                      Corretto: {review.correctLabel}
+                    </p>
+                  ) : null}
+                  {paired && !reviewMode ? (
                     <button
                       type="button"
                       aria-label="Rimuovi collegamento"

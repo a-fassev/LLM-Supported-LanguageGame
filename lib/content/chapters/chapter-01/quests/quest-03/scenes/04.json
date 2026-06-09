@@ -15,7 +15,7 @@
           "segments": [
             {
               "kind": "text",
-              "text": "Ciao Toni! "
+              "text": "Ciao cugino/a! "
             },
             {
               "kind": "gap",
@@ -105,8 +105,8 @@
               "kind": "gap",
               "maxLength": 24,
               "correctAnswers": [
-                "ti",
-                "Ti"
+                "le",
+                "Le"
               ]
             },
             {
@@ -148,9 +148,9 @@
     },
     "pizza": {
       "mode": "scored",
-      "maxSlices": 3,
+      "maxSlices": 10,
       "minRatioToComplete": 0.85,
-      "rounding": "floor",
+      "rounding": "nearest",
       "mapping": {
         "kind": "linear"
       }

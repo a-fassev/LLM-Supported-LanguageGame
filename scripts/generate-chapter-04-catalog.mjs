@@ -8,6 +8,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { taskScoring } from "./lib/scoring-defaults.mjs";
 
 const ROOT = path.join(process.cwd(), "lib/content/chapters/chapter-04");
 const ASSETS_ROOT = path.join(process.cwd(), "public/content-assets");
@@ -82,34 +83,6 @@ function story(chapterId, questId, n, bg, text) {
 
 function gap(answers, maxLength = 64) {
   return { kind: "gap", maxLength, correctAnswers: answers };
-}
-
-function scoredPizza(overrides = {}) {
-  return {
-    backpack: { pieces: 1 },
-    pizza: {
-      mode: "scored",
-      maxSlices: 3,
-      minRatioToComplete: 0.85,
-      rounding: "floor",
-      mapping: { kind: "linear" },
-      ...overrides,
-    },
-  };
-}
-
-function scoredFreetext(overrides = {}) {
-  return {
-    backpack: { pieces: 1 },
-    pizza: {
-      mode: "scored",
-      maxSlices: 3,
-      minRatioToComplete: 0.65,
-      rounding: "floor",
-      mapping: { kind: "linear" },
-      ...overrides,
-    },
-  };
 }
 
 function freetextEvaluation(criteria, registerTarget = "informal") {
@@ -316,7 +289,7 @@ const bonusPoolPairs = [
 // --- chapter + quests ---
 writeJson("chapter.json", {
   id: CHAPTER_ID,
-  title: "Bologna — quarto giorno",
+  title: "Amici e sentimenti",
   order: 4,
   locked: false,
   quests: ["quest-01", "quest-02", "quest-03", "quest-04", "quest-01-bonus"],
@@ -534,7 +507,7 @@ writeJson("quests/quest-02/scenes/07.json", {
       ]),
     },
   },
-  scoring: scoredFreetext(),
+  scoring: taskScoring("free_text", { minRatioToComplete: 0.65 }),
 });
 
 writeJson(
@@ -664,7 +637,7 @@ writeJson("quests/quest-02/scenes/14.json", {
       ],
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.81 }),
+  scoring: taskScoring("cloze", { minRatioToComplete: 0.81 }),
 });
 
 writeJson(
@@ -720,7 +693,7 @@ writeJson("quests/quest-02/scenes/16.json", {
       segments: errorSegments,
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.75 }),
+  scoring: taskScoring("error_spotting", { minRatioToComplete: 0.75 }),
 });
 
 writeJson(
@@ -824,7 +797,7 @@ writeJson("quests/quest-03/scenes/04.json", {
       ),
     },
   },
-  scoring: scoredFreetext(),
+  scoring: taskScoring("free_text", { minRatioToComplete: 0.65 }),
 });
 
 writeJson(
@@ -943,7 +916,7 @@ writeJson("quests/quest-04/scenes/05.json", {
       ],
     },
   },
-  scoring: scoredPizza({ maxSlices: 2, minRatioToComplete: 0.75 }),
+  scoring: taskScoring("multiple_choice", { minRatioToComplete: 0.75 }),
 });
 
 writeJson(
@@ -1055,7 +1028,7 @@ writeJson("quests/quest-04/scenes/09.json", {
       ],
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.75 }),
+  scoring: taskScoring("cloze", { minRatioToComplete: 0.75 }),
 });
 
 writeJson(
@@ -1153,7 +1126,7 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
       },
     },
   },
-  scoring: scoredPizza({ maxSlices: 2, minRatioToComplete: 0.6 }),
+  scoring: taskScoring("matching", { minRatioToComplete: 0.6 }),
 });
 
 const chapter04AssetKeys = collectChapter04AssetKeys(

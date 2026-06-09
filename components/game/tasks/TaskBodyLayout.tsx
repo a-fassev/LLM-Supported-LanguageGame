@@ -45,11 +45,12 @@ export function TaskBodyLayout({ prompt, beforeScroll, children, fillScroll }: T
       ) : null}
       {beforeScroll}
       <div
+        data-task-body-scroll
         className={cn(
-          "min-h-0",
+          "min-h-0 p-px",
           fillScroll
             ? "scrollbar-hide flex flex-1 flex-col overflow-hidden overflow-x-hidden overscroll-y-contain"
-            : "shrink-0 overflow-visible",
+            : "flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain",
         )}
       >
         {scrollContent}

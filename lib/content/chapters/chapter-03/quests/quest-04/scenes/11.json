@@ -63,7 +63,7 @@
             },
             {
               "kind": "text",
-              "text": " tante informazioni su molte attrazioni già prima di visitare la nuova città. Ma se "
+              "text": " molte attrazioni già prima di visitare la nuova città. Ma se "
             },
             {
               "kind": "gap",
@@ -244,9 +244,9 @@
     },
     "pizza": {
       "mode": "scored",
-      "maxSlices": 3,
+      "maxSlices": 10,
       "minRatioToComplete": 0.85,
-      "rounding": "floor",
+      "rounding": "nearest",
       "mapping": {
         "kind": "linear"
       }

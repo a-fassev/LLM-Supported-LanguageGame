@@ -553,6 +553,10 @@ describe("game-progress-service run flows", () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.taskOutcome?.ratio).toBe(1);
+      expect(result.taskReview?.screenType).toBe("matching");
+      if (result.taskReview?.screenType === "matching") {
+        expect(result.taskReview.pairs.every((pair) => pair.isCorrect)).toBe(true);
+      }
     }
     expect(repoMocks.completeSceneOnce).toHaveBeenCalled();
     expect(repoMocks.insertSceneMaterializationIfAbsent).not.toHaveBeenCalled();
@@ -587,6 +591,10 @@ describe("game-progress-service run flows", () => {
       expect(result.status).toBe(409);
       expect(result.code).toBe("task_min_ratio_not_met");
       expect(result.taskOutcome?.kind).toBe("retry");
+      expect(result.taskReview?.screenType).toBe("matching");
+      if (result.taskReview?.screenType === "matching") {
+        expect(result.taskReview.pairs.some((pair) => !pair.isCorrect)).toBe(true);
+      }
     }
     expect(repoMocks.completeSceneOnce).not.toHaveBeenCalled();
   });

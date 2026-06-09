@@ -61,6 +61,7 @@ describe("getRunSnapshot", () => {
     repoMocks.ensureWalletRow.mockResolvedValue(true);
     repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 0, totalBackpackPieces: 0 });
     repoMocks.getActiveQuestRun.mockResolvedValue(null);
+    catalogMocks.loadContentCatalog.mockResolvedValue({ chapters: [] });
     repoMocks.getCompletedSceneIds.mockResolvedValue([]);
     repoMocks.getSceneMaterialization.mockResolvedValue({ ok: true, materializedTask: null });
     repoMocks.insertSceneMaterializationIfAbsent.mockResolvedValue(true);
@@ -71,6 +72,8 @@ describe("getRunSnapshot", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) throw new Error("expected ok");
     expect(result.run).toBeNull();
+    expect(result.backpackProgressPercent).toBe(0);
+    expect(result.backpackTotalTasks).toBe(0);
   });
 
   it("rejects snapshot for in-progress run in manually locked chapter", async () => {

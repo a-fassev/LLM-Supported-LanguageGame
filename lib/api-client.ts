@@ -52,9 +52,18 @@ export type BootstrapChapterDto = {
   quests: BootstrapQuestDto[];
 };
 
-export type BootstrapDto = {
+export type BackpackProgressDto = {
+  backpackProgressPercent: number;
+  backpackCompletedTasks: number;
+  backpackTotalTasks: number;
+};
+
+export type WalletSnapshotDto = {
   totalSlices: number;
   totalBackpackPieces: number;
+} & BackpackProgressDto;
+
+export type BootstrapDto = WalletSnapshotDto & {
   completedQuestIds: string[];
   chapters: BootstrapChapterDto[];
 };
@@ -64,6 +73,7 @@ export type LeaderboardSelfDto = {
   team: TeamColor;
   totalSlices: number;
   totalBackpackPieces: number;
+  backpackProgressPercent: number;
   overallRank: number;
 };
 
@@ -73,6 +83,7 @@ export type LeaderboardPlayerDto = {
   team: TeamColor;
   totalSlices: number;
   totalBackpackPieces: number;
+  backpackProgressPercent: number;
   isSelf: boolean;
 };
 
@@ -130,14 +141,29 @@ export type TaskOutcomeDto = {
   body: string;
 };
 
-export type RunSnapshotDto = {
-  totalSlices: number;
-  totalBackpackPieces: number;
+export type {
+  ClozeGapReview,
+  ClozeTaskReview,
+  DragDropTargetReview,
+  DragDropTaskReview,
+  ErrorSpottingSegmentReview,
+  ErrorSpottingTaskReview,
+  FreitextDimensionReview,
+  FreitextTaskReview,
+  MatchingPairReview,
+  MatchingTaskReview,
+  McQuestionReview,
+  MultipleChoiceTaskReview,
+  TaskReviewDto,
+} from "@/lib/game/task-review";
+
+export type RunSnapshotDto = WalletSnapshotDto & {
   run: RunDto | null;
 };
 
 export type AttemptRunDto = RunSnapshotDto & {
   taskOutcome?: TaskOutcomeDto;
+  taskReview?: import("@/lib/game/task-review").TaskReviewDto;
 };
 
 type RequestOptions = {
@@ -277,4 +303,14 @@ export function attemptRun(
     token,
     body: input,
   });
+}
+
+export function readTaskReview(
+  error: ApiErrorResult,
+): import("@/lib/game/task-review").TaskReviewDto | null {
+  const raw = error.details?.taskReview;
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const screenType = (raw as { screenType?: unknown }).screenType;
+  if (typeof screenType !== "string") return null;
+  return raw as import("@/lib/game/task-review").TaskReviewDto;
 }

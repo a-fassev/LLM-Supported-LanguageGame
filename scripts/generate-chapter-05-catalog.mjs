@@ -8,6 +8,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { taskScoring } from "./lib/scoring-defaults.mjs";
 
 const ROOT = path.join(process.cwd(), "lib/content/chapters/chapter-05");
 const ASSETS_ROOT = path.join(process.cwd(), "public/content-assets");
@@ -82,20 +83,6 @@ function quoteItalianDialogue(text) {
     return trimmed;
   }
   return `„${trimmed}"`;
-}
-
-function scoredPizza(overrides = {}) {
-  return {
-    backpack: { pieces: 1 },
-    pizza: {
-      mode: "scored",
-      maxSlices: 3,
-      minRatioToComplete: 0.85,
-      rounding: "floor",
-      mapping: { kind: "linear" },
-      ...overrides,
-    },
-  };
 }
 
 function tu(text) {
@@ -240,7 +227,7 @@ const bonusPoolPairs = [
 
 writeJson("chapter.json", {
   id: CHAPTER_ID,
-  title: "Bologna — quinto giorno",
+  title: "La gita di classe",
   order: 5,
   locked: false,
   quests: ["quest-01", "quest-02", "quest-03", "quest-04", "quest-01-bonus"],
@@ -460,7 +447,7 @@ writeJson("quests/quest-02/scenes/04.json", {
       ],
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.8 }),
+  scoring: taskScoring("multiple_choice", { minRatioToComplete: 0.8 }),
 });
 writeJson(
   "quests/quest-02/scenes/05.json",
@@ -578,7 +565,7 @@ writeJson("quests/quest-03/scenes/04.json", {
       ],
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.75 }),
+  scoring: taskScoring("drag_drop", { minRatioToComplete: 0.75 }),
 });
 
 writeJson("quests/quest-03/scenes/05.json", {
@@ -640,7 +627,7 @@ writeJson("quests/quest-03/scenes/05.json", {
       ],
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.83 }),
+  scoring: taskScoring("cloze", { minRatioToComplete: 0.83 }),
 });
 
 writeJson(
@@ -750,7 +737,7 @@ writeJson("quests/quest-04/scenes/04.json", {
       ],
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.82 }),
+  scoring: taskScoring("cloze", { minRatioToComplete: 0.82 }),
 });
 
 const imperativoLeft = [
@@ -803,7 +790,7 @@ writeJson("quests/quest-04/scenes/05.json", {
       },
     },
   },
-  scoring: scoredPizza({ maxSlices: 3, minRatioToComplete: 0.75 }),
+  scoring: taskScoring("matching", { minRatioToComplete: 0.75 }),
 });
 
 writeJson(
@@ -880,7 +867,7 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
       },
     },
   },
-  scoring: scoredPizza({ maxSlices: 2, minRatioToComplete: 0.6 }),
+  scoring: taskScoring("matching", { minRatioToComplete: 0.6 }),
 });
 
 const chapter05AssetKeys = collectChapter05AssetKeys(

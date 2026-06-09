@@ -99,7 +99,7 @@ Optional CLIs when MCP is not enough: **GitHub** (`gh`) for PRs and CI; **Supaba
 | Styling           | **Tailwind CSS v4**, **shadcn/ui**     | `app/globals.css`, `components.json`, `components/ui/`; **`shadcn` npm package** required for `@import "shadcn/tailwind.css"` |
 | Data / auth       | **Supabase** (`@supabase/supabase-js`) | Postgres + RLS in linked project; `SUPABASE_SECRET_KEY` server-only |
 | Validation        | **Zod 4**                              | Step payloads, attempts, pizza rules                                |
-| LLM               | **LangChain** + OpenAI-compatible API  | **FreitextLlm** evaluate only (`lib/llm/`)                          |
+| LLM               | **LangChain** + **Google Gemini** (AI Studio) | **FreitextLlm** evaluate only (`lib/llm/`)                    |
 | Passwords         | **argon2**                             | Registration / login                                                |
 | Tests             | **Vitest 4**                           | `npm test` — Node environment, `**/*.test.ts`                       |
 | Lint              | **ESLint 9** + `eslint-config-next`    | `npm run lint` → `eslint .` (`next lint` removed in Next 16)        |
@@ -148,7 +148,7 @@ Do **not** mirror player persistence (chapters unlocked, run step index, pizza t
 - One quest step screen: local state for **in-progress input** until the player taps **Controlla** / submit; then POST to the API and use the response (and server refresh) for feedback and rewards.
 - Cutscene/story steps: minimal state (current beat index only if the server does not drive it via `advance`).
 - Shared chrome (pause, documento open): lift state only as high as needed—Context is fine for **session + shell chrome**, not for game progression.
-- **Success overlay after pass:** Server advances `run.currentScene` before the player dismisses UI. On task success with `taskOutcome`, `/play` holds **background** (`backgroundHoldKey`) and **chrome** (`chromeHoldScene` → `displayScene` for `TaskPanel` / header / MC index) on the **submitted** scene; defer `syncTaskDraftsForScene` until overlay dismiss (`pendingDraftSyncSceneRef`). Same chrome hold for quest-complete overlays (`onAdvanceStory` when a quest ends). After dismiss, `/play` normally returns to the **chapter mission list** (`/chapters/[chapterId]`); when `run.isGameFinaleQuest` (chapter `gameFinale: true`, last quest in `chapter.json` → `quests[]` completed), overlay uses `QUEST_COMPLETE_GAME_FINALE` from `lib/game/game-finale.ts` and primary **«Torna al menu»** → `/menu`. Retry **409** skips draft sync so answers stay in place.
+- **Success overlay after pass:** Server advances `run.currentScene` before the player dismisses UI. On task success with `taskOutcome`, `/play` holds **background** (`backgroundHoldKey`) and **chrome** (`chromeHoldScene` → `displayScene` for `TaskPanel` / header / MC index) on the **submitted** scene; defer `syncTaskDraftsForScene` until overlay dismiss (`pendingDraftSyncSceneRef`). Same chrome hold for quest-complete overlays (`onAdvanceStory` when a quest ends). After dismiss, `/play` normally returns to the **chapter mission list** (`/chapters/[chapterId]`); when `run.isGameFinaleQuest` (chapter `gameFinale: true`, last quest in `chapter.json` → `quests[]` completed), overlay uses `QUEST_COMPLETE_GAME_FINALE` from `lib/game/game-finale.ts` and primary **«Torna al menu»** → `/menu`. Retry **409** skips draft sync so answers stay in place. **`taskReview`:** attempt responses may include `taskReview` (server-built, never in snapshots). Deterministic types: overlay secondary **«Mostra soluzione»** closes the overlay and sets `showSolution` → in-task read-only review; **TaskChrome** primary continues the run. **`free_text`:** evaluation in the overlay only (no **Mostra soluzione**). Cleared on dismiss.
 
 #### Content source
 
@@ -257,7 +257,7 @@ See also `docs/content-chapter-sandbox-migration.md` (one-time `chapter-01` → 
 
 **LLM (freitext only):** `lib/llm/` + `lib/game/tasks/freitext/evaluate-freitext-llm-scene.ts`; wired through run **attempt** (no separate public evaluate route). Judge returns four scores → `weightedSkillRatio`: **grammar**, **vocabulary**, **register**, **task fulfillment** (prompt + instruction + `evaluationCriteria` + `targetStructures`; weight `taskFulfillmentWeight`, default 1). Learners see only `summaryFeedback` / `nextStepAdvice` on retry overlay—not per-dimension breakdowns.
 
-**NVIDIA / local dev:** Keys in `.env.local` only. `MODEL_TIMEOUT` usually means the **model** is slow or hung on `chat/completions`, not that the app skipped the LLM. Prefer a fast dev model (e.g. `mistralai/ministral-14b-instruct-2512`); some large catalog models may never respond within `LLM_TASK_TIMEOUT_MS` even when the API key and base URL work.
+**Gemini / local dev:** Freitext judge keys in `.env.local` only (`GEMINI_API_KEY_1` … `GEMINI_API_KEY_4`, optional multi-project rotation; `GEMINI_EVAL_MODEL`, default `gemini-3.5-flash`). `MODEL_TIMEOUT` means the judge did not finish within `LLM_TASK_TIMEOUT_MS`. On `429`, the server rotates to the next configured key before returning `RATE_LIMITED` to the client.
 
 ---
 

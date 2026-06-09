@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
+import { mcOptionReviewClass } from "@/lib/game/task-review-styles";
 import { TASK_PLAY_BODY_TEXT } from "@/lib/game/task-typography";
 import { isMcMultiSelect } from "@/lib/game/tasks/multiple-choice/normalize-mc-content";
 import type { McOptionView } from "@/lib/game/tasks/multiple-choice/mc-types";
@@ -15,6 +16,8 @@ type McOptionListProps = {
   selectedIds: string[];
   groupLabelId: string;
   disabled?: boolean;
+  reviewMode?: boolean;
+  correctOptionIds?: string[];
   onChange: (selectedIds: string[]) => void;
 };
 
@@ -28,6 +31,8 @@ export function McOptionList({
   selectedIds,
   groupLabelId,
   disabled,
+  reviewMode,
+  correctOptionIds,
   onChange,
 }: McOptionListProps) {
   const multi = isMcMultiSelect(selectionMode);
@@ -39,12 +44,22 @@ export function McOptionList({
         {options.map((option) => {
           const controlId = optionControlId(listId, option.id);
           const checked = selectedIds.includes(option.id);
+          const reviewClass =
+            reviewMode && correctOptionIds
+              ? mcOptionReviewClass({
+                  optionId: option.id,
+                  selectedIds,
+                  correctOptionIds,
+                })
+              : checked
+                ? "border-primary bg-primary/5"
+                : "border-border bg-background/80";
           return (
             <li key={option.id}>
               <div
                 className={cn(
                   "flex items-center gap-3 rounded-lg border px-3 py-3",
-                  checked ? "border-primary bg-primary/5" : "border-border bg-background/80",
+                  reviewClass,
                   disabled && "opacity-60",
                 )}
               >
@@ -96,12 +111,22 @@ export function McOptionList({
       {options.map((option) => {
         const controlId = optionControlId(listId, option.id);
         const checked = selectedValue === option.id;
+        const reviewClass =
+          reviewMode && correctOptionIds
+            ? mcOptionReviewClass({
+                optionId: option.id,
+                selectedIds,
+                correctOptionIds,
+              })
+            : checked
+              ? "border-primary bg-primary/5"
+              : "border-border bg-background/80";
         return (
           <div
             key={option.id}
             className={cn(
               "flex items-center gap-3 rounded-lg border px-3 py-3",
-              checked ? "border-primary bg-primary/5" : "border-border bg-background/80",
+              reviewClass,
               disabled && "opacity-60",
             )}
           >

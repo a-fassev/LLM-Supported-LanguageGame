@@ -1,3 +1,8 @@
+import {
+  countBackpackProgressTasks,
+  deriveBackpackProgress,
+} from "@/lib/game/backpack-progress";
+import { loadContentCatalog } from "@/lib/game/content/catalog-loader";
 import { compareLeaderboardPlayers } from "@/lib/game/leaderboard-player-sort";
 import { gameClientMessages as msg } from "@/lib/game/clientMessages";
 import {
@@ -15,6 +20,7 @@ export type LeaderboardPlayerClientDto = {
   team: StudentTeamColor;
   totalSlices: number;
   totalBackpackPieces: number;
+  backpackProgressPercent: number;
   isSelf: boolean;
 };
 
@@ -37,6 +43,7 @@ export type LeaderboardSelfClientDto = {
   team: StudentTeamColor;
   totalSlices: number;
   totalBackpackPieces: number;
+  backpackProgressPercent: number;
   overallRank: number;
 };
 
@@ -49,10 +56,15 @@ export type LeaderboardResult =
     }
   | { ok: false; status: number; error: string; code?: string };
 
-/** Overall rank uses pizza (`totalSlices`); backpack totals are display-only on player rows. */
+function backpackPercentForPieces(totalBackpackPieces: number, totalTasks: number): number {
+  return deriveBackpackProgress(totalBackpackPieces, totalTasks).backpackProgressPercent;
+}
+
+/** Overall rank uses pizza (`totalSlices`); backpack percent is display-only on player rows. */
 function mapOverallRows(
   rows: LeaderboardPlayerRow[],
   accountId: string,
+  totalTasks: number,
 ): LeaderboardPlayerClientDto[] {
   return rows.map((row, index) => ({
     rank: index + 1,
@@ -60,6 +72,7 @@ function mapOverallRows(
     team: row.team,
     totalSlices: row.totalSlices,
     totalBackpackPieces: row.totalBackpackPieces,
+    backpackProgressPercent: backpackPercentForPieces(row.totalBackpackPieces, totalTasks),
     isSelf: row.accountId === accountId,
   }));
 }
@@ -97,10 +110,20 @@ function mapTeamRows(
 }
 
 export async function getLeaderboardState(accountId: string): Promise<LeaderboardResult> {
-  const [selfContext, playerRows] = await Promise.all([
+  const [selfContext, playerRows, catalog] = await Promise.all([
     getStudentAccountLeaderboardSelfContext(accountId),
     listLeaderboardPlayerRows(),
+    loadContentCatalog().catch((error) => {
+      console.error("[leaderboard-service] catalog load", error);
+      return null;
+    }),
   ]);
+
+  if (!catalog) {
+    return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
+  }
+
+  const backpackTotalTasks = countBackpackProgressTasks(catalog);
 
   if (!selfContext) {
     return { ok: false, status: 500, error: msg.couldNotLoadProfile, code: "profile_load_failed" };
@@ -128,9 +151,10 @@ export async function getLeaderboardState(accountId: string): Promise<Leaderboar
       team: selfContext.team,
       totalSlices,
       totalBackpackPieces,
+      backpackProgressPercent: backpackPercentForPieces(totalBackpackPieces, backpackTotalTasks),
       overallRank,
     },
-    overall: mapOverallRows(playerRows, accountId),
+    overall: mapOverallRows(playerRows, accountId, backpackTotalTasks),
     teams: mapTeamRows(teamAggregates, playerRows, accountId),
   };
 }

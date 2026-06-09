@@ -10,7 +10,7 @@ describe("chapter-01 Bologna catalog", () => {
     const catalog = await loadContentCatalog({ bypassCache: true });
     const chapter = catalog.chapters.find((c) => c.id === "chapter-01");
     expect(chapter).toBeDefined();
-    expect(chapter?.title).toBe("Bologna");
+    expect(chapter?.title).toBe("Benvenuti a Bologna");
     expect(chapter?.background).toBe("chapters/01/chapter/bg-missions");
     expect(chapter?.questsExpanded.map((q) => q.id)).toEqual([
       "quest-01",

@@ -43,7 +43,7 @@ describe("bootstrapGameState", () => {
               kind: "main",
               requiresQuestId: null,
               background: "chapters/01/quests/01/bg-overview",
-              scenes: [],
+              scenes: [{ scene_type: "task" }],
             },
           ],
         },
@@ -58,6 +58,9 @@ describe("bootstrapGameState", () => {
       ok: true,
       totalSlices: 3,
       totalBackpackPieces: 1,
+      backpackProgressPercent: 100,
+      backpackCompletedTasks: 1,
+      backpackTotalTasks: 1,
       completedQuestIds: [],
       chapters: [
         {

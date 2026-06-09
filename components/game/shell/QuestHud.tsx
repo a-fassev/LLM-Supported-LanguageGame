@@ -4,10 +4,10 @@ import { cn } from "@/lib/utils";
 
 type QuestHudProps = {
   totalSlices: number;
-  totalBackpackPieces: number;
+  backpackProgressPercent: number;
 };
 
-export function QuestHud({ totalSlices, totalBackpackPieces }: QuestHudProps) {
+export function QuestHud({ totalSlices, backpackProgressPercent }: QuestHudProps) {
   return (
     <div
       className={cn(
@@ -38,7 +38,7 @@ export function QuestHud({ totalSlices, totalBackpackPieces }: QuestHudProps) {
           height={28}
           className="h-7 w-7 shrink-0 object-contain"
         />
-        <span className="tabular-nums">{totalBackpackPieces}%</span>
+        <span className="tabular-nums">{backpackProgressPercent}%</span>
       </div>
     </div>
   );

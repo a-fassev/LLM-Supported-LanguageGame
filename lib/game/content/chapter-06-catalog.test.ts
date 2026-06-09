@@ -12,7 +12,7 @@ describe("chapter-06 Bologna Lezione 6 catalog", () => {
     const catalog = await loadContentCatalog({ bypassCache: true });
     const chapter = catalog.chapters.find((c) => c.id === "chapter-06");
     expect(chapter).toBeDefined();
-    expect(chapter?.title).toBe("Bologna — sesto giorno");
+    expect(chapter?.title).toBe("Lo zaino ritrovato");
     expect(chapter?.order).toBe(6);
     expect(chapter?.locked).toBe(false);
     expect(chapter?.gameFinale).toBe(true);

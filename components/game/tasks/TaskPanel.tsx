@@ -1,6 +1,6 @@
 "use client";
 
-import type { RunSceneDto } from "@/lib/api-client";
+import type { RunSceneDto, TaskReviewDto } from "@/lib/api-client";
 import { readTaskScenePrompt } from "@/lib/game/scene-display";
 import { TaskBodyLayout } from "@/components/game/tasks/TaskBodyLayout";
 import { TaskPlaceholder } from "@/components/game/tasks/TaskPlaceholder";
@@ -42,6 +42,8 @@ type TaskPanelProps = {
   clozeAnswers: ClozeAnswersDraft | null;
   clozeValidationError?: string | null;
   taskDisabled?: boolean;
+  reviewMode?: boolean;
+  taskReview?: TaskReviewDto | null;
   onMcSelectionsChange: (selections: McSelectionsDraft) => void;
   onMatchingPairsChange: (updater: MatchingPairsUpdater) => void;
   onDragDropAssignmentsChange: (updater: DragDropAssignmentsUpdater) => void;
@@ -67,6 +69,8 @@ export function TaskPanel({
   clozeAnswers,
   clozeValidationError,
   taskDisabled,
+  reviewMode,
+  taskReview,
   onMcSelectionsChange,
   onMatchingPairsChange,
   onDragDropAssignmentsChange,
@@ -90,6 +94,8 @@ export function TaskPanel({
         answers={clozeAnswers}
         validationError={clozeValidationError}
         disabled={taskDisabled}
+        reviewMode={reviewMode}
+        taskReview={taskReview?.screenType === "cloze" ? taskReview : undefined}
         onAnswersChange={onClozeAnswersChange}
       />
     );
@@ -111,6 +117,8 @@ export function TaskPanel({
         draft={errorSpottingDraft}
         validationError={errorSpottingValidationError}
         disabled={taskDisabled}
+        reviewMode={reviewMode}
+        taskReview={taskReview?.screenType === "error_spotting" ? taskReview : undefined}
         onDraftChange={onErrorSpottingDraftChange}
       />
     );
@@ -147,6 +155,8 @@ export function TaskPanel({
         currentQuestionIndex={mcQuestionIndex}
         validationError={mcValidationError}
         disabled={taskDisabled}
+        reviewMode={reviewMode}
+        taskReview={taskReview?.screenType === "multiple_choice" ? taskReview : undefined}
         onSelectionsChange={onMcSelectionsChange}
       />
     );
@@ -168,6 +178,8 @@ export function TaskPanel({
         assignments={dragDropAssignments}
         validationError={dragDropValidationError}
         disabled={taskDisabled}
+        reviewMode={reviewMode}
+        taskReview={taskReview?.screenType === "drag_drop" ? taskReview : undefined}
         onAssignmentsChange={onDragDropAssignmentsChange}
       />
     );
@@ -189,6 +201,8 @@ export function TaskPanel({
         pairs={matchingPairs}
         validationError={matchingValidationError}
         disabled={taskDisabled}
+        reviewMode={reviewMode}
+        taskReview={taskReview?.screenType === "matching" ? taskReview : undefined}
         onPairsChange={onMatchingPairsChange}
       />
     );

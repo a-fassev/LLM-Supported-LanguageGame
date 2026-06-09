@@ -55,7 +55,7 @@ export default function ChapterDetailPage() {
   }, [chapter, data, router]);
 
   const headerRight = data ? (
-    <QuestHud totalSlices={data.totalSlices} totalBackpackPieces={data.totalBackpackPieces} />
+    <QuestHud totalSlices={data.totalSlices} backpackProgressPercent={data.backpackProgressPercent} />
   ) : null;
 
   return (
