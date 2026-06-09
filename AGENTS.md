@@ -1,6 +1,6 @@
 # Agent guidance
 
-**Git branch for agent work:** `web-based-implementation` (create from `main` when needed). At the start of a task, confirm you are on this branch—not `main` for feature work unless the user says otherwise.
+**Git branch for agent work:** `main` (or a short-lived feature branch from `main`). Azure deploys on push to `main`; do not use `web-based-implementation` for new work unless the user says otherwise.
 
 Learner-facing product rules: `.cursor/skills/product/SKILL.md`. Durable team notes: `LEARNINGS.md` (via `/apply-learnings`).
 
@@ -187,7 +187,7 @@ LLM-Supported-LanguageGame-1/
 │   ├── commands/          # apply-learnings, review-code, strategic-plan, …
 │   ├── plans/             # Foundations and backlog (planning only unless user executes)
 │   └── skills/            # product, unity-* (reference only on web branch), …
-├── .github/workflows/     # deploy-azure.yml (push web-based-implementation)
+├── .github/workflows/     # deploy-azure.yml (push main)
 ├── app/
 │   ├── (auth)/            # login, register
 │   ├── (game)/            # menu, chapters, shop, leaderboard, play (QuestShell)
@@ -407,7 +407,7 @@ Co-locate tests as `*.test.ts` next to modules. Favor pure tests for scoring, sc
 
 ## Deployment
 
-- **CI/CD:** `.github/workflows/deploy-azure.yml` — on push to `web-based-implementation`, `npm ci` → `npm run build` → Azure Web App (`enigma-di-bologna`).
+- **CI/CD:** `.github/workflows/deploy-azure.yml` — on push to `main`, `npm ci` → `npm run build -- --webpack` (zip deploy) → Azure Web App (`enigma-di-bologna`).
 - **Node:** 22.x in CI (align local Node with workflow when possible).
 - **Secrets:** GitHub / Azure environment for `SUPABASE_SECRET_KEY`, publish profile, LLM keys—not in the repo.
 
