@@ -18,11 +18,25 @@ type ChapterGridProps = {
   className?: string;
 };
 
+function renderChapterCardTitle(title: string) {
+  const [place, day] = title.split(" — ");
+
+  if (!place || !day) return title;
+
+  return (
+    <>
+      {place} —
+      <br />
+      {day}
+    </>
+  );
+}
+
 export function ChapterGrid({ items, onOpenChapter, className }: ChapterGridProps) {
   return (
     <div
       className={cn(
-        "grid min-h-0 content-start grid-cols-1 gap-y-55 md:-mt-8 md:grid-cols-2 md:gap-10 lg:grid-cols-3",
+        "grid min-h-0 content-start grid-cols-1 gap-y-55 md:-mt-8 md:grid-cols-2 md:gap-10 md:gap-y-40 lg:grid-cols-3 lg:gap-y-40",
         className,
       )}
     >
@@ -45,7 +59,7 @@ export function ChapterGrid({ items, onOpenChapter, className }: ChapterGridProp
                     : chapter.title
             }
             className={cn(
-              "relative aspect-[1448/1086] w-full max-w-[820px] overflow-hidden border-0 bg-transparent p-0 text-left shadow-none transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed",
+              "relative aspect-[1448/1086] w-full max-w-[820px] overflow-hidden border-0 bg-transparent p-0 text-left shadow-none transition-opacity [container-type:inline-size] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed",
               playable && "cursor-pointer hover:opacity-90",
               !playable && "cursor-not-allowed",
               locked && "opacity-60",
@@ -62,18 +76,18 @@ export function ChapterGrid({ items, onOpenChapter, className }: ChapterGridProp
             />
             <div className="absolute left-[30%] top-[35%] z-10 flex max-w-[48%] flex-col items-start gap-2 text-[#5a2612]">
               {locked ? (
-                <Badge className="shrink-0 text-[#5a2612]" variant="outline">
+                <Badge className="shrink-0 text-[clamp(0.62rem,3.1cqw,0.75rem)] text-[#5a2612]" variant="outline">
                   Bloccato
                 </Badge>
               ) : fullyComplete ? (
-                <Badge className="shrink-0 text-[#5a2612]" variant="secondary">
+                <Badge className="shrink-0 text-[clamp(0.62rem,3.1cqw,0.75rem)] text-[#5a2612]" variant="secondary">
                   Completato
                 </Badge>
               ) : (
-                <Badge className="shrink-0 bg-[#5a2612] text-white">Sbloccato</Badge>
+                <Badge className="shrink-0 bg-[#5a2612] text-[clamp(0.62rem,3.1cqw,0.75rem)] text-white">Sbloccato</Badge>
               )}
-              <h2 className="min-w-0 text-xl font-bold leading-tight tracking-tight md:text-2xl">
-                {chapter.title}
+              <h2 className="min-w-0 text-[clamp(1rem,6cqw,1.5rem)] font-bold leading-tight tracking-tight">
+                {renderChapterCardTitle(chapter.title)}
               </h2>
             </div>
           </button>

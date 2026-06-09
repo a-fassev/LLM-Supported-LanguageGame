@@ -32,7 +32,7 @@ export function TaskBodyLayout({ prompt, beforeScroll, children, fillScroll }: T
     <div
       role={groupLabelled ? "group" : undefined}
       aria-labelledby={groupLabelled ? promptLabelId : undefined}
-      className="flex h-full min-h-0 min-w-0 flex-col gap-2"
+      className={cn("flex min-h-0 min-w-0 flex-col gap-2", fillScroll ? "h-full" : "h-auto")}
     >
       {promptText ? (
         <p id={promptLabelId} className={cn("shrink-0", TASK_PLAY_PROMPT_TEXT)}>
@@ -45,10 +45,11 @@ export function TaskBodyLayout({ prompt, beforeScroll, children, fillScroll }: T
       ) : null}
       {beforeScroll}
       <div
-        data-task-body-scroll
         className={cn(
-          "min-h-0 flex-1 overscroll-y-contain",
-          fillScroll ? "flex flex-col overflow-hidden" : "overflow-y-auto",
+          "min-h-0",
+          fillScroll
+            ? "scrollbar-hide flex flex-1 flex-col overflow-hidden overflow-x-hidden overscroll-y-contain"
+            : "shrink-0 overflow-visible",
         )}
       >
         {scrollContent}
