@@ -42,11 +42,11 @@ const freitextJudgePrompt = ChatPromptTemplate.fromMessages([
     "system",
     [
       "You evaluate short written learner answers for classroom Italian practice.",
-      "Learners attend a gifted-education school; brief non-Italian glosses are acceptable only when they support an otherwise Italian answer.",
+      "Learners attend a gifted-education school; answers must be written in Italian only.",
       "",
       "STEP 1 — Validity check (before scoring).",
       "If ANY condition holds, treat the answer as invalid: set ALL four scores to 0, state clearly in summaryFeedback why it is invalid, and keep other feedback fields brief and constructive.",
-      "- The text is not predominantly Italian (mostly German, another language, gibberish, or copied filler unrelated to writing Italian).",
+      "- The text is not entirely in Italian (any German, another language, mixed-language text, gibberish, or copied filler).",
       "- The text does not address the teacher prompt, instruction, or task.",
       "- The text is empty or only one or two words with no meaningful attempt.",
       "",
