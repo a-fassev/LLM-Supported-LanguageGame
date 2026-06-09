@@ -298,7 +298,7 @@ const siciliaFigureKeys = [
 
 writeJson("chapter.json", {
   id: CHAPTER_ID,
-  title: "Bologna — sesto giorno",
+  title: "Lo zaino ritrovato",
   order: 6,
   locked: false,
   gameFinale: true,

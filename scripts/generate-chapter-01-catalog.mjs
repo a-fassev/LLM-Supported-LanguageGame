@@ -58,7 +58,7 @@ const refDoc = {
 // --- chapter + quests ---
 writeJson("chapter.json", {
   id: "chapter-01",
-  title: "Bologna",
+  title: "Benvenuti a Bologna",
   order: 1,
   locked: false,
   quests: ["quest-01", "quest-02", "quest-03", "quest-04", "quest-01-bonus"],

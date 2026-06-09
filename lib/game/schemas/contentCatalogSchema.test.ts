@@ -54,7 +54,7 @@ describe("contentCatalogSchema", () => {
 
     const finale = parseChapterFile({
       id: "chapter-06",
-      title: "Bologna — sesto giorno",
+      title: "Lo zaino ritrovato",
       order: 6,
       gameFinale: true,
       quests: ["quest-01", "quest-01-bonus"],

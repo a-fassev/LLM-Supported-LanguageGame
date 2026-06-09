@@ -266,7 +266,7 @@ const bonusPoolPairs = [
 // --- chapter + quests ---
 writeJson("chapter.json", {
   id: CHAPTER_ID,
-  title: "Bologna — terzo giorno",
+  title: "Tra storia e cioccolato",
   order: 3,
   locked: false,
   quests: ["quest-01", "quest-02", "quest-03", "quest-04", "quest-01-bonus"],

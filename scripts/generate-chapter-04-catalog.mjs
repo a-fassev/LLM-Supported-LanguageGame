@@ -316,7 +316,7 @@ const bonusPoolPairs = [
 // --- chapter + quests ---
 writeJson("chapter.json", {
   id: CHAPTER_ID,
-  title: "Bologna — quarto giorno",
+  title: "Amici e sentimenti",
   order: 4,
   locked: false,
   quests: ["quest-01", "quest-02", "quest-03", "quest-04", "quest-01-bonus"],

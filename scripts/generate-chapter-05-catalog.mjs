@@ -240,7 +240,7 @@ const bonusPoolPairs = [
 
 writeJson("chapter.json", {
   id: CHAPTER_ID,
-  title: "Bologna — quinto giorno",
+  title: "La gita di classe",
   order: 5,
   locked: false,
   quests: ["quest-01", "quest-02", "quest-03", "quest-04", "quest-01-bonus"],
