@@ -7,6 +7,7 @@ import { QuestHud } from "@/components/game/shell/QuestHud";
 import { QuestList } from "@/components/game/screens/QuestList";
 import type { BootstrapChapterDto } from "@/lib/api-client";
 import { useBootstrap } from "@/lib/game/use-bootstrap";
+import { isGameTestingReplayMode } from "@/lib/game/game-testing-replay-mode";
 import {
   isChapterFullyComplete,
   isChapterLocked,
@@ -49,7 +50,7 @@ export default function ChapterDetailPage() {
     if (!chapter || !data) return;
     const completedSet = new Set(data.completedQuestIds);
     const orderedChapters = data.chapters.slice().sort((a, b) => a.order - b.order);
-    if (isChapterLocked(chapter, orderedChapters, completedSet)) {
+    if (!isGameTestingReplayMode() && isChapterLocked(chapter, orderedChapters, completedSet)) {
       router.replace("/chapters");
     }
   }, [chapter, data, router]);
@@ -75,7 +76,7 @@ export default function ChapterDetailPage() {
         ) : null}
         {chapter ? (
           <>
-            {chapterFullyComplete ? (
+            {chapterFullyComplete && !isGameTestingReplayMode() ? (
               <p className="text-sm text-muted-foreground">
                 Tutte le missioni di questo capitolo sono completate. Puoi rivedere l&apos;elenco,
                 ma non ripetere le missioni.
@@ -85,7 +86,8 @@ export default function ChapterDetailPage() {
               items={items}
               onStartQuest={(questId) => {
                 const item = items.find((entry) => entry.quest.id === questId);
-                if (!item || item.locked || item.completed) return;
+                if (!item) return;
+                if (!isGameTestingReplayMode() && (item.locked || item.completed)) return;
                 router.push(`/play?chapterId=${chapter.id}&questId=${questId}`);
               }}
             />

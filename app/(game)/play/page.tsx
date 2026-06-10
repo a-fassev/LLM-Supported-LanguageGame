@@ -20,6 +20,7 @@ import {
   readTaskReview,
 } from "@/lib/api-client";
 import { gameClientMessages } from "@/lib/game/clientMessages";
+import { isGameTestingReplayMode } from "@/lib/game/game-testing-replay-mode";
 import { useGameSession } from "@/lib/game/session-context";
 import { readNonEmptyString } from "@/lib/game/read-non-empty-string";
 import { readTaskSceneTitle } from "@/lib/game/scene-display";
@@ -542,7 +543,7 @@ export default function PlayPage() {
         setLoading(false);
         return;
       }
-      if (result.code === "quest_already_completed" && chapterId) {
+      if (result.code === "quest_already_completed" && chapterId && !isGameTestingReplayMode()) {
         toastBlockingApiError(result);
         router.replace(`/chapters/${chapterId}`);
         setLoading(false);
