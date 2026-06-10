@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { HubPage } from "@/components/game/layout/HubPage";
 import { QuestHud } from "@/components/game/shell/QuestHud";
@@ -8,7 +9,10 @@ import { useBootstrap } from "@/lib/game/use-bootstrap";
 
 export default function ShopPage() {
   const router = useRouter();
-  const { loading, error, data } = useBootstrap({ refreshOnFocus: true });
+  const { loading, error, data, reload } = useBootstrap({ refreshOnFocus: true });
+  const onWalletChange = useCallback(() => {
+    void reload();
+  }, [reload]);
 
   const headerRight = data ? (
     <QuestHud totalSlices={data.totalSlices} backpackProgressPercent={data.backpackProgressPercent} />
@@ -26,7 +30,11 @@ export default function ShopPage() {
         <p className="shrink-0 text-sm text-muted-foreground">Caricamento...</p>
       ) : null}
       <div className="flex min-h-0 flex-1 flex-col gap-4">
-        <ShopView className="min-h-0 flex-1" />
+        <ShopView
+          className="min-h-0 flex-1"
+          initialSlices={data?.totalSlices ?? 0}
+          onWalletChange={onWalletChange}
+        />
       </div>
     </HubPage>
   );

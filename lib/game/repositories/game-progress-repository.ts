@@ -383,6 +383,87 @@ export async function incrementWalletTotals(
   return true;
 }
 
+export async function getPurchasedRoomItemIds(accountId: string): Promise<string[] | null> {
+  const { data, error } = await admin()
+    .from("player_room_items")
+    .select("item_id")
+    .eq("account_id", accountId)
+    .order("purchased_at", { ascending: true });
+
+  if (error) {
+    console.error("[game-repo] getPurchasedRoomItemIds", error);
+    return null;
+  }
+
+  return (data ?? [])
+    .map((row) => (row as { item_id?: unknown }).item_id)
+    .filter((itemId): itemId is string => typeof itemId === "string" && itemId.length > 0);
+}
+
+export type PurchaseRoomItemResult =
+  | { ok: true }
+  | { ok: false; reason: "already_purchased" | "not_enough_slices" | "wallet_update_failed" | "database_error" };
+
+export async function purchaseRoomItem(
+  accountId: string,
+  itemId: string,
+  cost: number,
+): Promise<PurchaseRoomItemResult> {
+  const walletReady = await ensureWalletRow(accountId);
+  if (!walletReady) return { ok: false, reason: "database_error" };
+
+  const { error: insertError } = await admin().from("player_room_items").insert({
+    account_id: accountId,
+    item_id: itemId,
+  });
+
+  if (insertError) {
+    if (insertError.code === "23505") {
+      return { ok: false, reason: "already_purchased" };
+    }
+    console.error("[game-repo] purchaseRoomItem:insert", insertError);
+    return { ok: false, reason: "database_error" };
+  }
+
+  const wallet = await getWalletTotals(accountId);
+  if (!wallet) {
+    await deletePurchasedRoomItem(accountId, itemId);
+    return { ok: false, reason: "database_error" };
+  }
+
+  const normalizedCost = Math.max(0, Math.trunc(cost));
+  if (wallet.totalSlices < normalizedCost) {
+    await deletePurchasedRoomItem(accountId, itemId);
+    return { ok: false, reason: "not_enough_slices" };
+  }
+
+  const { data, error: updateError } = await admin()
+    .from("player_wallets")
+    .update({
+      total_slices: wallet.totalSlices - normalizedCost,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("account_id", accountId)
+    .eq("total_slices", wallet.totalSlices)
+    .select("account_id")
+    .maybeSingle();
+
+  if (updateError || !data) {
+    if (updateError) console.error("[game-repo] purchaseRoomItem:wallet", updateError);
+    await deletePurchasedRoomItem(accountId, itemId);
+    return { ok: false, reason: "wallet_update_failed" };
+  }
+
+  return { ok: true };
+}
+
+async function deletePurchasedRoomItem(accountId: string, itemId: string): Promise<void> {
+  const { error } = await admin().from("player_room_items").delete().eq("account_id", accountId).eq("item_id", itemId);
+  if (error) {
+    console.error("[game-repo] deletePurchasedRoomItem", error);
+  }
+}
+
 export type StudentTeamColor = "blue" | "red";
 
 export type LeaderboardPlayerRow = {
