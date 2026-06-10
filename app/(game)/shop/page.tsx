@@ -21,7 +21,7 @@ export default function ShopPage() {
   ) : null;
 
   return (
-    <main className="box-border flex h-dvh flex-col gap-2 overflow-hidden px-4 pb-4 pt-4 sm:px-8 sm:pb-6 sm:pt-6">
+    <main className="box-border flex h-dvh flex-col gap-2 overflow-hidden px-4 pb-4 pt-12 sm:px-8 sm:pb-6 sm:pt-14">
       <GameShellHeader
         title="Negozio"
         variant="hub"
