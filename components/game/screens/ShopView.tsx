@@ -174,7 +174,7 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
                 className={cn(
                   "absolute grid place-items-center overflow-hidden rounded-lg border-2 border-[#e8b45a] bg-[linear-gradient(135deg,#f7dca7_0%,#c8853d_52%,#8b4a20_100%)] text-[#4b2211] shadow-[0_7px_18px_rgba(58,28,12,0.28),inset_0_1px_0_rgba(255,255,255,0.55)] transition hover:scale-[1.01] hover:brightness-105 focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#ffe08b]",
                   isBought && "pointer-events-none scale-95 opacity-0",
-                  !isBought && totalSlices < item.cost && "cursor-not-allowed border-[#b6814a] bg-[linear-gradient(135deg,#d8b984_0%,#9c6b37_54%,#6b3b1b_100%)] grayscale",
+                  !isBought && totalSlices < item.cost && "cursor-not-allowed border-[#b6814a] bg-[linear-gradient(135deg,#d8b984_0%,#9c6b37_54%,#6b3b1b_100%)] brightness-90",
                 )}
                 style={{
                   left: `${(item.x / ROOM_CANVAS.width) * 100}%`,
