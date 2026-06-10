@@ -115,39 +115,34 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
 
   return (
     <section
-      className={cn("flex min-h-0 flex-1 flex-col gap-3 overflow-hidden", className)}
+      className={cn("flex min-h-0 h-full flex-1 flex-col overflow-hidden", className)}
       aria-labelledby="room-shop-title"
     >
-      <div className="flex shrink-0 items-center justify-between gap-3">
-        <div>
-          <h2 id="room-shop-title" className="text-lg font-black text-[#4b2211]">
-            La tua stanza
-          </h2>
-          <p className="text-sm font-semibold text-[#7c4b28]">
-            {complete ? "La stanza è completa." : message}
-          </p>
-        </div>
-        <div className="rounded-lg border border-[#8f5a33]/25 bg-[#fff8eb]/85 px-3 py-1.5 text-base font-black text-[#5a2612] shadow-sm">
-          <span aria-hidden="true">🍕 </span>
-          <span className="tabular-nums">{totalSlices}</span>
-        </div>
-      </div>
-
       {error ? <p className="shrink-0 text-sm font-semibold text-destructive">{error}</p> : null}
 
-      <div className="relative min-h-0 flex-1 overflow-auto rounded-xl border border-[#8f5a33]/20 bg-[#2f2118]/85 p-2 shadow-inner">
+      <div className="relative grid min-h-0 flex-1 place-items-center overflow-hidden">
         <div
-          className="relative mx-auto h-full max-h-full max-w-full overflow-hidden rounded-lg bg-[#3b281d] shadow-[0_18px_48px_rgba(0,0,0,0.28)]"
+          className="relative h-full max-h-full max-w-full overflow-hidden rounded-xl bg-[#3b281d] shadow-[0_18px_48px_rgba(0,0,0,0.28)]"
           style={{ aspectRatio: ROOM_CANVAS.aspectRatio }}
         >
+          <h2 id="room-shop-title" className="sr-only">
+            La tua stanza
+          </h2>
           <Image
             src={ROOM_BACKGROUND_SRC}
             alt=""
             fill
-            sizes="(max-width: 768px) 100vw, 900px"
+            sizes="100vw"
             className="object-cover"
             priority
           />
+
+          <div className="absolute left-3 top-3 z-50 max-w-[min(75%,32rem)] rounded-lg border border-[#8f5a33]/28 bg-[#fff8eb]/88 px-3 py-2 text-[#4b2211] shadow-[0_8px_20px_rgba(0,0,0,0.18)] backdrop-blur-sm">
+            <p className="text-sm font-black sm:text-base">La tua stanza</p>
+            <p className="text-xs font-bold text-[#7c4b28] sm:text-sm">
+              {complete ? "La stanza è completa." : message}
+            </p>
+          </div>
 
           {room?.items.map((item) => {
             const isBought = purchased.has(item.id);
@@ -158,9 +153,9 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
                 key={item.id}
                 type="button"
                 className={cn(
-                  "absolute grid place-items-center overflow-hidden rounded-lg border border-[#ffd98a]/60 bg-[#fff1d8]/18 text-[#fff2d5] shadow-[0_6px_18px_rgba(0,0,0,0.16),inset_0_0_0_1px_rgba(255,255,255,0.18)] transition hover:scale-[1.01] hover:bg-[#fff1d8]/28 focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#ffe08b]",
+                  "absolute grid place-items-center overflow-hidden rounded-lg border-2 border-[#f6c76a]/75 bg-[#f3dfbf]/70 text-[#4b2211] shadow-[0_7px_18px_rgba(58,28,12,0.24),inset_0_1px_0_rgba(255,255,255,0.45)] transition hover:scale-[1.01] hover:bg-[#fff1d8]/82 focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#ffe08b]",
                   isBought && "pointer-events-none scale-95 opacity-0",
-                  !isBought && totalSlices < item.cost && "cursor-not-allowed border-white/25 bg-black/12 opacity-70 grayscale",
+                  !isBought && totalSlices < item.cost && "cursor-not-allowed border-[#d2b48a]/70 bg-[#d9c8aa]/72 opacity-85 grayscale",
                 )}
                 style={{
                   left: `${(item.x / ROOM_CANVAS.width) * 100}%`,
@@ -173,7 +168,7 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
                 aria-label={`Compra ${item.label} per ${item.cost} spicchi di pizza`}
                 onClick={() => void onBuy(item.id)}
               >
-                <span className="grid max-w-[88%] place-items-center gap-0.5 rounded-md bg-[#2d1d11]/78 px-2 py-1 text-center text-[10px] font-black leading-tight text-[#fff2d5] shadow-sm sm:text-xs">
+                <span className="grid max-w-[88%] place-items-center gap-0.5 rounded-md bg-[#5a2612]/82 px-2 py-1 text-center text-[10px] font-black leading-tight text-[#fff8df] shadow-sm sm:text-xs">
                   {isPending ? "Acquisto..." : "Da acquistare"}
                   <small className="text-[0.9em] text-[#ffd98a]">🍕 {item.cost}</small>
                 </span>
