@@ -86,32 +86,34 @@ describe("chapter-04 task answer keys (server scoring)", () => {
     expect(r).toMatchObject({ ok: true, ratio: 1, itemsCorrect: 16, itemsTotal: 16 });
   });
 
-  it("error spotting accepts four Sara corrections", async () => {
+  it("error spotting accepts the three Sara corrections", async () => {
     const scene = await findScene("chapter-04", "quest-02", 16)();
     const task = scene.content.task as {
       segments: { id: string; isError?: boolean; acceptedCorrections?: string[] }[];
     };
     const attemptPayload = errorSpottingAttemptFromSegments(task.segments);
-    expect(attemptPayload.selectedSegmentIds).toHaveLength(4);
+    expect(attemptPayload.selectedSegmentIds).toHaveLength(3);
     const r = evaluateErrorSpotting(task, {
       taskType: "ErrorSpotting",
       errorSpotting: attemptPayload,
     });
-    expect(r).toMatchObject({ ok: true, ratio: 1, itemsCorrect: 4, itemsTotal: 4 });
+    expect(r).toMatchObject({ ok: true, ratio: 1, itemsCorrect: 3, itemsTotal: 3 });
   });
 
-  it("error spotting accepts alternate correction for sentence 5", async () => {
+  it("error spotting uses the clarified four-sentence Sara task", async () => {
     const scene = await findScene("chapter-04", "quest-02", 16)();
     const task = scene.content.task as {
+      expectedErrorRange: { min: number; max: number };
       segments: { id: string; isError?: boolean; acceptedCorrections?: string[] }[];
     };
+    expect(task.expectedErrorRange).toEqual({ min: 3, max: 3 });
+    expect(task.segments.some((segment) => segment.id.startsWith("es5-"))).toBe(false);
     const attemptPayload = errorSpottingAttemptFromSegments(task.segments);
-    attemptPayload.corrections.es5_err = "di essere una buona amica";
     const r = evaluateErrorSpotting(task, {
       taskType: "ErrorSpotting",
       errorSpotting: attemptPayload,
     });
-    expect(r).toMatchObject({ ok: true, ratio: 1, itemsCorrect: 4, itemsTotal: 4 });
+    expect(r).toMatchObject({ ok: true, ratio: 1, itemsCorrect: 3, itemsTotal: 3 });
   });
 
   it("invito MC accepts all four comprehension answers", async () => {

@@ -1,6 +1,6 @@
 {
   "id": "quest-03",
-  "title": "Discussione al caffè",
+  "title": "Discussione al Bar ai Giardini Margherita",
   "order": 3,
   "kind": "main",
   "requiresQuestId": "quest-02",

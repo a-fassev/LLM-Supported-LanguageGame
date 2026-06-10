@@ -8,7 +8,7 @@
     "instruction": "Abbina ogni parola italiana al suo equivalente inglese.",
     "referenceDocument": null,
     "task": {
-      "prompt": "Collega ogni parola italiana al suo equivalente inglese.",
+      "prompt": "Abbina ogni parola italiana al suo equivalente inglese.",
       "sampleSize": 10,
       "poolPairs": [
         {
@@ -53,7 +53,7 @@
         },
         {
           "id": "ch05v009",
-          "leftLabel": "sconfiggere",
+          "leftLabel": "sconfiggere (sconfitto)",
           "rightLabel": "to defeat"
         },
         {
@@ -178,7 +178,7 @@
         },
         {
           "id": "ch05v034",
-          "leftLabel": "comporre",
+          "leftLabel": "comporre (composto)",
           "rightLabel": "to compose / form"
         },
         {
@@ -258,7 +258,7 @@
         },
         {
           "id": "ch05v050",
-          "leftLabel": "l'autorizzazione",
+          "leftLabel": "l'autorizzazione f.",
           "rightLabel": "permission / authorization"
         },
         {
@@ -318,7 +318,7 @@
         },
         {
           "id": "ch05v062",
-          "leftLabel": "il re/la regina",
+          "leftLabel": "il re / la regina",
           "rightLabel": "king / queen"
         },
         {
@@ -363,12 +363,12 @@
         },
         {
           "id": "ch05v071",
-          "leftLabel": "tingere",
+          "leftLabel": "tingere (tinto)",
           "rightLabel": "to dye"
         },
         {
           "id": "ch05v072",
-          "leftLabel": "l'esplosione",
+          "leftLabel": "l'esplosione f.",
           "rightLabel": "explosion"
         },
         {
@@ -409,7 +409,7 @@
       ],
       "presentation": {
         "leftLabel": "italiano",
-        "rightLabel": "english",
+        "rightLabel": "English",
         "shuffleRightOrder": true
       }
     }

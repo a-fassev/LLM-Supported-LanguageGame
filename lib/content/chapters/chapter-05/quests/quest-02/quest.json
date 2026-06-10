@@ -1,6 +1,6 @@
 {
   "id": "quest-02",
-  "title": "Pianificare la gita",
+  "title": "Progettare una gita",
   "order": 2,
   "kind": "main",
   "requiresQuestId": "quest-01",

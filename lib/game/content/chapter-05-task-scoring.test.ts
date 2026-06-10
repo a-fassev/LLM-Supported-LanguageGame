@@ -144,28 +144,27 @@ describe("chapter-05 task answer keys (server scoring)", () => {
     expect(r).toMatchObject({ ok: true, ratio: 1, itemsCorrect: 11, itemsTotal: 11 });
   });
 
-  it("formal mail cloze accepts every listed alternate on saluto gap", async () => {
+  it("formal mail cloze uses the corrected Bardelli saluto", async () => {
     const scene = await findScene("chapter-05", "quest-04", 4)();
     const task = scene.content.task as {
       lines: { segments: { kind?: string; correctAnswers?: string[] }[] }[];
     };
     const gaps = gapSegmentsFromLines(task.lines);
-    expect(gaps[0].correctAnswers?.length).toBeGreaterThanOrEqual(2);
+    expect(gaps[0].correctAnswers).toEqual([
+      "Egregio Dirigente scolastico, Gentile Professoressa Bardelli",
+    ]);
 
-    for (const variant of gaps[0].correctAnswers ?? []) {
-      const answers = clozeAnswersFromLines(task.lines);
-      answers[0] = variant;
-      const r = evaluateCloze(task, {
-        taskType: "ClozeText",
-        clozeText: { answers },
-      });
-      expect(r).toMatchObject({
-        ok: true,
-        ratio: 1,
-        itemsCorrect: 11,
-        itemsTotal: 11,
-      });
-    }
+    const answers = clozeAnswersFromLines(task.lines);
+    const r = evaluateCloze(task, {
+      taskType: "ClozeText",
+      clozeText: { answers },
+    });
+    expect(r).toMatchObject({
+      ok: true,
+      ratio: 1,
+      itemsCorrect: 11,
+      itemsTotal: 11,
+    });
   });
 
   it("imperativo matching accepts all eight pairs", async () => {
