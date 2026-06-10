@@ -8,7 +8,7 @@
     "instruction": "Abbina ogni parola italiana al suo equivalente inglese.",
     "referenceDocument": null,
     "task": {
-      "prompt": "Collega ogni parola italiana al suo equivalente inglese.",
+      "prompt": "Abbina ogni parola italiana al suo equivalente inglese.",
       "sampleSize": 10,
       "poolPairs": [
         {
@@ -203,7 +203,7 @@
         },
         {
           "id": "ch06v039",
-          "leftLabel": "stringere",
+          "leftLabel": "stringere (stretto)",
           "rightLabel": "to press / squeeze / tighten"
         },
         {
@@ -408,7 +408,7 @@
         },
         {
           "id": "ch06v080",
-          "leftLabel": "prendere",
+          "leftLabel": "prendere (preso)",
           "rightLabel": "to catch / take"
         },
         {
@@ -449,7 +449,7 @@
       ],
       "presentation": {
         "leftLabel": "italiano",
-        "rightLabel": "english",
+        "rightLabel": "English",
         "shuffleRightOrder": true
       }
     }
