@@ -400,6 +400,15 @@ export async function getPurchasedRoomItemIds(accountId: string): Promise<string
     .filter((itemId): itemId is string => typeof itemId === "string" && itemId.length > 0);
 }
 
+export async function deletePurchasedRoomItems(accountId: string): Promise<boolean> {
+  const { error } = await admin().from("player_room_items").delete().eq("account_id", accountId);
+  if (error) {
+    console.error("[game-repo] deletePurchasedRoomItems", error);
+    return false;
+  }
+  return true;
+}
+
 export type PurchaseRoomItemResult =
   | { ok: true }
   | { ok: false; reason: "already_purchased" | "not_enough_slices" | "wallet_update_failed" | "database_error" };

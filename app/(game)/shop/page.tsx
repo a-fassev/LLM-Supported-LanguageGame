@@ -21,9 +21,8 @@ export default function ShopPage() {
   ) : null;
 
   return (
-    <main className="game-shell-inset flex h-dvh flex-col gap-3 overflow-hidden">
+    <main className="box-border flex h-dvh flex-col gap-2 overflow-hidden px-4 pb-4 pt-14 sm:px-8 sm:pb-6 sm:pt-16">
       <GameShellHeader
-        title="Negozio"
         variant="hub"
         leading={
           <Button
@@ -38,6 +37,7 @@ export default function ShopPage() {
           </Button>
         }
         actions={headerRight}
+        className="!mt-0"
       />
       <section className="min-h-0 flex-1 overflow-hidden">
         {error ? <p className="shrink-0 text-sm text-destructive">{error}</p> : null}

@@ -296,6 +296,14 @@ export function addRoomTestPizza(token: string) {
   });
 }
 
+export function resetRoomTestPurchases(token: string) {
+  return requestJson<RoomStateDto>("/api/game/room/reset-test", {
+    method: "POST",
+    token,
+    body: {},
+  });
+}
+
 export function getLeaderboard(token: string) {
   return requestJson<LeaderboardDto>("/api/game/leaderboard", { token });
 }
