@@ -4,8 +4,8 @@
   "screen_type": "error_spotting",
   "background": "chapters/00/quests/01/bg-task-01",
   "content": {
-    "title": "Correggi il racconto",
-    "instruction": "Leggi tutto il testo con calma. Seleziona ogni errore e scrivi la correzione.",
+    "title": "Trova gli errori",
+    "instruction": "Leggi tutto il testo con calma e seleziona ogni errore.",
     "referenceDocument": null,
     "task": {
       "prompt": "Trova tutti gli errori nel racconto della gita scolastica.",

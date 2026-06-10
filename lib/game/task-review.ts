@@ -49,9 +49,8 @@ export type ErrorSpottingSegmentReview = {
   isError: boolean;
   wasSelected: boolean;
   isFalsePositive: boolean;
-  learnerCorrection: string | null;
   acceptedCorrections: string[];
-  correctionCorrect: boolean | null;
+  foundCorrect: boolean | null;
 };
 
 export type ErrorSpottingTaskReview = {
@@ -262,10 +261,6 @@ function buildDragDropReview(
   return { screenType: "drag_drop", targets: items };
 }
 
-function normalizeCorr(s: string): string {
-  return s.trim().replace(/\s+/g, " ");
-}
-
 function buildErrorSpottingReview(
   content: Record<string, unknown>,
   attempt: Extract<TaskAttempt, { taskType: "ErrorSpotting" }>,
@@ -293,18 +288,10 @@ function buildErrorSpottingReview(
     if (!id) continue;
     const isError = s.isError === true;
     const wasSelected = selected.has(id);
-    const learnerCorrection = wasSelected
-      ? (attempt.errorSpotting.corrections[id] ?? "").trim() || null
-      : null;
 
-    let correctionCorrect: boolean | null = null;
-    if (isError && wasSelected && learnerCorrection) {
-      const accepted = errorById.get(id) ?? [];
-      correctionCorrect = accepted.some(
-        (a) => normalizeCorr(learnerCorrection).toLowerCase() === normalizeCorr(a).toLowerCase(),
-      );
-    } else if (isError && wasSelected && !learnerCorrection) {
-      correctionCorrect = false;
+    let foundCorrect: boolean | null = null;
+    if (isError) {
+      foundCorrect = wasSelected;
     }
 
     items.push({
@@ -312,9 +299,8 @@ function buildErrorSpottingReview(
       isError,
       wasSelected,
       isFalsePositive: wasSelected && !isError,
-      learnerCorrection,
       acceptedCorrections: errorById.get(id) ?? [],
-      correctionCorrect,
+      foundCorrect,
     });
   }
 

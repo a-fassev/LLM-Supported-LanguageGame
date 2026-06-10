@@ -684,11 +684,11 @@ writeJson("quests/quest-02/scenes/16.json", {
   content: {
     title: "Trova gli errori",
     instruction:
-      "In ogni frase c'è un verbo che non va bene. Clicca sul verbo sbagliato e scrivi la forma giusta.",
+      "In ogni frase c'è un verbo che non va bene. Clicca sul verbo sbagliato.",
     referenceDocument: null,
     task: {
       prompt:
-        "Sara è confusa e dice delle frasi sbagliate. In ogni frase c'è un verbo che NON va bene: o usa il congiuntivo quando dovrebbe usare l'infinito (perché il soggetto è lo stesso), o usa l'infinito quando dovrebbe usare il congiuntivo (perché i soggetti sono diversi). Clicca sul verbo sbagliato e scrivi la forma giusta.",
+        "Sara è confusa e dice delle frasi sbagliate. In ogni frase c'è un verbo che NON va bene: o usa il congiuntivo quando dovrebbe usare l'infinito (perché il soggetto è lo stesso), o usa l'infinito quando dovrebbe usare il congiuntivo (perché i soggetti sono diversi). Clicca sul verbo sbagliato.",
       expectedErrorRange: { min: 4, max: 4 },
       segments: errorSegments,
     },

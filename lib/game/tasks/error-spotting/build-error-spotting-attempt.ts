@@ -4,7 +4,6 @@ export type ErrorSpottingAttemptPayload = {
   taskType: "ErrorSpotting";
   errorSpotting: {
     selectedSegmentIds: string[];
-    corrections: Record<string, string>;
   };
 };
 
@@ -17,16 +16,10 @@ export function buildErrorSpottingAttempt(draft: ErrorSpottingDraft): ErrorSpott
     ),
   ];
 
-  const corrections: Record<string, string> = {};
-  for (const id of selectedSegmentIds) {
-    corrections[id] = draft.corrections[id]?.trim() ?? "";
-  }
-
   return {
     taskType: "ErrorSpotting",
     errorSpotting: {
       selectedSegmentIds,
-      corrections,
     },
   };
 }

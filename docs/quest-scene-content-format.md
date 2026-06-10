@@ -157,7 +157,7 @@ Exercise with **Controlla** and server-checked answers.
 | `screen_type` | Player does |
 | ------------- | ----------- |
 | `cloze` | Fill gaps in a passage (own type, not multiple choice). |
-| `error_spotting` | Find and fix mistakes in a passage. |
+| `error_spotting` | Find mistakes in a passage (tap to mark). |
 | `drag_drop` | Drag items into slots or order. |
 | `free_text` | Short Italian answer scored on the server via LLM (`FreitextLlm`). |
 | `matching` | Match pairs between two columns. |
@@ -403,9 +403,10 @@ Validated at catalog load (`parseErrorSpottingContent`). Snapshots strip `isErro
 | Spacing | **No trailing whitespace** on any segment. The **first** segment must not start with whitespace; every **later** segment must start with exactly **one** leading space. **Punctuation** (`. , ! ? ; :`) belongs on the preceding word segment — never as a standalone segment. |
 | Errors | `isError: true` requires non-empty `acceptedCorrections[]` (server-only, stripped on snapshot). |
 | Range | `expectedErrorRange` optional; when present, `min ≤ errorCount ≤ max`. |
-| Scoring | False-positive selections are **ignored** (no instant zero). `ratio = fixedTrueErrors / totalTrueErrors`. |
-| Scene copy | `instruction` → `TaskChrome`; `prompt` → `TaskBodyLayout`; error-count hint in `beforeScroll`. Tap segment → inline correction field; **×** or Escape clears mark. |
-| Attempt | `{ taskType: "ErrorSpotting", errorSpotting: { selectedSegmentIds: string[], corrections: Record<string, string> } }` |
+| Scoring | False-positive selections are **ignored** (no instant zero). `ratio = foundTrueErrors / totalTrueErrors`. |
+| Scene copy | `instruction` → `TaskChrome`; `prompt` → `TaskBodyLayout`; error-count hint in `beforeScroll`. Tap segment to toggle mark; tap again to unmark. |
+| Attempt | `{ taskType: "ErrorSpotting", errorSpotting: { selectedSegmentIds: string[] } }` |
+| Review | `acceptedCorrections` shown in «Mostra soluzione» for missed errors only (server-built `taskReview`). |
 
 Fixture scenes: `chapter-03/quest-01/scenes/02.json` (minimal, flat), `chapter-00/quest-01/scenes/13.json` (short, flat) + `scenes/14.json` (long, scored). See `docs/error-spotting-task-integration-plan.md`.
 

@@ -58,17 +58,15 @@ function mcSelectionsFromQuestions(
 }
 
 function errorSpottingAttemptFromSegments(
-  segments: { id: string; isError?: boolean; acceptedCorrections?: string[] }[],
+  segments: { id: string; isError?: boolean }[],
 ) {
   const selectedSegmentIds: string[] = [];
-  const corrections: Record<string, string> = {};
   for (const seg of segments) {
-    if (seg.isError && seg.acceptedCorrections?.[0]) {
+    if (seg.isError) {
       selectedSegmentIds.push(seg.id);
-      corrections[seg.id] = seg.acceptedCorrections[0];
     }
   }
-  return { selectedSegmentIds, corrections };
+  return { selectedSegmentIds };
 }
 
 describe("chapter-04 task answer keys (server scoring)", () => {
@@ -86,27 +84,13 @@ describe("chapter-04 task answer keys (server scoring)", () => {
     expect(r).toMatchObject({ ok: true, ratio: 1, itemsCorrect: 16, itemsTotal: 16 });
   });
 
-  it("error spotting accepts four Sara corrections", async () => {
+  it("error spotting accepts four Sara error selections", async () => {
     const scene = await findScene("chapter-04", "quest-02", 16)();
     const task = scene.content.task as {
       segments: { id: string; isError?: boolean; acceptedCorrections?: string[] }[];
     };
     const attemptPayload = errorSpottingAttemptFromSegments(task.segments);
     expect(attemptPayload.selectedSegmentIds).toHaveLength(4);
-    const r = evaluateErrorSpotting(task, {
-      taskType: "ErrorSpotting",
-      errorSpotting: attemptPayload,
-    });
-    expect(r).toMatchObject({ ok: true, ratio: 1, itemsCorrect: 4, itemsTotal: 4 });
-  });
-
-  it("error spotting accepts alternate correction for sentence 5", async () => {
-    const scene = await findScene("chapter-04", "quest-02", 16)();
-    const task = scene.content.task as {
-      segments: { id: string; isError?: boolean; acceptedCorrections?: string[] }[];
-    };
-    const attemptPayload = errorSpottingAttemptFromSegments(task.segments);
-    attemptPayload.corrections.es5_err = "di essere una buona amica";
     const r = evaluateErrorSpotting(task, {
       taskType: "ErrorSpotting",
       errorSpotting: attemptPayload,

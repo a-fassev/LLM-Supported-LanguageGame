@@ -56,7 +56,6 @@ import {
   ERROR_SPOTTING_CONTENT_MISMATCH_MESSAGE,
   normalizeErrorSpottingContentResult,
 } from "@/lib/game/tasks/error-spotting/normalize-error-spotting-content";
-import { validateErrorSpottingDraft } from "@/lib/game/tasks/error-spotting/validate-error-spotting-draft";
 import type { ErrorSpottingDraft } from "@/lib/game/tasks/error-spotting/error-spotting-types";
 import { buildClozeAttempt } from "@/lib/game/tasks/cloze/build-cloze-attempt";
 import { countClozeGaps, createEmptyClozeAnswers } from "@/lib/game/tasks/cloze/cloze-gap-order";
@@ -779,12 +778,6 @@ export default function PlayPage() {
         return;
       }
       const draft = errorSpottingDraft ?? createEmptyErrorSpottingDraft();
-      const validation = validateErrorSpottingDraft(draft);
-      if (!validation.ok) {
-        setErrorSpottingValidationError(validation.message);
-        setTaskPending(false);
-        return;
-      }
       setErrorSpottingValidationError(null);
       attempt = buildErrorSpottingAttempt(draft);
     } else if (currentScene.screen_type === "cloze") {

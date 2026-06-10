@@ -384,7 +384,7 @@ describe("evaluateTaskAttempt", () => {
     expect(r.code).toBe("payload_invalid");
   });
 
-  it("ignores false positive selection when true error is fixed", () => {
+  it("ignores false positive selection when true error is found", () => {
     const content = {
       segments: [
         { id: "e1", isError: true, acceptedCorrections: ["fix"] },
@@ -392,7 +392,7 @@ describe("evaluateTaskAttempt", () => {
     };
     const attempt = {
       taskType: "ErrorSpotting" as const,
-      errorSpotting: { selectedSegmentIds: ["e1", "noise"], corrections: { e1: "fix" } },
+      errorSpotting: { selectedSegmentIds: ["e1", "noise"] },
     };
     const r = evaluateErrorSpotting(content, attempt);
     expect(r.ok).toBe(true);
@@ -413,7 +413,6 @@ describe("evaluateTaskAttempt", () => {
       taskType: "ErrorSpotting" as const,
       errorSpotting: {
         selectedSegmentIds: ["e1"],
-        corrections: { e1: "uno" },
       },
     };
     const r = evaluateErrorSpotting(content, attempt);
@@ -424,7 +423,7 @@ describe("evaluateTaskAttempt", () => {
     expect(r.itemsTotal).toBe(2);
   });
 
-  it("scores partial fixes without false-positive penalty", () => {
+  it("scores partial finds without false-positive penalty", () => {
     const content = {
       segments: [
         { id: "e1", isError: true, acceptedCorrections: ["uno"] },
@@ -435,7 +434,6 @@ describe("evaluateTaskAttempt", () => {
       taskType: "ErrorSpotting" as const,
       errorSpotting: {
         selectedSegmentIds: ["e1", "noise"],
-        corrections: { e1: "uno", noise: "x" },
       },
     };
     const r = evaluateErrorSpotting(content, attempt);
