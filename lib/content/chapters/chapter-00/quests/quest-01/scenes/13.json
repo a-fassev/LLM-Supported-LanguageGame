@@ -4,8 +4,8 @@
   "screen_type": "error_spotting",
   "background": "chapters/00/quests/01/bg-task-01",
   "content": {
-    "title": "Correggi la frase",
-    "instruction": "Seleziona ogni errore e scrivi la forma corretta.",
+    "title": "Trova gli errori",
+    "instruction": "Leggi il testo e seleziona ogni errore.",
     "referenceDocument": null,
     "task": {
       "prompt": "Trova gli errori nel testo breve.",

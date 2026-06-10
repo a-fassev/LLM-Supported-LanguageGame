@@ -57,7 +57,7 @@ Import from **`lib/game/task-typography.ts`** — never hardcode `text-sm` / `te
 | `TASK_PLAY_VALIDATION_ERROR_TEXT` | Pre-submit inline validation (meta size, destructive) |
 | `TASK_PLAY_META_TEXT` | Progress, drag hints, captions, char counts — one half-step smaller, muted |
 | `TASK_PLAY_SECTION_LABEL_TEXT` | Column headers, drag-drop category titles |
-| `TASK_PLAY_INLINE_FIELD_TEXT` | Cloze gap inputs, error-spotting inline corrections only |
+| `TASK_PLAY_INLINE_FIELD_TEXT` | Cloze gap inputs only |
 
 **Inline fields:** Use `TASK_PLAY_INLINE_FIELD_TEXT` (`leading-none`), not `TASK_PLAY_BODY_TEXT`. If both appear in `cn()`, tailwind-merge keeps `leading-relaxed` from body text and breaks `items-baseline` rows.
 
@@ -117,10 +117,10 @@ Full spec: `docs/quest-scene-content-format.md` §error_spotting.
 
 **UI (locked):**
 
-- Tap word/phrase chip → inline correction field; unmark via **×** or Escape (no global reset button).
-- Field width from `correctionFieldWidth(segmentText)` — based on **original segment text** + chrome for × (not typed length). Body copy uses `TASK_PLAY_BODY_TEXT`; inline input uses `TASK_PLAY_INLINE_FIELD_TEXT`.
+- Tap word/phrase chip → toggle mark (highlighted chip); tap again to unmark (no correction input).
+- Body copy uses `TASK_PLAY_BODY_TEXT`; marked chips use `border-primary/30 bg-primary/10`.
 - Scroll QA fixtures: consecutive `chapter-00/quest-01/scenes/13.json` (short) + `14.json` (long).
-- Inline correction fields: `autoComplete="off"`, neutral `name`, `data-1p-ignore` / `data-lpignore="true"` (see `ErrorSpottingInlineField.tsx`).
+- No pre-Controlla completeness gate — empty selection submits with `ratio = 0`.
 
 ## Cloze (`cloze`)
 

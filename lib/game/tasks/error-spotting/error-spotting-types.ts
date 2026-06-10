@@ -1,10 +1,5 @@
 export const ERROR_SPOTTING_CONTENT_MISMATCH_MESSAGE = "Contenuto dell'esercizio non valido.";
 
-export const ERROR_SPOTTING_EMPTY_CORRECTION_MESSAGE =
-  "Scrivi la correzione per ogni errore selezionato.";
-
-export const ERROR_SPOTTING_CORRECTION_MAX_LENGTH = 128;
-
 export type ErrorSpottingSegmentView = {
   id: string;
   text: string;
@@ -21,5 +16,4 @@ export type NormalizedErrorSpottingContent = {
 
 export type ErrorSpottingDraft = {
   selectedSegmentIds: string[];
-  corrections: Record<string, string>;
 };

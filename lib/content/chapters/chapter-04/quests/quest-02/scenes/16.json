@@ -5,10 +5,10 @@
   "background": "chapters/04/quests/02/bg-giardini-margherita",
   "content": {
     "title": "Trova gli errori",
-    "instruction": "Tra queste frasi ci sono tre verbi che non vanno bene. Clicca sui verbi sbagliati e scrivi la forma giusta.",
+    "instruction": "Tra queste frasi ci sono tre verbi che non vanno bene. Clicca sui verbi sbagliati.",
     "referenceDocument": null,
     "task": {
-      "prompt": "Sara è confusa e dice alcune frasi. Tre verbi NON vanno bene: in alcuni casi usa il congiuntivo quando dovrebbe usare l'infinito perché il soggetto è lo stesso, in altri usa l'infinito quando dovrebbe usare il congiuntivo perché i soggetti sono diversi. Clicca sui verbi sbagliati e scrivi la forma giusta.",
+      "prompt": "Sara è confusa e dice alcune frasi. Tre verbi NON vanno bene: in alcuni casi usa il congiuntivo quando dovrebbe usare l'infinito perché il soggetto è lo stesso, in altri usa l'infinito quando dovrebbe usare il congiuntivo perché i soggetti sono diversi. Clicca sui verbi sbagliati.",
       "expectedErrorRange": {
         "min": 3,
         "max": 3

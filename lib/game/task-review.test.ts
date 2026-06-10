@@ -87,7 +87,6 @@ describe("buildTaskReview", () => {
         taskType: "ErrorSpotting",
         errorSpotting: {
           selectedSegmentIds: ["s1", "s2"],
-          corrections: { s1: "x", s2: "quasi" },
         },
       },
     });
@@ -97,7 +96,7 @@ describe("buildTaskReview", () => {
     const s1 = review.segments.find((s) => s.segmentId === "s1");
     const s2 = review.segments.find((s) => s.segmentId === "s2");
     expect(s1?.isFalsePositive).toBe(true);
-    expect(s2?.correctionCorrect).toBe(false);
+    expect(s2?.foundCorrect).toBe(true);
     expect(s2?.acceptedCorrections).toEqual(["giusto"]);
   });
 

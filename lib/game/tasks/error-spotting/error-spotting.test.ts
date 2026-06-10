@@ -2,8 +2,6 @@ import { describe, expect, it } from "vitest";
 import { buildErrorSpottingAttempt } from "@/lib/game/tasks/error-spotting/build-error-spotting-attempt";
 import { formatErrorSpottingCaption } from "@/lib/game/tasks/error-spotting/format-error-spotting-caption";
 import { normalizeErrorSpottingContentResult } from "@/lib/game/tasks/error-spotting/normalize-error-spotting-content";
-import { validateErrorSpottingDraft } from "@/lib/game/tasks/error-spotting/validate-error-spotting-draft";
-import { ERROR_SPOTTING_EMPTY_CORRECTION_MESSAGE } from "@/lib/game/tasks/error-spotting/error-spotting-types";
 
 describe("error spotting helpers", () => {
   const taskPayload = {
@@ -28,29 +26,17 @@ describe("error spotting helpers", () => {
         errorCount: 1,
         expectedErrorRange: { min: 1, max: 1 },
       }),
-    ).toBe("Nel testo c'è 1 errore. Trovalo e correggilo.");
-  });
-
-  it("blocks empty correction for marked segment", () => {
-    const result = validateErrorSpottingDraft({
-      selectedSegmentIds: ["b"],
-      corrections: { b: "  " },
-    });
-    expect(result.ok).toBe(false);
-    if (result.ok) throw new Error("expected fail");
-    expect(result.message).toBe(ERROR_SPOTTING_EMPTY_CORRECTION_MESSAGE);
+    ).toBe("Nel testo c'è 1 errore. Trovalo.");
   });
 
   it("builds attempt payload from draft", () => {
     const attempt = buildErrorSpottingAttempt({
       selectedSegmentIds: ["b", "noise"],
-      corrections: { b: " va ", noise: "x" },
     });
     expect(attempt).toEqual({
       taskType: "ErrorSpotting",
       errorSpotting: {
         selectedSegmentIds: ["b", "noise"],
-        corrections: { b: "va", noise: "x" },
       },
     });
   });

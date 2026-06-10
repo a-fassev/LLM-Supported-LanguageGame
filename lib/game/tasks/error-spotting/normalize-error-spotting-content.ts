@@ -54,5 +54,5 @@ export function normalizeErrorSpottingContentResult(
 }
 
 export function createEmptyErrorSpottingDraft(): ErrorSpottingDraft {
-  return { selectedSegmentIds: [], corrections: {} };
+  return { selectedSegmentIds: [] };
 }
