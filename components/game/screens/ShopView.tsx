@@ -139,7 +139,7 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
     >
       {error ? <p className="shrink-0 text-sm font-semibold text-destructive">{error}</p> : null}
 
-      <div className="relative grid min-h-0 flex-1 place-items-center overflow-hidden">
+      <div className="relative grid min-h-0 flex-1 place-items-center overflow-visible">
         <div
           className="relative h-full max-h-full max-w-full overflow-hidden rounded-xl bg-[#3b281d] shadow-[0_18px_48px_rgba(0,0,0,0.28)]"
           style={{ aspectRatio: ROOM_CANVAS.aspectRatio }}
@@ -172,9 +172,9 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
                 key={item.id}
                 type="button"
                 className={cn(
-                  "absolute grid place-items-center overflow-hidden rounded-lg border-2 border-[#f6c76a]/75 bg-[#f3dfbf]/70 text-[#4b2211] shadow-[0_7px_18px_rgba(58,28,12,0.24),inset_0_1px_0_rgba(255,255,255,0.45)] transition hover:scale-[1.01] hover:bg-[#fff1d8]/82 focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#ffe08b]",
+                  "absolute grid place-items-center overflow-hidden rounded-lg border-2 border-[#e8b45a] bg-[linear-gradient(135deg,#f7dca7_0%,#c8853d_52%,#8b4a20_100%)] text-[#4b2211] shadow-[0_7px_18px_rgba(58,28,12,0.28),inset_0_1px_0_rgba(255,255,255,0.55)] transition hover:scale-[1.01] hover:brightness-105 focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#ffe08b]",
                   isBought && "pointer-events-none scale-95 opacity-0",
-                  !isBought && totalSlices < item.cost && "cursor-not-allowed border-[#d2b48a]/70 bg-[#d9c8aa]/72 opacity-85 grayscale",
+                  !isBought && totalSlices < item.cost && "cursor-not-allowed border-[#b6814a] bg-[linear-gradient(135deg,#d8b984_0%,#9c6b37_54%,#6b3b1b_100%)] grayscale",
                 )}
                 style={{
                   left: `${(item.x / ROOM_CANVAS.width) * 100}%`,
@@ -187,7 +187,7 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
                 aria-label={`Compra ${item.label} per ${item.cost} spicchi di pizza`}
                 onClick={() => void onBuy(item.id)}
               >
-                <span className="grid max-w-[88%] place-items-center gap-0.5 rounded-md bg-[#5a2612]/82 px-2 py-1 text-center text-[10px] font-black leading-tight text-[#fff8df] shadow-sm sm:text-xs">
+                <span className="grid max-w-[88%] place-items-center gap-0.5 rounded-md bg-[#5a2612] px-2 py-1 text-center text-[10px] font-black leading-tight text-[#fff8df] shadow-sm sm:text-xs">
                   {isPending ? "Acquisto..." : "Da acquistare"}
                   <small className="text-[0.9em] text-[#ffd98a]">🍕 {item.cost}</small>
                 </span>
