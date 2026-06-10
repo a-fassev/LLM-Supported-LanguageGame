@@ -68,6 +68,21 @@ export type BootstrapDto = WalletSnapshotDto & {
   chapters: BootstrapChapterDto[];
 };
 
+export type RoomItemDto = {
+  id: string;
+  label: string;
+  cost: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+export type RoomStateDto = WalletSnapshotDto & {
+  purchasedItemIds: string[];
+  items: RoomItemDto[];
+};
+
 export type LeaderboardSelfDto = {
   username: string;
   team: TeamColor;
@@ -259,6 +274,18 @@ export function getSession(token: string | null) {
 
 export function getBootstrap(token: string) {
   return requestJson<BootstrapDto>("/api/game/bootstrap", { token });
+}
+
+export function getRoomState(token: string) {
+  return requestJson<RoomStateDto>("/api/game/room", { token });
+}
+
+export function purchaseRoomItem(token: string, input: { itemId: string }) {
+  return requestJson<RoomStateDto>("/api/game/room/purchase", {
+    method: "POST",
+    token,
+    body: input,
+  });
 }
 
 export function getLeaderboard(token: string) {
