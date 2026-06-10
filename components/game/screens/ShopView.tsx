@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
+  addRoomTestPizza,
   getRoomState,
   purchaseRoomItem,
   type ApiErrorResult,
@@ -25,6 +26,7 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
   const [room, setRoom] = useState<RoomStateDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [pendingItemId, setPendingItemId] = useState<string | null>(null);
+  const [testPizzaPending, setTestPizzaPending] = useState(false);
   const [message, setMessage] = useState("Usa gli spicchi di pizza per arredare la tua stanza dello scambio.");
   const [error, setError] = useState<string | null>(null);
 
@@ -92,6 +94,23 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
     setMessage(`${item.label} acquistato.`);
   }
 
+  async function onAddTestPizza() {
+    if (!token || testPizzaPending) return;
+
+    setTestPizzaPending(true);
+    setError(null);
+    const result = await addRoomTestPizza(token);
+    setTestPizzaPending(false);
+    if (!result.ok) {
+      handleRoomError(result, setError);
+      return;
+    }
+
+    setRoom(result.data);
+    onWalletChange?.(result.data.totalSlices);
+    setMessage("100 spicchi di pizza aggiunti per il test.");
+  }
+
   const complete = room ? purchased.size === room.items.length : false;
 
   return (
@@ -116,9 +135,9 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
 
       {error ? <p className="shrink-0 text-sm font-semibold text-destructive">{error}</p> : null}
 
-      <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-[#8f5a33]/20 bg-[#2f2118]/85 p-2 shadow-inner">
+      <div className="relative min-h-0 flex-1 overflow-auto rounded-xl border border-[#8f5a33]/20 bg-[#2f2118]/85 p-2 shadow-inner">
         <div
-          className="relative mx-auto max-h-full w-full max-w-full overflow-hidden rounded-lg bg-[#3b281d] shadow-[0_18px_48px_rgba(0,0,0,0.28)]"
+          className="relative mx-auto h-full max-h-full max-w-full overflow-hidden rounded-lg bg-[#3b281d] shadow-[0_18px_48px_rgba(0,0,0,0.28)]"
           style={{ aspectRatio: ROOM_CANVAS.aspectRatio }}
         >
           <Image
@@ -139,9 +158,9 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
                 key={item.id}
                 type="button"
                 className={cn(
-                  "absolute grid place-items-center overflow-hidden rounded-md border-2 border-[#5b391e]/55 bg-[linear-gradient(135deg,rgba(244,216,162,0.82),rgba(132,82,42,0.64))] text-[#fff2d5] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.22),0_8px_18px_rgba(0,0,0,0.18)] backdrop-blur-sm transition hover:scale-[1.015] focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#ffe08b]",
+                  "absolute grid place-items-center overflow-hidden rounded-lg border border-[#ffd98a]/60 bg-[#fff1d8]/18 text-[#fff2d5] shadow-[0_6px_18px_rgba(0,0,0,0.16),inset_0_0_0_1px_rgba(255,255,255,0.18)] transition hover:scale-[1.01] hover:bg-[#fff1d8]/28 focus-visible:outline focus-visible:outline-4 focus-visible:outline-[#ffe08b]",
                   isBought && "pointer-events-none scale-95 opacity-0",
-                  !isBought && totalSlices < item.cost && "cursor-not-allowed grayscale",
+                  !isBought && totalSlices < item.cost && "cursor-not-allowed border-white/25 bg-black/12 opacity-70 grayscale",
                 )}
                 style={{
                   left: `${(item.x / ROOM_CANVAS.width) * 100}%`,
@@ -154,7 +173,7 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
                 aria-label={`Compra ${item.label} per ${item.cost} spicchi di pizza`}
                 onClick={() => void onBuy(item.id)}
               >
-                <span className="grid max-w-[88%] place-items-center gap-0.5 rounded-md bg-[#2d1d11]/75 px-2 py-1 text-center text-[10px] font-black leading-tight text-[#fff2d5] shadow-sm sm:text-xs">
+                <span className="grid max-w-[88%] place-items-center gap-0.5 rounded-md bg-[#2d1d11]/78 px-2 py-1 text-center text-[10px] font-black leading-tight text-[#fff2d5] shadow-sm sm:text-xs">
                   {isPending ? "Acquisto..." : "Da acquistare"}
                   <small className="text-[0.9em] text-[#ffd98a]">🍕 {item.cost}</small>
                 </span>
@@ -168,32 +187,16 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
             </div>
           ) : null}
         </div>
-      </div>
 
-      {room ? (
-        <div className="grid shrink-0 grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
-          {room.items.map((item) => {
-            const isBought = purchased.has(item.id);
-            const disabled = isBought || pendingItemId !== null || totalSlices < item.cost;
-            return (
-              <Button
-                key={item.id}
-                type="button"
-                variant="secondary"
-                className={cn(
-                  "h-16 flex-col gap-0 rounded-lg border border-[#8f5a33]/20 bg-[#fff8eb]/85 px-2 text-center text-[11px] font-black leading-tight text-[#5a2612] hover:bg-[#fff3de]",
-                  isBought && "bg-[#e7efd9] text-[#355f3e]",
-                )}
-                disabled={disabled}
-                onClick={() => void onBuy(item.id)}
-              >
-                <span className="line-clamp-2">{item.label}</span>
-                <span className="text-xs text-[#9f4519]">{isBought ? "Comprato" : `🍕 ${item.cost}`}</span>
-              </Button>
-            );
-          })}
-        </div>
-      ) : null}
+        <Button
+          type="button"
+          className="absolute bottom-4 right-4 z-50 rounded-lg border border-[#fff6d8]/60 bg-[#9f4519] px-4 py-2 text-sm font-black text-white shadow-[0_10px_22px_rgba(0,0,0,0.24)] hover:bg-[#b24d1f]"
+          disabled={testPizzaPending}
+          onClick={() => void onAddTestPizza()}
+        >
+          {testPizzaPending ? "..." : "+100 🍕"}
+        </Button>
+      </div>
     </section>
   );
 }
