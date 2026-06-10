@@ -7,6 +7,7 @@ import {
   addRoomTestPizza,
   getRoomState,
   purchaseRoomItem,
+  resetRoomTestPurchases,
   type ApiErrorResult,
   type RoomStateDto,
 } from "@/lib/api-client";
@@ -27,6 +28,7 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
   const [loading, setLoading] = useState(true);
   const [pendingItemId, setPendingItemId] = useState<string | null>(null);
   const [testPizzaPending, setTestPizzaPending] = useState(false);
+  const [resetPending, setResetPending] = useState(false);
   const [message, setMessage] = useState("Usa gli spicchi di pizza per arredare la tua stanza dello scambio.");
   const [error, setError] = useState<string | null>(null);
 
@@ -111,6 +113,23 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
     setMessage("100 spicchi di pizza aggiunti per il test.");
   }
 
+  async function onResetRoom() {
+    if (!token || resetPending) return;
+
+    setResetPending(true);
+    setError(null);
+    const result = await resetRoomTestPurchases(token);
+    setResetPending(false);
+    if (!result.ok) {
+      handleRoomError(result, setError);
+      return;
+    }
+
+    setRoom(result.data);
+    onWalletChange?.(result.data.totalSlices);
+    setMessage("Tutti gli oggetti sono di nuovo bloccati.");
+  }
+
   const complete = room ? purchased.size === room.items.length : false;
 
   return (
@@ -183,14 +202,24 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
           ) : null}
         </div>
 
-        <Button
-          type="button"
-          className="absolute bottom-4 right-4 z-50 rounded-lg border border-[#fff6d8]/60 bg-[#9f4519] px-4 py-2 text-sm font-black text-white shadow-[0_10px_22px_rgba(0,0,0,0.24)] hover:bg-[#b24d1f]"
-          disabled={testPizzaPending}
-          onClick={() => void onAddTestPizza()}
-        >
-          {testPizzaPending ? "..." : "+100 🍕"}
-        </Button>
+        <div className="absolute bottom-4 right-4 z-50 flex gap-2">
+          <Button
+            type="button"
+            className="rounded-lg border border-[#fff6d8]/60 bg-[#5a2612] px-4 py-2 text-sm font-black text-white shadow-[0_10px_22px_rgba(0,0,0,0.24)] hover:bg-[#73351a]"
+            disabled={resetPending}
+            onClick={() => void onResetRoom()}
+          >
+            {resetPending ? "..." : "Reset"}
+          </Button>
+          <Button
+            type="button"
+            className="rounded-lg border border-[#fff6d8]/60 bg-[#9f4519] px-4 py-2 text-sm font-black text-white shadow-[0_10px_22px_rgba(0,0,0,0.24)] hover:bg-[#b24d1f]"
+            disabled={testPizzaPending}
+            onClick={() => void onAddTestPizza()}
+          >
+            {testPizzaPending ? "..." : "+100 🍕"}
+          </Button>
+        </div>
       </div>
     </section>
   );
