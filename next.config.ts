@@ -22,6 +22,7 @@ function allowedDevOriginsFromEnv(): string[] {
 const allowedDevOrigins = allowedDevOriginsFromEnv();
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   serverExternalPackages: ["argon2"],
   ...(allowedDevOrigins.length > 0 ? { allowedDevOrigins } : {}),
 };

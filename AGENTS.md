@@ -407,7 +407,7 @@ Co-locate tests as `*.test.ts` next to modules. Favor pure tests for scoring, sc
 
 ## Deployment
 
-- **CI/CD:** `.github/workflows/deploy-azure.yml` — on push to `main`, `npm ci` → `npm run build -- --webpack` (zip deploy) → Azure Web App (`enigma-di-bologna`).
+- **CI/CD:** `.github/workflows/deploy-azure.yml` — on push to `main`, `npm ci` → `npm run build -- --webpack` → standalone `deploy/` package (`node server.js`) → Azure Web App (`enigma-di-bologna`). Do **not** set `type: zip` on `azure/webapps-deploy` (breaks on Node 24 with `EISDIR`).
 - **Node:** 22.x in CI (align local Node with workflow when possible).
 - **Secrets:** GitHub / Azure environment for `SUPABASE_SECRET_KEY`, publish profile, LLM keys—not in the repo.
 
