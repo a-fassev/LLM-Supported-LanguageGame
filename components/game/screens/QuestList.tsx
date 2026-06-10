@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { BootstrapQuestDto } from "@/lib/api-client";
+import { isGameTestingReplayMode } from "@/lib/game/game-testing-replay-mode";
 
 type QuestListItem = {
   quest: BootstrapQuestDto;
@@ -19,7 +20,7 @@ export function QuestList({ items, onStartQuest }: QuestListProps) {
   return (
     <div className="space-y-5">
       {items.map(({ quest, locked, completed }) => {
-        const playable = !locked && !completed;
+        const playable = isGameTestingReplayMode() || (!locked && !completed);
 
         return (
           <button
