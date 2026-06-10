@@ -111,14 +111,14 @@
             },
             {
               "kind": "text",
-              "text": " gli piacciono "
+              "text": " gli piace "
             },
             {
               "kind": "gap",
               "maxLength": 64,
               "correctAnswers": [
-                "di",
-                "Di"
+                "per",
+                "Per"
               ]
             },
             {
@@ -154,7 +154,9 @@
               "maxLength": 64,
               "correctAnswers": [
                 "di non pensare",
-                "Di non pensare"
+                "Di non pensare",
+                "che tu non pensi",
+                "Che tu non pensi"
               ]
             },
             {
@@ -202,12 +204,14 @@
               "maxLength": 64,
               "correctAnswers": [
                 "di avere",
-                "Di avere"
+                "Di avere",
+                "che io abbia",
+                "Che io abbia"
               ]
             },
             {
               "kind": "text",
-              "text": " (io, avere) un'amica come te."
+              "text": " (io, avere) amici come te."
             }
           ]
         }
