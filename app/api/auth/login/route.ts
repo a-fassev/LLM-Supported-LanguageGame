@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { verifyPassword } from "@/lib/password";
+import { hashPassword, needsPasswordHashUpgrade, verifyPassword } from "@/lib/password";
 import { createOpaqueToken, hashToken } from "@/lib/session-token";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -62,6 +62,22 @@ export async function POST(request: Request) {
 
   if (!valid) {
     return jsonError(401, authMsg.invalidCredentials, "auth_failed");
+  }
+
+  if (needsPasswordHashUpgrade(account.password_hash)) {
+    try {
+      const upgradedHash = await hashPassword(parsed.data.password);
+      const { error: upgradeError } = await supabase
+        .from("student_accounts")
+        .update({ password_hash: upgradedHash })
+        .eq("id", account.id);
+
+      if (upgradeError) {
+        console.error("[login] password hash upgrade", upgradeError);
+      }
+    } catch (upgradeErr) {
+      console.error("[login] password hash upgrade", upgradeErr);
+    }
   }
 
   const token = createOpaqueToken();

@@ -100,7 +100,7 @@ Optional CLIs when MCP is not enough: **GitHub** (`gh`) for PRs and CI; **Supaba
 | Data / auth       | **Supabase** (`@supabase/supabase-js`) | Postgres + RLS in linked project; `SUPABASE_SECRET_KEY` server-only |
 | Validation        | **Zod 4**                              | Step payloads, attempts, pizza rules                                |
 | LLM               | **LangChain** + **Google Gemini** (AI Studio) | **FreitextLlm** evaluate only (`lib/llm/`)                    |
-| Passwords         | **argon2**                             | Registration / login                                                |
+| Passwords         | **bcryptjs** (+ argon2 verify on login) | New hashes bcrypt; legacy argon2 upgraded on successful login       |
 | Tests             | **Vitest 4**                           | `npm test` — Node environment, `**/*.test.ts`                       |
 | Lint              | **ESLint 9** + `eslint-config-next`    | `npm run lint` → `eslint .` (`next lint` removed in Next 16)        |
 
