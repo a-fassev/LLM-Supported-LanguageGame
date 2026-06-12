@@ -74,7 +74,7 @@ describe("chapter-04 Bologna Lezione 4 catalog", () => {
     const saraThanks = chapter!.questsExpanded
       .find((q) => q.id === "quest-02")
       ?.scenes.find((s) => s.id === "chapter-04-quest-02-scene-08");
-    expect(saraThanks?.content.text).toMatch(/sfogarmi un po'\. Sono delle foto bellissime, vero\? Ma mi rendono tristissima\."$/);
+    expect(saraThanks?.content.text).toMatch(/Sono delle foto bellissime, vero\? Ma mi rendono tristissima\."$/);
 
     const saraCloze = chapter!.questsExpanded
       .find((q) => q.id === "quest-02")

@@ -376,7 +376,7 @@ writeJson(
     2,
     q1bg,
     tu(
-      "Oggi è sabato: dopo scuola andrò ai Giardini Margherita. La signora Ferrari ieri mi ha detto che sono particolarmente belli in questo periodo: fiori d'estate, tanta gente fuori. Una bella giornata per una passeggiata.",
+      "Oggi è sabato: dopo scuola andrò ai Giardini Margherita verso le 14:30. La signora Ferrari ieri mi ha detto che sono particolarmente belli in questo periodo: fiori d'estate, tanta gente fuori. Una bella giornata per una passeggiata.",
     ),
   ),
 );
@@ -401,7 +401,7 @@ writeJson(
     "quest-02",
     1,
     q2bg,
-    "Stai camminando nei Giardini Margherita. Il sole splende, alcuni ragazzi fanno picnic sull'erba, qualcuno suona la chitarra sotto un albero. Su una panchina vicino al laghetto sta seduta una ragazza, un po' rannicchiata su se stessa — e guardandola meglio la riconosci: è Sara, una compagna di classe del Liceo Galvani. Sembra triste.",
+    "Stai camminando nei Giardini Margherita. Il sole splende, alcuni ragazzi fanno picnic sull'erba, qualcuno suona la chitarra sotto un albero. Su una panchina vicino al laghetto sta seduta una ragazza e guardandola meglio la riconosci: è Sara, una compagna di classe del Liceo Galvani. Sembra triste.",
   ),
 );
 writeJson(
@@ -450,7 +450,7 @@ writeJson(
     q2bg,
     npc(
       "Sara",
-      `„Senti, queste tre le ho già descritte per il mio diario di viaggio. Ma per quest'ultima non trovo le parole... mi aiuteresti tu? Descrivimela tu in italiano!"`,
+      `„Senti, queste tre le ho già descritte. Ma per quest'ultima non trovo le parole... mi aiuteresti tu? Descrivimela tu in italiano!"`,
     ),
   ),
 );
@@ -519,7 +519,7 @@ writeJson(
     q2bg,
     npc(
       "Sara",
-      `„Grazie! Allora, ora che hai visto le mie foto... posso essere sincera con te? Devo proprio sfogarmi un po'. Sono delle foto bellissime, vero? Ma mi rendono tristissima."`,
+      `„Grazie! Sono delle foto bellissime, vero? Ma mi rendono tristissima."`,
     ),
   ),
 );
@@ -549,7 +549,7 @@ writeJson(
     q2bg,
     npc(
       "Sara",
-      `„E adesso non ne voglio parlare a scuola. Non posso. Marco va in un'altra scuola adesso, forse sta con Laura — ma le nostre amiche sono tutte là, e non voglio piangere davanti a tutti."`,
+      `„E adesso non ne voglio parlare a scuola. Non posso. Marco va in un'altra scuola adesso, forse sta con Laura — non voglio piangere davanti a tutti."`,
     ),
   ),
 );
@@ -649,7 +649,7 @@ writeJson(
     q2bg,
     npc(
       "Sara",
-      `„Sai una cosa? Forse hai ragione. Forse Marco non lo voglio nemmeno più. È che... fa male, sai? Dimmi una cosa: secondo te, sto dicendo cose sensate? Mi si gira la testa. Senti queste frasi che mi escono dalla bocca — ti suonano giuste?"`,
+      `„Sai una cosa? Forse hai ragione. Forse Marco non lo voglio nemmeno più. È che... fa male, sai? Dimmi una cosa: secondo te, sto dicendo cose sensate? Mi si gira la testa."`,
     ),
   ),
 );
@@ -682,7 +682,7 @@ writeJson("quests/quest-02/scenes/16.json", {
     referenceDocument: null,
     task: {
       prompt:
-        "Sara è confusa e dice alcune frasi. Tre verbi NON vanno bene: in alcuni casi usa il congiuntivo quando dovrebbe usare l'infinito perché il soggetto è lo stesso, in altri usa l'infinito quando dovrebbe usare il congiuntivo perché i soggetti sono diversi. Clicca sui verbi sbagliati.",
+        "Sara, che abita in Italia solo da tre anni, è confusa. In alcune frasi usa il congiuntivo quando potrebbe usare l'infinito, in altre usa l'infinito quando dovrebbe usare il congiuntivo. Clicca sui verbi sbagliati.",
       expectedErrorRange: { min: 3, max: 3 },
       segments: errorSegments,
     },
@@ -745,7 +745,7 @@ writeJson(
     2,
     q3bg,
     tu(
-      "Sara mi ha fatto pena oggi. Ho appena cercato in internet un articolo in tedesco — sul mal d'amore e su come consolare qualcuno. Esattamente quello di cui Sara ha bisogno adesso. Prendo i consigli più importanti e chiedo a mio cugino che cosa pensa lui di questi consigli.",
+      "Sara mi ha fatto pena oggi. Ho appena cercato in internet un articolo in tedesco — sul mal d'amore e su come consolare qualcuno. Esattamente quello di cui Sara ha bisogno adesso. Prendo i consigli più importanti e domando a mio cugino che cosa pensa lui di questi consigli.",
     ),
   ),
 );
@@ -832,7 +832,7 @@ writeJson(
     q4bg,
     npc(
       "Sara",
-      `„Ehi, ciao! Senti, ho letto la tua mail ieri sera — non posso dirti quanto mi ha aiutato. Davvero, grazie di cuore. E ho una sorpresa per te: ho parlato con Giulia, la mia migliore amica di Comacchio, e... insomma, ti mando il messaggio che ho ricevuto. Vuole invitare anche te! Leggilo e dimmi cosa ne pensi!"`,
+      `„Ehi, ciao! Senti, ho letto la tua mail ieri — non posso dirti quanto mi ha aiutato. Davvero, grazie di cuore. E ho una sorpresa per te: ho parlato con Giulia, la mia migliore amica di Comacchio, e... insomma, ti mando il messaggio che ho ricevuto. Vuole invitare anche te! Leggilo e dimmi cosa ne pensi!"`,
     ),
   ),
 );
@@ -1035,7 +1035,7 @@ writeJson(
     q4bg,
     npc(
       "Sara",
-      `„Allora? Hai detto a tua mamma? Allora, ti aspettiamo a Comacchio! Sarà fantastico, vedrai!"`,
+      `„Allora, ti aspettiamo a Comacchio! Sarà fantastico, vedrai!"`,
     ),
   ),
 );
@@ -1047,7 +1047,7 @@ writeJson(
     11,
     q4bg,
     tu(
-      "Fatto! La mamma mi ha già risposto e va benissimo. Un weekend a Comacchio con Sara e Giulia — sarà bellissimo. Ma prima di fare la valigia devo ripassare ancora i vocaboli di questa lezione, prima dell'interrogazione a scuola.",
+      "Fatto! La mamma mi ha già risposto e va benissimo. Un weekend a Comacchio con Sara e Giulia — sarà bellissimo. Ma prima di fare la valigia devo ripassare ancora i vocaboli di questa lezione: ci sarà l'interrogazione a scuola.",
     ),
   ),
 );

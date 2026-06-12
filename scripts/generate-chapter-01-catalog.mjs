@@ -118,7 +118,7 @@ for (const q of quests) {
 
 // --- quest-01 (7 story) ---
 const q1bg = quests[0].bgRoom;
-writeJson("quests/quest-01/scenes/01.json", story("chapter-01", "quest-01", 1, q1bg, "Benvenuto/a a Bologna."));
+writeJson("quests/quest-01/scenes/01.json", story("chapter-01", "quest-01", 1, q1bg, "Ciao e benvenuto/a a Bologna."));
 writeJson(
   "quests/quest-01/scenes/02.json",
   story(
@@ -156,7 +156,7 @@ writeJson(
     "quest-01",
     5,
     q1bg,
-    "Durante il gioco completerai diversi compiti per la scuola e per le persone che incontrerai. Per ogni compito risolto, il tuo zaino diventa più pieno di colore. (Hai perso lo zaino il primo giorno!)",
+    "Durante il gioco completerai diversi compiti per la scuola e per le persone che incontrerai. Per ogni compito risolto, il tuo zaino diventa più pieno di colore. (Hai perso lo zaino al tuo arrivo!)",
   ),
 );
 writeJson(
@@ -166,7 +166,7 @@ writeJson(
     "quest-01",
     6,
     q1bg,
-    "Per i compiti riceverai fette di pizza. Puoi usarle per personalizzare il tuo avatar con nuovi vestiti e accessori.",
+    "Per i compiti risolti riceverai fette di pizza. Puoi usarle per personalizzare il tuo avatar con nuovi vestiti ed accessori.",
   ),
 );
 writeJson(
@@ -176,7 +176,7 @@ writeJson(
     "quest-01",
     7,
     q1bg,
-    "Dalla mappa dei capitoli puoi scegliere la prossima missione. Alcuni capitoli si aprono solo quando hai completato quelli precedenti.",
+    "Dalla mappa dei capitoli puoi scegliere la prossima missione. Alcuni capitoli si apriranno solo quando hai completato quelli precedenti.",
   ),
 );
 
@@ -306,7 +306,7 @@ writeJson(
     "quest-02",
     7,
     q2bg,
-    "Prof.ssa Ricci\n\"Bravissimo/a! A proposito di viaggi: ho qui un articolo di una rivista tedesca con consigli per i turisti in Italia. Però... c'è qualcosa che non torna. Ci sono degli errori. Riuscite a trovarli?\"",
+    "Prof.ssa Ricci\n\"Bravissimo/a! A proposito di viaggi: ho qui un articolo di una rivista tedesca con consigli per i turisti in Italia. Però... c'è qualcosa che non va. Ci sono degli errori. Riuscite a trovarli?\"",
   ),
 );
 
@@ -453,7 +453,7 @@ writeJson(
     "quest-03",
     2,
     q3bg,
-    "Matteo\nCiao cugino/a! Allora, com'è andato il primo giorno a Bologna? Io oggi sono tornato a scuola anch'io e... che disastro! Ti racconto tutto, ma scrivo di fretta perché ho i compiti.",
+    "Matteo\nCiao Toni! Sono tuo cugino! Allora, com'è andato il primo giorno a Bologna? Io oggi sono tornato a scuola anch'io e... che disastro! Ti racconto tutto, ma scrivo di fretta perché ho i compiti.",
   ),
 );
 writeJson(
@@ -484,7 +484,7 @@ writeJson("quests/quest-03/scenes/04.json", {
       lines: [
         {
           segments: [
-            { kind: "text", text: "Ciao cugino/a! " },
+            { kind: "text", text: "Ciao Toni! " },
             gap(["ti", "Ti"]),
             { kind: "text", text: " scrivo solo poche frasi perché vado di fretta. Il nostro prof di matematica " },
             gap(["ci ha dato", "Ci ha dato"]),
@@ -554,7 +554,7 @@ writeJson(
     "quest-04",
     2,
     q4bg,
-    "Tonio\n\"Ciao, ragazzo/a! Cosa desideri? Un caffè, un'acqua? ... Aspetta, non ci siamo mai visti qui. Sei qui da poco, vero? Che fai, studi?\"",
+    "Tonio\n\"Ciao caro/cara! Cosa desideri? Un caffè, un'acqua? ... Aspetta, non ci siamo mai visti qui. Sei qui da poco, vero? Che fai, studi?\"",
   ),
 );
 writeJson(
@@ -673,10 +673,10 @@ writeJson("quests/quest-04/scenes/10.json", {
   background: q4task,
   content: {
     title: "Parole inglesi e italiane",
-    instruction: "Collega ogni parola inglese alla parola italiana corrispondente.",
+    instruction: "Abbina ogni parola inglese alla parola italiana corrispondente.",
     referenceDocument: refDoc,
     task: {
-      prompt: "Collega ogni parola inglese alla parola italiana corrispondente.",
+      prompt: "Abbina ogni parola inglese alla parola italiana corrispondente.",
       leftItems: [
         { id: "en1", label: "cave" },
         { id: "en2", label: "route" },
@@ -806,7 +806,7 @@ writeJson(
     "quest-04",
     13,
     q4bg,
-    "Tonio\n\"Grandissimo/a! Mi hai aiutato tanto, grazie! Tieni, il caffè te lo offro io. E se torni in Puglia un giorno, passa a trovarmi al mio paese, eh!\"",
+    "Tonio\n\"Sei grande! Mi hai aiutato tanto, grazie! Tieni, il caffè te lo offro io. E se torni in Puglia un giorno, passa a trovarmi al mio paese, eh!\"",
   ),
 );
 writeJson(
@@ -945,6 +945,13 @@ const bonusPairs = [
   ["fortunata", "fortunate"],
   ["straniero", "foreign"],
   ["straniera", "foreigner"],
+  ["di solito", "usually"],
+  ["di fronte a", "opposite"],
+  ["di più", "more"],
+  ["di meno", "less"],
+  ["di sicuro", "certainly"],
+  ["di recente", "recently"],
+  ["di corsa", "rapidly"],
 ];
 
 writeJson("quests/quest-01-bonus/scenes/04.json", {

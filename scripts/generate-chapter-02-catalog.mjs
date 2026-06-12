@@ -273,7 +273,7 @@ writeJson(
     "quest-01",
     1,
     q1bg,
-    "Hai dormito bene nella tua nuova camera. La signora Ferrari ti ha lasciato la colazione in tavola: pane, marmellata, un cappuccino.",
+    "Hai dormito bene nella tua nuova camera. La signora Ferrari ti ha lasciato la colazione in tavola: biscotti e un cappuccino.",
   ),
 );
 writeJson(
@@ -283,7 +283,7 @@ writeJson(
     "quest-01",
     2,
     q1bg,
-    "Tu\nOggi ho un po' di tempo libero. Devo finire un progetto per la scuola su un italiano famoso. E poi ho letto che un ristorante qui in centro cerca personale per l'estate — magari vado a vedere. Ma prima voglio fare un giro per la città...",
+    "Tu\nOggi ho un po' di tempo libero. Devo finire un progetto per la scuola su un italiano famoso. E poi ho letto che un ristorante qui in centro cerca personale per l'estate — magari vado a vedere. Ma prima voglio fare un giro in città...",
   ),
 );
 writeJson(
@@ -308,7 +308,7 @@ writeJson(
     "quest-02",
     1,
     q2bg,
-    "Cammini sotto i portici e ti fermi davanti a un locale che hai sentito nominare tante volte: la Nutelleria. Profumo di crêpe e di cioccolato. Entri e ti siedi a un tavolino vicino alla finestra.",
+    "Stai camminando sotto i portici e ti fermi davanti a un locale che hai sentito nominare tante volte: la Nutelleria. Profumo di crêpe e di cioccolato. Entri e ti siedi a un tavolino vicino alla finestra.",
   ),
 );
 writeJson(
@@ -328,7 +328,7 @@ writeJson(
     "quest-02",
     3,
     q2bg,
-    "Dario\n\"Ehi, ciao! Anche tu qui? Vieni, siediti con me. Non posso credere a quello che mi è successo oggi!\"",
+    "Dario\n\"Ehi, ciao! Anche tu qui? Stai cercando un posto? Vieni, siediti con me. Io qui incontro sempre qualcuno! Non crederai mai che mi è successo qui ieri!\"",
   ),
 );
 writeJson(
@@ -342,7 +342,7 @@ writeJson(
     "quest-02",
     5,
     q2bg,
-    "Dario\n\"Ho appena parlato con Elena, un'amica di mia madre. Lei fa l'archeologa e mi ha raccontato del suo lavoro. È stato bellissimo! Sai, ho deciso: da grande voglio fare l'archeologo anch'io!\"",
+    "Dario\n\"Ho incontrato Elena, un'amica di mia madre. Lei fa l'archeologa e mi ha raccontato del suo lavoro. È stato interessantissimo! Sai, ho deciso: da grande voglio fare l'archeologo anch'io!\"",
   ),
 );
 writeJson(
@@ -393,16 +393,9 @@ writeJson("quests/quest-02/scenes/07.json", {
             gap(["I miei", "i miei"]),
             { kind: "text", text: " genitori " },
             gap(["saranno", "Saranno"]),
-            { kind: "text", text: " contentissimi. Che dici: " },
-            gap(["la", "La"]),
-            { kind: "text", text: " mamma mi " },
-            gap(["comprerà", "Comprerà"]),
-            { kind: "text", text: " il libro sull'archeologia che abbiamo visto ieri? " },
-            gap(["Prenderò", "prenderò"]),
-            { kind: "text", text: " un " },
-            { kind: "text", text: "*bene/buon*" },
-            gap(["buon", "Buon"]),
-            { kind: "text", text: " voto naturalmente! " },
+            { kind: "text", text: " contentissimi, soprattutto " },
+            gap(["mio", "Mio"]),
+            { kind: "text", text: " padre perché gli piace tanto la storia. " },
             gap(["Smetterò", "smetterò"]),
             { kind: "text", text: " anche di chiacchierare con gli altri, anche se " },
             gap(["sarà", "Sarà"]),
@@ -422,15 +415,17 @@ writeJson("quests/quest-02/scenes/07.json", {
             gap(["mia", "Mia"]),
             { kind: "text", text: " idea?\nTu: Boh, la " },
             gap(["accetteranno", "Accetteranno"]),
-            { kind: "text", text: ".\nDario: E tu? Sai già cosa " },
+            { kind: "text", text: " tutti i tuoi amici, non credi?\nDario: E tu? Sai già cosa " },
             gap(["farai", "Farai"]),
             { kind: "text", text: " dopo " },
             gap(["la", "La"]),
             { kind: "text", text: " maturità?\nTu: Sì, ho già una mezza idea sul " },
             gap(["futuro", "Futuro"]),
-            { kind: "text", text: ". Sai che mi piace molto la musica e proprio ieri ho sentito un'intervista...\nDario: Ah, interessante, dimmi tutto. " },
-            gap(["Potremmo", "potremmo"]),
-            { kind: "text", text: " mangiare qualcosa insieme e tu racconti. Che ne dici?" },
+            { kind: "text", text: ". Sai che a " },
+            gap(["mia", "Mia"]),
+            { kind: "text", text: " sorella e a me piace molto la musica e proprio ieri ho sentito un'intervista alla " },
+            gap(["nostra", "Nostra"]),
+            { kind: "text", text: " cantante preferita.\nDario: Ah, interessante, dimmi tutto. Mangiamo qualcosa insieme e tu racconti. Che ne dici?" },
           ],
         },
       ],
@@ -446,7 +441,7 @@ writeJson(
     "quest-02",
     8,
     q2bg,
-    "Dario\n\"Sai, dopo il discorso con Elena ho pensato a tante cose. Per esempio: ma tu in Germania, conosci tanti mestieri diversi? Adesso te ne dico qualcuno e tu mi spieghi cosa fanno. Usa frasi con che, cui o dove, così pratichiamo un po'.\"",
+    "Dario\n\"Sai, dopo il discorso con Elena ho pensato a tante cose. Per esempio non conosco tanti mestieri diversi, solo quelli più comuni. Sai cosa facciamo? Uno nomina un mestiere e l'altro spiega cosa fanno usando che, cui o dove, d'accordo? Cominci tu a spiegare.\"",
   ),
 );
 
@@ -502,7 +497,7 @@ writeJson(
     "quest-02",
     13,
     q2bg,
-    "Dario\n\"Sei bravissimo/a! Senti, io devo andare, ho ancora molte cose da fare. Ci vediamo domani a scuola, eh! E grazie per la chiacchierata.\"",
+    "Dario\n\"Meraviglioso! Senti, io devo andare, ho ancora molte cose da fare. Ci vediamo domani a scuola, eh! E grazie per la chiacchierata.\"",
   ),
 );
 writeJson(
@@ -537,7 +532,7 @@ writeJson(
     "quest-03",
     1,
     q3bg,
-    "Torni a casa della famiglia Ferrari. La signora Ferrari ti saluta dalla cucina e ti ricorda che hai i compiti da fare. Sali in camera tua, accendi il computer e apri il portale della scuola.",
+    "Torni a casa della famiglia Ferrari. La signora Ferrari ti saluta e ti ricorda che hai i compiti da fare. Sali in camera tua, accendi il computer e apri il portale della scuola.",
   ),
 );
 writeJson(
@@ -584,14 +579,20 @@ writeJson("quests/quest-03/scenes/04.json", {
               "Alessandro Del Piero",
               "Chiara Ferragni",
             ]),
-            { kind: "text", text: "\netà (oppure data di nascita): " },
+            { kind: "text", text: "\nanno di nascita: " },
             gap([
+              "nato nel 1979",
               "nato il 22 settembre 1979",
               "22 settembre 1979",
+              "1979",
+              "nato nel 1974",
               "nato il 9 novembre 1974",
               "9 novembre 1974",
+              "1974",
+              "nata nel 1987",
               "nata il 7 maggio 1987",
               "7 maggio 1987",
+              "1987",
             ]),
             { kind: "text", text: "\nregione d'origine: " },
             gap(["Campania", "campania", "Veneto", "veneto", "Lombardia", "lombardia"]),
@@ -827,7 +828,7 @@ writeJson(
     "quest-04",
     6,
     q4bg,
-    "Signor Marini\n\"Ah, perfetto! Stiamo cercando personale per la stagione estiva. Hai con te una lettera di motivazione?\"",
+    "Signor Marini\n\"Ah, perfetto! Stiamo cercando del personale per la stagione estiva. Hai con te una lettera di motivazione?\"",
   ),
 );
 writeJson(
@@ -837,7 +838,7 @@ writeJson(
     "quest-04",
     7,
     q4bg,
-    "Tu\n\"Non ancora, ma ho il portatile. Posso prepararla adesso?\"",
+    "Tu\n\"Non ancora, ma ecco il mio portatile. Posso prepararla qui?\"",
   ),
 );
 writeJson(
@@ -847,7 +848,7 @@ writeJson(
     "quest-04",
     8,
     q4bg,
-    "Signor Marini\n\"Certo, siediti pure. Quando hai finito, me la mandi via email e poi parliamo un po'. Ah, e visto che siamo un ristorante: ti farò anche qualche domanda sui piatti italiani, eh!\"",
+    "Signor Marini\n\"Certo, siediti pure. Quando hai finito, me la mandi via email e poi ne parliamo un po'. Ah, e visto che siamo un ristorante: ti farò anche qualche domanda sui piatti italiani, eh!\"",
   ),
 );
 writeJson(
@@ -857,7 +858,7 @@ writeJson(
     "quest-04",
     9,
     q4bg,
-    "Tu\nVa bene. Apro il computer. Ci sono delle formule fisse che si usano sempre nelle lettere formali: devo solo scegliere quelle giuste.",
+    "Tu\nVa bene. Apro il computer e si comincia. Ci sono delle formule fisse che si usano sempre nelle lettere formali: bisogna solo scegliere quelle giuste.",
   ),
 );
 writeJson(
@@ -915,9 +916,20 @@ writeJson("quests/quest-04/scenes/11.json", {
   content: {
     title: "Lettera di motivazione",
     instruction: "Trascina la formula giusta in ogni lacuna della lettera.",
-    referenceDocument: null,
+    referenceDocument: {
+      title: "Bozza della lettera",
+      body: `___ (1)
+
+___ (2) per un posto come aiuto in sala nel vostro ristorante.
+
+___ (3) ho sedici anni e frequento la decima classe di un liceo linguistico a Monaco di Baviera. Studio l'italiano da tre anni e quest'estate vorrei migliorare la mia lingua lavorando in Italia. ___ (4) ho già lavorato come babysitter per due estati e ho fatto il tirocinio nella mensa della mia scuola, quindi ho un po' di esperienza con il pubblico e con il servizio.
+
+___ (5) sono una persona puntuale, gentile e motivata. ___ (6)
+
+___ (7)`,
+    },
     task: {
-      prompt: "Completa la lettera di motivazione con le formule giuste (S. 51).",
+      prompt: "Completa la lettera di motivazione con le formule giuste.",
       presentation: { targetMode: "blocks" },
       shuffleItemOrder: true,
       items: letterFormulas,
@@ -1027,7 +1039,7 @@ writeJson(
     "quest-04",
     19,
     q4bg,
-    "Signor Marini\n\"Bravissimo/a! Si vede che hai studiato bene. Senti, mi piaci. Per l'estate ti posso offrire un posto come aiuto in sala. Adesso vai a casa, parla con la tua famiglia ospitante e poi ci sentiamo. Ah, e tieni: il primo caffè da Marini te lo offro io!\"",
+    "Signor Marini\n\"Bravissimo/a! Si vede che hai studiato bene. Per l'estate ti posso offrire un posto come aiuto in sala. Adesso vai a casa, parla con la tua famiglia ospitante e poi ci sentiamo. Ah, e tieni: il primo caffè da Marini è in offerta!\"",
   ),
 );
 writeJson(
@@ -1037,7 +1049,7 @@ writeJson(
     "quest-04",
     20,
     q4bg,
-    "Tu\nChe giornata! Ho conosciuto meglio Bologna, ho fatto i compiti, ho trovato anche un lavoretto per l'estate. Non è male, sono appena arrivato/a!",
+    "Tu\nChe giornata! Ho conosciuto meglio Bologna, ho fatto i compiti, ho trovato anche un lavoretto per l'estate. Niente male, e sono appena arrivato/a!",
   ),
 );
 writeJson(

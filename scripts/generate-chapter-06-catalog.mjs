@@ -513,7 +513,7 @@ writeJson("quests/quest-02/scenes/04.json", {
       body: INTERVIEW_BODY,
     },
     task: {
-      prompt: "Collega ogni domanda alla risposta corretta.",
+      prompt: "Abbina ogni domanda alla risposta corretta.",
       leftItems: interviewQuestions,
       rightItems: interviewAnswers,
       correctPairs: [

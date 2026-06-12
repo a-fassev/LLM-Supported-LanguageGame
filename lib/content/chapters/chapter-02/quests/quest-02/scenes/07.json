@@ -131,59 +131,19 @@
             },
             {
               "kind": "text",
-              "text": " contentissimi. Che dici: "
+              "text": " contentissimi, soprattutto "
             },
             {
               "kind": "gap",
               "maxLength": 48,
               "correctAnswers": [
-                "la",
-                "La"
+                "mio",
+                "Mio"
               ]
             },
             {
               "kind": "text",
-              "text": " mamma mi "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 48,
-              "correctAnswers": [
-                "comprerà",
-                "Comprerà"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": " il libro sull'archeologia che abbiamo visto ieri? "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 48,
-              "correctAnswers": [
-                "Prenderò",
-                "prenderò"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": " un "
-            },
-            {
-              "kind": "text",
-              "text": "*bene/buon*"
-            },
-            {
-              "kind": "gap",
-              "maxLength": 48,
-              "correctAnswers": [
-                "buon",
-                "Buon"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": " voto naturalmente! "
+              "text": " padre perché gli piace tanto la storia. "
             },
             {
               "kind": "gap",
@@ -299,7 +259,7 @@
             },
             {
               "kind": "text",
-              "text": ".\nDario: E tu? Sai già cosa "
+              "text": " tutti i tuoi amici, non credi?\nDario: E tu? Sai già cosa "
             },
             {
               "kind": "gap",
@@ -335,19 +295,31 @@
             },
             {
               "kind": "text",
-              "text": ". Sai che mi piace molto la musica e proprio ieri ho sentito un'intervista...\nDario: Ah, interessante, dimmi tutto. "
+              "text": ". Sai che a "
             },
             {
               "kind": "gap",
               "maxLength": 48,
               "correctAnswers": [
-                "Potremmo",
-                "potremmo"
+                "mia",
+                "Mia"
               ]
             },
             {
               "kind": "text",
-              "text": " mangiare qualcosa insieme e tu racconti. Che ne dici?"
+              "text": " sorella e a me piace molto la musica e proprio ieri ho sentito un'intervista alla "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 48,
+              "correctAnswers": [
+                "nostra",
+                "Nostra"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " cantante preferita.\nDario: Ah, interessante, dimmi tutto. Mangiamo qualcosa insieme e tu racconti. Che ne dici?"
             }
           ]
         }

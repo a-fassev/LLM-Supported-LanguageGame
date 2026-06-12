@@ -151,7 +151,7 @@ describe("chapter-05 task answer keys (server scoring)", () => {
     };
     const gaps = gapSegmentsFromLines(task.lines);
     expect(gaps[0].correctAnswers).toEqual([
-      "Egregio Dirigente scolastico, Gentile Professor Sallusti",
+      "Egregio Dirigente scolastico, Gentile Professoressa Bardelli",
     ]);
     expect(scene.content.referenceDocument?.body).toContain("Banca formule:");
 

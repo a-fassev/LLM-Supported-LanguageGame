@@ -76,11 +76,11 @@ const LORENZO_STORY_BODY = `„In Piemonte si mangia bene. E a Torino (e in tutt
 
 A Torino si fanno anche i buoni grissini — un pane croccante fatto a forma di bastoncino. Spesso i grissini si mangiano avvolti in una fetta di prosciutto, ma se qualcuno li preferisce senza, non c'è problema.
 
-A Torino si gioca anche a calcio. Ecco la maglietta della famosa squadra a Torino: la Juventus, oppure la Juve. La squadra non ha solo uno stadio bellissimo e un buon allenatore, ma anche un soprannome interessante: i torinesi la chiamano „Vecchia Signora".
+Qui si gioca anche a calcio. Ecco la maglietta della famosa squadra a Torino: la Juventus, oppure la Juve. La squadra non ha solo uno stadio bellissimo e un buon allenatore, ma anche un soprannome interessante: i torinesi la chiamano „Vecchia Signora".
 
 A Torino si possono vedere le Alpi e la Mole Antonelliana — il simbolo di Torino. All'interno della Mole si può visitare il Museo Nazionale del Cinema. Lì ci si può informare sulla storia del cinema, guardare qualche film e passare alcune ore interessanti.
 
-A Torino non si devono perdere i musei! Un consiglio: se si prenota, non si deve fare la fila! Tanti dicono che il Museo Egizio sia qualcosa di spettacolare. Con 30.000 pezzi è il museo egizio più importante dopo quello del Cairo. Lì si possono ammirare opere d'arte dell'antico Egitto.
+In questa bellissima città non si devono perdere i musei! Un consiglio: se si prenota, non si deve fare la fila! Tanti dicono che il Museo Egizio sia qualcosa di spettacolare. Con 30.000 pezzi è il museo egizio più importante dopo quello del Cairo. Lì si possono ammirare opere d'arte dell'antico Egitto.
 
 A Torino si producono automobili. Nel corso degli anni la FIAT — fondata nel 1899 — ha prodotto tanti modelli famosi come la FIAT 500. Fino agli anni '80 la FIAT produceva le sue macchine nel Lingotto. Sul tetto del Lingotto si trova la vecchia pista di collaudo della FIAT. Oggi il Lingotto è un centro polifunzionale con alcuni negozi, bar, ristoranti, cinema ed un centro congressi."`;
 
@@ -420,11 +420,11 @@ writeJson("quests/quest-02/scenes/05.json", {
           "museum-q1",
           "Chi ha fondato la città che oggi si chiama Bologna?",
           [
-            "I Romani, nel 189 a.C.",
             "Gli Etruschi, nel VI secolo a.C.",
             "I Galli Boi, nel IV secolo a.C.",
+            "I Romani, nel 189 a.C.",
           ],
-          1,
+          0,
         ),
         mcQuestion(
           "museum-q2",
@@ -481,7 +481,7 @@ writeJson(
     "quest-02",
     7,
     q2bg,
-    "Continui a camminare per la sala. In un angolo c'è un piccolo gruppo di visitatori intorno a una donna con un cartellino. Parla con energia e gesticola. Diventi curioso/a e ti avvicini.",
+    "Continui a camminare per la sala. In un angolo c'è un piccolo gruppo di visitatori intorno a una donna con un cartellino. Sta parlando con energia e gesticola. Diventi curioso/a e ti avvicini.",
   ),
 );
 
@@ -524,7 +524,7 @@ writeJson(
     q3bg,
     npc(
       "Valentina",
-      `„Ah, benvenuto/a! Vieni più vicino, sto spiegando ai nostri visitatori la Cioccoshow. È la più importante fiera del cioccolato in Italia, e si tiene ogni anno in piazza Maggiore. Spero proprio che tu non te la perda!"`,
+      `„Ah, benvenuti! Venite più vicino, sto spiegando ai nostri visitatori la Cioccoshow. È la più importante fiera del cioccolato in Italia, e si tiene ogni anno in piazza Maggiore. Spero proprio che nessuno se la perda!"`,
     ),
   ),
 );
@@ -547,7 +547,7 @@ writeJson(
     q3bg,
     npc(
       "Valentina",
-      `„In piazza troverai decine di bancarelle dove i maestri cioccolatieri di tutta Italia presentano le loro creazioni. Credo che tu assaggi del cioccolato come non l'hai mai mangiato. E penso che molti visitatori vengano da altre città — incontrerai gente di Milano, Torino, Firenze."`,
+      `„In piazza troverai decine di bancarelle dove i maestri cioccolatieri di tutta Italia presentano le loro creazioni. Credo che tu assaggerai del cioccolato come non l'hai mai mangiato. E penso che molti visitatori vengano da altre città — incontrerai gente di Milano, Torino, Firenze ..."`,
     ),
   ),
 );
@@ -559,7 +559,7 @@ writeJson(
     7,
     q3bg,
     tu(
-      `Questa donna parla in modo strano — sempre con „credo che", „spero che", „penso che"... Ah, giusto: dopo queste espressioni si usa il congiuntivo. Devo esercitarmi anch'io.`,
+      `Questa donna sta parlando in modo strano — sempre con „credo che", „spero che", „penso che"... Ah, giusto: dopo queste espressioni si usa il congiuntivo. Devo esercitarmi anch'io.`,
     ),
   ),
 );
@@ -641,7 +641,7 @@ writeJson(
     "quest-03",
     11,
     q3bg,
-    "Valentina va verso una lavagna alla parete. Sopra ci sono parole diverse con piccole frecce e desinenze differenti.",
+    "Valentina va verso una lavagna alla parete. Sopra ci sono diverse parole con piccole frecce e desinenze differenti.",
   ),
 );
 writeJson(
@@ -803,7 +803,7 @@ writeJson(
     "quest-04",
     3,
     q4bg,
-    "A una bancarella con cioccolato fondente c'è un uomo sui trentacinque anni, sciarpa azzurra, giacca di pelle. Assaggia un pezzo di cioccolato, chiude gli occhi e annuisce con soddisfazione. Poi ti vede.",
+    "A una bancarella con cioccolato fondente c'è un uomo sui trentacinque anni, sciarpa azzurra, giacca di pelle. Assaggia un pezzo di cioccolato, chiude gli occhi e comincia a sorridere. Poi ti vede.",
   ),
 );
 writeJson(
@@ -815,13 +815,13 @@ writeJson(
     q4bg,
     npc(
       "Lorenzo Conti",
-      `„Ehi, ciao! L'hai già provato questo? È il gianduiotto, l'originale di Torino. Se devi mangiare un solo pezzo di cioccolato nella tua vita, mangia questo. Dai, te ne offro uno!"`,
+      `„Ehi, ciao! L'hai già provato questo? È il gianduiotto, l'originale di Torino. Se devi mangiare un solo pezzo di cioccolato nella tua vita, mangia questo. Dai, te ne offro io uno!"`,
     ),
   ),
 );
 writeJson(
   "quests/quest-04/scenes/05.json",
-  story(CHAPTER_ID, "quest-04", 5, q4bg, tu('„Grazie! Sembri uno che se ne intende."')),
+  story(CHAPTER_ID, "quest-04", 5, q4bg, tu('„Grazie! Si vede che ti piace il cioccolato."')),
 );
 writeJson(
   "quests/quest-04/scenes/06.json",
@@ -915,7 +915,7 @@ writeJson(
     q4bg,
     npc(
       "Lorenzo Conti",
-      `„Molto bene! Hai ascoltato con attenzione. Ma sai qual è la cosa bella? In Italia si fanno le cose in un certo modo — un po' diverso ovunque, ma sempre all'italiana. Come si dice da voi a casa? In Italia si vive così, in Italia si mangia così, in Italia si beve così. Proviamo a formularlo insieme."`,
+      `„Molto bene! Hai ascoltato con attenzione. Ma sai qual è la cosa bella? In Italia si fanno le cose in un certo modo — un po' diverso ovunque, ma sempre all'italiana. In Italia si vive in un certo modo, in Italia si mangia e si beve all'italiana. Proviamo a formularlo insieme."`,
     ),
   ),
 );
@@ -957,7 +957,7 @@ writeJson("quests/quest-04/scenes/11.json", {
             gap(["ci si informa", "Ci si informa"]),
             { kind: "text", text: " in internet prima del viaggio. In questo modo " },
             gap(["si possono avere", "Si possono avere"]),
-            { kind: "text", text: " molte attrazioni già prima di visitare la nuova città. Ma se " },
+            { kind: "text", text: " tante informazioni su molte attrazioni già prima di visitare la nuova città. Ma se " },
             gap(["si vuole conoscere", "Si vuole conoscere"]),
             { kind: "text", text: " veramente bene la città, " },
             gap(["si fa", "Si fa"]),
@@ -1003,7 +1003,7 @@ writeJson(
     q4bg,
     npc(
       "Lorenzo Conti",
-      `„Bravissimo/a! Senti, ho qualcosa per te. Io lavoro anche per una piccola rivista che si chiama ‚Made in Italy'. Presentiamo prodotti e invenzioni italiane — cosa viene davvero dall'Italia e cosa la gente pensa erroneamente che sia italiano. Tieni, prendi un numero."`,
+      `„Meraviglioso! Senti, ho qualcosa per te. Io lavoro anche per una piccola rivista che si chiama ‚Made in Italy'. Presentiamo prodotti e invenzioni italiane — cosa viene davvero dall'Italia e cosa la gente pensa erroneamente che sia italiano. Tieni, prendi un numero."`,
     ),
   ),
 );

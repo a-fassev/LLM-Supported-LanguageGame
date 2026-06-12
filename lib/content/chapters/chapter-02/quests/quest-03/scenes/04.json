@@ -45,18 +45,24 @@
             },
             {
               "kind": "text",
-              "text": "\netà (oppure data di nascita): "
+              "text": "\nanno di nascita: "
             },
             {
               "kind": "gap",
               "maxLength": 48,
               "correctAnswers": [
+                "nato nel 1979",
                 "nato il 22 settembre 1979",
                 "22 settembre 1979",
+                "1979",
+                "nato nel 1974",
                 "nato il 9 novembre 1974",
                 "9 novembre 1974",
+                "1974",
+                "nata nel 1987",
                 "nata il 7 maggio 1987",
-                "7 maggio 1987"
+                "7 maggio 1987",
+                "1987"
               ]
             },
             {
