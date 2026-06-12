@@ -1206,7 +1206,7 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
     instruction: "Abbina ogni parola italiana al suo equivalente inglese.",
     referenceDocument: null,
     task: {
-      prompt: "Collega ogni parola italiana al suo equivalente inglese.",
+      prompt: "Abbina ogni parola italiana al suo equivalente inglese.",
       sampleSize: 10,
       poolPairs: bonusPoolPairs.map(([leftLabel, rightLabel], i) => ({
         id: `ch02v${String(i + 1).padStart(2, "0")}`,

@@ -100,7 +100,7 @@ Bologna (Emilia-Romagna)
 
 • I tortellini: piccola pasta ripiena, simbolo della cucina bolognese.
 
-• Il ragù alla bolognese: la vera salsa di carne per le tagliatelle (mai con gli spaghetti!).
+• Le tagliatelle al ragù: il vero piatto bolognese con la salsa di carne (mai con gli spaghetti!).
 
 • La mortadella: il salume rosa più famoso d'Italia.
 
@@ -1035,7 +1035,7 @@ const dragItems = [
   { id: "gianduiotto", label: "il gianduiotto" },
   { id: "fiat500", label: "la FIAT 500" },
   { id: "pinguino", label: "il Pinguino (gelato su stecco)" },
-  { id: "tortellini", label: "i tortellini" },
+  { id: "tagliatelle-ragu", label: "le tagliatelle al ragù" },
   { id: "ragu", label: "il ragù alla bolognese" },
   { id: "mortadella", label: "la mortadella" },
   { id: "nutella", label: "la Nutella" },
@@ -1077,7 +1077,7 @@ writeJson("quests/quest-04/scenes/15.json", {
           id: "bologna",
           title: "Bologna",
           matchMode: "all",
-          correctItemIds: ["tortellini", "ragu", "mortadella"],
+          correctItemIds: ["tagliatelle-ragu", "ragu", "mortadella"],
         },
         {
           id: "alba",
@@ -1118,7 +1118,7 @@ writeJson(
     q4bg,
     npc(
       "Lorenzo Conti",
-      `„Molto bene, ce l'hai fatta! E hai anche riconosciuto i ‚falsi italiani' — molti turisti cadono in trappola lì. Senti, la rivista puoi tenerla, un piccolo souvenir da Bologna. E se vieni a Torino: scrivimi, ti faccio vedere la città!"`,
+      `„Molto bene, ce l'hai fatta! E hai anche riconosciuto i ‘falsi italiani' — molti turisti cadono in trappola lì. Senti, la rivista puoi tenerla, un piccolo souvenir da Bologna. E se vieni a Torino: scrivimi, ti faccio vedere la città!"`,
     ),
   ),
 );
@@ -1141,7 +1141,7 @@ writeJson(
     "quest-04",
     18,
     q4bg,
-    `Esci dalla piazza Maggiore. Il sole comincia a tramontare dietro la Basilica di San Petronio. Nel tuo zaino: una rivista con il titolo „Made in Italy".`,
+    `Esci dalla piazza Maggiore. Il sole comincia a tramontare dietro la Basilica di San Petronio. Nel tuo zaino: una rivista con il titolo “Made in Italy".`,
   ),
 );
 
@@ -1156,7 +1156,7 @@ writeJson(
     "quest-01-bonus",
     1,
     bbg,
-    `Hai finito il terzo capitolo della tua avventura a Bologna. Hai scoperto la storia della città, hai partecipato a una festa italiana e hai incontrato un torinese che ti ha mostrato „la sua" Italia.`,
+    `Hai finito il terzo capitolo della tua avventura a Bologna. Hai scoperto la storia della città, hai partecipato a una festa italiana e hai incontrato un torinese che ti ha mostrato “la sua" Italia.`,
   ),
 );
 writeJson(
@@ -1190,7 +1190,7 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
     instruction: "Abbina ogni parola italiana al suo equivalente inglese.",
     referenceDocument: null,
     task: {
-      prompt: "Collega ogni parola italiana al suo equivalente inglese.",
+      prompt: "Abbina ogni parola italiana al suo equivalente inglese.",
       sampleSize: 10,
       poolPairs: bonusPoolPairs.map(([leftLabel, rightLabel], i) => ({
         id: `ch03v${String(i + 1).padStart(3, "0")}`,

@@ -166,7 +166,7 @@ Vietati sono però i pensieri negativi e la nostalgia!
 
 Si chiamano cioccolato, gelato, ballare, fenicotteri, risotto di mare, spaghetti ai crostacei (la nostra specialità!!!) e budino (non guasta mai 😊). Ma soprattutto ... AMICIZIA!
 
-Ti invito a visitare la mia bellissima città, la „piccola Venezia" con tutti i suoi canali. Comacchio nasce e vive tra terra e acqua. Da una parte trovi il mare, dall'altra Il Parco del Delta del Po.
+Ti invito a visitare la mia bellissima città, la “piccola Venezia" con tutti i suoi canali. Comacchio nasce e vive tra terra e acqua. Da una parte trovi il mare, dall'altra il Parco del Delta del Po.
 
 Che ne dici? La sera andiamo al cinema, in pizzeria o restiamo a casa per una festa in pigiama e mangiamo un chilo di Nutella... scegli tu!
 
@@ -317,7 +317,7 @@ const quests = [
   },
   {
     id: "quest-03",
-    title: "Una mail per Sara",
+    title: "Una mail al cugino",
     order: 3,
     kind: "main",
     requiresQuestId: "quest-02",
@@ -365,7 +365,7 @@ writeJson(
     "quest-01",
     1,
     q1bg,
-    `Un nuovo giorno a Bologna. Il sole entra caldo nella tua camera. Sulla scrivania ci sono i ricordi dei tuoi giorni precedenti: la rivista „Made in Italy" di Lorenzo, il volantino del Museo della Storia di Bologna.`,
+    `Un nuovo giorno a Bologna. Il sole entra caldo nella tua camera. Sulla scrivania ci sono i ricordi dei tuoi giorni precedenti: la rivista “Made in Italy" di Lorenzo, il volantino del Museo della Storia di Bologna.`,
   ),
 );
 writeJson(
@@ -376,7 +376,7 @@ writeJson(
     2,
     q1bg,
     tu(
-      "Oggi è sabato — niente scuola. La signora Ferrari ieri mi ha detto che i Giardini Margherita sono particolarmente belli in questo periodo: fiori d'estate, tanta gente fuori. Una bella giornata per una passeggiata.",
+      "Oggi è sabato: dopo scuola andrò ai Giardini Margherita. La signora Ferrari ieri mi ha detto che sono particolarmente belli in questo periodo: fiori d'estate, tanta gente fuori. Una bella giornata per una passeggiata.",
     ),
   ),
 );
@@ -387,7 +387,7 @@ writeJson(
     "quest-01",
     3,
     q1bg,
-    "Prendi lo zaino e esci di casa. Attraversi i portici verso i Giardini Margherita: oggi è il momento di una passeggiata al parco.",
+    "Prendi lo zaino e esci di casa nel primo pomeriggio. Attraversi i portici verso i Giardini Margherita: oggi è il momento di una passeggiata al parco.",
   ),
 );
 
@@ -401,12 +401,12 @@ writeJson(
     "quest-02",
     1,
     q2bg,
-    "Cammini per i Giardini Margherita. Il sole splende, le famiglie fanno picnic sull'erba, qualcuno suona la chitarra sotto un albero. Su una panchina vicino al laghetto c'è una ragazza seduta, un po' rannicchiata su se stessa — e guardandola meglio la riconosci: è Sara, una compagna di classe del Liceo Galvani. Sembra triste.",
+    "Stai camminando nei Giardini Margherita. Il sole splende, alcuni ragazzi fanno picnic sull'erba, qualcuno suona la chitarra sotto un albero. Su una panchina vicino al laghetto sta seduta una ragazza, un po' rannicchiata su se stessa — e guardandola meglio la riconosci: è Sara, una compagna di classe del Liceo Galvani. Sembra triste.",
   ),
 );
 writeJson(
   "quests/quest-02/scenes/02.json",
-  story(CHAPTER_ID, "quest-02", 2, q2bg, tu("Quella è Sara della mia classe. La settimana scorsa era ancora in Sicilia con il suo ragazzo Marco — me ne ha parlato spesso. Ma adesso non sembra che abbia bei ricordi. Vado a salutarla.")),
+  story(CHAPTER_ID, "quest-02", 2, q2bg, tu("Quella è Sara della mia classe. La settimana scorsa era ancora in Sicilia con il suo ragazzo Marco — me ne ha parlato spesso in classe. Ma adesso non sembra che abbia bei ricordi. Vado a salutarla.")),
 );
 writeJson(
   "quests/quest-02/scenes/03.json",
@@ -427,7 +427,7 @@ writeJson(
     q2bg,
     npc(
       "Sara",
-      `„Oh ciao... sì, certo. Scusami, sono un po' giù oggi. È da quando sono tornata da Palermo... insomma, è successa una cosa. Ma dai, raccontami tu! Com'è stata la tua settimana? Senti, ho ancora qualche foto della Sicilia sul telefono — vuoi vedere?"`,
+      `„Oh ciao... sì, certo. Scusami, sono un po' giù oggi. È da quando sono tornata da Palermo... insomma, è successa una cosa. Ma dai, raccontami tu! Com'è stata la tua settimana? Senti, ho ancora qualche foto della Sicilia sul telefonino — vuoi vedere?"`,
     ),
   ),
 );
@@ -438,7 +438,7 @@ writeJson(
     "quest-02",
     5,
     q2bg,
-    "Sara prende il telefono e ti mostra quattro foto della sua vacanza estiva. Tre di queste le ha già descritte brevemente nel suo diario — per la quarta ti chiede aiuto.",
+    "Sara prende il telefonino e ti mostra quattro foto della sua vacanza estiva. Tre di queste le ha già descritte brevemente nel suo diario — per la quarta ti chiede aiuto.",
   ),
 );
 writeJson(
@@ -519,13 +519,13 @@ writeJson(
     q2bg,
     npc(
       "Sara",
-      `„Grazie! Allora, ora che hai visto le mie foto... posso essere sincera con te? Devo proprio sfogarmi un po'."`,
+      `„Grazie! Allora, ora che hai visto le mie foto... posso essere sincera con te? Devo proprio sfogarmi un po'. Sono delle foto bellissime, vero? Ma mi rendono tristissima."`,
     ),
   ),
 );
 writeJson(
   "quests/quest-02/scenes/09.json",
-  story(CHAPTER_ID, "quest-02", 9, q2bg, tu(`„Certo, dimmi pure. Cos'è successo?"`)),
+  story(CHAPTER_ID, "quest-02", 9, q2bg, tu(`„Davvero? Ma perché? Cos'è successo?"`)),
 );
 writeJson(
   "quests/quest-02/scenes/10.json",
@@ -549,7 +549,7 @@ writeJson(
     q2bg,
     npc(
       "Sara",
-      `„E adesso non voglio andare a scuola. Non posso. Marco va in un'altra scuola adesso, è con Laura — ma le nostre amiche sono tutte là, e non voglio piangere davanti a tutti."`,
+      `„E adesso non ne voglio parlare a scuola. Non posso. Marco va in un'altra scuola adesso, forse sta con Laura — ma le nostre amiche sono tutte là, e non voglio piangere davanti a tutti."`,
     ),
   ),
 );
@@ -615,14 +615,14 @@ writeJson("quests/quest-02/scenes/14.json", {
             gap(["al", "Al"]),
             { kind: "text", text: " bar " },
             gap(["che", "Che"]),
-            { kind: "text", text: " gli piacciono " },
-            gap(["di", "Di"]),
+            { kind: "text", text: " gli piace " },
+            gap(["per", "Per"]),
             { kind: "text", text: " sapere se è uscito con lei. " },
             gap(["Mi accompagni", "mi accompagni"]),
             { kind: "text", text: " (accompagni)?\n\nTu:            Sara, ascoltami. Non mi piace per niente quest'idea. È importante " },
             gap(["che tu guardi", "Che tu guardi"]),
             { kind: "text", text: " (tu, guardare) avanti. È veramente meglio " },
-            gap(["di non pensare", "Di non pensare"]),
+            gap(["di non pensare", "Di non pensare", "che tu non pensi", "Che tu non pensi"]),
             { kind: "text", text: " (tu, non pensare) più " },
             gap(["a", "A"]),
             { kind: "text", text: " quello stupido. Secondo me, è improbabile " },
@@ -630,8 +630,8 @@ writeJson("quests/quest-02/scenes/14.json", {
             { kind: "text", text: " (Marco e Laura, andare) negli stessi bar in " },
             gap(["cui", "Cui"]),
             { kind: "text", text: " andavate voi.\n\nSara:        Boh, tanto, hai detto che è stupido, no?! Ah ah. Ti ringrazio tanto Fede. È bellissimo " },
-            gap(["di avere", "Di avere"]),
-            { kind: "text", text: " (io, avere) un'amica come te." },
+            gap(["di avere", "Di avere", "che io abbia", "Che io abbia"]),
+            { kind: "text", text: " (io, avere) amici come te." },
           ],
         },
       ],
@@ -649,7 +649,7 @@ writeJson(
     q2bg,
     npc(
       "Sara",
-      `„Sai una cosa? Forse hai ragione. Forse non lo voglio nemmeno più, Marco. È che... fa male, sai? Dimmi una cosa: secondo te, sto dicendo cose sensate o sto solo girando in tondo? Senti queste frasi che mi escono dalla bocca — ti suonano giuste?"`,
+      `„Sai una cosa? Forse hai ragione. Forse Marco non lo voglio nemmeno più. È che... fa male, sai? Dimmi una cosa: secondo te, sto dicendo cose sensate? Mi si gira la testa. Senti queste frasi che mi escono dalla bocca — ti suonano giuste?"`,
     ),
   ),
 );
@@ -699,7 +699,7 @@ writeJson(
     q2bg,
     npc(
       "Sara",
-      `„Sei davvero gentile. Mi sento già un po' meglio. Sai cosa? Stasera scrivo nel mio diario tutto quello che mi hai detto. Magari domani sto già meglio. A proposito... posso scriverti più tardi? Mi farebbe piacere parlare ancora."`,
+      `„Sei davvero gentile. Mi sento già un po' meglio. Sai cosa? Stasera scrivo nel mio diario tutto quello che mi hai detto. Magari domani sto già meglio. A proposito... posso scriverti più tardi? Mi farebbe piacere parlarti ancora."`,
     ),
   ),
 );
@@ -715,7 +715,7 @@ writeJson(
     19,
     q2bg,
     tu(
-      "Povera Sara. Stasera, quando sono a casa, le scrivo una mail. Forse posso trovare qualche consiglio buono per consolarla — ho letto un articolo tedesco interessante proprio su questo argomento. Potrei riassumerle le idee principali.",
+      "Povera Sara. Ma anch'io sono un po' in crisi: devo trovare qualche buon consiglio per consolarla — ho letto un articolo tedesco interessante proprio su questo argomento. Ma se poi in Italia è diverso? Devo chiedere a mio cugino che cosa pensa delle idee dell'articolo. Potrei riassumergli le idee principali.",
     ),
   ),
 );
@@ -734,7 +734,7 @@ writeJson(
     "quest-03",
     1,
     q3bg,
-    "Sei tornato/a nella tua camera a casa Ferrari. È sera, la lampada sulla scrivania illumina il laptop con una luce calda. Fuori sta lentamente facendo buio.",
+    "Ti trovi nella tua camera a casa Ferrari. È sera, la lampada sulla scrivania illumina il laptop con una luce calda. Fuori sta lentamente facendo buio.",
   ),
 );
 writeJson(
@@ -745,7 +745,7 @@ writeJson(
     2,
     q3bg,
     tu(
-      "Sara mi ha fatto pena oggi. Ho appena cercato in internet un articolo in tedesco — sul mal d'amore e su come consolare qualcuno. Esattamente quello di cui Sara ha bisogno adesso. Prendo i consigli più importanti e le scrivo una mail in italiano.",
+      "Sara mi ha fatto pena oggi. Ho appena cercato in internet un articolo in tedesco — sul mal d'amore e su come consolare qualcuno. Esattamente quello di cui Sara ha bisogno adesso. Prendo i consigli più importanti e chiedo a mio cugino che cosa pensa lui di questi consigli.",
     ),
   ),
 );
@@ -756,7 +756,7 @@ writeJson(
     "quest-03",
     3,
     q3bg,
-    `Apri l'articolo „Wie tröste ich jemanden bei Liebeskummer?" sul tuo laptop. Accanto, una finestra di posta vuota, indirizzata a Sara.`,
+    `Apri l'articolo “Wie tröste ich jemanden bei Liebeskummer?" sul tuo laptop. Accanto, una finestra di posta vuota, indirizzata a tuo cugino.`,
   ),
 );
 
@@ -766,16 +766,16 @@ writeJson("quests/quest-03/scenes/04.json", {
   screen_type: "free_text",
   background: q3bg,
   content: {
-    title: "Scrivi una mail di consolazione",
+    title: "Scrivi una mail al cugino",
     instruction:
-      "Riassumi i consigli dell'articolo in una mail a Sara (80-120 parole). Usa il congiuntivo e l'infinito dove serve.",
+      "Riassumi i consigli dell'articolo in una mail a tuo cugino in Sicilia (80-120 parole). Usa il congiuntivo e l'infinito dove serve.",
     referenceDocument: {
       title: "Wie tröste ich jemanden bei Liebeskummer?",
       body: GERMAN_ARTICLE_BODY,
     },
     task: {
       prompt:
-        "Hai trovato un articolo in tedesco con consigli su come consolare qualcuno che ha il mal d'amore. Riassumi i consigli più importanti in una mail in italiano a Sara. Spiegale cosa, secondo i consigli, dovresti e non dovresti fare per aiutarla. Usa il congiuntivo e l'infinito dove serve.\n\nSuggerimenti: saluto informale (Cara Sara / Ciao Sara); 3-4 consigli adattati a Sara; chiusura incoraggiante (Un abbraccio / A presto); circa 80-120 parole.",
+        "Hai trovato un articolo in tedesco con consigli su come consolare qualcuno che ha il mal d'amore. Riassumi i consigli più importanti in una mail in italiano a tuo cugino in Sicilia. Spiegagli che cosa, secondo l'articolo, dovresti e non dovresti fare per aiutare Sara e chiedigli che cosa ne pensa. Usa il congiuntivo e l'infinito dove serve.\n\nSuggerimenti: saluto informale (Ciao caro / Ciao Matteo); 3-4 consigli dell'articolo; domanda finale al cugino; chiusura informale; circa 80-120 parole.",
       targetLanguage: "it",
       showWordCount: true,
       minWords: 50,
@@ -783,8 +783,9 @@ writeJson("quests/quest-03/scenes/04.json", {
       evaluation: freetextEvaluation(
         [
           "Transfer at least three of the five German article tips into Italian",
-          "Adapt advice to Sara's breakup situation, not a neutral summary only",
-          "Use congiuntivo after expressions like voglio che, penso che, è importante che and infinito where same subject or after prepositions",
+          "Explain that Sara is suffering after a breakup and ask the cousin for his opinion",
+          "Describe what you should and should not do to help Sara, not a neutral summary only",
+          "Use congiuntivo after expressions like penso che, è importante che and infinito where same subject or after prepositions",
           "Informal Italian salutation and closing; empathetic B1 tone",
         ],
         "informal",
@@ -801,7 +802,7 @@ writeJson(
     "quest-03",
     5,
     q3bg,
-    tu("Salvo... invio! Spero che la aiuti un po'. Domani sicuramente ci vediamo a scuola."),
+    tu("Salvo... invio! Spero che così potrò aiutarla un po'. Domani sicuramente ci vediamo a scuola."),
   ),
 );
 writeJson(
@@ -831,7 +832,7 @@ writeJson(
     q4bg,
     npc(
       "Sara",
-      `„Ehi, ciao! Senti, ho letto la tua mail ieri sera — non posso dirti quanto mi ha aiutato. Davvero, grazie di cuore. E ho una sorpresa per te: ho parlato con Giulia, la mia migliore amica di Comacchio, e... insomma, ti inoltro il messaggio che mi ha mandato. Vuole invitare anche te! Guarda e dimmi cosa ne pensi!"`,
+      `„Ehi, ciao! Senti, ho letto la tua mail ieri sera — non posso dirti quanto mi ha aiutato. Davvero, grazie di cuore. E ho una sorpresa per te: ho parlato con Giulia, la mia migliore amica di Comacchio, e... insomma, ti mando il messaggio che ho ricevuto. Vuole invitare anche te! Leggilo e dimmi cosa ne pensi!"`,
     ),
   ),
 );
@@ -852,7 +853,7 @@ writeJson(
     "quest-04",
     4,
     q4bg,
-    `Sara ti inoltra un messaggio della sua amica Giulia. È un invito colorato con tante foto: „INVITO — Divertiti nella Pianura Padana!"`,
+    `Sara ti manda un messaggio della sua amica Giulia. È un invito colorato con tante foto: “INVITO — Divertiti nella Pianura Padana!"`,
   ),
 );
 
@@ -892,7 +893,7 @@ writeJson("quests/quest-04/scenes/05.json", {
           "Qual è una specialità della cucina di Giulia?",
           [
             "Il risotto di mare e gli spaghetti ai crostacei",
-            "I tortellini al ragù e la mortadella",
+            "Le tagliatelle al ragù e la mortadella",
             "La pizza Margherita e il gelato al cioccolato",
           ],
           0,
@@ -945,7 +946,7 @@ writeJson(
     "quest-04",
     8,
     q4bg,
-    tu("Un viaggio a Comacchio! Certo che voglio venire. Ma a mamma in Germania devo proprio scriverlo — altrimenti si preoccupa. Le racconto dell'invito."),
+    tu("Un viaggio a Comacchio! Certo che voglio venire. Ma devo proprio scriverlo alla mamma in Germania — altrimenti si preoccupa. Le racconto dell'invito."),
   ),
 );
 
@@ -957,19 +958,19 @@ writeJson("quests/quest-04/scenes/09.json", {
   content: {
     title: "SMS alla mamma",
     instruction:
-      "Scrivi dei messaggi a tua mamma per raccontarle dell'invito. Completa le frasi usando le informazioni dell'invito di Giulia.",
+      "Scrivi dei messaggi alla tua mamma per raccontarle dell'invito. Completa le frasi usando le informazioni dell'invito di Giulia.",
     referenceDocument: {
       title: "INVITO — Divertiti nella Pianura Padana!",
       body: INVITO_BODY,
     },
     task: {
       prompt:
-        "Scrivi dei messaggi a tua mamma per raccontarle dell'invito. Completa le frasi usando le informazioni dell'invito di Giulia.",
+        "Scrivi dei messaggi alla tua mamma per raccontarle dell'invito. Completa le frasi usando le informazioni dell'invito di Giulia.",
       caseSensitive: false,
       lines: [
         {
           segments: [
-            { kind: "text", text: "Mamma, ascolta che bello! 😍\n\n[16:03]    1. Giulia è grande! Mi ha " },
+            { kind: "text", text: "Mamma, senti che belle novità! 😍\n\n[16:03]    1. Giulia è grande! Mi ha " },
             gap([
               "invitata a Comacchio (con Sara) per un weekend",
               "invitata a Comacchio per un weekend",
@@ -1046,7 +1047,7 @@ writeJson(
     11,
     q4bg,
     tu(
-      "Fatto! La mamma mi ha già risposto e va benissimo. Un weekend a Comacchio con Sara e Giulia — sarà bellissimo. Ma prima dovrei ripassare ancora i vocaboli di questa lezione, prima di tornare a scuola domani.",
+      "Fatto! La mamma mi ha già risposto e va benissimo. Un weekend a Comacchio con Sara e Giulia — sarà bellissimo. Ma prima di fare la valigia devo ripassare ancora i vocaboli di questa lezione, prima dell'interrogazione a scuola.",
     ),
   ),
 );
@@ -1057,7 +1058,7 @@ writeJson(
     "quest-04",
     12,
     q4bg,
-    "Metti via il telefono. Davanti a te il libro d'italiano è aperto — è ora di un piccolo esercizio di vocabolario.",
+    "Metti via il telefonino sul tavolo. Davanti a te il libro d'italiano è aperto — è ora di un piccolo esercizio di vocabolario.",
   ),
 );
 
@@ -1072,7 +1073,7 @@ writeJson(
     "quest-01-bonus",
     1,
     bbg,
-    "Hai completato il quarto capitolo della tua avventura a Bologna. Hai aiutato un'amica in un momento difficile, le hai scritto una mail di consolazione e hai ricevuto un invito speciale per un weekend a Comacchio.",
+    "Hai completato il quarto capitolo della tua avventura a Bologna. Hai aiutato un'amica in un momento difficile, hai chiesto consiglio a tuo cugino e hai ricevuto un invito speciale per un weekend a Comacchio.",
   ),
 );
 writeJson(
@@ -1106,7 +1107,7 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
     instruction: "Abbina ogni parola italiana al suo equivalente inglese.",
     referenceDocument: null,
     task: {
-      prompt: "Collega ogni parola italiana al suo equivalente inglese.",
+      prompt: "Abbina ogni parola italiana al suo equivalente inglese.",
       sampleSize: 10,
       poolPairs: bonusPoolPairs.map(([leftLabel, rightLabel], i) => ({
         id: `ch04v${String(i + 1).padStart(3, "0")}`,
