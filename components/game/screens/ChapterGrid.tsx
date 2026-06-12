@@ -36,7 +36,7 @@ export function ChapterGrid({ items, onOpenChapter, className }: ChapterGridProp
   return (
     <div
       className={cn(
-        "grid min-h-0 content-start grid-cols-1 gap-y-55 md:-mt-8 md:grid-cols-2 md:gap-10 md:gap-y-40 lg:grid-cols-3 lg:gap-y-40",
+        "grid min-h-0 content-start grid-cols-1 gap-y-30 md:-mt-8 md:grid-cols-2 md:gap-10 md:gap-y-40 lg:grid-cols-3 lg:gap-y-40",
         className,
       )}
     >
@@ -59,7 +59,7 @@ export function ChapterGrid({ items, onOpenChapter, className }: ChapterGridProp
                     : chapter.title
             }
             className={cn(
-              "relative aspect-[1448/1086] w-full max-w-[820px] overflow-hidden border-0 bg-transparent p-0 text-left shadow-none transition-opacity [container-type:inline-size] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed",
+              "relative aspect-[1448/1086] w-[120%] max-w-[820px] -translate-x-[10%] overflow-hidden border-0 bg-transparent p-0 text-left shadow-none transition-opacity [container-type:inline-size] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed sm:w-full sm:translate-x-0",
               playable && "cursor-pointer hover:opacity-90",
               !playable && "cursor-not-allowed",
               locked && "opacity-60",
@@ -74,7 +74,7 @@ export function ChapterGrid({ items, onOpenChapter, className }: ChapterGridProp
               className="pointer-events-none absolute inset-0 z-0 select-none object-contain"
               draggable={false}
             />
-            <div className="absolute left-[30%] top-[35%] z-10 flex max-w-[48%] flex-col items-start gap-2 text-[#5a2612]">
+            <div className="absolute left-[28%] top-[33%] z-10 flex max-w-[48%] flex-col items-start gap-2 text-[#5a2612] sm:left-[30%] sm:top-[35%]">
               {locked ? (
                 <Badge className="shrink-0 text-[clamp(0.62rem,3.1cqw,0.75rem)] text-[#5a2612]" variant="outline">
                   Bloccato
