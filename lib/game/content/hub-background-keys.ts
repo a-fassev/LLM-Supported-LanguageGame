@@ -2,6 +2,8 @@
 export const hubBackgroundKeys = {
   authLogin: "hubs/auth/bg-login",
   authRegister: "hubs/auth/bg-register",
+  bolognaMap: "hubs/menu/Karte-Bologna-vogelsicht",
+  leaderboardBrickwall: "hubs/leaderboard/Brickwall",
 } as const;
 
 /** Both auth backgrounds — preload on any auth route to avoid flash on login ↔ register. */

@@ -13,6 +13,7 @@ export default function GameLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
   const { token, isReady } = useGameSession();
   const isPlayRoute = pathname === "/play";
+  const showBrandMark = pathname === "/menu";
 
   useEffect(() => {
     if (!isReady) return;
@@ -32,7 +33,7 @@ export default function GameLayout({ children }: { children: React.ReactNode }) 
   if (isPlayRoute) {
     return (
       <>
-        <GameBrandMark />
+        {showBrandMark ? <GameBrandMark /> : null}
         {children}
       </>
     );
@@ -41,7 +42,7 @@ export default function GameLayout({ children }: { children: React.ReactNode }) 
   return (
     <HubBackgroundProvider>
       <HubBackgroundHost>
-        <GameBrandMark />
+        {showBrandMark ? <GameBrandMark /> : null}
         {children}
       </HubBackgroundHost>
     </HubBackgroundProvider>
