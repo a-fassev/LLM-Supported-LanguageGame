@@ -458,7 +458,7 @@ writeJson("quests/quest-02/scenes/04.json", {
 });
 writeJson(
   "quests/quest-02/scenes/05.json",
-  story(CHAPTER_ID, "quest-02", 5, q2bg, "Confrontate brevemente le risposte. Sara annuisce soddisfatta."),
+  story(CHAPTER_ID, "quest-02", 5, q2bg, "Confrontate brevemente le risposte e chiudete i fogli. Sara annuisce soddisfatta."),
 );
 writeJson(
   "quests/quest-02/scenes/06.json",
@@ -516,11 +516,11 @@ writeJson(
 
 const proControCards = [
   { id: "card-1", label: "Il pacchetto scuola include viaggio, alloggio e biglietto festival." },
-  { id: "card-2", label: "Lucca unisce festival, cultura pop e città storica." },
+  { id: "card-2", label: "Questa città unisce festival, cultura pop e città storica." },
   { id: "card-3", label: "Su Lucca abbiamo già argomenti testuali pronti." },
   { id: "card-4", label: "Per alcuni il cosplay non è motivante." },
   { id: "card-5", label: "C'è il rischio di dedicare poco tempo a musei e chiese." },
-  { id: "card-6", label: "Il calcio storico a Firenze è una tradizione locale molto forte." },
+  { id: "card-6", label: "Il calcio storico in questa città è una tradizione locale molto forte." },
   { id: "card-7", label: "Firenze sembra più familiare ed è facile da giustificare come città d'arte." },
   {
     id: "card-8",
@@ -591,42 +591,42 @@ writeJson("quests/quest-03/scenes/05.json", {
           segments: [
             { kind: "text", text: "1. Giulio è " },
             gap(["un solo"], 32),
-            { kind: "text", text: " in classe. (solo)" },
+            { kind: "text", text: " in classe. (solo - tedesco: \"einzig\")" },
           ],
         },
         {
           segments: [
             { kind: "text", text: "2. Sofia è " },
             gap(["una povera"], 32),
-            { kind: "text", text: ". (povero)" },
+            { kind: "text", text: ". (povero - tedesco: \"bemitleidenswert\")" },
           ],
         },
         {
           segments: [
             { kind: "text", text: "3. Rita e Franco sono " },
             gap(["vecchi"], 32),
-            { kind: "text", text: ". (vecchio)" },
+            { kind: "text", text: ". (vecchio - tedesco: \"langjährig\")" },
           ],
         },
         {
           segments: [
             { kind: "text", text: "4. Nando è un ragazzo " },
             gap(["solo"], 32),
-            { kind: "text", text: ". (solo)" },
+            { kind: "text", text: ". (solo - tedesco: \"einsam\")" },
           ],
         },
         {
           segments: [
             { kind: "text", text: "5. È un evento " },
             gap(["caro"], 32),
-            { kind: "text", text: ". (caro)" },
+            { kind: "text", text: ". (caro - tedesco: \"teuer\")" },
           ],
         },
         {
           segments: [
             { kind: "text", text: "6. Parla di un amico " },
             gap(["vecchio"], 32),
-            { kind: "text", text: ". (vecchio)" },
+            { kind: "text", text: ". (vecchio - tedesco: \"alt\")" },
           ],
         },
       ],
@@ -701,16 +701,16 @@ writeJson("quests/quest-04/scenes/04.json", {
       "Leggi il documento e completa la mail formale con la banca formule.",
     referenceDocument: {
       title: "Andiamo a Lucca se ... (lettera della professoressa)",
-      body: `${PROF_REPLY_BODY}\n\nBanca formule:\nEgregio Dirigente scolastico, Gentile Professor Sallusti; Le; ci; legga; pensi; Si ricordi; ci proibisca; ci risponda; La ringraziamo molto; Distinti saluti.`,
+      body: `${PROF_REPLY_BODY}\n\nBanca formule:\nEgregio Dirigente scolastico, Gentile Professoressa Bardelli; Le; ci; legga; pensi; Si ricordi; ci proibisca; ci risponda; La ringraziamo molto; Distinti saluti.`,
     },
     task: {
       prompt:
-        "Usa solo la banca formule: Egregio Dirigente scolastico, Gentile Professor Sallusti; Le; ci; legga; pensi; Si ricordi; ci proibisca; ci risponda; La ringraziamo molto; Distinti saluti.",
+        "Usa solo la banca formule: Egregio Dirigente scolastico, Gentile Professoressa Bardelli; Le; ci; legga; pensi; Si ricordi; ci proibisca; ci risponda; La ringraziamo molto; Distinti saluti.",
       caseSensitive: false,
       lines: [
         {
           segments: [
-            gap(["Egregio Dirigente scolastico, Gentile Professor Sallusti"], 128),
+            gap(["Egregio Dirigente scolastico, Gentile Professoressa Bardelli"], 128),
             { kind: "text", text: ",\n\n" },
             gap(["Le"]),
             { kind: "text", text: " scriviamo questa lettera per presentar" },

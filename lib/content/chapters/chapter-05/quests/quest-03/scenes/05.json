@@ -25,7 +25,7 @@
             },
             {
               "kind": "text",
-              "text": " in classe. (solo)"
+              "text": " in classe. (solo - tedesco: \"einzig\")"
             }
           ]
         },
@@ -44,7 +44,7 @@
             },
             {
               "kind": "text",
-              "text": ". (povero)"
+              "text": ". (povero - tedesco: \"bemitleidenswert\")"
             }
           ]
         },
@@ -63,7 +63,7 @@
             },
             {
               "kind": "text",
-              "text": ". (vecchio)"
+              "text": ". (vecchio - tedesco: \"langjährig\")"
             }
           ]
         },
@@ -82,7 +82,7 @@
             },
             {
               "kind": "text",
-              "text": ". (solo)"
+              "text": ". (solo - tedesco: \"einsam\")"
             }
           ]
         },
@@ -101,7 +101,7 @@
             },
             {
               "kind": "text",
-              "text": ". (caro)"
+              "text": ". (caro - tedesco: \"teuer\")"
             }
           ]
         },
@@ -120,7 +120,7 @@
             },
             {
               "kind": "text",
-              "text": ". (vecchio)"
+              "text": ". (vecchio - tedesco: \"alt\")"
             }
           ]
         }

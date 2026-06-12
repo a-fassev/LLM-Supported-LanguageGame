@@ -365,6 +365,41 @@
           "id": "bv71",
           "leftLabel": "straniera",
           "rightLabel": "foreigner"
+        },
+        {
+          "id": "bv72",
+          "leftLabel": "di solito",
+          "rightLabel": "usually"
+        },
+        {
+          "id": "bv73",
+          "leftLabel": "di fronte a",
+          "rightLabel": "opposite"
+        },
+        {
+          "id": "bv74",
+          "leftLabel": "di più",
+          "rightLabel": "more"
+        },
+        {
+          "id": "bv75",
+          "leftLabel": "di meno",
+          "rightLabel": "less"
+        },
+        {
+          "id": "bv76",
+          "leftLabel": "di sicuro",
+          "rightLabel": "certainly"
+        },
+        {
+          "id": "bv77",
+          "leftLabel": "di recente",
+          "rightLabel": "recently"
+        },
+        {
+          "id": "bv78",
+          "leftLabel": "di corsa",
+          "rightLabel": "rapidly"
         }
       ],
       "presentation": {
