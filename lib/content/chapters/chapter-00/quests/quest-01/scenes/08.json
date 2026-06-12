@@ -2,61 +2,157 @@
   "id": "chapter-00-quest-01-scene-08",
   "scene_type": "task",
   "screen_type": "matching",
-  "background": "chapters/00/quests/01/bg-task-01",
+  "background": "chapters/00/quests/01/bg-scene-08",
   "content": {
-    "title": "Fixture con titolo molto lungo per verificare abbinamenti con molte coppie, testo esteso e scroll nel pannello attività",
-    "instruction": "Questa è un'istruzione di scena volutamente lunghissima: devi abbinare dieci espressioni italiane alle traduzioni inglesi corrette. Alcune opzioni a destra sono distrazioni. Usa il pulsante Documento se ti serve il biglietto di esempio. Trascina una linea oppure tocca due carte per collegare le coppie.",
+    "title": "Parole utili in viaggio",
+    "instruction": "Abbina le espressioni italiane alle traduzioni inglesi corrette. Alcune opzioni a destra non servono.",
     "referenceDocument": {
       "title": "Biglietto della stazione",
-      "body": "Questo è un testo lungo di esempio per il pulsante Documento durante un esercizio di abbinamento con molte coppie. Puoi leggerlo mentre colleghi le parole: BOLOGNA CENTRALE — Binario 3 — Posto 12A — Partenza ore 14:35 — Intercity verso Firenze. Il contenuto serve solo a testare scroll e layout del pannello documento accanto a un task con molte righe e linee di collegamento."
+      "body": "Puoi immaginare un biglietto di esempio per orientarti: stazione centrale, binario, posto e orario di partenza. Il documento serve solo come piccolo contesto per le parole del viaggio."
     },
     "task": {
-      "prompt": "Abbina ogni espressione italiana alla traduzione inglese corretta. Questo prompt è scritto apposta con molte righe di testo, così possiamo verificare come si comporta l'interfaccia quando la domanda è lunga mentre sotto restano due colonne scrollabili con molte carte e linee di collegamento, senza schiacciare i pulsanti in basso.",
+      "prompt": "Abbina ogni espressione italiana alla traduzione inglese corretta.",
       "leftItems": [
-        { "id": "left-01", "label": "Buongiorno" },
-        { "id": "left-02", "label": "Arrivederci" },
-        { "id": "left-03", "label": "Per favore" },
-        { "id": "left-04", "label": "Scusi" },
-        { "id": "left-05", "label": "Dov'è il binario?" },
-        { "id": "left-06", "label": "Quanto costa?" },
-        { "id": "left-07", "label": "Ho fame" },
-        { "id": "left-08", "label": "Ho sete" },
-        { "id": "left-09", "label": "Non capisco" },
+        {
+          "id": "left-01",
+          "label": "Buongiorno"
+        },
+        {
+          "id": "left-02",
+          "label": "Arrivederci"
+        },
+        {
+          "id": "left-03",
+          "label": "Per favore"
+        },
+        {
+          "id": "left-04",
+          "label": "Scusi"
+        },
+        {
+          "id": "left-05",
+          "label": "Dov'è il binario?"
+        },
+        {
+          "id": "left-06",
+          "label": "Quanto costa?"
+        },
+        {
+          "id": "left-07",
+          "label": "Ho fame"
+        },
+        {
+          "id": "left-08",
+          "label": "Ho sete"
+        },
+        {
+          "id": "left-09",
+          "label": "Non capisco"
+        },
         {
           "id": "left-10",
           "label": "Potrebbe ripetere lentamente, per favore, l'annuncio del treno?"
         }
       ],
       "rightItems": [
-        { "id": "right-01", "label": "Good morning" },
-        { "id": "right-02", "label": "Goodbye" },
-        { "id": "right-03", "label": "Please" },
-        { "id": "right-04", "label": "Excuse me" },
-        { "id": "right-05", "label": "Where is the platform?" },
-        { "id": "right-06", "label": "How much does it cost?" },
-        { "id": "right-07", "label": "I am hungry" },
-        { "id": "right-08", "label": "I am thirsty" },
-        { "id": "right-09", "label": "I don't understand" },
+        {
+          "id": "right-01",
+          "label": "Good morning"
+        },
+        {
+          "id": "right-02",
+          "label": "Goodbye"
+        },
+        {
+          "id": "right-03",
+          "label": "Please"
+        },
+        {
+          "id": "right-04",
+          "label": "Excuse me"
+        },
+        {
+          "id": "right-05",
+          "label": "Where is the platform?"
+        },
+        {
+          "id": "right-06",
+          "label": "How much does it cost?"
+        },
+        {
+          "id": "right-07",
+          "label": "I am hungry"
+        },
+        {
+          "id": "right-08",
+          "label": "I am thirsty"
+        },
+        {
+          "id": "right-09",
+          "label": "I don't understand"
+        },
         {
           "id": "right-10",
           "label": "Could you repeat the train announcement slowly, please?"
         },
-        { "id": "right-decoy-01", "label": "See you tomorrow" },
-        { "id": "right-decoy-02", "label": "My suitcase is heavy" },
-        { "id": "right-decoy-03", "label": "The coffee is hot" },
-        { "id": "right-decoy-04", "label": "I need a map of the city" }
+        {
+          "id": "right-decoy-01",
+          "label": "See you tomorrow"
+        },
+        {
+          "id": "right-decoy-02",
+          "label": "My suitcase is heavy"
+        },
+        {
+          "id": "right-decoy-03",
+          "label": "The coffee is hot"
+        },
+        {
+          "id": "right-decoy-04",
+          "label": "I need a map of the city"
+        }
       ],
       "correctPairs": [
-        { "leftItemId": "left-01", "rightItemId": "right-01" },
-        { "leftItemId": "left-02", "rightItemId": "right-02" },
-        { "leftItemId": "left-03", "rightItemId": "right-03" },
-        { "leftItemId": "left-04", "rightItemId": "right-04" },
-        { "leftItemId": "left-05", "rightItemId": "right-05" },
-        { "leftItemId": "left-06", "rightItemId": "right-06" },
-        { "leftItemId": "left-07", "rightItemId": "right-07" },
-        { "leftItemId": "left-08", "rightItemId": "right-08" },
-        { "leftItemId": "left-09", "rightItemId": "right-09" },
-        { "leftItemId": "left-10", "rightItemId": "right-10" }
+        {
+          "leftItemId": "left-01",
+          "rightItemId": "right-01"
+        },
+        {
+          "leftItemId": "left-02",
+          "rightItemId": "right-02"
+        },
+        {
+          "leftItemId": "left-03",
+          "rightItemId": "right-03"
+        },
+        {
+          "leftItemId": "left-04",
+          "rightItemId": "right-04"
+        },
+        {
+          "leftItemId": "left-05",
+          "rightItemId": "right-05"
+        },
+        {
+          "leftItemId": "left-06",
+          "rightItemId": "right-06"
+        },
+        {
+          "leftItemId": "left-07",
+          "rightItemId": "right-07"
+        },
+        {
+          "leftItemId": "left-08",
+          "rightItemId": "right-08"
+        },
+        {
+          "leftItemId": "left-09",
+          "rightItemId": "right-09"
+        },
+        {
+          "leftItemId": "left-10",
+          "rightItemId": "right-10"
+        }
       ],
       "presentation": {
         "leftLabel": "Italiano",
@@ -66,13 +162,17 @@
     }
   },
   "scoring": {
-    "backpack": { "pieces": 1 },
+    "backpack": {
+      "pieces": 1
+    },
     "pizza": {
       "mode": "scored",
       "maxSlices": 5,
       "minRatioToComplete": 1,
       "rounding": "floor",
-      "mapping": { "kind": "linear" }
+      "mapping": {
+        "kind": "linear"
+      }
     }
   }
 }

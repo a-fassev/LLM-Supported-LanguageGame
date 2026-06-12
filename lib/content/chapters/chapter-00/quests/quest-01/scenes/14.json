@@ -2,7 +2,7 @@
   "id": "chapter-00-quest-01-scene-14",
   "scene_type": "task",
   "screen_type": "error_spotting",
-  "background": "chapters/00/quests/01/bg-task-01",
+  "background": "chapters/00/quests/01/bg-scene-14",
   "content": {
     "title": "Correggi il racconto",
     "instruction": "Leggi tutto il testo con calma. Seleziona ogni errore e scrivi la correzione.",

@@ -2,18 +2,18 @@
   "id": "chapter-00-quest-01-scene-12",
   "scene_type": "task",
   "screen_type": "free_text",
-  "background": "chapters/00/quests/01/bg-task-01",
+  "background": "chapters/00/quests/01/bg-scene-12",
   "content": {
     "title": "Presentati",
     "instruction": "Scrivi due frasi in italiano. Apri il documento se ti serve la foto di esempio.",
     "referenceDocument": {
       "title": "Il compagno di esempio",
-      "body": "Fixture per il team: una sola figura nel documento (come le professioni nel capitolo 2).",
+      "body": "Un compagno di classe ti saluta. Puoi usare il documento come piccolo spunto per presentarti con frasi semplici.",
       "figures": [
         {
           "image": "chapters/00/quests/01/ref-fixture-compagno",
           "caption": "Un compagno di classe",
-          "alt": "Ritratto placeholder per test UI"
+          "alt": "Ritratto illustrato di un compagno di classe"
         }
       ]
     },
@@ -40,12 +40,16 @@
     }
   },
   "scoring": {
-    "backpack": { "pieces": 1 },
+    "backpack": {
+      "pieces": 1
+    },
     "pizza": {
       "mode": "scored",
       "maxSlices": 2,
       "minRatioToComplete": 0.7,
-      "mapping": { "kind": "linear" }
+      "mapping": {
+        "kind": "linear"
+      }
     }
   }
 }

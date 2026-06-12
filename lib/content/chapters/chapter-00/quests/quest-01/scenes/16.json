@@ -2,7 +2,7 @@
   "id": "chapter-00-quest-01-scene-16",
   "scene_type": "task",
   "screen_type": "cloze",
-  "background": "chapters/00/quests/01/bg-task-01",
+  "background": "chapters/00/quests/01/bg-scene-16",
   "content": {
     "title": "Completa la gita a Bologna",
     "instruction": "Inserisci le parole mancanti in ogni spazio. Puoi aprire il documento di riferimento.",
@@ -16,9 +16,22 @@
       "lines": [
         {
           "segments": [
-            { "kind": "text", "text": "La nostra classe di quinta elementare ha organizzato una gita lunghissima a Bologna lo scorso " },
-            { "kind": "gap", "maxLength": 12, "correctAnswers": ["domenica", "Domenica"] },
-            { "kind": "text", "text": " con tre autobus gialli e tanta curiosità." }
+            {
+              "kind": "text",
+              "text": "La nostra classe di quinta elementare ha organizzato una gita lunghissima a Bologna lo scorso "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 12,
+              "correctAnswers": [
+                "domenica",
+                "Domenica"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " con tre autobus gialli e tanta curiosità."
+            }
           ]
         },
         {
@@ -39,8 +52,18 @@
         },
         {
           "segments": [
-            { "kind": "text", "text": "Quando siamo arrivati sotto i portici, gli studenti " },
-            { "kind": "gap", "maxLength": 8, "correctAnswers": ["hanno", "Hanno"] },
+            {
+              "kind": "text",
+              "text": "Quando siamo arrivati sotto i portici, gli studenti "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 8,
+              "correctAnswers": [
+                "hanno",
+                "Hanno"
+              ]
+            },
             {
               "kind": "text",
               "text": " visitato la biblioteca Salaborsa, poi la piazza Maggiore e infine le Due Torri."
@@ -57,11 +80,34 @@
         },
         {
           "segments": [
-            { "kind": "text", "text": "Marco ha " },
-            { "kind": "gap", "maxLength": 12, "correctAnswers": ["comprato", "Comprato"] },
-            { "kind": "text", "text": " un " },
-            { "kind": "gap", "maxLength": 8, "correctAnswers": ["libro", "Libro"] },
-            { "kind": "text", "text": " sulle leggende di Bologna e lo ha mostrato a tutti con entusiasmo." }
+            {
+              "kind": "text",
+              "text": "Marco ha "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 12,
+              "correctAnswers": [
+                "comprato",
+                "Comprato"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " un "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 8,
+              "correctAnswers": [
+                "libro",
+                "Libro"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " sulle leggende di Bologna e lo ha mostrato a tutti con entusiasmo."
+            }
           ]
         },
         {
@@ -82,11 +128,37 @@
         },
         {
           "segments": [
-            { "kind": "text", "text": "Prima di tornare, abbiamo assaggiato un pezzo di pizza rossa " },
-            { "kind": "gap", "maxLength": 8, "correctAnswers": ["perché", "perche", "Perché", "Percé", "percè"] },
-            { "kind": "text", "text": " era " },
-            { "kind": "gap", "maxLength": 8, "correctAnswers": ["buona", "Buona"] },
-            { "kind": "text", "text": " e profumava di basilico in tutta la strada." }
+            {
+              "kind": "text",
+              "text": "Prima di tornare, abbiamo assaggiato un pezzo di pizza rossa "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 8,
+              "correctAnswers": [
+                "perché",
+                "perche",
+                "Perché",
+                "Percé",
+                "percè"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " era "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 8,
+              "correctAnswers": [
+                "buona",
+                "Buona"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": " e profumava di basilico in tutta la strada."
+            }
           ]
         },
         {
@@ -173,12 +245,16 @@
     }
   },
   "scoring": {
-    "backpack": { "pieces": 1 },
+    "backpack": {
+      "pieces": 1
+    },
     "pizza": {
       "mode": "scored",
       "maxSlices": 3,
       "minRatioToComplete": 0.67,
-      "mapping": { "kind": "linear" }
+      "mapping": {
+        "kind": "linear"
+      }
     }
   }
 }

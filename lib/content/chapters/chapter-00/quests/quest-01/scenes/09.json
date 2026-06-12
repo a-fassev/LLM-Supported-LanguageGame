@@ -2,33 +2,66 @@
   "id": "chapter-00-quest-01-scene-09",
   "scene_type": "task",
   "screen_type": "drag_drop",
-  "background": "chapters/00/quests/01/bg-task-01",
+  "background": "chapters/00/quests/01/bg-scene-09",
   "content": {
     "title": "Metti le parole al posto giusto",
     "instruction": "Trascina ogni parola nella categoria corretta.",
     "task": {
       "prompt": "Dove va ogni parola?",
-      "presentation": { "targetMode": "blocks" },
+      "presentation": {
+        "targetMode": "blocks"
+      },
       "shuffleItemOrder": true,
       "items": [
-        { "id": "item-mela", "label": "mela" },
-        { "id": "item-cane", "label": "cane" },
-        { "id": "item-libro", "label": "libro" }
+        {
+          "id": "item-mela",
+          "label": "mela"
+        },
+        {
+          "id": "item-cane",
+          "label": "cane"
+        },
+        {
+          "id": "item-libro",
+          "label": "libro"
+        }
       ],
       "targets": [
-        { "id": "cat-frutta", "title": "Frutta", "correctItemIds": ["item-mela"] },
-        { "id": "cat-animali", "title": "Animali", "correctItemIds": ["item-cane"] },
-        { "id": "cat-cose", "title": "Cose", "correctItemIds": ["item-libro"] }
+        {
+          "id": "cat-frutta",
+          "title": "Frutta",
+          "correctItemIds": [
+            "item-mela"
+          ]
+        },
+        {
+          "id": "cat-animali",
+          "title": "Animali",
+          "correctItemIds": [
+            "item-cane"
+          ]
+        },
+        {
+          "id": "cat-cose",
+          "title": "Cose",
+          "correctItemIds": [
+            "item-libro"
+          ]
+        }
       ]
     }
   },
   "scoring": {
-    "backpack": { "pieces": 1 },
+    "backpack": {
+      "pieces": 1
+    },
     "pizza": {
       "mode": "scored",
       "maxSlices": 3,
       "minRatioToComplete": 0.67,
-      "mapping": { "kind": "linear" }
+      "mapping": {
+        "kind": "linear"
+      }
     }
   }
 }
