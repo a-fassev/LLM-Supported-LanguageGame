@@ -126,7 +126,7 @@ writeJson(
     "quest-01",
     2,
     q1bg,
-    "Ti chiami Toni. Vieni dalla Germania e sei in Italia per un anno di scambio. Da oggi vivi qui, nella casa della famiglia Ferrari, in una città che ancora non conosci.",
+    "Ti chiami Toni. Vieni dalla Germania e sei in Italia per un anno di scambio. Da oggi vivi qui, nella casa della famiglia Ferrari, in una città che non conosci ancora.",
   ),
 );
 writeJson(
@@ -189,7 +189,7 @@ writeJson(
     "quest-02",
     1,
     q2bg,
-    "Sei in Italia per un anno di scambio. Oggi è il tuo primo giorno al Liceo Galvani di Bologna. Lunedì mattina, ore 8:00. Entri in classe: gli studenti chiacchierano, qualcuno ti guarda con curiosità.",
+    "Sei in Italia per un anno di scambio. Oggi è il tuo primo giorno al Liceo Galvani di Bologna. Lunedì mattina, ore 8:30. Entri in classe: gli studenti stanno chiacchierando, qualcuno ti guarda con curiosità.",
   ),
 );
 writeJson(
@@ -306,7 +306,7 @@ writeJson(
     "quest-02",
     7,
     q2bg,
-    "Prof.ssa Ricci\n\"Bravissimo/a! A proposito di viaggi: ho qui un articolo di una rivista tedesca con consigli per i turisti in Italia. Però... qualcosa non torna. Ci sono degli errori. Riuscite a trovarli?\"",
+    "Prof.ssa Ricci\n\"Bravissimo/a! A proposito di viaggi: ho qui un articolo di una rivista tedesca con consigli per i turisti in Italia. Però... qualcosa non va. Ci sono degli errori. Riuscite a trovarli?\"",
   ),
 );
 
@@ -547,7 +547,7 @@ writeJson(
     "quest-04",
     2,
     q4bg,
-    "Tonio\n\"Ciao, ragazzo/a! Cosa ti posso offrire? Un caffè, un'acqua? ... Aspetta, non ti ho mai visto qui. Sei nuovo/a a Bologna?\"",
+    "Tonio\n\"Ciao, ragazzo/a! Cosa desideri? Un caffè, un'acqua? ... Aspetta, non ti ho mai visto qui. Sei nuovo/a a Bologna?\"",
   ),
 );
 writeJson(

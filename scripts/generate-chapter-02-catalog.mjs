@@ -47,7 +47,7 @@ function freetextEvaluation(criteria) {
 
 const SAVIANO_BODY = `Roberto Saviano è nato il 22 settembre 1979. Nei suoi articoli e libri racconta normalmente della criminalità organizzata, soprattutto della Camorra. Di sicuro è diventato famoso per il suo libro "Gomorra" (2006). Il libro parla della Camorra in Campania perché l'autore è cresciuto in quella zona. Per questo conosce bene i problemi che ci sono lì. Tuttavia è specialmente con la pubblicazione di "Gomorra" che la sua vita cammina veloce in un'altra direzione. Da allora non può più vivere senza scorta, cioè senza poliziotti che gli stanno vicino. Se vuole andare al cinema o si sente male e deve andare dal dottore, parla con gli uomini della scorta che lo accompagnano subito. E chiaramente deve chiedere ai suoi "ragazzi" se vuole prendere velocemente un caffè al bar. Tutto sommato, non è sempre una vita facile. Saviano però continua a lottare. Non solo non si arrende, ma lavora sodo e fa in continuazione nuove indagini: nel 2020 è uscito il suo ultimo libro "Gridalo", un libro con cui chiede a tutti di aver il coraggio di non stare zitti e parlare sempre apertamente dei problemi.`;
 
-const DEL_PIERO_BODY = `Alessandro Del Piero è nato il 9 novembre 1974 a Conegliano, una piccola città in Veneto. Da bambino la sua famiglia non era ricca: il padre lavorava come elettricista e la madre stava a casa. Lui giocava a calcio nelle strade del paese con il fratello maggiore Stefano. A tredici anni è entrato nella squadra giovanile del Padova, e a diciotto anni è arrivato alla Juventus, una delle squadre più famose d'Italia. Ha giocato per la Juventus per diciannove anni: nessun altro giocatore ha fatto la stessa cosa. Per questo i tifosi gli hanno dato il soprannome "Pinturicchio" e poi "Capitano". Con la Juventus ha vinto molti campionati italiani, ma il momento più bello della sua carriera è arrivato nel 2006: con la nazionale italiana ha vinto la Coppa del Mondo in Germania. Tutti gli italiani ricordano il suo gol nella semifinale contro i tedeschi. Oggi Del Piero non gioca più, ma lavora come commentatore in TV e aiuta i giovani calciatori con la sua fondazione. È sposato con Sonia e ha tre figli.`;
+const DEL_PIERO_BODY = `Alessandro Del Piero è nato il 9 novembre 1974 a Conegliano, una piccola città in Veneto. Da bambino la sua famiglia non era ricca: il padre lavorava come elettricista e la madre faceva la casalinga. Lui giocava a calcio nelle strade del paese con il fratello maggiore, Stefano. A tredici anni è entrato nella squadra giovanile del Padova, e a diciotto anni è arrivato alla Juventus, una delle squadre più famose d'Italia. Ha giocato per la Juventus per diciannove anni: nessun altro giocatore ha mai fatto una cosa simile. Per questo i tifosi gli hanno dato il soprannome "Pinturicchio" e poi "Capitano". Con la Juventus ha vinto molti campionati italiani, ma il momento più bello della sua carriera è arrivato nel 2006: con la nazionale italiana ha vinto la Coppa del Mondo in Germania. Tutti gli italiani ricordano il suo gol nella semifinale contro i tedeschi. Oggi Del Piero non gioca più, ma lavora come commentatore in TV e aiuta i giovani calciatori con la sua fondazione. È sposato con Sonia e ha tre figli.`;
 
 const FERRAGNI_BODY = `Chiara Ferragni è nata il 7 maggio 1987 a Cremona, in Lombardia. Da ragazza studiava legge all'università di Milano, ma la sua vera passione era la moda. Nel 2009, quando aveva solo ventidue anni, ha aperto un blog di moda chiamato "The Blonde Salad". All'inizio nessuno credeva nel suo progetto, ma in pochi anni il blog è diventato famosissimo in tutto il mondo. Oggi Chiara è una delle influencer più conosciute del pianeta: sui suoi profili social la seguono milioni di persone. Ha creato anche una sua linea di moda, "Chiara Ferragni Collection", con scarpe, vestiti e accessori. Nel 2018 si è sposata con il rapper Fedez in una cerimonia spettacolare in Sicilia. Hanno avuto due figli, Leone e Vittoria, e per anni la loro vita è stata seguita dai fan su Instagram. Nel 2024 però la coppia si è separata e Chiara ha vissuto un periodo difficile, anche per un caso legato a un dolce di Natale, il "pandoro Balocco". Però continua a lavorare ed è ancora una delle donne più importanti del mondo della moda in Italia.`;
 
@@ -547,7 +547,7 @@ writeJson(
     "quest-03",
     2,
     q3bg,
-    "Tu\nEcco il primo vero compito per il Liceo Galvani. La Signora Wagner ci ha chiesto di scegliere un italiano famoso, di leggere il profilo e di fare un identikit. E dopo c'è anche un quiz su altre persone famose. Vediamo chi sono...",
+    "Tu\nEcco il primo vero compito per il Liceo Galvani. La prof ci ha chiesto di scegliere un italiano famoso, di leggere il profilo e di fare un identikit. E dopo c'è anche un quiz su altre persone famose. Vediamo chi sono...",
   ),
 );
 writeJson(
@@ -644,7 +644,7 @@ writeJson(
     "quest-03",
     5,
     q3bg,
-    "Tu\nBene, l'identikit è pronto. Adesso il quiz: la Signora Wagner ha preparato anche un gioco \"Chi sono io?\" con altre persone famose italiane. Vediamo se riesco a indovinare...",
+    "Tu\nBene, l'identikit è pronto. Adesso il quiz: la prof ha preparato anche un gioco \"Chi sono io?\" con altre persone famose italiane. Vediamo se riesco a indovinare...",
   ),
 );
 
@@ -752,7 +752,7 @@ writeJson(
     "quest-03",
     12,
     q3bg,
-    "Tu\nFatto! La Signora Wagner sarà contenta. Adesso però ho davvero fame, e penso che c'è ancora una cosa da fare oggi: quel ristorante in centro cerca personale per l'estate...",
+    "Tu\nFatto! La prof sarà contenta. Adesso però ho davvero fame, e penso che c'è ancora una cosa da fare oggi: quel ristorante in centro cerca personale per l'estate...",
   ),
 );
 writeJson(
@@ -827,7 +827,7 @@ writeJson(
     "quest-04",
     6,
     q4bg,
-    "Signor Marini\n\"Ah, perfetto! Stiamo cercando ragazzi/e per la stagione estiva. Hai con te una lettera di motivazione?\"",
+    "Signor Marini\n\"Ah, perfetto! Stiamo cercando personale per la stagione estiva. Hai con te una lettera di motivazione?\"",
   ),
 );
 writeJson(
@@ -1027,7 +1027,7 @@ writeJson(
     "quest-04",
     19,
     q4bg,
-    "Signor Marini\n\"Bravissimo/a! Si vede che hai studiato bene. Senti, mi piaci. Per l'estate ti posso prendere come aiuto in sala. Adesso vai a casa, parla con la tua famiglia ospitante e poi ci sentiamo. Ah, e tieni: il primo caffè da Marini te lo offro io!\"",
+    "Signor Marini\n\"Bravissimo/a! Si vede che hai studiato bene. Senti, mi piaci. Per l'estate ti posso offrire un posto come aiuto in sala. Adesso vai a casa, parla con la tua famiglia ospitante e poi ci sentiamo. Ah, e tieni: il primo caffè da Marini te lo offro io!\"",
   ),
 );
 writeJson(
