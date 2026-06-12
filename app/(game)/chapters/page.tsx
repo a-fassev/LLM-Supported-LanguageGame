@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { HubPage } from "@/components/game/layout/HubPage";
 import { QuestHud } from "@/components/game/shell/QuestHud";
 import { ChapterGrid } from "@/components/game/screens/ChapterGrid";
+import { hubBackgroundKeys } from "@/lib/game/content/hub-background-keys";
 import { useBootstrap } from "@/lib/game/use-bootstrap";
 import {
   isChapterFullyComplete,
@@ -37,9 +38,10 @@ export default function ChaptersPage() {
   return (
     <HubPage
       title="Capitoli"
+      backgroundKey={hubBackgroundKeys.bolognaMap}
       onBack={() => router.push("/menu")}
       headerRight={headerRight}
-      className="scrollbar-hide flex min-h-0 flex-col overflow-x-hidden overflow-y-auto border-0 bg-transparent shadow-none ring-0 backdrop-blur-0"
+      className="scrollbar-hide flex min-h-0 flex-col overflow-x-hidden overflow-y-auto border-0 bg-transparent shadow-none ring-0 backdrop-blur-0 !backdrop-blur-none "
     >
       {error ? <p className="shrink-0 text-sm text-destructive">{error}</p> : null}
       {loading && !data ? (
