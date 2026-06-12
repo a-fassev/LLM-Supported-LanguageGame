@@ -78,7 +78,7 @@ A Torino si fanno anche i buoni grissini — un pane croccante fatto a forma di 
 
 A Torino si gioca anche a calcio. Ecco la maglietta della famosa squadra a Torino: la Juventus, oppure la Juve. La squadra non ha solo uno stadio bellissimo e un buon allenatore, ma anche un soprannome interessante: i torinesi la chiamano „Vecchia Signora".
 
-In Torino si possono vedere le Alpi e la Mole Antonelliana — il simbolo di Torino. All'interno della Mole si può visitare il Museo Nazionale del Cinema. Lì ci si può informare sulla storia del cinema, guardare qualche film e passare alcune ore interessanti.
+A Torino si possono vedere le Alpi e la Mole Antonelliana — il simbolo di Torino. All'interno della Mole si può visitare il Museo Nazionale del Cinema. Lì ci si può informare sulla storia del cinema, guardare qualche film e passare alcune ore interessanti.
 
 A Torino non si devono perdere i musei! Un consiglio: se si prenota, non si deve fare la fila! Tanti dicono che il Museo Egizio sia qualcosa di spettacolare. Con 30.000 pezzi è il museo egizio più importante dopo quello del Cairo. Lì si possono ammirare opere d'arte dell'antico Egitto.
 
@@ -329,7 +329,7 @@ writeJson(
     "quest-01",
     1,
     q1bg,
-    "Un nuovo giorno a Bologna. Ti svegli, la luce entra calda dalla finestra. Sulla scrivania ci sono i tuoi libri di scuola per la prossima lezione e accanto, il tuo zaino — già un bel po' pieno di colore.",
+    "Una nuova giornata a Bologna. Ti svegli, la luce entra calda dalla finestra. Sulla scrivania ci sono i tuoi libri di scuola per la prossima lezione e accanto, il tuo zaino — già un bel po' pieno di colore.",
   ),
 );
 writeJson(
@@ -375,7 +375,7 @@ writeJson(
     "quest-02",
     2,
     q2bg,
-    tu("Vediamo cosa si può scoprire qui. All'ingresso c'era un volantino con le informazioni principali — me lo prendo."),
+    tu("Vediamo cosa si può scoprire qui. All'ingresso ho visto dei volantini con le informazioni principali — eccoli."),
   ),
 );
 writeJson(
@@ -547,7 +547,7 @@ writeJson(
     q3bg,
     npc(
       "Valentina",
-      `„In piazza troverai decine di bancarelle dove i maestri cioccolatieri di tutta Italia presentano le loro creazioni. Credo che tu assaggerai del cioccolato come non l'hai mai mangiato. E penso che molti visitatori vengano da altre città — incontrerai gente di Milano, Torino, Firenze."`,
+      `„In piazza troverai decine di bancarelle dove i maestri cioccolatieri di tutta Italia presentano le loro creazioni. Credo che tu assaggi del cioccolato come non l'hai mai mangiato. E penso che molti visitatori vengano da altre città — incontrerai gente di Milano, Torino, Firenze."`,
     ),
   ),
 );
@@ -630,7 +630,7 @@ writeJson(
     q3bg,
     npc(
       "Valentina",
-      `„Bravo/Brava! Parli davvero bene l'italiano. Vieni, lascia che ti mostri ancora una cosa — qualcosa che mi piace particolarmente della nostra lingua."`,
+      `„Caspita! Parli davvero bene l'italiano. Vieni, lascia che ti mostri ancora una cosa — qualcosa che mi piace particolarmente della nostra lingua."`,
     ),
   ),
 );
