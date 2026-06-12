@@ -13,8 +13,9 @@ const CHAPTER_ID = "chapter-00";
 const QUEST_ID = "quest-01";
 const BG_CHAPTER = "chapters/00/chapter/bg-missions";
 const BG_QUEST = "chapters/00/quests/01/bg-overview";
-const BG_STORY = "chapters/00/quests/01/bg-info-01";
-const BG_TASK = "chapters/00/quests/01/bg-task-01";
+function sceneBackground(n) {
+  return `chapters/00/quests/01/bg-scene-${String(n).padStart(2, "0")}`;
+}
 
 /** Tutorial: evaluate tasks (scored) but award zero pizza/backpack. */
 const TUTORIAL_SCORING = {
@@ -43,7 +44,7 @@ function sceneId(n) {
   return `${CHAPTER_ID}-${QUEST_ID}-scene-${nn}`;
 }
 
-function story(n, text, background = BG_STORY) {
+function story(n, text, background = sceneBackground(n)) {
   return {
     id: sceneId(n),
     scene_type: "story",
@@ -53,7 +54,7 @@ function story(n, text, background = BG_STORY) {
   };
 }
 
-function task(n, screenType, content, background = BG_TASK) {
+function task(n, screenType, content, background = sceneBackground(n)) {
   return {
     id: sceneId(n),
     scene_type: "task",
@@ -219,7 +220,6 @@ const scenes = [
   story(
     9,
     "La valigia è pronta. Domani mattina il volo per Bologna.\nLa tua avventura in Italia inizia presto!",
-    BG_STORY,
   ),
 ];
 

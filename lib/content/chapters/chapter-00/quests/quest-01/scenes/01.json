@@ -2,7 +2,7 @@
   "id": "chapter-00-quest-01-scene-01",
   "scene_type": "story",
   "screen_type": "info",
-  "background": "chapters/00/quests/01/bg-info-01",
+  "background": "chapters/00/quests/01/bg-scene-01",
   "content": {
     "text": "Ti chiami Toni. Domani voli in Italia per un anno di scambio.\nOggi prepari la valigia. In questo capitolo provi ogni tipo di compito del gioco."
   }

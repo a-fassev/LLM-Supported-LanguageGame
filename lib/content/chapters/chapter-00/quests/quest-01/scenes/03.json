@@ -2,7 +2,7 @@
   "id": "chapter-00-quest-01-scene-03",
   "scene_type": "task",
   "screen_type": "matching",
-  "background": "chapters/00/quests/01/bg-task-01",
+  "background": "chapters/00/quests/01/bg-scene-03",
   "content": {
     "title": "Abbinamento — La valigia",
     "task": {

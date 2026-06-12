@@ -2,7 +2,7 @@
   "id": "chapter-00-quest-01-scene-09",
   "scene_type": "story",
   "screen_type": "info",
-  "background": "chapters/00/quests/01/bg-info-01",
+  "background": "chapters/00/quests/01/bg-scene-09",
   "content": {
     "text": "La valigia è pronta. Domani mattina il volo per Bologna.\nLa tua avventura in Italia inizia presto!"
   }

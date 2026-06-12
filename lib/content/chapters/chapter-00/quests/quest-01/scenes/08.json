@@ -2,7 +2,7 @@
   "id": "chapter-00-quest-01-scene-08",
   "scene_type": "task",
   "screen_type": "free_text",
-  "background": "chapters/00/quests/01/bg-task-01",
+  "background": "chapters/00/quests/01/bg-scene-08",
   "content": {
     "title": "Risposta libera — La valigia",
     "task": {
