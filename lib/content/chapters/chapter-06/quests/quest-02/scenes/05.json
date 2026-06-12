@@ -1,167 +1,144 @@
 {
   "id": "chapter-06-quest-02-scene-05",
   "scene_type": "task",
-  "screen_type": "cloze",
+  "screen_type": "drag_drop",
   "background": "chapters/06/quests/02/bg-ristorante",
   "content": {
     "title": "Discorso indiretto",
-    "instruction": "Completa le frasi con le parti corrette. Non serve produzione libera.",
+    "instruction": "Trascina ogni risposta nella posizione corretta del testo.",
     "referenceDocument": {
-      "title": "Pratica 4 (S. 114) — intervista",
+      "title": "Pratica A – intervista",
       "body": "Cari amici tedeschi, grazie per le vostre domande! Mi fa molto piacere sapere che leggete i miei libri. Ecco le mie risposte:\n\n1) Questa non è una domanda difficile, proprio ieri ho finito nuovamente di leggere l'Odissea di Omero.\n2) Una domanda facile, perché vita e morte sono gli unici temi che non mi annoiano.\n3) Non veramente, comunque c'è sempre un po' dello scrittore in ogni personaggio.\n4) Entrambi in modo eccitante, sia l'inizio sia la fine.\n5) Insegno naturalmente!\n6) Non so se oggi scriverò. Da una settimana sono piuttosto pigro.\n7) I miei consigli? Scrivere, scrivere, scrivere – non avere mai paura! E soprattutto leggere moltissimo.\n8) Sì, ma questo è ancora un segreto. Forse ne sentirete parlare a breve. A presto, Alessandro D'Avenia"
     },
     "task": {
-      "prompt": "Completa le parti mancanti al discorso indiretto al presente.",
-      "caseSensitive": false,
-      "lines": [
+      "prompt": "Completa il discorso indiretto con le risposte esatte dell'intervista.",
+      "presentation": {
+        "targetMode": "blocks",
+        "sourceLabel": "Risposte",
+        "targetLabel": "Testo da completare"
+      },
+      "shuffleItemOrder": true,
+      "items": [
         {
-          "segments": [
-            {
-              "kind": "text",
-              "text": "Abbiamo domandato a D'Avenia "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 128,
-              "correctAnswers": [
-                "di dirci il titolo dell'ultimo libro che ha letto"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": " e lui ha risposto che "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 128,
-              "correctAnswers": [
-                "ha appena finito di rileggere l'Odissea di Omero"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": "."
-            }
+          "id": "answer-01",
+          "label": "di dirci il titolo dell'ultimo libro che ha letto"
+        },
+        {
+          "id": "answer-02",
+          "label": "ha appena finito di rileggere l'Odissea di Omero"
+        },
+        {
+          "id": "answer-03",
+          "label": "ha scelto un tema così difficile"
+        },
+        {
+          "id": "answer-04",
+          "label": "vita e morte sono gli unici temi che non lo annoiano"
+        },
+        {
+          "id": "answer-05",
+          "label": "non si identifica con il personaggio del professore"
+        },
+        {
+          "id": "answer-06",
+          "label": "in ogni personaggio c'è sempre un po' dello scrittore"
+        },
+        {
+          "id": "answer-07",
+          "label": "lui vive sempre in modo eccitante l'inizio e la fine di ogni libro"
+        },
+        {
+          "id": "answer-08",
+          "label": "insegna"
+        },
+        {
+          "id": "answer-09",
+          "label": "di scrivere tanto, di non avere mai paura e di leggere moltissimo"
+        },
+        {
+          "id": "answer-10",
+          "label": "il suo nuovo progetto è ancora un segreto"
+        }
+      ],
+      "targets": [
+        {
+          "id": "gap-01",
+          "title": "Abbiamo domandato a D'Avenia ___",
+          "matchMode": "one",
+          "correctItemIds": [
+            "answer-01"
           ]
         },
         {
-          "segments": [
-            {
-              "kind": "text",
-              "text": "Quando gli abbiamo chiesto perché "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 96,
-              "correctAnswers": [
-                "ha scelto un tema così difficile"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": ", ha spiegato che "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 128,
-              "correctAnswers": [
-                "vita e morte sono gli unici temi che non lo annoiano"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": "."
-            }
+          "id": "gap-02",
+          "title": "e lui ha risposto che ___.",
+          "matchMode": "one",
+          "correctItemIds": [
+            "answer-02"
           ]
         },
         {
-          "segments": [
-            {
-              "kind": "text",
-              "text": "Ha affermato che "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 128,
-              "correctAnswers": [
-                "non si identifica con il personaggio del professore"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": ", ma che "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 128,
-              "correctAnswers": [
-                "in ogni personaggio c'è sempre un po' dello scrittore"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": "."
-            }
+          "id": "gap-03",
+          "title": "Quando gli abbiamo chiesto perché ___,",
+          "matchMode": "one",
+          "correctItemIds": [
+            "answer-03"
           ]
         },
         {
-          "segments": [
-            {
-              "kind": "text",
-              "text": "Ha aggiunto che "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 128,
-              "correctAnswers": [
-                "lui vive sempre in modo eccitante l'inizio e la fine di ogni libro"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": " e che, quando non scrive, "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 48,
-              "correctAnswers": [
-                "insegna"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": "."
-            }
+          "id": "gap-04",
+          "title": "ha spiegato che ___.",
+          "matchMode": "one",
+          "correctItemIds": [
+            "answer-04"
           ]
         },
         {
-          "segments": [
-            {
-              "kind": "text",
-              "text": "Lui consiglia ai giovani scrittori "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 160,
-              "correctAnswers": [
-                "di scrivere tanto, di non avere mai paura e di leggere moltissimo"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": " e ha detto che "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 128,
-              "correctAnswers": [
-                "il suo nuovo progetto è ancora un segreto"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": "."
-            }
+          "id": "gap-05",
+          "title": "Ha affermato che ___,",
+          "matchMode": "one",
+          "correctItemIds": [
+            "answer-05"
+          ]
+        },
+        {
+          "id": "gap-06",
+          "title": "ma che ___.",
+          "matchMode": "one",
+          "correctItemIds": [
+            "answer-06"
+          ]
+        },
+        {
+          "id": "gap-07",
+          "title": "Ha aggiunto che ___",
+          "matchMode": "one",
+          "correctItemIds": [
+            "answer-07"
+          ]
+        },
+        {
+          "id": "gap-08",
+          "title": "e che, quando non scrive, ___.",
+          "matchMode": "one",
+          "correctItemIds": [
+            "answer-08"
+          ]
+        },
+        {
+          "id": "gap-09",
+          "title": "Lui consiglia ai giovani scrittori ___",
+          "matchMode": "one",
+          "correctItemIds": [
+            "answer-09"
+          ]
+        },
+        {
+          "id": "gap-10",
+          "title": "e ha detto che ___.",
+          "matchMode": "one",
+          "correctItemIds": [
+            "answer-10"
           ]
         }
       ]
@@ -173,7 +150,7 @@
     },
     "pizza": {
       "mode": "scored",
-      "maxSlices": 10,
+      "maxSlices": 5,
       "minRatioToComplete": 0.8,
       "rounding": "nearest",
       "mapping": {

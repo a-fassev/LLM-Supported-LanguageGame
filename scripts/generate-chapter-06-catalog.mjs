@@ -109,7 +109,7 @@ function mcQuestion(id, prompt, optionLabels, correctIndex) {
   };
 }
 
-const PROF_LINES_BODY = `Testo A1 (S. 112/113) — Prof per sempre!
+const PROF_LINES_BODY = `Testo A — Prof per sempre!
 
 1 È il Sognatore. [...]. Ci mancava solo
 2 questa [...].
@@ -435,7 +435,7 @@ writeJson("quests/quest-02/scenes/03.json", {
     title: "Prof per sempre!",
     instruction: "Trova nel testo le frasi giuste e indica la riga.",
     referenceDocument: {
-      title: "Testo A1 (S. 112/113)",
+      title: "Testo A",
       body: PROF_LINES_BODY,
     },
     task: {
@@ -509,7 +509,7 @@ writeJson("quests/quest-02/scenes/04.json", {
     title: "Intervista con D'Avenia",
     instruction: "Associa le risposte alle domande corrette e ordina la sequenza dell'intervista.",
     referenceDocument: {
-      title: "Pratica 4 (S. 114) — risposte di Alessandro D'Avenia",
+      title: "Pratica A – intervista",
       body: INTERVIEW_BODY,
     },
     task: {
@@ -539,76 +539,130 @@ writeJson("quests/quest-02/scenes/04.json", {
 writeJson("quests/quest-02/scenes/05.json", {
   id: `${CHAPTER_ID}-quest-02-scene-05`,
   scene_type: "task",
-  screen_type: "cloze",
+  screen_type: "drag_drop",
   background: q2bg,
   content: {
     title: "Discorso indiretto",
-    instruction: "Completa le frasi con le parti corrette. Non serve produzione libera.",
+    instruction: "Trascina ogni risposta nella posizione corretta del testo.",
     referenceDocument: {
-      title: "Pratica 4 (S. 114) — intervista",
+      title: "Pratica A – intervista",
       body: INTERVIEW_BODY,
     },
     task: {
-      prompt: "Completa le parti mancanti al discorso indiretto al presente.",
-      caseSensitive: false,
-      lines: [
+      prompt: "Completa il discorso indiretto con le risposte esatte dell'intervista.",
+      presentation: {
+        targetMode: "blocks",
+        sourceLabel: "Risposte",
+        targetLabel: "Testo da completare",
+      },
+      shuffleItemOrder: true,
+      items: [
         {
-          segments: [
-            { kind: "text", text: "Abbiamo domandato a D'Avenia " },
-            gap(["di dirci il titolo dell'ultimo libro che ha letto"], 128),
-            { kind: "text", text: " e lui ha risposto che " },
-            gap(["ha appena finito di rileggere l'Odissea di Omero"], 128),
-            { kind: "text", text: "." },
-          ],
+          id: "answer-01",
+          label: "di dirci il titolo dell'ultimo libro che ha letto",
         },
         {
-          segments: [
-            { kind: "text", text: "Quando gli abbiamo chiesto perché " },
-            gap(["ha scelto un tema così difficile"], 96),
-            { kind: "text", text: ", ha spiegato che " },
-            gap(["vita e morte sono gli unici temi che non lo annoiano"], 128),
-            { kind: "text", text: "." },
-          ],
+          id: "answer-02",
+          label: "ha appena finito di rileggere l'Odissea di Omero",
         },
         {
-          segments: [
-            { kind: "text", text: "Ha affermato che " },
-            gap(["non si identifica con il personaggio del professore"], 128),
-            { kind: "text", text: ", ma che " },
-            gap(["in ogni personaggio c'è sempre un po' dello scrittore"], 128),
-            { kind: "text", text: "." },
-          ],
+          id: "answer-03",
+          label: "ha scelto un tema così difficile",
         },
         {
-          segments: [
-            { kind: "text", text: "Ha aggiunto che " },
-            gap(
-              ["lui vive sempre in modo eccitante l'inizio e la fine di ogni libro"],
-              128,
-            ),
-            { kind: "text", text: " e che, quando non scrive, " },
-            gap(["insegna"], 48),
-            { kind: "text", text: "." },
-          ],
+          id: "answer-04",
+          label: "vita e morte sono gli unici temi che non lo annoiano",
         },
         {
-          segments: [
-            { kind: "text", text: "Lui consiglia ai giovani scrittori " },
-            gap(
-              [
-                "di scrivere tanto, di non avere mai paura e di leggere moltissimo",
-              ],
-              160,
-            ),
-            { kind: "text", text: " e ha detto che " },
-            gap(["il suo nuovo progetto è ancora un segreto"], 128),
-            { kind: "text", text: "." },
-          ],
+          id: "answer-05",
+          label: "non si identifica con il personaggio del professore",
+        },
+        {
+          id: "answer-06",
+          label: "in ogni personaggio c'è sempre un po' dello scrittore",
+        },
+        {
+          id: "answer-07",
+          label: "lui vive sempre in modo eccitante l'inizio e la fine di ogni libro",
+        },
+        {
+          id: "answer-08",
+          label: "insegna",
+        },
+        {
+          id: "answer-09",
+          label: "di scrivere tanto, di non avere mai paura e di leggere moltissimo",
+        },
+        {
+          id: "answer-10",
+          label: "il suo nuovo progetto è ancora un segreto",
+        },
+      ],
+      targets: [
+        {
+          id: "gap-01",
+          title: "Abbiamo domandato a D'Avenia ___",
+          matchMode: "one",
+          correctItemIds: ["answer-01"],
+        },
+        {
+          id: "gap-02",
+          title: "e lui ha risposto che ___.",
+          matchMode: "one",
+          correctItemIds: ["answer-02"],
+        },
+        {
+          id: "gap-03",
+          title: "Quando gli abbiamo chiesto perché ___,",
+          matchMode: "one",
+          correctItemIds: ["answer-03"],
+        },
+        {
+          id: "gap-04",
+          title: "ha spiegato che ___.",
+          matchMode: "one",
+          correctItemIds: ["answer-04"],
+        },
+        {
+          id: "gap-05",
+          title: "Ha affermato che ___,",
+          matchMode: "one",
+          correctItemIds: ["answer-05"],
+        },
+        {
+          id: "gap-06",
+          title: "ma che ___.",
+          matchMode: "one",
+          correctItemIds: ["answer-06"],
+        },
+        {
+          id: "gap-07",
+          title: "Ha aggiunto che ___",
+          matchMode: "one",
+          correctItemIds: ["answer-07"],
+        },
+        {
+          id: "gap-08",
+          title: "e che, quando non scrive, ___.",
+          matchMode: "one",
+          correctItemIds: ["answer-08"],
+        },
+        {
+          id: "gap-09",
+          title: "Lui consiglia ai giovani scrittori ___",
+          matchMode: "one",
+          correctItemIds: ["answer-09"],
+        },
+        {
+          id: "gap-10",
+          title: "e ha detto che ___.",
+          matchMode: "one",
+          correctItemIds: ["answer-10"],
         },
       ],
     },
   },
-  scoring: taskScoring("cloze", { minRatioToComplete: 0.8 }),
+  scoring: taskScoring("drag_drop", { minRatioToComplete: 0.8 }),
 });
 
 writeJson(
@@ -646,17 +700,7 @@ writeJson(
   ),
 );
 
-const siciliaBody = `Luoghi (S. 122/123):
-
-1) Palermo — Cattedrale Santa Vergine Maria Assunta
-2) Palermo — mercati (Ballarò, Vucciria, Capo)
-3) Monreale — Cattedrale di Santa Maria Nuova
-4) Agrigento — Valle dei Templi
-5) Piazza Armerina — Villa Romana del Casale
-6) Scala dei Turchi
-7) Trapani — saline / città barocca
-
-Strutture: «È ... che vorrei vedere perché ...» / «Non sono ... che mi interessano perché ...».`;
+const siciliaBody = "Guarda le immagini e usa i nomi dei luoghi indicati sotto ogni foto.";
 
 writeJson("quests/quest-03/scenes/03.json", {
   id: `${CHAPTER_ID}-quest-03-scene-03`,
@@ -668,7 +712,7 @@ writeJson("quests/quest-03/scenes/03.json", {
     instruction:
       "Completa cinque frasi con la messa in rilievo (è ... che / non sono ... che ...).",
     referenceDocument: {
-      title: "Luoghi in Sicilia (S. 122/123)",
+      title: "Luoghi in Sicilia",
       body: siciliaBody,
       figures: siciliaFigureKeys,
     },
@@ -742,7 +786,7 @@ writeJson(
     "quest-03",
     4,
     q3bg,
-    `La signora annuisce soddisfatta.\n\n${signora("Perfetto, adesso è chiarissimo.")}`,
+    `La signora sorride soddisfatta.\n\n${signora("Perfetto, adesso è chiarissimo.")}`,
   ),
 );
 
@@ -961,7 +1005,6 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
     instruction: "Abbina ogni parola italiana al suo equivalente inglese.",
     referenceDocument: null,
     task: {
-      prompt: "Collega ogni parola italiana al suo equivalente inglese.",
       sampleSize: 10,
       poolPairs: bonusPoolPairs.map(([leftLabel, rightLabel], i) => ({
         id: `ch06v${String(i + 1).padStart(3, "0")}`,
@@ -995,7 +1038,7 @@ writeJson(
     "quest-01-bonus",
     6,
     bfinale,
-    "Il tuo percorso a Bologna è completo. Nella tua stanza brilla l'arredo finale — hai raccolto tutte le ricompense del viaggio.",
+    "Dopo il quiz, una persona dell'organizzazione ti chiama al banco informazioni. Qualcuno ha consegnato il tuo zaino all'ufficio oggetti smarriti: finalmente lo puoi riprendere.",
   ),
 );
 writeJson(
