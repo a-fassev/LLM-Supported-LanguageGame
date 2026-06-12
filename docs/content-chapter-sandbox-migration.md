@@ -12,6 +12,10 @@ Apply [`supabase/migrations/20260603180000_migrate_sandbox_chapter_01_to_00.sql`
 
 **In-progress** runs on old scene ids cannot be resumed; restart the quest in `chapter-00`.
 
+## Tutorial rewrite (sandbox → learner tutorial)
+
+Apply [`supabase/migrations/20260612140000_abandon_stale_chapter_00_runs.sql`](../supabase/migrations/20260612140000_abandon_stale_chapter_00_runs.sql) **once** when deploying the new `chapter-00` tutorial catalog. It marks all `in_progress` `chapter-00` runs as `abandoned` so test accounts are not stuck on deleted scene ids.
+
 Qualified quest completion ids (`chapterId:questId`) are derived from completed runs; expect sandbox completion to reset unless players replay `chapter-00`.
 
 ## Removing chapter-00 later (team sandbox no longer needed)

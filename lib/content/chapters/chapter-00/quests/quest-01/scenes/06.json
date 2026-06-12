@@ -1,74 +1,57 @@
 {
   "id": "chapter-00-quest-01-scene-06",
   "scene_type": "task",
-  "screen_type": "matching",
+  "screen_type": "error_spotting",
   "background": "chapters/00/quests/01/bg-scene-06",
   "content": {
-    "title": "Abbina le parole",
-    "instruction": "Collega ogni parola italiana alla traduzione giusta.",
+    "title": "Trova l'errore — La valigia",
     "task": {
-      "prompt": "Scegli la traduzione corretta per ogni parola.",
-      "leftItems": [
+      "prompt": "Tocca la parola con l'errore.",
+      "segments": [
         {
-          "id": "left-ciao",
-          "label": "Ciao"
+          "id": "s1",
+          "text": "Io",
+          "isError": false
         },
         {
-          "id": "left-grazie",
-          "label": "Grazie"
+          "id": "s2",
+          "text": " ha",
+          "isError": true,
+          "acceptedCorrections": [
+            "ho"
+          ]
         },
         {
-          "id": "left-notte",
-          "label": "Notte"
+          "id": "s3",
+          "text": " il",
+          "isError": false
+        },
+        {
+          "id": "s4",
+          "text": " passaporto",
+          "isError": false
+        },
+        {
+          "id": "s5",
+          "text": " in",
+          "isError": false
+        },
+        {
+          "id": "s6",
+          "text": " valigia.",
+          "isError": false
         }
-      ],
-      "rightItems": [
-        {
-          "id": "right-hello",
-          "label": "Hello"
-        },
-        {
-          "id": "right-thanks",
-          "label": "Thanks"
-        },
-        {
-          "id": "right-goodnight",
-          "label": "Good night"
-        },
-        {
-          "id": "right-bye",
-          "label": "Goodbye"
-        }
-      ],
-      "correctPairs": [
-        {
-          "leftItemId": "left-ciao",
-          "rightItemId": "right-hello"
-        },
-        {
-          "leftItemId": "left-grazie",
-          "rightItemId": "right-thanks"
-        },
-        {
-          "leftItemId": "left-notte",
-          "rightItemId": "right-goodnight"
-        }
-      ],
-      "presentation": {
-        "leftLabel": "Italiano",
-        "rightLabel": "Traduzione",
-        "shuffleRightOrder": true
-      }
+      ]
     }
   },
   "scoring": {
     "backpack": {
-      "pieces": 1
+      "pieces": 0
     },
     "pizza": {
       "mode": "scored",
-      "maxSlices": 3,
-      "minRatioToComplete": 0.6,
+      "maxSlices": 0,
+      "minRatioToComplete": 1,
       "rounding": "floor",
       "mapping": {
         "kind": "linear"

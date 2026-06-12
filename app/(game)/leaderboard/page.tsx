@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { HubPage } from "@/components/game/layout/HubPage";
 import { LeaderboardView } from "@/components/game/screens/LeaderboardView";
 import { getLeaderboard, type LeaderboardDto } from "@/lib/api-client";
+import { hubBackgroundKeys } from "@/lib/game/content/hub-background-keys";
 import { useGameSession } from "@/lib/game/session-context";
 import { useMountedRef } from "@/lib/game/use-mounted-ref";
 import { toastBlockingApiError } from "@/lib/game/toast-from-api";
@@ -51,6 +52,7 @@ export default function LeaderboardPage() {
   return (
     <HubPage
       title="Classifica"
+      backgroundKey={hubBackgroundKeys.leaderboardBrickwall}
       onBack={() => router.push("/menu")}
       className="flex flex-col overflow-hidden"
     >

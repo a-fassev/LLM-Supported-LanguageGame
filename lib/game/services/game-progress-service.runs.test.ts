@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const repoMocks = vi.hoisted(() => ({
+  abandonQuestRun: vi.fn(),
   completeQuestRun: vi.fn(),
   completeSceneOnce: vi.fn(),
   createQuestRun: vi.fn(),
@@ -16,6 +17,10 @@ const repoMocks = vi.hoisted(() => ({
   insertSceneMaterializationIfAbsent: vi.fn(),
 }));
 
+const testingReplayMock = vi.hoisted(() => ({
+  isGameTestingReplayMode: vi.fn(() => false),
+}));
+
 const catalogMocks = vi.hoisted(() => ({
   loadContentCatalog: vi.fn(),
   findCatalogQuest: vi.fn(),
@@ -24,10 +29,15 @@ const catalogMocks = vi.hoisted(() => ({
 
 const evaluateFreitextLlmSceneMock = vi.hoisted(() => vi.fn());
 
+vi.mock("@/lib/game/game-testing-replay-mode", () => ({
+  GAME_TESTING_REPLAY_MODE: false,
+  isGameTestingReplayMode: testingReplayMock.isGameTestingReplayMode,
+}));
 vi.mock("@/lib/game/repositories/game-progress-repository", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/game/repositories/game-progress-repository")>();
   return {
     ...actual,
+    abandonQuestRun: repoMocks.abandonQuestRun,
     completeQuestRun: repoMocks.completeQuestRun,
     completeSceneOnce: repoMocks.completeSceneOnce,
     createQuestRun: repoMocks.createQuestRun,
@@ -50,12 +60,12 @@ vi.mock("@/lib/game/tasks/freitext/evaluate-freitext-llm-scene", () => ({
 
 function makePoolMatchingTaskScene() {
   return {
-    id: "chapter-00-quest-01-bonus-scene-02",
+    id: "chapter-01-quest-01-bonus-scene-04",
     sceneNumber: 2,
     filename: "02.json",
     scene_type: "task" as const,
     screen_type: "matching" as const,
-    background: "chapters/00/quests/bonus/bg-task-01",
+    background: "chapters/01/quests/bonus/bg-task-01",
     content: {
       title: "Sfida bonus",
       task: {
@@ -140,9 +150,11 @@ describe("game-progress-service run flows", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.unstubAllEnvs();
+    testingReplayMock.isGameTestingReplayMode.mockReturnValue(false);
     repoMocks.ensureWalletRow.mockResolvedValue(true);
     repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 0, totalBackpackPieces: 0 });
     repoMocks.getCompletedQuestIds.mockResolvedValue([]);
+    repoMocks.abandonQuestRun.mockResolvedValue(true);
     repoMocks.getSceneMaterialization.mockResolvedValue({ ok: true, materializedTask: null });
     repoMocks.insertSceneMaterializationIfAbsent.mockResolvedValue(true);
   });
@@ -353,6 +365,127 @@ describe("game-progress-service run flows", () => {
     expect(repoMocks.createQuestRun).not.toHaveBeenCalled();
   });
 
+  describe("GAME_TESTING_REPLAY_MODE", () => {
+    function mockSnapshotScene(sceneId: string) {
+      catalogMocks.findCatalogScene.mockReturnValue({
+        id: sceneId,
+        sceneNumber: 1,
+        filename: "01.json",
+        scene_type: "story",
+        screen_type: "info",
+        background: "bg",
+        content: {},
+      });
+      repoMocks.getCompletedSceneIds.mockResolvedValue([]);
+    }
+
+    beforeEach(() => {
+      testingReplayMock.isGameTestingReplayMode.mockReturnValue(true);
+    });
+
+    it("starts a fresh run for an already completed quest", async () => {
+      repoMocks.getActiveQuestRun.mockResolvedValue(null);
+      catalogMocks.loadContentCatalog.mockResolvedValue({
+        chapters: [{ id: "chapter-01", questsExpanded: [{ id: "quest-01", kind: "main" }] }],
+      });
+      catalogMocks.findCatalogQuest.mockReturnValue({
+        id: "quest-01",
+        requiresQuestId: null,
+        scenes: [{ id: "chapter-01-quest-01-scene-01" }],
+      });
+      repoMocks.getCompletedQuestIds.mockResolvedValue(["chapter-01:quest-01"]);
+      repoMocks.createQuestRun.mockResolvedValue({
+        runId: "run-replay",
+        accountId: "acc-1",
+        chapterId: "chapter-01",
+        questId: "quest-01",
+        currentSceneId: "chapter-01-quest-01-scene-01",
+        status: "in_progress",
+      });
+      mockSnapshotScene("chapter-01-quest-01-scene-01");
+
+      const result = await startOrResumeRun("acc-1", "chapter-01", "quest-01");
+      expect(result.ok).toBe(true);
+      expect(repoMocks.createQuestRun).toHaveBeenCalledTimes(1);
+    });
+
+    it("allows starting a progression-locked quest", async () => {
+      repoMocks.getActiveQuestRun.mockResolvedValue(null);
+      catalogMocks.loadContentCatalog.mockResolvedValue({
+        chapters: [
+          {
+            id: "chapter-01",
+            questsExpanded: [
+              { id: "quest-01", kind: "main" },
+              { id: "quest-02", kind: "main" },
+            ],
+          },
+        ],
+      });
+      catalogMocks.findCatalogQuest.mockReturnValue({
+        id: "quest-02",
+        requiresQuestId: "quest-01",
+        scenes: [{ id: "chapter-01-quest-02-scene-01" }],
+      });
+      repoMocks.getCompletedQuestIds.mockResolvedValue([]);
+      repoMocks.createQuestRun.mockResolvedValue({
+        runId: "run-2",
+        accountId: "acc-1",
+        chapterId: "chapter-01",
+        questId: "quest-02",
+        currentSceneId: "chapter-01-quest-02-scene-01",
+        status: "in_progress",
+      });
+      mockSnapshotScene("chapter-01-quest-02-scene-01");
+
+      const result = await startOrResumeRun("acc-1", "chapter-01", "quest-02");
+      expect(result.ok).toBe(true);
+      expect(repoMocks.createQuestRun).toHaveBeenCalledTimes(1);
+    });
+
+    it("abandons an active run when starting a different quest", async () => {
+      repoMocks.getActiveQuestRun.mockResolvedValue({
+        runId: "run-1",
+        accountId: "acc-1",
+        chapterId: "chapter-01",
+        questId: "quest-01",
+        currentSceneId: "chapter-01-quest-01-scene-01",
+        status: "in_progress",
+      });
+      catalogMocks.loadContentCatalog.mockResolvedValue({
+        chapters: [
+          {
+            id: "chapter-01",
+            questsExpanded: [
+              { id: "quest-01", kind: "main" },
+              { id: "quest-02", kind: "main" },
+            ],
+          },
+        ],
+      });
+      catalogMocks.findCatalogQuest.mockReturnValue({
+        id: "quest-02",
+        requiresQuestId: "quest-01",
+        scenes: [{ id: "chapter-01-quest-02-scene-01" }],
+      });
+      repoMocks.getCompletedQuestIds.mockResolvedValue([]);
+      repoMocks.createQuestRun.mockResolvedValue({
+        runId: "run-2",
+        accountId: "acc-1",
+        chapterId: "chapter-01",
+        questId: "quest-02",
+        currentSceneId: "chapter-01-quest-02-scene-01",
+        status: "in_progress",
+      });
+      mockSnapshotScene("chapter-01-quest-02-scene-01");
+
+      const result = await startOrResumeRun("acc-1", "chapter-01", "quest-02");
+      expect(result.ok).toBe(true);
+      expect(repoMocks.abandonQuestRun).toHaveBeenCalledWith("run-1");
+      expect(repoMocks.createQuestRun).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it("rejects resuming an in-progress run when the quest is already completed", async () => {
     repoMocks.getActiveQuestRun.mockResolvedValue({
       runId: "run-1",
@@ -449,6 +582,51 @@ describe("game-progress-service run flows", () => {
     }
   });
 
+  it("returns 500 when scene completion insert fails without a completion id", async () => {
+    const taskScene = {
+      id: "chapter-01-quest-01-scene-02",
+      sceneNumber: 2,
+      filename: "02.json",
+      scene_type: "task" as const,
+      screen_type: "multiple_choice" as const,
+      background: "bg",
+      content: { task: { questions: [] } },
+      scoring: {
+        pizza: { mode: "flat" as const, slices: 2 },
+        backpack: { pieces: 1 },
+        minRatioToComplete: 0.5,
+      },
+    };
+    repoMocks.getQuestRunById.mockResolvedValue({
+      runId: "run-1",
+      accountId: "acc-1",
+      chapterId: "chapter-01",
+      questId: "quest-01",
+      currentSceneId: taskScene.id,
+      status: "in_progress" as const,
+    });
+    catalogMocks.loadContentCatalog.mockResolvedValue({
+      chapters: [{ id: "chapter-01", questsExpanded: [{ id: "quest-01", kind: "main" }] }],
+    });
+    catalogMocks.findCatalogScene.mockReturnValue(taskScene);
+    catalogMocks.findCatalogQuest.mockReturnValue({
+      id: "quest-01",
+      scenes: [taskScene],
+    });
+    repoMocks.completeSceneOnce.mockResolvedValue({ inserted: false });
+
+    vi.stubEnv("GAME_SMOKE_AUTO_PASS", "true");
+    const result = await completeTaskScene("acc-1", "run-1", taskScene.id, {
+      attemptPayload: { taskType: "MultipleChoice", multipleChoice: { selections: [] } },
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.status).toBe(500);
+    }
+    expect(repoMocks.incrementWalletTotals).not.toHaveBeenCalled();
+  });
+
   it("rejects scored task completion without server-evaluable attempt", async () => {
     repoMocks.getQuestRunById.mockResolvedValue({
       runId: "run-1",
@@ -497,13 +675,13 @@ describe("game-progress-service run flows", () => {
     const run = {
       runId: "run-1",
       accountId: "acc-1",
-      chapterId: "chapter-00",
+      chapterId: "chapter-01",
       questId: "quest-01-bonus",
       currentSceneId: taskScene.id,
       status: "in_progress" as const,
     };
     const nextScene = {
-      id: "chapter-00-quest-01-bonus-scene-03",
+      id: "chapter-01-quest-01-bonus-scene-05",
       sceneNumber: 3,
       filename: "03.json",
       scene_type: "story" as const,
@@ -519,7 +697,7 @@ describe("game-progress-service run flows", () => {
     catalogMocks.loadContentCatalog.mockResolvedValue({
       chapters: [
         {
-          id: "chapter-00",
+          id: "chapter-01",
           questsExpanded: [{ id: "quest-01-bonus", scenes: [taskScene, nextScene] }],
         },
       ],
@@ -567,7 +745,7 @@ describe("game-progress-service run flows", () => {
     repoMocks.getQuestRunById.mockResolvedValue({
       runId: "run-1",
       accountId: "acc-1",
-      chapterId: "chapter-00",
+      chapterId: "chapter-01",
       questId: "quest-01-bonus",
       currentSceneId: taskScene.id,
       status: "in_progress",
@@ -604,7 +782,7 @@ describe("game-progress-service run flows", () => {
     repoMocks.getQuestRunById.mockResolvedValue({
       runId: "run-1",
       accountId: "acc-1",
-      chapterId: "chapter-00",
+      chapterId: "chapter-01",
       questId: "quest-01-bonus",
       currentSceneId: taskScene.id,
       status: "in_progress",

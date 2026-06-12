@@ -60,8 +60,20 @@ function retryHeadline(): string {
   return "Quasi!";
 }
 
-function retryBody(ratio: number): string {
-  return `Hai risposto correttamente al ${percentLabel(ratio)} - per le fette di pizza serve un po' di piu. Riprova, ce la puoi fare!`;
+function retryBody(ratio: number, sceneOffersRewards: boolean): string {
+  const pct = percentLabel(ratio);
+  if (!sceneOffersRewards) {
+    return `Hai risposto correttamente al ${pct} - serve un po' di piu per completare l'attivita. Riprova, ce la puoi fare!`;
+  }
+  return `Hai risposto correttamente al ${pct} - per le fette di pizza serve un po' di piu. Riprova, ce la puoi fare!`;
+}
+
+/** True when the scene can award pizza slices or backpack pieces on pass. */
+export function sceneOffersTaskRewards(
+  sceneMaxRewardSlices: number,
+  sceneMaxRewardBackpack: number,
+): boolean {
+  return sceneMaxRewardSlices > 0 || sceneMaxRewardBackpack > 0;
 }
 
 export function buildTaskOutcome(params: {
@@ -71,6 +83,9 @@ export function buildTaskOutcome(params: {
   awardedBackpackPieces: number;
   /** Scene was passed again after rewards were already stored for this run/scene. */
   rewardsAlreadyClaimed?: boolean;
+  /** Max reward this scene can grant (for retry copy when awarded amounts are 0). */
+  sceneMaxRewardSlices?: number;
+  sceneMaxRewardBackpack?: number;
 }): TaskOutcomeDto {
   const ratio = Math.min(1, Math.max(0, params.ratio));
   if (params.passed) {
@@ -88,12 +103,14 @@ export function buildTaskOutcome(params: {
       ),
     };
   }
+  const maxSlices = params.sceneMaxRewardSlices ?? 0;
+  const maxBackpack = params.sceneMaxRewardBackpack ?? 0;
   return {
     kind: "retry",
     ratio,
     awardedSlices: 0,
     awardedBackpackPieces: 0,
     headline: retryHeadline(),
-    body: retryBody(ratio),
+    body: retryBody(ratio, sceneOffersTaskRewards(maxSlices, maxBackpack)),
   };
 }

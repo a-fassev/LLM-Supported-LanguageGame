@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { BootstrapChapterDto } from "@/lib/api-client";
+import { isGameTestingReplayMode } from "@/lib/game/game-testing-replay-mode";
 
 type ChapterGridItem = {
   chapter: BootstrapChapterDto;
@@ -36,12 +37,12 @@ export function ChapterGrid({ items, onOpenChapter, className }: ChapterGridProp
   return (
     <div
       className={cn(
-        "grid min-h-0 content-start grid-cols-1 gap-y-55 md:-mt-8 md:grid-cols-2 md:gap-10 md:gap-y-40 lg:grid-cols-3 lg:gap-y-40",
+        "grid min-h-0 content-start grid-cols-1 gap-y-8 md:grid-cols-2 md:gap-6 lg:grid-cols-4 lg:gap-x-4 lg:gap-y-6",
         className,
       )}
     >
       {items.map(({ chapter, locked, mainComplete, fullyComplete }) => {
-        const playable = !locked && !fullyComplete;
+        const playable = isGameTestingReplayMode() || (!locked && !fullyComplete);
 
         return (
           <button
@@ -59,7 +60,7 @@ export function ChapterGrid({ items, onOpenChapter, className }: ChapterGridProp
                     : chapter.title
             }
             className={cn(
-              "relative aspect-[1448/1086] w-full max-w-[820px] overflow-hidden border-0 bg-transparent p-0 text-left shadow-none transition-opacity [container-type:inline-size] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed",
+              "relative aspect-[1448/1086] w-full overflow-hidden border-0 bg-transparent p-0 text-left shadow-none transition-opacity [container-type:inline-size] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed",
               playable && "cursor-pointer hover:opacity-90",
               !playable && "cursor-not-allowed",
               locked && "opacity-60",
@@ -70,7 +71,7 @@ export function ChapterGrid({ items, onOpenChapter, className }: ChapterGridProp
               alt=""
               aria-hidden="true"
               fill
-              sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, calc(100vw - 5rem)"
+              sizes="(min-width: 1024px) 22vw, (min-width: 640px) 45vw, calc(100vw - 5rem)"
               className="pointer-events-none absolute inset-0 z-0 select-none object-contain"
               draggable={false}
             />

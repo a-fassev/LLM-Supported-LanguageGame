@@ -64,7 +64,9 @@ Scene order is the **numeric prefix** on filenames (`01`, `02`, …). When mappi
 | `gameFinale` | Optional, default `false`. When `true`, completing the chapter’s **last** quest in `quests[]` (usually the bonus) ends the learner journey: snapshot sets `run.isGameFinaleQuest`; `/play` shows «Percorso completato!» and primary **«Torna al menu»** (not the chapter mission list). Author **story scenes after the bonus task** for narrative closure; overlay is the mechanical game end. Logic: `lib/game/game-finale.ts`. At most one progression chapter should set this until a post-game hub exists. |
 | `quests` | Ordered quest folder ids for this chapter. **Last id** is the finale quest when `gameFinale` is `true`. |
 
-**Progression chapters** (`chapter-01` …) use `order: 1` and up without `reference`. **Sandbox** lives in `chapter-00` (`order: 0`, `reference: true`) — all task-type smoke fixtures for web development.
+**Tutorial chapter** (`chapter-00`, `order: 0`) introduces all six task types in Italian (A1). It does **not** set `reference: true` — completing its main quest gates `chapter-01`. Task scenes use **`pizza.mode: "scored"`** with **`maxSlices: 0`** (and `backpack.pieces: 0`) so attempts are evaluated but no wallet rewards are granted. Do **not** use `pizza.mode: "flat"` for learner tutorial tasks: flat skips server-side evaluation for deterministic task types.
+
+**Progression chapters** (`chapter-01` …) use `order: 1` and up without `reference`.
 
 ### `quest.json`
 
@@ -157,7 +159,7 @@ Exercise with **Controlla** and server-checked answers.
 | `screen_type` | Player does |
 | ------------- | ----------- |
 | `cloze` | Fill gaps in a passage (own type, not multiple choice). |
-| `error_spotting` | Find and fix mistakes in a passage. |
+| `error_spotting` | Find mistakes in a passage (tap to mark). |
 | `drag_drop` | Drag items into slots or order. |
 | `free_text` | Short Italian answer scored on the server via LLM (`FreitextLlm`). |
 | `matching` | Match pairs between two columns. |
@@ -403,9 +405,10 @@ Validated at catalog load (`parseErrorSpottingContent`). Snapshots strip `isErro
 | Spacing | **No trailing whitespace** on any segment. The **first** segment must not start with whitespace; every **later** segment must start with exactly **one** leading space. **Punctuation** (`. , ! ? ; :`) belongs on the preceding word segment — never as a standalone segment. |
 | Errors | `isError: true` requires non-empty `acceptedCorrections[]` (server-only, stripped on snapshot). |
 | Range | `expectedErrorRange` optional; when present, `min ≤ errorCount ≤ max`. |
-| Scoring | False-positive selections are **ignored** (no instant zero). `ratio = fixedTrueErrors / totalTrueErrors`. |
-| Scene copy | `instruction` → `TaskChrome`; `prompt` → `TaskBodyLayout`; error-count hint in `beforeScroll`. Tap segment → inline correction field; **×** or Escape clears mark. |
-| Attempt | `{ taskType: "ErrorSpotting", errorSpotting: { selectedSegmentIds: string[], corrections: Record<string, string> } }` |
+| Scoring | False-positive selections are **ignored** (no instant zero). `ratio = foundTrueErrors / totalTrueErrors`. |
+| Scene copy | `instruction` → `TaskChrome`; `prompt` → `TaskBodyLayout`; error-count hint in `beforeScroll`. Tap segment to toggle mark; tap again to unmark. |
+| Attempt | `{ taskType: "ErrorSpotting", errorSpotting: { selectedSegmentIds: string[] } }` |
+| Review | `acceptedCorrections` shown in «Mostra soluzione» for missed errors only (server-built `taskReview`). |
 
 Fixture scenes: `chapter-03/quest-01/scenes/02.json` (minimal, flat), `chapter-00/quest-01/scenes/13.json` (short, flat) + `scenes/14.json` (long, scored). See `docs/error-spotting-task-integration-plan.md`.
 

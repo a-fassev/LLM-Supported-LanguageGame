@@ -1,135 +1,44 @@
 {
   "id": "chapter-00-quest-01-scene-05",
   "scene_type": "task",
-  "screen_type": "multiple_choice",
+  "screen_type": "cloze",
   "background": "chapters/00/quests/01/bg-scene-05",
   "content": {
-    "title": "Alla stazione",
-    "instruction": "Leggi con calma le domande. In questa breve attività usi saluti, formule di cortesia e frasi utili per orientarti.",
-    "referenceDocument": {
-      "title": "Biglietto della stazione",
-      "body": "Se ti serve, immagina un biglietto per un viaggio breve: stazione di partenza, binario, posto e orario. Usa il documento solo come piccolo aiuto di contesto."
-    },
+    "title": "Completa — La valigia",
     "task": {
-      "questions": [
+      "prompt": "Completa le parole mancanti.",
+      "caseSensitive": false,
+      "lines": [
         {
-          "id": "q1-many-options",
-          "selectionMode": "single",
-          "preserveOptionOrder": true,
-          "prompt": "Scegli UNA sola risposta corretta. Sei alla stazione di Bologna e vuoi parlare con il personale in modo cortese: quale frase è più adatta?",
-          "options": [
+          "segments": [
             {
-              "id": "opt-01",
-              "label": "Ciao, quanto manca?"
+              "kind": "text",
+              "text": "Mi chiamo "
             },
             {
-              "id": "opt-02",
-              "label": "Dov’è il mio banco?"
+              "kind": "gap",
+              "maxLength": 12,
+              "correctAnswers": [
+                "Toni",
+                "toni"
+              ]
             },
             {
-              "id": "opt-03",
-              "label": "Buona notte a tutti."
+              "kind": "text",
+              "text": ". Vengo dalla "
             },
             {
-              "id": "opt-04",
-              "label": "Ho un quaderno verde."
+              "kind": "gap",
+              "maxLength": 16,
+              "correctAnswers": [
+                "Germania",
+                "germania"
+              ]
             },
             {
-              "id": "opt-05",
-              "label": "Mi chiamo treno."
-            },
-            {
-              "id": "opt-06",
-              "label": "Vado a scuola domani."
-            },
-            {
-              "id": "opt-07",
-              "label": "La pizza è sul tavolo."
-            },
-            {
-              "id": "opt-08",
-              "label": "Vorrei un gelato."
-            },
-            {
-              "id": "opt-09",
-              "label": "Non ho fame adesso."
-            },
-            {
-              "id": "opt-10",
-              "label": "Il libro è nuovo."
-            },
-            {
-              "id": "opt-11",
-              "label": "Parlo con un amico."
-            },
-            {
-              "id": "opt-12",
-              "label": "Scusi, può aiutarmi, per favore?"
-            },
-            {
-              "id": "opt-13",
-              "label": "Sono le otto."
-            },
-            {
-              "id": "opt-14",
-              "label": "Questa è una penna."
-            },
-            {
-              "id": "opt-15",
-              "label": "Alternativa"
+              "kind": "text",
+              "text": "."
             }
-          ],
-          "correctOptionIds": [
-            "opt-12"
-          ]
-        },
-        {
-          "id": "q2-multi",
-          "selectionMode": "multi",
-          "prompt": "Scegli TUTTE le risposte corrette (scelta multipla / checkbox).",
-          "options": [
-            {
-              "id": "opt-buongiorno",
-              "label": "Buongiorno!"
-            },
-            {
-              "id": "opt-ciao",
-              "label": "Ciao!"
-            },
-            {
-              "id": "opt-notte",
-              "label": "Buona notte."
-            },
-            {
-              "id": "opt-arrivederci",
-              "label": "Arrivederci."
-            }
-          ],
-          "correctOptionIds": [
-            "opt-buongiorno",
-            "opt-ciao"
-          ]
-        },
-        {
-          "id": "q3-single",
-          "selectionMode": "single",
-          "prompt": "Un passeggero dice: «Permesso, devo passare.» Cosa rispondi di solito?",
-          "options": [
-            {
-              "id": "opt-prego",
-              "label": "Prego, pure."
-            },
-            {
-              "id": "opt-grazie",
-              "label": "Grazie."
-            },
-            {
-              "id": "opt-scusa",
-              "label": "Scusa, non ho capito."
-            }
-          ],
-          "correctOptionIds": [
-            "opt-prego"
           ]
         }
       ]
@@ -137,12 +46,13 @@
   },
   "scoring": {
     "backpack": {
-      "pieces": 1
+      "pieces": 0
     },
     "pizza": {
       "mode": "scored",
-      "maxSlices": 2,
+      "maxSlices": 0,
       "minRatioToComplete": 1,
+      "rounding": "floor",
       "mapping": {
         "kind": "linear"
       }

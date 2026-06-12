@@ -192,6 +192,22 @@ export async function completeQuestRun(runId: string): Promise<boolean> {
   return true;
 }
 
+export async function abandonQuestRun(runId: string): Promise<boolean> {
+  const { error } = await admin()
+    .from("player_quest_runs")
+    .update({
+      status: "abandoned",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", runId)
+    .eq("status", "in_progress");
+  if (error) {
+    console.error("[game-repo] abandonQuestRun", error);
+    return false;
+  }
+  return true;
+}
+
 /** Quest ids with at least one completed run for this account. */
 export async function getCompletedQuestIds(accountId: string): Promise<string[] | null> {
   const { data, error } = await admin()
@@ -335,6 +351,17 @@ export async function completeSceneOnce(input: SceneCompletionInsert): Promise<{
     .select("id")
     .single();
   if (error) {
+    if (error.code === "23505") {
+      const { data: raced, error: racedError } = await admin()
+        .from("player_scene_completions")
+        .select("id")
+        .eq("run_id", input.runId)
+        .eq("scene_id", input.sceneId)
+        .maybeSingle();
+      if (!racedError && raced?.id) {
+        return { inserted: false, completionId: raced.id as string };
+      }
+    }
     console.error("[game-repo] completeSceneOnce:insert", error);
     return { inserted: false };
   }

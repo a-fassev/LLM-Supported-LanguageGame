@@ -5,7 +5,7 @@
   "background": "chapters/01/quests/02/bg-task-error",
   "content": {
     "title": "Trova gli errori",
-    "instruction": "Leggi il testo e trova i 5 errori. Clicca sulle informazioni sbagliate e scrivi la correzione.",
+    "instruction": "Leggi il testo e trova i 5 errori. Clicca sulle informazioni sbagliate.",
     "referenceDocument": null,
     "task": {
       "prompt": "Leggi il testo e trova i 5 errori sulle abitudini italiane al bar e al ristorante. Clicca sulle informazioni sbagliate.",

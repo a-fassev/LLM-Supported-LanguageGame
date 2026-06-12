@@ -11,7 +11,7 @@ description: >-
 
 Branch: **`web-based-implementation`**. Canonical rules: **`AGENTS.md`**, learner UX: **`.cursor/skills/product/SKILL.md`**. Content shape: **`docs/quest-scene-content-format.md`**.
 
-**Reference implementations** (sandbox **`chapter-00`**, not learner **`chapter-01`**): Multiple choice — `components/game/tasks/types/multiple-choice/`, `lib/game/tasks/multiple-choice/`, `chapter-00/quests/quest-01/scenes/04.json` (**6-figure documento**) + `05.json` (long text documento). Matching — `chapter-00/quests/quest-01/scenes/06.json`–`08.json`. Drag_drop — `chapter-00/quests/quest-01/scenes/09.json`–`11.json`. **Free_text** — `chapter-00/quests/quest-01/scenes/12.json` (**single-figure documento**), `docs/freitext-llm-implementation.md`. **Error_spotting** — chapter-03 quest-01 `scenes/02.json`, `chapter-00/quests/quest-01/scenes/13.json` + `14.json`. **Cloze** — `chapter-00/quests/quest-01/scenes/15.json` + `16.json` (text `referenceDocument`), `docs/cloze-text-task-integration-plan.md`. Learner documento figures: **`chapter-02`**. Smoke tests: `lib/game/content/chapter-00-smoke-content.test.ts`.
+**Reference implementations:** Tutorial minimal — `chapter-00/quests/quest-01/scenes/02.json`–`08.json`. Richer — **chapter-02**–**04** (e.g. chapter-03 error_spotting `quest-01/scenes/02.json`, chapter-02 documento figures). Tests: `lib/game/content/chapter-00-tutorial.test.ts`. See `docs/freitext-llm-implementation.md`, `docs/cloze-text-task-integration-plan.md`.
 
 ## Methodology (always)
 
@@ -57,7 +57,7 @@ Import from **`lib/game/task-typography.ts`** — never hardcode `text-sm` / `te
 | `TASK_PLAY_VALIDATION_ERROR_TEXT` | Pre-submit inline validation (meta size, destructive) |
 | `TASK_PLAY_META_TEXT` | Progress, drag hints, captions, char counts — one half-step smaller, muted |
 | `TASK_PLAY_SECTION_LABEL_TEXT` | Column headers, drag-drop category titles |
-| `TASK_PLAY_INLINE_FIELD_TEXT` | Cloze gap inputs, error-spotting inline corrections only |
+| `TASK_PLAY_INLINE_FIELD_TEXT` | Cloze gap inputs only |
 
 **Inline fields:** Use `TASK_PLAY_INLINE_FIELD_TEXT` (`leading-none`), not `TASK_PLAY_BODY_TEXT`. If both appear in `cn()`, tailwind-merge keeps `leading-relaxed` from body text and breaks `items-baseline` rows.
 
@@ -100,7 +100,7 @@ After phase 2, manual pass on `/play` with fixtures. After phase 3, verify score
 - One figure: grid `place-items-center`, card `max-w-sm`. Gallery: `md:grid-cols-2`.
 - `resolveAssetUrl` is sync — `useMemo` for figure URLs, not async `.then()` in effects.
 
-**Fixtures:** chapter-00 scenes **04** (gallery), **12** (single figure); chapter-02 quiz / profession / menu scenes.
+**Fixtures:** chapter-00 scene **07** (text documento); chapter-02 quiz / profession / menu scenes (figures).
 
 ## Error spotting (`error_spotting`)
 
@@ -117,10 +117,10 @@ Full spec: `docs/quest-scene-content-format.md` §error_spotting.
 
 **UI (locked):**
 
-- Tap word/phrase chip → inline correction field; unmark via **×** or Escape (no global reset button).
-- Field width from `correctionFieldWidth(segmentText)` — based on **original segment text** + chrome for × (not typed length). Body copy uses `TASK_PLAY_BODY_TEXT`; inline input uses `TASK_PLAY_INLINE_FIELD_TEXT`.
-- Scroll QA fixtures: consecutive `chapter-00/quest-01/scenes/13.json` (short) + `14.json` (long).
-- Inline correction fields: `autoComplete="off"`, neutral `name`, `data-1p-ignore` / `data-lpignore="true"` (see `ErrorSpottingInlineField.tsx`).
+- Tap word/phrase chip → toggle mark (highlighted chip); tap again to unmark (no correction input).
+- Body copy uses `TASK_PLAY_BODY_TEXT`; marked chips use `border-primary/30 bg-primary/10`.
+- Scroll QA fixtures: chapter-03 `quest-01/scenes/02.json` (long error_spotting) or chapter-00 scene `06` (short).
+- No pre-Controlla completeness gate — empty selection submits with `ratio = 0`.
 
 ## Cloze (`cloze`)
 
@@ -128,7 +128,7 @@ Full spec: `docs/quest-scene-content-format.md` §error_spotting.
 
 **Play:** `syncClozeDraftForScene`, `buildClozeAttempt`, `validateClozeDraft`; **409 retry** keeps answers by skipping `syncTaskDraftsForScene`. `clozePreserveForTransition` only applies when sync runs with the same scene id (unusual after success because the server advances immediately).
 
-**Fixtures (chapter-00 quest-01):** `scenes/15.json` — minimal (2 gaps, `minRatioToComplete: 1`); `scenes/16.json` — rich (≥6 gaps, `referenceDocument`, `0.67`). Long **Bologna gita** narrative aligned with error_spotting `scenes/14.json` for scroll QA (`joinedText.length > 2000` in smoke test).
+**Fixtures:** `chapter-00/quests/quest-01/scenes/05.json` — minimal cloze (2 gaps); chapter-03+ for rich cloze + `referenceDocument`.
 
 **UI (locked):**
 

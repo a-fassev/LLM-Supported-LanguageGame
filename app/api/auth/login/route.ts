@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { hashPassword, needsPasswordHashUpgrade, verifyPassword } from "@/lib/password";
+import { plainPasswordsMatch } from "@/lib/plain-password-match";
 import { createOpaqueToken, hashToken } from "@/lib/session-token";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -48,7 +48,7 @@ export async function POST(request: Request) {
 
   const { data: account, error: lookupError } = await supabase
     .from("student_accounts")
-    .select("id, password_hash")
+    .select("id, password")
     .eq("username", username)
     .maybeSingle();
 
@@ -57,27 +57,8 @@ export async function POST(request: Request) {
     return jsonError(500, authMsg.couldNotProcess);
   }
 
-  const valid =
-    account && (await verifyPassword(account.password_hash, parsed.data.password));
-
-  if (!valid) {
+  if (!account || !plainPasswordsMatch(account.password, parsed.data.password)) {
     return jsonError(401, authMsg.invalidCredentials, "auth_failed");
-  }
-
-  if (needsPasswordHashUpgrade(account.password_hash)) {
-    try {
-      const upgradedHash = await hashPassword(parsed.data.password);
-      const { error: upgradeError } = await supabase
-        .from("student_accounts")
-        .update({ password_hash: upgradedHash })
-        .eq("id", account.id);
-
-      if (upgradeError) {
-        console.error("[login] password hash upgrade", upgradeError);
-      }
-    } catch (upgradeErr) {
-      console.error("[login] password hash upgrade", upgradeErr);
-    }
   }
 
   const token = createOpaqueToken();

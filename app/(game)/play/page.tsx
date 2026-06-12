@@ -20,8 +20,15 @@ import {
   readTaskReview,
 } from "@/lib/api-client";
 import { gameClientMessages } from "@/lib/game/clientMessages";
+import { isGameTestingReplayMode } from "@/lib/game/game-testing-replay-mode";
 import { useGameSession } from "@/lib/game/session-context";
-import { readNonEmptyString } from "@/lib/game/read-non-empty-string";
+import {
+  buildActiveRunResumePath,
+  buildPlayLoadErrorBackPath,
+  readActiveRunConflict,
+  shouldShowActiveRunConflictPanel,
+  shouldShowPlayLoadErrorPanel,
+} from "@/lib/game/play/active-run-conflict";
 import { readTaskSceneTitle } from "@/lib/game/scene-display";
 import { getTaskPayload } from "@/lib/game/get-task-payload";
 import { buildMcAttempt } from "@/lib/game/tasks/multiple-choice/build-mc-attempt";
@@ -56,7 +63,6 @@ import {
   ERROR_SPOTTING_CONTENT_MISMATCH_MESSAGE,
   normalizeErrorSpottingContentResult,
 } from "@/lib/game/tasks/error-spotting/normalize-error-spotting-content";
-import { validateErrorSpottingDraft } from "@/lib/game/tasks/error-spotting/validate-error-spotting-draft";
 import type { ErrorSpottingDraft } from "@/lib/game/tasks/error-spotting/error-spotting-types";
 import { buildClozeAttempt } from "@/lib/game/tasks/cloze/build-cloze-attempt";
 import { countClozeGaps, createEmptyClozeAnswers } from "@/lib/game/tasks/cloze/cloze-gap-order";
@@ -123,15 +129,6 @@ function mergeAttemptState(_current: RunState, data: AttemptRunDto): RunState {
 function readTaskOutcome(error: ApiErrorResult): TaskOutcomeDto | null {
   const raw = error.details?.taskOutcome as TaskOutcomeDto | undefined;
   return raw ?? null;
-}
-
-function activeRunConflictMessage(error: ApiErrorResult): string {
-  const existingChapterId = readNonEmptyString(error.details?.existingChapterId);
-  const existingQuestId = readNonEmptyString(error.details?.existingQuestId);
-  if (!existingChapterId || !existingQuestId) {
-    return error.error;
-  }
-  return `${error.error} Missione attiva: ${existingChapterId} / ${existingQuestId}.`;
 }
 
 function syncMcDraftForScene(
@@ -370,6 +367,7 @@ export default function PlayPage() {
   const [state, setState] = useState<RunState>({ totalSlices: 0, backpackProgressPercent: 0, run: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeRunConflict, setActiveRunConflict] = useState<ReturnType<typeof readActiveRunConflict>>(null);
   const [mcSelections, setMcSelections] = useState<McSelectionsDraft | null>(null);
   const [mcQuestionIndex, setMcQuestionIndex] = useState(0);
   const [mcValidationError, setMcValidationError] = useState<string | null>(null);
@@ -543,44 +541,45 @@ export default function PlayPage() {
         setLoading(false);
         return;
       }
-      if (result.code === "quest_already_completed" && chapterId) {
+      if (result.code === "quest_already_completed" && chapterId && !isGameTestingReplayMode()) {
+        toastBlockingApiError(result);
+        router.replace(`/chapters/${chapterId}`);
+        setLoading(false);
+        return;
+      }
+      if (
+        (result.code === "chapter_locked" || result.code === "quest_locked") &&
+        chapterId &&
+        !isGameTestingReplayMode()
+      ) {
         toastBlockingApiError(result);
         router.replace(`/chapters/${chapterId}`);
         setLoading(false);
         return;
       }
       if (result.code === "active_run_exists") {
-        const snapshot = await getRunSnapshot(token);
-        if (!mountedRef.current) return;
-        if (snapshot.ok && snapshot.data.run) {
-          setState((current) => mergeRunState(current, snapshot.data));
-          syncTaskDraftsForScene(snapshot.data.run?.currentScene ?? null, {
-            setMcSelections,
-            setMcQuestionIndex,
-            setMcValidationError,
-            setMatchingPairs,
-            setMatchingValidationError,
-            setDragDropAssignments,
-            setDragDropValidationError,
-            setFreetextAnswer,
-            setFreetextValidationError,
-            setErrorSpottingDraft,
-            setErrorSpottingValidationError,
-            setClozeAnswers,
-            setClozeValidationError,
-          });
-          setError(activeRunConflictMessage(result));
-          toastBlockingApiError(result);
-          setLoading(false);
-          return;
-        }
+        setActiveRunConflict(readActiveRunConflict(result));
+        setError(result.error);
+        setState((current) => ({ ...current, run: null }));
+        setLoading(false);
+        return;
       }
-      toastBlockingApiError(result);
+      setActiveRunConflict(null);
       setError(result.error);
+      const showInlineLoadError = shouldShowPlayLoadErrorPanel({
+        loading: false,
+        hasRun: false,
+        conflict: null,
+        error: result.error,
+      });
+      if (!showInlineLoadError) {
+        toastBlockingApiError(result);
+      }
       setLoading(false);
       return;
     }
 
+    setActiveRunConflict(null);
     setState((current) => mergeRunState(current, result.data));
     syncTaskDraftsForScene(result.data.run?.currentScene ?? null, {
       setMcSelections,
@@ -615,6 +614,7 @@ export default function PlayPage() {
 
   async function onAdvanceStory() {
     if (!token || !state.run || !currentScene) return;
+    if (sceneNavPending) return;
     setSceneNavPending(true);
     const sceneBeforeAdvance = currentScene;
     const backgroundBeforeAdvance = currentScene.background ?? null;
@@ -666,6 +666,7 @@ export default function PlayPage() {
 
   async function onRetreatScene() {
     if (!token || !state.run || !currentScene || !canRetreat) return;
+    if (sceneNavPending) return;
     setSceneNavPending(true);
     setError(null);
     const result = await retreatRun(token, state.run.runId, { sceneId: currentScene.id });
@@ -714,6 +715,7 @@ export default function PlayPage() {
   async function onSubmitTask() {
     if (!token || !state.run || !currentScene || currentScene.scene_type !== "task") return;
     if (successOpen || showSolution) return;
+    if (taskPending) return;
     setTaskPending(true);
     setError(null);
     const backgroundBeforeSubmit = currentScene.background;
@@ -779,12 +781,6 @@ export default function PlayPage() {
         return;
       }
       const draft = errorSpottingDraft ?? createEmptyErrorSpottingDraft();
-      const validation = validateErrorSpottingDraft(draft);
-      if (!validation.ok) {
-        setErrorSpottingValidationError(validation.message);
-        setTaskPending(false);
-        return;
-      }
       setErrorSpottingValidationError(null);
       attempt = buildErrorSpottingAttempt(draft);
     } else if (currentScene.screen_type === "cloze") {
@@ -852,7 +848,13 @@ export default function PlayPage() {
 
     const nextScene = result.data.run?.currentScene ?? null;
     setState((current) => mergeAttemptState(current, result.data));
-    if (result.data.taskOutcome) {
+    if (result.data.run?.status === "completed") {
+      setTaskReview(null);
+      handleCompletedRun(result.data.run, {
+        holdScene: sceneBeforeSubmit,
+        backgroundKey: backgroundBeforeSubmit,
+      });
+    } else if (result.data.taskOutcome) {
       pendingDraftSyncSceneRef.current = nextScene;
       setBackgroundHoldKey(backgroundBeforeSubmit);
       setChromeHoldScene(sceneBeforeSubmit);
@@ -902,9 +904,52 @@ export default function PlayPage() {
         </main>
       ) : !currentScene || !state.run ? (
         <main className="game-shell-inset flex min-h-dvh items-center justify-center">
-          <div className="game-panel game-panel-inset max-w-md space-y-3 text-center">
-            <p className="text-sm">Nessuna missione attiva.</p>
-            <Button onClick={() => router.push("/chapters")}>Vai ai capitoli</Button>
+          <div className="game-panel game-panel-inset max-w-md space-y-4 text-center">
+            {shouldShowActiveRunConflictPanel({
+              loading: false,
+              hasRun: Boolean(state.run),
+              conflict: activeRunConflict,
+            }) ? (
+              <>
+                <Alert variant="destructive" className="text-left">
+                  <AlertTitle>Missione in corso</AlertTitle>
+                  <AlertDescription>{error ?? gameClientMessages.activeRunExists}</AlertDescription>
+                </Alert>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    onClick={() => {
+                      if (!activeRunConflict) return;
+                      router.replace(buildActiveRunResumePath(activeRunConflict));
+                    }}
+                  >
+                    Riprendi missione
+                  </Button>
+                  <Button variant="outline" onClick={() => router.replace("/chapters")}>
+                    Vai ai capitoli
+                  </Button>
+                </div>
+              </>
+            ) : shouldShowPlayLoadErrorPanel({
+              loading: false,
+              hasRun: Boolean(state.run),
+              conflict: activeRunConflict,
+              error,
+            }) ? (
+              <>
+                <Alert variant="destructive" className="text-left">
+                  <AlertTitle>Impossibile avviare la missione</AlertTitle>
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+                <Button onClick={() => router.replace(buildPlayLoadErrorBackPath(chapterId))}>
+                  {chapterId ? "Torna alle missioni" : "Vai ai capitoli"}
+                </Button>
+              </>
+            ) : (
+              <>
+                <p className="text-sm">Nessuna missione attiva.</p>
+                <Button onClick={() => router.push("/chapters")}>Vai ai capitoli</Button>
+              </>
+            )}
           </div>
         </main>
       ) : (

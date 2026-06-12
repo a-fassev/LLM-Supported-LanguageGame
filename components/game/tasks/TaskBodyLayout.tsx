@@ -10,7 +10,7 @@ type TaskBodyLayoutProps = {
   prompt?: string | null;
   /** Fixed lines between prompt and scroll area (errors, progress, hints). */
   beforeScroll?: ReactNode;
-  /** Main exercise UI; only this region scrolls when content overflows. */
+  /** Main exercise UI; the surrounding TaskChrome scrolls this together with the prompt/meta. */
   children: ReactNode | ((promptLabelId: string) => ReactNode);
   /** When true, children fill the remaining height (e.g. full-height freetext textarea). */
   fillScroll?: boolean;
@@ -45,12 +45,11 @@ export function TaskBodyLayout({ prompt, beforeScroll, children, fillScroll }: T
       ) : null}
       {beforeScroll}
       <div
-        data-task-body-scroll
         className={cn(
           "min-h-0 p-px",
           fillScroll
-            ? "scrollbar-hide flex flex-1 flex-col overflow-hidden overflow-x-hidden overscroll-y-contain"
-            : "flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain",
+            ? "flex flex-1 flex-col overflow-hidden overflow-x-hidden overscroll-y-contain"
+            : "shrink-0",
         )}
       >
         {scrollContent}

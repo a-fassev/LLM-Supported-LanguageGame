@@ -5,7 +5,6 @@ import type { ErrorSpottingTaskReview, RunSceneDto } from "@/lib/api-client";
 import { TaskBodyLayout } from "@/components/game/tasks/TaskBodyLayout";
 import { cn } from "@/lib/utils";
 import { ErrorSpottingChip } from "@/components/game/tasks/types/error-spotting/ErrorSpottingChip";
-import { ErrorSpottingInlineField } from "@/components/game/tasks/types/error-spotting/ErrorSpottingInlineField";
 import { getTaskPayload } from "@/lib/game/get-task-payload";
 import { readTaskScenePrompt } from "@/lib/game/scene-display";
 import { formatErrorSpottingCaption } from "@/lib/game/tasks/error-spotting/format-error-spotting-caption";
@@ -67,23 +66,14 @@ export function ErrorSpottingTask({
 
   function toggleSegment(segmentId: string) {
     if (selectedIds.has(segmentId)) {
-      const nextSelected = activeDraft.selectedSegmentIds.filter((id) => id !== segmentId);
-      const nextCorrections = { ...activeDraft.corrections };
-      delete nextCorrections[segmentId];
-      onDraftChange({ selectedSegmentIds: nextSelected, corrections: nextCorrections });
+      onDraftChange({
+        selectedSegmentIds: activeDraft.selectedSegmentIds.filter((id) => id !== segmentId),
+      });
       return;
     }
 
     onDraftChange({
       selectedSegmentIds: [...activeDraft.selectedSegmentIds, segmentId],
-      corrections: { ...activeDraft.corrections, [segmentId]: activeDraft.corrections[segmentId] ?? "" },
-    });
-  }
-
-  function updateCorrection(segmentId: string, value: string) {
-    onDraftChange({
-      selectedSegmentIds: activeDraft.selectedSegmentIds,
-      corrections: { ...activeDraft.corrections, [segmentId]: value },
     });
   }
 
@@ -111,9 +101,8 @@ export function ErrorSpottingTask({
     >
       <p className={cn("flex flex-wrap items-baseline gap-x-0.5 gap-y-1.5", TASK_PLAY_BODY_TEXT)}>
         {content.segments.map((segment) => {
-            const segmentLabel = segment.text.trim() || segment.id;
-            const marked = selectedIds.has(segment.id);
             const segmentReview = taskReview?.segments.find((s) => s.segmentId === segment.id);
+            const marked = selectedIds.has(segment.id);
             const reviewHint = (() => {
               if (!reviewMode || !segmentReview) return null;
               if (segmentReview.isFalsePositive) {
@@ -123,14 +112,6 @@ export function ErrorSpottingTask({
                 const example = segmentReview.acceptedCorrections[0];
                 return example ? `Corretto: ${example}` : "Errore non trovato.";
               }
-              if (
-                segmentReview.isError &&
-                segmentReview.wasSelected &&
-                segmentReview.correctionCorrect === false &&
-                segmentReview.acceptedCorrections[0]
-              ) {
-                return `Corretto: ${segmentReview.acceptedCorrections[0]}`;
-              }
               return null;
             })();
             const reviewWrapClass =
@@ -139,40 +120,19 @@ export function ErrorSpottingTask({
                   ? "rounded px-0.5 opacity-70"
                   : segmentReview.isError && !segmentReview.wasSelected
                     ? `rounded px-0.5 ${TASK_REVIEW_MISSED}`
-                    : segmentReview.isError &&
-                        segmentReview.wasSelected &&
-                        segmentReview.correctionCorrect === true
+                    : segmentReview.isError && segmentReview.foundCorrect === true
                       ? `rounded px-0.5 ${TASK_REVIEW_CORRECT}`
-                      : segmentReview.isError &&
-                          segmentReview.wasSelected &&
-                          segmentReview.correctionCorrect === false
+                      : segmentReview.isError && segmentReview.foundCorrect === false
                         ? `rounded px-0.5 ${TASK_REVIEW_INCORRECT}`
                         : ""
                 : "";
-
-            if (marked) {
-              return (
-                <span key={segment.id} className={cn("inline-flex flex-col gap-0.5", reviewWrapClass)}>
-                  <ErrorSpottingInlineField
-                    value={activeDraft.corrections[segment.id] ?? ""}
-                    segmentText={segment.text}
-                    hint={segment.hint}
-                    ariaLabel={`Correzione per ${segmentLabel}`}
-                    clearLabel={`Rimuovi selezione per ${segmentLabel}`}
-                    disabled={disabled || reviewMode}
-                    onChange={(value) => updateCorrection(segment.id, value)}
-                    onClear={() => toggleSegment(segment.id)}
-                  />
-                  {reviewHint ? <span className={TASK_REVIEW_HINT_TEXT}>{reviewHint}</span> : null}
-                </span>
-              );
-            }
 
             return (
               <span key={segment.id} className={cn("inline-flex flex-col gap-0.5", reviewWrapClass)}>
                 <ErrorSpottingChip
                   text={segment.text}
                   hint={segment.hint}
+                  selected={marked}
                   disabled={disabled || reviewMode}
                   onToggle={() => toggleSegment(segment.id)}
                 />

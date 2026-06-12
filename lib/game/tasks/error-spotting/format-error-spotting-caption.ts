@@ -17,12 +17,12 @@ export function formatErrorSpottingCaption(input: CaptionInput): string {
   }
 
   if (errorCount === 1) {
-    return "Nel testo c'è 1 errore. Trovalo e correggilo.";
+    return "Nel testo c'è 1 errore. Trovalo.";
   }
 
   if (expectedErrorRange.min !== expectedErrorRange.max) {
-    return `Nel testo ci sono tra ${expectedErrorRange.min} e ${expectedErrorRange.max} errori. Trovali e correggili.`;
+    return `Nel testo ci sono tra ${expectedErrorRange.min} e ${expectedErrorRange.max} errori. Trovali.`;
   }
 
-  return `Nel testo ci sono ${errorCount} errori. Trovali e correggili.`;
+  return `Nel testo ci sono ${errorCount} errori. Trovali.`;
 }

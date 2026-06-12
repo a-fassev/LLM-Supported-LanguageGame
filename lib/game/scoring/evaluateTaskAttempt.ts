@@ -33,7 +33,7 @@ const errorSpottingAttemptSchema = z.object({
   taskType: z.literal("ErrorSpotting"),
   errorSpotting: z.object({
     selectedSegmentIds: z.array(z.string()),
-    corrections: z.record(z.string(), z.string()),
+    corrections: z.record(z.string(), z.string()).optional(),
   }),
 });
 
@@ -338,20 +338,16 @@ export function evaluateMatching(
   return { ok: true, ratio: correct / expected.size, itemsCorrect: correct, itemsTotal: expected.size };
 }
 
-function normalizeCorr(s: string): string {
-  return s.trim().replace(/\s+/g, " ");
-}
-
-function errorSegmentIds(content: Record<string, unknown>): { id: string; answers: string[] }[] {
+function errorSegmentIds(content: Record<string, unknown>): string[] {
   const segs = Array.isArray(content.segments) ? (content.segments as Record<string, unknown>[]) : [];
-  const out: { id: string; answers: string[] }[] = [];
+  const out: string[] = [];
   for (const s of segs) {
     const isErr = s.isError === true;
     const id = typeof s.id === "string" ? s.id.trim() : "";
     if (!isErr || !id) continue;
     const acc = Array.isArray(s.acceptedCorrections) ? (s.acceptedCorrections as unknown[]) : [];
     const answers = acc.filter((x): x is string => typeof x === "string" && x.trim().length > 0).map((x) => x.trim());
-    if (answers.length > 0) out.push({ id, answers });
+    if (answers.length > 0) out.push(id);
   }
   return out;
 }
@@ -367,23 +363,12 @@ export function evaluateErrorSpotting(
     attempt.errorSpotting.selectedSegmentIds.map((x) => x.trim()).filter((x) => x.length > 0),
   );
 
-  let fixed = 0;
-  for (const e of errors) {
-    if (!selected.has(e.id)) continue;
-    const raw = attempt.errorSpotting.corrections[e.id] ?? "";
-    const typed = normalizeCorr(typeof raw === "string" ? raw : "");
-    if (!typed) continue;
-    let ok = false;
-    for (const a of e.answers) {
-      if (typed.toLowerCase() === normalizeCorr(a).toLowerCase()) {
-        ok = true;
-        break;
-      }
-    }
-    if (ok) fixed++;
+  let found = 0;
+  for (const id of errors) {
+    if (selected.has(id)) found++;
   }
 
-  return { ok: true, ratio: fixed / errors.length, itemsCorrect: fixed, itemsTotal: errors.length };
+  return { ok: true, ratio: found / errors.length, itemsCorrect: found, itemsTotal: errors.length };
 }
 
 function mapSpecialBlockType(raw: string | undefined): string {

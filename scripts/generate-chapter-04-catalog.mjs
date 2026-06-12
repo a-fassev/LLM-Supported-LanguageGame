@@ -659,20 +659,14 @@ const errorSegments = [
     "dimenticare",
     "Dimenticare",
   ]),
-  ...saraErrorLine(2, "Spero", "di Marco mi chiami", "stasera per spiegarmi tutto.", [
+  ...saraErrorLine(2, "Spero", "Marco di chiamarmi", "stasera per spiegarmi tutto.", [
     "che Marco mi chiami",
     "Che Marco mi chiami",
   ]),
   ...saraCorrectLine(3, "Penso di essere stata troppo gelosa con lui."),
-  ...saraErrorLine(4, "È meglio", "che io non vedere", "Marco a scuola domani.", [
+  ...saraErrorLine(4, "È meglio", "di non vedere", "Marco a scuola domani.", [
     "che io non veda",
     "Che io non veda",
-  ]),
-  ...saraErrorLine(5, "Federica, ti ringrazio", "di tu sei", "una buona amica.", [
-    "che tu sei",
-    "Che tu sei",
-    "di essere una buona amica",
-    "Di essere una buona amica",
   ]),
 ];
 
@@ -684,12 +678,12 @@ writeJson("quests/quest-02/scenes/16.json", {
   content: {
     title: "Trova gli errori",
     instruction:
-      "In ogni frase c'è un verbo che non va bene. Clicca sul verbo sbagliato e scrivi la forma giusta.",
+      "Tra queste frasi ci sono tre verbi che non vanno bene. Clicca sui verbi sbagliati.",
     referenceDocument: null,
     task: {
       prompt:
-        "Sara è confusa e dice delle frasi sbagliate. In ogni frase c'è un verbo che NON va bene: o usa il congiuntivo quando dovrebbe usare l'infinito (perché il soggetto è lo stesso), o usa l'infinito quando dovrebbe usare il congiuntivo (perché i soggetti sono diversi). Clicca sul verbo sbagliato e scrivi la forma giusta.",
-      expectedErrorRange: { min: 4, max: 4 },
+        "Sara è confusa e dice alcune frasi. Tre verbi NON vanno bene: in alcuni casi usa il congiuntivo quando dovrebbe usare l'infinito perché il soggetto è lo stesso, in altri usa l'infinito quando dovrebbe usare il congiuntivo perché i soggetti sono diversi. Clicca sui verbi sbagliati.",
+      expectedErrorRange: { min: 3, max: 3 },
       segments: errorSegments,
     },
   },

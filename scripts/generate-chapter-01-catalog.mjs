@@ -317,7 +317,7 @@ writeJson("quests/quest-02/scenes/08.json", {
   background: "chapters/01/quests/02/bg-task-error",
   content: {
     title: "Trova gli errori",
-    instruction: "Leggi il testo e trova i 5 errori. Clicca sulle informazioni sbagliate e scrivi la correzione.",
+    instruction: "Leggi il testo e trova i 5 errori. Clicca sulle informazioni sbagliate.",
     referenceDocument: null,
     task: {
       prompt:
