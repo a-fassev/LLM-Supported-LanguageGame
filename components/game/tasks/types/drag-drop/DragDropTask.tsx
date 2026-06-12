@@ -346,6 +346,10 @@ export function DragDropTask({
     ? (keyboardZoneId ?? content.targets[0]?.id ?? null)
     : null;
   const draggingItemId = dragPreview?.itemId ?? null;
+  const targetLayoutClass =
+    content.targets.length >= 4
+      ? "grid grid-cols-1 gap-2.5 md:grid-cols-2"
+      : "space-y-2.5";
 
   return (
     <TaskBodyLayout
@@ -376,41 +380,43 @@ export function DragDropTask({
       <div ref={rootRef} className={dragPreview ? "relative min-h-0 cursor-grabbing" : "relative min-h-0"}>
         <div>
           <p className={cn("mb-1.5 shrink-0", TASK_PLAY_SECTION_LABEL_TEXT)}>{content.targetLabel}</p>
-          {content.targets.map((target) => {
-            const placedIds = assignments[target.id] ?? [];
-            const placedItems = placedIds
-              .map((id) => itemById.get(id))
-              .filter((item): item is DragDropItemView => Boolean(item));
+          <div className={targetLayoutClass}>
+            {content.targets.map((target) => {
+              const placedIds = assignments[target.id] ?? [];
+              const placedItems = placedIds
+                .map((id) => itemById.get(id))
+                .filter((item): item is DragDropItemView => Boolean(item));
 
-            const zoneTabIndex = !disabled && activeKeyboardZoneId === target.id ? 0 : -1;
-            const targetReview = taskReview?.targets.find((t) => t.targetId === target.id);
-            const reviewCorrectLabels = targetReview?.correctItemIds
-              .map((id) => itemById.get(id)?.label ?? id)
-              .filter((label) => label.length > 0);
+              const zoneTabIndex = !disabled && activeKeyboardZoneId === target.id ? 0 : -1;
+              const targetReview = taskReview?.targets.find((t) => t.targetId === target.id);
+              const reviewCorrectLabels = targetReview?.correctItemIds
+                .map((id) => itemById.get(id)?.label ?? id)
+                .filter((label) => label.length > 0);
 
-            return (
-              <DragDropTargetBlock
-                key={target.id}
-                sceneId={scene.id}
-                target={target}
-                placedItems={placedItems}
-                selectedItemId={selectedItemId}
-                draggingItemId={draggingItemId}
-                zoneTabIndex={zoneTabIndex}
-                disabled={disabled || reviewMode}
-                reviewMode={reviewMode}
-                reviewIsCorrect={targetReview?.isCorrect}
-                reviewCorrectLabels={reviewCorrectLabels}
-                zoneRef={(element) => setZoneRef(target.id, element)}
-                onTargetActivate={handleTargetActivate}
-                onZoneKeyDown={handleZoneKeyDown}
-                onUnpairItem={returnItemToBank}
-                onItemPointerDown={handleItemPointerDown}
-                onItemPointerUp={handleItemPointerUp}
-                onItemKeyDown={handleItemKeyDown}
-              />
-            );
-          })}
+              return (
+                <DragDropTargetBlock
+                  key={target.id}
+                  sceneId={scene.id}
+                  target={target}
+                  placedItems={placedItems}
+                  selectedItemId={selectedItemId}
+                  draggingItemId={draggingItemId}
+                  zoneTabIndex={zoneTabIndex}
+                  disabled={disabled || reviewMode}
+                  reviewMode={reviewMode}
+                  reviewIsCorrect={targetReview?.isCorrect}
+                  reviewCorrectLabels={reviewCorrectLabels}
+                  zoneRef={(element) => setZoneRef(target.id, element)}
+                  onTargetActivate={handleTargetActivate}
+                  onZoneKeyDown={handleZoneKeyDown}
+                  onUnpairItem={returnItemToBank}
+                  onItemPointerDown={handleItemPointerDown}
+                  onItemPointerUp={handleItemPointerUp}
+                  onItemKeyDown={handleItemKeyDown}
+                />
+              );
+            })}
+          </div>
         </div>
 
         <div aria-live="polite" aria-atomic="true" className="sr-only">

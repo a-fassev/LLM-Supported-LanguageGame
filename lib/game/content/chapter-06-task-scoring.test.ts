@@ -5,6 +5,7 @@ import {
 } from "@/lib/game/content/catalog-loader";
 import {
   evaluateCloze,
+  evaluateDragDrop,
   evaluateMatching,
   evaluateMultipleChoice,
 } from "@/lib/game/scoring/evaluateTaskAttempt";
@@ -92,16 +93,18 @@ describe("chapter-06 task answer keys (server scoring)", () => {
     expect(r).toMatchObject({ ok: true, ratio: 1, itemsCorrect: 8, itemsTotal: 8 });
   });
 
-  it("indirect speech cloze accepts all ten gap answers", async () => {
+  it("indirect speech drag_drop accepts all ten inserted answers", async () => {
     const scene = await findScene("chapter-06", "quest-02", 5)();
     const task = scene.content.task as {
-      lines: { segments: { kind?: string; correctAnswers?: string[] }[] }[];
+      targets: { id: string; correctItemIds: string[] }[];
     };
-    const answers = clozeAnswersFromLines(task.lines);
-    expect(answers).toHaveLength(10);
-    const r = evaluateCloze(task, {
-      taskType: "ClozeText",
-      clozeText: { answers },
+    const assignments: Record<string, string[]> = {};
+    for (const target of task.targets) {
+      assignments[target.id] = [...target.correctItemIds];
+    }
+    const r = evaluateDragDrop(task, {
+      taskType: "DragDrop",
+      dragDrop: { assignments },
     });
     expect(r).toMatchObject({ ok: true, ratio: 1, itemsCorrect: 10, itemsTotal: 10 });
   });

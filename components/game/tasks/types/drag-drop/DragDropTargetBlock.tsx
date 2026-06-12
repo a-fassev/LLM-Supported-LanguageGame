@@ -50,7 +50,7 @@ export function DragDropTargetBlock({
   onItemKeyDown,
 }: DragDropTargetBlockProps) {
   return (
-    <div className="mb-2.5">
+    <div>
       {target.title ? (
         <p className={cn("mb-1.5", TASK_PLAY_SECTION_LABEL_TEXT)}>{target.title}</p>
       ) : null}
