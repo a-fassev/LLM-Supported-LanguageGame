@@ -917,7 +917,10 @@ export default function PlayPage() {
                 </Alert>
                 <div className="flex flex-col gap-2">
                   <Button
-                    onClick={() => router.replace(buildActiveRunResumePath(activeRunConflict))}
+                    onClick={() => {
+                      if (!activeRunConflict) return;
+                      router.replace(buildActiveRunResumePath(activeRunConflict));
+                    }}
                   >
                     Riprendi missione
                   </Button>
