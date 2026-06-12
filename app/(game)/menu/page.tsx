@@ -3,15 +3,16 @@
 import Image from "next/image";
 import { CenteredCard } from "@/components/game/layout/CenteredCard";
 import { MainMenuActions } from "@/components/game/screens/MainMenuActions";
+import { hubBackgroundKeys } from "@/lib/game/content/hub-background-keys";
 import { useRegisterHubBackground } from "@/lib/game/hub-background-context";
 import { useGameSession } from "@/lib/game/session-context";
 
 export default function MenuPage() {
   const { account } = useGameSession();
-  useRegisterHubBackground(null);
+  useRegisterHubBackground(hubBackgroundKeys.bolognaMap);
 
   return (
-    <CenteredCard className="relative aspect-[1000/833] max-h-[calc(100dvh-(var(--game-shell-padding)*2))] max-w-2xl overflow-visible border-0 bg-transparent p-0 shadow-none ring-0 backdrop-blur-0">
+    <CenteredCard className="relative aspect-[1000/833] max-h-[calc(100dvh-(var(--game-shell-padding)*2))] max-w-2xl overflow-visible border-0 bg-transparent p-0 shadow-none ring-0 backdrop-blur-0 !backdrop-blur-none ">
       <Image
         src="/content-assets/hubs/menu/mainmenu-papernotiz-cropped.png"
         alt=""
