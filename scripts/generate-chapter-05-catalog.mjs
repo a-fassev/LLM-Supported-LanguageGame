@@ -121,7 +121,7 @@ Sarebbe davvero bello andare a Lucca. Ci dia, per favore, la possibilità di par
 
 Potremmo vestirci tutti come i personaggi dei fumetti, La prego, sia gentile e si vesta anche Lei come noi, così potremmo trascorrere insieme una bellissima giornata a Lucca, una delle più belle città culturali che io conosca.
 
-Sicuramente interessantissima anche per Lei che insegna storia dell'arte! Non finisca per dirci di no! Esaudisca il nostro desiderio! Mi dica se è d'accordo ad andare al Lucca Comics. Si conceda anche Lei tre giornate diverse e ci porti a vedere il festival dei fumetti più famoso in Italia! Stia tranquilla! Faremo i bravi. Forse potrebbe venire con noi anche il professor Mori che è toscano. Le allego il programma del festival, così mi dice che ne pensa. Saluti, Simone.
+Sicuramente interessantissima anche per Lei che insegna storia dell'arte! Non finisca per dirci di no! Esaudisca il nostro desiderio! Mi dica se è d'accordo ad andare al Lucca Comics. Si conceda anche Lei tre giornate diverse e ci porti a vedere il festival dei fumetti più famoso in Italia! Stia tranquilla! Faremo i bravi. Forse potrebbe venire con noi anche il professor Mori che è toscano. Le allego il programma del festival, così mi dice che ne pensa. Cari saluti, Simone.
 
 ---
 
@@ -159,7 +159,7 @@ const bonusPoolPairs = [
   ["il calciatore/la calciatrice", "footballer"],
   ["attaccare", "to attack"],
   ["difendere", "to defend"],
-  ["sconfiggere", "to defeat"],
+  ["sconfiggere (sconfitto)", "to defeat"],
   ["l'avversario/a", "opponent"],
   ["lo spettatore/la spettatrice", "spectator"],
   ["l'arbitro/a", "referee"],
@@ -184,7 +184,7 @@ const bonusPoolPairs = [
   ["complicato, -a", "complicated"],
   ["il punto", "point"],
   ["composto, -a da/di", "made up of / composed of"],
-  ["comporre", "to compose / form"],
+  ["comporre (composto)", "to compose / form"],
   ["avvenire", "to happen"],
   ["la sagra", "village festival / fair"],
   ["la meta", "destination"],
@@ -490,7 +490,7 @@ writeJson(
     "quest-03",
     1,
     q3bg,
-    "Il caffè è pieno. Sul tavolo ci sono appunti, mappe e screenshot del festival.",
+    "Il caffè bar è pieno. Sul tavolo ci sono appunti, mappe e screenshot del festival.",
   ),
 );
 writeJson(
