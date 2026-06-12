@@ -1,7 +1,6 @@
 import { z } from "zod";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { generateSuggestedUsername } from "@/lib/username-generator";
-import { hashPassword } from "@/lib/password";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getClientIp, jsonError, jsonOk } from "@/lib/http";
@@ -58,12 +57,6 @@ export async function POST(request: Request) {
   }
 
   const { password, username: requestedUsername } = parsed.data;
-  let passwordHash: string;
-  try {
-    passwordHash = await hashPassword(password);
-  } catch {
-    return jsonError(500, authMsg.couldNotProcess);
-  }
 
   let supabase: SupabaseClient;
   try {
@@ -86,7 +79,7 @@ export async function POST(request: Request) {
 
     const { data, error } = await supabase
       .from("student_accounts")
-      .insert({ username, password_hash: passwordHash })
+      .insert({ username, password })
       .select("username, team")
       .single();
 

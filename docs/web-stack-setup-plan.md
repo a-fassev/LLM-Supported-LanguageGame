@@ -80,7 +80,6 @@ git status   # commit or stash unrelated work
 | `@supabase/supabase-js` | ^2.105.4 | **2.107.0** |
 | `@langchain/core` | ^1.1.46 | **1.1.48** |
 | `@langchain/openai` | ^1.4.5 | **1.4.7** |
-| `argon2` | ^0.44.0 | **0.44.0** |
 
 ### Type definitions (align with Node 22 + React 19)
 
@@ -163,8 +162,7 @@ npm install \
   zod@4.4.3 \
   @supabase/supabase-js@2.107.0 \
   @langchain/core@1.1.48 \
-  @langchain/openai@1.4.7 \
-  argon2@0.44.0
+  @langchain/openai@1.4.7
 
 npm install -D \
   typescript@6.0.3 \
@@ -194,7 +192,6 @@ npm ci
     "@langchain/core": "^1.1.48",
     "@langchain/openai": "^1.4.7",
     "@supabase/supabase-js": "^2.107.0",
-    "argon2": "^0.44.0",
     "next": "^16.2.7",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
@@ -221,7 +218,6 @@ npm ci
 | **TypeScript 6** | Run `tsc` / `next build`; remove or update deprecated `tsconfig` options flagged by TS 6 |
 | **ESLint 10** | Adjust `eslint.config.mjs` if `next lint` fails (flat config + `eslint-config-next@16` compatibility) |
 | **Vitest 4** | Check [Vitest migration guide](https://vitest.dev/guide/migration); update `vitest.config.ts` only if `npm test` fails |
-| **`argon2`** | Keep `serverExternalPackages: ["argon2"]` in `next.config.ts` |
 
 ---
 
@@ -379,7 +375,7 @@ Or revert the whole commit if already committed.
 
 # 1. Core upgrades
 npm install next@16.2.7 react@19.2.7 react-dom@19.2.7 zod@4.4.3 \
-  @supabase/supabase-js@2.107.0 @langchain/core@1.1.48 @langchain/openai@1.4.7 argon2@0.44.0
+  @supabase/supabase-js@2.107.0 @langchain/core@1.1.48 @langchain/openai@1.4.7
 npm install -D typescript@6.0.3 eslint@10.4.1 eslint-config-next@16.2.7 vitest@4.1.8 \
   @types/node@22.19.19 @types/react@19.2.16 @types/react-dom@19.2.3 @eslint/eslintrc@3.3.5
 

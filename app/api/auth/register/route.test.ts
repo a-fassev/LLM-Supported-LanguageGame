@@ -16,7 +16,6 @@ const mocks = vi.hoisted(() => {
     insert,
     from,
     getSupabaseAdmin,
-    hashPassword: vi.fn(),
     checkRateLimit: vi.fn(),
     generateSuggestedUsername: vi.fn(),
   };
@@ -24,9 +23,6 @@ const mocks = vi.hoisted(() => {
 
 vi.mock("@/lib/supabase-admin", () => ({
   getSupabaseAdmin: mocks.getSupabaseAdmin,
-}));
-vi.mock("@/lib/password", () => ({
-  hashPassword: mocks.hashPassword,
 }));
 vi.mock("@/lib/rate-limit", () => ({
   checkRateLimit: mocks.checkRateLimit,
@@ -41,7 +37,6 @@ describe("register route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.getSupabaseAdmin.mockImplementation(() => ({ from: mocks.from }));
-    mocks.hashPassword.mockResolvedValue("hashed-password");
     mocks.checkRateLimit.mockReturnValue(true);
   });
 
@@ -99,11 +94,11 @@ describe("register route", () => {
     expect(mocks.insert).toHaveBeenCalledTimes(2);
     expect(mocks.insert).toHaveBeenNthCalledWith(1, {
       username: "nuovo-utente",
-      password_hash: "hashed-password",
+      password: "password123",
     });
     expect(mocks.insert).toHaveBeenNthCalledWith(2, {
       username: "nuovo-utente-2",
-      password_hash: "hashed-password",
+      password: "password123",
     });
   });
 });

@@ -1,57 +1,50 @@
 {
   "id": "chapter-00-quest-01-scene-07",
   "scene_type": "task",
-  "screen_type": "matching",
+  "screen_type": "multiple_choice",
   "background": "chapters/00/quests/01/bg-task-01",
   "content": {
-    "title": "Parole utili in stazione",
-    "instruction": "Abbina le espressioni italiane alle traduzioni inglesi. Alcune opzioni a destra sono distrazioni.",
+    "title": "Documento — La valigia",
+    "instruction": "Apri «Documento» in alto se ti serve il testo.",
+    "referenceDocument": {
+      "title": "Consigli della famiglia Ferrari",
+      "body": "Ciao Toni!\nPorta il passaporto e il biglietto.\nNon dimenticare una maglietta e le scarpe comode.\nA domani, a Bologna!"
+    },
     "task": {
-      "prompt": "Collega ogni espressione al significato corretto.",
-      "leftItems": [
-        { "id": "left-binario", "label": "Binario" },
-        { "id": "left-biglietto", "label": "Biglietto" },
-        { "id": "left-treno", "label": "Treno" },
-        { "id": "left-ritardo", "label": "Ritardo" },
-        { "id": "left-prenotazione", "label": "Prenotazione" },
+      "prompt": "Cosa devi portare secondo la famiglia Ferrari?",
+      "selectionMode": "single",
+      "preserveOptionOrder": true,
+      "options": [
         {
-          "id": "left-annuncio",
-          "label": "Annuncio informativo sulla partenza del treno regionale"
+          "id": "opt-pass",
+          "label": "il passaporto"
+        },
+        {
+          "id": "opt-neve",
+          "label": "la tuta da neve"
+        },
+        {
+          "id": "opt-pallone",
+          "label": "il pallone da calcio"
         }
       ],
-      "rightItems": [
-        { "id": "right-platform", "label": "Platform track" },
-        { "id": "right-ticket", "label": "Ticket" },
-        { "id": "right-train", "label": "Train" },
-        { "id": "right-delay", "label": "Delay" },
-        { "id": "right-booking", "label": "Booking / reservation" },
-        { "id": "right-announcement", "label": "Departure announcement" },
-        { "id": "right-luggage", "label": "Luggage storage" },
-        { "id": "right-coffee", "label": "Coffee shop" }
-      ],
-      "correctPairs": [
-        { "leftItemId": "left-binario", "rightItemId": "right-platform" },
-        { "leftItemId": "left-biglietto", "rightItemId": "right-ticket" },
-        { "leftItemId": "left-treno", "rightItemId": "right-train" },
-        { "leftItemId": "left-ritardo", "rightItemId": "right-delay" },
-        { "leftItemId": "left-prenotazione", "rightItemId": "right-booking" },
-        { "leftItemId": "left-annuncio", "rightItemId": "right-announcement" }
-      ],
-      "presentation": {
-        "leftLabel": "Italiano",
-        "rightLabel": "English",
-        "shuffleRightOrder": true
-      }
+      "correctOptionIds": [
+        "opt-pass"
+      ]
     }
   },
   "scoring": {
-    "backpack": { "pieces": 1 },
+    "backpack": {
+      "pieces": 0
+    },
     "pizza": {
       "mode": "scored",
-      "maxSlices": 4,
-      "minRatioToComplete": 0.67,
+      "maxSlices": 0,
+      "minRatioToComplete": 1,
       "rounding": "floor",
-      "mapping": { "kind": "linear" }
+      "mapping": {
+        "kind": "linear"
+      }
     }
   }
 }

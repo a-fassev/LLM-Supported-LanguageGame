@@ -351,6 +351,17 @@ export async function completeSceneOnce(input: SceneCompletionInsert): Promise<{
     .select("id")
     .single();
   if (error) {
+    if (error.code === "23505") {
+      const { data: raced, error: racedError } = await admin()
+        .from("player_scene_completions")
+        .select("id")
+        .eq("run_id", input.runId)
+        .eq("scene_id", input.sceneId)
+        .maybeSingle();
+      if (!racedError && raced?.id) {
+        return { inserted: false, completionId: raced.id as string };
+      }
+    }
     console.error("[game-repo] completeSceneOnce:insert", error);
     return { inserted: false };
   }

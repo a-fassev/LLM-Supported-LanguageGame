@@ -5,12 +5,16 @@ export function buildFreitextRetryTaskOutcome(params: {
   ratio: number;
   summaryFeedback: string;
   nextStepAdvice?: string;
+  sceneMaxRewardSlices?: number;
+  sceneMaxRewardBackpack?: number;
 }): TaskOutcomeDto {
   const base = buildTaskOutcome({
     passed: false,
     ratio: params.ratio,
     awardedSlices: 0,
     awardedBackpackPieces: 0,
+    sceneMaxRewardSlices: params.sceneMaxRewardSlices,
+    sceneMaxRewardBackpack: params.sceneMaxRewardBackpack,
   });
 
   const summary = params.summaryFeedback.trim();

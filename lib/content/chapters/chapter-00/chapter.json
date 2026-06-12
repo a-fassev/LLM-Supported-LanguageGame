@@ -1,12 +1,10 @@
 {
   "id": "chapter-00",
-  "title": "Area di prova (team)",
+  "title": "La valigia — Prima del viaggio",
   "order": 0,
-  "reference": true,
+  "locked": false,
   "quests": [
-    "quest-01",
-    "quest-02",
-    "quest-01-bonus"
+    "quest-01"
   ],
   "background": "chapters/00/chapter/bg-missions"
 }

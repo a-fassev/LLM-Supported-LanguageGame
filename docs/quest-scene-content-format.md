@@ -64,7 +64,9 @@ Scene order is the **numeric prefix** on filenames (`01`, `02`, …). When mappi
 | `gameFinale` | Optional, default `false`. When `true`, completing the chapter’s **last** quest in `quests[]` (usually the bonus) ends the learner journey: snapshot sets `run.isGameFinaleQuest`; `/play` shows «Percorso completato!» and primary **«Torna al menu»** (not the chapter mission list). Author **story scenes after the bonus task** for narrative closure; overlay is the mechanical game end. Logic: `lib/game/game-finale.ts`. At most one progression chapter should set this until a post-game hub exists. |
 | `quests` | Ordered quest folder ids for this chapter. **Last id** is the finale quest when `gameFinale` is `true`. |
 
-**Progression chapters** (`chapter-01` …) use `order: 1` and up without `reference`. **Sandbox** lives in `chapter-00` (`order: 0`, `reference: true`) — all task-type smoke fixtures for web development.
+**Tutorial chapter** (`chapter-00`, `order: 0`) introduces all six task types in Italian (A1). It does **not** set `reference: true` — completing its main quest gates `chapter-01`. Task scenes use **`pizza.mode: "scored"`** with **`maxSlices: 0`** (and `backpack.pieces: 0`) so attempts are evaluated but no wallet rewards are granted. Do **not** use `pizza.mode: "flat"` for learner tutorial tasks: flat skips server-side evaluation for deterministic task types.
+
+**Progression chapters** (`chapter-01` …) use `order: 1` and up without `reference`.
 
 ### `quest.json`
 

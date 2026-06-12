@@ -44,6 +44,36 @@ function catalogFixture(): ContentCatalog {
 }
 
 describe("isQuestLockedForAccount", () => {
+  it("requires completing chapter-00 tutorial before chapter-01", () => {
+    const catalog: ContentCatalog = {
+      chapters: [
+        {
+          id: "chapter-00",
+          title: "La valigia",
+          order: 0,
+          locked: false,
+          reference: false,
+          quests: ["quest-01"],
+          questsExpanded: [
+            {
+              id: "quest-01",
+              title: "Come si gioca",
+              order: 1,
+              kind: "main",
+              requiresQuestId: null,
+              scenes: [],
+            },
+          ],
+        },
+        catalogFixture().chapters[0],
+      ],
+    };
+    expect(isQuestLockedForAccount(catalog, "chapter-01", "quest-01", new Set())).toBe(true);
+    expect(
+      isQuestLockedForAccount(catalog, "chapter-01", "quest-01", new Set(["chapter-00:quest-01"])),
+    ).toBe(false);
+  });
+
   it("does not require completing reference chapter-00 before chapter-01", () => {
     const catalog: ContentCatalog = {
       chapters: [
