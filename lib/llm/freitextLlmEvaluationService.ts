@@ -1,38 +1,19 @@
 import { ChatPromptTemplate } from "@langchain/core/prompts";
-import { ChatGoogle } from "@langchain/google/node";
+import { ChatOpenAI } from "@langchain/openai";
 
 import type { FreitextLlmStepContentParsed } from "@/lib/llm/freitextLlmContentSchema";
 import type { FreitextLlmEvaluatorEnv } from "@/lib/llm/freitextLlmEnv";
-import {
-  AllGeminiApiKeysRateLimitedError,
-  createGeminiApiKeyPool,
-  type GeminiApiKeyPool,
-} from "@/lib/llm/gemini-api-key-pool";
+import { gameClientMessages as msg } from "@/lib/game/clientMessages";
 import {
   freitextLlmStructuredOutputSchema,
 } from "@/lib/llm/freitextLlmModelSchema";
 
-const DEFAULT_RATE_LIMIT_COOLDOWN_MS = 60_000;
-
-let cachedPool: GeminiApiKeyPool | null = null;
-let cachedPoolFingerprint = "";
-
-function getGeminiApiKeyPool(env: FreitextLlmEvaluatorEnv): GeminiApiKeyPool {
-  const fingerprint = env.geminiApiKeys.join("\0");
-  if (!cachedPool || cachedPoolFingerprint !== fingerprint) {
-    cachedPool = createGeminiApiKeyPool(env.geminiApiKeys);
-    cachedPoolFingerprint = fingerprint;
-  }
-  return cachedPool;
-}
-
-function createFreitextModel(apiKey: string, env: FreitextLlmEvaluatorEnv) {
-  return new ChatGoogle({
-    model: env.geminiModel,
-    apiKey,
+function createFreitextModel(env: FreitextLlmEvaluatorEnv) {
+  return new ChatOpenAI({
+    model: env.openaiModel,
+    apiKey: env.openaiApiKey,
     temperature: 0.2,
-    maxRetries: 0,
-    streamUsage: false,
+    maxRetries: env.llmMaxRetries,
     ...(env.llmTimeoutMs > 0 ? { timeout: env.llmTimeoutMs } : {}),
   });
 }
@@ -94,48 +75,6 @@ const freitextJudgePrompt = ChatPromptTemplate.fromMessages([
   ],
 ]);
 
-export function isGeminiRateLimitError(error: unknown): boolean {
-  const status = readNumeric(error, "status") ?? readNumeric(error, "statusCode");
-  if (status === 429) return true;
-
-  const message = readString(error, "message") ?? stringFrom(error) ?? "";
-  const lower = message.toLowerCase();
-  if (lower.includes("rate limit") || lower.includes("resource_exhausted")) {
-    return true;
-  }
-
-  if (error && typeof error === "object" && "code" in error) {
-    const code = (error as Record<string, unknown>).code;
-    if (code === "RESOURCE_EXHAUSTED" || code === 429) return true;
-  }
-
-  return false;
-}
-
-function readRetryAfterMs(error: unknown): number | null {
-  if (!error || typeof error !== "object") return null;
-
-  const headers = (error as Record<string, unknown>).headers;
-  if (!headers || typeof headers !== "object") return null;
-
-  const retryAfter = (headers as Record<string, unknown>)["retry-after"];
-  if (typeof retryAfter === "string") {
-    const seconds = Number.parseInt(retryAfter, 10);
-    if (Number.isFinite(seconds) && seconds > 0) return seconds * 1000;
-  }
-
-  return null;
-}
-
-function toRateLimitError(cause?: unknown): Error & { status: number } {
-  const error = new Error("Gemini API rate limit exceeded") as Error & { status: number };
-  error.status = 429;
-  if (cause !== undefined) {
-    (error as Error & { cause?: unknown }).cause = cause;
-  }
-  return error;
-}
-
 export async function invokeFreitextLlmJudge(
   content: FreitextLlmStepContentParsed,
   learnerAnswer: string,
@@ -166,50 +105,24 @@ export async function invokeFreitextLlmJudge(
     answer: learnerAnswer.trim(),
   });
 
-  const pool = getGeminiApiKeyPool(env);
-  const maxAttempts = Math.max(1, env.geminiApiKeys.length);
-  let lastRateLimitError: unknown;
+  const model = createFreitextModel(env).withStructuredOutput(
+    freitextLlmStructuredOutputSchema,
+    {
+      method: "jsonSchema",
+      strict: true,
+      name: "freitext_judge",
+    },
+  );
 
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    let selection;
-    try {
-      selection = pool.acquireKey();
-    } catch (error) {
-      if (error instanceof AllGeminiApiKeysRateLimitedError) {
-        throw toRateLimitError(lastRateLimitError);
-      }
-      throw error;
-    }
+  const chat = await model.invoke(invoked, {
+    signal,
+    tags: ["feature:freitext-llm", "surface:learning-game"],
+    metadata: {
+      targetLanguageTag: content.targetLanguage ?? "",
+    },
+  });
 
-    try {
-      const model = createFreitextModel(selection.apiKey, env).withStructuredOutput(
-        freitextLlmStructuredOutputSchema,
-      );
-
-      const chat = await model.invoke(invoked, {
-        signal,
-        tags: ["feature:freitext-llm", "surface:learning-game"],
-        metadata: {
-          targetLanguageTag: content.targetLanguage ?? "",
-          geminiKeyIndex: selection.index,
-        },
-      });
-
-      return freitextLlmStructuredOutputSchema.parse(chat);
-    } catch (error) {
-      if (isGeminiRateLimitError(error)) {
-        pool.markRateLimited(
-          selection.index,
-          readRetryAfterMs(error) ?? DEFAULT_RATE_LIMIT_COOLDOWN_MS,
-        );
-        lastRateLimitError = error;
-        continue;
-      }
-      throw error;
-    }
-  }
-
-  throw toRateLimitError(lastRateLimitError);
+  return freitextLlmStructuredOutputSchema.parse(chat);
 }
 
 export type WeightInput = Pick<
@@ -274,12 +187,29 @@ export function mapFreitextLlmProviderError(
   const message = readString(error, "message") ?? stringFrom(error) ?? "";
   const lower = message.toLowerCase();
 
-  if (status === 429 || lower.includes("rate limit") || lower.includes("resource_exhausted")) {
+  if (
+    status === 429 ||
+    lower.includes("rate limit") ||
+    lower.includes("rate_limit_exceeded")
+  ) {
     return {
       status: 429,
       code: "RATE_LIMITED",
       retryable: true,
-      message: "The scorer is busy — please try Check again shortly.",
+      message: msg.llmRateLimited,
+    };
+  }
+
+  if (
+    status === 401 ||
+    lower.includes("invalid api key") ||
+    lower.includes("incorrect api key")
+  ) {
+    return {
+      status: 503,
+      code: "evaluator_unavailable",
+      retryable: false,
+      message: msg.freitextEvaluatorError,
     };
   }
 
@@ -288,7 +218,7 @@ export function mapFreitextLlmProviderError(
       status: 503,
       code: "PROVIDER_UNAVAILABLE",
       retryable: true,
-      message: "Il valutatore non è disponibile. Riprova.",
+      message: msg.freitextEvaluatorError,
     };
   }
 

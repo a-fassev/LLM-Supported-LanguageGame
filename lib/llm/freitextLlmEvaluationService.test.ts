@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  isGeminiRateLimitError,
+  mapFreitextLlmProviderError,
   normalizeFeedbackForLearner,
   weightedSkillRatio,
 } from "@/lib/llm/freitextLlmEvaluationService";
@@ -45,20 +45,48 @@ describe("weightedSkillRatio", () => {
   });
 });
 
-describe("isGeminiRateLimitError", () => {
-  it("detects HTTP 429 and RESOURCE_EXHAUSTED style errors", () => {
-    expect(isGeminiRateLimitError({ status: 429, message: "busy" })).toBe(true);
-    expect(
-      isGeminiRateLimitError({ code: "RESOURCE_EXHAUSTED", message: "quota exceeded" }),
-    ).toBe(true);
-    expect(isGeminiRateLimitError(new Error("rate limit exceeded"))).toBe(true);
-    expect(isGeminiRateLimitError(new Error("invalid api key"))).toBe(false);
-  });
-});
-
 describe("normalizeFeedbackForLearner", () => {
   it("uses Italian fallback when feedback is empty", () => {
     expect(normalizeFeedbackForLearner("   ")).toContain("Controlla");
     expect(normalizeFeedbackForLearner("   ")).not.toMatch(/Nice effort/i);
+  });
+});
+
+describe("mapFreitextLlmProviderError", () => {
+  it("maps HTTP 429 to RATE_LIMITED with Italian copy", () => {
+    const mapped = mapFreitextLlmProviderError({ status: 429, message: "rate limit" });
+    expect(mapped).toMatchObject({
+      status: 429,
+      code: "RATE_LIMITED",
+      retryable: true,
+    });
+    expect(mapped?.message).toContain("Controlla");
+  });
+
+  it("maps HTTP 401 and invalid API key errors to evaluator_unavailable", () => {
+    expect(mapFreitextLlmProviderError({ status: 401, message: "Unauthorized" })).toMatchObject({
+      status: 503,
+      code: "evaluator_unavailable",
+      retryable: false,
+    });
+    expect(
+      mapFreitextLlmProviderError(new Error("Incorrect API key provided")),
+    ).toMatchObject({
+      status: 503,
+      code: "evaluator_unavailable",
+    });
+  });
+
+  it("maps provider 5xx errors to PROVIDER_UNAVAILABLE", () => {
+    const mapped = mapFreitextLlmProviderError({ status: 502, message: "bad gateway" });
+    expect(mapped).toMatchObject({
+      status: 503,
+      code: "PROVIDER_UNAVAILABLE",
+      retryable: true,
+    });
+  });
+
+  it("returns null for unrecognized errors", () => {
+    expect(mapFreitextLlmProviderError(new Error("something else"))).toBeNull();
   });
 });

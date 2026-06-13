@@ -15,7 +15,7 @@
 | Goal | Notes |
 | ---- | ----- |
 | Replace placeholder for `free_text` | Multiline answer in `TaskBodyLayout`; no dev textarea in `TaskPanel`. |
-| Reuse existing LLM stack | `lib/llm/freitextLlmContentSchema.ts`, `freitextLlmEvaluationService.ts`, Gemini env from `.env.example`. |
+| Reuse existing LLM stack | `lib/llm/freitextLlmContentSchema.ts`, `freitextLlmEvaluationService.ts`, OpenAI env from `.env.example`. |
 | Authoring-friendly JSON | Strict Zod at catalog load; quest-01 + chapter-03 fixtures. |
 | Learner UX | Busy state on **Controlla**, optional word/char stats, client min/max word checks, child-safe feedback tone. |
 | Scene-native progression | **One** `POST /api/game/runs/[runId]/attempt` per submit — LLM runs inside `completeTaskScene`. |
@@ -70,7 +70,7 @@ Align with other scored tasks: feedback after **Controlla** goes through **`Succ
 
 `completeTaskScene` uses `skipEval = (GAME_SMOKE_AUTO_PASS === "true")` for **every** scored task type, including **`free_text`**. When smoke is on: no `evaluateTaskAttempt`, no `evaluateFreitextLlmScene`, `ratio = 1` (then normal pizza completion rules).
 
-**Supersedes:** An earlier plan had a freitext-only exception (always run LLM under smoke). That exception was **removed** so local walkthrough behaves uniformly without Gemini keys on freetext scenes.
+**Supersedes:** An earlier plan had a freitext-only exception (always run LLM under smoke). That exception was **removed** so local walkthrough behaves uniformly without OpenAI keys on freetext scenes.
 
 ---
 
@@ -82,7 +82,7 @@ Align with other scored tasks: feedback after **Controlla** goes through **`Succ
 | ---- | -------- | ----- |
 | LLM judge + scoring helpers | `lib/llm/freitextLlmEvaluationService.ts` | Ready to call from service |
 | Content Zod | `lib/llm/freitextLlmContentSchema.ts` | Ready |
-| Env resolver | `lib/llm/freitextLlmEnv.ts` | Returns `null` if Gemini keys missing |
+| Env resolver | `lib/llm/freitextLlmEnv.ts` | Returns `null` if OpenAI keys missing |
 | Catalog enum | `contentCatalogSchema` | `free_text` allowed |
 | Quest-01 drag-drop chain | `scenes/09.json`–`11.json` | Precedes planned scene **12** |
 | Chapter-03 placeholder | `chapter-03/quest-02/scenes/02.json` | Shell OK, `task: {}` |
@@ -242,7 +242,7 @@ Build `taskOutcome` with §2.1 freitext body override on retry when judge output
 - [ ] `taskOutcome` freitext body on retry (§2.1).  
 - [ ] Service tests: mock judge; freitext **not** auto-passed when `GAME_SMOKE_AUTO_PASS=true`; other types still auto-pass.  
 - [ ] `AGENTS.md` + `.env.example` comments.  
-- [ ] Manual QA: quest-01 scene 12 + chapter-02 freetext with Gemini keys; smoke flag on + off.
+- [ ] Manual QA: quest-01 scene 12 + chapter-02 freetext with OpenAI keys; smoke flag on + off.
 
 ### Phase 4 — Polish (defer)
 
@@ -280,4 +280,4 @@ Build `taskOutcome` with §2.1 freitext body override on retry when judge output
 2. Async evaluator + smoke exception + service tests.  
 3. UI + play wiring + `taskOutcome` copy (§2.1).  
 4. Docs (`quest-scene-content-format`, `AGENTS.md`, `.env.example`).  
-5. Manual QA with Gemini + `GAME_SMOKE_AUTO_PASS` matrix (§8).
+5. Manual QA with OpenAI + `GAME_SMOKE_AUTO_PASS` matrix (§8).

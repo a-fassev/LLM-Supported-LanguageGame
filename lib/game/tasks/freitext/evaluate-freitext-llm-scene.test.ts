@@ -31,10 +31,10 @@ describe("evaluateFreitextLlmScene", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     envMock.mockReturnValue({
-      geminiApiKeys: ["key-1"],
-      geminiModel: "gemini-3.5-flash",
+      openaiApiKey: "key-1",
+      openaiModel: "gpt-5.4-nano-2026-03-17",
       llmTimeoutMs: 5000,
-      llmMaxRetries: 0,
+      llmMaxRetries: 2,
     });
   });
 

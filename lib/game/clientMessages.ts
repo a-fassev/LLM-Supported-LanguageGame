@@ -21,6 +21,7 @@ export const gameClientMessages = {
   freitextAnswerEmpty: "Scrivi qualcosa prima di toccare Controlla.",
   freitextPayloadInvalid: "Contenuto attività freitext non valido.",
   llmNotConfigured: "Il valutatore non è disponibile. Riprova più tardi.",
+  llmRateLimited: "Il valutatore è occupato. Riprova tra poco con Controlla.",
   modelTimedOut: "Il valutatore ha impiegato troppo tempo. Riprova.",
   freitextEvaluatorError: "Il valutatore non è disponibile. Riprova.",
   couldNotMaterializeMatching: "Impossibile preparare l'attività di abbinamento.",

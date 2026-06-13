@@ -7,11 +7,11 @@ import {
 } from "@/lib/llm/freitextLlmEvaluationService";
 import { resolveFreitextLlmEvaluatorEnv } from "@/lib/llm/freitextLlmEnv";
 
-const hasGeminiKey = Boolean(process.env.GEMINI_API_KEY_1?.trim());
+const hasOpenAiKey = Boolean(process.env.OPENAI_API_KEY?.trim());
 
-describe.skipIf(!hasGeminiKey)("gemini live smoke", () => {
+describe.skipIf(!hasOpenAiKey)("openai live smoke", () => {
   it(
-    "invokes gemini-3.5-flash judge for a short Italian answer",
+    "invokes gpt-5.4-nano judge for a short Italian answer",
     async () => {
       const env = resolveFreitextLlmEvaluatorEnv();
       expect(env).not.toBeNull();
@@ -59,8 +59,8 @@ describe.skipIf(!hasGeminiKey)("gemini live smoke", () => {
         expect(out.grammarScore).toBeLessThanOrEqual(1);
         expect(ratio).toBeGreaterThan(0);
 
-        console.log(`[gemini-live-smoke] ok in ${elapsedMs}ms, ratio=${ratio.toFixed(3)}`);
-        console.log(`[gemini-live-smoke] summary=${out.summaryFeedback.slice(0, 100)}`);
+        console.log(`[openai-live-smoke] ok in ${elapsedMs}ms, ratio=${ratio.toFixed(3)}`);
+        console.log(`[openai-live-smoke] summary=${out.summaryFeedback.slice(0, 100)}`);
       } finally {
         clearTimeout(timer);
       }

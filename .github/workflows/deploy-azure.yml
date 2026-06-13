@@ -43,6 +43,8 @@ jobs:
           NODE
 
       - name: Deploy to Azure Web App
+        # App Service application settings (not in repo): OPENAI_API_KEY required for freetext LLM.
+        # Remove legacy GEMINI_* settings when deploying the OpenAI migration.
         uses: azure/webapps-deploy@v3
         with:
           app-name: enigma-di-bologna

@@ -99,7 +99,7 @@ Optional CLIs when MCP is not enough: **GitHub** (`gh`) for PRs and CI; **Supaba
 | Styling           | **Tailwind CSS v4**, **shadcn/ui**     | `app/globals.css`, `components.json`, `components/ui/`; **`shadcn` npm package** required for `@import "shadcn/tailwind.css"` |
 | Data / auth       | **Supabase** (`@supabase/supabase-js`) | Postgres + RLS in linked project; `SUPABASE_SECRET_KEY` server-only |
 | Validation        | **Zod 4**                              | Step payloads, attempts, pizza rules                                |
-| LLM               | **LangChain** + **Google Gemini** (AI Studio) | **FreitextLlm** evaluate only (`lib/llm/`)                    |
+| LLM               | **LangChain** + **OpenAI**                    | **FreitextLlm** evaluate only (`lib/llm/`)                    |
 | Passwords         | Plaintext in `student_accounts.password` | Classroom recovery via Supabase dashboard; session tokens stay hashed |
 | Tests             | **Vitest 4**                           | `npm test` — Node environment, `**/*.test.ts`                       |
 | Lint              | **ESLint 9** + `eslint-config-next`    | `npm run lint` → `eslint .` (`next lint` removed in Next 16)        |
@@ -248,7 +248,7 @@ See `docs/content-chapter-sandbox-migration.md` for historical sandbox DB migrat
 
 **LLM (freitext only):** `lib/llm/` + `lib/game/tasks/freitext/evaluate-freitext-llm-scene.ts`; wired through run **attempt** (no separate public evaluate route). Judge returns four scores → `weightedSkillRatio`: **grammar**, **vocabulary**, **register**, **task fulfillment** (prompt + instruction + `evaluationCriteria` + `targetStructures`; weight `taskFulfillmentWeight`, default 1). Learners see only `summaryFeedback` / `nextStepAdvice` on retry overlay—not per-dimension breakdowns.
 
-**Gemini / local dev:** Freitext judge keys in `.env.local` only (`GEMINI_API_KEY_1` … `GEMINI_API_KEY_4`, optional multi-project rotation; `GEMINI_EVAL_MODEL`, default `gemini-3.5-flash`). `MODEL_TIMEOUT` means the judge did not finish within `LLM_TASK_TIMEOUT_MS`. On `429`, the server rotates to the next configured key before returning `RATE_LIMITED` to the client.
+**OpenAI / local dev:** Freitext judge key in `.env.local` only (`OPENAI_API_KEY`; `OPENAI_EVAL_MODEL`, default `gpt-5.4-nano-2026-03-17`). `MODEL_TIMEOUT` means the judge did not finish within `LLM_TASK_TIMEOUT_MS`. On `429`, the client receives `RATE_LIMITED` and can retry **Controlla**.
 
 ---
 
