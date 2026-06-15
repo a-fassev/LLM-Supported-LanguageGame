@@ -1,128 +1,120 @@
 {
   "id": "chapter-01-quest-04-scene-08",
   "scene_type": "task",
-  "screen_type": "matching",
+  "screen_type": "cloze",
   "background": "chapters/01/quests/04/bg-bar-task",
   "content": {
     "title": "Famiglie di parole",
-    "instruction": "Per ogni parola, trova la parola della stessa famiglia nel testo della brochure.",
+    "instruction": "Apri il documento, leggi la brochure e scrivi la parola della stessa famiglia che trovi nel testo.",
     "referenceDocument": {
       "title": "Le Grotte di Castellana",
       "body": "La visita alle Grotte di Castellana — aperte tutto l'anno — è possibile con guide turistiche.\n\nCi sono due itinerari: l'itinerario parziale della lunghezza di un chilometro e della durata di 50 minuti, l'itinerario completo della lunghezza di tre chilometri e della durata di quasi due ore.\n\nLa temperatura, costante tutto l'anno, è di circa 18 °C, mentre il tasso di umidità è superiore al 90%.\n\nLa Grave, prima e più grande caverna del sistema sotterraneo, è l'unico ambiente naturalmente collegato con l'esterno: 100 metri di lunghezza, per 50 di larghezza, per 60 di profondità.\n\nLa parte delle grotte aperta al pubblico è costituita da ambienti molto vari per forma e dimensioni. Stalattiti, stalagmiti, colonne, preziosi cristalli occhieggiano ovunque.\n\nInfine, l'ultima e più bella caverna del sistema sotterraneo, la Grotta Bianca, definita per la ricchezza e il biancore dell'alabastro, è la più splendente del mondo."
     },
     "task": {
-      "prompt": "Per ogni verbo, aggettivo o sostantivo, trova la parola della stessa famiglia che trovi nel testo. Scrivi la parola corretta.",
-      "leftItems": [
+      "prompt": "Trova nella brochure le parole della stessa famiglia e scrivile nelle lacune.",
+      "caseSensitive": false,
+      "lines": [
         {
-          "id": "l1",
-          "label": "visitare"
-        },
-        {
-          "id": "l2",
-          "label": "aprire"
-        },
-        {
-          "id": "l3",
-          "label": "profondo"
-        },
-        {
-          "id": "l4",
-          "label": "largo"
-        },
-        {
-          "id": "l5",
-          "label": "umido"
-        },
-        {
-          "id": "l6",
-          "label": "durante"
-        },
-        {
-          "id": "l7",
-          "label": "parzialità"
-        },
-        {
-          "id": "l8",
-          "label": "lungo"
+          "segments": [
+            {
+              "kind": "text",
+              "text": "visitare → "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "la visita",
+                "visita"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "\naprire → "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "aperte",
+                "aperto",
+                "aperta"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "\nprofondo → "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "la profondità",
+                "profondità"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "\nlargo → "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "la larghezza",
+                "larghezza"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "\numido → "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "l'umidità",
+                "umidità"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "\ndurante → "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "la durata",
+                "durata"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "\nparzialità → "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "parziale"
+              ]
+            },
+            {
+              "kind": "text",
+              "text": "\nlungo → "
+            },
+            {
+              "kind": "gap",
+              "maxLength": 24,
+              "correctAnswers": [
+                "la lunghezza",
+                "lunghezza"
+              ]
+            }
+          ]
         }
-      ],
-      "rightItems": [
-        {
-          "id": "r1",
-          "label": "la visita"
-        },
-        {
-          "id": "r2",
-          "label": "aperte"
-        },
-        {
-          "id": "r3",
-          "label": "la profondità"
-        },
-        {
-          "id": "r4",
-          "label": "la larghezza"
-        },
-        {
-          "id": "r5",
-          "label": "l'umidità"
-        },
-        {
-          "id": "r6",
-          "label": "la durata"
-        },
-        {
-          "id": "r7",
-          "label": "parziale"
-        },
-        {
-          "id": "r8",
-          "label": "la lunghezza"
-        },
-        {
-          "id": "r9",
-          "label": "cristalli"
-        }
-      ],
-      "correctPairs": [
-        {
-          "leftItemId": "l1",
-          "rightItemId": "r1"
-        },
-        {
-          "leftItemId": "l2",
-          "rightItemId": "r2"
-        },
-        {
-          "leftItemId": "l3",
-          "rightItemId": "r3"
-        },
-        {
-          "leftItemId": "l4",
-          "rightItemId": "r4"
-        },
-        {
-          "leftItemId": "l5",
-          "rightItemId": "r5"
-        },
-        {
-          "leftItemId": "l6",
-          "rightItemId": "r6"
-        },
-        {
-          "leftItemId": "l7",
-          "rightItemId": "r7"
-        },
-        {
-          "leftItemId": "l8",
-          "rightItemId": "r8"
-        }
-      ],
-      "presentation": {
-        "leftLabel": "Parola di partenza",
-        "rightLabel": "Dal testo",
-        "shuffleRightOrder": true
-      }
+      ]
     }
   },
   "scoring": {
@@ -131,7 +123,7 @@
     },
     "pizza": {
       "mode": "scored",
-      "maxSlices": 5,
+      "maxSlices": 10,
       "minRatioToComplete": 0.75,
       "rounding": "nearest",
       "mapping": {

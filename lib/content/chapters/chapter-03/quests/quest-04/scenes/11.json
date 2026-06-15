@@ -5,10 +5,10 @@
   "background": "chapters/03/quests/04/bg-piazza-cioccoshow",
   "content": {
     "title": "Scoprire una nuova città",
-    "instruction": "Tiziana ha trovato dei buoni consigli. Completa con i verbi alla forma impersonale. Wortbank: chiamare · comprare/comprarsi (3x) · dovere/mangiare · fare · godersi · informarsi · potere/avere · potere/conoscere · potere/trovare · volere/conoscere · non/perdersi · seguire",
+    "instruction": "Tiziana ha trovato dei buoni consigli. Completa con i verbi alla forma impersonale. Termini: chiamare · comprare/comprarsi (3x) · dovere/mangiare · fare · godersi · informarsi · potere/avere · potere/conoscere · potere/trovare · volere/conoscere · non/perdersi · seguire",
     "referenceDocument": null,
     "task": {
-      "prompt": "Tiziana ha trovato dei buoni consigli. Completa con i verbi alla forma impersonale.",
+      "prompt": "Completa le frasi.",
       "caseSensitive": false,
       "lines": [
         {

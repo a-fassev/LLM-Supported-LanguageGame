@@ -33,7 +33,8 @@
         "maxPoints": 5,
         "evaluationCriteria": [
           "Use at least one relative pronoun (che, cui, or dove) correctly",
-          "Describe the menu category plausibly (position in an Italian meal and typical dishes)"
+          "Describe the menu category gli antipasti plausibly (position in an Italian meal and typical dishes)",
+          "Do not accept examples that belong mainly to another menu category"
         ],
         "targetStructures": [
           "che",

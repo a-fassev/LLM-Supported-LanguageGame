@@ -9,33 +9,7 @@
     "referenceDocument": {
       "documentId": "ch02-quiz-persons",
       "title": "Chi sono?",
-      "body": "Ecco le sei persone del quiz. Il nome sotto ogni foto ti aiuta a scegliere.",
-      "figures": [
-        {
-          "image": "chapters/02/quests/03/ref-quiz-verdi",
-          "caption": "Giuseppe Verdi"
-        },
-        {
-          "image": "chapters/02/quests/03/ref-quiz-colombo",
-          "caption": "Cristoforo Colombo"
-        },
-        {
-          "image": "chapters/02/quests/03/ref-quiz-montessori",
-          "caption": "Maria Montessori"
-        },
-        {
-          "image": "chapters/02/quests/03/ref-quiz-michelangelo",
-          "caption": "Michelangelo Buonarroti"
-        },
-        {
-          "image": "chapters/02/quests/03/ref-quiz-ferrante",
-          "caption": "Elena Ferrante"
-        },
-        {
-          "image": "chapters/02/quests/03/ref-quiz-da-vinci",
-          "caption": "Leonardo da Vinci"
-        }
-      ]
+      "body": "Persone del quiz: Giuseppe Verdi, Cristoforo Colombo, Maria Montessori, Michelangelo Buonarroti, Elena Ferrante, Leonardo da Vinci."
     },
     "task": {
       "questions": [
@@ -111,7 +85,7 @@
     "pizza": {
       "mode": "scored",
       "maxSlices": 5,
-      "minRatioToComplete": 1,
+      "minRatioToComplete": 0.5,
       "rounding": "nearest",
       "mapping": {
         "kind": "linear"

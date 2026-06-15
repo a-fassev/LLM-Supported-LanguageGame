@@ -84,7 +84,7 @@ describe("chapter-05 task answer keys (server scoring)", () => {
       taskType: "DragDrop",
       dragDrop: { assignments },
     });
-    expect(r).toMatchObject({ ok: true, ratio: 1, itemsCorrect: 4, itemsTotal: 4 });
+    expect(r).toMatchObject({ ok: true, ratio: 1, itemsCorrect: 8, itemsTotal: 8 });
   });
 
   it("aggettivo cloze accepts primary solutions for six gaps", async () => {

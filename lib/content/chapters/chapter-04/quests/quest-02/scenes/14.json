@@ -203,8 +203,8 @@
               "kind": "gap",
               "maxLength": 64,
               "correctAnswers": [
-                "di avere",
-                "Di avere",
+                "avere",
+                "Avere",
                 "che io abbia",
                 "Che io abbia"
               ]

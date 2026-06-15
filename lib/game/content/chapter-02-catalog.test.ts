@@ -66,8 +66,9 @@ describe("chapter-02 Bologna Lezione 2 catalog", () => {
     const quizMc = chapter!.questsExpanded
       .find((q) => q.id === "quest-03")
       ?.scenes.find((s) => s.id === "chapter-02-quest-03-scene-06");
-    const quizRef = quizMc?.content.referenceDocument as { figures?: unknown[] };
-    expect(quizRef?.figures?.length).toBe(6);
+    const quizRef = quizMc?.content.referenceDocument as { body?: string; figures?: unknown[] };
+    expect(quizRef?.body).toContain("Giuseppe Verdi");
+    expect(quizRef?.figures).toBeUndefined();
 
     const sanitizedQuiz = sanitizeSceneContentForClient(
       "task",
@@ -75,6 +76,7 @@ describe("chapter-02 Bologna Lezione 2 catalog", () => {
       quizMc!.content as Record<string, unknown>,
     );
     const quizView = toReferenceDocumentView(sanitizedQuiz.referenceDocument);
-    expect(quizView?.figures).toHaveLength(6);
+    expect(quizView?.body).toContain("Leonardo da Vinci");
+    expect(quizView?.figures).toBeUndefined();
   });
 });

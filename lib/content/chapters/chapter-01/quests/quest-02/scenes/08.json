@@ -5,13 +5,13 @@
   "background": "chapters/01/quests/02/bg-task-error",
   "content": {
     "title": "Trova gli errori",
-    "instruction": "Leggi il testo e trova i 5 errori. Clicca sulle informazioni sbagliate.",
+    "instruction": "Leggi il testo e trova i 4 errori. Clicca sulle informazioni sbagliate.",
     "referenceDocument": null,
     "task": {
-      "prompt": "Leggi il testo e trova i 5 errori sulle abitudini italiane al bar e al ristorante. Clicca sulle informazioni sbagliate.",
+      "prompt": "Leggi il testo e trova i 4 errori sulle abitudini italiane al bar e al ristorante. Clicca sulle informazioni sbagliate.",
       "expectedErrorRange": {
-        "min": 5,
-        "max": 5
+        "min": 4,
+        "max": 4
       },
       "segments": [
         {
@@ -52,17 +52,12 @@
         },
         {
           "id": "a7",
-          "text": " scegli tu stesso il tavolo",
-          "isError": true,
-          "acceptedCorrections": [
-            "si aspetta che il personale assegni il tavolo",
-            "aspetta che il personale ti assegni il tavolo",
-            "il personale assegna il tavolo"
-          ]
+          "text": " aspetti che il personale ti assegni un tavolo",
+          "isError": false
         },
         {
           "id": "a8",
-          "text": " senza aspettare. Un pasto italiano normale è composto da",
+          "text": " . Un pasto italiano normale è composto da",
           "isError": false
         },
         {

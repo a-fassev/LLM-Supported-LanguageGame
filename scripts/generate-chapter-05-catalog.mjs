@@ -544,27 +544,43 @@ writeJson("quests/quest-03/scenes/04.json", {
       items: proControCards,
       targets: [
         {
-          id: "lucca-pro",
+          id: "lucca-pro-1",
           title: "Lucca PRO",
-          matchMode: "all",
-          correctItemIds: ["card-1", "card-2", "card-3"],
+          correctItemIds: ["card-1"],
         },
         {
-          id: "lucca-contro",
+          id: "lucca-pro-2",
+          title: "Lucca PRO",
+          correctItemIds: ["card-2"],
+        },
+        {
+          id: "lucca-pro-3",
+          title: "Lucca PRO",
+          correctItemIds: ["card-3"],
+        },
+        {
+          id: "lucca-contro-1",
           title: "Lucca CONTRO",
-          matchMode: "all",
-          correctItemIds: ["card-4", "card-5"],
+          correctItemIds: ["card-4"],
         },
         {
-          id: "firenze-pro",
+          id: "lucca-contro-2",
+          title: "Lucca CONTRO",
+          correctItemIds: ["card-5"],
+        },
+        {
+          id: "firenze-pro-1",
           title: "Firenze PRO",
-          matchMode: "all",
-          correctItemIds: ["card-6", "card-7"],
+          correctItemIds: ["card-6"],
         },
         {
-          id: "firenze-contro",
+          id: "firenze-pro-2",
+          title: "Firenze PRO",
+          correctItemIds: ["card-7"],
+        },
+        {
+          id: "firenze-contro-1",
           title: "Firenze CONTRO",
-          matchMode: "all",
           correctItemIds: ["card-8"],
         },
       ],
@@ -839,7 +855,7 @@ writeJson(
     "quest-01-bonus",
     3,
     bbg,
-    "Risolvi questo compito bonus per guadagnare fette di pizza extra!",
+    "Risolvi questo compito bonus per guadagnare fino a 5 fette di pizza extra!",
   ),
 );
 

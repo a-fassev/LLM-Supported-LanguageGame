@@ -8,7 +8,7 @@
     "instruction": "Abbina ogni parola italiana al suo equivalente inglese.",
     "referenceDocument": null,
     "task": {
-      "prompt": "Abbina ogni parola italiana al suo equivalente inglese.",
+      "prompt": "Trova le coppie corrette.",
       "sampleSize": 10,
       "poolPairs": [
         {

@@ -5,7 +5,7 @@
   "background": "chapters/02/quests/03/bg-desk-task",
   "content": {
     "title": "Che persona straordinaria!",
-    "instruction": "Scegli una delle tre persone e completa solo il suo identikit con le informazioni del testo. Puoi rileggere i profili nel documento.",
+    "instruction": "Apri il documento, leggi i profili e scegli una delle tre persone. Completa solo il suo identikit con le informazioni del testo.",
     "referenceDocument": {
       "title": "Italiani famosi — profili",
       "body": "Scegli una persona e completa il suo identikit con le informazioni del testo. Puoi rileggere ogni profilo quando vuoi.",
@@ -25,7 +25,7 @@
       ]
     },
     "task": {
-      "prompt": "Scegli una delle tre persone e completa il suo identikit con le informazioni del testo. Puoi sempre rileggere il profilo nel documento.",
+      "prompt": "Apri il documento e rileggi il profilo quando vuoi. Completa l'identikit con le informazioni del testo.",
       "caseSensitive": false,
       "lines": [
         {

@@ -630,7 +630,7 @@ writeJson("quests/quest-02/scenes/14.json", {
             { kind: "text", text: " (Marco e Laura, andare) negli stessi bar in " },
             gap(["cui", "Cui"]),
             { kind: "text", text: " andavate voi.\n\nSara:        Boh, tanto, hai detto che è stupido, no?! Ah ah. Ti ringrazio tanto Fede. È bellissimo " },
-            gap(["di avere", "Di avere", "che io abbia", "Che io abbia"]),
+            gap(["avere", "Avere", "che io abbia", "Che io abbia"]),
             { kind: "text", text: " (io, avere) amici come te." },
           ],
         },
@@ -976,7 +976,7 @@ writeJson("quests/quest-04/scenes/09.json", {
               "invitata a Comacchio per un weekend",
               "invitata a passare un weekend a Comacchio per superare il mal d'amore di Sara",
               "Invitata a Comacchio (con Sara) per un weekend",
-            ]),
+            ], 140),
             { kind: "text", text: "\n\n[16:05]    2. Giulia ha preparato un " },
             gap([
               "programma fantastico",
@@ -989,30 +989,30 @@ writeJson("quests/quest-04/scenes/09.json", {
               `„piccola Venezia" perché ha tanti canali`,
               `„piccola Venezia", perché nasce e vive tra terra e acqua`,
               '"piccola Venezia" perché ha tanti canali',
-            ]),
+            ], 120),
             { kind: "text", text: "\n\n[16:10]    4. Ci sono cinque " },
             gap([
               "spiagge ideali per riposarsi al sole e cancellare i ricordi tristi",
               "Spiagge ideali per riposarsi al sole e cancellare i ricordi tristi",
-            ]),
+            ], 120),
             { kind: "text", text: "\n\n[16:13]    5. Se il tempo sarà brutto, " },
             gap([
               "andiamo al Museo d'Arte Contemporanea Remo Brindisi (dove ci sono opere di Picasso, Andy Warhol e Giorgio De Chirico)",
               "andiamo al Museo d'Arte Contemporanea Remo Brindisi",
               "Andiamo al Museo d'Arte Contemporanea Remo Brindisi",
-            ]),
+            ], 160),
             { kind: "text", text: "\n\n[16:15]    6. La sera andiamo " },
             gap([
               "al cinema, in pizzeria o restiamo a casa per una festa in pigiama (e mangiamo Nutella)",
               "al cinema, in pizzeria o restiamo a casa per una festa in pigiama",
               "Al cinema, in pizzeria o restiamo a casa per una festa in pigiama",
-            ]),
+            ], 140),
             { kind: "text", text: "\n\n[16:17]    7. Lei ha scritto di quattro " },
             gap([
               "passi contro il mal d'amore (le spiagge, i monumenti come il Trepponti, il tramonto, la passeggiata al Loggiato dei Cappuccini)",
               "passi contro il mal d'amore",
               "Passi contro il mal d'amore",
-            ]),
+            ], 180),
             { kind: "text", text: "\n\n[16:21]    8. Vietati sono " },
             gap([
               "i pensieri negativi e la nostalgia",
@@ -1093,7 +1093,7 @@ writeJson(
     "quest-01-bonus",
     3,
     bbg,
-    "Risolvi questo compito bonus per guadagnare fette di pizza extra!",
+    "Risolvi questo compito bonus per guadagnare fino a 5 fette di pizza extra!",
   ),
 );
 
