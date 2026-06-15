@@ -8,7 +8,7 @@
     "instruction": "Tra queste frasi ci sono tre verbi che non vanno bene. Clicca sui verbi sbagliati.",
     "referenceDocument": null,
     "task": {
-      "prompt": "Sara è confusa e dice alcune frasi. Tre verbi NON vanno bene: in alcuni casi usa il congiuntivo quando dovrebbe usare l'infinito perché il soggetto è lo stesso, in altri usa l'infinito quando dovrebbe usare il congiuntivo perché i soggetti sono diversi. Clicca sui verbi sbagliati.",
+      "prompt": "Sara, che abita in Italia solo da tre anni, è confusa. In alcune frasi usa il congiuntivo quando potrebbe usare l'infinito, in altre usa l'infinito quando dovrebbe usare il congiuntivo. Clicca sui verbi sbagliati.",
       "expectedErrorRange": {
         "min": 3,
         "max": 3

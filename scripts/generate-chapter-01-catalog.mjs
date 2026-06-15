@@ -118,7 +118,7 @@ for (const q of quests) {
 
 // --- quest-01 (7 story) ---
 const q1bg = quests[0].bgRoom;
-writeJson("quests/quest-01/scenes/01.json", story("chapter-01", "quest-01", 1, q1bg, "Benvenuto/a a Bologna."));
+writeJson("quests/quest-01/scenes/01.json", story("chapter-01", "quest-01", 1, q1bg, "Ciao e benvenuto/a a Bologna."));
 writeJson(
   "quests/quest-01/scenes/02.json",
   story(
@@ -126,7 +126,7 @@ writeJson(
     "quest-01",
     2,
     q1bg,
-    "Ti chiami Toni. Vieni dalla Germania e sei in Italia per un anno di scambio. Da oggi vivi qui, nella casa della famiglia Ferrari, in una città che ancora non conosci.",
+    "Ti chiami Toni. Vieni dalla Germania e sei in Italia per un anno di scambio. Da oggi vivi qui, nella casa della famiglia Ferrari, in una città che non conosci ancora.",
   ),
 );
 writeJson(
@@ -156,7 +156,7 @@ writeJson(
     "quest-01",
     5,
     q1bg,
-    "Durante il gioco completerai diversi compiti per la scuola e per le persone che incontrerai. Per ogni compito risolto, il tuo zaino diventa più pieno di colore. (Hai perso lo zaino il primo giorno!)",
+    "Durante il gioco completerai diversi compiti per la scuola e per le persone che incontrerai. Per ogni compito risolto, il tuo zaino diventa più pieno di colore. (Hai perso lo zaino al tuo arrivo!)",
   ),
 );
 writeJson(
@@ -166,7 +166,7 @@ writeJson(
     "quest-01",
     6,
     q1bg,
-    "Per i compiti riceverai fette di pizza. Puoi usarle per personalizzare il tuo avatar con nuovi vestiti e accessori.",
+    "Per i compiti risolti riceverai fette di pizza. Puoi usarle per personalizzare il tuo avatar con nuovi vestiti ed accessori.",
   ),
 );
 writeJson(
@@ -176,7 +176,7 @@ writeJson(
     "quest-01",
     7,
     q1bg,
-    "Dalla mappa dei capitoli puoi scegliere la prossima missione. Alcuni capitoli si aprono solo quando hai completato quelli precedenti.",
+    "Dalla mappa dei capitoli puoi scegliere la prossima missione. Alcuni capitoli si apriranno solo quando hai completato quelli precedenti.",
   ),
 );
 
@@ -189,7 +189,7 @@ writeJson(
     "quest-02",
     1,
     q2bg,
-    "Sei in Italia per un anno di scambio. Oggi è il tuo primo giorno al Liceo Galvani di Bologna. Lunedì mattina, ore 8:00. Entri in classe: gli studenti chiacchierano, qualcuno ti guarda con curiosità.",
+    "Sei in Italia per un anno di scambio. Oggi è il tuo primo giorno al Liceo Galvani di Bologna. Lunedì mattina, ore 8:30. Entri in classe: gli studenti stanno chiacchierando, qualcuno ti guarda con curiosità.",
   ),
 );
 writeJson(
@@ -209,7 +209,7 @@ writeJson(
     "quest-02",
     3,
     q2bg,
-    "Chiara\n\"Inizio io, prof! Quest'estate sono stata in Sicilia con la mia famiglia. Faceva un caldo pazzesco, ma il mare era bellissimo. E tu? Sei nuovo/a, vero? Da dove vieni?\"",
+    "Chiara\n\"Inizio io, prof! Quest'estate sono stata in Sicilia con la mia famiglia. Faceva un caldo pazzesco, ma il mare era bellissimo. Stavamo in spiaggia tutti i giorni e ci divertivamo un sacco. E tu? Sei nuovo/a, vero? Da dove vieni?\"",
   ),
 );
 writeJson(
@@ -306,7 +306,7 @@ writeJson(
     "quest-02",
     7,
     q2bg,
-    "Prof.ssa Ricci\n\"Bravissimo/a! A proposito di viaggi: ho qui un articolo di una rivista tedesca con consigli per i turisti in Italia. Però... qualcosa non torna. Ci sono degli errori. Riuscite a trovarli?\"",
+    "Prof.ssa Ricci\n\"Bravissimo/a! A proposito di viaggi: ho qui un articolo di una rivista tedesca con consigli per i turisti in Italia. Però... c'è qualcosa che non va. Ci sono degli errori. Riuscite a trovarli?\"",
   ),
 );
 
@@ -334,6 +334,7 @@ writeJson("quests/quest-02/scenes/08.json", {
           text: " siediti sempre a un tavolino",
           isError: true,
           acceptedCorrections: [
+            "stai in piedi al banco",
             "bisogna stare in piedi al banco",
             "devi stare in piedi al banco",
             "stare in piedi al banco",
@@ -379,6 +380,7 @@ writeJson("quests/quest-02/scenes/08.json", {
           text: " un solo piatto, di solito pizza o pasta",
           isError: true,
           acceptedCorrections: [
+            "ci sono più piatti",
             "più portate",
             "un pasto completo ha più portate",
             "diverse portate",
@@ -393,7 +395,12 @@ writeJson("quests/quest-02/scenes/08.json", {
           id: "a11",
           text: " il conto separato è la regola in Italia",
           isError: true,
-          acceptedCorrections: ["si paga insieme", "si divide il conto", "pagano insieme"],
+          acceptedCorrections: [
+            "c'è un conto per tutti",
+            "si paga insieme",
+            "si divide il conto",
+            "pagano insieme",
+          ],
         },
         {
           id: "a12",
@@ -446,7 +453,7 @@ writeJson(
     "quest-03",
     2,
     q3bg,
-    "Matteo\nCiao cugino/a! Allora, com'è andato il primo giorno a Bologna? Io oggi sono tornato a scuola anch'io e... che disastro! Ti racconto tutto, ma scrivo di fretta perché ho i compiti.",
+    "Matteo\nCiao Toni! Sono tuo cugino! Allora, com'è andato il primo giorno a Bologna? Io oggi sono tornato a scuola anch'io e... che disastro! Ti racconto tutto, ma scrivo di fretta perché ho i compiti.",
   ),
 );
 writeJson(
@@ -477,7 +484,7 @@ writeJson("quests/quest-03/scenes/04.json", {
       lines: [
         {
           segments: [
-            { kind: "text", text: "Ciao cugino/a! " },
+            { kind: "text", text: "Ciao Toni! " },
             gap(["ti", "Ti"]),
             { kind: "text", text: " scrivo solo poche frasi perché vado di fretta. Il nostro prof di matematica " },
             gap(["ci ha dato", "Ci ha dato"]),
@@ -492,7 +499,7 @@ writeJson("quests/quest-03/scenes/04.json", {
             { kind: "text", text: " un'e-mail. E poi Giulia …! " },
             gap(["le ho promesso", "Le ho promesso"]),
             { kind: "text", text: " di mandar" },
-            gap(["le", "Le"]),
+            gap(["ti", "Ti"]),
             { kind: "text", text: " non solo i suoi saluti, ma anche un bacio da parte di Cinzia. Vogliamo dir" },
             gap(["ti", "Ti"]),
             { kind: "text", text: " tutti che " },
@@ -513,7 +520,7 @@ writeJson(
     "quest-03",
     5,
     q3bg,
-    "Tu\nMatteo non cambia mai. Gli rispondo più tardi, adesso ho voglia di esplorare un po' Bologna. È la mia prima vera giornata libera in città.",
+    "Tu\nMatteo non cambia mai. Gli risponderò più tardi, adesso ho voglia di esplorare un po' Bologna. È la mia prima vera giornata libera in città.",
   ),
 );
 writeJson(
@@ -537,7 +544,7 @@ writeJson(
     "quest-04",
     1,
     q4bg,
-    "Cammini per le vie del centro di Bologna, sotto i portici. Hai sete e decidi di fermarti in un piccolo bar. Dentro c'è odore di caffè e di cornetti appena fatti.",
+    "Stai camminando per le vie del centro di Bologna, sotto i portici. Hai sete e decidi di fermarti in un piccolo bar. Dentro c'è odore di caffè e di cornetti appena fatti.",
   ),
 );
 writeJson(
@@ -547,7 +554,7 @@ writeJson(
     "quest-04",
     2,
     q4bg,
-    "Tonio\n\"Ciao, ragazzo/a! Cosa ti posso offrire? Un caffè, un'acqua? ... Aspetta, non ti ho mai visto qui. Sei nuovo/a a Bologna?\"",
+    "Tonio\n\"Ciao caro/cara! Cosa desideri? Un caffè, un'acqua? ... Aspetta, non ci siamo mai visti qui. Sei qui da poco, vero? Che fai, studi?\"",
   ),
 );
 writeJson(
@@ -567,7 +574,7 @@ writeJson(
     "quest-04",
     4,
     q4bg,
-    "Tonio\n\"Ah, benvenuto/a allora! Io sono Tonio. Il bar è mio, ma io non sono di Bologna. Vengo dalla Puglia, da un paesino vicino a Castellana Grotte. Lo conosci? No? Eh, è un posto incredibile. Ci sono delle grotte sotterranee tra le più belle del mondo. Aspetta, ti faccio vedere una cosa...\"",
+    "Tonio\n\"Ah, gli studenti del Galvani sono sempre benvenuti! Io sono Tonio. Il bar è mio, ma io non sono di Bologna. Vengo dalla Puglia, da un paesino vicino a Castellana Grotte. Lo conosci? No? Eh, è un posto incredibile. Ci sono delle grotte sotterranee tra le più belle del mondo. Aspetta, ti faccio vedere una cosa...\"",
   ),
 );
 writeJson(
@@ -591,7 +598,7 @@ writeJson(
     "quest-04",
     7,
     q4bg,
-    "Tonio\n\"Allora, che ne dici? Bello, no? Ma senti, visto che sei bravo/a con l'italiano, mi puoi aiutare? Ci sono delle parole nella brochure che mia nipote dice di mettere in famiglie. Mi aiuti?\"",
+    "Tonio\n\"Allora, che ne dici? Bello, no? Ma senti, visto che parli bene l'italiano, mi puoi aiutare? Ci sono delle parole nella brochure che mia nipote deve mettere in famiglie. Mi aiuti?\"",
   ),
 );
 
@@ -666,10 +673,10 @@ writeJson("quests/quest-04/scenes/10.json", {
   background: q4task,
   content: {
     title: "Parole inglesi e italiane",
-    instruction: "Collega ogni parola inglese alla parola italiana corrispondente.",
+    instruction: "Abbina ogni parola inglese alla parola italiana corrispondente.",
     referenceDocument: refDoc,
     task: {
-      prompt: "Collega ogni parola inglese alla parola italiana corrispondente.",
+      prompt: "Abbina ogni parola inglese alla parola italiana corrispondente.",
       leftItems: [
         { id: "en1", label: "cave" },
         { id: "en2", label: "route" },
@@ -799,7 +806,7 @@ writeJson(
     "quest-04",
     13,
     q4bg,
-    "Tonio\n\"Grandissimo/a! Mi hai aiutato tanto, grazie! Tieni, il caffè te lo offro io. E se torni in Puglia un giorno, passa a trovarmi al mio paese, eh!\"",
+    "Tonio\n\"Sei grande! Mi hai aiutato tanto, grazie! Tieni, il caffè te lo offro io. E se torni in Puglia un giorno, passa a trovarmi al mio paese, eh!\"",
   ),
 );
 writeJson(
@@ -938,6 +945,13 @@ const bonusPairs = [
   ["fortunata", "fortunate"],
   ["straniero", "foreign"],
   ["straniera", "foreigner"],
+  ["di solito", "usually"],
+  ["di fronte a", "opposite"],
+  ["di più", "more"],
+  ["di meno", "less"],
+  ["di sicuro", "certainly"],
+  ["di recente", "recently"],
+  ["di corsa", "rapidly"],
 ];
 
 writeJson("quests/quest-01-bonus/scenes/04.json", {
@@ -950,7 +964,7 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
     instruction: "Abbina ogni parola italiana al suo equivalente inglese.",
     referenceDocument: null,
     task: {
-      prompt: "Collega ogni parola italiana al suo equivalente inglese.",
+      prompt: "Abbina ogni parola italiana al suo equivalente inglese.",
       sampleSize: 10,
       poolPairs: bonusPairs.map(([leftLabel, rightLabel], i) => ({
         id: `bv${String(i + 1).padStart(2, "0")}`,

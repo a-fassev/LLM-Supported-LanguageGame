@@ -5,6 +5,22 @@ type StoryPanelProps = {
   text: string;
 };
 
+function renderStoryLine(line: string, index: number) {
+  const speakerMatch = line.match(/^([A-ZÀ-ÖØ-Ý][A-Za-zÀ-ÖØ-öø-ÿ' -]{1,32})(?::)?$/);
+  if (speakerMatch) {
+    return (
+      <span key={`${index}-${line}`} className="block">
+        <strong>{speakerMatch[1]}:</strong>
+      </span>
+    );
+  }
+  return (
+    <span key={`${index}-${line}`} className="block">
+      {line}
+    </span>
+  );
+}
+
 export function StoryPanel({ text }: StoryPanelProps) {
   return (
     <section
@@ -13,7 +29,7 @@ export function StoryPanel({ text }: StoryPanelProps) {
         TASK_PLAY_BODY_TEXT,
       )}
     >
-      <p className="whitespace-pre-line">{text}</p>
+      <p>{text.split("\n").map(renderStoryLine)}</p>
     </section>
   );
 }

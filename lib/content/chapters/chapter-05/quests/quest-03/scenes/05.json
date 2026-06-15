@@ -5,9 +5,9 @@
   "background": "chapters/05/quests/03/bg-caffe-giardini",
   "content": {
     "title": "Posizione dell'aggettivo",
-    "instruction": "Completa ogni frase con la forma corretta (aggettivo prima o dopo il nome, come in classe). L'aggettivo di riferimento è tra parentesi.",
+    "instruction": "Completa ogni frase con articolo indeterminativo e aggettivo nella posizione corretta. L'aggettivo di riferimento è tra parentesi.",
     "task": {
-      "prompt": "Inserisci la forma corretta in ogni frase. Una lacuna per riga — frase completa con articolo e aggettivo al posto giusto.",
+      "prompt": "Inserisci solo la forma richiesta nella lacuna prevista: articolo indeterminativo + aggettivo prima del nome, oppure solo aggettivo dopo il nome.",
       "caseSensitive": false,
       "lines": [
         {
@@ -18,14 +18,14 @@
             },
             {
               "kind": "gap",
-              "maxLength": 80,
+              "maxLength": 32,
               "correctAnswers": [
-                "un solo studente"
+                "un solo"
               ]
             },
             {
               "kind": "text",
-              "text": " in classe. (solo - tedesco: „einzig“)"
+              "text": " in classe. (solo - tedesco: \"einzig\")"
             }
           ]
         },
@@ -37,14 +37,14 @@
             },
             {
               "kind": "gap",
-              "maxLength": 80,
+              "maxLength": 32,
               "correctAnswers": [
-                "una povera ragazza"
+                "una povera"
               ]
             },
             {
               "kind": "text",
-              "text": ". (povero - tedesco: „bemitleidenswert“)"
+              "text": ". (povero - tedesco: \"bemitleidenswert\")"
             }
           ]
         },
@@ -56,14 +56,14 @@
             },
             {
               "kind": "gap",
-              "maxLength": 80,
+              "maxLength": 32,
               "correctAnswers": [
-                "vecchi amici"
+                "vecchi"
               ]
             },
             {
               "kind": "text",
-              "text": ". (vecchio - tedesco: „langjährig“)"
+              "text": ". (vecchio - tedesco: \"langjährig\")"
             }
           ]
         },
@@ -71,18 +71,18 @@
           "segments": [
             {
               "kind": "text",
-              "text": "4. Nando è "
+              "text": "4. Nando è un ragazzo "
             },
             {
               "kind": "gap",
-              "maxLength": 80,
+              "maxLength": 32,
               "correctAnswers": [
-                "un ragazzo solo"
+                "solo"
               ]
             },
             {
               "kind": "text",
-              "text": ". (solo - tedesco: „einsam“)"
+              "text": ". (solo - tedesco: \"einsam\")"
             }
           ]
         },
@@ -90,18 +90,18 @@
           "segments": [
             {
               "kind": "text",
-              "text": "5. È "
+              "text": "5. È un evento "
             },
             {
               "kind": "gap",
-              "maxLength": 80,
+              "maxLength": 32,
               "correctAnswers": [
-                "un evento caro"
+                "caro"
               ]
             },
             {
               "kind": "text",
-              "text": ". (caro - tedesco: „teuer“)"
+              "text": ". (caro - tedesco: \"teuer\")"
             }
           ]
         },
@@ -109,18 +109,18 @@
           "segments": [
             {
               "kind": "text",
-              "text": "6. Parla di "
+              "text": "6. Parla di un amico "
             },
             {
               "kind": "gap",
-              "maxLength": 80,
+              "maxLength": 32,
               "correctAnswers": [
-                "un amico vecchio"
+                "vecchio"
               ]
             },
             {
               "kind": "text",
-              "text": ". (vecchio - tedesco: „alt“)"
+              "text": ". (vecchio - tedesco: \"alt\")"
             }
           ]
         }

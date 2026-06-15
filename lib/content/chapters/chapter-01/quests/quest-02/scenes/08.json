@@ -24,6 +24,7 @@
           "text": " siediti sempre a un tavolino",
           "isError": true,
           "acceptedCorrections": [
+            "stai in piedi al banco",
             "bisogna stare in piedi al banco",
             "devi stare in piedi al banco",
             "stare in piedi al banco"
@@ -69,6 +70,7 @@
           "text": " un solo piatto, di solito pizza o pasta",
           "isError": true,
           "acceptedCorrections": [
+            "ci sono più piatti",
             "più portate",
             "un pasto completo ha più portate",
             "diverse portate"
@@ -84,6 +86,7 @@
           "text": " il conto separato è la regola in Italia",
           "isError": true,
           "acceptedCorrections": [
+            "c'è un conto per tutti",
             "si paga insieme",
             "si divide il conto",
             "pagano insieme"

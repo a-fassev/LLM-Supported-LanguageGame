@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-/** Structured-output contract returned by the Gemini freetext judge. */
+/** Structured-output contract returned by the OpenAI freetext judge. */
 export const freitextLlmStructuredOutputSchema = z.object({
   summaryFeedback: z.string().min(1),
   grammarScore: z.number().min(0).max(1),

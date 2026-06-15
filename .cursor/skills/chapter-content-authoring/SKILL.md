@@ -9,7 +9,7 @@ description: >-
 
 # Chapter content authoring (web catalog)
 
-Branch: **`web-based-implementation`**. Contracts: **`docs/quest-scene-content-format.md`**, **`AGENTS.md`** (game domain). Learner UX: **`.cursor/skills/product/SKILL.md`**. New **task types** or play UI: **`.cursor/skills/web-task-type-ui/SKILL.md`** (fixtures stay in **`chapter-00`**).
+Branch: **`web-based-implementation`**. Contracts: **`docs/quest-scene-content-format.md`**, **`AGENTS.md`** (game domain). Learner UX: **`.cursor/skills/product/SKILL.md`**. New **task types** or play UI: **`.cursor/skills/web-task-type-ui/SKILL.md`** (minimal tutorial in **`chapter-00`**; rich fixtures in **`chapter-02+`**).
 
 **Reference rollouts:** `chapter-01` … `chapter-06` each have `docs/chapter-NN-implementation-overview.md`, optional `chapter-NN-implementation-plan.md`, `scripts/generate-chapter-NN-catalog.mjs`, and `lib/game/content/chapter-NN-catalog.test.ts` (optional `chapter-NN-task-scoring.test.ts` for answer keys). Start from [chapter-01-implementation-overview.md](../../../docs/chapter-01-implementation-overview.md) for the template.
 
@@ -67,7 +67,7 @@ Chapter NN authoring:
 - Folder: `lib/content/chapters/chapter-NN/` (`NN` = `01`, `02`, …).
 - Scene files: `scenes/01.json`, `02.json`, … — order = numeric prefix.
 - Scene `id`: `{chapterId}-{questId}-scene-{NN}` (must match filename).
-- `chapter.json`: `order` **0-based contiguous** across the whole catalog; progression chapters `chapter-01+`; **`chapter-00`** = team sandbox only (`reference: true`) — not learner narrative.
+- `chapter.json`: `order` **0-based contiguous** across the whole catalog; **`chapter-00`** = learner tutorial (gates `chapter-01`); narrative chapters `chapter-01+`.
 - Quest order in `chapter.json` `quests[]` = play order; main quests gate chapter unlock; **bonus** does not block next chapter.
 
 ### Quest metadata
@@ -122,7 +122,7 @@ Chapter NN authoring:
 | Mistake | Instead |
 | ------- | ------- |
 | Patching old placeholder `chapter-NN` files | Delete tree; rebuild from overview |
-| Reusing `chapter-00` for learner story | Author in `chapter-01+`; fixtures in `chapter-00` |
+| Putting full chapter story in `chapter-00` | Tutorial only in `chapter-00`; narrative in `chapter-01+` |
 | Bonus without `Extra: ` title | `Extra: …` in `quest.json` `title` |
 | `screen_type: "bonus"` | `kind: "bonus"` + real task type |
 | `autoStartQuestId` / auto chain on `/play` | List unlock only via `requiresQuestId` |
@@ -130,7 +130,7 @@ Chapter NN authoring:
 | Story scene with `scoring` | Omit scoring on `story` |
 | Wrong scene `id` vs filename | `scene-03` ↔ `03.json` |
 | Inventing unlock/completion in client | Bootstrap + `unlock-display.ts` only |
-| New task type without web stack | Follow **web-task-type-ui** + `chapter-00` fixtures first |
+| New task type without web stack | Follow **web-task-type-ui** + tutorial `chapter-00` or `chapter-02+` fixtures |
 | Raw „Freitext mit Auto-Check“ → `free_text` / LLM | **`cloze`** with `correctAnswers` |
 | Hand-edit `chapter-NN/scenes/*.json` while generator is canonical | Edit `generate-chapter-NN-catalog.mjs` and re-run (script deletes tree) |
 | German raw labels in `content.instruction` (*Wortbank*, …) | Italian learner copy (*Parole disponibili*, …); German stays in `docs/content_raw/` only |

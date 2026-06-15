@@ -7,11 +7,11 @@
     "title": "Intervista con D'Avenia",
     "instruction": "Associa le risposte alle domande corrette e ordina la sequenza dell'intervista.",
     "referenceDocument": {
-      "title": "Pratica 4 (S. 114) — risposte di Alessandro D'Avenia",
+      "title": "Pratica A – intervista",
       "body": "Cari amici tedeschi, grazie per le vostre domande! Mi fa molto piacere sapere che leggete i miei libri. Ecco le mie risposte:\n\n1) Questa non è una domanda difficile, proprio ieri ho finito nuovamente di leggere l'Odissea di Omero.\n2) Una domanda facile, perché vita e morte sono gli unici temi che non mi annoiano.\n3) Non veramente, comunque c'è sempre un po' dello scrittore in ogni personaggio.\n4) Entrambi in modo eccitante, sia l'inizio sia la fine.\n5) Insegno naturalmente!\n6) Non so se oggi scriverò. Da una settimana sono piuttosto pigro.\n7) I miei consigli? Scrivere, scrivere, scrivere – non avere mai paura! E soprattutto leggere moltissimo.\n8) Sì, ma questo è ancora un segreto. Forse ne sentirete parlare a breve. A presto, Alessandro D'Avenia"
     },
     "task": {
-      "prompt": "Collega ogni domanda alla risposta corretta.",
+      "prompt": "Abbina ogni domanda alla risposta corretta.",
       "leftItems": [
         {
           "id": "q-1",

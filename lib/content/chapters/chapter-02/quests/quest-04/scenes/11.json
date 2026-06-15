@@ -6,9 +6,12 @@
   "content": {
     "title": "Lettera di motivazione",
     "instruction": "Trascina la formula giusta in ogni lacuna della lettera.",
-    "referenceDocument": null,
+    "referenceDocument": {
+      "title": "Bozza della lettera",
+      "body": "___ (1)\n\n___ (2) per un posto come aiuto in sala nel vostro ristorante.\n\n___ (3) ho sedici anni e frequento la decima classe di un liceo linguistico a Monaco di Baviera. Studio l'italiano da tre anni e quest'estate vorrei migliorare la mia lingua lavorando in Italia. ___ (4) ho già lavorato come babysitter per due estati e ho fatto il tirocinio nella mensa della mia scuola, quindi ho un po' di esperienza con il pubblico e con il servizio.\n\n___ (5) sono una persona puntuale, gentile e motivata. ___ (6)\n\n___ (7)"
+    },
     "task": {
-      "prompt": "Completa la lettera di motivazione con le formule giuste (S. 51).",
+      "prompt": "Completa la lettera di motivazione con le formule giuste.",
       "presentation": {
         "targetMode": "blocks"
       },

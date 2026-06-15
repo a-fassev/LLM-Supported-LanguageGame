@@ -1,9 +1,47 @@
 {
   "id": "chapter-00-quest-01-scene-02",
-  "scene_type": "story",
-  "screen_type": "info",
-  "background": "chapters/00/quests/02/bg-dialogue-01",
+  "scene_type": "task",
+  "screen_type": "multiple_choice",
+  "background": "chapters/00/quests/01/bg-scene-02",
   "content": {
-    "text": "Ciao! Sono Sofia. Oggi impariamo i saluti in italiano — pronti?"
+    "title": "Scelta multipla — La valigia",
+    "instruction": "Scegli la risposta giusta.",
+    "referenceDocument": null,
+    "task": {
+      "prompt": "Cosa metti in valigia per l'Italia?",
+      "selectionMode": "single",
+      "preserveOptionOrder": true,
+      "options": [
+        {
+          "id": "opt-passaporto",
+          "label": "il passaporto"
+        },
+        {
+          "id": "opt-sciarpa",
+          "label": "la sciarpa pesante"
+        },
+        {
+          "id": "opt-gelato",
+          "label": "il gelato"
+        }
+      ],
+      "correctOptionIds": [
+        "opt-passaporto"
+      ]
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 0
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 0,
+      "minRatioToComplete": 1,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
   }
 }

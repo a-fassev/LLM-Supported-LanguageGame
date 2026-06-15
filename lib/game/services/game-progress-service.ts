@@ -687,6 +687,9 @@ export async function completeTaskScene(
   }
 
   const pizzaRules = parsePizzaRewardRules({ pizza: scene.scoring.pizza });
+  const sceneMaxRewardSlices =
+    pizzaRules.kind === "scored" ? pizzaRules.maxSlices : pizzaRules.slices;
+  const sceneMaxRewardBackpack = Math.max(0, Math.trunc(scene.scoring.backpack.pieces));
   const taskTypeMap: Record<string, string | undefined> = {
     cloze: "ClozeText",
     multiple_choice: "MultipleChoice",
@@ -768,12 +771,16 @@ export async function completeTaskScene(
             ratio,
             summaryFeedback: freitextRetryFeedback.summaryFeedback,
             nextStepAdvice: freitextRetryFeedback.nextStepAdvice,
+            sceneMaxRewardSlices,
+            sceneMaxRewardBackpack,
           })
         : buildTaskOutcome({
             passed: false,
             ratio,
             awardedSlices: 0,
             awardedBackpackPieces: 0,
+            sceneMaxRewardSlices,
+            sceneMaxRewardBackpack,
           });
     return {
       ok: false,
@@ -823,6 +830,8 @@ export async function completeTaskScene(
     awardedSlices: walletAwarded ? awardedSlices : 0,
     awardedBackpackPieces: walletAwarded ? awardedBackpack : 0,
     rewardsAlreadyClaimed: !walletAwarded,
+    sceneMaxRewardSlices,
+    sceneMaxRewardBackpack,
   });
   return { ...snapshot, taskOutcome, taskReview };
 }

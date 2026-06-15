@@ -21,19 +21,19 @@
           "options": [
             {
               "id": "museum-q1-opt-a",
-              "label": "I Romani, nel 189 a.C."
-            },
-            {
-              "id": "museum-q1-opt-b",
               "label": "Gli Etruschi, nel VI secolo a.C."
             },
             {
-              "id": "museum-q1-opt-c",
+              "id": "museum-q1-opt-b",
               "label": "I Galli Boi, nel IV secolo a.C."
+            },
+            {
+              "id": "museum-q1-opt-c",
+              "label": "I Romani, nel 189 a.C."
             }
           ],
           "correctOptionIds": [
-            "museum-q1-opt-b"
+            "museum-q1-opt-a"
           ]
         },
         {

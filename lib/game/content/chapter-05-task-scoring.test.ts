@@ -144,7 +144,7 @@ describe("chapter-05 task answer keys (server scoring)", () => {
     expect(r).toMatchObject({ ok: true, ratio: 1, itemsCorrect: 11, itemsTotal: 11 });
   });
 
-  it("formal mail cloze uses the corrected Bardelli saluto", async () => {
+  it("formal mail cloze uses only formulas from the visible word bank", async () => {
     const scene = await findScene("chapter-05", "quest-04", 4)();
     const task = scene.content.task as {
       lines: { segments: { kind?: string; correctAnswers?: string[] }[] }[];
@@ -153,6 +153,7 @@ describe("chapter-05 task answer keys (server scoring)", () => {
     expect(gaps[0].correctAnswers).toEqual([
       "Egregio Dirigente scolastico, Gentile Professoressa Bardelli",
     ]);
+    expect(scene.content.referenceDocument?.body).toContain("Banca formule:");
 
     const answers = clozeAnswersFromLines(task.lines);
     const r = evaluateCloze(task, {

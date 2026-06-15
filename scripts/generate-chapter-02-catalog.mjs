@@ -47,7 +47,7 @@ function freetextEvaluation(criteria) {
 
 const SAVIANO_BODY = `Roberto Saviano è nato il 22 settembre 1979. Nei suoi articoli e libri racconta normalmente della criminalità organizzata, soprattutto della Camorra. Di sicuro è diventato famoso per il suo libro "Gomorra" (2006). Il libro parla della Camorra in Campania perché l'autore è cresciuto in quella zona. Per questo conosce bene i problemi che ci sono lì. Tuttavia è specialmente con la pubblicazione di "Gomorra" che la sua vita cammina veloce in un'altra direzione. Da allora non può più vivere senza scorta, cioè senza poliziotti che gli stanno vicino. Se vuole andare al cinema o si sente male e deve andare dal dottore, parla con gli uomini della scorta che lo accompagnano subito. E chiaramente deve chiedere ai suoi "ragazzi" se vuole prendere velocemente un caffè al bar. Tutto sommato, non è sempre una vita facile. Saviano però continua a lottare. Non solo non si arrende, ma lavora sodo e fa in continuazione nuove indagini: nel 2020 è uscito il suo ultimo libro "Gridalo", un libro con cui chiede a tutti di aver il coraggio di non stare zitti e parlare sempre apertamente dei problemi.`;
 
-const DEL_PIERO_BODY = `Alessandro Del Piero è nato il 9 novembre 1974 a Conegliano, una piccola città in Veneto. Da bambino la sua famiglia non era ricca: il padre lavorava come elettricista e la madre stava a casa. Lui giocava a calcio nelle strade del paese con il fratello maggiore Stefano. A tredici anni è entrato nella squadra giovanile del Padova, e a diciotto anni è arrivato alla Juventus, una delle squadre più famose d'Italia. Ha giocato per la Juventus per diciannove anni: nessun altro giocatore ha fatto la stessa cosa. Per questo i tifosi gli hanno dato il soprannome "Pinturicchio" e poi "Capitano". Con la Juventus ha vinto molti campionati italiani, ma il momento più bello della sua carriera è arrivato nel 2006: con la nazionale italiana ha vinto la Coppa del Mondo in Germania. Tutti gli italiani ricordano il suo gol nella semifinale contro i tedeschi. Oggi Del Piero non gioca più, ma lavora come commentatore in TV e aiuta i giovani calciatori con la sua fondazione. È sposato con Sonia e ha tre figli.`;
+const DEL_PIERO_BODY = `Alessandro Del Piero è nato il 9 novembre 1974 a Conegliano, una piccola città in Veneto. Da bambino la sua famiglia non era ricca: il padre lavorava come elettricista e la madre faceva la casalinga. Lui giocava a calcio nelle strade del paese con il fratello maggiore, Stefano. A tredici anni è entrato nella squadra giovanile del Padova, e a diciotto anni è arrivato alla Juventus, una delle squadre più famose d'Italia. Ha giocato per la Juventus per diciannove anni: nessun altro giocatore ha mai fatto una cosa simile. Per questo i tifosi gli hanno dato il soprannome "Pinturicchio" e poi "Capitano". Con la Juventus ha vinto molti campionati italiani, ma il momento più bello della sua carriera è arrivato nel 2006: con la nazionale italiana ha vinto la Coppa del Mondo in Germania. Tutti gli italiani ricordano il suo gol nella semifinale contro i tedeschi. Oggi Del Piero non gioca più, ma lavora come commentatore in TV e aiuta i giovani calciatori con la sua fondazione. È sposato con Sonia e ha tre figli.`;
 
 const FERRAGNI_BODY = `Chiara Ferragni è nata il 7 maggio 1987 a Cremona, in Lombardia. Da ragazza studiava legge all'università di Milano, ma la sua vera passione era la moda. Nel 2009, quando aveva solo ventidue anni, ha aperto un blog di moda chiamato "The Blonde Salad". All'inizio nessuno credeva nel suo progetto, ma in pochi anni il blog è diventato famosissimo in tutto il mondo. Oggi Chiara è una delle influencer più conosciute del pianeta: sui suoi profili social la seguono milioni di persone. Ha creato anche una sua linea di moda, "Chiara Ferragni Collection", con scarpe, vestiti e accessori. Nel 2018 si è sposata con il rapper Fedez in una cerimonia spettacolare in Sicilia. Hanno avuto due figli, Leone e Vittoria, e per anni la loro vita è stata seguita dai fan su Instagram. Nel 2024 però la coppia si è separata e Chiara ha vissuto un periodo difficile, anche per un caso legato a un dolce di Natale, il "pandoro Balocco". Però continua a lavorare ed è ancora una delle donne più importanti del mondo della moda in Italia.`;
 
@@ -273,7 +273,7 @@ writeJson(
     "quest-01",
     1,
     q1bg,
-    "Hai dormito bene nella tua nuova camera. La signora Ferrari ti ha lasciato la colazione in tavola: pane, marmellata, un cappuccino.",
+    "Hai dormito bene nella tua nuova camera. La signora Ferrari ti ha lasciato la colazione in tavola: biscotti e un cappuccino.",
   ),
 );
 writeJson(
@@ -283,7 +283,7 @@ writeJson(
     "quest-01",
     2,
     q1bg,
-    "Tu\nOggi ho un po' di tempo libero. Devo finire un progetto per la scuola su un italiano famoso. E poi ho letto che un ristorante qui in centro cerca personale per l'estate — magari vado a vedere. Ma prima voglio fare un giro per la città...",
+    "Tu\nOggi ho un po' di tempo libero. Devo finire un progetto per la scuola su un italiano famoso. E poi ho letto che un ristorante qui in centro cerca personale per l'estate — magari vado a vedere. Ma prima voglio fare un giro in città...",
   ),
 );
 writeJson(
@@ -308,7 +308,7 @@ writeJson(
     "quest-02",
     1,
     q2bg,
-    "Cammini sotto i portici e ti fermi davanti a un locale che hai sentito nominare tante volte: la Nutelleria. Profumo di crêpe e di cioccolato. Entri e ti siedi a un tavolino vicino alla finestra.",
+    "Stai camminando sotto i portici e ti fermi davanti a un locale che hai sentito nominare tante volte: la Nutelleria. Profumo di crêpe e di cioccolato. Entri e ti siedi a un tavolino vicino alla finestra.",
   ),
 );
 writeJson(
@@ -328,7 +328,7 @@ writeJson(
     "quest-02",
     3,
     q2bg,
-    "Dario\n\"Ehi, ciao! Anche tu qui? Vieni, siediti con me. Non posso credere a quello che mi è successo oggi!\"",
+    "Dario\n\"Ehi, ciao! Anche tu qui? Stai cercando un posto? Vieni, siediti con me. Io qui incontro sempre qualcuno! Non crederai mai che mi è successo qui ieri!\"",
   ),
 );
 writeJson(
@@ -342,7 +342,7 @@ writeJson(
     "quest-02",
     5,
     q2bg,
-    "Dario\n\"Ho appena parlato con Elena, un'amica di mia madre. Lei fa l'archeologa e mi ha raccontato del suo lavoro. È stato bellissimo! Sai, ho deciso: da grande voglio fare l'archeologo anch'io!\"",
+    "Dario\n\"Ho incontrato Elena, un'amica di mia madre. Lei fa l'archeologa e mi ha raccontato del suo lavoro. È stato interessantissimo! Sai, ho deciso: da grande voglio fare l'archeologo anch'io!\"",
   ),
 );
 writeJson(
@@ -393,16 +393,9 @@ writeJson("quests/quest-02/scenes/07.json", {
             gap(["I miei", "i miei"]),
             { kind: "text", text: " genitori " },
             gap(["saranno", "Saranno"]),
-            { kind: "text", text: " contentissimi. Che dici: " },
-            gap(["la", "La"]),
-            { kind: "text", text: " mamma mi " },
-            gap(["comprerà", "Comprerà"]),
-            { kind: "text", text: " il libro sull'archeologia che abbiamo visto ieri? " },
-            gap(["Prenderò", "prenderò"]),
-            { kind: "text", text: " un " },
-            { kind: "text", text: "*bene/buon*" },
-            gap(["buon", "Buon"]),
-            { kind: "text", text: " voto naturalmente! " },
+            { kind: "text", text: " contentissimi, soprattutto " },
+            gap(["mio", "Mio"]),
+            { kind: "text", text: " padre perché gli piace tanto la storia. " },
             gap(["Smetterò", "smetterò"]),
             { kind: "text", text: " anche di chiacchierare con gli altri, anche se " },
             gap(["sarà", "Sarà"]),
@@ -422,15 +415,17 @@ writeJson("quests/quest-02/scenes/07.json", {
             gap(["mia", "Mia"]),
             { kind: "text", text: " idea?\nTu: Boh, la " },
             gap(["accetteranno", "Accetteranno"]),
-            { kind: "text", text: ".\nDario: E tu? Sai già cosa " },
+            { kind: "text", text: " tutti i tuoi amici, non credi?\nDario: E tu? Sai già cosa " },
             gap(["farai", "Farai"]),
             { kind: "text", text: " dopo " },
             gap(["la", "La"]),
             { kind: "text", text: " maturità?\nTu: Sì, ho già una mezza idea sul " },
             gap(["futuro", "Futuro"]),
-            { kind: "text", text: ". Sai che mi piace molto la musica e proprio ieri ho sentito un'intervista...\nDario: Ah, interessante, dimmi tutto. " },
-            gap(["Potremmo", "potremmo"]),
-            { kind: "text", text: " mangiare qualcosa insieme e tu racconti. Che ne dici?" },
+            { kind: "text", text: ". Sai che a " },
+            gap(["mia", "Mia"]),
+            { kind: "text", text: " sorella e a me piace molto la musica e proprio ieri ho sentito un'intervista alla " },
+            gap(["nostra", "Nostra"]),
+            { kind: "text", text: " cantante preferita.\nDario: Ah, interessante, dimmi tutto. Mangiamo qualcosa insieme e tu racconti. Che ne dici?" },
           ],
         },
       ],
@@ -446,7 +441,7 @@ writeJson(
     "quest-02",
     8,
     q2bg,
-    "Dario\n\"Sai, dopo il discorso con Elena ho pensato a tante cose. Per esempio: ma tu in Germania, conosci tanti mestieri diversi? Adesso te ne dico qualcuno e tu mi spieghi cosa fanno. Usa frasi con che, cui o dove, così pratichiamo un po'.\"",
+    "Dario\n\"Sai, dopo il discorso con Elena ho pensato a tante cose. Per esempio non conosco tanti mestieri diversi, solo quelli più comuni. Sai cosa facciamo? Uno nomina un mestiere e l'altro spiega cosa fanno usando che, cui o dove, d'accordo? Cominci tu a spiegare.\"",
   ),
 );
 
@@ -502,7 +497,7 @@ writeJson(
     "quest-02",
     13,
     q2bg,
-    "Dario\n\"Sei bravissimo/a! Senti, io devo andare, ho ancora molte cose da fare. Ci vediamo domani a scuola, eh! E grazie per la chiacchierata.\"",
+    "Dario\n\"Meraviglioso! Senti, io devo andare, ho ancora molte cose da fare. Ci vediamo domani a scuola, eh! E grazie per la chiacchierata.\"",
   ),
 );
 writeJson(
@@ -537,7 +532,7 @@ writeJson(
     "quest-03",
     1,
     q3bg,
-    "Torni a casa della famiglia Ferrari. La signora Ferrari ti saluta dalla cucina e ti ricorda che hai i compiti da fare. Sali in camera tua, accendi il computer e apri il portale della scuola.",
+    "Torni a casa della famiglia Ferrari. La signora Ferrari ti saluta e ti ricorda che hai i compiti da fare. Sali in camera tua, accendi il computer e apri il portale della scuola.",
   ),
 );
 writeJson(
@@ -547,7 +542,7 @@ writeJson(
     "quest-03",
     2,
     q3bg,
-    "Tu\nEcco il primo vero compito per il Liceo Galvani. La Signora Wagner ci ha chiesto di scegliere un italiano famoso, di leggere il profilo e di fare un identikit. E dopo c'è anche un quiz su altre persone famose. Vediamo chi sono...",
+    "Tu\nEcco il primo vero compito per il Liceo Galvani. La prof ci ha chiesto di scegliere un italiano famoso, di leggere il profilo e di fare un identikit. E dopo c'è anche un quiz su altre persone famose. Vediamo chi sono...",
   ),
 );
 writeJson(
@@ -584,14 +579,20 @@ writeJson("quests/quest-03/scenes/04.json", {
               "Alessandro Del Piero",
               "Chiara Ferragni",
             ]),
-            { kind: "text", text: "\netà (oppure data di nascita): " },
+            { kind: "text", text: "\nanno di nascita: " },
             gap([
+              "nato nel 1979",
               "nato il 22 settembre 1979",
               "22 settembre 1979",
+              "1979",
+              "nato nel 1974",
               "nato il 9 novembre 1974",
               "9 novembre 1974",
+              "1974",
+              "nata nel 1987",
               "nata il 7 maggio 1987",
               "7 maggio 1987",
+              "1987",
             ]),
             { kind: "text", text: "\nregione d'origine: " },
             gap(["Campania", "campania", "Veneto", "veneto", "Lombardia", "lombardia"]),
@@ -644,7 +645,7 @@ writeJson(
     "quest-03",
     5,
     q3bg,
-    "Tu\nBene, l'identikit è pronto. Adesso il quiz: la Signora Wagner ha preparato anche un gioco \"Chi sono io?\" con altre persone famose italiane. Vediamo se riesco a indovinare...",
+    "Tu\nBene, l'identikit è pronto. Adesso il quiz: la prof ha preparato anche un gioco \"Chi sono io?\" con altre persone famose italiane. Vediamo se riesco a indovinare...",
   ),
 );
 
@@ -752,7 +753,7 @@ writeJson(
     "quest-03",
     12,
     q3bg,
-    "Tu\nFatto! La Signora Wagner sarà contenta. Adesso però ho davvero fame, e penso che c'è ancora una cosa da fare oggi: quel ristorante in centro cerca personale per l'estate...",
+    "Tu\nFatto! La prof sarà contenta. Adesso però ho davvero fame, e penso che c'è ancora una cosa da fare oggi: quel ristorante in centro cerca personale per l'estate...",
   ),
 );
 writeJson(
@@ -827,7 +828,7 @@ writeJson(
     "quest-04",
     6,
     q4bg,
-    "Signor Marini\n\"Ah, perfetto! Stiamo cercando ragazzi/e per la stagione estiva. Hai con te una lettera di motivazione?\"",
+    "Signor Marini\n\"Ah, perfetto! Stiamo cercando del personale per la stagione estiva. Hai con te una lettera di motivazione?\"",
   ),
 );
 writeJson(
@@ -837,7 +838,7 @@ writeJson(
     "quest-04",
     7,
     q4bg,
-    "Tu\n\"Non ancora, ma ho il portatile. Posso prepararla adesso?\"",
+    "Tu\n\"Non ancora, ma ecco il mio portatile. Posso prepararla qui?\"",
   ),
 );
 writeJson(
@@ -847,7 +848,7 @@ writeJson(
     "quest-04",
     8,
     q4bg,
-    "Signor Marini\n\"Certo, siediti pure. Quando hai finito, me la mandi via email e poi parliamo un po'. Ah, e visto che siamo un ristorante: ti farò anche qualche domanda sui piatti italiani, eh!\"",
+    "Signor Marini\n\"Certo, siediti pure. Quando hai finito, me la mandi via email e poi ne parliamo un po'. Ah, e visto che siamo un ristorante: ti farò anche qualche domanda sui piatti italiani, eh!\"",
   ),
 );
 writeJson(
@@ -857,7 +858,7 @@ writeJson(
     "quest-04",
     9,
     q4bg,
-    "Tu\nVa bene. Apro il computer. Ci sono delle formule fisse che si usano sempre nelle lettere formali: devo solo scegliere quelle giuste.",
+    "Tu\nVa bene. Apro il computer e si comincia. Ci sono delle formule fisse che si usano sempre nelle lettere formali: bisogna solo scegliere quelle giuste.",
   ),
 );
 writeJson(
@@ -915,9 +916,20 @@ writeJson("quests/quest-04/scenes/11.json", {
   content: {
     title: "Lettera di motivazione",
     instruction: "Trascina la formula giusta in ogni lacuna della lettera.",
-    referenceDocument: null,
+    referenceDocument: {
+      title: "Bozza della lettera",
+      body: `___ (1)
+
+___ (2) per un posto come aiuto in sala nel vostro ristorante.
+
+___ (3) ho sedici anni e frequento la decima classe di un liceo linguistico a Monaco di Baviera. Studio l'italiano da tre anni e quest'estate vorrei migliorare la mia lingua lavorando in Italia. ___ (4) ho già lavorato come babysitter per due estati e ho fatto il tirocinio nella mensa della mia scuola, quindi ho un po' di esperienza con il pubblico e con il servizio.
+
+___ (5) sono una persona puntuale, gentile e motivata. ___ (6)
+
+___ (7)`,
+    },
     task: {
-      prompt: "Completa la lettera di motivazione con le formule giuste (S. 51).",
+      prompt: "Completa la lettera di motivazione con le formule giuste.",
       presentation: { targetMode: "blocks" },
       shuffleItemOrder: true,
       items: letterFormulas,
@@ -1027,7 +1039,7 @@ writeJson(
     "quest-04",
     19,
     q4bg,
-    "Signor Marini\n\"Bravissimo/a! Si vede che hai studiato bene. Senti, mi piaci. Per l'estate ti posso prendere come aiuto in sala. Adesso vai a casa, parla con la tua famiglia ospitante e poi ci sentiamo. Ah, e tieni: il primo caffè da Marini te lo offro io!\"",
+    "Signor Marini\n\"Bravissimo/a! Si vede che hai studiato bene. Per l'estate ti posso offrire un posto come aiuto in sala. Adesso vai a casa, parla con la tua famiglia ospitante e poi ci sentiamo. Ah, e tieni: il primo caffè da Marini è in offerta!\"",
   ),
 );
 writeJson(
@@ -1037,7 +1049,7 @@ writeJson(
     "quest-04",
     20,
     q4bg,
-    "Tu\nChe giornata! Ho conosciuto meglio Bologna, ho fatto i compiti, ho trovato anche un lavoretto per l'estate. Non è male, sono appena arrivato/a!",
+    "Tu\nChe giornata! Ho conosciuto meglio Bologna, ho fatto i compiti, ho trovato anche un lavoretto per l'estate. Niente male, e sono appena arrivato/a!",
   ),
 );
 writeJson(
@@ -1206,7 +1218,7 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
     instruction: "Abbina ogni parola italiana al suo equivalente inglese.",
     referenceDocument: null,
     task: {
-      prompt: "Collega ogni parola italiana al suo equivalente inglese.",
+      prompt: "Abbina ogni parola italiana al suo equivalente inglese.",
       sampleSize: 10,
       poolPairs: bonusPoolPairs.map(([leftLabel, rightLabel], i) => ({
         id: `ch02v${String(i + 1).padStart(2, "0")}`,

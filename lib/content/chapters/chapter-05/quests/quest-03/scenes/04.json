@@ -7,7 +7,6 @@
     "title": "Pro e contro",
     "instruction": "Trascina ogni affermazione nella casella giusta (Lucca PRO / Lucca CONTRO / Firenze PRO / Firenze CONTRO).",
     "task": {
-      "prompt": "Trascina le otto affermazioni nei campi Lucca PRO / Lucca CONTRO / Firenze PRO / Firenze CONTRO.",
       "presentation": {
         "targetMode": "blocks"
       },

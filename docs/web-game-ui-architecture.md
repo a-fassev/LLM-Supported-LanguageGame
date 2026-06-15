@@ -302,7 +302,7 @@ Helper: `lib/game/unlock-display.ts` (pure functions, no extra API). **`POST /ap
 | Task passed | **`SuccessOverlay`** in **success** mode; show `awardedSlices` + `awardedBackpackPieces`; then **Avanti** uses `run` from same response (already on next scene) |
 | Bootstrap / snapshot / catalog failure | **Sonner toast** (after `shadcn add sonner`) |
 | Session expired mid-quest | Toast + redirect login |
-| `active_run_exists` | Toast or dialog: return to other quest |
+| `active_run_exists` | Inline panel on `/play` with **Riprendi missione** (no toast — avoids duplicate copy) |
 
 Centralize mapping in `lib/game/toast-from-api.ts` (thin wrapper over `clientMessages` + `code`).
 

@@ -60,12 +60,12 @@ vi.mock("@/lib/game/tasks/freitext/evaluate-freitext-llm-scene", () => ({
 
 function makePoolMatchingTaskScene() {
   return {
-    id: "chapter-00-quest-01-bonus-scene-02",
+    id: "chapter-01-quest-01-bonus-scene-04",
     sceneNumber: 2,
     filename: "02.json",
     scene_type: "task" as const,
     screen_type: "matching" as const,
-    background: "chapters/00/quests/bonus/bg-task-01",
+    background: "chapters/01/quests/bonus/bg-task-01",
     content: {
       title: "Sfida bonus",
       task: {
@@ -582,6 +582,51 @@ describe("game-progress-service run flows", () => {
     }
   });
 
+  it("returns 500 when scene completion insert fails without a completion id", async () => {
+    const taskScene = {
+      id: "chapter-01-quest-01-scene-02",
+      sceneNumber: 2,
+      filename: "02.json",
+      scene_type: "task" as const,
+      screen_type: "multiple_choice" as const,
+      background: "bg",
+      content: { task: { questions: [] } },
+      scoring: {
+        pizza: { mode: "flat" as const, slices: 2 },
+        backpack: { pieces: 1 },
+        minRatioToComplete: 0.5,
+      },
+    };
+    repoMocks.getQuestRunById.mockResolvedValue({
+      runId: "run-1",
+      accountId: "acc-1",
+      chapterId: "chapter-01",
+      questId: "quest-01",
+      currentSceneId: taskScene.id,
+      status: "in_progress" as const,
+    });
+    catalogMocks.loadContentCatalog.mockResolvedValue({
+      chapters: [{ id: "chapter-01", questsExpanded: [{ id: "quest-01", kind: "main" }] }],
+    });
+    catalogMocks.findCatalogScene.mockReturnValue(taskScene);
+    catalogMocks.findCatalogQuest.mockReturnValue({
+      id: "quest-01",
+      scenes: [taskScene],
+    });
+    repoMocks.completeSceneOnce.mockResolvedValue({ inserted: false });
+
+    vi.stubEnv("GAME_SMOKE_AUTO_PASS", "true");
+    const result = await completeTaskScene("acc-1", "run-1", taskScene.id, {
+      attemptPayload: { taskType: "MultipleChoice", multipleChoice: { selections: [] } },
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.status).toBe(500);
+    }
+    expect(repoMocks.incrementWalletTotals).not.toHaveBeenCalled();
+  });
+
   it("rejects scored task completion without server-evaluable attempt", async () => {
     repoMocks.getQuestRunById.mockResolvedValue({
       runId: "run-1",
@@ -630,13 +675,13 @@ describe("game-progress-service run flows", () => {
     const run = {
       runId: "run-1",
       accountId: "acc-1",
-      chapterId: "chapter-00",
+      chapterId: "chapter-01",
       questId: "quest-01-bonus",
       currentSceneId: taskScene.id,
       status: "in_progress" as const,
     };
     const nextScene = {
-      id: "chapter-00-quest-01-bonus-scene-03",
+      id: "chapter-01-quest-01-bonus-scene-05",
       sceneNumber: 3,
       filename: "03.json",
       scene_type: "story" as const,
@@ -652,7 +697,7 @@ describe("game-progress-service run flows", () => {
     catalogMocks.loadContentCatalog.mockResolvedValue({
       chapters: [
         {
-          id: "chapter-00",
+          id: "chapter-01",
           questsExpanded: [{ id: "quest-01-bonus", scenes: [taskScene, nextScene] }],
         },
       ],
@@ -700,7 +745,7 @@ describe("game-progress-service run flows", () => {
     repoMocks.getQuestRunById.mockResolvedValue({
       runId: "run-1",
       accountId: "acc-1",
-      chapterId: "chapter-00",
+      chapterId: "chapter-01",
       questId: "quest-01-bonus",
       currentSceneId: taskScene.id,
       status: "in_progress",
@@ -737,7 +782,7 @@ describe("game-progress-service run flows", () => {
     repoMocks.getQuestRunById.mockResolvedValue({
       runId: "run-1",
       accountId: "acc-1",
-      chapterId: "chapter-00",
+      chapterId: "chapter-01",
       questId: "quest-01-bonus",
       currentSceneId: taskScene.id,
       status: "in_progress",

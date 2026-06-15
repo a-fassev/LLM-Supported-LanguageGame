@@ -109,9 +109,9 @@ function mcQuestion(id, prompt, optionLabels, correctIndex) {
   };
 }
 
-const TESTO_A_B_BODY = `Testo A (S. 104_B1): Simone e il Lucca Comics and Games
+const TESTO_A_B_BODY = `Testo A: Simone ed il Lucca Comics and Games
 
-Simone è anche un grande fan del Lucca Comics and Games. Lui e i suoi amici lo frequentano tutti gli anni. Simone vuole convincere la sua insegnante di storia dell'arte a fare una gita al Lucca Comics and Games. Perciò le scrive un'e-mail.
+Simone è anche un grande fan del Lucca Comics and Games. Lui ed i suoi amici lo frequentano tutti gli anni. Simone vuole convincere la sua insegnante di storia dell'arte a fare una gita al Lucca Comics and Games. Perciò le scrive un'e-mail.
 
 Gentile Professoressa, ha mai sentito del Lucca Comics and Games? Fra un po' avrà di nuovo luogo questo bellissimo festival a Lucca. Perché Le parlo del festival adesso?
 
@@ -121,11 +121,11 @@ Sarebbe davvero bello andare a Lucca. Ci dia, per favore, la possibilità di par
 
 Potremmo vestirci tutti come i personaggi dei fumetti, La prego, sia gentile e si vesta anche Lei come noi, così potremmo trascorrere insieme una bellissima giornata a Lucca, una delle più belle città culturali che io conosca.
 
-Sicuramente interessantissima anche per Lei che insegna storia dell'arte! Non finisca per dirci di no! Esaudisca il nostro desiderio! Mi dica se è d'accordo ad andare al Lucca Comics. Si conceda anche Lei tre giornate diverse e ci porti a vedere il festival dei fumetti più famoso in Italia! Stia tranquilla! Faremo i bravi. Forse potrebbe venire con noi anche il professor Mori che è toscano. Le allego il programma del festival, così mi dice che ne pensa. Saluti, Simone.
+Sicuramente interessantissima anche per Lei che insegna storia dell'arte! Non finisca per dirci di no! Esaudisca il nostro desiderio! Mi dica se è d'accordo ad andare al Lucca Comics. Si conceda anche Lei tre giornate diverse e ci porti a vedere il festival dei fumetti più famoso in Italia! Stia tranquilla! Faremo i bravi. Forse potrebbe venire con noi anche il professor Mori che è toscano. Le allego il programma del festival, così mi dice che ne pensa. Cari saluti, Simone.
 
 ---
 
-Testo B (S. 105): Offerta speciale per gruppi scolastici
+Testo B: Offerta speciale per gruppi scolastici
 
 Da sempre organizzare una gita scolastica rappresenta una sfida per insegnanti e studenti. Si devono mettere d'accordo tra di loro persone di età diverse, con gusti e interessi diversi, ma bisogna soprattutto rispettare le disposizioni ministeriali.
 
@@ -139,9 +139,16 @@ const PROF_REPLY_BODY = `Caro Simone, la tua idea sembra piuttosto interessante,
 
 Chiedigli cosa ne pensano, fammi sapere se sono d'accordo, e se saranno d'accordo i vostri genitori (ci vogliono anche le loro autorizzazioni!). Dammi almeno tre motivi per cui dovrei portarvi a Lucca! Scrivili insieme ai tuoi compagni, discutetene e poi inviatemi la vostra risposta entro lunedì. Così vi dirò se possiamo andarci.
 
-Ma prima di tutto chiariscimi questi tre punti: 1) Quanti giorni volete stare a Lucca e quanto tempo volete passare al festival? 2) Con quale mezzo di trasporto vorrete viaggiare (andata e ritorno)? 3) Quanto tempo ci rimarrà per i musei e per le chiese?
+Ma prima di tutto chiariscimi questi tre punti:
+1) Quanti giorni volete stare a Lucca e quanto tempo volete passare al festival?
+2) Con quale mezzo di trasporto vorrete viaggiare (andata e ritorno)?
+3) Quanto tempo ci rimarrà per i musei e per le chiese?
 
-Insomma, informati bene su tutto, prima di prendere una decisione! Cordiali saluti, Anna-Viviana Bardelli. P.S.: Non mi piace per niente la tua idea di pubblicare tutto in internet! Pensa prima alle possibili conseguenze!`;
+Insomma, informati bene su tutto, prima di prendere una decisione!
+
+Cordiali saluti, Anna-Viviana Bardelli.
+
+P.S.: Non mi piace per niente la tua idea di pubblicare tutto in internet! Pensa prima alle possibili conseguenze!`;
 
 const bonusPoolPairs = [
   ["la tattica", "tactics"],
@@ -152,7 +159,7 @@ const bonusPoolPairs = [
   ["il calciatore/la calciatrice", "footballer"],
   ["attaccare", "to attack"],
   ["difendere", "to defend"],
-  ["sconfiggere", "to defeat"],
+  ["sconfiggere (sconfitto)", "to defeat"],
   ["l'avversario/a", "opponent"],
   ["lo spettatore/la spettatrice", "spectator"],
   ["l'arbitro/a", "referee"],
@@ -177,7 +184,7 @@ const bonusPoolPairs = [
   ["complicato, -a", "complicated"],
   ["il punto", "point"],
   ["composto, -a da/di", "made up of / composed of"],
-  ["comporre", "to compose / form"],
+  ["comporre (composto)", "to compose / form"],
   ["avvenire", "to happen"],
   ["la sagra", "village festival / fair"],
   ["la meta", "destination"],
@@ -246,7 +253,7 @@ const quests = [
   },
   {
     id: "quest-02",
-    title: "Pianificare la gita",
+    title: "Progettare una gita",
     order: 2,
     kind: "main",
     requiresQuestId: "quest-01",
@@ -255,7 +262,7 @@ const quests = [
   },
   {
     id: "quest-03",
-    title: "Discussione al caffè",
+    title: "Discussione al Bar ai Giardini Margherita",
     order: 3,
     kind: "main",
     requiresQuestId: "quest-02",
@@ -303,7 +310,7 @@ writeJson(
     "quest-01",
     1,
     q1bg,
-    "Dopo il weekend a Comacchio inizia una nuova settimana. Sei alla scrivania e stai ordinando le stampe quando il telefono vibra.",
+    "Dopo il weekend a Comacchio inizia una nuova settimana. Sei alla scrivania e stai ordinando le stampe quando il telefonino vibra.",
   ),
 );
 writeJson(
@@ -323,7 +330,7 @@ writeJson(
     "quest-01",
     3,
     q1bg,
-    tu("Se prepariamo bene gli argomenti, possiamo davvero incidere sulla decisione."),
+    tu("Se prepariamo bene gli argomenti, potremo sicuramente convincere la prof di partire in gita con noi."),
   ),
 );
 writeJson(
@@ -386,7 +393,7 @@ writeJson("quests/quest-02/scenes/04.json", {
   background: q2bg,
   content: {
     title: "Perché andare a Lucca?",
-    instruction: "Leggi i testi (p. 104/105) e scegli la risposta migliore.",
+    instruction: "Leggi i testi nel documento e scegli la risposta migliore.",
     referenceDocument: {
       title: "Lettera di Simone e offerta per gruppi scolastici",
       body: TESTO_A_B_BODY,
@@ -451,7 +458,7 @@ writeJson("quests/quest-02/scenes/04.json", {
 });
 writeJson(
   "quests/quest-02/scenes/05.json",
-  story(CHAPTER_ID, "quest-02", 5, q2bg, "Confrontate le risposte e chiudete i fogli."),
+  story(CHAPTER_ID, "quest-02", 5, q2bg, "Confrontate brevemente le risposte e chiudete i fogli. Sara annuisce soddisfatta."),
 );
 writeJson(
   "quests/quest-02/scenes/06.json",
@@ -483,7 +490,7 @@ writeJson(
     "quest-03",
     1,
     q3bg,
-    "Il caffè è pieno. Sul tavolo ci sono appunti, mappe e screenshot del festival.",
+    "Il caffè bar è pieno. Sul tavolo ci sono appunti, mappe e screenshot del festival.",
   ),
 );
 writeJson(
@@ -509,11 +516,11 @@ writeJson(
 
 const proControCards = [
   { id: "card-1", label: "Il pacchetto scuola include viaggio, alloggio e biglietto festival." },
-  { id: "card-2", label: "Lucca unisce festival, cultura pop e città storica." },
+  { id: "card-2", label: "Questa città unisce festival, cultura pop e città storica." },
   { id: "card-3", label: "Su Lucca abbiamo già argomenti testuali pronti." },
   { id: "card-4", label: "Per alcuni il cosplay non è motivante." },
   { id: "card-5", label: "C'è il rischio di dedicare poco tempo a musei e chiese." },
-  { id: "card-6", label: "Il calcio storico a Firenze è una tradizione locale molto forte." },
+  { id: "card-6", label: "Il calcio storico in questa città è una tradizione locale molto forte." },
   { id: "card-7", label: "Firenze sembra più familiare ed è facile da giustificare come città d'arte." },
   {
     id: "card-8",
@@ -532,8 +539,6 @@ writeJson("quests/quest-03/scenes/04.json", {
     instruction:
       "Trascina ogni affermazione nella casella giusta (Lucca PRO / Lucca CONTRO / Firenze PRO / Firenze CONTRO).",
     task: {
-      prompt:
-        "Trascina le otto affermazioni nei campi Lucca PRO / Lucca CONTRO / Firenze PRO / Firenze CONTRO.",
       presentation: { targetMode: "blocks" },
       shuffleItemOrder: true,
       items: proControCards,
@@ -576,52 +581,52 @@ writeJson("quests/quest-03/scenes/05.json", {
   content: {
     title: "Posizione dell'aggettivo",
     instruction:
-      "Completa ogni frase con la forma corretta (aggettivo prima o dopo il nome, come in classe). L'aggettivo di riferimento è tra parentesi.",
+      "Completa ogni frase con articolo indeterminativo e aggettivo nella posizione corretta. L'aggettivo di riferimento è tra parentesi.",
     task: {
       prompt:
-        "Inserisci la forma corretta in ogni frase. Una lacuna per riga — frase completa con articolo e aggettivo al posto giusto.",
+        "Inserisci solo la forma richiesta nella lacuna prevista: articolo indeterminativo + aggettivo prima del nome, oppure solo aggettivo dopo il nome.",
       caseSensitive: false,
       lines: [
         {
           segments: [
             { kind: "text", text: "1. Giulio è " },
-            gap(["un solo studente"]),
-            { kind: "text", text: " in classe. (solo)" },
+            gap(["un solo"], 32),
+            { kind: "text", text: " in classe. (solo - tedesco: \"einzig\")" },
           ],
         },
         {
           segments: [
             { kind: "text", text: "2. Sofia è " },
-            gap(["una povera ragazza"]),
-            { kind: "text", text: ". (povero)" },
+            gap(["una povera"], 32),
+            { kind: "text", text: ". (povero - tedesco: \"bemitleidenswert\")" },
           ],
         },
         {
           segments: [
             { kind: "text", text: "3. Rita e Franco sono " },
-            gap(["vecchi amici"]),
-            { kind: "text", text: ". (vecchio)" },
+            gap(["vecchi"], 32),
+            { kind: "text", text: ". (vecchio - tedesco: \"langjährig\")" },
           ],
         },
         {
           segments: [
-            { kind: "text", text: "4. Nando è " },
-            gap(["un ragazzo solo"]),
-            { kind: "text", text: ". (solo)" },
+            { kind: "text", text: "4. Nando è un ragazzo " },
+            gap(["solo"], 32),
+            { kind: "text", text: ". (solo - tedesco: \"einsam\")" },
           ],
         },
         {
           segments: [
-            { kind: "text", text: "5. È " },
-            gap(["un evento caro", "un caro evento"]),
-            { kind: "text", text: ". (caro)" },
+            { kind: "text", text: "5. È un evento " },
+            gap(["caro"], 32),
+            { kind: "text", text: ". (caro - tedesco: \"teuer\")" },
           ],
         },
         {
           segments: [
-            { kind: "text", text: "6. Parla di " },
-            gap(["un vecchio amico", "un amico vecchio"]),
-            { kind: "text", text: ". (vecchio)" },
+            { kind: "text", text: "6. Parla di un amico " },
+            gap(["vecchio"], 32),
+            { kind: "text", text: ". (vecchio - tedesco: \"alt\")" },
           ],
         },
       ],
@@ -693,24 +698,19 @@ writeJson("quests/quest-04/scenes/04.json", {
   content: {
     title: "Mail formale",
     instruction:
-      "Completa la mail formale. Si controllano saluto iniziale, pronomi/imperativi e formula finale.",
+      "Leggi il documento e completa la mail formale con la banca formule.",
     referenceDocument: {
       title: "Andiamo a Lucca se ... (lettera della professoressa)",
-      body: PROF_REPLY_BODY,
+      body: `${PROF_REPLY_BODY}\n\nBanca formule:\nEgregio Dirigente scolastico, Gentile Professoressa Bardelli; Le; ci; legga; pensi; Si ricordi; ci proibisca; ci risponda; La ringraziamo molto; Distinti saluti.`,
     },
     task: {
-      prompt: "Completa la mail formale con pronomi e forme dell'imperativo di cortesia.",
+      prompt:
+        "Usa solo la banca formule: Egregio Dirigente scolastico, Gentile Professoressa Bardelli; Le; ci; legga; pensi; Si ricordi; ci proibisca; ci risponda; La ringraziamo molto; Distinti saluti.",
       caseSensitive: false,
       lines: [
         {
           segments: [
-            gap(
-              [
-                "Egregio Dirigente scolastico, Gentile Professor Sallusti",
-                "Egregio Dirigente scolastico, Gentile Professore Sallusti",
-              ],
-              128,
-            ),
+            gap(["Egregio Dirigente scolastico, Gentile Professoressa Bardelli"], 128),
             { kind: "text", text: ",\n\n" },
             gap(["Le"]),
             { kind: "text", text: " scriviamo questa lettera per presentar" },
@@ -719,15 +719,15 @@ writeJson("quests/quest-04/scenes/04.json", {
             gap(["ci"]),
             { kind: "text", text: " conceda cinque minuti del Suo tempo e " },
             gap(["legga"]),
-            { kind: "text", text: " quello che Le proponiamo.\n\nAbbiamo pensato di andare a Lucca per partecipare al festival, ma non " },
+            { kind: "text", text: " quello che Le proponiamo.\n\nAbbiamo pensato di andare a Lucca per partecipare al Festival Lucca Comics and Games, ma non " },
             gap(["pensi"]),
-            { kind: "text", text: " che vogliamo solo divertirci.\n\n" },
+            { kind: "text", text: " che vogliamo solo divertirci: visiteremo anche chiese e musei.\n\n" },
             gap(["Si ricordi"]),
             { kind: "text", text: " che la nostra classe si è sempre comportata bene.\n\nPer favore, non " },
             gap(["ci proibisca"]),
-            { kind: "text", text: " di organizzare la gita e " },
+            { kind: "text", text: " di organizzare una gita e " },
             gap(["ci risponda"]),
-            { kind: "text", text: " il prima possibile.\n\n" },
+            { kind: "text", text: " il prima possibile, perché abbiamo trovato un'offerta che non vorremmo perdere.\n\n" },
             gap(["La ringraziamo molto"]),
             { kind: "text", text: " per la Sua cortese attenzione.\n\n" },
             gap(["Distinti saluti"]),
@@ -768,9 +768,9 @@ writeJson("quests/quest-04/scenes/05.json", {
   background: q4bg,
   content: {
     title: "Imperativi di cortesia",
-    instruction: "Collega ogni infinito alla forma corretta dell'imperativo di cortesia (Lei).",
+    instruction: "Abbina ogni infinito alla forma corretta dell'imperativo di cortesia (Lei).",
     task: {
-      prompt: "Collega ogni infinito alla forma corretta dell'imperativo di cortesia (Lei).",
+      prompt: "Abbina ogni infinito alla forma corretta dell'imperativo di cortesia (Lei).",
       leftItems: imperativoLeft,
       rightItems: imperativoRight,
       correctPairs: [
@@ -853,7 +853,6 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
     instruction: "Abbina ogni parola italiana al suo equivalente inglese.",
     referenceDocument: null,
     task: {
-      prompt: "Collega ogni parola italiana al suo equivalente inglese.",
       sampleSize: 10,
       poolPairs: bonusPoolPairs.map(([leftLabel, rightLabel], i) => ({
         id: `ch05v${String(i + 1).padStart(3, "0")}`,

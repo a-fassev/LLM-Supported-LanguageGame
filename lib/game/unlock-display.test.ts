@@ -9,14 +9,11 @@ import {
 
 const chapter00 = {
   id: "chapter-00",
-  title: "Area di prova (team)",
+  title: "La valigia — Prima del viaggio",
   order: 0,
   locked: false,
-  reference: true,
-  quests: [
-    { id: "quest-01", title: "Q1", order: 1, kind: "main" as const, requiresQuestId: null },
-    { id: "quest-02", title: "Q2", order: 2, kind: "main" as const, requiresQuestId: "quest-01" },
-  ],
+  reference: false,
+  quests: [{ id: "quest-01", title: "Come si gioca", order: 1, kind: "main" as const, requiresQuestId: null }],
 };
 
 const chapter01 = {
@@ -45,8 +42,10 @@ const chapter02 = {
 describe("unlock-display", () => {
   const progressionOrder = [chapter00, chapter01, chapter02];
 
-  it("unlocks chapter-01 without completing reference chapter-00", () => {
-    expect(isChapterLocked(chapter01, progressionOrder, new Set())).toBe(false);
+  it("locks chapter-01 until chapter-00 main quest is completed", () => {
+    expect(isChapterLocked(chapter01, progressionOrder, new Set())).toBe(true);
+    const tutorialDone = new Set<string>(["chapter-00:quest-01"]);
+    expect(isChapterLocked(chapter01, progressionOrder, tutorialDone)).toBe(false);
   });
 
   it("locks chapter-02 until chapter-01 main quests are completed", () => {
@@ -55,7 +54,7 @@ describe("unlock-display", () => {
     expect(isChapterLocked(chapter02, progressionOrder, completed)).toBe(false);
   });
 
-  it("keeps reference chapter playable when not manually locked", () => {
+  it("keeps tutorial chapter unlocked for new players", () => {
     expect(isChapterLocked(chapter00, progressionOrder, new Set())).toBe(false);
   });
 

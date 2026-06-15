@@ -1,9 +1,77 @@
 {
   "id": "chapter-00-quest-01-scene-03",
-  "scene_type": "story",
-  "screen_type": "info",
-  "background": "chapters/00/quests/01/bg-info-01",
+  "scene_type": "task",
+  "screen_type": "matching",
+  "background": "chapters/00/quests/01/bg-scene-03",
   "content": {
-    "text": "Ricorda: «Ciao» va bene con amici e compagni di classe. Poi proviamo con una domanda veloce."
+    "title": "Abbinamento — La valigia",
+    "task": {
+      "prompt": "Abbina ogni parola alla frase giusta.",
+      "leftItems": [
+        {
+          "id": "left-camicia",
+          "label": "camicia"
+        },
+        {
+          "id": "left-scarpe",
+          "label": "scarpe"
+        },
+        {
+          "id": "left-libro",
+          "label": "libro"
+        }
+      ],
+      "rightItems": [
+        {
+          "id": "right-camicia",
+          "label": "la camicia"
+        },
+        {
+          "id": "right-scarpe",
+          "label": "le scarpe"
+        },
+        {
+          "id": "right-libro",
+          "label": "il libro"
+        },
+        {
+          "id": "right-pizza",
+          "label": "la pizza"
+        }
+      ],
+      "correctPairs": [
+        {
+          "leftItemId": "left-camicia",
+          "rightItemId": "right-camicia"
+        },
+        {
+          "leftItemId": "left-scarpe",
+          "rightItemId": "right-scarpe"
+        },
+        {
+          "leftItemId": "left-libro",
+          "rightItemId": "right-libro"
+        }
+      ],
+      "presentation": {
+        "leftLabel": "Parola",
+        "rightLabel": "Frase",
+        "shuffleRightOrder": true
+      }
+    }
+  },
+  "scoring": {
+    "backpack": {
+      "pieces": 0
+    },
+    "pizza": {
+      "mode": "scored",
+      "maxSlices": 0,
+      "minRatioToComplete": 1,
+      "rounding": "floor",
+      "mapping": {
+        "kind": "linear"
+      }
+    }
   }
 }
