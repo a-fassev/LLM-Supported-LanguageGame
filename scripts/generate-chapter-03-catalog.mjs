@@ -609,7 +609,7 @@ writeJson("quests/quest-03/scenes/09.json", {
             { kind: "text", text: " (divertirsi) molto ieri sera.\n\nElisa:        Ah ah, non credo che lui " },
             gap(["abbia ballato", "Abbia ballato"]),
             { kind: "text", text: " (lui, ballare) mai così tanto ad una festa!\n\nEnzo:        Allora non penso che il nostro caro Carlo " },
-            gap(["manci", "Manci"]),
+            gap(["manchi", "Manchi"]),
             { kind: "text", text: " (mancare) alla festa di Cinzia.\n\nTiziana:    Sì, anch'io credo che tu non " },
             gap(["voglia", "Voglia"]),
             { kind: "text", text: " (volere) perdere questa ottima occasione stasera." },
@@ -940,11 +940,11 @@ writeJson("quests/quest-04/scenes/11.json", {
   content: {
     title: "Scoprire una nuova città",
     instruction:
-      "Tiziana ha trovato dei buoni consigli. Completa con i verbi alla forma impersonale. Wortbank: chiamare · comprare/comprarsi (3x) · dovere/mangiare · fare · godersi · informarsi · potere/avere · potere/conoscere · potere/trovare · volere/conoscere · non/perdersi · seguire",
+      "Tiziana ha trovato dei buoni consigli. Completa con i verbi alla forma impersonale. Termini: chiamare · comprare/comprarsi (3x) · dovere/mangiare · fare · godersi · informarsi · potere/avere · potere/conoscere · potere/trovare · volere/conoscere · non/perdersi · seguire",
     referenceDocument: null,
     task: {
       prompt:
-        "Tiziana ha trovato dei buoni consigli. Completa con i verbi alla forma impersonale.",
+        "Completa le frasi.",
       caseSensitive: false,
       lines: [
         {
@@ -1176,7 +1176,7 @@ writeJson(
     "quest-01-bonus",
     3,
     bbg,
-    "Risolvi questo compito bonus per guadagnare fette di pizza extra!",
+    "Risolvi questo compito bonus per guadagnare fino a 5 fette di pizza extra!",
   ),
 );
 
@@ -1190,7 +1190,7 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
     instruction: "Abbina ogni parola italiana al suo equivalente inglese.",
     referenceDocument: null,
     task: {
-      prompt: "Abbina ogni parola italiana al suo equivalente inglese.",
+      prompt: "Trova le coppie corrette.",
       sampleSize: 10,
       poolPairs: bonusPoolPairs.map(([leftLabel, rightLabel], i) => ({
         id: `ch03v${String(i + 1).padStart(3, "0")}`,

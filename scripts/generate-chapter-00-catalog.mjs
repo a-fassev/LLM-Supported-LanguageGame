@@ -220,6 +220,7 @@ const scenes = [
   story(
     9,
     "La valigia è pronta. Domani mattina il volo per Bologna.\nLa tua avventura in Italia inizia presto!",
+    "chapters/00/quests/01/bg-scene-09-final",
   ),
 ];
 

@@ -991,7 +991,7 @@ writeJson(
     "quest-01-bonus",
     3,
     bbg,
-    "Risolvi questo compito bonus per guadagnare fette di pizza extra!",
+    "Risolvi questo compito bonus per guadagnare fino a 5 fette di pizza extra!",
   ),
 );
 

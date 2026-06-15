@@ -22,7 +22,7 @@
             },
             {
               "kind": "gap",
-              "maxLength": 64,
+              "maxLength": 140,
               "correctAnswers": [
                 "invitata a Comacchio (con Sara) per un weekend",
                 "invitata a Comacchio per un weekend",
@@ -50,7 +50,7 @@
             },
             {
               "kind": "gap",
-              "maxLength": 64,
+              "maxLength": 120,
               "correctAnswers": [
                 "„piccola Venezia\" perché ha tanti canali",
                 "„piccola Venezia\", perché nasce e vive tra terra e acqua",
@@ -63,7 +63,7 @@
             },
             {
               "kind": "gap",
-              "maxLength": 64,
+              "maxLength": 120,
               "correctAnswers": [
                 "spiagge ideali per riposarsi al sole e cancellare i ricordi tristi",
                 "Spiagge ideali per riposarsi al sole e cancellare i ricordi tristi"
@@ -75,7 +75,7 @@
             },
             {
               "kind": "gap",
-              "maxLength": 64,
+              "maxLength": 160,
               "correctAnswers": [
                 "andiamo al Museo d'Arte Contemporanea Remo Brindisi (dove ci sono opere di Picasso, Andy Warhol e Giorgio De Chirico)",
                 "andiamo al Museo d'Arte Contemporanea Remo Brindisi",
@@ -88,7 +88,7 @@
             },
             {
               "kind": "gap",
-              "maxLength": 64,
+              "maxLength": 140,
               "correctAnswers": [
                 "al cinema, in pizzeria o restiamo a casa per una festa in pigiama (e mangiamo Nutella)",
                 "al cinema, in pizzeria o restiamo a casa per una festa in pigiama",
@@ -101,7 +101,7 @@
             },
             {
               "kind": "gap",
-              "maxLength": 64,
+              "maxLength": 180,
               "correctAnswers": [
                 "passi contro il mal d'amore (le spiagge, i monumenti come il Trepponti, il tramonto, la passeggiata al Loggiato dei Cappuccini)",
                 "passi contro il mal d'amore",

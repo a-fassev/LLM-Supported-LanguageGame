@@ -8,16 +8,10 @@
     "instruction": "Scrivi una frase in italiano con un pronome relativo (che, cui o dove).",
     "referenceDocument": {
       "title": "il/la giornalista",
-      "body": "Guarda la foto e scrivi una frase con che, cui o dove.",
-      "figures": [
-        {
-          "image": "chapters/02/quests/02/ref-prof-giornalista",
-          "caption": "il/la giornalista"
-        }
-      ]
+      "body": "Descrivi questa professione: il/la giornalista."
     },
     "task": {
-      "prompt": "Descrivi la professione del/la giornalista con una frase. Usa che, cui o dove.",
+      "prompt": "Descrivi la professione del/la giornalista con una frase. Usa che, cui o dove. Professione: il/la giornalista.",
       "targetLanguage": "it",
       "showWordCount": true,
       "minWords": 5,
@@ -33,7 +27,8 @@
         "maxPoints": 5,
         "evaluationCriteria": [
           "Use at least one relative pronoun (che, cui, or dove) correctly",
-          "Describe the profession plausibly in Italian at B1 level"
+          "Describe the profession il/la giornalista plausibly in Italian at B1 level",
+          "Do not describe a different profession"
         ],
         "targetStructures": [
           "che",

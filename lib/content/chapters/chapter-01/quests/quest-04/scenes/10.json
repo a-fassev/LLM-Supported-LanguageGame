@@ -36,12 +36,16 @@
         {
           "id": "en6",
           "label": "explorer"
+        },
+        {
+          "id": "en7",
+          "label": "dimensions"
         }
       ],
       "rightItems": [
         {
           "id": "it1",
-          "label": "la grotta"
+          "label": "la grotta / caverna"
         },
         {
           "id": "it2",
@@ -66,6 +70,10 @@
         {
           "id": "it7",
           "label": "la stalattite"
+        },
+        {
+          "id": "it8",
+          "label": "le dimensioni"
         }
       ],
       "correctPairs": [
@@ -92,6 +100,10 @@
         {
           "leftItemId": "en6",
           "rightItemId": "it6"
+        },
+        {
+          "leftItemId": "en7",
+          "rightItemId": "it8"
         }
       ],
       "presentation": {
