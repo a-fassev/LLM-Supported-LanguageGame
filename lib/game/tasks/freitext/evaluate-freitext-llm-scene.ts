@@ -13,12 +13,7 @@ import {
 import type { FreitextDimensionReview } from "@/lib/game/task-review";
 import { parseFreitextAttempt } from "@/lib/game/tasks/freitext/build-freitext-attempt";
 import { mergeFreitextSceneContent } from "@/lib/game/tasks/freitext/merge-freitext-scene-content";
-import {
-  FREITEXT_ABSOLUTE_MAX_CHARACTERS,
-  freitextAnswerTooLongMessage,
-  freitextAnswerTooManyCharactersMessage,
-  freitextAnswerTooShortMessage,
-} from "@/lib/game/tasks/freitext/freitext-messages";
+import { freitextAnswerTooShortMessage } from "@/lib/game/tasks/freitext/freitext-messages";
 
 export type FreitextJudgeFeedback = {
   summaryFeedback: string;
@@ -61,15 +56,6 @@ export async function evaluateFreitextLlmScene(
     };
   }
 
-  if (trimmed.length > FREITEXT_ABSOLUTE_MAX_CHARACTERS) {
-    return {
-      ok: false,
-      status: 400,
-      error: freitextAnswerTooManyCharactersMessage(),
-      code: "answer_too_long",
-    };
-  }
-
   const merged = mergeFreitextSceneContent(
     content.task,
     content.instruction,
@@ -86,7 +72,6 @@ export async function evaluateFreitextLlmScene(
   }
 
   const minW = payload.value.minWords ?? 0;
-  const maxW = payload.value.maxWords ?? 0;
   const words = countWordsAnswer(trimmed);
 
   if (minW > 0 && words < minW) {
@@ -95,15 +80,6 @@ export async function evaluateFreitextLlmScene(
       status: 400,
       error: freitextAnswerTooShortMessage(minW),
       code: "answer_too_short",
-    };
-  }
-
-  if (maxW > 0 && words > maxW) {
-    return {
-      ok: false,
-      status: 400,
-      error: freitextAnswerTooLongMessage(maxW),
-      code: "answer_too_long",
     };
   }
 

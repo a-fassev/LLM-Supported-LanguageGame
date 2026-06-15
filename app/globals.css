@@ -181,16 +181,23 @@
     padding: var(--game-panel-padding);
   }
 
-  .game-panel-inset.game-hub-header {
-    --game-hub-header-padding-block: 0.375rem;
+  .game-hub-header {
+    background: transparent;
+    background-color: transparent;
+    border: none;
+    border-color: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    overflow: visible;
+    --game-hub-header-padding-block: 0.5rem;
     padding-block: var(--game-hub-header-padding-block);
-    padding-inline-start: var(--game-hub-header-padding-block);
-    padding-inline-end: 0;
+    padding-inline: var(--game-hub-header-padding-block) 0;
   }
 
   @media (min-width: 768px) {
-    .game-panel-inset.game-hub-header {
-      --game-hub-header-padding-block: 0.5rem;
+    .game-hub-header {
+      --game-hub-header-padding-block: 0.625rem;
     }
   }
 
@@ -203,28 +210,92 @@
     min-width: 0;
     flex: 1;
     margin: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 1.75rem;
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-  }
-
-  @media (min-width: 768px) {
-    .game-hub-header__title {
-      font-size: 2.125rem;
-    }
+    overflow-x: clip;
+    overflow-y: visible;
   }
 
   .game-play-header {
-    padding-block: 0.375rem;
+    background: transparent;
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    padding-block: 0.5rem;
+    overflow: visible;
   }
 
   @media (min-width: 768px) {
     .game-play-header {
-      padding-block: 0.5rem;
+      padding-block: 0.625rem;
+    }
+  }
+
+  .game-play-header__title {
+    min-width: 0;
+    flex: 1;
+    margin: 0;
+    overflow-x: clip;
+    overflow-y: visible;
+  }
+
+  .game-hub-header__title .game-sticker-title,
+  .game-play-header__title .game-sticker-title {
+    display: block;
+    max-width: 100%;
+    overflow-x: clip;
+    overflow-y: visible;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-shadow: 0 0.12em 0 #a63e1b;
+  }
+
+  .game-sticker-title {
+    display: inline-block;
+    transform: rotate(-1deg);
+    border-radius: 1.5rem;
+    border: 4px solid #fff6d8;
+    background-color: #f8b93b;
+    font-weight: 900;
+    line-height: 1;
+    color: #fff8df;
+    letter-spacing: normal;
+    text-shadow:
+      0.07em 0.07em 0 #a63e1b,
+      0 0.15em 0 #d66b22;
+    box-shadow:
+      0 0.12em 0 #a63e1b,
+      0 0.3em 0.6em rgb(67 24 8 / 35%);
+  }
+
+  .game-sticker-title--hub {
+    padding: 0.2rem 0.875rem;
+    font-size: clamp(1.5rem, 3.25vw, 2.5rem);
+    line-height: 1.15;
+  }
+
+  .game-sticker-title--play {
+    max-width: 100%;
+    padding: 0.2rem 0.875rem;
+    font-size: clamp(1rem, 3.25vw, 1.75rem);
+    line-height: 1.15;
+    text-align: center;
+    overflow-wrap: normal;
+    word-break: normal;
+    white-space: normal;
+  }
+
+  .game-play-header__title .game-sticker-title--play {
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 480px) {
+    .game-sticker-title--hub,
+    .game-sticker-title--play {
+      border-width: 3px;
+      padding-inline: 0.75rem;
+      padding-block: 0.2rem;
     }
   }
 
@@ -236,6 +307,11 @@
     background: var(--game-panel-bg);
     border: 1px solid var(--game-panel-border);
     @apply rounded-2xl shadow-lg backdrop-blur-sm;
+  }
+
+  /* Hub content panel: cast shadow downward only so the header strip stays clear. */
+  .game-panel.game-panel-hub-body {
+    box-shadow: 0 14px 28px -10px rgb(67 24 8 / 18%);
   }
 
   .scrollbar-hide {

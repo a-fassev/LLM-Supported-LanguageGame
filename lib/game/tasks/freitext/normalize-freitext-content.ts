@@ -8,7 +8,6 @@ export { FREITEXT_CONTENT_MISMATCH_MESSAGE };
 export type NormalizedFreitextContent = {
   prompt: string;
   minWords: number;
-  maxWords: number;
   showWordCount: boolean;
   showCharacterCount: boolean;
 };
@@ -35,7 +34,6 @@ export function normalizeFreitextContentResult(
     content: {
       prompt: value.prompt.trim(),
       minWords: value.minWords ?? 0,
-      maxWords: value.maxWords ?? 0,
       showWordCount: value.showWordCount === true,
       showCharacterCount: value.showCharacterCount === true,
     },

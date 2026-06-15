@@ -41,22 +41,22 @@ export default function ChaptersPage() {
       backgroundKey={hubBackgroundKeys.bolognaMap}
       onBack={() => router.push("/menu")}
       headerRight={headerRight}
-      className="scrollbar-hide flex min-h-0 flex-col overflow-x-hidden overflow-y-auto border-0 bg-transparent shadow-none ring-0 backdrop-blur-0 !backdrop-blur-none "
     >
-      {error ? <p className="shrink-0 text-sm text-destructive">{error}</p> : null}
-      {loading && !data ? (
-        <p className="shrink-0 text-sm text-muted-foreground">Caricamento capitoli...</p>
-      ) : null}
-      {data && data.chapters.length === 0 ? (
-        <p className="shrink-0 text-sm text-muted-foreground">Nessun capitolo disponibile.</p>
-      ) : null}
-      {data && data.chapters.length > 0 ? (
-        <ChapterGrid
-          className="min-h-0 flex-1"
-          items={chapterItems}
-          onOpenChapter={(chapterId) => router.push(`/chapters/${chapterId}`)}
-        />
-      ) : null}
+      <div className="space-y-4">
+        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+        {loading && !data ? (
+          <p className="text-sm text-muted-foreground">Caricamento capitoli...</p>
+        ) : null}
+        {data && data.chapters.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nessun capitolo disponibile.</p>
+        ) : null}
+        {data && data.chapters.length > 0 ? (
+          <ChapterGrid
+            items={chapterItems}
+            onOpenChapter={(chapterId) => router.push(`/chapters/${chapterId}`)}
+          />
+        ) : null}
+      </div>
     </HubPage>
   );
 }

@@ -65,7 +65,12 @@ export function HubPage({
         titleClassName={titleClassName}
         titleContentClassName={titleContentClassName}
       />
-      <section className={cn("game-panel game-panel-inset min-h-0 flex-1 overflow-y-auto", className)}>
+      <section
+        className={cn(
+          "game-panel game-panel-hub-body game-panel-inset min-h-0 flex-1 overflow-y-auto",
+          className,
+        )}
+      >
         {children}
       </section>
     </main>

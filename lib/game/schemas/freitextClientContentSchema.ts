@@ -13,7 +13,6 @@ export const freitextClientContentSchema = z
     showWordCount: z.boolean().optional(),
     showCharacterCount: z.boolean().optional(),
     minWords: z.number().int().min(0).optional(),
-    maxWords: z.number().int().min(1).optional(),
   })
   .strict();
 

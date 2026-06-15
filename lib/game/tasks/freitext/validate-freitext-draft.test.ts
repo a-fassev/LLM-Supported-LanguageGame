@@ -6,7 +6,6 @@ import { validateFreitextDraft } from "@/lib/game/tasks/freitext/validate-freite
 const baseContent: NormalizedFreitextContent = {
   prompt: "Q",
   minWords: 2,
-  maxWords: 10,
   showWordCount: true,
   showCharacterCount: false,
 };
@@ -30,6 +29,18 @@ describe("validateFreitextDraft", () => {
 
   it("accepts valid answers", () => {
     const result = validateFreitextDraft(baseContent, "Ciao, mi chiamo Luca.");
+    expect(result.ok).toBe(true);
+  });
+
+  it("does not enforce a word upper limit", () => {
+    const longAnswer = Array.from({ length: 50 }, (_, i) => `parola${i}`).join(" ");
+    const result = validateFreitextDraft(baseContent, longAnswer);
+    expect(result.ok).toBe(true);
+  });
+
+  it("does not enforce a character upper limit", () => {
+    const noMin = { ...baseContent, minWords: 0 };
+    const result = validateFreitextDraft(noMin, "a".repeat(10_000));
     expect(result.ok).toBe(true);
   });
 });

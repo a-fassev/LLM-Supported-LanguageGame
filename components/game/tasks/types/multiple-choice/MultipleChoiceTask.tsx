@@ -60,6 +60,7 @@ export function MultipleChoiceTask({
   const questionReview = taskReview?.questions.find((q) => q.questionIndex === safeIndex);
   return (
     <McQuestionView
+      key={safeIndex}
       question={question}
       questionIndex={safeIndex}
       questionCount={content.questions.length}

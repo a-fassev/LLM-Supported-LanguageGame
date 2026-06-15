@@ -41,10 +41,18 @@ type ClozeRenderSegment =
   | { kind: "text"; key: string; text: string }
   | { kind: "gap"; key: string; gapIndex: number; maxLength?: number };
 
-function gapInputWidthCh(maxLength: number | undefined): number {
+/** Compact starting width; grows with typed content via field-sizing. */
+function gapInputMinWidthCh(maxLength: number | undefined): number {
   const base = maxLength ?? 12;
-  return Math.min(18, Math.max(6, base));
+  // Authoring often sets maxLength to 64 for every gap — not a display hint.
+  if (base > 24) {
+    return 8;
+  }
+  return Math.min(14, Math.max(5, base));
 }
+
+const CLOZE_GAP_INPUT_CLASS =
+  "mx-0.5 inline-block h-[1.35em] min-h-0 w-auto min-w-[5ch] max-w-[20ch] shrink-0 px-1 py-0 align-baseline [field-sizing:content] focus-visible:border-ring focus-visible:ring-0";
 
 function buildRenderLines(content: ClozeTextClientContentParsed): ClozeRenderSegment[][] {
   const rows: ClozeRenderSegment[][] = [];
@@ -118,67 +126,68 @@ export function ClozeTextTask({
     >
       <div className="space-y-3">
         {renderLines.map((row, lineIndex) => (
-          <div key={`line-${lineIndex}`} className="flex flex-wrap items-baseline gap-x-1.5 gap-y-2">
+          <p key={`line-${lineIndex}`} className={TASK_PLAY_BODY_TEXT}>
             {row.map((segment) => {
               if (segment.kind === "text") {
                 const hasNewline = segment.text.includes("\n");
                 return (
-                  <span
-                    key={segment.key}
-                    className={cn(
-                      TASK_PLAY_BODY_TEXT,
-                      hasNewline && "whitespace-pre-wrap",
-                    )}
-                  >
+                  <span key={segment.key} className={cn(hasNewline && "whitespace-pre-wrap")}>
                     {segment.text}
                   </span>
                 );
               }
 
-              const widthCh = gapInputWidthCh(segment.maxLength);
+              const minWidthCh = gapInputMinWidthCh(segment.maxLength);
               const gapReview = taskReview?.gaps.find((g) => g.gapIndex === segment.gapIndex);
               const reviewActive = reviewMode && gapReview;
               const exampleWord = gapReview?.acceptedAnswers[0];
               const altWords = gapReview?.acceptedAnswers.slice(1, 3) ?? [];
+              const showReviewHint = reviewActive && !gapReview.isCorrect && exampleWord;
 
-              return (
-                <span key={segment.key} className="inline-flex flex-col items-start gap-0.5">
-                  <Input
-                    type="text"
-                    name={`cloze-${scene.id}-g${segment.gapIndex}`}
-                    value={answers[segment.gapIndex] ?? ""}
-                    disabled={disabled || reviewMode}
-                    readOnly={reviewMode}
-                    maxLength={segment.maxLength}
-                    autoComplete="off"
-                    autoCorrect="off"
-                    autoCapitalize="off"
-                    data-1p-ignore
-                    data-lpignore="true"
-                    aria-label={`Lacuna ${segment.gapIndex + 1} di ${gapCount}`}
-                    className={cn(
-                      "inline-flex h-9 min-h-9 shrink-0 px-1.5 py-0 focus-visible:border-ring focus-visible:ring-0",
-                      TASK_PLAY_INLINE_FIELD_TEXT,
-                      reviewActive &&
-                        (gapReview.isCorrect ? TASK_REVIEW_CORRECT : TASK_REVIEW_INCORRECT),
-                    )}
-                    style={{ width: `${widthCh}ch` }}
-                    onChange={(event) => {
-                      const next = [...answers];
-                      next[segment.gapIndex] = event.target.value;
-                      onAnswersChange(next);
-                    }}
-                  />
-                  {reviewActive && !gapReview.isCorrect && exampleWord ? (
-                    <span className={TASK_REVIEW_HINT_TEXT}>
+              const gapInput = (
+                <Input
+                  type="text"
+                  name={`cloze-${scene.id}-g${segment.gapIndex}`}
+                  value={answers[segment.gapIndex] ?? ""}
+                  disabled={disabled || reviewMode}
+                  readOnly={reviewMode}
+                  maxLength={segment.maxLength}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
+                  data-1p-ignore
+                  data-lpignore="true"
+                  aria-label={`Lacuna ${segment.gapIndex + 1} di ${gapCount}`}
+                  className={cn(
+                    CLOZE_GAP_INPUT_CLASS,
+                    TASK_PLAY_INLINE_FIELD_TEXT,
+                    reviewActive &&
+                      (gapReview.isCorrect ? TASK_REVIEW_CORRECT : TASK_REVIEW_INCORRECT),
+                  )}
+                  style={{ minWidth: `${minWidthCh}ch` }}
+                  onChange={(event) => {
+                    const next = [...answers];
+                    next[segment.gapIndex] = event.target.value;
+                    onAnswersChange(next);
+                  }}
+                />
+              );
+
+              if (showReviewHint) {
+                return (
+                  <span key={segment.key} className="inline-block align-baseline">
+                    {gapInput}
+                    <span className={cn(TASK_REVIEW_HINT_TEXT, "mt-0.5 block")}>
                       Esempio: {exampleWord}
                       {altWords.length > 0 ? ` · Anche: ${altWords.join(", ")}` : ""}
                     </span>
-                  ) : null}
-                </span>
-              );
+                  </span>
+                );
+              }
+
+              return <span key={segment.key}>{gapInput}</span>;
             })}
-          </div>
+          </p>
         ))}
       </div>
     </TaskBodyLayout>

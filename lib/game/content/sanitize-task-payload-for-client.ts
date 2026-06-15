@@ -52,6 +52,7 @@ function stripClozeAnswers(task: Record<string, unknown>): Record<string, unknow
 function stripFreitextRubric(task: Record<string, unknown>): Record<string, unknown> {
   const next = { ...task };
   delete next.evaluation;
+  delete next.maxWords;
   return next;
 }
 

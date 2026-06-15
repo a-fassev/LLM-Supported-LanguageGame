@@ -28,7 +28,6 @@ export const freitextLlmStepContentSchema = z.object({
   showWordCount: z.boolean().optional(),
   showCharacterCount: z.boolean().optional(),
   minWords: z.number().int().min(0).optional(),
-  maxWords: z.number().int().min(1).optional(),
   evaluation: evaluationSchema,
 });
 

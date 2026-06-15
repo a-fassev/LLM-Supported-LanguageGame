@@ -220,7 +220,8 @@ Every task scene uses the same **copy + scroll contract**. Implement new types i
 
 | Region | Source (JSON) | Component | Style | Scroll |
 | ------ | ------------- | --------- | ----- | ------ |
-| Play header title | `content.title` | `GameShellHeader` | Hub title styles; **single line + ellipsis** | — |
+| Play header title | `content.title` | `GameShellHeader` (`variant="play"`) | `.game-sticker-title--play` in `globals.css` — em-scaled sticker shadow; **wraps** on narrow viewports (full-width row below actions) | — |
+| Hub header title | chapter/screen title | `GameShellHeader` (`variant="hub"`) | `.game-sticker-title--hub`; single line + ellipsis unless hub has header actions (then wraps like play) | — |
 | Instruction | `content.instruction` | `TaskChrome` | `TASK_PLAY_INSTRUCTION_TEXT` (**semibold**) | No (fixed) |
 | Prompt | `content.task.prompt` or per-item field (e.g. MC `questions[i].prompt`) | `TaskBodyLayout` | `TASK_PLAY_PROMPT_TEXT` (normal) | No (fixed) |
 | Meta | — (validation, progress, hints) | `TaskBodyLayout` `beforeScroll` | `TASK_PLAY_META_TEXT` | No |

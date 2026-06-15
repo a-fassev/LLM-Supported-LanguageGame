@@ -102,7 +102,7 @@ export function SceneRouter({
 }: SceneRouterProps) {
   const mcNav = useMemo(
     () => getMcQuestionNavState(scene, mcQuestionIndex),
-    [scene, mcQuestionIndex],
+    [scene.id, scene.screen_type, mcQuestionIndex],
   );
 
   if (scene.scene_type === "story") {
@@ -135,7 +135,7 @@ export function SceneRouter({
 
   function handleTaskPrimary() {
     if (reviewMcBetweenQuestions && mcNav) {
-      onMcQuestionIndexChange(mcNav.safeIndex + 1);
+      onMcQuestionIndexChange(mcQuestionIndex + 1);
       return;
     }
     if (inPostAttemptContinue) {
@@ -143,7 +143,7 @@ export function SceneRouter({
       return;
     }
     if (multiQuestionMc && mcNav && !mcNav.isLastQuestion) {
-      onMcQuestionIndexChange(mcNav.safeIndex + 1);
+      onMcQuestionIndexChange(mcQuestionIndex + 1);
       return;
     }
     void onSubmitTask();
@@ -151,14 +151,14 @@ export function SceneRouter({
 
   function handleTaskRetreat() {
     if (inPostAttemptContinue && multiQuestionMc && mcNav && !mcNav.isFirstQuestion) {
-      onMcQuestionIndexChange(mcNav.safeIndex - 1);
+      onMcQuestionIndexChange(mcQuestionIndex - 1);
       return;
     }
     if (inPostAttemptContinue) {
       return;
     }
     if (multiQuestionMc && mcNav && !mcNav.isFirstQuestion) {
-      onMcQuestionIndexChange(mcNav.safeIndex - 1);
+      onMcQuestionIndexChange(mcQuestionIndex - 1);
       return;
     }
     void onRetreatScene();
@@ -198,10 +198,11 @@ export function SceneRouter({
         onRetreat={handleTaskRetreat}
         onPrimary={handleTaskPrimary}
       >
-        <TaskPanel
+        <div className="flex min-h-0 flex-1 flex-col">
+          <TaskPanel
           scene={scene}
           mcSelections={mcSelections}
-          mcQuestionIndex={mcNav?.safeIndex ?? mcQuestionIndex}
+          mcQuestionIndex={mcQuestionIndex}
           mcValidationError={mcValidationError}
           matchingPairs={matchingPairs}
           matchingValidationError={matchingValidationError}
@@ -224,6 +225,7 @@ export function SceneRouter({
           onErrorSpottingDraftChange={onErrorSpottingDraftChange}
           onClozeAnswersChange={onClozeAnswersChange}
         />
+        </div>
       </TaskChrome>
     </div>
   );

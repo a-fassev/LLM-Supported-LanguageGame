@@ -10,7 +10,7 @@ type TaskBodyLayoutProps = {
   prompt?: string | null;
   /** Fixed lines between prompt and scroll area (errors, progress, hints). */
   beforeScroll?: ReactNode;
-  /** Main exercise UI; the surrounding TaskChrome scrolls this together with the prompt/meta. */
+  /** Main exercise UI; scrolls inside TaskBodyLayout while prompt/meta stay fixed. */
   children: ReactNode | ((promptLabelId: string) => ReactNode);
   /** When true, children fill the remaining height (e.g. full-height freetext textarea). */
   fillScroll?: boolean;
@@ -32,7 +32,7 @@ export function TaskBodyLayout({ prompt, beforeScroll, children, fillScroll }: T
     <div
       role={groupLabelled ? "group" : undefined}
       aria-labelledby={groupLabelled ? promptLabelId : undefined}
-      className={cn("flex min-h-0 min-w-0 flex-col gap-2", fillScroll ? "h-full" : "h-auto")}
+      className="flex min-h-0 min-w-0 flex-1 flex-col gap-2"
     >
       {promptText ? (
         <p id={promptLabelId} className={cn("shrink-0", TASK_PLAY_PROMPT_TEXT)}>
@@ -43,13 +43,14 @@ export function TaskBodyLayout({ prompt, beforeScroll, children, fillScroll }: T
           Attività
         </span>
       ) : null}
-      {beforeScroll}
+      {beforeScroll ? <div className="shrink-0">{beforeScroll}</div> : null}
       <div
+        data-task-body-scroll
         className={cn(
-          "min-h-0 p-px",
+          "min-h-0 flex-1 p-px",
           fillScroll
-            ? "flex flex-1 flex-col overflow-hidden overflow-x-hidden overscroll-y-contain"
-            : "shrink-0",
+            ? "flex flex-col overflow-hidden overflow-x-hidden overscroll-y-contain"
+            : "scrollbar-hide overflow-x-hidden overflow-y-auto overscroll-y-contain",
         )}
       >
         {scrollContent}

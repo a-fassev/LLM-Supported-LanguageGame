@@ -32,15 +32,10 @@ export function TaskChrome({
 
   return (
     <section className={`flex h-full min-h-0 w-full flex-col overflow-hidden ${TASK_CHROME_GAP}`}>
-      <div
-        data-task-body-scroll
-        className={`scrollbar-hide flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain ${TASK_CHROME_GAP}`}
-      >
-        {intro ? (
-          <p className={cn("shrink-0", TASK_PLAY_INSTRUCTION_TEXT)}>{intro}</p>
-        ) : null}
-        <div className="flex min-h-0 min-w-0 shrink-0 flex-col pb-1">{children}</div>
-      </div>
+      {intro ? (
+        <p className={cn("shrink-0", TASK_PLAY_INSTRUCTION_TEXT)}>{intro}</p>
+      ) : null}
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">{children}</div>
       <footer className={`flex shrink-0 items-center justify-between ${TASK_CHROME_GAP}`}>
         {onRetreat ? (
           <Button size="lg" variant="outline" onClick={onRetreat} disabled={retreatDisabled ?? !canRetreat}>

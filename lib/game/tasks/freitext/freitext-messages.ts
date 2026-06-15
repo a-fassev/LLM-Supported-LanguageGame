@@ -14,13 +14,3 @@ export function freitextAnswerTooShortMessage(minWords: number): string {
     ? "Scrivi almeno una parola."
     : `Scrivi almeno ${minWords} parole.`;
 }
-
-export function freitextAnswerTooLongMessage(maxWords: number): string {
-  return maxWords === 1 ? "Resta entro una parola." : `Resta entro ${maxWords} parole.`;
-}
-
-export const FREITEXT_ABSOLUTE_MAX_CHARACTERS = 8000;
-
-export function freitextAnswerTooManyCharactersMessage(): string {
-  return `La risposta può avere al massimo ${FREITEXT_ABSOLUTE_MAX_CHARACTERS} caratteri.`;
-}

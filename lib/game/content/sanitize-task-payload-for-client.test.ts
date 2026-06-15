@@ -196,6 +196,8 @@ describe("sanitizeSceneContentForClient", () => {
         },
       },
     });
+    expect(sanitized.task).not.toHaveProperty("maxWords");
+    expect(sanitized.task).not.toHaveProperty("evaluation");
     const normalized = normalizeFreitextContentResult(
       sanitized.task as Record<string, unknown>,
       sanitized.instruction as string,

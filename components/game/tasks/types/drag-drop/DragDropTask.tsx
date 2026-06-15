@@ -346,10 +346,7 @@ export function DragDropTask({
     ? (keyboardZoneId ?? content.targets[0]?.id ?? null)
     : null;
   const draggingItemId = dragPreview?.itemId ?? null;
-  const targetLayoutClass =
-    content.targets.length >= 4
-      ? "grid grid-cols-1 gap-2.5 md:grid-cols-2"
-      : "space-y-2.5";
+  const targetLayoutClass = "grid grid-cols-1 gap-2.5 md:grid-cols-2";
 
   return (
     <TaskBodyLayout

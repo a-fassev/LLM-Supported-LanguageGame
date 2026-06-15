@@ -34,7 +34,7 @@ function TeamColorBar({ team }: { team: TeamColor }) {
   return (
     <span
       className={cn(
-        "mt-4 h-2.5 w-[min(100%,11rem)] max-w-[80%] shrink-0 rounded-full",
+        "mt-3 h-2.5 w-[min(100%,11rem)] max-w-[80%] shrink-0 rounded-full sm:mt-4",
         team === "blue" ? "bg-(--team-blue)" : "bg-(--team-red)",
       )}
       role="img"
@@ -88,48 +88,44 @@ function TeamLeaderboardColumn({
     <section
       aria-labelledby={titleId}
       className={cn(
-        "flex h-full min-h-0 flex-col items-center rounded-xl border border-border bg-background/80 px-4 pb-6 pt-10 text-center max-sm:min-h-[min(32rem,52dvh)] max-sm:h-auto md:pt-12",
+        "flex flex-col items-center rounded-xl border border-border bg-background/80 px-4 pb-5 pt-6 text-center sm:pb-6 sm:pt-8",
         highlightSelf && "border-primary/40 bg-primary/5",
       )}
     >
-      <div className="flex w-full shrink-0 flex-col items-center">
-        <span className="text-4xl font-bold tabular-nums leading-none md:text-5xl">
-          #{teamRow.rank}
-        </span>
-        <TeamColorBar team={teamRow.team} />
-        <p id={titleId} className="mt-5 text-2xl font-semibold leading-tight md:text-3xl">
-          {teamLabel(teamRow.team)}
-        </p>
-        <p className="mt-2 text-xl font-medium tabular-nums text-muted-foreground md:text-2xl">
-          🍕 {teamRow.totalSlices}
-        </p>
-      </div>
-      <div className="mt-5 flex min-h-0 w-full flex-1 flex-col overflow-hidden">
-        <div
-          aria-hidden
-          className="mx-auto mb-5 h-[3px] w-[min(100%,17rem)] max-w-[96%] shrink-0 rounded-full bg-muted-foreground/65"
-        />
-        {teamRow.members.length > 0 ? (
-          <ul className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain px-1 py-1">
-            {teamRow.members.map((member) => (
-              <li
-                key={member.username}
-                className={cn(
-                  "truncate text-base md:text-lg",
-                  member.isSelf ? "font-semibold text-foreground" : "text-muted-foreground",
-                )}
-              >
-                {member.username}
-                {member.isSelf ? (
-                  <span className="font-normal text-muted-foreground"> (Tu)</span>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-base text-muted-foreground">Nessun giocatore</p>
-        )}
-      </div>
+      <span className="text-3xl font-bold tabular-nums leading-none sm:text-4xl">
+        #{teamRow.rank}
+      </span>
+      <TeamColorBar team={teamRow.team} />
+      <p id={titleId} className="mt-4 text-xl font-semibold leading-tight sm:mt-5 sm:text-2xl">
+        {teamLabel(teamRow.team)}
+      </p>
+      <p className="mt-2 text-lg font-medium tabular-nums text-muted-foreground sm:text-xl">
+        🍕 {teamRow.totalSlices}
+      </p>
+      <div
+        aria-hidden
+        className="mx-auto mt-5 mb-4 h-[3px] w-[min(100%,17rem)] max-w-[96%] rounded-full bg-muted-foreground/65"
+      />
+      {teamRow.members.length > 0 ? (
+        <ul className="w-full space-y-2 px-1">
+          {teamRow.members.map((member) => (
+            <li
+              key={member.username}
+              className={cn(
+                "truncate text-base sm:text-lg",
+                member.isSelf ? "font-semibold text-foreground" : "text-muted-foreground",
+              )}
+            >
+              {member.username}
+              {member.isSelf ? (
+                <span className="font-normal text-muted-foreground"> (Tu)</span>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-base text-muted-foreground">Nessun giocatore</p>
+      )}
     </section>
   );
 }
@@ -183,8 +179,8 @@ export function LeaderboardView({ data, onRefresh, refreshing, className }: Lead
           </div>
         ))}
       </TabsContent>
-      <TabsContent value="teams" className="flex min-h-0 flex-1 flex-col text-base max-sm:overflow-y-auto">
-        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 max-sm:auto-rows-auto sm:grid-cols-2 sm:auto-rows-fr">
+      <TabsContent value="teams" className="min-h-0 flex-1 overflow-y-auto text-base">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <TeamLeaderboardColumn
             teamRow={findTeamRow(data.teams, "blue")}
             highlightSelf={data.self.team === "blue"}

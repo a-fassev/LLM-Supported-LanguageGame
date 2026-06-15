@@ -849,11 +849,21 @@ export default function PlayPage() {
     const nextScene = result.data.run?.currentScene ?? null;
     setState((current) => mergeAttemptState(current, result.data));
     if (result.data.run?.status === "completed") {
-      setTaskReview(null);
-      handleCompletedRun(result.data.run, {
-        holdScene: sceneBeforeSubmit,
-        backgroundKey: backgroundBeforeSubmit,
-      });
+      if (result.data.taskOutcome) {
+        handleCompletedRun(result.data.run, {
+          taskOutcome: result.data.taskOutcome,
+          holdScene: sceneBeforeSubmit,
+          backgroundKey: backgroundBeforeSubmit,
+        });
+        setTaskReview(result.data.taskReview ?? null);
+        setShowSolution(false);
+      } else {
+        setTaskReview(null);
+        handleCompletedRun(result.data.run, {
+          holdScene: sceneBeforeSubmit,
+          backgroundKey: backgroundBeforeSubmit,
+        });
+      }
     } else if (result.data.taskOutcome) {
       pendingDraftSyncSceneRef.current = nextScene;
       setBackgroundHoldKey(backgroundBeforeSubmit);
@@ -1010,7 +1020,12 @@ export default function PlayPage() {
             setMcValidationError(null);
           }}
           onMcQuestionIndexChange={(index) => {
-            setMcQuestionIndex(index);
+            const sceneForMc = displayScene ?? currentScene;
+            setMcQuestionIndex(
+              !sceneForMc || sceneForMc.screen_type !== "multiple_choice"
+                ? Math.max(0, index)
+                : clampMcQuestionIndex(sceneForMc, index),
+            );
             setMcValidationError(null);
           }}
           onMatchingPairsChange={(next) => {
