@@ -163,7 +163,7 @@ Verbatim morning beats from raw Akt 2.0 (scenes 01–02); scene 03 = new transit
 | 01–06 | Story: Nutelleria + Dario dialogue (verbatim, `\n` for NPC/Tu) |
 | 07 | **cloze** — Dario dialogue from raw Esercizio 1; literals for `*Benissimo/Buonissimo*` etc.; gaps with `correctAnswers` from raw solutions line |
 | 08 | Story: Dario professions intro |
-| 09–12 | **free_text** ×4 — architetto, giornalista, medico, giardiniere/a; each: `figures[1]`, shared LLM `evaluation` (che/cui/dove, B1, `minRatioToComplete: 0.65`) |
+| 09–12 | **free_text** ×4 — architetto, giornalista, medico, giardiniere/a; each: `figures[1]`, shared LLM `evaluation` (che/cui/dove, B1) |
 | 13–15 | Story: goodbye, monologue, narrator outro (no map) |
 
 ### 2.5 Quest `quest-03` (13 scenes)

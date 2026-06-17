@@ -167,8 +167,7 @@ export function SceneRouter({
   const primaryLabel = reviewMcBetweenQuestions
     ? "Avanti"
     : inPostAttemptContinue
-      ? (postAttemptContinueLabel ??
-        (postAttemptOutcome?.kind === "success" ? "Avanti" : "Riprova"))
+      ? (postAttemptContinueLabel ?? "Avanti")
       : taskSubmitting
         ? multiQuestionMc && mcNav && !mcNav.isLastQuestion
           ? "..."

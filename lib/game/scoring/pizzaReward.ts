@@ -32,7 +32,6 @@ const pizzaFlatSchema = z.object({
 const pizzaScoredSchema = z.object({
   mode: z.literal("scored"),
   maxSlices: z.number().min(0).max(15),
-  minRatioToComplete: z.number().min(0).max(1).optional(),
   rounding: roundingSchema.optional(),
   mapping: mappingSchema,
 });
@@ -44,7 +43,6 @@ export type ParsedPizzaRules =
   | {
       kind: "scored";
       maxSlices: number;
-      minRatioToComplete: number;
       rounding: RoundingMode;
       mapping: z.infer<typeof mappingSchema>;
     };
@@ -65,12 +63,6 @@ export function applyRounding(raw: number, mode: RoundingMode): number {
     default:
       return Math.floor(raw + 1e-9);
   }
-}
-
-/** True when ratio meets scored-pizza completion bar (ignored for flat pizza rules). */
-export function meetsScoredPizzaMinimum(ratio: number, pizzaRules: ParsedPizzaRules): boolean {
-  if (pizzaRules.kind !== "scored") return true;
-  return ratio + 1e-9 >= pizzaRules.minRatioToComplete;
 }
 
 /** Maps a 0..1 performance ratio to integer pizza slices using step reward_rules.pizza. */
@@ -128,9 +120,7 @@ export function parsePizzaRewardRules(rewardRules: Record<string, unknown> | nul
   return {
     kind: "scored",
     maxSlices: clampInt(p.maxSlices, 0, 15),
-    minRatioToComplete: p.minRatioToComplete ?? 1,
     rounding: p.rounding ?? "floor",
     mapping: p.mapping,
   };
 }
-

@@ -39,7 +39,7 @@ Use when layout or copy feedback sounds like “buttons scroll”, “text too b
 
 | Problem | Fix |
 | ------- | --- |
-| Item bank scrolls away on long category lists | Bank in `TaskBodyLayout` **`beforeScroll`**; only target blocks in scrollable `children`. |
+| Bank + targets clipped on small screens | Bank and target blocks together in scrollable `TaskBodyLayout` **`children`**; validation + drag hint stay in **`beforeScroll`**. |
 | Drag breaks while scrolling zones | Pointer listeners on **`document`**, not only the scroll root. |
 | Ghost tile offset from finger/cursor | Portal preview on `document.body` with grab offset from pointer down. |
 | Controlla blocked with empty zones or bank tiles | Do **not** require filled zones or `requireBankEmpty` on client — POST partial layout; server scores. |

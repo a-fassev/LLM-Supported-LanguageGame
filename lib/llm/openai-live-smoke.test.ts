@@ -20,7 +20,6 @@ describe.skipIf(!hasOpenAiKey)("openai live smoke", () => {
         prompt: "Come ti presenteresti a un nuovo compagno di classe?",
         targetLanguage: "it",
         minWords: 2,
-        maxWords: 40,
         evaluation: {
           grammarWeight: 1,
           vocabularyWeight: 1,

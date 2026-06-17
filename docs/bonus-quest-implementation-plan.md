@@ -45,7 +45,7 @@ Follow **`AGENTS.md` → UNDERSTAND → CLARIFY → CODE** (same as web-task-typ
 1. Learner completes the chapter’s **main** quests in order (`chapter.json` → `quests`, `kind: "main"`).
 2. On the **last main quest’s** final scene success, the shell offers **auto-start into the bonus quest** (see §2.1) — same continuous feel as main quest chaining.
 3. Learner may **skip** the bonus and return to the **chapter map**; bonus stays unlocked and can be started later from the map (optional, not required for next chapter).
-4. If they accept (or start from map): **story** (`info`) → **matching** task with sampled pool → **Controlla** → scored **SuccessOverlay** (or retry below `minRatioToComplete` on that scene).
+4. If they accept (or start from map): **story** (`info`) → **matching** task with sampled pool → **Controlla** → scored **SuccessOverlay** (proportional pizza).
 5. After bonus (or skip), learner continues on the chapter map; **next chapter** unlock does not depend on bonus completion.
 
 ### 2.1 Auto-start & skip (locked)
@@ -61,7 +61,7 @@ Follow **`AGENTS.md` → UNDERSTAND → CLARIFY → CODE** (same as web-task-typ
 ### Product rules (locked)
 
 - Bonus is **optional** for chapter progression (`unlock-display` / bootstrap ignore `kind: "bonus"` for “main quests remaining”).
-- Bonus is **scored** per **task scene** (`scoring.pizza` on each bonus matching scene — authors set `maxSlices`, `minRatioToComplete`, mapping per scene).
+- Bonus is **scored** per **task scene** (`scoring.pizza` on each bonus matching scene — authors set `maxSlices`, mapping per scene).
 - **Auto-start** after last main quest, with **skip** (§2.1).
 - Familiar UI: existing **Matching** task shell (`TaskChrome` instruction, `TaskBodyLayout` prompt, connector lines, Controlla).
 - **One run per quest** while in progress; resuming the same run must show the **same sampled pairs** (not a new random set).
@@ -199,7 +199,7 @@ Replace current placeholders (`screen_type: "bonus"`, empty `task: {}`) with **`
     "pizza": {
       "mode": "scored",
       "maxSlices": 3,
-      "minRatioToComplete": 0.6,
+      "
       "rounding": "floor",
       "mapping": { "kind": "linear" }
     }
@@ -207,7 +207,7 @@ Replace current placeholders (`screen_type: "bonus"`, empty `task: {}`) with **`
 }
 ```
 
-**Per-scene tuning:** Each bonus **task scene** carries its own `scoring.pizza` and `task.sampleSize`. A chapter with multiple bonus task scenes (future) can use different `maxSlices` / `minRatioToComplete` / pool sizes per file.
+**Per-scene tuning:** Each bonus **task scene** carries its own `scoring.pizza` and `task.sampleSize`. A chapter with multiple bonus task scenes (future) can use different `maxSlices` / pool sizes per file.
 
 **Authoring rules:**
 
@@ -232,7 +232,7 @@ Bonus tasks use the same **`scoring.pizza`** contract as main matching tasks (`d
 
 | Mode | Bonus usage |
 | ---- | ------------- |
-| **`scored`** | **Yes.** Ratio from `evaluateMatching` → slices via `linear` or `bands`; completion gated by `minRatioToComplete`. |
+| **`scored`** | **Yes.** Ratio from `evaluateMatching` → slices via `linear` or `bands`; pizza scales with ratio. |
 | **`flat`** | **No** for bonus. Fixed slices do not reflect performance. |
 
 **Example policy (tunable per bonus task scene — Chapter 01 pilot defaults):**
@@ -241,13 +241,13 @@ Bonus tasks use the same **`scoring.pizza`** contract as main matching tasks (`d
 | ----- | ---------------- | ------ |
 | `sampleSize` | `10` | Ten pairs shown per run (confirmed). |
 | `maxSlices` | `3` (example) | Up to 3 slices on a perfect run — **set per scene JSON**. |
-| `minRatioToComplete` | `0.6` (example) | Completion bar — **set per scene JSON**. |
+
 | `mapping.kind` | `linear` | Partial credit from ratio × `maxSlices`. |
 | `rounding` | `floor` | Same convention as main matching scenes. |
 
-**Server path:** For `pizza.mode: "scored"`, attempt/completion routes call `evaluateTaskAttempt("Matching", …)` on the **materialized** task, then `meetsScoredPizzaMinimum` + `slicesFromRatio`. Bonus scenes must use this path (not `flat`, which skips evaluation for non–free-text tasks today).
+**Server path:** For `pizza.mode: "scored"`, attempt/completion routes call `evaluateTaskAttempt("Matching", …)` on the **materialized** task, then `slicesFromRatio` (no completion threshold). Bonus scenes must use this path (not `flat`, which skips evaluation for non–free-text tasks today).
 
-**Retry UX:** Below `minRatioToComplete` → `409` + `taskOutcome` retry overlay (standard task policy; no toast).
+**Post-Controlla UX:** `SuccessOverlay` with pizza from `slicesFromRatio`; no completion threshold (standard task policy; no toast).
 
 ---
 
@@ -310,7 +310,7 @@ Today: matching scenes **must** ship concrete `leftItems` / `rightItems` / `corr
 | Step | Behavior |
 | ---- | -------- |
 | Attempt | `buildMatchingAttempt` + `evaluateMatching` on **materialized** task. |
-| Complete | `minRatioToComplete` from scene `scoring.pizza`; award `slicesFromRatio`. |
+| Complete | Award `slicesFromRatio` from scene `scoring.pizza`; scene always completes on valid attempt. |
 | Wallet | Idempotent scene completion (no double pizza on replay — completed quest cannot restart). |
 
 ### 5.5 Bootstrap / unlock
@@ -334,7 +334,7 @@ No bonus-specific React task type. Treat bonus as **matching with a server-prepa
 | `TaskBodyLayout` | `content.task.prompt` (normal `text-sm`); scroll region for columns | Optional `beforeScroll` hint: *Trascina una linea o tocca due carte.* (same as main matching). |
 | `TaskPanel` | Existing `screen_type === "matching"` → `MatchingTask` | **No** `bonus` branch; remove placeholder path after content migration. |
 | `/play` | `syncMatchingDraftForScene`, `buildMatchingAttempt`, `validateMatchingDraft` | Draft keys off **materialized** `leftItems` ids from snapshot — no client change if snapshot is correct. |
-| Feedback | `SuccessOverlay` + `taskOutcome`; no toast on wrong pairs | Scored retry below `minRatioToComplete` → `409` + overlay. |
+| Feedback | `SuccessOverlay` + `taskOutcome`; no toast on wrong pairs | Proportional pizza; scene always completes |
 
 **Client rules (from skill — still apply):**
 
@@ -421,7 +421,7 @@ Matching UI already ships. **No new components** unless QA asks for bonus-only c
 | 3.5 | Resume stability: second snapshot for same `runId` + `sceneId` returns **same** pair ids/labels | Repository read before re-shuffle |
 | 3.6 | Play page: no new draft type — existing `syncMatchingDraftForScene` runs on materialized ids | `app/(game)/play/page.tsx` — regression only |
 
-**Phase 3 exit:** Full bonus quest playable: info → matching → Controlla → scored success or retry overlay.
+**Phase 3 exit:** Full bonus quest playable: info → matching → Controlla → scored success overlay.
 
 ### Phase 3b — Auto-start & skip (shell)
 
@@ -465,7 +465,7 @@ Matching UI already ships. **No new components** unless QA asks for bonus-only c
 | Materialization | Correct item count; stable ids `left_{poolId}`; `sampleSize` > pool fails | `materialize-matching-pool.test.ts` |
 | Materialization | Same inputs + seeded RNG → same output; different seed → may differ | Same |
 | Catalog | Pool-only bonus scene loads; duplicate pool id fails; `sampleSize` > len fails | `catalog-loader.test.ts`, smoke tests |
-| Scoring | 6/10 correct → ratio 0.6 meets `minRatioToComplete` 0.6; slices linear | `taskScoring.test.ts` / matching eval tests |
+| Scoring | 6/10 correct → ratio 0.6 → proportional slices | `taskScoring.test.ts` / matching eval tests |
 | Sanitizer | Client payload has no `correctPairs`, no `poolPairs` | `sanitize-task-payload-for-client.test.ts` extend |
 | Service | Mock repo: first snapshot writes materialization; second read does not reshuffle | New `game-progress-service` test or repository integration |
 
@@ -479,8 +479,8 @@ Prerequisites: logged-in dev account; main quests through `requiresQuestId` comp
 | Finish `quest-02` | Success UI offers bonus auto-start; **skip** → chapter map without bonus run |
 | Start `quest-01-bonus` (or auto-start) | Scene 01 info → Avanti → scene 02 with **10** pairs (not full pool) |
 | Retreat / refresh | Same 10 pairs (labels unchanged) |
-| Partial correct Controlla | Retry overlay; draft kept |
-| ≥ `minRatioToComplete` | Success overlay; pizza slices match performance (not flat 2) |
+| Partial correct Controlla | Success overlay with partial pizza; draft sync on dismiss |
+| Any ratio | Success overlay; pizza slices match performance (not flat 2) |
 | New run (new quest start after complete) | N/A if one-time quest locked — document expected lock behavior |
 
 **Do not use `GAME_SMOKE_AUTO_PASS=true` when validating scored bonus** — it skips evaluation and masks ratio/slice behavior. Use normal env for bonus QA.

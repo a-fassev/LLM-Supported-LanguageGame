@@ -8,7 +8,7 @@
 - **Fixtures:** `chapter-00/quests/quest-01/scenes/12.json` (minimal smoke + single-figure documento); learner examples in `chapter-02` freetext profession/menù scenes.
 - **Server:** `evaluateFreitextLlmScene` + `completeTaskScene` branch. LLM judge scores **grammar, vocabulary, register, task fulfillment** (`taskFulfillmentScore` + `taskFulfillmentWeight`, default weight 1). `GAME_SMOKE_AUTO_PASS` skips the LLM like other task types.
 - **Provider:** OpenAI via `@langchain/openai` (`ChatOpenAI`), single `OPENAI_API_KEY`. Default model: `gpt-5.4-nano-2026-03-17`.
-- **UI:** `FreeTextTask`, play draft/submit, loading copy, retry overlay with LLM summary.
+- **UI:** `FreeTextTask`, play draft/submit, loading copy, success overlay with LLM summary in body + review section.
 - **Tests:** catalog smoke, service mocks, validation/outcome helpers.
 
 ## Key paths
@@ -33,10 +33,10 @@
 | **503 evaluator** | Remove `OPENAI_API_KEY` from `.env.local`, restart `npm run dev`, submit freetext | `503`, code `evaluator_unavailable`, blocking toast; no scene completion |
 | **504 timeout** | Set `LLM_TASK_TIMEOUT_MS=1`, submit a long answer | `504`, code `MODEL_TIMEOUT`; draft retained |
 | **429 rate limit** | Burst many freetext submits until OpenAI returns 429 | `RATE_LIMITED`; learner can retry **Controlla** |
-| **Retry below bar** | Answer below `minRatioToComplete` (scored) or `passThreshold` (flat) | `409` + retry overlay with LLM `body` |
+| **Low ratio** | Weak answer on scored freetext | `200` success overlay with partial pizza; LLM summary in `taskOutcome.body` |
 | **Success** | Strong Italian answer on scene 12 | Generic success overlay + pizza/backpack rewards |
 
-Automated coverage: `evaluate-freitext-llm-scene.test.ts` (503 env, 504 abort), `meets-freitext-completion-minimum.test.ts`, `attempt/route.test.ts` (account rate limit).
+Automated coverage: `evaluate-freitext-llm-scene.test.ts` (503 env, 504 abort), `attempt/route.test.ts` (account rate limit).
 
 ## Azure App Service configuration
 

@@ -23,7 +23,6 @@ const TUTORIAL_SCORING = {
   pizza: {
     mode: "scored",
     maxSlices: 0,
-    minRatioToComplete: 1,
     rounding: "floor",
     mapping: { kind: "linear" },
   },
@@ -199,7 +198,6 @@ const scenes = [
       targetLanguage: "it",
       showWordCount: true,
       minWords: 3,
-      maxWords: 30,
       evaluation: {
         grammarWeight: 1,
         vocabularyWeight: 1,

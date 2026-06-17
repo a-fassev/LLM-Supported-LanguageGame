@@ -244,14 +244,14 @@ Pattern: chapters 01–02 / `docs/quest-scene-content-format.md` §6. Task scene
 
 | Scene (draft) | Quest | Task | Pizza (draft) | Rationale |
 | ------------- | ----- | ---- | ------------- | --------- |
-| 05 | quest-02 | MC ×6 | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.67`, `linear`, `floor` | ~4/6 to pass |
-| 09 | quest-03 | cloze (9 gaps) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.78`, `linear`, `floor` | ~7/9 |
-| 13 | quest-03 | matching (8 pairs) | `scored`, `maxSlices: 2`, `minRatioToComplete: 0.75`, `linear`, `floor` | 6/8 |
-| 14 | quest-03 | cloze (6 gaps) | `scored`, `maxSlices: 2`, `minRatioToComplete: 0.83`, `linear`, `floor` | 5/6 |
-| 08 | quest-04 | MC ×4 | `scored`, `maxSlices: 2`, `minRatioToComplete: 0.75`, `linear`, `floor` | 3/4 |
-| 11 | quest-04 | cloze (long) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.85`, `linear`, `floor` | Dense si impersonale |
-| 15 | quest-04 | drag_drop (13 items) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.69`, `linear`, `floor` | ~9/13 |
-| 04 | quest-01-bonus | matching pool ×10 | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.6`, `linear`, `floor` | Bonus plan |
+| 05 | quest-02 | MC ×6 | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| 09 | quest-03 | cloze (9 gaps) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| 13 | quest-03 | matching (8 pairs) | `scored`, `maxSlices: 2`, `linear`, `floor` | Pizza scales with ratio |
+| 14 | quest-03 | cloze (6 gaps) | `scored`, `maxSlices: 2`, `linear`, `floor` | Pizza scales with ratio |
+| 08 | quest-04 | MC ×4 | `scored`, `maxSlices: 2`, `linear`, `floor` | Pizza scales with ratio |
+| 11 | quest-04 | cloze (long) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| 15 | quest-04 | drag_drop (13 items) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| 04 | quest-01-bonus | matching pool ×10 | `scored`, `maxSlices: 3`, `linear`, `floor` | Bonus plan |
 
 **Chapter pizza (rough):** ~18–22 slices from main tasks (+ bonus). Team rebalance later.
 

@@ -8,7 +8,6 @@ describe("normalizeFreitextContentResult", () => {
       prompt: "Come ti presenteresti a un nuovo compagno di classe?",
       showWordCount: true,
       minWords: 2,
-      maxWords: 40,
       evaluation: {
         grammarWeight: 1,
         vocabularyWeight: 1,

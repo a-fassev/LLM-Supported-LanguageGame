@@ -312,7 +312,7 @@ Validated at catalog load (`parseMatchingContent`). Web renders **text-only** ca
 }
 ```
 
-Use **`scoring.pizza.mode: "scored"`** on bonus scenes (per-scene `maxSlices`, `minRatioToComplete`, etc.). See `docs/bonus-quest-implementation-plan.md`.
+Use **`scoring.pizza.mode: "scored"`** on bonus scenes (per-scene `maxSlices`, mapping, etc.). See `docs/bonus-quest-implementation-plan.md`.
 
 ```jsonc
 {
@@ -375,7 +375,7 @@ Validated at catalog load (`parseDragDropContent`). Web v1 supports **`presentat
 | Targets | Unique `id`; `correctItemIds` required for catalog/scoring (stripped on client snapshot). |
 | `matchMode` | **`one`** (default): scoring — exactly **one** placed tile must be in `correctItemIds` (OR list). UI may show multiple tiles per zone while editing; more than one at Controlla scores that target wrong. **`all`**: every listed id must be in the bucket. |
 | Flags | `shuffleItemOrder` (default on). `requireBankEmpty` is **legacy** in JSON (ignored on web; do not block Controlla). |
-| Controlla | Web always accepts **partial** layouts (empty zones, cards still in bank). Server `evaluateDragDrop` scores; retry via `taskOutcome` when below `minRatioToComplete`. |
+| Controlla | Web always accepts **partial** layouts (empty zones, cards still in bank). Server `evaluateDragDrop` scores; pizza slices scale with ratio on success overlay. |
 | Presentation | Optional `sourceLabel` / `targetLabel`; defaults in `lib/game/tasks/drag-drop/drag-drop-types.ts`. |
 | Scene copy | `instruction` → `TaskChrome`; `prompt` → `TaskBodyLayout`; optional `subtitle` or default drag hint in `beforeScroll`. |
 | Attempt | `{ taskType: "DragDrop", dragDrop: { assignments: { [targetId]: string \| string[] } } } }` — arrays for `all` buckets. |
@@ -447,7 +447,7 @@ Fixture scenes: `chapter-00/quest-01/scenes/15.json` (minimal, 2 gaps, long Bolo
 
 #### `free_text` — `content.task`
 
-Validated at catalog load (`parseFreitextLlmStepContent` on merged `content.task` + scene `instruction` + shell `content.referenceDocument` when the task payload has no `referenceDocument`). **Scene completion** uses **`scoring.pizza.minRatioToComplete`** when `pizza.mode` is `scored` ( **`evaluation.passThreshold` is ignored** for the pass/fail bar), and **`evaluation.passThreshold`** when `pizza.mode` is `flat`. **`evaluation.passThreshold`** on scored scenes and **`scoringPolicy`** feed the LLM rubric only — they do **not** gate completion on web. The LLM judge runs when evaluation is not skipped (`GAME_SMOKE_AUTO_PASS` skips all task types including `free_text`). Snapshots strip `task.evaluation` before the browser (see `sanitize-task-payload-for-client.ts`).
+Validated at catalog load (`parseFreitextLlmStepContent` on merged `content.task` + scene `instruction` + shell `content.referenceDocument` when the task payload has no `referenceDocument`). **Scene completion** always follows a valid attempt; pizza slices scale with LLM `ratio` when `pizza.mode` is `scored`, or fixed slices when `flat`. **`evaluation.passThreshold`** and **`scoringPolicy`** feed the LLM rubric only — they do **not** gate progression. The LLM judge runs when evaluation is not skipped (`GAME_SMOKE_AUTO_PASS` skips all task types including `free_text`). Snapshots strip `task.evaluation` before the browser (see `sanitize-task-payload-for-client.ts`).
 
 ```jsonc
 {
@@ -455,7 +455,6 @@ Validated at catalog load (`parseFreitextLlmStepContent` on merged `content.task
   "targetLanguage": "it",
   "showWordCount": true,
   "minWords": 2,
-  "maxWords": 40,
   "evaluation": {
     "grammarWeight": 1,
     "vocabularyWeight": 1,
@@ -476,12 +475,12 @@ Validated at catalog load (`parseFreitextLlmStepContent` on merged `content.task
 | `prompt` | Required; shown in `TaskBodyLayout`. |
 | `evaluation` | Required weights (`grammarWeight`, `vocabularyWeight`, `registerWeight`, optional `taskFulfillmentWeight` default 1) + `passThreshold`. LLM returns four scores; `ratio` is their weighted mean. Stripped from client snapshots. |
 | `taskFulfillmentWeight` | Weight for **task fulfillment** (prompt + instruction + `evaluationCriteria` + `targetStructures`). Default **1** when omitted. |
-| `pizza.mode` | Prefer **`scored`** with `minRatioToComplete`. **`flat`** still calls the LLM; completion uses **`evaluation.passThreshold`** as the ratio bar (slices use the flat value). |
-| Limits | Optional `minWords` / `maxWords`; enforced client + server. |
+| `pizza.mode` | Prefer **`scored`** — slices from `ratio` × `maxSlices`. **`flat`** awards fixed slices on completion (LLM still runs for `free_text`). |
+| Limits | Optional `minWords` (lower bound only); enforced client + server. No `maxWords` or character cap. |
 | Counters | `showWordCount` / `showCharacterCount` toggle stats under the prompt. |
 | Scene copy | `instruction` → `TaskChrome`; optional scene-level `referenceDocument` for documento. |
 | Attempt | `{ taskType: "FreitextLlm", freitextLlm: { answerText: "…" } }`. |
-| Retry UX | Below `minRatioToComplete`: `409` + `taskOutcome` with LLM `summaryFeedback` in overlay body. |
+| Post-Controlla UX | Success overlay with proportional pizza + optional LLM review in overlay. |
 
 Fixture scenes: quest-01 `scenes/12.json` (minimal smoke), chapter-03 quest-02 `scenes/02.json` (rich + `referenceDocument`). See `docs/freitext-llm-task-integration-plan.md`.
 
@@ -489,11 +488,11 @@ Fixture scenes: quest-01 `scenes/12.json` (minimal smoke), chapter-03 quest-02 `
 
 ## 6. Scoring (pizza + backpack)
 
-**Task scenes only** (story scenes omit `scoring`). The server applies rules **once per first successful completion** of a scene (retries / going back do not re-award — §12).
+**Task scenes only** (story scenes omit `scoring`). The server applies rules **once per first completion** of a scene (revisiting / going back do not re-award — §12).
 
 ### Pizza
 
-The server derives a correctness **ratio** (0–1) from the attempt (when task mechanics exist), then maps it through `scoring.pizza`. Authors can mix **flat** and **scored** per scene. Do not rely on service-side auto-pass for unsupported scored task types: use `flat` until evaluator support exists, or the API returns `task_eval_not_implemented`.
+The server derives a correctness **ratio** (0–1) from the attempt (when task mechanics exist), maps it to pizza slices via `scoring.pizza`, and **always completes** the scene on a valid attempt. Authors can mix **flat** and **scored** per scene. Do not rely on service-side auto-pass for unsupported scored task types: use `flat` until evaluator support exists, or the API returns `task_eval_not_implemented`.
 
 ### Backpack
 
@@ -513,7 +512,7 @@ Configured **per scene** under `scoring.backpack` (not a global constant).
 
 ### Flat pizza
 
-Award a fixed number of slices on **first successful completion** (task meets `minRatioToComplete` when using scored task rules; for flat-only tasks, completion on pass).
+Award a fixed number of slices on **first completion** of the scene.
 
 ```jsonc
 "scoring": {
@@ -524,7 +523,7 @@ Award a fixed number of slices on **first successful completion** (task meets `m
 
 ### Scored
 
-Map ratio → slices up to `maxSlices`. Combine with **linear** or **bands** mapping, optional completion bar, and rounding.
+Map ratio → slices up to `maxSlices`. Combine with **linear** or **bands** mapping and rounding.
 
 ```jsonc
 "scoring": {
@@ -532,7 +531,6 @@ Map ratio → slices up to `maxSlices`. Combine with **linear** or **bands** map
   "pizza": {
     "mode": "scored",
     "maxSlices": 3,
-    "minRatioToComplete": 0.6,
     "rounding": "floor",
     "mapping": { "kind": "linear" }
   }
@@ -541,8 +539,7 @@ Map ratio → slices up to `maxSlices`. Combine with **linear** or **bands** map
 
 | Field | Notes |
 | ----- | ----- |
-| `maxSlices` | Cap (0–5). |
-| `minRatioToComplete` | Minimum ratio to count the scene as completed. Default `1` if omitted. |
+| `maxSlices` | Cap (0–15). |
 | `rounding` | `floor` \| `ceil` \| `nearest` on linear mapping. Default `floor`. |
 | `mapping.kind` | `linear` — slices from ratio × `maxSlices`. |
 | `mapping.kind` | `bands` — arbitrary steps (full flexibility). |

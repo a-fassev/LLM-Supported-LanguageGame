@@ -1,18 +1,12 @@
-/** Learner-facing Italian copy for the post-Controlla success / retry overlay. */
+/** Learner-facing Italian copy for the post-Controlla success overlay. */
 
 export type TaskOutcomeDto = {
-  kind: "success" | "retry";
   ratio: number;
   awardedSlices: number;
   awardedBackpackPieces: number;
   headline: string;
   body: string;
 };
-
-function percentLabel(ratio: number): string {
-  const pct = Math.round(Math.min(1, Math.max(0, ratio)) * 100);
-  return `${pct}%`;
-}
 
 function rewardLine(slices: number, backpackPieces: number): string {
   const parts: string[] = [];
@@ -52,65 +46,52 @@ function successBody(
       ? "Hai fatto centro - complimenti!"
       : ratio >= 0.85
         ? "Che bel risultato!"
-        : "Hai superato l'attivita.";
+        : ratio >= 0.6
+          ? "Ottimo, continua cosi!"
+          : "Hai completato l'attivita.";
   return `${praise} ${rewardLine(slices, backpackPieces)}`;
 }
 
-function retryHeadline(): string {
-  return "Quasi!";
-}
-
-function retryBody(ratio: number, sceneOffersRewards: boolean): string {
-  const pct = percentLabel(ratio);
-  if (!sceneOffersRewards) {
-    return `Hai risposto correttamente al ${pct} - serve un po' di piu per completare l'attivita. Riprova, ce la puoi fare!`;
-  }
-  return `Hai risposto correttamente al ${pct} - per le fette di pizza serve un po' di piu. Riprova, ce la puoi fare!`;
-}
-
-/** True when the scene can award pizza slices or backpack pieces on pass. */
-export function sceneOffersTaskRewards(
-  sceneMaxRewardSlices: number,
-  sceneMaxRewardBackpack: number,
-): boolean {
-  return sceneMaxRewardSlices > 0 || sceneMaxRewardBackpack > 0;
+function appendFreetextFeedback(
+  body: string,
+  summaryFeedback?: string,
+  nextStepAdvice?: string,
+): string {
+  const summary = summaryFeedback?.trim();
+  const advice = nextStepAdvice?.trim();
+  if (!summary && !advice) return body;
+  const parts = [summary, advice].filter((part): part is string => Boolean(part && part.length > 0));
+  const merged = `${body} ${parts.join(" ")}`.trim();
+  return merged;
 }
 
 export function buildTaskOutcome(params: {
-  passed: boolean;
   ratio: number;
   awardedSlices: number;
   awardedBackpackPieces: number;
   /** Scene was passed again after rewards were already stored for this run/scene. */
   rewardsAlreadyClaimed?: boolean;
-  /** Max reward this scene can grant (for retry copy when awarded amounts are 0). */
-  sceneMaxRewardSlices?: number;
-  sceneMaxRewardBackpack?: number;
+  /** Optional freetext judge copy appended to overlay body (summary + short advice). */
+  summaryFeedback?: string;
+  nextStepAdvice?: string;
 }): TaskOutcomeDto {
   const ratio = Math.min(1, Math.max(0, params.ratio));
-  if (params.passed) {
-    return {
-      kind: "success",
-      ratio,
-      awardedSlices: params.awardedSlices,
-      awardedBackpackPieces: params.awardedBackpackPieces,
-      headline: successHeadline(ratio),
-      body: successBody(
-        ratio,
-        params.awardedSlices,
-        params.awardedBackpackPieces,
-        params.rewardsAlreadyClaimed,
-      ),
-    };
-  }
-  const maxSlices = params.sceneMaxRewardSlices ?? 0;
-  const maxBackpack = params.sceneMaxRewardBackpack ?? 0;
-  return {
-    kind: "retry",
+  const baseBody = successBody(
     ratio,
-    awardedSlices: 0,
-    awardedBackpackPieces: 0,
-    headline: retryHeadline(),
-    body: retryBody(ratio, sceneOffersTaskRewards(maxSlices, maxBackpack)),
+    params.awardedSlices,
+    params.awardedBackpackPieces,
+    params.rewardsAlreadyClaimed,
+  );
+  const freetextBody = appendFreetextFeedback(
+    baseBody,
+    params.summaryFeedback,
+    params.nextStepAdvice,
+  );
+  return {
+    ratio,
+    awardedSlices: params.awardedSlices,
+    awardedBackpackPieces: params.awardedBackpackPieces,
+    headline: successHeadline(ratio),
+    body: freetextBody,
   };
 }

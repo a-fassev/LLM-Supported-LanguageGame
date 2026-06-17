@@ -2,7 +2,6 @@ import type { TaskOutcomeDto } from "@/lib/game/task-outcome-messages";
 
 /** Learner-facing overlay when the last quest of a `gameFinale` chapter completes. */
 export const QUEST_COMPLETE_GAME_FINALE: TaskOutcomeDto = {
-  kind: "success",
   ratio: 1,
   awardedSlices: 0,
   awardedBackpackPieces: 0,

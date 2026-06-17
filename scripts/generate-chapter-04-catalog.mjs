@@ -499,7 +499,6 @@ writeJson("quests/quest-02/scenes/07.json", {
       targetLanguage: "it",
       showWordCount: true,
       minWords: 8,
-      maxWords: 80,
       evaluation: freetextEvaluation([
         "Describe the cathedral photo with varied B1 vocabulary (architecture, horse carriage, sunlight, wish to visit)",
         "Write at least two complete sentences about what is visible in photo D",
@@ -507,7 +506,7 @@ writeJson("quests/quest-02/scenes/07.json", {
       ]),
     },
   },
-  scoring: taskScoring("free_text", { minRatioToComplete: 0.65 }),
+  scoring: taskScoring("free_text"),
 });
 
 writeJson(
@@ -637,7 +636,7 @@ writeJson("quests/quest-02/scenes/14.json", {
       ],
     },
   },
-  scoring: taskScoring("cloze", { minRatioToComplete: 0.81 }),
+  scoring: taskScoring("cloze"),
 });
 
 writeJson(
@@ -687,7 +686,7 @@ writeJson("quests/quest-02/scenes/16.json", {
       segments: errorSegments,
     },
   },
-  scoring: taskScoring("error_spotting", { minRatioToComplete: 0.75 }),
+  scoring: taskScoring("error_spotting"),
 });
 
 writeJson(
@@ -779,7 +778,6 @@ writeJson("quests/quest-03/scenes/04.json", {
       targetLanguage: "it",
       showWordCount: true,
       minWords: 50,
-      maxWords: 150,
       evaluation: freetextEvaluation(
         [
           "Transfer at least three of the five German article tips into Italian",
@@ -792,7 +790,7 @@ writeJson("quests/quest-03/scenes/04.json", {
       ),
     },
   },
-  scoring: taskScoring("free_text", { minRatioToComplete: 0.65 }),
+  scoring: taskScoring("free_text"),
 });
 
 writeJson(
@@ -911,7 +909,7 @@ writeJson("quests/quest-04/scenes/05.json", {
       ],
     },
   },
-  scoring: taskScoring("multiple_choice", { minRatioToComplete: 0.75 }),
+  scoring: taskScoring("multiple_choice"),
 });
 
 writeJson(
@@ -1023,7 +1021,7 @@ writeJson("quests/quest-04/scenes/09.json", {
       ],
     },
   },
-  scoring: taskScoring("cloze", { minRatioToComplete: 0.75 }),
+  scoring: taskScoring("cloze"),
 });
 
 writeJson(
@@ -1121,7 +1119,7 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
       },
     },
   },
-  scoring: taskScoring("matching", { minRatioToComplete: 0.6 }),
+  scoring: taskScoring("matching"),
 });
 
 const chapter04AssetKeys = collectChapter04AssetKeys(

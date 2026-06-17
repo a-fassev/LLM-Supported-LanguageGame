@@ -216,12 +216,12 @@ Pattern: chapters 01–04 / `docs/quest-scene-content-format.md` §6. Task scene
 
 | Scene (draft) | Quest | Task | Pizza (draft) | Rationale |
 | ------------- | ----- | ---- | ------------- | --------- |
-| 04 | quest-02 | MC ×5 | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.8`, `linear`, `floor` | 4/5 |
-| 04 | quest-03 | drag_drop (8) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.75`, `linear`, `floor` | 6/8 |
-| 05 | quest-03 | cloze (6 gaps) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.83`, `linear`, `floor` | 5/6 |
-| 04 | quest-04 | cloze mail (~11 gaps) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.82`, `linear`, `floor` | ~9/11 |
-| 05 | quest-04 | matching ×8 | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.75`, `linear`, `floor` | 6/8 |
-| 04 | quest-01-bonus | matching pool ×10 | `scored`, `maxSlices: 2`, `minRatioToComplete: 0.6`, `linear`, `floor` | Bonus |
+| 04 | quest-02 | MC ×5 | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| 04 | quest-03 | drag_drop (8) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| 05 | quest-03 | cloze (6 gaps) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| 04 | quest-04 | cloze mail (~11 gaps) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| 05 | quest-04 | matching ×8 | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| 04 | quest-01-bonus | matching pool ×10 | `scored`, `maxSlices: 2`, `linear`, `floor` | Bonus |
 
 **Chapter pizza (rough):** ~14–16 slices from main tasks (+ bonus). Team rebalance after playtest.
 

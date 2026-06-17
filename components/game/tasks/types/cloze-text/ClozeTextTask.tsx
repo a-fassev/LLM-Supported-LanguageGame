@@ -54,6 +54,22 @@ function gapInputMinWidthCh(maxLength: number | undefined): number {
 const CLOZE_GAP_INPUT_CLASS =
   "mx-0.5 inline-block h-[1.35em] min-h-0 w-auto min-w-[5ch] max-w-[20ch] shrink-0 px-1 py-0 align-baseline [field-sizing:content] focus-visible:border-ring focus-visible:ring-0";
 
+function clozeReviewHintsForRow(
+  row: ClozeRenderSegment[],
+  taskReview: ClozeTaskReview | undefined,
+): ClozeTaskReview["gaps"] {
+  if (!taskReview) {
+    return [];
+  }
+  const gapIndices = new Set(
+    row.filter((segment): segment is Extract<ClozeRenderSegment, { kind: "gap" }> => segment.kind === "gap")
+      .map((segment) => segment.gapIndex),
+  );
+  return taskReview.gaps.filter(
+    (gap) => gapIndices.has(gap.gapIndex) && !gap.isCorrect && gap.acceptedAnswers[0],
+  );
+}
+
 function buildRenderLines(content: ClozeTextClientContentParsed): ClozeRenderSegment[][] {
   const rows: ClozeRenderSegment[][] = [];
   let gapIndex = 0;
@@ -125,70 +141,75 @@ export function ClozeTextTask({
       }
     >
       <div className="space-y-3">
-        {renderLines.map((row, lineIndex) => (
-          <p key={`line-${lineIndex}`} className={TASK_PLAY_BODY_TEXT}>
-            {row.map((segment) => {
-              if (segment.kind === "text") {
-                const hasNewline = segment.text.includes("\n");
-                return (
-                  <span key={segment.key} className={cn(hasNewline && "whitespace-pre-wrap")}>
-                    {segment.text}
-                  </span>
-                );
-              }
+        {renderLines.map((row, lineIndex) => {
+          const rowReviewHints = reviewMode ? clozeReviewHintsForRow(row, taskReview) : [];
 
-              const minWidthCh = gapInputMinWidthCh(segment.maxLength);
-              const gapReview = taskReview?.gaps.find((g) => g.gapIndex === segment.gapIndex);
-              const reviewActive = reviewMode && gapReview;
-              const exampleWord = gapReview?.acceptedAnswers[0];
-              const altWords = gapReview?.acceptedAnswers.slice(1, 3) ?? [];
-              const showReviewHint = reviewActive && !gapReview.isCorrect && exampleWord;
+          return (
+            <div key={`line-${lineIndex}`} className="space-y-1">
+              <p className={TASK_PLAY_BODY_TEXT}>
+                {row.map((segment) => {
+                  if (segment.kind === "text") {
+                    const hasNewline = segment.text.includes("\n");
+                    return (
+                      <span key={segment.key} className={cn(hasNewline && "whitespace-pre-wrap")}>
+                        {segment.text}
+                      </span>
+                    );
+                  }
 
-              const gapInput = (
-                <Input
-                  type="text"
-                  name={`cloze-${scene.id}-g${segment.gapIndex}`}
-                  value={answers[segment.gapIndex] ?? ""}
-                  disabled={disabled || reviewMode}
-                  readOnly={reviewMode}
-                  maxLength={segment.maxLength}
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                  data-1p-ignore
-                  data-lpignore="true"
-                  aria-label={`Lacuna ${segment.gapIndex + 1} di ${gapCount}`}
-                  className={cn(
-                    CLOZE_GAP_INPUT_CLASS,
-                    TASK_PLAY_INLINE_FIELD_TEXT,
-                    reviewActive &&
-                      (gapReview.isCorrect ? TASK_REVIEW_CORRECT : TASK_REVIEW_INCORRECT),
-                  )}
-                  style={{ minWidth: `${minWidthCh}ch` }}
-                  onChange={(event) => {
-                    const next = [...answers];
-                    next[segment.gapIndex] = event.target.value;
-                    onAnswersChange(next);
-                  }}
-                />
-              );
+                  const minWidthCh = gapInputMinWidthCh(segment.maxLength);
+                  const gapReview = taskReview?.gaps.find((g) => g.gapIndex === segment.gapIndex);
+                  const reviewActive = reviewMode && gapReview;
 
-              if (showReviewHint) {
-                return (
-                  <span key={segment.key} className="inline-block align-baseline">
-                    {gapInput}
-                    <span className={cn(TASK_REVIEW_HINT_TEXT, "mt-0.5 block")}>
-                      Esempio: {exampleWord}
-                      {altWords.length > 0 ? ` · Anche: ${altWords.join(", ")}` : ""}
+                  return (
+                    <span key={segment.key}>
+                      <Input
+                        type="text"
+                        name={`cloze-${scene.id}-g${segment.gapIndex}`}
+                        value={answers[segment.gapIndex] ?? ""}
+                        disabled={disabled || reviewMode}
+                        readOnly={reviewMode}
+                        maxLength={segment.maxLength}
+                        autoComplete="off"
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        data-1p-ignore
+                        data-lpignore="true"
+                        aria-label={`Lacuna ${segment.gapIndex + 1} di ${gapCount}`}
+                        className={cn(
+                          CLOZE_GAP_INPUT_CLASS,
+                          TASK_PLAY_INLINE_FIELD_TEXT,
+                          reviewActive &&
+                            (gapReview.isCorrect ? TASK_REVIEW_CORRECT : TASK_REVIEW_INCORRECT),
+                        )}
+                        style={{ minWidth: `${minWidthCh}ch` }}
+                        onChange={(event) => {
+                          const next = [...answers];
+                          next[segment.gapIndex] = event.target.value;
+                          onAnswersChange(next);
+                        }}
+                      />
                     </span>
-                  </span>
-                );
-              }
-
-              return <span key={segment.key}>{gapInput}</span>;
-            })}
-          </p>
-        ))}
+                  );
+                })}
+              </p>
+              {rowReviewHints.length > 0 ? (
+                <ul className="space-y-0.5" aria-label="Soluzioni per le lacune sbagliate">
+                  {rowReviewHints.map((gap) => {
+                    const exampleWord = gap.acceptedAnswers[0];
+                    const altWords = gap.acceptedAnswers.slice(1, 3);
+                    return (
+                      <li key={gap.gapIndex} className={TASK_REVIEW_HINT_TEXT}>
+                        Lacuna {gap.gapIndex + 1}: Esempio: {exampleWord}
+                        {altWords.length > 0 ? ` · Anche: ${altWords.join(", ")}` : ""}
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : null}
+            </div>
+          );
+        })}
       </div>
     </TaskBodyLayout>
   );

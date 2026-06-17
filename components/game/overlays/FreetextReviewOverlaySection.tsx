@@ -5,9 +5,9 @@ import { TASK_PLAY_BODY_TEXT, TASK_PLAY_META_TEXT } from "@/lib/game/task-typogr
 
 type FreetextReviewOverlaySectionProps = {
   review: FreitextTaskReview;
-  /** When false, summary/advice are omitted (e.g. retry copy already in overlay body). */
+  /** When false, summary/advice are omitted (e.g. already in overlay body). */
   showSummary?: boolean;
-  /** Per-dimension scores are success-only; retry overlay shows headline/body only. */
+  /** Per-dimension scores shown on success overlay. */
   showDimensions?: boolean;
 };
 

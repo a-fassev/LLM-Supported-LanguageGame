@@ -64,7 +64,15 @@ const steckbriefRefDoc = {
 const quizGalleryRefDoc = {
   documentId: "ch02-quiz-persons",
   title: "Chi sono?",
-  body: "Persone del quiz: Giuseppe Verdi, Cristoforo Colombo, Maria Montessori, Michelangelo Buonarroti, Elena Ferrante, Leonardo da Vinci.",
+  body: "Ecco le sei persone del quiz. Il nome sotto ogni foto ti aiuta a scegliere.",
+  figures: [
+    { image: "chapters/02/quests/03/ref-quiz-verdi", caption: "Giuseppe Verdi" },
+    { image: "chapters/02/quests/03/ref-quiz-colombo", caption: "Cristoforo Colombo" },
+    { image: "chapters/02/quests/03/ref-quiz-montessori", caption: "Maria Montessori" },
+    { image: "chapters/02/quests/03/ref-quiz-michelangelo", caption: "Michelangelo Buonarroti" },
+    { image: "chapters/02/quests/03/ref-quiz-ferrante", caption: "Elena Ferrante" },
+    { image: "chapters/02/quests/03/ref-quiz-da-vinci", caption: "Leonardo da Vinci" },
+  ],
 };
 
 const QUIZ_PERSON_OPTIONS = [
@@ -76,10 +84,11 @@ const QUIZ_PERSON_OPTIONS = [
   { id: "da-vinci", label: "Leonardo da Vinci" },
 ];
 
-function professionRefDoc(caption) {
+function professionRefDoc(caption, imageKey) {
   return {
     title: caption,
-    body: `Descrivi questa professione: ${caption}.`,
+    body: "Guarda la foto e scrivi una frase con che, cui o dove.",
+    figures: [{ image: imageKey, caption }],
   };
 }
 
@@ -124,11 +133,11 @@ function mcQuizScene(sceneNum, titleSuffix, grammarPrompt, grammarOptions, corre
         ],
       },
     },
-    scoring: taskScoring("multiple_choice", { minRatioToComplete: 0.5 }),
+    scoring: taskScoring("multiple_choice"),
   };
 }
 
-function freetextProfessionScene(questId, sceneNum, bg, caption, prompt) {
+function freetextProfessionScene(questId, sceneNum, bg, caption, imageKey, prompt) {
   const nn = String(sceneNum).padStart(2, "0");
   return {
     id: `${CHAPTER_ID}-${questId}-scene-${nn}`,
@@ -138,21 +147,19 @@ function freetextProfessionScene(questId, sceneNum, bg, caption, prompt) {
     content: {
       title: "Descrivi la professione",
       instruction: "Scrivi una frase in italiano con un pronome relativo (che, cui o dove).",
-      referenceDocument: professionRefDoc(caption),
+      referenceDocument: professionRefDoc(caption, imageKey),
       task: {
-        prompt: `${prompt} Professione: ${caption}.`,
+        prompt,
         targetLanguage: "it",
         showWordCount: true,
         minWords: 5,
-        maxWords: 80,
         evaluation: freetextEvaluation([
           "Use at least one relative pronoun (che, cui, or dove) correctly",
-          `Describe the profession ${caption} plausibly in Italian at B1 level`,
-          "Do not describe a different profession",
+          "Describe the profession plausibly in Italian at B1 level",
         ]),
       },
     },
-    scoring: taskScoring("free_text", { minRatioToComplete: 0.65 }),
+    scoring: taskScoring("free_text"),
   };
 }
 
@@ -172,17 +179,13 @@ function freetextMenuScene(sceneNum, caption, imageKey, prompt) {
         targetLanguage: "it",
         showWordCount: true,
         minWords: 5,
-        maxWords: 80,
         evaluation: freetextEvaluation([
           "Use at least one relative pronoun (che, cui, or dove) correctly",
-          `Describe the menu category ${caption} plausibly (position in an Italian meal and typical dishes)`,
-          caption.includes("secondi")
-            ? "For secondi piatti, require meat, fish, eggs, cheese or similar main-course dishes; do not accept pasta or rice as secondi piatti"
-            : "Do not accept examples that belong mainly to another menu category",
+          "Describe the menu category plausibly (position in an Italian meal and typical dishes)",
         ]),
       },
     },
-    scoring: taskScoring("free_text", { minRatioToComplete: 0.65 }),
+    scoring: taskScoring("free_text"),
   };
 }
 
@@ -375,7 +378,7 @@ writeJson("quests/quest-02/scenes/07.json", {
             gap(["farò", "Farò"]),
             { kind: "text", text: " l'archeologo anch'io!\nTu: Davvero? Ma non " },
             gap(["avrai", "Avrai"]),
-            { kind: "text", text: " bisogno di voti molto alti per farlo? Sono questi che ti " },
+            { kind: "text", text: " bisogno di voti più alti per farlo? Sono questi che ti " },
             gap(["mancano", "Mancano"]),
             { kind: "text", text: ".\nDario: Sì, certo. Da domani " },
             gap(["studierò", "Studierò"]),
@@ -414,9 +417,9 @@ writeJson("quests/quest-02/scenes/07.json", {
             gap(["farai", "Farai"]),
             { kind: "text", text: " dopo " },
             gap(["la", "La"]),
-            { kind: "text", text: " maturità?\nTu: Sì, ho già una mezza idea " },
-            gap(["sul mio", "Sul mio"]),
-            { kind: "text", text: " futuro. Sai che a " },
+            { kind: "text", text: " maturità?\nTu: Sì, ho già una mezza idea sul " },
+            gap(["futuro", "Futuro"]),
+            { kind: "text", text: ". Sai che a " },
             gap(["mia", "Mia"]),
             { kind: "text", text: " sorella e a me piace molto la musica e proprio ieri ho sentito un'intervista alla " },
             gap(["nostra", "Nostra"]),
@@ -426,7 +429,7 @@ writeJson("quests/quest-02/scenes/07.json", {
       ],
     },
   },
-  scoring: taskScoring("cloze", { minRatioToComplete: 0.85 }),
+  scoring: taskScoring("cloze"),
 });
 
 writeJson(
@@ -447,6 +450,7 @@ writeJson(
     9,
     q2task,
     "l'architetto",
+    "chapters/02/quests/02/ref-prof-architetto",
     "Descrivi la professione dell'architetto con una frase. Usa che, cui o dove.",
   ),
 );
@@ -457,6 +461,7 @@ writeJson(
     10,
     q2task,
     "il/la giornalista",
+    "chapters/02/quests/02/ref-prof-giornalista",
     "Descrivi la professione del/la giornalista con una frase. Usa che, cui o dove.",
   ),
 );
@@ -467,6 +472,7 @@ writeJson(
     11,
     q2task,
     "il medico",
+    "chapters/02/quests/02/ref-prof-medico",
     "Descrivi la professione del medico con una frase. Usa che, cui o dove.",
   ),
 );
@@ -477,6 +483,7 @@ writeJson(
     12,
     q2task,
     "il/la giardiniere/a",
+    "chapters/02/quests/02/ref-prof-giardiniere",
     "Descrivi la professione del/la giardiniere/a con una frase. Usa che, cui o dove.",
   ),
 );
@@ -555,11 +562,11 @@ writeJson("quests/quest-03/scenes/04.json", {
   content: {
     title: "Che persona straordinaria!",
     instruction:
-      "Apri il documento, leggi i profili e scegli una delle tre persone. Completa solo il suo identikit con le informazioni del testo.",
+      "Scegli una delle tre persone e completa solo il suo identikit con le informazioni del testo. Puoi rileggere i profili nel documento.",
     referenceDocument: steckbriefRefDoc,
     task: {
       prompt:
-        "Apri il documento e rileggi il profilo quando vuoi. Completa l'identikit con le informazioni del testo.",
+        "Scegli una delle tre persone e completa il suo identikit con le informazioni del testo. Puoi sempre rileggere il profilo nel documento.",
       caseSensitive: false,
       lines: [
         {
@@ -626,7 +633,7 @@ writeJson("quests/quest-03/scenes/04.json", {
       ],
     },
   },
-  scoring: taskScoring("cloze", { minRatioToComplete: 0.85 }),
+  scoring: taskScoring("cloze"),
 });
 
 writeJson(
@@ -761,7 +768,6 @@ writeJson(
 // --- quest-04 (21 scenes) ---
 const q4bg = quests[3].bgTrattoria;
 const q4task = quests[3].bgTask;
-const q4Exterior = "chapters/02/quests/04/bg-trattoria-exterior";
 
 writeJson(
   "quests/quest-04/scenes/01.json",
@@ -769,8 +775,8 @@ writeJson(
     CHAPTER_ID,
     "quest-04",
     1,
-    q4Exterior,
-    "Esci di nuovo nel pomeriggio. Sotto i portici, vicino a Piazza Maggiore, trovi il ristorante di cui ti ha parlato la signora Ferrari: \"Trattoria da Marini\". All'ingresso c'è un cartello: Cercasi personale per la stagione estiva.",
+    q4bg,
+    "Esci di nuovo nel pomeriggio. Sotto i portici, vicino a Piazza Maggiore, trovi il ristorante di cui ti ha parlato la signora Ferrari: \"Trattoria da Marini\". All'ingresso c'è un cartello: Cercasi personale per la stagione estiva — luglio e agosto.",
   ),
 );
 writeJson(
@@ -779,7 +785,7 @@ writeJson(
     CHAPTER_ID,
     "quest-04",
     2,
-    q4Exterior,
+    q4bg,
     "Tu\nBene. Lavorare durante l'estate non sarebbe male. Posso guadagnare qualcosa e migliorare il mio italiano. Entriamo.",
   ),
 );
@@ -867,9 +873,12 @@ writeJson(
 const letterFormulas = [
   { id: "f-gentili", label: "Gentili Signore e Signori," },
   { id: "f-cassari", label: "Gentile Signora Cassari," },
+  { id: "f-devalli", label: "Gentile Signor De Valli," },
   { id: "f-direttore", label: "Egregio Direttore," },
+  { id: "f-dottoressa", label: "Stimata Dottoressa," },
   { id: "f-candidarmi", label: "con la presente desidero candidarmi …" },
   { id: "f-chiedere", label: "vorrei chiedere/presentare …" },
+  { id: "f-prego", label: "Vi prego di …" },
   { id: "f-inizio", label: "all'inizio" },
   { id: "f-primo", label: "per primo" },
   { id: "f-poi", label: "poi" },
@@ -890,6 +899,7 @@ const letterFormulas = [
     id: "f-attesa",
     label: "In attesa di una Vostra gentile risposta, invio i miei più cordiali saluti",
   },
+  { id: "f-notizie", label: "Gradirei molto ricevere presto Vostre notizie." },
   {
     id: "f-ringraziando",
     label: "RingraziandoVi anticipatamente, porgo i miei più distinti saluti.",
@@ -906,17 +916,13 @@ writeJson("quests/quest-04/scenes/11.json", {
     instruction: "Trascina la formula giusta in ogni lacuna della lettera.",
     referenceDocument: {
       title: "Bozza della lettera",
-      body: `Ogg.: Domanda per un lavoretto estivo
+      body: `___ (1)
 
-___ (1)
-
-___ (2) presentare la mia candidatura per un lavoretto durante l'estate presso la Vostra trattoria.
+___ (2) per un posto come aiuto in sala nel vostro ristorante.
 
 ___ (3) ho sedici anni e frequento la decima classe di un liceo linguistico a Monaco di Baviera. Studio l'italiano da tre anni e quest'estate vorrei migliorare la mia lingua lavorando in Italia. ___ (4) ho già lavorato come babysitter per due estati e ho fatto il tirocinio nella mensa della mia scuola, quindi ho un po' di esperienza con il pubblico e con il servizio.
 
-___ (5) sono una persona molto motivata, puntuale e disponibile. Mi piace lavorare in squadra e imparare cose nuove. Sono particolarmente interessato/a al lavoro in cucina o al servizio ai tavoli.
-
-___ (6) non esiti a contattarmi.
+___ (5) sono una persona puntuale, gentile e motivata. ___ (6)
 
 ___ (7)`,
     },
@@ -929,7 +935,7 @@ ___ (7)`,
         {
           id: "slot-1",
           title: "(1) — saluto iniziale",
-          correctItemIds: ["f-gentili", "f-cassari", "f-direttore"],
+          correctItemIds: ["f-gentili", "f-cassari", "f-devalli", "f-direttore", "f-dottoressa"],
         },
         {
           id: "slot-2",
@@ -948,8 +954,8 @@ ___ (7)`,
         },
         {
           id: "slot-5",
-          title: "(5) — conclusione delle informazioni",
-          correctItemIds: ["f-poi", "f-infine", "f-alla-fine"],
+          title: "(5) — passaggio successivo",
+          correctItemIds: ["f-poi", "f-piu-tardi", "f-infine", "f-alla-fine"],
         },
         {
           id: "slot-6",
@@ -959,12 +965,12 @@ ___ (7)`,
         {
           id: "slot-7",
           title: "(7) — formula di chiusura",
-          correctItemIds: ["f-attesa", "f-ringraziando"],
+          correctItemIds: ["f-attesa", "f-notizie", "f-ringraziando"],
         },
       ],
     },
   },
-  scoring: taskScoring("drag_drop", { minRatioToComplete: 0.71 }),
+  scoring: taskScoring("drag_drop"),
 });
 
 writeJson(
@@ -1031,7 +1037,7 @@ writeJson(
     "quest-04",
     19,
     q4bg,
-    "Signor Marini\n\"Bravissimo/a! Si vede che hai studiato bene. Senti, mi piaci. Per l'estate ti posso offrire un posto come aiuto in sala. Adesso vai a casa, parla con la tua famiglia ospitante e poi ci sentiamo. Ah, e tieni: ti offro il primo caffè da Marini!\"",
+    "Signor Marini\n\"Bravissimo/a! Si vede che hai studiato bene. Per l'estate ti posso offrire un posto come aiuto in sala. Adesso vai a casa, parla con la tua famiglia ospitante e poi ci sentiamo. Ah, e tieni: il primo caffè da Marini è in offerta!\"",
   ),
 );
 writeJson(
@@ -1086,7 +1092,7 @@ writeJson(
     "quest-01-bonus",
     3,
     bbg,
-    "Risolvi questo compito bonus per guadagnare fino a 5 fette di pizza extra!",
+    "Risolvi questo compito bonus per guadagnare fette di pizza extra!",
   ),
 );
 
@@ -1224,7 +1230,7 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
       },
     },
   },
-  scoring: taskScoring("matching", { minRatioToComplete: 0.6 }),
+  scoring: taskScoring("matching"),
 });
 
 console.log("Generated chapter-02 catalog under", ROOT);

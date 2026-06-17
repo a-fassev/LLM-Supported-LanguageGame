@@ -225,7 +225,6 @@
     "pizza": {
       "mode": "scored",
       "maxSlices": 10,
-      "minRatioToComplete": 0.81,
       "rounding": "nearest",
       "mapping": {
         "kind": "linear"

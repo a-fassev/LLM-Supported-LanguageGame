@@ -59,7 +59,7 @@ const matchingScene = {
   },
   scoring: {
     backpack: { pieces: 1 },
-    pizza: { mode: "scored" as const, maxSlices: 3, minRatioToComplete: 0.6, rounding: "floor" as const, mapping: { kind: "linear" as const } },
+    pizza: { mode: "scored" as const, maxSlices: 3, rounding: "floor" as const, mapping: { kind: "linear" as const } },
   },
 };
 

@@ -166,7 +166,7 @@ writeJson(
     "quest-01",
     6,
     q1bg,
-    "Per i compiti risolti riceverai delle fette di pizza. Puoi usarle per arredare la tua stanza con nuovi mobili e oggetti.",
+    "Per i compiti risolti riceverai fette di pizza. Puoi usarle per personalizzare il tuo avatar con nuovi vestiti ed accessori.",
   ),
 );
 writeJson(
@@ -176,7 +176,7 @@ writeJson(
     "quest-01",
     7,
     q1bg,
-    "Avanzi capitolo per capitolo: così scoprirai la città a poco a poco e incontrerai persone interessanti lungo il percorso.",
+    "Dalla mappa dei capitoli puoi scegliere la prossima missione. Alcuni capitoli si apriranno solo quando hai completato quelli precedenti.",
   ),
 );
 
@@ -245,33 +245,33 @@ writeJson("quests/quest-02/scenes/05.json", {
           segments: [
             { kind: "text", text: "Quest'estate " },
             gap(["sono andato", "sono andata", "Sono andato", "Sono andata"]),
-            { kind: "text", text: " (andare) in campeggio con la mia famiglia al Lago di Garda. " },
+            { kind: "text", text: " in campeggio con la mia famiglia al Lago di Garda. " },
             gap(["Era", "era"]),
-            { kind: "text", text: " (essere) la prima volta che " },
+            { kind: "text", text: " la prima volta che " },
             gap(["vedevamo", "abbiamo visto", "Vedevamo", "Abbiamo visto"]),
-            { kind: "text", text: " (vedere) quel lago e ci " },
+            { kind: "text", text: " quel lago e ci " },
             gap(["è piaciuto", "È piaciuto"]),
-            { kind: "text", text: " (piacere) moltissimo. Ogni mattina " },
+            { kind: "text", text: " moltissimo. Ogni mattina " },
             gap(["facevo", "Facevo"]),
-            { kind: "text", text: " (fare) colazione con vista sull'acqua, poi " },
+            { kind: "text", text: " colazione con vista sull'acqua, poi " },
             gap(["andavamo", "Andavamo"]),
-            { kind: "text", text: " (andare) in spiaggia. Il tempo " },
+            { kind: "text", text: " in spiaggia. Il tempo " },
             gap(["era", "Era"]),
-            { kind: "text", text: " (essere) quasi sempre bello, solo un giorno " },
+            { kind: "text", text: " quasi sempre bello, solo un giorno " },
             gap(["è piovuto", "È piovuto"]),
-            { kind: "text", text: " (piovere) così tanto che " },
+            { kind: "text", text: " così tanto che " },
             gap(["abbiamo dovuto", "Abbiamo dovuto"]),
-            { kind: "text", text: " (dovere) rimanere in tenda. Una sera " },
+            { kind: "text", text: " rimanere in tenda. Una sera " },
             gap(["ho conosciuto", "Ho conosciuto"]),
-            { kind: "text", text: " (conoscere) un ragazzo italiano di Verona: " },
+            { kind: "text", text: " un ragazzo italiano di Verona: " },
             gap(["abbiamo parlato", "Abbiamo parlato"]),
-            { kind: "text", text: " (parlare) per ore, anche se il mio italiano non " },
+            { kind: "text", text: " per ore, anche se il mio italiano non " },
             gap(["era", "Era"]),
-            { kind: "text", text: " (essere) ancora perfetto. Quando " },
+            { kind: "text", text: " ancora perfetto. Quando " },
             gap(["sono tornato", "sono tornata", "Sono tornato", "Sono tornata"]),
-            { kind: "text", text: " (tornare) a casa, " },
+            { kind: "text", text: " a casa, " },
             gap(["mi sentivo", "Mi sentivo"]),
-            { kind: "text", text: " (sentirsi) un po' triste, ma anche contento/a perché presto " },
+            { kind: "text", text: " un po' triste, ma anche contento/a perché presto " },
             gap([
               "partivo",
               "Partivo",
@@ -280,13 +280,13 @@ writeJson("quests/quest-02/scenes/05.json", {
               "Sarei partito",
               "Sarei partita",
             ]),
-            { kind: "text", text: " (partire) per Bologna." },
+            { kind: "text", text: " per Bologna." },
           ],
         },
       ],
     },
   },
-  scoring: taskScoring("cloze", { minRatioToComplete: 0.85 }),
+  scoring: taskScoring("cloze"),
 });
 
 writeJson(
@@ -317,12 +317,12 @@ writeJson("quests/quest-02/scenes/08.json", {
   background: "chapters/01/quests/02/bg-task-error",
   content: {
     title: "Trova gli errori",
-    instruction: "Leggi il testo e trova i 4 errori. Clicca sulle informazioni sbagliate.",
+    instruction: "Leggi il testo e trova i 5 errori. Clicca sulle informazioni sbagliate.",
     referenceDocument: null,
     task: {
       prompt:
-        "Leggi il testo e trova i 4 errori sulle abitudini italiane al bar e al ristorante. Clicca sulle informazioni sbagliate.",
-      expectedErrorRange: { min: 4, max: 4 },
+        "Leggi il testo e trova i 5 errori sulle abitudini italiane al bar e al ristorante. Clicca sulle informazioni sbagliate.",
+      expectedErrorRange: { min: 5, max: 5 },
       segments: [
         {
           id: "a1",
@@ -362,12 +362,17 @@ writeJson("quests/quest-02/scenes/08.json", {
         },
         {
           id: "a7",
-          text: " aspetti che il personale ti assegni un tavolo",
-          isError: false,
+          text: " scegli tu stesso il tavolo",
+          isError: true,
+          acceptedCorrections: [
+            "si aspetta che il personale assegni il tavolo",
+            "aspetta che il personale ti assegni il tavolo",
+            "il personale assegna il tavolo",
+          ],
         },
         {
           id: "a8",
-          text: " . Un pasto italiano normale è composto da",
+          text: " senza aspettare. Un pasto italiano normale è composto da",
           isError: false,
         },
         {
@@ -405,7 +410,7 @@ writeJson("quests/quest-02/scenes/08.json", {
       ],
     },
   },
-  scoring: taskScoring("error_spotting", { minRatioToComplete: 0.6 }),
+  scoring: taskScoring("error_spotting"),
 });
 
 writeJson(
@@ -481,31 +486,31 @@ writeJson("quests/quest-03/scenes/04.json", {
           segments: [
             { kind: "text", text: "Ciao Toni! " },
             gap(["ti", "Ti"]),
-            { kind: "text", text: " (tu) scrivo solo poche frasi perché vado di fretta. Il nostro prof di matematica " },
+            { kind: "text", text: " scrivo solo poche frasi perché vado di fretta. Il nostro prof di matematica " },
             gap(["ci ha dato", "Ci ha dato"]),
-            { kind: "text", text: " (dare a noi) tantissimi compiti già il primo giorno … " },
+            { kind: "text", text: " tantissimi compiti già il primo giorno … " },
             gap(["gli abbiamo detto", "Gli abbiamo detto"]),
-            { kind: "text", text: " (dire a lui) che non è giusto, ma lo conosci, non " },
+            { kind: "text", text: " che non è giusto, ma lo conosci, non " },
             gap(["gli", "Gli"]),
-            { kind: "text", text: " (a lui) interessa. Ti salutano i miei genitori, a pranzo " },
+            { kind: "text", text: " interessa. Ti salutano i miei genitori, a pranzo " },
             gap(["mi hanno detto", "Mi hanno detto"]),
-            { kind: "text", text: " (dire a me) che " },
+            { kind: "text", text: " che " },
             gap(["gli hai mandato", "Gli hai mandato"]),
-            { kind: "text", text: " (mandare a loro) un'e-mail. E poi Giulia …! " },
+            { kind: "text", text: " un'e-mail. E poi Giulia …! " },
             gap(["le ho promesso", "Le ho promesso"]),
-            { kind: "text", text: " (promettere a lei) di mandar" },
+            { kind: "text", text: " di mandar" },
             gap(["ti", "Ti"]),
-            { kind: "text", text: " (a te) non solo i suoi saluti, ma anche un bacio da parte di Cinzia. Vogliamo dir" },
+            { kind: "text", text: " non solo i suoi saluti, ma anche un bacio da parte di Cinzia. Vogliamo dir" },
             gap(["ti", "Ti"]),
-            { kind: "text", text: " (a te) tutti che " },
+            { kind: "text", text: " tutti che " },
             gap(["ci", "Ci"]),
-            { kind: "text", text: " (a noi) manchi! Appena ho un po' di tempo, mi faccio di nuovo vivo. A presto, M." },
+            { kind: "text", text: " manchi! Appena ho un po' di tempo, mi faccio di nuovo vivo. A presto, M." },
           ],
         },
       ],
     },
   },
-  scoring: taskScoring("cloze", { minRatioToComplete: 0.85 }),
+  scoring: taskScoring("cloze"),
 });
 
 writeJson(
@@ -600,41 +605,54 @@ writeJson(
 writeJson("quests/quest-04/scenes/08.json", {
   id: "chapter-01-quest-04-scene-08",
   scene_type: "task",
-  screen_type: "cloze",
+  screen_type: "matching",
   background: q4task,
   content: {
     title: "Famiglie di parole",
-    instruction: "Apri il documento, leggi la brochure e scrivi la parola della stessa famiglia che trovi nel testo.",
+    instruction: "Per ogni parola, trova la parola della stessa famiglia nel testo della brochure.",
     referenceDocument: refDoc,
     task: {
       prompt:
-        "Trova nella brochure le parole della stessa famiglia e scrivile nelle lacune.",
-      caseSensitive: false,
-      lines: [
-        {
-          segments: [
-            { kind: "text", text: "visitare → " },
-            gap(["la visita", "visita"]),
-            { kind: "text", text: "\naprire → " },
-            gap(["aperte", "aperto", "aperta"]),
-            { kind: "text", text: "\nprofondo → " },
-            gap(["la profondità", "profondità"]),
-            { kind: "text", text: "\nlargo → " },
-            gap(["la larghezza", "larghezza"]),
-            { kind: "text", text: "\numido → " },
-            gap(["l'umidità", "umidità"]),
-            { kind: "text", text: "\ndurante → " },
-            gap(["la durata", "durata"]),
-            { kind: "text", text: "\nparzialità → " },
-            gap(["parziale"]),
-            { kind: "text", text: "\nlungo → " },
-            gap(["la lunghezza", "lunghezza"]),
-          ],
-        },
+        "Per ogni verbo, aggettivo o sostantivo, trova la parola della stessa famiglia che trovi nel testo. Scrivi la parola corretta.",
+      leftItems: [
+        { id: "l1", label: "visitare" },
+        { id: "l2", label: "aprire" },
+        { id: "l3", label: "profondo" },
+        { id: "l4", label: "largo" },
+        { id: "l5", label: "umido" },
+        { id: "l6", label: "durante" },
+        { id: "l7", label: "parzialità" },
+        { id: "l8", label: "lungo" },
       ],
+      rightItems: [
+        { id: "r1", label: "la visita" },
+        { id: "r2", label: "aperte" },
+        { id: "r3", label: "la profondità" },
+        { id: "r4", label: "la larghezza" },
+        { id: "r5", label: "l'umidità" },
+        { id: "r6", label: "la durata" },
+        { id: "r7", label: "parziale" },
+        { id: "r8", label: "la lunghezza" },
+        { id: "r9", label: "cristalli" },
+      ],
+      correctPairs: [
+        { leftItemId: "l1", rightItemId: "r1" },
+        { leftItemId: "l2", rightItemId: "r2" },
+        { leftItemId: "l3", rightItemId: "r3" },
+        { leftItemId: "l4", rightItemId: "r4" },
+        { leftItemId: "l5", rightItemId: "r5" },
+        { leftItemId: "l6", rightItemId: "r6" },
+        { leftItemId: "l7", rightItemId: "r7" },
+        { leftItemId: "l8", rightItemId: "r8" },
+      ],
+      presentation: {
+        leftLabel: "Parola di partenza",
+        rightLabel: "Dal testo",
+        shuffleRightOrder: true,
+      },
     },
   },
-  scoring: taskScoring("cloze", { minRatioToComplete: 0.75 }),
+  scoring: taskScoring("matching"),
 });
 
 writeJson(
@@ -666,17 +684,15 @@ writeJson("quests/quest-04/scenes/10.json", {
         { id: "en4", label: "exterior" },
         { id: "en5", label: "column" },
         { id: "en6", label: "explorer" },
-        { id: "en7", label: "dimensions" },
       ],
       rightItems: [
-        { id: "it1", label: "la grotta / caverna" },
+        { id: "it1", label: "la grotta" },
         { id: "it2", label: "il percorso" },
         { id: "it3", label: "l'itinerario" },
         { id: "it4", label: "l'esterno" },
         { id: "it5", label: "la colonna" },
         { id: "it6", label: "l'esploratore" },
         { id: "it7", label: "la stalattite" },
-        { id: "it8", label: "le dimensioni" },
       ],
       correctPairs: [
         { leftItemId: "en1", rightItemId: "it1" },
@@ -685,7 +701,6 @@ writeJson("quests/quest-04/scenes/10.json", {
         { leftItemId: "en4", rightItemId: "it4" },
         { leftItemId: "en5", rightItemId: "it5" },
         { leftItemId: "en6", rightItemId: "it6" },
-        { leftItemId: "en7", rightItemId: "it8" },
       ],
       presentation: {
         leftLabel: "inglese",
@@ -694,7 +709,7 @@ writeJson("quests/quest-04/scenes/10.json", {
       },
     },
   },
-  scoring: taskScoring("matching", { minRatioToComplete: 0.75 }),
+  scoring: taskScoring("matching"),
 });
 
 writeJson(
@@ -729,7 +744,7 @@ writeJson("quests/quest-04/scenes/12.json", {
         { id: "card-18c", label: "18 gradi" },
         { id: "card-90pct", label: "90 per cento" },
         { id: "card-100m", label: "100 metri" },
-        { id: "card-50m-l", label: "50 metri" },
+        { id: "card-50m-l", label: "50 metri (larghezza)" },
         { id: "card-60m", label: "60 metri" },
       ],
       targets: [
@@ -781,7 +796,7 @@ writeJson("quests/quest-04/scenes/12.json", {
       ],
     },
   },
-  scoring: taskScoring("drag_drop", { minRatioToComplete: 0.67 }),
+  scoring: taskScoring("drag_drop"),
 });
 
 writeJson(
@@ -854,7 +869,7 @@ writeJson(
     "quest-01-bonus",
     3,
     bbg,
-    "Risolvi questo compito bonus per guadagnare fino a 5 fette di pizza extra!",
+    "Risolvi questo compito bonus per guadagnare fette di pizza extra!",
   ),
 );
 
@@ -963,7 +978,7 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
       },
     },
   },
-  scoring: taskScoring("matching", { minRatioToComplete: 0.6 }),
+  scoring: taskScoring("matching"),
 });
 
 console.log("Generated chapter-01 catalog under", ROOT);

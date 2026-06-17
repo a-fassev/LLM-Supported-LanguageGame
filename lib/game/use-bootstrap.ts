@@ -77,9 +77,9 @@ export function useBootstrap(options?: { refreshOnFocus?: boolean }): UseBootstr
   }, [clearSession, mountedRef, router, token]);
 
   useEffect(() => {
-    void (async () => {
-      await reload();
-    })();
+    void reload().catch(() => {
+      // reload() maps failures to state; catch avoids dev unhandledRejection noise.
+    });
   }, [reload]);
 
   useEffect(() => {

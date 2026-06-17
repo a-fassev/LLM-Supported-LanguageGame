@@ -359,6 +359,17 @@ export function DragDropTask({
             </p>
           ) : null}
           <p className={TASK_PLAY_META_TEXT}>{hintText}</p>
+        </div>
+      }
+    >
+      <div
+        ref={rootRef}
+        className={cn(
+          "relative min-h-0 touch-pan-y",
+          dragPreview && "cursor-grabbing",
+        )}
+      >
+        <div className="space-y-4">
           <DragDropItemBank
             ref={bankRef}
             sceneId={scene.id}
@@ -371,13 +382,9 @@ export function DragDropTask({
             onItemPointerUp={handleItemPointerUp}
             onItemKeyDown={handleItemKeyDown}
           />
-        </div>
-      }
-    >
-      <div ref={rootRef} className={dragPreview ? "relative min-h-0 cursor-grabbing" : "relative min-h-0"}>
-        <div>
-          <p className={cn("mb-1.5 shrink-0", TASK_PLAY_SECTION_LABEL_TEXT)}>{content.targetLabel}</p>
-          <div className={targetLayoutClass}>
+          <div>
+            <p className={cn("mb-1.5 shrink-0", TASK_PLAY_SECTION_LABEL_TEXT)}>{content.targetLabel}</p>
+            <div className={targetLayoutClass}>
             {content.targets.map((target) => {
               const placedIds = assignments[target.id] ?? [];
               const placedItems = placedIds
@@ -413,6 +420,7 @@ export function DragDropTask({
                 />
               );
             })}
+            </div>
           </div>
         </div>
 

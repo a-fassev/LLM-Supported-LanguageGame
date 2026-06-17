@@ -83,7 +83,6 @@ function makePoolMatchingTaskScene() {
       pizza: {
         mode: "scored" as const,
         maxSlices: 3,
-        minRatioToComplete: 1,
         rounding: "floor" as const,
         mapping: { kind: "linear" as const },
       },
@@ -132,7 +131,6 @@ function makeFreetextTaskScene() {
       pizza: {
         mode: "scored" as const,
         maxSlices: 3,
-        minRatioToComplete: 0.7,
         rounding: "nearest" as const,
         mapping: { kind: "linear" as const },
       },
@@ -529,7 +527,6 @@ describe("game-progress-service run flows", () => {
       scoring: {
         pizza: { mode: "flat" as const, slices: 2 },
         backpack: { pieces: 1 },
-        minRatioToComplete: 0.5,
       },
     };
     const nextScene = {
@@ -594,7 +591,6 @@ describe("game-progress-service run flows", () => {
       scoring: {
         pizza: { mode: "flat" as const, slices: 2 },
         backpack: { pieces: 1 },
-        minRatioToComplete: 0.5,
       },
     };
     repoMocks.getQuestRunById.mockResolvedValue({
@@ -740,22 +736,48 @@ describe("game-progress-service run flows", () => {
     expect(repoMocks.insertSceneMaterializationIfAbsent).not.toHaveBeenCalled();
   });
 
-  it("rejects scored pool matching below minRatioToComplete", async () => {
+  it("completes scored pool matching with partial ratio and proportional pizza", async () => {
     const taskScene = makePoolMatchingTaskScene();
-    repoMocks.getQuestRunById.mockResolvedValue({
+    const nextScene = {
+      id: "chapter-01-quest-01-bonus-scene-05",
+      sceneNumber: 3,
+      filename: "05.json",
+      scene_type: "story" as const,
+      screen_type: "info" as const,
+      background: "bg",
+      content: { text: "Fine" },
+    };
+    const runBefore = {
       runId: "run-1",
       accountId: "acc-1",
       chapterId: "chapter-01",
       questId: "quest-01-bonus",
       currentSceneId: taskScene.id,
-      status: "in_progress",
+      status: "in_progress" as const,
+    };
+    const runAfter = { ...runBefore, currentSceneId: nextScene.id };
+    repoMocks.getQuestRunById.mockResolvedValueOnce(runBefore).mockResolvedValueOnce(runAfter);
+    catalogMocks.loadContentCatalog.mockResolvedValue({
+      chapters: [{ id: "chapter-01", questsExpanded: [{ id: "quest-01-bonus", kind: "bonus" }] }],
     });
-    catalogMocks.loadContentCatalog.mockResolvedValue({});
-    catalogMocks.findCatalogScene.mockReturnValue(taskScene);
+    catalogMocks.findCatalogScene.mockImplementation((_catalog, _ch, _q, sceneId: string) => {
+      if (sceneId === taskScene.id) return taskScene;
+      if (sceneId === nextScene.id) return nextScene;
+      return null;
+    });
+    catalogMocks.findCatalogQuest.mockReturnValue({
+      id: "quest-01-bonus",
+      scenes: [taskScene, nextScene],
+    });
     repoMocks.getSceneMaterialization.mockResolvedValue({
       ok: true,
       materializedTask: persistedPoolMatchingTask,
     });
+    repoMocks.completeSceneOnce.mockResolvedValue({ completionId: "c1", inserted: true });
+    repoMocks.incrementWalletTotals.mockResolvedValue(true);
+    repoMocks.updateQuestRunPosition.mockResolvedValue(true);
+    repoMocks.getCompletedSceneIds.mockResolvedValue([taskScene.id]);
+    repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 1, totalBackpackPieces: 1 });
 
     const result = await completeTaskScene("acc-1", "run-1", taskScene.id, {
       attemptPayload: {
@@ -764,17 +786,18 @@ describe("game-progress-service run flows", () => {
       },
     });
 
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.status).toBe(409);
-      expect(result.code).toBe("task_min_ratio_not_met");
-      expect(result.taskOutcome?.kind).toBe("retry");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.taskOutcome?.ratio).toBe(0.5);
+      expect(result.taskOutcome?.awardedSlices).toBe(1);
+      expect(result.taskOutcome?.awardedBackpackPieces).toBe(1);
       expect(result.taskReview?.screenType).toBe("matching");
       if (result.taskReview?.screenType === "matching") {
         expect(result.taskReview.pairs.some((pair) => !pair.isCorrect)).toBe(true);
       }
     }
-    expect(repoMocks.completeSceneOnce).not.toHaveBeenCalled();
+    expect(repoMocks.completeSceneOnce).toHaveBeenCalled();
+    expect(repoMocks.incrementWalletTotals).toHaveBeenCalledWith("acc-1", 1, 1);
   });
 
   it("returns materialization_failed when pool matching row cannot be read", async () => {
@@ -910,7 +933,7 @@ describe("game-progress-service run flows", () => {
     }
   });
 
-  it("rejects free_text below passThreshold when pizza mode is flat", async () => {
+  it("completes flat free_text with flat pizza regardless of LLM ratio", async () => {
     const taskScene = {
       ...makeFreetextTaskScene(),
       scoring: {
@@ -918,16 +941,42 @@ describe("game-progress-service run flows", () => {
         pizza: { mode: "flat" as const, slices: 2 },
       },
     };
-    repoMocks.getQuestRunById.mockResolvedValue({
+    const nextScene = {
+      id: "chapter-03-quest-02-scene-03",
+      sceneNumber: 3,
+      filename: "03.json",
+      scene_type: "story" as const,
+      screen_type: "info" as const,
+      background: "bg",
+      content: { text: "Fine" },
+    };
+    const runBefore = {
       runId: "run-1",
       accountId: "acc-1",
       chapterId: "chapter-03",
       questId: "quest-02",
       currentSceneId: taskScene.id,
-      status: "in_progress",
+      status: "in_progress" as const,
+    };
+    const runAfter = { ...runBefore, currentSceneId: nextScene.id };
+    repoMocks.getQuestRunById.mockResolvedValueOnce(runBefore).mockResolvedValueOnce(runAfter);
+    catalogMocks.loadContentCatalog.mockResolvedValue({
+      chapters: [{ id: "chapter-03", questsExpanded: [{ id: "quest-02", kind: "main" }] }],
     });
-    catalogMocks.loadContentCatalog.mockResolvedValue({});
-    catalogMocks.findCatalogScene.mockReturnValue(taskScene);
+    catalogMocks.findCatalogScene.mockImplementation((_catalog, _ch, _q, sceneId: string) => {
+      if (sceneId === taskScene.id) return taskScene;
+      if (sceneId === nextScene.id) return nextScene;
+      return null;
+    });
+    catalogMocks.findCatalogQuest.mockReturnValue({
+      id: "quest-02",
+      scenes: [taskScene, nextScene],
+    });
+    repoMocks.completeSceneOnce.mockResolvedValue({ completionId: "c1", inserted: true });
+    repoMocks.incrementWalletTotals.mockResolvedValue(true);
+    repoMocks.updateQuestRunPosition.mockResolvedValue(true);
+    repoMocks.getCompletedSceneIds.mockResolvedValue([taskScene.id]);
+    repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 2, totalBackpackPieces: 0 });
     evaluateFreitextLlmSceneMock.mockResolvedValue({
       ok: true,
       ratio: 0.4,
@@ -941,29 +990,53 @@ describe("game-progress-service run flows", () => {
       },
     });
 
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.status).toBe(409);
-      expect(result.code).toBe("task_min_ratio_not_met");
-      expect(result.taskOutcome?.kind).toBe("retry");
-      expect(result.taskOutcome?.body).toContain("saluto");
-    }
+    expect(result.ok).toBe(true);
     expect(evaluateFreitextLlmSceneMock).toHaveBeenCalled();
-    expect(repoMocks.completeSceneOnce).not.toHaveBeenCalled();
+    if (result.ok) {
+      expect(result.taskOutcome?.awardedSlices).toBe(2);
+      expect(result.taskOutcome?.ratio).toBe(0.4);
+    }
+    expect(repoMocks.completeSceneOnce).toHaveBeenCalled();
   });
 
-  it("rejects scored free_text below minRatioToComplete with retry taskOutcome", async () => {
+  it("completes scored free_text with partial ratio and proportional pizza", async () => {
     const taskScene = makeFreetextTaskScene();
-    repoMocks.getQuestRunById.mockResolvedValue({
+    const nextScene = {
+      id: "chapter-03-quest-02-scene-03",
+      sceneNumber: 3,
+      filename: "03.json",
+      scene_type: "story" as const,
+      screen_type: "info" as const,
+      background: "bg",
+      content: { text: "Fine" },
+    };
+    const runBefore = {
       runId: "run-1",
       accountId: "acc-1",
       chapterId: "chapter-03",
       questId: "quest-02",
       currentSceneId: taskScene.id,
-      status: "in_progress",
+      status: "in_progress" as const,
+    };
+    const runAfter = { ...runBefore, currentSceneId: nextScene.id };
+    repoMocks.getQuestRunById.mockResolvedValueOnce(runBefore).mockResolvedValueOnce(runAfter);
+    catalogMocks.loadContentCatalog.mockResolvedValue({
+      chapters: [{ id: "chapter-03", questsExpanded: [{ id: "quest-02", kind: "main" }] }],
     });
-    catalogMocks.loadContentCatalog.mockResolvedValue({});
-    catalogMocks.findCatalogScene.mockReturnValue(taskScene);
+    catalogMocks.findCatalogScene.mockImplementation((_catalog, _ch, _q, sceneId: string) => {
+      if (sceneId === taskScene.id) return taskScene;
+      if (sceneId === nextScene.id) return nextScene;
+      return null;
+    });
+    catalogMocks.findCatalogQuest.mockReturnValue({
+      id: "quest-02",
+      scenes: [taskScene, nextScene],
+    });
+    repoMocks.completeSceneOnce.mockResolvedValue({ completionId: "c1", inserted: true });
+    repoMocks.incrementWalletTotals.mockResolvedValue(true);
+    repoMocks.updateQuestRunPosition.mockResolvedValue(true);
+    repoMocks.getCompletedSceneIds.mockResolvedValue([taskScene.id]);
+    repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 2, totalBackpackPieces: 1 });
     evaluateFreitextLlmSceneMock.mockResolvedValue({
       ok: true,
       ratio: 0.65,
@@ -980,12 +1053,11 @@ describe("game-progress-service run flows", () => {
       },
     });
 
-    expect(result.ok).toBe(false);
-    if (!result.ok) {
-      expect(result.status).toBe(409);
-      expect(result.code).toBe("task_min_ratio_not_met");
-      expect(result.taskOutcome?.kind).toBe("retry");
-      expect(result.taskOutcome?.body).toContain("dettagli");
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.taskOutcome?.ratio).toBe(0.65);
+      expect(result.taskOutcome?.awardedSlices).toBe(2);
+      expect(result.taskOutcome?.awardedBackpackPieces).toBe(1);
     }
     expect(evaluateFreitextLlmSceneMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -993,7 +1065,7 @@ describe("game-progress-service run flows", () => {
       }),
       expect.anything(),
     );
-    expect(repoMocks.completeSceneOnce).not.toHaveBeenCalled();
+    expect(repoMocks.completeSceneOnce).toHaveBeenCalled();
   });
 
   it("passes shell referenceDocument into free_text evaluation", async () => {

@@ -67,9 +67,9 @@ Compose classes with **`cn()`** from `@/lib/utils`. Reference: `StoryPanel.tsx`,
 
 - Never use `correctOptionIds` / `correctPairs` / answers in UI logic.
 - Run snapshots strip answer keys in `game-progress-service` → `sceneToDto` → `sanitize-task-payload-for-client.ts`; normalizers use client parsers after sanitize (`parseMultipleChoiceClientContent`, `parseMatchingClientContent`, `parseDragDropClientContent`, **`parseFreitextClientContent`** — freetext also strips `task.evaluation`; **`parseClozeClientContent`** — cloze strips `correctAnswers` on gaps). **Do not** call `parseFreitextLlmStepContent` or full `parseClozeTextContent` in UI normalizers.
-- **Free_text server path:** async `evaluateFreitextLlmScene` in `completeTaskScene` (not `evaluateTaskAttempt`). `GAME_SMOKE_AUTO_PASS` skips LLM like other scored types. Shell `content.referenceDocument` is merged when the task has none (`mergeFreitextSceneContent`; catalog `body` → `bodyText`). The judge prompt must include reference text — not only the parsed payload. **Scored** pizza: `minRatioToComplete` gates completion; `evaluation.passThreshold` is rubric-only. Use `TaskBodyLayout` `fillScroll` + full-height textarea; loading copy while attempt is in flight.
+- **Free_text server path:** async `evaluateFreitextLlmScene` in `completeTaskScene` (not `evaluateTaskAttempt`). `GAME_SMOKE_AUTO_PASS` skips LLM like other scored types. Shell `content.referenceDocument` is merged when the task has none (`mergeFreitextSceneContent`; catalog `body` → `bodyText`). The judge prompt must include reference text — not only the parsed payload. **Scored** pizza: slices from `ratio` only (no completion threshold); `evaluation.passThreshold` is rubric-only. Use `TaskBodyLayout` `fillScroll` + full-height textarea; loading copy while attempt is in flight.
 - **Matching pool (bonus):** `resolveCatalogSceneForRun` + `insertSceneMaterializationIfAbsent`; on insert race failure with no DB row, return `null` → `materialization_failed` (never return a new local shuffle). `getSceneMaterialization` uses `GetSceneMaterializationResult` — DB read errors are not “no row”.
-- **Pre-Controlla validation:** MC/matching/cloze require a complete draft (inline error under prompt; cloze: *Completa tutte le lacune.*). **Drag-drop:** no completeness gate — always submit; wrong/empty zones fail via server ratio + `SuccessOverlay` retry.
+- **Pre-Controlla validation:** MC/matching/cloze require a complete draft (inline error under prompt; cloze: *Completa tutte le lacune.*). **Drag-drop:** no completeness gate — always submit; wrong/empty zones yield lower server ratio + proportional pizza on success overlay.
 - **Drag-drop `matchMode: "one"`:** UI may stack multiple tiles in one zone while sorting; scoring counts the target correct only when **exactly one** placed tile is in `correctItemIds`. Do not “fix” multi-tile zones back to single-slot replace.
 - Post-**Controlla** feedback: `SuccessOverlay` + `taskOutcome`, not toasts for wrong answers.
 - API calls via `lib/api-client.ts`; errors via `clientMessages` / `toast-from-api` policy in `AGENTS.md`.
@@ -85,7 +85,7 @@ Execute in order; complete each phase before the next unless the user splits PRs
 | **3 — Play** | Submit works end-to-end | Draft state on `/play`, `build*Attempt`, client validation → inline error, wire `SceneRouter` if multi-step chrome |
 | **4 — Docs & tests** | Contract documented | `docs/quest-scene-content-format.md` subsection, Vitest for normalize/validate/attempt builders |
 
-After phase 2, manual pass on `/play` with fixtures. After phase 3, verify scored path + retry overlay.
+After phase 2, manual pass on `/play` with fixtures. After phase 3, verify scored path + success overlay with partial pizza.
 
 ## Documento (`referenceDocument` overlay)
 
@@ -126,7 +126,7 @@ Full spec: `docs/quest-scene-content-format.md` §error_spotting.
 
 **Server:** `clozeTextContentSchema.ts`, `evaluateCloze` in `evaluateTaskAttempt.ts`, attempt `{ taskType: "ClozeText", clozeText: { answers: string[] } }` (gap order: `lines[]` then segments L→R).
 
-**Play:** `syncClozeDraftForScene`, `buildClozeAttempt`, `validateClozeDraft`; **409 retry** keeps answers by skipping `syncTaskDraftsForScene`. `clozePreserveForTransition` only applies when sync runs with the same scene id (unusual after success because the server advances immediately).
+**Play:** `syncClozeDraftForScene`, `buildClozeAttempt`, `validateClozeDraft`. `clozePreserveForTransition` only applies when sync runs with the same scene id (unusual after success because the server advances immediately).
 
 **Fixtures:** `chapter-00/quests/quest-01/scenes/05.json` — minimal cloze (2 gaps); chapter-03+ for rich cloze + `referenceDocument`.
 

@@ -459,7 +459,7 @@ writeJson("quests/quest-02/scenes/05.json", {
       ],
     },
   },
-  scoring: taskScoring("multiple_choice", { minRatioToComplete: 0.67 }),
+  scoring: taskScoring("multiple_choice"),
 });
 
 writeJson(
@@ -618,7 +618,7 @@ writeJson("quests/quest-03/scenes/09.json", {
       ],
     },
   },
-  scoring: taskScoring("cloze", { minRatioToComplete: 0.78 }),
+  scoring: taskScoring("cloze"),
 });
 
 writeJson(
@@ -712,7 +712,7 @@ writeJson("quests/quest-03/scenes/14.json", {
       },
     },
   },
-  scoring: taskScoring("matching", { minRatioToComplete: 0.75 }),
+  scoring: taskScoring("matching"),
 });
 
 writeJson("quests/quest-03/scenes/15.json", {
@@ -750,7 +750,7 @@ writeJson("quests/quest-03/scenes/15.json", {
       ],
     },
   },
-  scoring: taskScoring("cloze", { minRatioToComplete: 0.83 }),
+  scoring: taskScoring("cloze"),
 });
 
 writeJson(
@@ -903,7 +903,7 @@ writeJson("quests/quest-04/scenes/08.json", {
       ],
     },
   },
-  scoring: taskScoring("multiple_choice", { minRatioToComplete: 0.75 }),
+  scoring: taskScoring("multiple_choice"),
 });
 
 writeJson(
@@ -991,7 +991,7 @@ writeJson("quests/quest-04/scenes/11.json", {
       ],
     },
   },
-  scoring: taskScoring("cloze", { minRatioToComplete: 0.85 }),
+  scoring: taskScoring("cloze"),
 });
 
 writeJson(
@@ -1106,7 +1106,7 @@ writeJson("quests/quest-04/scenes/15.json", {
       ],
     },
   },
-  scoring: taskScoring("drag_drop", { minRatioToComplete: 0.69 }),
+  scoring: taskScoring("drag_drop"),
 });
 
 writeJson(
@@ -1204,7 +1204,7 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
       },
     },
   },
-  scoring: taskScoring("matching", { minRatioToComplete: 0.6 }),
+  scoring: taskScoring("matching"),
 });
 
 console.log("Generated chapter-03 catalog under", ROOT);

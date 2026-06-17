@@ -1,36 +1,43 @@
 import { describe, expect, it } from "vitest";
-import { buildTaskOutcome, sceneOffersTaskRewards } from "@/lib/game/task-outcome-messages";
+import { buildTaskOutcome } from "@/lib/game/task-outcome-messages";
 
 describe("buildTaskOutcome", () => {
-  it("uses tutorial retry copy without pizza when the scene awards no rewards", () => {
+  it("awards partial pizza on low ratio success", () => {
     const outcome = buildTaskOutcome({
-      passed: false,
       ratio: 0.5,
-      awardedSlices: 0,
-      awardedBackpackPieces: 0,
-      sceneMaxRewardSlices: 0,
-      sceneMaxRewardBackpack: 0,
+      awardedSlices: 1,
+      awardedBackpackPieces: 1,
     });
-    expect(outcome.kind).toBe("retry");
-    expect(outcome.body).not.toContain("pizza");
-    expect(outcome.body).toContain("completare l'attivita");
+    expect(outcome.body).toMatch(/fett[ae] di pizza/);
+    expect(outcome.awardedSlices).toBe(1);
+    expect(outcome.awardedBackpackPieces).toBe(1);
   });
 
-  it("mentions pizza on retry when the scene can award slices", () => {
+  it("uses neutral copy for very low ratio", () => {
     const outcome = buildTaskOutcome({
-      passed: false,
-      ratio: 0.5,
+      ratio: 0.25,
       awardedSlices: 0,
-      awardedBackpackPieces: 0,
-      sceneMaxRewardSlices: 10,
-      sceneMaxRewardBackpack: 0,
+      awardedBackpackPieces: 1,
     });
-    expect(outcome.body).toContain("fette di pizza");
+    expect(outcome.body).toContain("completato l'attivita");
+  });
+
+  it("appends freetext summary and advice to overlay body", () => {
+    const summary = "Buon inizio";
+    const advice = "Aggiungi un saluto.";
+    const outcome = buildTaskOutcome({
+      ratio: 0.7,
+      awardedSlices: 2,
+      awardedBackpackPieces: 1,
+      summaryFeedback: summary,
+      nextStepAdvice: advice,
+    });
+    expect(outcome.body).toContain(summary);
+    expect(outcome.body).toContain(advice);
   });
 
   it("uses already-claimed copy when rewards were not granted again", () => {
     const outcome = buildTaskOutcome({
-      passed: true,
       ratio: 1,
       awardedSlices: 0,
       awardedBackpackPieces: 0,
@@ -38,16 +45,5 @@ describe("buildTaskOutcome", () => {
     });
     expect(outcome.awardedSlices).toBe(0);
     expect(outcome.body).toContain("gia guadagnato");
-  });
-});
-
-describe("sceneOffersTaskRewards", () => {
-  it("is false for tutorial scenes with zero max rewards", () => {
-    expect(sceneOffersTaskRewards(0, 0)).toBe(false);
-  });
-
-  it("is true when either reward type can be granted", () => {
-    expect(sceneOffersTaskRewards(1, 0)).toBe(true);
-    expect(sceneOffersTaskRewards(0, 1)).toBe(true);
   });
 });

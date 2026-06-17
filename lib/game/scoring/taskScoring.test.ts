@@ -9,7 +9,7 @@ import {
   evaluateTaskAttempt,
 } from "./evaluateTaskAttempt";
 import type { ParsedPizzaRules } from "./pizzaReward";
-import { meetsScoredPizzaMinimum, parsePizzaRewardRules, slicesFromRatio } from "./pizzaReward";
+import { parsePizzaRewardRules, slicesFromRatio } from "./pizzaReward";
 
 describe("pizzaReward", () => {
   it("maps linear scored ratio to integer slices with floor", () => {
@@ -38,22 +38,6 @@ describe("pizzaReward", () => {
   it("clamps flat slices in slicesFromRatio to max 15 (matches parse cap)", () => {
     const flat: ParsedPizzaRules = { kind: "flat", slices: 99 };
     expect(slicesFromRatio(1, flat)).toBe(15);
-  });
-
-  it("meetsScoredPizzaMinimum respects minRatioToComplete for scored rules only", () => {
-    const scored = parsePizzaRewardRules({
-      pizza: {
-        mode: "scored",
-        maxSlices: 5,
-        minRatioToComplete: 0.8,
-        mapping: { kind: "linear" },
-      },
-    });
-    expect(meetsScoredPizzaMinimum(0.79, scored)).toBe(false);
-    expect(meetsScoredPizzaMinimum(0.8, scored)).toBe(true);
-
-    const flat = parsePizzaRewardRules({ pizza: { mode: "flat", value: 1 } });
-    expect(meetsScoredPizzaMinimum(0, flat)).toBe(true);
   });
 });
 

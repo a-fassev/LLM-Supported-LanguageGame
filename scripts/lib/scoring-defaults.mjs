@@ -24,16 +24,14 @@ export function pizzaMaxSlicesForScreenType(screenType) {
 
 /**
  * @param {string} screenType
- * @param {{ minRatioToComplete?: number } & Record<string, unknown>} [overrides]
+ * @param {Record<string, unknown>} [pizzaOverrides]
  */
-export function taskScoring(screenType, overrides = {}) {
-  const { minRatioToComplete = 0.85, ...pizzaOverrides } = overrides;
+export function taskScoring(screenType, pizzaOverrides = {}) {
   return {
     backpack: { pieces: 1 },
     pizza: {
       mode: "scored",
       maxSlices: pizzaMaxSlicesForScreenType(screenType),
-      minRatioToComplete,
       rounding: "nearest",
       mapping: { kind: "linear" },
       ...pizzaOverrides,

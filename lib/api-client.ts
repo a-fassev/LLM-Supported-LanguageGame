@@ -148,7 +148,6 @@ export type RunDto = {
 };
 
 export type TaskOutcomeDto = {
-  kind: "success" | "retry";
   ratio: number;
   awardedSlices: number;
   awardedBackpackPieces: number;

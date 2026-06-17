@@ -17,7 +17,7 @@
 | Replace placeholder for `free_text` | Multiline answer in `TaskBodyLayout`; no dev textarea in `TaskPanel`. |
 | Reuse existing LLM stack | `lib/llm/freitextLlmContentSchema.ts`, `freitextLlmEvaluationService.ts`, OpenAI env from `.env.example`. |
 | Authoring-friendly JSON | Strict Zod at catalog load; quest-01 + chapter-03 fixtures. |
-| Learner UX | Busy state on **Controlla**, optional word/char stats, client min/max word checks, child-safe feedback tone. |
+| Learner UX | Busy state on **Controlla**, optional word/char stats, optional `minWords` check, child-safe feedback tone. |
 | Scene-native progression | **One** `POST /api/game/runs/[runId]/attempt` per submit — LLM runs inside `completeTaskScene`. |
 | Server remains authoritative | Ratio / pass / pizza from server only; client never pre-scores with LLM output. |
 
@@ -25,11 +25,11 @@
 
 ## 2. Locked product / tech decisions
 
-### Final decisions (2026-06-03)
+### Final decisions (2026-06-03, updated 2026-06)
 
-- **Quest-01 scene-12:** `minRatioToComplete: 0.7` (retry path testable in QA).
-- **Completion gate:** `scoring.pizza.minRatioToComplete` only; `evaluation.passThreshold` is LLM metadata, not a second gate.
-- **Retry overlay:** Always `summaryFeedback` (normalized); append `nextStepAdvice` only when present and short.
+- **Completion:** Every valid attempt **completes** the scene; pizza slices scale with LLM `ratio` (`slicesFromRatio`). No completion threshold.
+- **`evaluation.passThreshold`:** LLM rubric metadata only — does not block progression.
+- **Success overlay:** Generic praise + reward line; append normalized `summaryFeedback` and short `nextStepAdvice` to `taskOutcome.body` when present; `FreetextReviewOverlaySection` shows full review including dimensions.
 - **Rate limits:** No freitext-specific stricter cap in v1.
 - **Validation copy:** Fixed Italian strings in `lib/game/tasks/freitext/freitext-messages.ts`.
 - **Smoke:** `GAME_SMOKE_AUTO_PASS` skips evaluation for **all** task types (including `free_text`), `ratio = 1`.
@@ -43,10 +43,10 @@
 | **Instruction for LLM** | Normalizer passes scene `content.instruction` into parsed payload as `instruction` for the judge. |
 | **Reference document** | Scene-level `content.referenceDocument` only; not required in `task` for v1. Quest-01 scene 12: **none** (minimal). Chapter-03 scene 02: **keep** existing documento. |
 | **Submit flow** | Single **Controlla** → `POST …/attempt` with `{ sceneId, attempt }`. Server runs LLM inside `completeTaskScene`. |
-| **Pass / fail UX (LLM feedback)** | See **§2.1** — retry uses LLM copy in overlay; success keeps generic reward copy. **Locked:** see Final decisions above. |
+| **Pass / fail UX (LLM feedback)** | See **§2.1** — success overlay with proportional pizza; LLM copy in body + review section. |
 | **Loading** | Disable textarea + primary button; inline *Sto leggendo il tuo testo…*. |
-| **Client validation** | Non-empty answer; `minWords` / `maxWords` (Italian); hard cap **8000** characters. |
-| **Word count UI** | Stats row when `showWordCount`, `showCharacterCount`, or min/max words set (*Parole:*, *Caratteri:*). |
+| **Client validation** | Non-empty answer; optional `minWords` lower bound (Italian copy). No upper word or character limit. |
+| **Word count UI** | Stats row when `showWordCount`, `showCharacterCount`, or `minWords` set (*Parole scritte:*, *Caratteri:*). |
 | **Catalog validation** | Merged payload validated with `parseFreitextLlmStepContent` — fail catalog load on invalid JSON. |
 | **Env missing** | `503` + `evaluator_unavailable` when the LLM path runs (not when `GAME_SMOKE_AUTO_PASS` skips eval). |
 | **`GAME_SMOKE_AUTO_PASS`** | Skips eval for **all** scored types including `free_text`; `ratio = 1`. See **§2.2**. |
@@ -56,15 +56,16 @@
 
 ### 2.1 LLM feedback in the UI (UX — locked)
 
-Align with other scored tasks: feedback after **Controlla** goes through **`SuccessOverlay` + `taskOutcome`**, not a second inline essay under the textarea (avoids duplicate messaging and matches MC/matching retry rhythm).
+Align with other scored tasks: feedback after **Controlla** goes through **`SuccessOverlay` + `taskOutcome` + optional `taskReview`**, not a second inline essay under the textarea.
 
 | Outcome | `taskOutcome.headline` | `taskOutcome.body` |
 | ------- | ---------------------- | ------------------- |
-| **Retry** (`409`, below `minRatioToComplete`) | Generic retry headline from `buildTaskOutcome` (*Quasi!* + percent line) | **`normalizeFeedbackForLearner(summaryFeedback)`** from the judge; if present, append one short line from `nextStepAdvice` (capped, child-safe). Learner edits text and taps **Riprova** — answer draft **retained** on retry. |
-| **Success** | Generic success praise from `buildTaskOutcome` (*Bravissimo!* / reward line) | **Do not** replace with LLM summary — keeps the moment reward-focused; avoids long AI text when the child already passed. |
+| **Success** (any ratio) | Tiered praise from `buildTaskOutcome` | Reward line + optional appended **`summaryFeedback`** and **`nextStepAdvice`** (normalized, child-safe). |
 | **Provider / config errors** | — | Toast per `toast-from-api` policy; inline only for client validation (`answer_empty`, word limits). |
 
-**Not in v1:** grammar / vocabulary / register breakdown panels (store in attempt payload server-side if useful later; do not render in UI).
+**`FreetextReviewOverlaySection`:** summary, advice, and per-dimension scores on success (attempt-only `taskReview`).
+
+**Not in v1:** separate public evaluate route; streaming LLM responses.
 
 ### 2.2 `GAME_SMOKE_AUTO_PASS` (current)
 
@@ -105,9 +106,8 @@ Align with other scored tasks: feedback after **Controlla** goes through **`Succ
 2. `resolveFreitextLlmEvaluatorEnv()` → 503 if null.  
 3. `invokeFreitextLlmJudge` (timeout).  
 4. `ratio = weightedSkillRatio(...)`.  
-5. `meetsScoredPizzaMinimum(ratio, pizzaRules)` → complete or `409` + `taskOutcome` per §2.1.  
-
-**Not** subject to global smoke skip (§2.2).
+5. `ratio = weightedSkillRatio(...)`.  
+6. `slicesFromRatio(ratio, pizzaRules)` → complete scene; `buildTaskOutcome` with optional freetext body copy (§2.1).
 
 ---
 
@@ -126,7 +126,6 @@ Same as other tasks: `title`, optional `instruction`, optional `referenceDocumen
   "showWordCount": true,
   "showCharacterCount": false,
   "minWords": 2,
-  "maxWords": 40,
   "evaluation": {
     "grammarWeight": 1,
     "vocabularyWeight": 1,
@@ -167,7 +166,7 @@ Scene `background` holds the art key (not `sceneBackgroundAsset` inside `task`).
 | `content.referenceDocument` | omitted |
 | `content.task.prompt` | Simple situational prompt (greeting or self-intro) |
 | `content.task` | `showWordCount: true`, `minWords: 2`, modest `evaluation` (weights 1/1/1, `passThreshold` ~0.6) |
-| `scoring.pizza` | `mode: "scored"`, **`minRatioToComplete: 0.7`** |
+| `scoring.pizza` | `mode: "scored"`, **``** |
 
 Purpose: smoke catalog + manual LLM UX at end of quest-01 without opening chapter 3.
 
@@ -200,7 +199,7 @@ if pizzaRules.kind !== "flat" && !(smokeAutoPass && screen_type !== "free_text")
     ratio ← evaluateTaskAttempt(...)
 ```
 
-Build `taskOutcome` with §2.1 freitext body override on retry when judge output exists.
+Build `taskOutcome` with §2.1 freetext feedback in body when judge output exists.
 
 ### 6.2 Errors
 
@@ -209,7 +208,7 @@ Build `taskOutcome` with §2.1 freitext body override on retry when judge output
 | `evaluator_unavailable` | 503 | Toast |
 | Timeout / provider 5xx / 429 | 504 / 503 / 429 | Toast |
 | `answer_*` validation | 400 | Inline |
-| Below pizza minimum | 409 | Overlay retry + LLM summary in body |
+| Evaluated attempt | 200 | Success overlay + proportional pizza |
 
 ---
 
@@ -239,7 +238,7 @@ Build `taskOutcome` with §2.1 freitext body override on retry when judge output
 
 - [ ] Play draft/sync + `buildFreitextAttempt`.  
 - [ ] `evaluateFreitextLlmScene` + `completeTaskScene` + **§2.2 smoke exception**.  
-- [ ] `taskOutcome` freitext body on retry (§2.1).  
+- [ ] `taskOutcome` freetext body with summary/advice (§2.1).  
 - [ ] Service tests: mock judge; freitext **not** auto-passed when `GAME_SMOKE_AUTO_PASS=true`; other types still auto-pass.  
 - [ ] `AGENTS.md` + `.env.example` comments.  
 - [ ] Manual QA: quest-01 scene 12 + chapter-02 freetext with OpenAI keys; smoke flag on + off.
@@ -257,7 +256,7 @@ Build `taskOutcome` with §2.1 freitext body override on retry when judge output
 | Catalog | Quest-01: 12 scene types ending in `free_text`; scene 12 + ch.3 scene 02 valid. |
 | Smoke service | `GAME_SMOKE_AUTO_PASS=true` → MC/matching still `ratio=1`; **freitext calls mocked judge** and respects fail/pass. |
 | Pure | Normalizer, word count, `weightedSkillRatio`. |
-| Manual | Loading line; retry overlay shows Italian LLM summary; success overlay generic; 503 without keys even with smoke flag. |
+| Manual | Loading line; success overlay with LLM summary in body + review section; 503 without keys when eval runs. |
 
 ---
 

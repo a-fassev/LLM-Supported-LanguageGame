@@ -270,7 +270,7 @@ Per-scene keys: author per quest when filling `scenes/*.json` (e.g. quest-01 roo
 | Source exercise | `screen_type` | Notes |
 | ----------------- | --------------- | ----- |
 | Lückentext (vacanze) | `cloze` | Free-text gaps per line (not dropdown); many gaps; multi `correctAnswers` |
-| Fehlersuche (5 errors) | `error_spotting` | Phrase-level segments; false taps ignored; retry overlay if below min ratio |
+| Fehlersuche (5 errors) | `error_spotting` | Phrase-level segments; false taps ignored; success overlay; pizza scales with ratio |
 | SMS Lückentext | `cloze` | Same free-text gaps; verb hints in instruction only |
 | Famiglie di parole | `matching` | 8 pairs, brochure as `referenceDocument` |
 | EN–IT (Tonio) | `matching` | 6 pairs (scene 10) |
@@ -287,13 +287,13 @@ Per-scene keys: author per quest when filling `scenes/*.json` (e.g. quest-01 roo
 
 | Scene | Quest | Task | Pizza (draft) | Rationale |
 | ----- | ----- | ---- | ------------- | --------- |
-| 05 | quest-02 | cloze (14 gaps) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.85`, `linear`, `floor` | Long passage — partial credit, high bar to pass |
-| 08 | quest-02 | error_spotting (5 errors) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.6`, `linear`, `floor` | 3/5 fixes can pass; slices scale with ratio |
-| 04 | quest-03 | cloze (SMS, ~12 gaps) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.85`, `linear`, `floor` | Same as classroom cloze |
-| 08 | quest-04 | matching (8 pairs) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.75`, `linear`, `floor` | 6/8 matches to pass |
+| 05 | quest-02 | cloze (14 gaps) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| 08 | quest-02 | error_spotting (5 errors) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio can pass; slices scale with ratio |
+| 04 | quest-03 | cloze (SMS, ~12 gaps) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| 08 | quest-04 | matching (8 pairs) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio matches to pass |
 | 10 | quest-04 | matching (6 pairs) | `flat`, `slices: 2` | EN–IT cognates |
-| 12 | quest-04 | drag_drop (9 targets) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.67`, `linear`, `floor` | ~6/9 correct to pass |
-| 04 | quest-01-bonus | matching pool ×10 | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.6`, `linear`, `floor` | Aligns with bonus-quest plan |
+| 12 | quest-04 | drag_drop (9 targets) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| 04 | quest-01-bonus | matching pool ×10 | `scored`, `maxSlices: 3`, `linear`, `floor` | Bonus — pizza scales with ratio |
 
 **Chapter pizza (rough):** ~15–18 slices if player passes all tasks (+ variable slices from scored mapping). Bonus optional on top.
 
@@ -307,7 +307,7 @@ Narrator line “Hai guadagnato una fetta di pizza!” (quest-04 scene 14) stays
 | ----- | -------- |
 | Old `chapter-01` files | **Remove** full tree; rebuild from overview ([§ Catalog cleanup](#catalog-cleanup-before-json)) |
 | Cloze | **Free-text** gaps in web (raw “dropdown” idea dropped) |
-| Error spotting | Wrong taps **ignored**; pass/fail via ratio + retry overlay (matches product) |
+| Error spotting | Wrong taps **ignored**; pizza scales with ratio; success overlay always (matches product) |
 | Drag & drop numbers (scene 12) | Author **combined** labels only — e.g. `50 minuti` and `50 metri` as **two cards**, not two bare `50` tiles; drop unused numbers from raw if not needed for any row |
 | Steckbriefe | **Not in Ch.1** — ignore for this chapter |
 | Raw **map outros** (1.2 / 1.3) | **Do not use** — legacy raw narrator lines about map pins / multiple locations are **omitted**; no in-chapter map. Author fresh Italian for `quest-03` scene **06** and `quest-04` scene **16** (short quest transitions only) |

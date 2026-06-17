@@ -38,7 +38,7 @@ export function SuccessOverlay({
 }: SuccessOverlayProps) {
   if (!outcome) return null;
 
-  const defaultPrimary = outcome.kind === "success" ? "Avanti" : "Riprova";
+  const defaultPrimary = "Avanti";
   const hasFreetextReview = freetextReview != null;
 
   return (
@@ -67,8 +67,8 @@ export function SuccessOverlay({
           {freetextReview ? (
             <FreetextReviewOverlaySection
               review={freetextReview}
-              showSummary={outcome.kind === "success"}
-              showDimensions={outcome.kind === "success"}
+              showSummary
+              showDimensions
             />
           ) : null}
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">

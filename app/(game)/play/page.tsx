@@ -10,14 +10,12 @@ import {
   retreatRun,
   getRunSnapshot,
   startRun,
-  type ApiErrorResult,
   type AttemptRunDto,
   type RunDto,
   type RunSceneDto,
   type RunSnapshotDto,
   type TaskOutcomeDto,
   type TaskReviewDto,
-  readTaskReview,
 } from "@/lib/api-client";
 import { gameClientMessages } from "@/lib/game/clientMessages";
 import { isGameTestingReplayMode } from "@/lib/game/game-testing-replay-mode";
@@ -110,7 +108,6 @@ function mergeRunState(_current: RunState, data: RunSnapshotDto): RunState {
 }
 
 const QUEST_COMPLETE_STANDARD: TaskOutcomeDto = {
-  kind: "success",
   ratio: 1,
   awardedSlices: 0,
   awardedBackpackPieces: 0,
@@ -124,11 +121,6 @@ function mergeAttemptState(_current: RunState, data: AttemptRunDto): RunState {
     backpackProgressPercent: data.backpackProgressPercent,
     run: data.run,
   };
-}
-
-function readTaskOutcome(error: ApiErrorResult): TaskOutcomeDto | null {
-  const raw = error.details?.taskOutcome as TaskOutcomeDto | undefined;
-  return raw ?? null;
 }
 
 function syncMcDraftForScene(
@@ -832,16 +824,8 @@ export default function PlayPage() {
         router.replace("/login");
         return;
       }
-      const taskOutcome = readTaskOutcome(result);
-      if (taskOutcome) {
-        setOutcome(taskOutcome);
-        setTaskReview(readTaskReview(result));
-        setShowSolution(false);
-        setSuccessOpen(true);
-      } else {
-        toastBlockingApiError(result);
-        setError(result.error);
-      }
+      toastBlockingApiError(result);
+      setError(result.error);
       setTaskPending(false);
       return;
     }

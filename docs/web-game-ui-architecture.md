@@ -178,10 +178,10 @@ Single route hosts **all scenes** for the active run. Sub-views:
 | Overlay | Trigger | Content |
 | ------- | ------- | ------- |
 | **Pause** | Top-right | Resume; exit to quest list or main menu |
-| **Success** | After **Controlla** (`POST …/attempt`) | Server `taskOutcome`: pizza slices + backpack pieces earned, Italian headline/body (success or retry) — see **§10.4** |
+| **Success** | After **Controlla** (`POST …/attempt`) | Server `taskOutcome`: pizza slices + backpack pieces earned, Italian headline/body — see **§10.4** |
 | **Reference document** | Button left of HUD | Scrollable `referenceDocument.body` from task content |
 
-Italian (draft): **Continua a giocare**, **Torna alle missioni**, **Menu principale**, **Documento**, **Chiudi**, **Riprova** (retry overlay), **Avanti** (after success).
+Italian (draft): **Continua a giocare**, **Torna alle missioni**, **Menu principale**, **Documento**, **Chiudi**, **Avanti** (after task success).
 
 ---
 
@@ -298,9 +298,8 @@ Helper: `lib/game/unlock-display.ts` (pure functions, no extra API). **`POST /ap
 | Situation | UX |
 | --------- | -- |
 | Wrong password, validation | **Inline** under fields |
-| Task below min pizza ratio | **`SuccessOverlay`** in **retry** mode (`taskOutcome.kind === "retry"`) — not toast |
-| `task_min_ratio_not_met` | HTTP 409 + `taskOutcome` in body; stay on scene; keep draft; **Riprova** closes overlay |
-| Task passed | **`SuccessOverlay`** in **success** mode; show `awardedSlices` + `awardedBackpackPieces`; then **Avanti** uses `run` from same response (already on next scene) |
+| Task attempt (any ratio) | **`SuccessOverlay`** — proportional pizza + full backpack on first completion; **Avanti** advances |
+| LLM / evaluator errors (`503`, `429`, …) | **Inline** or **toast**; stay on scene; draft kept |
 | Bootstrap / snapshot / catalog failure | **Sonner toast** (after `shadcn add sonner`) |
 | Session expired mid-quest | Toast + redirect login |
 | `active_run_exists` | Inline panel on `/play` with **Riprendi missione** (no toast — avoids duplicate copy) |
@@ -396,43 +395,40 @@ Extend existing shadcn tokens with **game layer** (names illustrative):
 - **Why:** Going back would need a new API or risks UI/server mismatch. Re-reading is still possible by staying on the same scene until the player taps **Avanti**.
 - **Hub screens** (menu, chapters, quest list, shop, leaderboard) keep **Indietro** for normal page back navigation.
 
-### 10.4 Task success / retry overlay (locked)
+### 10.4 Task success overlay (locked)
 
 **Trigger:** Player taps **Controlla** → `POST /api/game/runs/[runId]/attempt` with `sceneId` + `attempt` payload.
 
-**Server** evaluates answers, computes `ratio`, applies `scoring` from the scene JSON, and builds **`taskOutcome`** via `lib/game/task-outcome-messages.ts` (Italian headline + body; pizza/backpack counts). The UI **does not** calculate rewards.
+**Server** evaluates answers, computes `ratio`, applies `scoring` from the scene JSON, and builds **`taskOutcome`** via `lib/game/task-outcome-messages.ts` (Italian headline + body; pizza/backpack counts). The UI **does not** calculate rewards. **Every valid attempt completes the scene**; pizza slices scale with `ratio` (no minimum bar).
 
 | Outcome | HTTP | Player stays on scene? | Overlay |
 | ------- | ---- | ---------------------- | ------- |
-| Not enough correct for pizza minimum | 409 `task_min_ratio_not_met` | yes | **retry** — `awardedSlices: 0`, `awardedBackpackPieces: 0` |
-| Passed | 200 | no (run already advanced) | **success** — shows slices + backpack pieces earned this step |
+| Evaluated attempt | 200 | no (run already advanced) | **success** — shows slices + backpack pieces earned this step |
+| Evaluator / validation error | 4xx/5xx | yes | inline or toast — no `taskOutcome` |
 
 **`taskOutcome` shape (display contract):**
 
 ```ts
 {
-  kind: "success" | "retry";
-  ratio: number;                    // 0–1, for optional “X% corretto” line
+  ratio: number;                    // 0–1, shown in reward row
   awardedSlices: number;
   awardedBackpackPieces: number;
-  headline: string;                 // e.g. "Bravissimo!" / "Quasi!"
-  body: string;                     // e.g. "Guadagni 2 fette di pizza e 1 pezzo nello zaino."
+  headline: string;                 // e.g. "Bravissimo!" / "Bene! Ce l'hai fatta!"
+  body: string;                     // praise + rewards; freetext may append LLM summary/advice
 }
 ```
 
 **Overlay UI (minimal):**
 
 - Large **headline** + **body** from `taskOutcome`.
-- Reward row: **🍕 +N** (fette di pizza), **🎒 +N** (pezzi nello zaino) — hide a row when zero.
-- Optional secondary line: percent correct from `ratio` on retry.
-- **success:** primary button **Avanti** → close overlay; render `run` from the same response (next scene).
-- **retry:** primary **Riprova** → close overlay; keep task draft.
-- **Mostra soluzione** (secondary, when `taskReview` is present and `screen_type` is not `free_text`): closes the overlay and enables in-task review (`reviewMode` on `TaskPanel`). The task footer primary becomes **Avanti** / **Riprova** (or quest-complete labels) and continues the same flow as the overlay primary. **Multi-question MC:** review starts at question 1; **Avanti** / **Indietro** walk questions with per-question solution highlights until the last question, where **Avanti** / **Riprova** advances the run.
-- **`free_text`:** LLM **Valutazione** (summary on success, dimension scores + feedback) renders inside the overlay (`FreetextReviewOverlaySection`) — no **Mostra soluzione** button.
+- Reward row: **🍕 +N** (fette di pizza), **🎒 +N** (pezzi nello zaino), **%** from `ratio` — hide pizza/backpack rows when `showRewardSummary` is false (zero awards).
+- Primary **Avanti** → close overlay; render `run` from the same response (next scene).
+- **Mostra soluzione** (secondary, when `taskReview` is present and `screen_type` is not `free_text`): closes the overlay and enables in-task review (`reviewMode` on `TaskPanel`). The task footer primary becomes **Avanti** (or quest-complete labels) and continues the same flow as the overlay primary. **Multi-question MC:** review starts at question 1; **Avanti** / **Indietro** walk questions with per-question solution highlights until the last question, where **Avanti** advances the run.
+- **`free_text`:** LLM **Valutazione** (summary, `nextStepAdvice`, dimension scores) in overlay body + `FreetextReviewOverlaySection` — no **Mostra soluzione** button.
 
-**`taskReview` (attempt-only contract):** Built server-side in `completeTaskScene` from unsanitized catalog task + attempt payload. Returned on **200** and **409** (`details.taskReview`). Never included in run snapshots (`sanitize-task-payload-for-client` unchanged). Shape: discriminated union by `screenType` in `lib/game/task-review.ts` (MC, matching, drag_drop, error_spotting, cloze, free_text).
+**`taskReview` (attempt-only contract):** Built server-side in `completeTaskScene` from unsanitized catalog task + attempt payload. Returned on **200** only. Never included in run snapshots (`sanitize-task-payload-for-client` unchanged). Shape: discriminated union by `screenType` in `lib/game/task-review.ts` (MC, matching, drag_drop, error_spotting, cloze, free_text).
 
-**Visible scene while overlay is open:** The attempt response may already advance `run.currentScene` on the server. `/play` keeps the **completed** scene visible until dismiss:
+**Visible scene while overlay is open:** The attempt response already advances `run.currentScene` on the server. `/play` keeps the **completed** scene visible until dismiss:
 
 | Hold | State | Purpose |
 | ---- | ----- | ------- |
@@ -440,16 +436,11 @@ Extend existing shadcn tokens with **game layer** (names illustrative):
 | Chrome | `chromeHoldScene` → `displayScene` | Header title, `TaskPanel`, documento, MC question index match the **submitted** scene — not the next task behind the dialog. |
 | Drafts | `pendingDraftSyncSceneRef` | Defer `syncTaskDraftsForScene` until overlay closes so the player does not see empty inputs for the next scene. |
 
-Apply the same chrome + background hold when **quest complete** opens the overlay (`onAdvanceStory`). **Retry (409):** no draft sync — answers stay on screen.
+Apply the same chrome + background hold when **quest complete** opens the overlay (`onAdvanceStory`).
 
 Implementation: `app/(game)/play/page.tsx` (`dismissSuccessOverlay` flushes pending draft sync). Reuse this pattern for any overlay shown while the server has already advanced the run.
 
-**Copy changes:** Edit `task-outcome-messages.ts` only (not scattered strings in components). Current examples:
-
-| kind | headline (examples) | body (intent) |
-| ---- | ------------------- | ------------- |
-| success | Perfetto! / Bravissimo! / Ottimo lavoro! | Praise + how many pizza slices and backpack pieces earned |
-| retry | Quasi! | Correct % shown + encourage another try (no rewards) |
+**Copy changes:** Edit `task-outcome-messages.ts` only (not scattered strings in components). Headlines tier by `ratio`; body includes reward line and optional freetext feedback.
 
 **Flow (mermaid):**
 
@@ -458,11 +449,11 @@ sequenceDiagram
   participant UI
   participant API
   UI->>API: POST attempt
-  alt ratio below minimum
-    API-->>UI: 409 + taskOutcome retry
-    UI->>UI: SuccessOverlay Riprova
-  else passed
-    API-->>UI: 200 + taskOutcome success + run next scene
+  alt evaluator error
+    API-->>UI: 4xx/5xx
+    UI->>UI: inline or toast
+  else evaluated
+    API-->>UI: 200 + taskOutcome + run next scene
     UI->>UI: SuccessOverlay Avanti
     UI->>UI: Show new scene from run
   end
@@ -486,11 +477,11 @@ sequenceDiagram
 
 ### 10.7 Task types and Freitext
 
-- **Shell (done):** Quest play, Controlla, success/retry overlay, documento, pause, shared **TaskChrome** + **TaskBodyLayout** (§5b).
+- **Shell (done):** Quest play, Controlla, success overlay, documento, pause, shared **TaskChrome** + **TaskBodyLayout** (§5b).
 - **Per-type UI:** Roll out one `screen_type` at a time using **`.cursor/skills/web-task-type-ui/SKILL.md`**. **Multiple choice** is the reference implementation (2026-06-03).
 - **Placeholder:** Unsupported `screen_type`s still render `TaskPlaceholder` inside `TaskBodyLayout` (optional flat `task.prompt`).
 - **Server:** Unsupported **scored** types may return `task_eval_not_implemented` — inline Italian from `clientMessages`, not a toast.
-- **Freitext / LLM:** `FreeTextTask` + play-page draft; attempt POST runs `evaluateFreitextLlmScene` server-side; retry overlay shows LLM `summaryFeedback` (success overlay stays generic).
+- **Freitext / LLM:** `FreeTextTask` + play-page draft; attempt POST runs `evaluateFreitextLlmScene` server-side; success overlay shows generic praise + rewards; body may append LLM `summaryFeedback` / `nextStepAdvice`; `FreetextReviewOverlaySection` for dimension review.
 
 ---
 
@@ -539,10 +530,9 @@ Each phase: Italian copy, one layout primitive reused, no new global stores. Pha
 | Resume | Continua a giocare |
 | Reference doc | Documento |
 | Close | Chiudi |
-| Try again (overlay) | Riprova |
 | Success overlay CTA | Avanti |
 
-Task reward / retry phrases (`Perfetto!`, `Quasi!`, …) live in **`lib/game/task-outcome-messages.ts`**, not in overlay components.
+Task reward phrases (`Perfetto!`, `Bravissimo!`, …) live in **`lib/game/task-outcome-messages.ts`**, not in overlay components.
 
 Content strings (`content.text`, task prompts) come from JSON — already Italian in samples.
 

@@ -15,7 +15,6 @@
       "targetLanguage": "it",
       "showWordCount": true,
       "minWords": 5,
-      "maxWords": 80,
       "evaluation": {
         "grammarWeight": 1,
         "vocabularyWeight": 1,
@@ -45,7 +44,6 @@
     "pizza": {
       "mode": "scored",
       "maxSlices": 15,
-      "minRatioToComplete": 0.65,
       "rounding": "nearest",
       "mapping": {
         "kind": "linear"

@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { findCatalogQuest, loadContentCatalog, resetContentCatalogCacheForTests } from "@/lib/game/content/catalog-loader";
 import { evaluateTaskAttempt } from "@/lib/game/scoring/evaluateTaskAttempt";
-import { meetsScoredPizzaMinimum, parsePizzaRewardRules } from "@/lib/game/scoring/pizzaReward";
+import { parsePizzaRewardRules, slicesFromRatio } from "@/lib/game/scoring/pizzaReward";
 
 describe("chapter-00 tutorial content", () => {
   afterEach(() => {
@@ -46,12 +46,11 @@ describe("chapter-00 tutorial content", () => {
       expect(rules.kind, scene.id).toBe("scored");
       if (rules.kind === "scored") {
         expect(rules.maxSlices, scene.id).toBe(0);
-        expect(rules.minRatioToComplete, scene.id).toBe(1);
       }
     }
   });
 
-  it("evaluates tutorial multiple choice and rejects a wrong answer", async () => {
+  it("evaluates tutorial multiple choice and maps wrong answers to zero pizza slices", async () => {
     const catalog = await loadContentCatalog({ bypassCache: true });
     const quest = findCatalogQuest(catalog, "chapter-00", "quest-01");
     const mc = quest?.scenes.find((s) => s.id === "chapter-00-quest-01-scene-02");
@@ -71,7 +70,7 @@ describe("chapter-00 tutorial content", () => {
     expect(wrong.ok).toBe(true);
     if (!wrong.ok) throw new Error("expected evaluation");
     expect(wrong.ratio).toBe(0);
-    expect(meetsScoredPizzaMinimum(wrong.ratio, rules)).toBe(false);
+    expect(slicesFromRatio(wrong.ratio, rules)).toBe(0);
 
     const correct = evaluateTaskAttempt("MultipleChoice", task, {
       taskType: "MultipleChoice",
@@ -80,7 +79,7 @@ describe("chapter-00 tutorial content", () => {
     expect(correct.ok).toBe(true);
     if (!correct.ok) throw new Error("expected evaluation");
     expect(correct.ratio).toBe(1);
-    expect(meetsScoredPizzaMinimum(correct.ratio, rules)).toBe(true);
+    expect(slicesFromRatio(correct.ratio, rules)).toBe(0);
   });
 
   it("covers each task type once with simple payloads", async () => {

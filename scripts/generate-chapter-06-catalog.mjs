@@ -456,7 +456,7 @@ writeJson("quests/quest-02/scenes/03.json", {
       },
     },
   },
-  scoring: taskScoring("matching", { minRatioToComplete: 0.8 }),
+  scoring: taskScoring("matching"),
 });
 
 const interviewQuestions = [
@@ -533,7 +533,7 @@ writeJson("quests/quest-02/scenes/04.json", {
       },
     },
   },
-  scoring: taskScoring("matching", { minRatioToComplete: 0.75 }),
+  scoring: taskScoring("matching"),
 });
 
 writeJson("quests/quest-02/scenes/05.json", {
@@ -662,7 +662,7 @@ writeJson("quests/quest-02/scenes/05.json", {
       ],
     },
   },
-  scoring: taskScoring("drag_drop", { minRatioToComplete: 0.8 }),
+  scoring: taskScoring("drag_drop"),
 });
 
 writeJson(
@@ -776,7 +776,7 @@ writeJson("quests/quest-03/scenes/03.json", {
       ],
     },
   },
-  scoring: taskScoring("cloze", { minRatioToComplete: 0.8 }),
+  scoring: taskScoring("cloze"),
 });
 
 writeJson(
@@ -945,7 +945,7 @@ writeJson("quests/quest-04/scenes/03.json", {
       questions: quizQuestions,
     },
   },
-  scoring: taskScoring("multiple_choice", { minRatioToComplete: 0.75 }),
+  scoring: taskScoring("multiple_choice"),
 });
 
 writeJson(
@@ -1018,7 +1018,7 @@ writeJson("quests/quest-01-bonus/scenes/04.json", {
       },
     },
   },
-  scoring: taskScoring("matching", { minRatioToComplete: 0.6 }),
+  scoring: taskScoring("matching"),
 });
 
 writeJson(

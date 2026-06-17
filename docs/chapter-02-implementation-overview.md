@@ -423,13 +423,13 @@ Pattern: chapter 01 / `docs/quest-scene-content-format.md` §6. Task scenes: `"b
 
 | Scene (draft) | Quest | Task | Pizza (draft) | Rationale |
 | ------------- | ----- | ---- | ------------- | --------- |
-| cloze Dario | quest-02 | cloze (~25+ gaps) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.85`, `linear`, `floor` | Long dialogue — same band as ch1 classroom cloze |
-| freetext ×4 | quest-02 | free_text | `scored`, `maxSlices: 2`, `minRatioToComplete: 0.65`, `linear`, `floor` | Per profession if split scenes |
-| cloze Steckbrief | quest-03 | cloze (6 gaps) | `scored`, `maxSlices: 2`, `minRatioToComplete: 0.85`, `linear`, `floor` | Short form |
-| MC quiz ×6 | quest-03 | multiple_choice (2 questions each) | `scored`, `maxSlices: 2`, `minRatioToComplete: 1`, `linear`, `floor` | Both steps must pass per scene; six scenes ≈ up to 12 slices if tuned |
-| drag_drop letter | quest-04 | drag_drop (7 targets) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.71`, `linear`, `floor` | ~5/7 |
-| freetext ×5 | quest-04 | free_text | `scored`, `maxSlices: 2`, `minRatioToComplete: 0.65`, `linear`, `floor` | Per menù category if split |
-| bonus matching | quest-01-bonus | matching pool ×10 | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.6`, `linear`, `floor` | Align bonus-quest plan |
+| cloze Dario | quest-02 | cloze (~25+ gaps) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| freetext ×4 | quest-02 | free_text | `scored`, `maxSlices: 2`, `linear`, `floor` | Pizza scales with ratio |
+| cloze Steckbrief | quest-03 | cloze (6 gaps) | `scored`, `maxSlices: 2`, `linear`, `floor` | Pizza scales with ratio |
+| MC quiz ×6 | quest-03 | multiple_choice (2 questions each) | `scored`, `maxSlices: 2`, `linear`, `floor` | Pizza scales with ratio|
+| drag_drop letter | quest-04 | drag_drop (7 targets) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| freetext ×5 | quest-04 | free_text | `scored`, `maxSlices: 2`, `linear`, `floor` | Per menù category if split |
+| bonus matching | quest-01-bonus | matching pool ×10 | `scored`, `maxSlices: 3`, `linear`, `floor` | Bonus — pizza scales with ratio |
 
 **Chapter pizza (rough):** ~20–28 slices if all tasks passed (depends on freetext scene split). Team rebalance later.
 

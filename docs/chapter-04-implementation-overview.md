@@ -140,7 +140,7 @@ Placeholders: `public/content-assets/chapters/04/**/.gitkeep`.
 
 - **`free_text`** (LLM), **not** four separate scenes.
 - **`referenceDocument`:** `title` e.g. *Le foto di Sara in Sicilia*; `body` = task intro (Italian); `figures[]` ×4 — captions for A–C include Sara’s given descriptions (verbatim raw); D caption *La cattedrale di Palermo — da descrivere*.
-- **`task`:** `minWords` ~8–12, `maxWords` ~80; `evaluationCriteria` from raw (varied vocab, B1 description, cathedral/horse/sun); example answer in rubric only (not shown to learner).
+- **`task`:** `minWords` ~8–12; `evaluationCriteria` from raw (varied vocab, B1 description, cathedral/horse/sun); example answer in rubric only (not shown to learner).
 - **Avatar gender:** LLM prompt uses session profile (existing `freitextLlmEvaluationService` pattern).
 
 ### Esercizio 2 — Cloze (scene 14)
@@ -178,7 +178,7 @@ Placeholders: `public/content-assets/chapters/04/**/.gitkeep`.
 - **`referenceDocument.body`:** German source **1:1** from raw (mediation source text stays DE).
 - **`task.prompt` / `instruction`:** Italian assignment + bullet *Suggerimenti* from raw.
 - **`evaluationCriteria`:** content transfer (≥3 of 5 tips), Sara adaptation, congiuntivo/infinito, informal saluto/chiusura, B1 + empathetic tone (mirror raw LLM criteria in English for judge).
-- **`registerTarget`:** `informal`; `minWords` ~50, `maxWords` ~150.
+- **`registerTarget`:** `informal`; `minWords` ~50.
 
 **Omit:** Separate „Articolo originale“ button — **documento** overlay is the article (same as other chapters).
 
@@ -254,13 +254,13 @@ Pattern: chapters 01–03 / `docs/quest-scene-content-format.md` §6. Task scene
 
 | Scene (draft) | Quest | Task | Pizza (draft) | Rationale |
 | ------------- | ----- | ---- | ------------- | --------- |
-| 07 | quest-02 | free_text (foto) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.65`, `linear`, `floor` | LLM threshold |
-| 14 | quest-02 | cloze (16 gaps) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.81`, `linear`, `floor` | ~13/16 |
-| 16 | quest-02 | error_spotting (4 errors) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.75`, `linear`, `floor` | 3/4 fixes |
-| 04 | quest-03 | free_text (mail) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.65`, `linear`, `floor` | LLM mediation |
-| 05 | quest-04 | MC ×4 | `scored`, `maxSlices: 2`, `minRatioToComplete: 0.75`, `linear`, `floor` | 3/4 |
-| 08 | quest-04 | cloze (8 SMS) | `scored`, `maxSlices: 3`, `minRatioToComplete: 0.75`, `linear`, `floor` | 6/8 |
-| 04 | quest-01-bonus | matching pool ×10 | `scored`, `maxSlices: 2`, `minRatioToComplete: 0.6`, `linear`, `floor` | Bonus |
+| 07 | quest-02 | free_text (foto) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with LLM ratio |
+| 14 | quest-02 | cloze (16 gaps) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| 16 | quest-02 | error_spotting (4 errors) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| 04 | quest-03 | free_text (mail) | `scored`, `maxSlices: 3`, `linear`, `floor` | LLM mediation |
+| 05 | quest-04 | MC ×4 | `scored`, `maxSlices: 2`, `linear`, `floor` | Pizza scales with ratio |
+| 08 | quest-04 | cloze (8 SMS) | `scored`, `maxSlices: 3`, `linear`, `floor` | Pizza scales with ratio |
+| 04 | quest-01-bonus | matching pool ×10 | `scored`, `maxSlices: 2`, `linear`, `floor` | Bonus |
 
 **Chapter pizza (rough):** ~17–19 slices from main tasks (+ bonus). Team rebalance after playtest.
 

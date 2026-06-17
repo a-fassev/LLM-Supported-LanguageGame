@@ -100,6 +100,8 @@ export function GameSessionProvider({ children }: { children: ReactNode }) {
 
         setToken(currentToken);
         setAccount(result.data);
+      } catch {
+        clearSession();
       } finally {
         if (!cancelled) setIsReady(true);
       }

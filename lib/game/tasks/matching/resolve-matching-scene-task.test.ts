@@ -35,7 +35,6 @@ function poolScene(): CatalogScene {
       pizza: {
         mode: "scored",
         maxSlices: 3,
-        minRatioToComplete: 0.6,
         rounding: "floor",
         mapping: { kind: "linear" },
       },
