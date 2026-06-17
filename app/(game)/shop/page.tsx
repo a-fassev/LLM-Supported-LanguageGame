@@ -23,7 +23,7 @@ export default function ShopPage() {
   return (
     <main className="box-border flex h-dvh flex-col gap-2 overflow-hidden px-4 pb-4 pt-12 sm:px-8 sm:pb-6 sm:pt-14">
       <GameShellHeader
-        title="Negozio"
+        title="Negozio: Usa la pizza per decorare la tua stanza"
         variant="hub"
         leading={
           <Button

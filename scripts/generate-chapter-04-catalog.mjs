@@ -548,7 +548,7 @@ writeJson(
     q2bg,
     npc(
       "Sara",
-      `„E adesso non ne voglio parlare a scuola. Non posso. Marco va in un'altra scuola adesso, forse sta con Laura — non voglio piangere davanti a tutti."`,
+      `„E non ne voglio parlare a scuola. Non posso. Marco va in un'altra scuola, forse sta con Laura — non voglio piangere davanti a tutti."`,
     ),
   ),
 );
@@ -830,7 +830,7 @@ writeJson(
     q4bg,
     npc(
       "Sara",
-      `„Ehi, ciao! Senti, ho letto la tua mail ieri — non posso dirti quanto mi ha aiutato. Davvero, grazie di cuore. E ho una sorpresa per te: ho parlato con Giulia, la mia migliore amica di Comacchio, e... insomma, ti mando il messaggio che ho ricevuto. Vuole invitare anche te! Leggilo e dimmi cosa ne pensi!"`,
+      `„Ehi, ciao! Senti, ho letto la tua mail ieri. Non posso dirti quanto mi ha aiutato. Davvero, grazie di cuore. E ho una sorpresa per te: ho parlato con Giulia, la mia migliore amica di Comacchio, e... insomma, ti mando il messaggio che ho ricevuto. Vuole invitare anche te! Leggilo e dimmi cosa ne pensi!"`,
     ),
   ),
 );

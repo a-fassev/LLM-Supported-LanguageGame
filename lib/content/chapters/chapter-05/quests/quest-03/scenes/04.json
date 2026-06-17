@@ -47,57 +47,37 @@
       ],
       "targets": [
         {
-          "id": "lucca-pro-1",
+          "id": "lucca-pro",
           "title": "Lucca PRO",
+          "matchMode": "all",
           "correctItemIds": [
-            "card-1"
-          ]
-        },
-        {
-          "id": "lucca-pro-2",
-          "title": "Lucca PRO",
-          "correctItemIds": [
-            "card-2"
-          ]
-        },
-        {
-          "id": "lucca-pro-3",
-          "title": "Lucca PRO",
-          "correctItemIds": [
+            "card-1",
+            "card-2",
             "card-3"
           ]
         },
         {
-          "id": "lucca-contro-1",
+          "id": "lucca-contro",
           "title": "Lucca CONTRO",
+          "matchMode": "all",
           "correctItemIds": [
-            "card-4"
-          ]
-        },
-        {
-          "id": "lucca-contro-2",
-          "title": "Lucca CONTRO",
-          "correctItemIds": [
+            "card-4",
             "card-5"
           ]
         },
         {
-          "id": "firenze-pro-1",
+          "id": "firenze-pro",
           "title": "Firenze PRO",
+          "matchMode": "all",
           "correctItemIds": [
-            "card-6"
-          ]
-        },
-        {
-          "id": "firenze-pro-2",
-          "title": "Firenze PRO",
-          "correctItemIds": [
+            "card-6",
             "card-7"
           ]
         },
         {
-          "id": "firenze-contro-1",
+          "id": "firenze-contro",
           "title": "Firenze CONTRO",
+          "matchMode": "all",
           "correctItemIds": [
             "card-8"
           ]

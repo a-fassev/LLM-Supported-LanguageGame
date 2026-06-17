@@ -34,10 +34,6 @@
           "label": "le tagliatelle al ragù"
         },
         {
-          "id": "ragu",
-          "label": "il ragù alla bolognese"
-        },
-        {
           "id": "mortadella",
           "label": "la mortadella"
         },
@@ -87,7 +83,6 @@
           "matchMode": "all",
           "correctItemIds": [
             "tagliatelle-ragu",
-            "ragu",
             "mortadella"
           ]
         },

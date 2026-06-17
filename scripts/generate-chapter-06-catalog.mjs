@@ -700,7 +700,13 @@ writeJson(
   ),
 );
 
-const siciliaBody = "Guarda le immagini e usa i nomi dei luoghi indicati sotto ogni foto.";
+const siciliaBody = `Guarda le immagini e usa i nomi dei luoghi indicati sotto ogni foto.
+
+Parole utili:
+Trapani: la città barocca; le saline
+Monreale: la Cattedrale di Santa Maria Nuova
+Piazza Armerina: i mosaici
+Palermo: il Palazzo della Giustizia`;
 
 writeJson("quests/quest-03/scenes/03.json", {
   id: `${CHAPTER_ID}-quest-03-scene-03`,

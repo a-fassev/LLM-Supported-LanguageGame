@@ -47,7 +47,7 @@ function freetextEvaluation(criteria) {
 
 const SAVIANO_BODY = `Roberto Saviano è nato il 22 settembre 1979. Nei suoi articoli e libri racconta normalmente della criminalità organizzata, soprattutto della Camorra. Di sicuro è diventato famoso per il suo libro "Gomorra" (2006). Il libro parla della Camorra in Campania perché l'autore è cresciuto in quella zona. Per questo conosce bene i problemi che ci sono lì. Tuttavia è specialmente con la pubblicazione di "Gomorra" che la sua vita cammina veloce in un'altra direzione. Da allora non può più vivere senza scorta, cioè senza poliziotti che gli stanno vicino. Se vuole andare al cinema o si sente male e deve andare dal dottore, parla con gli uomini della scorta che lo accompagnano subito. E chiaramente deve chiedere ai suoi "ragazzi" se vuole prendere velocemente un caffè al bar. Tutto sommato, non è sempre una vita facile. Saviano però continua a lottare. Non solo non si arrende, ma lavora sodo e fa in continuazione nuove indagini: nel 2020 è uscito il suo ultimo libro "Gridalo", un libro con cui chiede a tutti di aver il coraggio di non stare zitti e parlare sempre apertamente dei problemi.`;
 
-const DEL_PIERO_BODY = `Alessandro Del Piero è nato il 9 novembre 1974 a Conegliano, una piccola città in Veneto. Da bambino la sua famiglia non era ricca: il padre lavorava come elettricista e la madre faceva la casalinga. Lui giocava a calcio nelle strade del paese con il fratello maggiore, Stefano. A tredici anni è entrato nella squadra giovanile del Padova, e a diciotto anni è arrivato alla Juventus, una delle squadre più famose d'Italia. Ha giocato per la Juventus per diciannove anni: nessun altro giocatore ha mai fatto una cosa simile. Per questo i tifosi gli hanno dato il soprannome "Pinturicchio" e poi "Capitano". Con la Juventus ha vinto molti campionati italiani, ma il momento più bello della sua carriera è arrivato nel 2006: con la nazionale italiana ha vinto la Coppa del Mondo in Germania. Tutti gli italiani ricordano il suo gol nella semifinale contro i tedeschi. Oggi Del Piero non gioca più, ma lavora come commentatore in TV e aiuta i giovani calciatori con la sua fondazione. È sposato con Sonia e ha tre figli.`;
+const DEL_PIERO_BODY = `Alessandro Del Piero è nato il 9 novembre 1974 a Conegliano, una piccola città in Veneto. Da bambino la sua famiglia non era ricca: il padre lavorava come elettricista e la madre da casalinga. Lui giocava a calcio nelle strade del paese con il fratello maggiore, Stefano. A tredici anni è entrato nella squadra giovanile del Padova, e a diciotto anni è arrivato alla Juventus, una delle squadre più famose d'Italia. Ha giocato per la Juventus per diciannove anni: nessun altro giocatore ha mai fatto una cosa simile. Per questo i tifosi gli hanno dato il soprannome "Pinturicchio" e poi "Capitano". Con la Juventus ha vinto molti campionati italiani, ma il momento più bello della sua carriera è arrivato nel 2006: con la nazionale italiana ha vinto la Coppa del Mondo in Germania. Tutti gli italiani ricordano il suo gol nella semifinale contro i tedeschi. Oggi Del Piero non gioca più, ma lavora come commentatore in TV e aiuta i giovani calciatori con la sua fondazione. È sposato con Sonia e ha tre figli.`;
 
 const FERRAGNI_BODY = `Chiara Ferragni è nata il 7 maggio 1987 a Cremona, in Lombardia. Da ragazza studiava legge all'università di Milano, ma la sua vera passione era la moda. Nel 2009, quando aveva solo ventidue anni, ha aperto un blog di moda chiamato "The Blonde Salad". All'inizio nessuno credeva nel suo progetto, ma in pochi anni il blog è diventato famosissimo in tutto il mondo. Oggi Chiara è una delle influencer più conosciute del pianeta: sui suoi profili social la seguono milioni di persone. Ha creato anche una sua linea di moda, "Chiara Ferragni Collection", con scarpe, vestiti e accessori. Nel 2018 si è sposata con il rapper Fedez in una cerimonia spettacolare in Sicilia. Hanno avuto due figli, Leone e Vittoria, e per anni la loro vita è stata seguita dai fan su Instagram. Nel 2024 però la coppia si è separata e Chiara ha vissuto un periodo difficile, anche per un caso legato a un dolce di Natale, il "pandoro Balocco". Però continua a lavorare ed è ancora una delle donne più importanti del mondo della moda in Italia.`;
 
@@ -111,14 +111,6 @@ const QUIZ_PERSON_OPTIONS = [
   { id: "da-vinci", label: "Leonardo da Vinci" },
 ];
 
-function professionRefDoc(caption, imageKey) {
-  return {
-    title: caption,
-    body: "Guarda la foto e scrivi una frase con che, cui o dove.",
-    figures: [{ image: imageKey, caption }],
-  };
-}
-
 function menuRefDoc(caption, imageKey) {
   return {
     title: caption,
@@ -164,7 +156,7 @@ function mcQuizScene(sceneNum, titleSuffix, grammarPrompt, grammarOptions, corre
   };
 }
 
-function freetextProfessionScene(questId, sceneNum, bg, caption, imageKey, prompt) {
+function freetextProfessionScene(questId, sceneNum, bg, prompt) {
   const nn = String(sceneNum).padStart(2, "0");
   return {
     id: `${CHAPTER_ID}-${questId}-scene-${nn}`,
@@ -174,7 +166,7 @@ function freetextProfessionScene(questId, sceneNum, bg, caption, imageKey, promp
     content: {
       title: "Descrivi la professione",
       instruction: "Scrivi una frase in italiano con un pronome relativo (che, cui o dove).",
-      referenceDocument: professionRefDoc(caption, imageKey),
+      referenceDocument: null,
       task: {
         prompt,
         targetLanguage: "it",
@@ -188,6 +180,21 @@ function freetextProfessionScene(questId, sceneNum, bg, caption, imageKey, promp
     },
     scoring: taskScoring("free_text"),
   };
+}
+
+function menuEvaluationCriteria(caption) {
+  if (caption === "i secondi piatti (con contorni)") {
+    return [
+      "Use at least one relative pronoun (che, cui, or dove) correctly",
+      `Describe the menu category ${caption} plausibly (position in an Italian meal and typical dishes)`,
+      "For secondi piatti, require meat, fish, eggs, cheese or similar main-course dishes; do not accept pasta or rice as secondi piatti",
+    ];
+  }
+  return [
+    "Use at least one relative pronoun (che, cui, or dove) correctly",
+    `Describe the menu category ${caption} plausibly (position in an Italian meal and typical dishes)`,
+    "Do not accept examples that belong mainly to another menu category",
+  ];
 }
 
 function freetextMenuScene(sceneNum, caption, imageKey, prompt) {
@@ -206,10 +213,7 @@ function freetextMenuScene(sceneNum, caption, imageKey, prompt) {
         targetLanguage: "it",
         showWordCount: true,
         minWords: 5,
-        evaluation: freetextEvaluation([
-          "Use at least one relative pronoun (che, cui, or dove) correctly",
-          "Describe the menu category plausibly (position in an Italian meal and typical dishes)",
-        ]),
+        evaluation: freetextEvaluation(menuEvaluationCriteria(caption)),
       },
     },
     scoring: taskScoring("free_text"),
@@ -264,6 +268,7 @@ const quests = [
     requiresQuestId: "quest-03",
     background: "chapters/02/quests/04/bg-overview",
     bgTrattoria: "chapters/02/quests/04/bg-trattoria",
+    bgTrattoriaExterior: "chapters/02/quests/04/bg-trattoria-exterior",
     bgTask: "chapters/02/quests/04/bg-trattoria-task",
   },
   {
@@ -405,7 +410,7 @@ writeJson("quests/quest-02/scenes/07.json", {
             gap(["farò", "Farò"]),
             { kind: "text", text: " l'archeologo anch'io!\nTu: Davvero? Ma non " },
             gap(["avrai", "Avrai"]),
-            { kind: "text", text: " bisogno di voti più alti per farlo? Sono questi che ti " },
+            { kind: "text", text: " bisogno di buoni voti? Sono questi che mi " },
             gap(["mancano", "Mancano"]),
             { kind: "text", text: ".\nDario: Sì, certo. Da domani " },
             gap(["studierò", "Studierò"]),
@@ -444,12 +449,12 @@ writeJson("quests/quest-02/scenes/07.json", {
             gap(["farai", "Farai"]),
             { kind: "text", text: " dopo " },
             gap(["la", "La"]),
-            { kind: "text", text: " maturità?\nTu: Sì, ho già una mezza idea sul " },
-            gap(["futuro", "Futuro"]),
-            { kind: "text", text: ". Sai che a " },
+            { kind: "text", text: " maturità?\nTu: Sì, ho già una mezza idea " },
+            gap(["sul mio", "Sul mio"]),
+            { kind: "text", text: " futuro. Sai che a " },
             gap(["mia", "Mia"]),
-            { kind: "text", text: " sorella e a me piace molto la musica e proprio ieri ho sentito un'intervista alla " },
-            gap(["nostra", "Nostra"]),
+            { kind: "text", text: " sorella e a me piace molto la musica e proprio ieri ho sentito un'intervista " },
+            gap(["alla nostra", "Alla nostra"]),
             { kind: "text", text: " cantante preferita.\nDario: Ah, interessante, dimmi tutto. Mangiamo qualcosa insieme e tu racconti. Che ne dici?" },
           ],
         },
@@ -476,8 +481,6 @@ writeJson(
     "quest-02",
     9,
     q2task,
-    "l'architetto",
-    "chapters/02/quests/02/ref-prof-architetto",
     "Descrivi la professione dell'architetto con una frase. Usa che, cui o dove.",
   ),
 );
@@ -487,8 +490,6 @@ writeJson(
     "quest-02",
     10,
     q2task,
-    "il/la giornalista",
-    "chapters/02/quests/02/ref-prof-giornalista",
     "Descrivi la professione del/la giornalista con una frase. Usa che, cui o dove.",
   ),
 );
@@ -498,8 +499,6 @@ writeJson(
     "quest-02",
     11,
     q2task,
-    "il medico",
-    "chapters/02/quests/02/ref-prof-medico",
     "Descrivi la professione del medico con una frase. Usa che, cui o dove.",
   ),
 );
@@ -509,8 +508,6 @@ writeJson(
     "quest-02",
     12,
     q2task,
-    "il/la giardiniere/a",
-    "chapters/02/quests/02/ref-prof-giardiniere",
     "Descrivi la professione del/la giardiniere/a con una frase. Usa che, cui o dove.",
   ),
 );
@@ -589,11 +586,11 @@ writeJson("quests/quest-03/scenes/04.json", {
   content: {
     title: "Che persona straordinaria!",
     instruction:
-      "Scegli una delle tre persone e completa solo il suo identikit con le informazioni del testo. Puoi rileggere i profili nel documento.",
+      "Apri il documento, leggi i profili e scegli una delle tre persone. Completa solo il suo identikit con le informazioni del testo.",
     referenceDocument: steckbriefRefDoc,
     task: {
       prompt:
-        "Scegli una delle tre persone e completa il suo identikit con le informazioni del testo. Puoi sempre rileggere il profilo nel documento.",
+        "Completa l'identikit.",
       initialAnswerText: IDENTIKIT_TEMPLATE,
       targetLanguage: "it",
       showWordCount: true,
@@ -735,6 +732,7 @@ writeJson(
 
 // --- quest-04 (21 scenes) ---
 const q4bg = quests[3].bgTrattoria;
+const q4Exterior = quests[3].bgTrattoriaExterior;
 const q4task = quests[3].bgTask;
 
 writeJson(
@@ -743,8 +741,8 @@ writeJson(
     CHAPTER_ID,
     "quest-04",
     1,
-    q4bg,
-    "Esci di nuovo nel pomeriggio. Sotto i portici, vicino a Piazza Maggiore, trovi il ristorante di cui ti ha parlato la signora Ferrari: \"Trattoria da Marini\". All'ingresso c'è un cartello: Cercasi personale per la stagione estiva — luglio e agosto.",
+    q4Exterior,
+    "Esci di nuovo nel pomeriggio. Sotto i portici, vicino a Piazza Maggiore, trovi il ristorante di cui ti ha parlato la signora Ferrari: \"Trattoria da Marini\". All'ingresso c'è un cartello: Cercasi personale per la stagione estiva.",
   ),
 );
 writeJson(
@@ -753,7 +751,7 @@ writeJson(
     CHAPTER_ID,
     "quest-04",
     2,
-    q4bg,
+    q4Exterior,
     "Tu\nBene. Lavorare durante l'estate non sarebbe male. Posso guadagnare qualcosa e migliorare il mio italiano. Entriamo.",
   ),
 );
@@ -834,7 +832,7 @@ writeJson(
     "quest-04",
     10,
     q4bg,
-    "Completa la lettera di motivazione con le formule giuste. Trascina le espressioni dalla lista nelle lacune.",
+    "Completa la lettera di motivazione con le formule giuste. Trovi la lettera con le relative lacune sotto \"Documento\".",
   ),
 );
 
@@ -1005,7 +1003,7 @@ writeJson(
     "quest-04",
     19,
     q4bg,
-    "Signor Marini\n\"Bravissimo/a! Si vede che hai studiato bene. Per l'estate ti posso offrire un posto come aiuto in sala. Adesso vai a casa, parla con la tua famiglia ospitante e poi ci sentiamo. Ah, e tieni: il primo caffè da Marini è in offerta!\"",
+    "Signor Marini\n\"Bravissimo/a! Si vede che hai studiato bene. Senti,  per l'estate ti posso offrire un posto come aiuto in sala. Adesso vai a casa, parla con la tua famiglia ospitante e poi ci sentiamo. Ah, e tieni: il primo caffè da Marini in offerta!\"",
   ),
 );
 writeJson(
@@ -1060,7 +1058,7 @@ writeJson(
     "quest-01-bonus",
     3,
     bbg,
-    "Risolvi questo compito bonus per guadagnare fette di pizza extra!",
+    "Risolvi questo compito bonus per guadagnare fino a 5 fette di pizza extra!",
   ),
 );
 

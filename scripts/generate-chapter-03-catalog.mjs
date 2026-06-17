@@ -1036,7 +1036,6 @@ const dragItems = [
   { id: "fiat500", label: "la FIAT 500" },
   { id: "pinguino", label: "il Pinguino (gelato su stecco)" },
   { id: "tagliatelle-ragu", label: "le tagliatelle al ragù" },
-  { id: "ragu", label: "il ragù alla bolognese" },
   { id: "mortadella", label: "la mortadella" },
   { id: "nutella", label: "la Nutella" },
   { id: "pizza-margherita", label: "la pizza Margherita" },
@@ -1077,7 +1076,7 @@ writeJson("quests/quest-04/scenes/15.json", {
           id: "bologna",
           title: "Bologna",
           matchMode: "all",
-          correctItemIds: ["tagliatelle-ragu", "ragu", "mortadella"],
+          correctItemIds: ["tagliatelle-ragu", "mortadella"],
         },
         {
           id: "alba",

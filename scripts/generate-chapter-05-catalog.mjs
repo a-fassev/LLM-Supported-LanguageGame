@@ -77,6 +77,10 @@ function gap(answers, maxLength = 80) {
   return { kind: "gap", maxLength, correctAnswers: answers };
 }
 
+function optionalGap(maxLength = 32) {
+  return { kind: "gap", maxLength, optional: true, correctAnswers: [""] };
+}
+
 function quoteItalianDialogue(text) {
   const trimmed = text.trim();
   if (trimmed.startsWith("„") || trimmed.startsWith('"')) {
@@ -149,6 +153,9 @@ Insomma, informati bene su tutto, prima di prendere una decisione!
 Cordiali saluti, Anna-Viviana Bardelli.
 
 P.S.: Non mi piace per niente la tua idea di pubblicare tutto in internet! Pensa prima alle possibili conseguenze!`;
+
+const FORMAL_MAIL_FORMULA_BANK =
+  "ci risponda; Le; Distinti saluti; pensi; Egregio Dirigente scolastico, Gentile Professor Sallusti; ci; La ringraziamo molto; legga; ci proibisca; Si ricordi";
 
 const bonusPoolPairs = [
   ["la tattica", "tactics"],
@@ -544,43 +551,27 @@ writeJson("quests/quest-03/scenes/04.json", {
       items: proControCards,
       targets: [
         {
-          id: "lucca-pro-1",
+          id: "lucca-pro",
           title: "Lucca PRO",
-          correctItemIds: ["card-1"],
+          matchMode: "all",
+          correctItemIds: ["card-1", "card-2", "card-3"],
         },
         {
-          id: "lucca-pro-2",
-          title: "Lucca PRO",
-          correctItemIds: ["card-2"],
-        },
-        {
-          id: "lucca-pro-3",
-          title: "Lucca PRO",
-          correctItemIds: ["card-3"],
-        },
-        {
-          id: "lucca-contro-1",
+          id: "lucca-contro",
           title: "Lucca CONTRO",
-          correctItemIds: ["card-4"],
+          matchMode: "all",
+          correctItemIds: ["card-4", "card-5"],
         },
         {
-          id: "lucca-contro-2",
-          title: "Lucca CONTRO",
-          correctItemIds: ["card-5"],
-        },
-        {
-          id: "firenze-pro-1",
+          id: "firenze-pro",
           title: "Firenze PRO",
-          correctItemIds: ["card-6"],
+          matchMode: "all",
+          correctItemIds: ["card-6", "card-7"],
         },
         {
-          id: "firenze-pro-2",
-          title: "Firenze PRO",
-          correctItemIds: ["card-7"],
-        },
-        {
-          id: "firenze-contro-1",
+          id: "firenze-contro",
           title: "Firenze CONTRO",
+          matchMode: "all",
           correctItemIds: ["card-8"],
         },
       ],
@@ -597,16 +588,18 @@ writeJson("quests/quest-03/scenes/05.json", {
   content: {
     title: "Posizione dell'aggettivo",
     instruction:
-      "Completa ogni frase con articolo indeterminativo e aggettivo nella posizione corretta. L'aggettivo di riferimento è tra parentesi.",
+      "Completa ogni frase riempiendo una sola delle due posizioni-lacuna. Lacuna A (prima del nome) = articolo + aggettivo. Lacuna B (dopo il nome) = solo aggettivo. Usa sempre l'articolo indeterminativo quando completi la Lacuna A. L'aggettivo è indicato tra parentesi alla fine della frase.",
     task: {
       prompt:
-        "Inserisci solo la forma richiesta nella lacuna prevista: articolo indeterminativo + aggettivo prima del nome, oppure solo aggettivo dopo il nome.",
+        "Riempi solo la lacuna corretta in ogni frase. Lascia vuota l'altra lacuna.",
       caseSensitive: false,
       lines: [
         {
           segments: [
             { kind: "text", text: "1. Giulio è " },
             gap(["un solo"], 32),
+            { kind: "text", text: " studente " },
+            optionalGap(32),
             { kind: "text", text: " in classe. (solo - tedesco: \"einzig\")" },
           ],
         },
@@ -614,33 +607,43 @@ writeJson("quests/quest-03/scenes/05.json", {
           segments: [
             { kind: "text", text: "2. Sofia è " },
             gap(["una povera"], 32),
+            { kind: "text", text: " ragazza " },
+            optionalGap(32),
             { kind: "text", text: ". (povero - tedesco: \"bemitleidenswert\")" },
           ],
         },
         {
           segments: [
             { kind: "text", text: "3. Rita e Franco sono " },
-            gap(["vecchi"], 32),
+            gap(["dei vecchi"], 32),
+            { kind: "text", text: " amici " },
+            optionalGap(32),
             { kind: "text", text: ". (vecchio - tedesco: \"langjährig\")" },
           ],
         },
         {
           segments: [
-            { kind: "text", text: "4. Nando è un ragazzo " },
+            { kind: "text", text: "4. Nando è " },
+            optionalGap(32),
+            { kind: "text", text: " ragazzo " },
             gap(["solo"], 32),
             { kind: "text", text: ". (solo - tedesco: \"einsam\")" },
           ],
         },
         {
           segments: [
-            { kind: "text", text: "5. È un evento " },
+            { kind: "text", text: "5. È " },
+            optionalGap(32),
+            { kind: "text", text: " evento " },
             gap(["caro"], 32),
             { kind: "text", text: ". (caro - tedesco: \"teuer\")" },
           ],
         },
         {
           segments: [
-            { kind: "text", text: "6. Parla di un amico " },
+            { kind: "text", text: "6. Parla di " },
+            optionalGap(32),
+            { kind: "text", text: " amico " },
             gap(["vecchio"], 32),
             { kind: "text", text: ". (vecchio - tedesco: \"alt\")" },
           ],
@@ -717,16 +720,16 @@ writeJson("quests/quest-04/scenes/04.json", {
       "Leggi il documento e completa la mail formale con la banca formule.",
     referenceDocument: {
       title: "Andiamo a Lucca se ... (lettera della professoressa)",
-      body: `${PROF_REPLY_BODY}\n\nBanca formule:\nEgregio Dirigente scolastico, Gentile Professoressa Bardelli; Le; ci; legga; pensi; Si ricordi; ci proibisca; ci risponda; La ringraziamo molto; Distinti saluti.`,
+      body: PROF_REPLY_BODY,
     },
     task: {
       prompt:
-        "Usa solo la banca formule: Egregio Dirigente scolastico, Gentile Professoressa Bardelli; Le; ci; legga; pensi; Si ricordi; ci proibisca; ci risponda; La ringraziamo molto; Distinti saluti.",
+        `Usa solo la banca formule: ${FORMAL_MAIL_FORMULA_BANK}.`,
       caseSensitive: false,
       lines: [
         {
           segments: [
-            gap(["Egregio Dirigente scolastico, Gentile Professoressa Bardelli"], 128),
+            gap(["Egregio Dirigente scolastico, Gentile Professor Sallusti"], 128),
             { kind: "text", text: ",\n\n" },
             gap(["Le"]),
             { kind: "text", text: " scriviamo questa lettera per presentar" },

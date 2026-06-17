@@ -101,10 +101,10 @@ function gapInsensitive(rootInsensitive: boolean, seg: Record<string, unknown>):
   return rootInsensitive;
 }
 
-function clozeGapSpecs(content: Record<string, unknown>): { insensitive: boolean; answers: string[] }[] {
+function clozeGapSpecs(content: Record<string, unknown>): { insensitive: boolean; answers: string[]; optional: boolean }[] {
   const lines = Array.isArray(content.lines) ? (content.lines as Record<string, unknown>[]) : [];
   const rootIns = content.caseSensitive === true ? false : true;
-  const specs: { insensitive: boolean; answers: string[] }[] = [];
+  const specs: { insensitive: boolean; answers: string[]; optional: boolean }[] = [];
   for (const line of lines) {
     const segs = Array.isArray(line.segments) ? (line.segments as Record<string, unknown>[]) : [];
     for (const seg of segs) {
@@ -114,8 +114,9 @@ function clozeGapSpecs(content: Record<string, unknown>): { insensitive: boolean
       const answers = answersRaw
         .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
         .map((x) => x.trim());
-      if (answers.length === 0) continue;
-      specs.push({ insensitive: gapInsensitive(rootIns, seg), answers });
+      const optional = seg.optional === true;
+      if (answers.length === 0 && !optional) continue;
+      specs.push({ insensitive: gapInsensitive(rootIns, seg), answers, optional });
     }
   }
   return specs;
@@ -142,13 +143,17 @@ export function evaluateCloze(
     return err(400, scoreMsg.clozeGapCountMismatch, "attempt_mismatch");
   }
   let correct = 0;
+  let total = 0;
   for (let i = 0; i < specs.length; i++) {
     const spec = specs[i];
+    if (spec.optional) continue;
+    total++;
     const raw = answers[i] ?? "";
     if (typeof raw !== "string") return err(400, scoreMsg.invalidClozeAnswer, "attempt_invalid");
     if (matchesAnswer(raw, spec.answers, spec.insensitive)) correct++;
   }
-  return { ok: true, ratio: correct / specs.length, itemsCorrect: correct, itemsTotal: specs.length };
+  if (total === 0) return err(502, scoreMsg.clozePayloadNoGaps, "payload_invalid");
+  return { ok: true, ratio: correct / total, itemsCorrect: correct, itemsTotal: total };
 }
 
 function clozeAnswersAllEmpty(answers: string[]): boolean {

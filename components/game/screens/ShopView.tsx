@@ -157,7 +157,6 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
           />
 
           <div className="absolute left-3 top-3 z-50 max-w-[min(75%,32rem)] rounded-lg border border-[#8f5a33]/28 bg-[#fff8eb]/88 px-3 py-2 text-[#4b2211] shadow-[0_8px_20px_rgba(0,0,0,0.18)] backdrop-blur-sm">
-            <p className="text-sm font-black sm:text-base">La tua stanza</p>
             <p className="text-xs font-bold text-[#7c4b28] sm:text-sm">
               {complete ? "La stanza è completa." : message}
             </p>
@@ -187,9 +186,8 @@ export function ShopView({ className, initialSlices = 0, onWalletChange }: ShopV
                 aria-label={`Compra ${item.label} per ${item.cost} spicchi di pizza`}
                 onClick={() => void onBuy(item.id)}
               >
-                <span className="grid max-w-[88%] place-items-center gap-0.5 rounded-md bg-[#5a2612] px-2 py-1 text-center text-[10px] font-black leading-tight text-[#fff8df] shadow-sm sm:text-xs">
-                  {isPending ? "Acquisto..." : "Da acquistare"}
-                  <small className="text-[0.9em] text-[#ffd98a]">🍕 {item.cost}</small>
+                <span className="grid max-w-[88%] place-items-center rounded-md bg-[#5a2612] px-2 py-1 text-center text-[10px] font-black leading-tight text-[#ffd98a] shadow-sm sm:text-xs">
+                  {isPending ? "..." : `🍕 ${item.cost}`}
                 </span>
               </button>
             );

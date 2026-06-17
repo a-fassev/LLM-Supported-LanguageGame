@@ -318,10 +318,10 @@ function gapInsensitive(rootInsensitive: boolean, seg: Record<string, unknown>):
   return rootInsensitive;
 }
 
-function clozeGapSpecs(content: Record<string, unknown>): { insensitive: boolean; answers: string[] }[] {
+function clozeGapSpecs(content: Record<string, unknown>): { insensitive: boolean; answers: string[]; optional: boolean }[] {
   const lines = Array.isArray(content.lines) ? (content.lines as Record<string, unknown>[]) : [];
   const rootIns = content.caseSensitive === true ? false : true;
-  const specs: { insensitive: boolean; answers: string[] }[] = [];
+  const specs: { insensitive: boolean; answers: string[]; optional: boolean }[] = [];
   for (const line of lines) {
     const segs = Array.isArray(line.segments) ? (line.segments as Record<string, unknown>[]) : [];
     for (const seg of segs) {
@@ -331,8 +331,9 @@ function clozeGapSpecs(content: Record<string, unknown>): { insensitive: boolean
       const answers = answersRaw
         .filter((x): x is string => typeof x === "string" && x.trim().length > 0)
         .map((x) => x.trim());
-      if (answers.length === 0) continue;
-      specs.push({ insensitive: gapInsensitive(rootIns, seg), answers });
+      const optional = seg.optional === true;
+      if (answers.length === 0 && !optional) continue;
+      specs.push({ insensitive: gapInsensitive(rootIns, seg), answers, optional });
     }
   }
   return specs;
@@ -358,6 +359,7 @@ function buildClozeReview(
 
   for (let i = 0; i < specs.length; i++) {
     const spec = specs[i];
+    if (spec.optional) continue;
     const typed = typeof answers[i] === "string" ? answers[i] : "";
     gaps.push({
       gapIndex: i,

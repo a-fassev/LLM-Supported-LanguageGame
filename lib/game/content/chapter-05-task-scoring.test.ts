@@ -24,14 +24,14 @@ function findScene(chapterId: string, questId: string, sceneNum: number) {
 }
 
 function clozeAnswersFromLines(
-  lines: { segments: { kind?: string; correctAnswers?: string[] }[] }[],
+  lines: { segments: { kind?: string; correctAnswers?: string[]; optional?: boolean }[] }[],
   pickIndex = 0,
 ) {
   const answers: string[] = [];
   for (const line of lines) {
     for (const seg of line.segments) {
-      if (seg.kind === "gap" && seg.correctAnswers?.[pickIndex]) {
-        answers.push(seg.correctAnswers[pickIndex]);
+      if (seg.kind === "gap") {
+        answers.push(seg.optional ? "" : (seg.correctAnswers?.[pickIndex] ?? ""));
       }
     }
   }
@@ -39,9 +39,9 @@ function clozeAnswersFromLines(
 }
 
 function gapSegmentsFromLines(
-  lines: { segments: { kind?: string; correctAnswers?: string[] }[] }[],
+  lines: { segments: { kind?: string; correctAnswers?: string[]; optional?: boolean }[] }[],
 ) {
-  const gaps: { correctAnswers?: string[] }[] = [];
+  const gaps: { correctAnswers?: string[]; optional?: boolean }[] = [];
   for (const line of lines) {
     for (const seg of line.segments) {
       if (seg.kind === "gap") {
@@ -84,16 +84,16 @@ describe("chapter-05 task answer keys (server scoring)", () => {
       taskType: "DragDrop",
       dragDrop: { assignments },
     });
-    expect(r).toMatchObject({ ok: true, ratio: 1, itemsCorrect: 8, itemsTotal: 8 });
+    expect(r).toMatchObject({ ok: true, ratio: 1, itemsCorrect: 4, itemsTotal: 4 });
   });
 
   it("aggettivo cloze accepts primary solutions for six gaps", async () => {
     const scene = await findScene("chapter-05", "quest-03", 5)();
     const task = scene.content.task as {
-      lines: { segments: { kind?: string; correctAnswers?: string[] }[] }[];
+      lines: { segments: { kind?: string; correctAnswers?: string[]; optional?: boolean }[] }[];
     };
     const answers = clozeAnswersFromLines(task.lines);
-    expect(answers).toHaveLength(6);
+    expect(answers).toHaveLength(12);
     const r = evaluateCloze(task, {
       taskType: "ClozeText",
       clozeText: { answers },
@@ -104,12 +104,14 @@ describe("chapter-05 task answer keys (server scoring)", () => {
   it("aggettivo cloze accepts every listed alternate per gap", async () => {
     const scene = await findScene("chapter-05", "quest-03", 5)();
     const task = scene.content.task as {
-      lines: { segments: { kind?: string; correctAnswers?: string[] }[] }[];
+      lines: { segments: { kind?: string; correctAnswers?: string[]; optional?: boolean }[] }[];
     };
     const gaps = gapSegmentsFromLines(task.lines);
-    expect(gaps).toHaveLength(6);
+    expect(gaps).toHaveLength(12);
+    expect(gaps.filter((gap) => !gap.optional)).toHaveLength(6);
 
     for (let gapIndex = 0; gapIndex < gaps.length; gapIndex += 1) {
+      if (gaps[gapIndex].optional) continue;
       const variants = gaps[gapIndex].correctAnswers ?? [];
       expect(variants.length).toBeGreaterThan(0);
 
@@ -151,9 +153,10 @@ describe("chapter-05 task answer keys (server scoring)", () => {
     };
     const gaps = gapSegmentsFromLines(task.lines);
     expect(gaps[0].correctAnswers).toEqual([
-      "Egregio Dirigente scolastico, Gentile Professoressa Bardelli",
+      "Egregio Dirigente scolastico, Gentile Professor Sallusti",
     ]);
-    expect(scene.content.referenceDocument?.body).toContain("Banca formule:");
+    expect(scene.content.referenceDocument?.body).not.toContain("Banca formule:");
+    expect(scene.content.task?.prompt).toContain("banca formule:");
 
     const answers = clozeAnswersFromLines(task.lines);
     const r = evaluateCloze(task, {

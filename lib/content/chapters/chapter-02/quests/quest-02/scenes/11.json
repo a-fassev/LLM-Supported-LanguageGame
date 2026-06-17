@@ -6,16 +6,7 @@
   "content": {
     "title": "Descrivi la professione",
     "instruction": "Scrivi una frase in italiano con un pronome relativo (che, cui o dove).",
-    "referenceDocument": {
-      "title": "il medico",
-      "body": "Guarda la foto e scrivi una frase con che, cui o dove.",
-      "figures": [
-        {
-          "image": "chapters/02/quests/02/ref-prof-medico",
-          "caption": "il medico"
-        }
-      ]
-    },
+    "referenceDocument": null,
     "task": {
       "prompt": "Descrivi la professione del medico con una frase. Usa che, cui o dove.",
       "targetLanguage": "it",

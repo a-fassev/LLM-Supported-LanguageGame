@@ -8,10 +8,10 @@
     "instruction": "Leggi il documento e completa la mail formale con la banca formule.",
     "referenceDocument": {
       "title": "Andiamo a Lucca se ... (lettera della professoressa)",
-      "body": "Caro Simone, la tua idea sembra piuttosto interessante, ma non pensare che sia facile organizzare una gita. Innanzitutto come reagiranno i tuoi compagni di classe alla tua proposta?\n\nChiedigli cosa ne pensano, fammi sapere se sono d'accordo, e se saranno d'accordo i vostri genitori (ci vogliono anche le loro autorizzazioni!). Dammi almeno tre motivi per cui dovrei portarvi a Lucca! Scrivili insieme ai tuoi compagni, discutetene e poi inviatemi la vostra risposta entro lunedì. Così vi dirò se possiamo andarci.\n\nMa prima di tutto chiariscimi questi tre punti:\n1) Quanti giorni volete stare a Lucca e quanto tempo volete passare al festival?\n2) Con quale mezzo di trasporto vorrete viaggiare (andata e ritorno)?\n3) Quanto tempo ci rimarrà per i musei e per le chiese?\n\nInsomma, informati bene su tutto, prima di prendere una decisione!\n\nCordiali saluti, Anna-Viviana Bardelli.\n\nP.S.: Non mi piace per niente la tua idea di pubblicare tutto in internet! Pensa prima alle possibili conseguenze!\n\nBanca formule:\nEgregio Dirigente scolastico, Gentile Professoressa Bardelli; Le; ci; legga; pensi; Si ricordi; ci proibisca; ci risponda; La ringraziamo molto; Distinti saluti."
+      "body": "Caro Simone, la tua idea sembra piuttosto interessante, ma non pensare che sia facile organizzare una gita. Innanzitutto come reagiranno i tuoi compagni di classe alla tua proposta?\n\nChiedigli cosa ne pensano, fammi sapere se sono d'accordo, e se saranno d'accordo i vostri genitori (ci vogliono anche le loro autorizzazioni!). Dammi almeno tre motivi per cui dovrei portarvi a Lucca! Scrivili insieme ai tuoi compagni, discutetene e poi inviatemi la vostra risposta entro lunedì. Così vi dirò se possiamo andarci.\n\nMa prima di tutto chiariscimi questi tre punti:\n1) Quanti giorni volete stare a Lucca e quanto tempo volete passare al festival?\n2) Con quale mezzo di trasporto vorrete viaggiare (andata e ritorno)?\n3) Quanto tempo ci rimarrà per i musei e per le chiese?\n\nInsomma, informati bene su tutto, prima di prendere una decisione!\n\nCordiali saluti, Anna-Viviana Bardelli.\n\nP.S.: Non mi piace per niente la tua idea di pubblicare tutto in internet! Pensa prima alle possibili conseguenze!"
     },
     "task": {
-      "prompt": "Usa solo la banca formule: Egregio Dirigente scolastico, Gentile Professoressa Bardelli; Le; ci; legga; pensi; Si ricordi; ci proibisca; ci risponda; La ringraziamo molto; Distinti saluti.",
+      "prompt": "Usa solo la banca formule: ci risponda; Le; Distinti saluti; pensi; Egregio Dirigente scolastico, Gentile Professor Sallusti; ci; La ringraziamo molto; legga; ci proibisca; Si ricordi.",
       "caseSensitive": false,
       "lines": [
         {
@@ -20,7 +20,7 @@
               "kind": "gap",
               "maxLength": 128,
               "correctAnswers": [
-                "Egregio Dirigente scolastico, Gentile Professoressa Bardelli"
+                "Egregio Dirigente scolastico, Gentile Professor Sallusti"
               ]
             },
             {

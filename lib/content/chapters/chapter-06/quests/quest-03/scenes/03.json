@@ -8,7 +8,7 @@
     "instruction": "Completa cinque frasi con la messa in rilievo (è ... che / non sono ... che ...).",
     "referenceDocument": {
       "title": "Luoghi in Sicilia",
-      "body": "Guarda le immagini e usa i nomi dei luoghi indicati sotto ogni foto.",
+      "body": "Guarda le immagini e usa i nomi dei luoghi indicati sotto ogni foto.\n\nParole utili:\nTrapani: la città barocca; le saline\nMonreale: la Cattedrale di Santa Maria Nuova\nPiazza Armerina: i mosaici\nPalermo: il Palazzo della Giustizia",
       "figures": [
         {
           "image": "chapters/06/quests/03/ref-sicilia-01",
