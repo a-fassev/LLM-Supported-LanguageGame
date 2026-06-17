@@ -45,8 +45,10 @@ jobs:
       - name: Deploy to Azure Web App
         # App Service application settings (not in repo): OPENAI_API_KEY required for freetext LLM.
         # Remove legacy GEMINI_* settings when deploying the OpenAI migration.
+        # clean: true removes orphaned content JSON from prior deploys (catalog reads all scene files on disk).
         uses: azure/webapps-deploy@v3
         with:
           app-name: enigma-di-bologna
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           package: deploy
+          clean: true
