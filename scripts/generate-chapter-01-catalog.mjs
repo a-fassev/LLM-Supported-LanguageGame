@@ -166,7 +166,7 @@ writeJson(
     "quest-01",
     6,
     q1bg,
-    "Per i compiti risolti riceverai fette di pizza. Puoi usarle per personalizzare il tuo avatar con nuovi vestiti ed accessori.",
+    "Per i compiti risolti riceverai delle fette di pizza. Puoi usarle per arredare la tua stanza con nuovi mobili e oggetti.",
   ),
 );
 writeJson(
@@ -176,7 +176,7 @@ writeJson(
     "quest-01",
     7,
     q1bg,
-    "Dalla mappa dei capitoli puoi scegliere la prossima missione. Alcuni capitoli si apriranno solo quando hai completato quelli precedenti.",
+    "Avanzi capitolo per capitolo: così scoprirai la città a poco a poco e incontrerai persone interessanti lungo il percorso.",
   ),
 );
 
@@ -317,12 +317,12 @@ writeJson("quests/quest-02/scenes/08.json", {
   background: "chapters/01/quests/02/bg-task-error",
   content: {
     title: "Trova gli errori",
-    instruction: "Leggi il testo e trova i 5 errori. Clicca sulle informazioni sbagliate.",
+    instruction: "Leggi il testo e trova i 4 errori. Clicca sulle informazioni sbagliate.",
     referenceDocument: null,
     task: {
       prompt:
-        "Leggi il testo e trova i 5 errori sulle abitudini italiane al bar e al ristorante. Clicca sulle informazioni sbagliate.",
-      expectedErrorRange: { min: 5, max: 5 },
+        "Leggi il testo e trova i 4 errori sulle abitudini italiane al bar e al ristorante. Clicca sulle informazioni sbagliate.",
+      expectedErrorRange: { min: 4, max: 4 },
       segments: [
         {
           id: "a1",
@@ -357,22 +357,7 @@ writeJson("quests/quest-02/scenes/08.json", {
         },
         {
           id: "a6",
-          text: " , anche dopo pranzo e dopo cena. Al ristorante, quando arrivi,",
-          isError: false,
-        },
-        {
-          id: "a7",
-          text: " scegli tu stesso il tavolo",
-          isError: true,
-          acceptedCorrections: [
-            "si aspetta che il personale assegni il tavolo",
-            "aspetta che il personale ti assegni il tavolo",
-            "il personale assegna il tavolo",
-          ],
-        },
-        {
-          id: "a8",
-          text: " senza aspettare. Un pasto italiano normale è composto da",
+          text: " , anche dopo pranzo e dopo cena. Al ristorante, quando arrivi, aspetti che il personale ti assegni un tavolo. Un pasto italiano normale è composto da",
           isError: false,
         },
         {
@@ -554,7 +539,7 @@ writeJson(
     "quest-04",
     2,
     q4bg,
-    "Tonio\n\"Ciao caro/cara! Cosa desideri? Un caffè, un'acqua? ... Aspetta, non ci siamo mai visti qui. Sei qui da poco, vero? Che fai, studi?\"",
+    "Tonio\n\"Ciao! Cosa desideri? Un caffè, un'acqua? ... Aspetta, non ci siamo mai visti qui. Sei qui da poco, vero? Che fai, studi?\"",
   ),
 );
 writeJson(
@@ -588,7 +573,7 @@ writeJson(
     "quest-04",
     6,
     q4bg,
-    "Sfogli la brochure. Durante i prossimi compiti potrai consultarla nel documento quando vuoi.",
+    "L'opuscolo è disponibile nelle seguenti attività tramite il pulsante “Documento”.",
   ),
 );
 writeJson(
@@ -679,15 +664,15 @@ writeJson("quests/quest-04/scenes/10.json", {
       prompt: "Abbina ogni parola inglese alla parola italiana corrispondente.",
       leftItems: [
         { id: "en1", label: "cave" },
-        { id: "en2", label: "route" },
+        { id: "en2", label: "dimensions" },
         { id: "en3", label: "itinerary" },
         { id: "en4", label: "exterior" },
         { id: "en5", label: "column" },
         { id: "en6", label: "explorer" },
       ],
       rightItems: [
-        { id: "it1", label: "la grotta" },
-        { id: "it2", label: "il percorso" },
+        { id: "it1", label: "la caverna" },
+        { id: "it2", label: "le dimensioni" },
         { id: "it3", label: "l'itinerario" },
         { id: "it4", label: "l'esterno" },
         { id: "it5", label: "la colonna" },
@@ -869,7 +854,7 @@ writeJson(
     "quest-01-bonus",
     3,
     bbg,
-    "Risolvi questo compito bonus per guadagnare fette di pizza extra!",
+    "Risolvi questo compito bonus per guadagnare fino a 5 fette di pizza extra!",
   ),
 );
 

@@ -42,11 +42,12 @@ const clozeGapSegmentServerSchema = z
     placeholder: z.string().optional(),
     maxLength: z.number().int().positive().max(256).optional(),
     ignoreCase: z.union([z.string(), z.boolean()]).optional(),
+    optional: z.boolean().optional(),
     correctAnswers: z.array(z.string()).min(1),
   })
   .strict()
   .superRefine((segment, ctx) => {
-    const hasAnswer = segment.correctAnswers.some((answer) => answer.trim().length > 0);
+    const hasAnswer = segment.optional === true || segment.correctAnswers.some((answer) => answer.trim().length > 0);
     if (!hasAnswer) {
       ctx.addIssue({
         code: "custom",
@@ -62,6 +63,7 @@ const clozeGapSegmentClientSchema = z
     placeholder: z.string().optional(),
     maxLength: z.number().int().positive().max(256).optional(),
     ignoreCase: z.union([z.string(), z.boolean()]).optional(),
+    optional: z.boolean().optional(),
   })
   .strict();
 

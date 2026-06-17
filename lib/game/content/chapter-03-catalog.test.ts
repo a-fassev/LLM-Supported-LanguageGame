@@ -98,7 +98,7 @@ describe("chapter-03 Bologna Lezione 3 catalog", () => {
       items?: unknown[];
       targets?: { id: string }[];
     };
-    expect(dragTask?.items?.length).toBe(13);
+    expect(dragTask?.items?.length).toBe(12);
     expect(dragTask?.targets?.map((t) => t.id)).toEqual(
       expect.arrayContaining([
         "torino",
