@@ -16,14 +16,6 @@ const catalogMocks = vi.hoisted(() => ({
   findCatalogScene: vi.fn(),
 }));
 
-const testingReplayMock = vi.hoisted(() => ({
-  isGameTestingReplayMode: vi.fn(() => false),
-}));
-
-vi.mock("@/lib/game/game-testing-replay-mode", () => ({
-  GAME_TESTING_REPLAY_MODE: false,
-  isGameTestingReplayMode: testingReplayMock.isGameTestingReplayMode,
-}));
 vi.mock("@/lib/game/repositories/game-progress-repository", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/game/repositories/game-progress-repository")>();
   return {
@@ -66,7 +58,6 @@ const matchingScene = {
 describe("getRunSnapshot", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    testingReplayMock.isGameTestingReplayMode.mockReturnValue(false);
     repoMocks.ensureWalletRow.mockResolvedValue(true);
     repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 0, totalBackpackPieces: 0 });
     repoMocks.getActiveQuestRun.mockResolvedValue(null);

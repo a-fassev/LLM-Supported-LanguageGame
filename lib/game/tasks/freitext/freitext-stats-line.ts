@@ -1,10 +1,11 @@
-import { countWordsAnswer } from "@/lib/llm/freitextLlmContentSchema";
+import { countFreitextAnswerWordsBeyondTemplate } from "@/lib/game/tasks/freitext/freitext-initial-answer";
 import type { NormalizedFreitextContent } from "@/lib/game/tasks/freitext/normalize-freitext-content";
 
 export function formatFreitextStatsLine(content: NormalizedFreitextContent, answerText: string): string | null {
   const showWord = content.showWordCount;
   const showChar = content.showCharacterCount;
   const minW = content.minWords;
+  const hasTemplate = content.initialAnswerText !== undefined;
 
   if (!showWord && !showChar && minW <= 0) {
     return null;
@@ -13,8 +14,10 @@ export function formatFreitextStatsLine(content: NormalizedFreitextContent, answ
   const parts: string[] = [];
   const needsWordHint = showWord || minW > 0;
   if (needsWordHint) {
-    const wc = countWordsAnswer(answerText);
-    let line = `Parole scritte: ${wc}`;
+    const wc = hasTemplate
+      ? countFreitextAnswerWordsBeyondTemplate(answerText, content.initialAnswerText)
+      : countFreitextAnswerWordsBeyondTemplate(answerText);
+    let line = hasTemplate ? `Parole aggiunte: ${wc}` : `Parole scritte: ${wc}`;
     if (minW > 0) {
       line += ` (almeno ${minW})`;
     }

@@ -18,7 +18,6 @@ import {
   type TaskReviewDto,
 } from "@/lib/api-client";
 import { gameClientMessages } from "@/lib/game/clientMessages";
-import { isGameTestingReplayMode } from "@/lib/game/game-testing-replay-mode";
 import { useGameSession } from "@/lib/game/session-context";
 import {
   buildActiveRunResumePath,
@@ -195,7 +194,7 @@ function syncFreetextDraftForScene(
     setters.setFreetextValidationError(FREITEXT_CONTENT_MISMATCH_MESSAGE);
     return;
   }
-  setters.setFreetextAnswer("");
+  setters.setFreetextAnswer(normalized.content.initialAnswerText ?? "");
   setters.setFreetextValidationError(null);
 }
 
@@ -417,6 +416,7 @@ export default function PlayPage() {
 
   const dismissSuccessOverlay = useCallback(() => {
     const pending = pendingDraftSyncSceneRef.current;
+    const holdScene = chromeHoldScene;
     if (pending) {
       syncTaskDraftsForScene(pending, {
         setMcSelections,
@@ -434,6 +434,11 @@ export default function PlayPage() {
         setClozeValidationError,
       });
       pendingDraftSyncSceneRef.current = null;
+    } else if (holdScene?.scene_type === "task" && holdScene.screen_type === "free_text") {
+      syncFreetextDraftForScene(holdScene, {
+        setFreetextAnswer,
+        setFreetextValidationError,
+      });
     }
     setSuccessOpen(false);
     setOutcome(null);
@@ -441,7 +446,7 @@ export default function PlayPage() {
     setShowSolution(false);
     setBackgroundHoldKey(null);
     setChromeHoldScene(null);
-  }, []);
+  }, [chromeHoldScene]);
 
   const chapterPathForRun = useCallback(
     (run: RunDto | null) => (run?.chapterId ? `/chapters/${run.chapterId}` : "/chapters"),
@@ -533,7 +538,7 @@ export default function PlayPage() {
         setLoading(false);
         return;
       }
-      if (result.code === "quest_already_completed" && chapterId && !isGameTestingReplayMode()) {
+      if (result.code === "quest_already_completed" && chapterId) {
         toastBlockingApiError(result);
         router.replace(`/chapters/${chapterId}`);
         setLoading(false);
@@ -541,8 +546,7 @@ export default function PlayPage() {
       }
       if (
         (result.code === "chapter_locked" || result.code === "quest_locked") &&
-        chapterId &&
-        !isGameTestingReplayMode()
+        chapterId
       ) {
         toastBlockingApiError(result);
         router.replace(`/chapters/${chapterId}`);

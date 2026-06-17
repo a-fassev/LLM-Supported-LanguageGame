@@ -10,6 +10,7 @@ export type NormalizedFreitextContent = {
   minWords: number;
   showWordCount: boolean;
   showCharacterCount: boolean;
+  initialAnswerText?: string;
 };
 
 export type NormalizeFreitextResult =
@@ -36,6 +37,9 @@ export function normalizeFreitextContentResult(
       minWords: value.minWords ?? 0,
       showWordCount: value.showWordCount === true,
       showCharacterCount: value.showCharacterCount === true,
+      ...(value.initialAnswerText !== undefined
+        ? { initialAnswerText: value.initialAnswerText }
+        : {}),
     },
   };
 }

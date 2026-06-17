@@ -2,7 +2,7 @@
   "id": "chapter-02-quest-04-scene-02",
   "scene_type": "story",
   "screen_type": "info",
-  "background": "chapters/02/quests/04/bg-trattoria-exterior",
+  "background": "chapters/02/quests/04/bg-trattoria",
   "content": {
     "text": "Tu\nBene. Lavorare durante l'estate non sarebbe male. Posso guadagnare qualcosa e migliorare il mio italiano. Entriamo."
   }

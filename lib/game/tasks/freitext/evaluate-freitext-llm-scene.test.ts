@@ -108,6 +108,33 @@ describe("evaluateFreitextLlmScene", () => {
     expect(judgeMock).not.toHaveBeenCalled();
   });
 
+  it("rejects unchanged initialAnswerText template", async () => {
+    const template = "nome:\nanno di nascita:";
+    const result = await evaluateFreitextLlmScene(
+      { task: { ...baseTask, initialAnswerText: template } },
+      { taskType: "FreitextLlm", freitextLlm: { answerText: template } },
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.status).toBe(400);
+      expect(result.code).toBe("answer_unchanged_template");
+    }
+    expect(judgeMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects answers missing template structure lines", async () => {
+    const template = "nome:\nanno di nascita:";
+    const result = await evaluateFreitextLlmScene(
+      { task: { ...baseTask, initialAnswerText: template, minWords: 0 } },
+      { taskType: "FreitextLlm", freitextLlm: { answerText: "nome: Luca" } },
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.code).toBe("answer_template_structure_missing");
+    }
+    expect(judgeMock).not.toHaveBeenCalled();
+  });
+
   it("returns ratio and normalized feedback from the judge", async () => {
     judgeMock.mockResolvedValue({
       grammarScore: 0.8,

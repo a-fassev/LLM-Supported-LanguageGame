@@ -8,7 +8,7 @@
     "instruction": "Trascina la formula giusta in ogni lacuna della lettera.",
     "referenceDocument": {
       "title": "Bozza della lettera",
-      "body": "Ogg.: Domanda per un lavoretto estivo\n\n___ (1)\n\n___ (2) presentare la mia candidatura per un lavoretto durante l'estate presso la Vostra trattoria.\n\n___ (3) ho sedici anni e frequento la decima classe di un liceo linguistico a Monaco di Baviera. Studio l'italiano da tre anni e quest'estate vorrei migliorare la mia lingua lavorando in Italia. ___ (4) ho già lavorato come babysitter per due estati e ho fatto il tirocinio nella mensa della mia scuola, quindi ho un po' di esperienza con il pubblico e con il servizio.\n\n___ (5) sono una persona molto motivata, puntuale e disponibile. Mi piace lavorare in squadra e imparare cose nuove. Sono particolarmente interessato/a al lavoro in cucina o al servizio ai tavoli.\n\n___ (6) non esiti a contattarmi.\n\n___ (7)"
+      "body": "___ (1)\n\n___ (2) per un posto come aiuto in sala nel vostro ristorante.\n\n___ (3) ho sedici anni e frequento la decima classe di un liceo linguistico a Monaco di Baviera. Studio l'italiano da tre anni e quest'estate vorrei migliorare la mia lingua lavorando in Italia. ___ (4) ho già lavorato come babysitter per due estati e ho fatto il tirocinio nella mensa della mia scuola, quindi ho un po' di esperienza con il pubblico e con il servizio.\n\n___ (5) sono una persona puntuale, gentile e motivata. ___ (6)\n\n___ (7)"
     },
     "task": {
       "prompt": "Completa la lettera di motivazione con le formule giuste.",
@@ -26,8 +26,16 @@
           "label": "Gentile Signora Cassari,"
         },
         {
+          "id": "f-devalli",
+          "label": "Gentile Signor De Valli,"
+        },
+        {
           "id": "f-direttore",
           "label": "Egregio Direttore,"
+        },
+        {
+          "id": "f-dottoressa",
+          "label": "Stimata Dottoressa,"
         },
         {
           "id": "f-candidarmi",
@@ -36,6 +44,10 @@
         {
           "id": "f-chiedere",
           "label": "vorrei chiedere/presentare …"
+        },
+        {
+          "id": "f-prego",
+          "label": "Vi prego di …"
         },
         {
           "id": "f-inizio",
@@ -82,6 +94,10 @@
           "label": "In attesa di una Vostra gentile risposta, invio i miei più cordiali saluti"
         },
         {
+          "id": "f-notizie",
+          "label": "Gradirei molto ricevere presto Vostre notizie."
+        },
+        {
           "id": "f-ringraziando",
           "label": "RingraziandoVi anticipatamente, porgo i miei più distinti saluti."
         }
@@ -93,7 +109,9 @@
           "correctItemIds": [
             "f-gentili",
             "f-cassari",
-            "f-direttore"
+            "f-devalli",
+            "f-direttore",
+            "f-dottoressa"
           ]
         },
         {
@@ -122,9 +140,10 @@
         },
         {
           "id": "slot-5",
-          "title": "(5) — conclusione delle informazioni",
+          "title": "(5) — passaggio successivo",
           "correctItemIds": [
             "f-poi",
+            "f-piu-tardi",
             "f-infine",
             "f-alla-fine"
           ]
@@ -142,6 +161,7 @@
           "title": "(7) — formula di chiusura",
           "correctItemIds": [
             "f-attesa",
+            "f-notizie",
             "f-ringraziando"
           ]
         }

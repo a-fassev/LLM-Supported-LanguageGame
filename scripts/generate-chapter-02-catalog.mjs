@@ -61,6 +61,33 @@ const steckbriefRefDoc = {
   ],
 };
 
+const IDENTIKIT_TEMPLATE =
+  "nome:\n" +
+  "anno di nascita:\n" +
+  "regione d'origine:\n" +
+  "professione:\n" +
+  "È famoso/a perché\n" +
+  "particolarità:";
+
+function identikitEvaluation() {
+  return {
+    grammarWeight: 1,
+    vocabularyWeight: 1,
+    registerWeight: 1,
+    taskFulfillmentWeight: 2,
+    passThreshold: 0.65,
+    registerTarget: "neutral",
+    scoringPolicy: "threshold_pass",
+    maxPoints: 5,
+    evaluationCriteria: [
+      "Choose exactly one profile (Saviano, Del Piero, or Ferragni) and fill all six identikit fields for that person only",
+      "Use facts from the reference text: name, birth date or year, region, profession, why famous, one distinctive detail",
+      "Accept varied phrasing; reward accurate information, not exact wording from the text",
+    ],
+    targetStructures: [],
+  };
+}
+
 const quizGalleryRefDoc = {
   documentId: "ch02-quiz-persons",
   title: "Chi sono?",
@@ -557,7 +584,7 @@ writeJson(
 writeJson("quests/quest-03/scenes/04.json", {
   id: `${CHAPTER_ID}-quest-03-scene-04`,
   scene_type: "task",
-  screen_type: "cloze",
+  screen_type: "free_text",
   background: q3task,
   content: {
     title: "Che persona straordinaria!",
@@ -567,73 +594,14 @@ writeJson("quests/quest-03/scenes/04.json", {
     task: {
       prompt:
         "Scegli una delle tre persone e completa il suo identikit con le informazioni del testo. Puoi sempre rileggere il profilo nel documento.",
-      caseSensitive: false,
-      lines: [
-        {
-          segments: [
-            { kind: "text", text: "nome: " },
-            gap([
-              "Roberto Saviano",
-              "Alessandro Del Piero",
-              "Chiara Ferragni",
-            ]),
-            { kind: "text", text: "\nanno di nascita: " },
-            gap([
-              "nato nel 1979",
-              "nato il 22 settembre 1979",
-              "22 settembre 1979",
-              "1979",
-              "nato nel 1974",
-              "nato il 9 novembre 1974",
-              "9 novembre 1974",
-              "1974",
-              "nata nel 1987",
-              "nata il 7 maggio 1987",
-              "7 maggio 1987",
-              "1987",
-            ]),
-            { kind: "text", text: "\nregione d'origine: " },
-            gap(["Campania", "campania", "Veneto", "veneto", "Lombardia", "lombardia"]),
-            { kind: "text", text: "\nprofessione: " },
-            gap([
-              "scrittore e giornalista",
-              "scrittore",
-              "giornalista",
-              "calciatore",
-              "calciatore (oggi commentatore TV)",
-              "commentatore TV",
-              "influencer e imprenditrice di moda",
-              "influencer",
-              "imprenditrice di moda",
-            ]),
-            { kind: "text", text: "\nÈ famoso/a perché " },
-            gap([
-              'ha scritto il libro "Gomorra" sulla Camorra',
-              "ha scritto Gomorra",
-              "ha scritto il libro Gomorra",
-              "ha giocato diciannove anni nella Juventus e ha vinto la Coppa del Mondo nel 2006",
-              "ha giocato nella Juventus",
-              "ha vinto la Coppa del Mondo nel 2006",
-              'ha aperto il blog "The Blonde Salad"',
-              "ha aperto The Blonde Salad",
-              "è una delle influencer più conosciute al mondo",
-            ]),
-            { kind: "text", text: "\nparticolarità: " },
-            gap([
-              "vive con la scorta della polizia",
-              "ha la scorta della polizia",
-              "ha una fondazione per giovani calciatori",
-              "fondazione per giovani calciatori",
-              'ha la sua linea di moda "Chiara Ferragni Collection"',
-              "Chiara Ferragni Collection",
-              "linea di moda Chiara Ferragni Collection",
-            ]),
-          ],
-        },
-      ],
+      initialAnswerText: IDENTIKIT_TEMPLATE,
+      targetLanguage: "it",
+      showWordCount: true,
+      minWords: 7,
+      evaluation: identikitEvaluation(),
     },
   },
-  scoring: taskScoring("cloze"),
+  scoring: taskScoring("free_text"),
 });
 
 writeJson(

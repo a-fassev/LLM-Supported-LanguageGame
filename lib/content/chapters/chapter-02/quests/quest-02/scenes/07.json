@@ -55,7 +55,7 @@
             },
             {
               "kind": "text",
-              "text": " bisogno di voti molto alti per farlo? Sono questi che ti "
+              "text": " bisogno di voti più alti per farlo? Sono questi che ti "
             },
             {
               "kind": "gap",
@@ -283,19 +283,19 @@
             },
             {
               "kind": "text",
-              "text": " maturità?\nTu: Sì, ho già una mezza idea "
+              "text": " maturità?\nTu: Sì, ho già una mezza idea sul "
             },
             {
               "kind": "gap",
               "maxLength": 48,
               "correctAnswers": [
-                "sul mio",
-                "Sul mio"
+                "futuro",
+                "Futuro"
               ]
             },
             {
               "kind": "text",
-              "text": " futuro. Sai che a "
+              "text": ". Sai che a "
             },
             {
               "kind": "gap",

@@ -58,6 +58,10 @@ describe("chapter-02 Bologna Lezione 2 catalog", () => {
     const steckbrief = chapter!.questsExpanded
       .find((q) => q.id === "quest-03")
       ?.scenes.find((s) => s.id === "chapter-02-quest-03-scene-04");
+    expect(steckbrief?.screen_type).toBe("free_text");
+    const initialAnswerText = steckbrief?.content.task.initialAnswerText as string;
+    expect(initialAnswerText).toContain("\n");
+    expect(initialAnswerText.split("\n").length).toBe(6);
     const ref = steckbrief?.content.referenceDocument as {
       sections?: unknown[];
     };
@@ -66,9 +70,12 @@ describe("chapter-02 Bologna Lezione 2 catalog", () => {
     const quizMc = chapter!.questsExpanded
       .find((q) => q.id === "quest-03")
       ?.scenes.find((s) => s.id === "chapter-02-quest-03-scene-06");
-    const quizRef = quizMc?.content.referenceDocument as { body?: string; figures?: unknown[] };
-    expect(quizRef?.body).toContain("Giuseppe Verdi");
-    expect(quizRef?.figures).toBeUndefined();
+    const quizRef = quizMc?.content.referenceDocument as {
+      body?: string;
+      figures?: { caption?: string }[];
+    };
+    expect(quizRef?.body).toContain("sei persone");
+    expect(quizRef?.figures?.map((f) => f.caption)).toContain("Giuseppe Verdi");
 
     const sanitizedQuiz = sanitizeSceneContentForClient(
       "task",
@@ -76,7 +83,6 @@ describe("chapter-02 Bologna Lezione 2 catalog", () => {
       quizMc!.content as Record<string, unknown>,
     );
     const quizView = toReferenceDocumentView(sanitizedQuiz.referenceDocument);
-    expect(quizView?.body).toContain("Leonardo da Vinci");
-    expect(quizView?.figures).toBeUndefined();
+    expect(quizView?.figures?.map((f) => f.caption)).toContain("Leonardo da Vinci");
   });
 });

@@ -452,6 +452,7 @@ Validated at catalog load (`parseFreitextLlmStepContent` on merged `content.task
 ```jsonc
 {
   "prompt": "Come ti presenteresti a un nuovo compagno?",
+  "initialAnswerText": "nome:\nanno di nascita:\nprofessione:",
   "targetLanguage": "it",
   "showWordCount": true,
   "minWords": 2,
@@ -476,8 +477,9 @@ Validated at catalog load (`parseFreitextLlmStepContent` on merged `content.task
 | `evaluation` | Required weights (`grammarWeight`, `vocabularyWeight`, `registerWeight`, optional `taskFulfillmentWeight` default 1) + `passThreshold`. LLM returns four scores; `ratio` is their weighted mean. Stripped from client snapshots. |
 | `taskFulfillmentWeight` | Weight for **task fulfillment** (prompt + instruction + `evaluationCriteria` + `targetStructures`). Default **1** when omitted. |
 | `pizza.mode` | Prefer **`scored`** — slices from `ratio` × `maxSlices`. **`flat`** awards fixed slices on completion (LLM still runs for `free_text`). |
-| Limits | Optional `minWords` (lower bound only); enforced client + server. No `maxWords` or character cap. |
-| Counters | `showWordCount` / `showCharacterCount` toggle stats under the prompt. |
+| Limits | Optional `minWords` (lower bound only); enforced client + server. When `initialAnswerText` is set, `minWords` counts **learner-added** words only (template labels excluded). No `maxWords` or character cap. |
+| `initialAnswerText` | Optional prefilled textarea draft (e.g. newline-separated field labels). Reset when the scene loads or after the success overlay dismisses. Submit blocked while text equals the template unchanged, while any template line is missing, or while added words are below `minWords`. |
+| Counters | `showWordCount` / `showCharacterCount` toggle stats under the prompt. With `initialAnswerText`, word stats show **Parole aggiunte** (words beyond the template). |
 | Scene copy | `instruction` → `TaskChrome`; optional scene-level `referenceDocument` for documento. |
 | Attempt | `{ taskType: "FreitextLlm", freitextLlm: { answerText: "…" } }`. |
 | Post-Controlla UX | Success overlay with proportional pizza + optional LLM review in overlay. |

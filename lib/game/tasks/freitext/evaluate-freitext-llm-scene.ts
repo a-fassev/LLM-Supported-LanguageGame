@@ -2,7 +2,7 @@ import {
   gameClientMessages as msg,
   scoringClientMessages as scoreMsg,
 } from "@/lib/game/clientMessages";
-import { countWordsAnswer, parseFreitextLlmStepContent } from "@/lib/llm/freitextLlmContentSchema";
+import { parseFreitextLlmStepContent } from "@/lib/llm/freitextLlmContentSchema";
 import { resolveFreitextLlmEvaluatorEnv } from "@/lib/llm/freitextLlmEnv";
 import {
   invokeFreitextLlmJudge,
@@ -13,7 +13,12 @@ import {
 import type { FreitextDimensionReview } from "@/lib/game/task-review";
 import { parseFreitextAttempt } from "@/lib/game/tasks/freitext/build-freitext-attempt";
 import { mergeFreitextSceneContent } from "@/lib/game/tasks/freitext/merge-freitext-scene-content";
-import { freitextAnswerTooShortMessage } from "@/lib/game/tasks/freitext/freitext-messages";
+import { freitextAnswerTooShortMessage, FREITEXT_ANSWER_UNCHANGED_TEMPLATE_MESSAGE, FREITEXT_ANSWER_TEMPLATE_STRUCTURE_MESSAGE } from "@/lib/game/tasks/freitext/freitext-messages";
+import {
+  countFreitextAnswerWordsBeyondTemplate,
+  isFreitextAnswerMissingTemplateStructure,
+  isFreitextAnswerUnchangedTemplate,
+} from "@/lib/game/tasks/freitext/freitext-initial-answer";
 
 export type FreitextJudgeFeedback = {
   summaryFeedback: string;
@@ -71,10 +76,31 @@ export async function evaluateFreitextLlmScene(
     };
   }
 
-  const minW = payload.value.minWords ?? 0;
-  const words = countWordsAnswer(trimmed);
+  if (isFreitextAnswerUnchangedTemplate(trimmed, payload.value.initialAnswerText)) {
+    return {
+      ok: false,
+      status: 400,
+      error: FREITEXT_ANSWER_UNCHANGED_TEMPLATE_MESSAGE,
+      code: "answer_unchanged_template",
+    };
+  }
 
-  if (minW > 0 && words < minW) {
+  if (isFreitextAnswerMissingTemplateStructure(trimmed, payload.value.initialAnswerText)) {
+    return {
+      ok: false,
+      status: 400,
+      error: FREITEXT_ANSWER_TEMPLATE_STRUCTURE_MESSAGE,
+      code: "answer_template_structure_missing",
+    };
+  }
+
+  const minW = payload.value.minWords ?? 0;
+  const wordsBeyondTemplate = countFreitextAnswerWordsBeyondTemplate(
+    trimmed,
+    payload.value.initialAnswerText,
+  );
+
+  if (minW > 0 && wordsBeyondTemplate < minW) {
     return {
       ok: false,
       status: 400,

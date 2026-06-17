@@ -2,8 +2,8 @@
   "id": "chapter-02-quest-04-scene-01",
   "scene_type": "story",
   "screen_type": "info",
-  "background": "chapters/02/quests/04/bg-trattoria-exterior",
+  "background": "chapters/02/quests/04/bg-trattoria",
   "content": {
-    "text": "Esci di nuovo nel pomeriggio. Sotto i portici, vicino a Piazza Maggiore, trovi il ristorante di cui ti ha parlato la signora Ferrari: \"Trattoria da Marini\". All'ingresso c'è un cartello: Cercasi personale per la stagione estiva."
+    "text": "Esci di nuovo nel pomeriggio. Sotto i portici, vicino a Piazza Maggiore, trovi il ristorante di cui ti ha parlato la signora Ferrari: \"Trattoria da Marini\". All'ingresso c'è un cartello: Cercasi personale per la stagione estiva — luglio e agosto."
   }
 }

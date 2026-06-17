@@ -1,11 +1,11 @@
 {
   "id": "chapter-02-quest-03-scene-04",
   "scene_type": "task",
-  "screen_type": "cloze",
+  "screen_type": "free_text",
   "background": "chapters/02/quests/03/bg-desk-task",
   "content": {
     "title": "Che persona straordinaria!",
-    "instruction": "Apri il documento, leggi i profili e scegli una delle tre persone. Completa solo il suo identikit con le informazioni del testo.",
+    "instruction": "Scegli una delle tre persone e completa solo il suo identikit con le informazioni del testo. Puoi rileggere i profili nel documento.",
     "referenceDocument": {
       "title": "Italiani famosi — profili",
       "body": "Scegli una persona e completa il suo identikit con le informazioni del testo. Puoi rileggere ogni profilo quando vuoi.",
@@ -25,120 +25,27 @@
       ]
     },
     "task": {
-      "prompt": "Apri il documento e rileggi il profilo quando vuoi. Completa l'identikit con le informazioni del testo.",
-      "caseSensitive": false,
-      "lines": [
-        {
-          "segments": [
-            {
-              "kind": "text",
-              "text": "nome: "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 48,
-              "correctAnswers": [
-                "Roberto Saviano",
-                "Alessandro Del Piero",
-                "Chiara Ferragni"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": "\nanno di nascita: "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 48,
-              "correctAnswers": [
-                "nato nel 1979",
-                "nato il 22 settembre 1979",
-                "22 settembre 1979",
-                "1979",
-                "nato nel 1974",
-                "nato il 9 novembre 1974",
-                "9 novembre 1974",
-                "1974",
-                "nata nel 1987",
-                "nata il 7 maggio 1987",
-                "7 maggio 1987",
-                "1987"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": "\nregione d'origine: "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 48,
-              "correctAnswers": [
-                "Campania",
-                "campania",
-                "Veneto",
-                "veneto",
-                "Lombardia",
-                "lombardia"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": "\nprofessione: "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 48,
-              "correctAnswers": [
-                "scrittore e giornalista",
-                "scrittore",
-                "giornalista",
-                "calciatore",
-                "calciatore (oggi commentatore TV)",
-                "commentatore TV",
-                "influencer e imprenditrice di moda",
-                "influencer",
-                "imprenditrice di moda"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": "\nÈ famoso/a perché "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 48,
-              "correctAnswers": [
-                "ha scritto il libro \"Gomorra\" sulla Camorra",
-                "ha scritto Gomorra",
-                "ha scritto il libro Gomorra",
-                "ha giocato diciannove anni nella Juventus e ha vinto la Coppa del Mondo nel 2006",
-                "ha giocato nella Juventus",
-                "ha vinto la Coppa del Mondo nel 2006",
-                "ha aperto il blog \"The Blonde Salad\"",
-                "ha aperto The Blonde Salad",
-                "è una delle influencer più conosciute al mondo"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": "\nparticolarità: "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 48,
-              "correctAnswers": [
-                "vive con la scorta della polizia",
-                "ha la scorta della polizia",
-                "ha una fondazione per giovani calciatori",
-                "fondazione per giovani calciatori",
-                "ha la sua linea di moda \"Chiara Ferragni Collection\"",
-                "Chiara Ferragni Collection",
-                "linea di moda Chiara Ferragni Collection"
-              ]
-            }
-          ]
-        }
-      ]
+      "prompt": "Scegli una delle tre persone e completa il suo identikit con le informazioni del testo. Puoi sempre rileggere il profilo nel documento.",
+      "initialAnswerText": "nome:\nanno di nascita:\nregione d'origine:\nprofessione:\nÈ famoso/a perché\nparticolarità:",
+      "targetLanguage": "it",
+      "showWordCount": true,
+      "minWords": 7,
+      "evaluation": {
+        "grammarWeight": 1,
+        "vocabularyWeight": 1,
+        "registerWeight": 1,
+        "taskFulfillmentWeight": 2,
+        "passThreshold": 0.65,
+        "registerTarget": "neutral",
+        "scoringPolicy": "threshold_pass",
+        "maxPoints": 5,
+        "evaluationCriteria": [
+          "Choose exactly one profile (Saviano, Del Piero, or Ferragni) and fill all six identikit fields for that person only",
+          "Use facts from the reference text: name, birth date or year, region, profession, why famous, one distinctive detail",
+          "Accept varied phrasing; reward accurate information, not exact wording from the text"
+        ],
+        "targetStructures": []
+      }
     }
   },
   "scoring": {
@@ -147,7 +54,7 @@
     },
     "pizza": {
       "mode": "scored",
-      "maxSlices": 10,
+      "maxSlices": 15,
       "rounding": "nearest",
       "mapping": {
         "kind": "linear"
