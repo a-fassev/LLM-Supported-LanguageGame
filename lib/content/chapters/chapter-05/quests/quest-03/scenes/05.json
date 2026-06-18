@@ -5,9 +5,9 @@
   "background": "chapters/05/quests/03/bg-caffe-giardini",
   "content": {
     "title": "Posizione dell'aggettivo",
-    "instruction": "Completa ogni frase con l'intero gruppo nominale. Usa le parole tra parentesi e scegli la posizione dell'aggettivo in base al significato.",
-    "task": {
-      "prompt": "Scrivi in ogni lacuna l'espressione completa con articolo, nome e aggettivo nella posizione corretta.",
+   "instruction": "Completa ogni frase con l'intero gruppo nominale. Usa le parole tra parentesi, scegli la posizione dell'aggettivo in base al significato e usa sempre l'articolo indeterminativo.",
+"task": {
+  "prompt": "Scrivi in ogni lacuna l'espressione completa con articolo indeterminativo, nome e aggettivo nella posizione corretta.",
       "caseSensitive": false,
       "lines": [
         {
