@@ -5,9 +5,9 @@
   "background": "chapters/05/quests/03/bg-caffe-giardini",
   "content": {
     "title": "Posizione dell'aggettivo",
-    "instruction": "Completa ogni frase riempiendo una sola delle due posizioni-lacuna. Se la risposta va nella Lacuna A, lascia vuota la Lacuna B; se va nella Lacuna B, lascia vuota la Lacuna A. Lacuna A (prima del nome) = articolo + aggettivo. Lacuna B (dopo il nome) = solo aggettivo. Usa sempre l'articolo indeterminativo quando completi la Lacuna A. L'aggettivo è indicato tra parentesi alla fine della frase.",
+    "instruction": "Completa ogni frase con l'intero gruppo nominale. Usa le parole tra parentesi e scegli la posizione dell'aggettivo in base al significato.",
     "task": {
-      "prompt": "Riempi solo la lacuna corretta in ogni frase. Lascia vuota l'altra lacuna: non scrivere un punto o altri segni nella lacuna vuota.",
+      "prompt": "Scrivi in ogni lacuna l'espressione completa con articolo, nome e aggettivo nella posizione corretta.",
       "caseSensitive": false,
       "lines": [
         {
@@ -18,27 +18,14 @@
             },
             {
               "kind": "gap",
-              "maxLength": 32,
+              "maxLength": 48,
               "correctAnswers": [
-                "un solo"
+                "un solo studente"
               ]
             },
             {
               "kind": "text",
-              "text": " studente "
-            },
-            {
-              "kind": "gap",
-              "placeholder": "lascia vuoto",
-              "maxLength": 32,
-              "optional": true,
-              "correctAnswers": [
-                ""
-              ]
-            },
-            {
-              "kind": "text",
-              "text": " in classe. (solo - tedesco: \"einzig\")"
+              "text": " in classe. (studente + solo = unico)"
             }
           ]
         },
@@ -50,27 +37,14 @@
             },
             {
               "kind": "gap",
-              "maxLength": 32,
+              "maxLength": 48,
               "correctAnswers": [
-                "una povera"
+                "una povera ragazza"
               ]
             },
             {
               "kind": "text",
-              "text": " ragazza "
-            },
-            {
-              "kind": "gap",
-              "placeholder": "lascia vuoto",
-              "maxLength": 32,
-              "optional": true,
-              "correctAnswers": [
-                ""
-              ]
-            },
-            {
-              "kind": "text",
-              "text": ". (povero - tedesco: \"bemitleidenswert\")"
+              "text": ". (ragazza + povero = da compatire)"
             }
           ]
         },
@@ -82,27 +56,14 @@
             },
             {
               "kind": "gap",
-              "maxLength": 32,
+              "maxLength": 48,
               "correctAnswers": [
-                "dei vecchi"
+                "dei vecchi amici"
               ]
             },
             {
               "kind": "text",
-              "text": " amici "
-            },
-            {
-              "kind": "gap",
-              "placeholder": "lascia vuoto",
-              "maxLength": 32,
-              "optional": true,
-              "correctAnswers": [
-                ""
-              ]
-            },
-            {
-              "kind": "text",
-              "text": ". (vecchio - tedesco: \"langjährig\")"
+              "text": ". (amici + vecchio = di lunga data)"
             }
           ]
         },
@@ -114,27 +75,14 @@
             },
             {
               "kind": "gap",
-              "placeholder": "lascia vuoto",
-              "maxLength": 32,
-              "optional": true,
+              "maxLength": 48,
               "correctAnswers": [
-                ""
+                "un ragazzo solo"
               ]
             },
             {
               "kind": "text",
-              "text": " ragazzo "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 32,
-              "correctAnswers": [
-                "solo"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": ". (solo - tedesco: \"einsam\")"
+              "text": ". (ragazzo + solo = senza compagnia)"
             }
           ]
         },
@@ -146,27 +94,14 @@
             },
             {
               "kind": "gap",
-              "placeholder": "lascia vuoto",
-              "maxLength": 32,
-              "optional": true,
+              "maxLength": 48,
               "correctAnswers": [
-                ""
+                "un evento caro"
               ]
             },
             {
               "kind": "text",
-              "text": " evento "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 32,
-              "correctAnswers": [
-                "caro"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": ". (caro - tedesco: \"teuer\")"
+              "text": ". (evento + caro = costoso)"
             }
           ]
         },
@@ -178,27 +113,14 @@
             },
             {
               "kind": "gap",
-              "placeholder": "lascia vuoto",
-              "maxLength": 32,
-              "optional": true,
+              "maxLength": 48,
               "correctAnswers": [
-                ""
+                "un amico vecchio"
               ]
             },
             {
               "kind": "text",
-              "text": " amico "
-            },
-            {
-              "kind": "gap",
-              "maxLength": 32,
-              "correctAnswers": [
-                "vecchio"
-              ]
-            },
-            {
-              "kind": "text",
-              "text": ". (vecchio - tedesco: \"alt\")"
+              "text": ". (amico + vecchio = anziano / non giovane)"
             }
           ]
         }
