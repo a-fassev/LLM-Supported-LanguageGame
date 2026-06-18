@@ -5,9 +5,9 @@
   "background": "chapters/05/quests/03/bg-caffe-giardini",
   "content": {
     "title": "Posizione dell'aggettivo",
-    "instruction": "Completa ogni frase riempiendo una sola delle due posizioni-lacuna. Lacuna A (prima del nome) = articolo + aggettivo. Lacuna B (dopo il nome) = solo aggettivo. Usa sempre l'articolo indeterminativo quando completi la Lacuna A. L'aggettivo è indicato tra parentesi alla fine della frase.",
+    "instruction": "Completa ogni frase riempiendo una sola delle due posizioni-lacuna. Se la risposta va nella Lacuna A, lascia vuota la Lacuna B; se va nella Lacuna B, lascia vuota la Lacuna A. Lacuna A (prima del nome) = articolo + aggettivo. Lacuna B (dopo il nome) = solo aggettivo. Usa sempre l'articolo indeterminativo quando completi la Lacuna A. L'aggettivo è indicato tra parentesi alla fine della frase.",
     "task": {
-      "prompt": "Riempi solo la lacuna corretta in ogni frase. Lascia vuota l'altra lacuna.",
+      "prompt": "Riempi solo la lacuna corretta in ogni frase. Lascia vuota l'altra lacuna: non scrivere un punto o altri segni nella lacuna vuota.",
       "caseSensitive": false,
       "lines": [
         {
@@ -29,6 +29,7 @@
             },
             {
               "kind": "gap",
+              "placeholder": "lascia vuoto",
               "maxLength": 32,
               "optional": true,
               "correctAnswers": [
@@ -60,6 +61,7 @@
             },
             {
               "kind": "gap",
+              "placeholder": "lascia vuoto",
               "maxLength": 32,
               "optional": true,
               "correctAnswers": [
@@ -91,6 +93,7 @@
             },
             {
               "kind": "gap",
+              "placeholder": "lascia vuoto",
               "maxLength": 32,
               "optional": true,
               "correctAnswers": [
@@ -111,6 +114,7 @@
             },
             {
               "kind": "gap",
+              "placeholder": "lascia vuoto",
               "maxLength": 32,
               "optional": true,
               "correctAnswers": [
@@ -142,6 +146,7 @@
             },
             {
               "kind": "gap",
+              "placeholder": "lascia vuoto",
               "maxLength": 32,
               "optional": true,
               "correctAnswers": [
@@ -173,6 +178,7 @@
             },
             {
               "kind": "gap",
+              "placeholder": "lascia vuoto",
               "maxLength": 32,
               "optional": true,
               "correctAnswers": [

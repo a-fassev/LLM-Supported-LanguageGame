@@ -39,7 +39,7 @@
             },
             {
               "kind": "text",
-              "text": " tantissimi compiti già il primo giorno … "
+              "text": " (dare, lui) tantissimi compiti già il primo giorno … "
             },
             {
               "kind": "gap",
@@ -51,7 +51,7 @@
             },
             {
               "kind": "text",
-              "text": " che non è giusto, ma lo conosci, non "
+              "text": " (dire, noi) che non è giusto, ma lo conosci, non "
             },
             {
               "kind": "gap",
@@ -75,7 +75,7 @@
             },
             {
               "kind": "text",
-              "text": " che "
+              "text": " (dire, loro) che "
             },
             {
               "kind": "gap",
@@ -87,7 +87,7 @@
             },
             {
               "kind": "text",
-              "text": " un'e-mail. E poi Giulia …! "
+              "text": " (mandare, tu) un'e-mail. E poi Giulia …! "
             },
             {
               "kind": "gap",
@@ -99,7 +99,7 @@
             },
             {
               "kind": "text",
-              "text": " di mandar"
+              "text": " (promettere, io) di mandar"
             },
             {
               "kind": "gap",
@@ -148,7 +148,7 @@
     },
     "pizza": {
       "mode": "scored",
-      "maxSlices": 10,
+      "maxSlices": 5,
       "rounding": "nearest",
       "mapping": {
         "kind": "linear"

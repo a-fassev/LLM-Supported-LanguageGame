@@ -183,16 +183,18 @@ function freetextProfessionScene(questId, sceneNum, bg, prompt) {
 }
 
 function menuEvaluationCriteria(caption) {
-  if (caption === "i secondi piatti (con contorni)") {
-    return [
-      "Use at least one relative pronoun (che, cui, or dove) correctly",
-      `Describe the menu category ${caption} plausibly (position in an Italian meal and typical dishes)`,
-      "For secondi piatti, require meat, fish, eggs, cheese or similar main-course dishes; do not accept pasta or rice as secondi piatti",
-    ];
-  }
+  const categoryRules = {
+    "gli antipasti": "Require a starter eaten at the beginning of the meal; do not accept pizza, pasta, rice, main courses or desserts as the main example.",
+    "i primi piatti": "Require a first course such as pasta, rice, soup or gnocchi; do not accept antipasti, pizza, dessert or secondi piatti as the main example.",
+    "i secondi piatti (con contorni)":
+      "Require meat, fish, eggs, cheese or similar main-course dishes, often with a side dish; do not accept pasta or rice as secondi piatti.",
+    "le pizze": "Require pizza as the category, with dough/toppings or pizza as a main dish; do not accept descriptions of small starters or dishes eaten only at the beginning of the meal.",
+    "i dolci": "Require sweet desserts served at or near the end of the meal; do not accept savory courses as the main example.",
+  };
   return [
     "Use at least one relative pronoun (che, cui, or dove) correctly",
     `Describe the menu category ${caption} plausibly (position in an Italian meal and typical dishes)`,
+    categoryRules[caption] ?? "Require the answer to match the named menu category.",
     "Do not accept examples that belong mainly to another menu category",
   ];
 }
@@ -408,46 +410,46 @@ writeJson("quests/quest-02/scenes/07.json", {
             gap(["Benissimo", "benissimo"]),
             { kind: "text", text: "! Sai, ho deciso che " },
             gap(["farò", "Farò"]),
-            { kind: "text", text: " l'archeologo anch'io!\nTu: Davvero? Ma non " },
+            { kind: "text", text: " (fare) l'archeologo anch'io!\nTu: Davvero? Ma non " },
             gap(["avrai", "Avrai"]),
-            { kind: "text", text: " bisogno di buoni voti? Sono questi che mi " },
+            { kind: "text", text: " (avere) bisogno di voti molto alti per farlo? Sono questi che mi " },
             gap(["mancano", "Mancano"]),
-            { kind: "text", text: ".\nDario: Sì, certo. Da domani " },
+            { kind: "text", text: " (mancare).\nDario: Sì, certo. Da domani " },
             gap(["studierò", "Studierò"]),
-            { kind: "text", text: " tutti i giorni. Così gli insegnanti mi " },
+            { kind: "text", text: " (studiare) tutti i giorni. Così gli insegnanti mi " },
             gap(["daranno", "Daranno"]),
-            { kind: "text", text: " " },
+            { kind: "text", text: " (dare) " },
             { kind: "text", text: "*bene/buoni*" },
             gap(["buoni", "Buoni"]),
             { kind: "text", text: " voti. " },
             gap(["I miei", "i miei"]),
             { kind: "text", text: " genitori " },
             gap(["saranno", "Saranno"]),
-            { kind: "text", text: " contentissimi, soprattutto " },
+            { kind: "text", text: " (essere) contentissimi, soprattutto " },
             gap(["mio", "Mio"]),
             { kind: "text", text: " padre perché gli piace tanto la storia. " },
             gap(["Smetterò", "smetterò"]),
-            { kind: "text", text: " anche di chiacchierare con gli altri, anche se " },
+            { kind: "text", text: " (Smettere) anche di chiacchierare con gli altri, anche se " },
             gap(["sarà", "Sarà"]),
-            { kind: "text", text: " " },
+            { kind: "text", text: " (essere) " },
             { kind: "text", text: "*difficile/difficilmente*" },
             gap(["difficile", "Difficile"]),
             { kind: "text", text: ".\nTu: Così alla fine " },
             gap(["farai", "Farai"]),
-            { kind: "text", text: " un'ottima maturità. Non " },
+            { kind: "text", text: " (fare) un'ottima maturità. Non " },
             gap(["sarà", "Sarà"]),
-            { kind: "text", text: " mica " },
+            { kind: "text", text: " (essere) mica " },
             { kind: "text", text: "*facile/facilmente*" },
             gap(["facile", "Facile"]),
             { kind: "text", text: ".\nDario: Ma che cosa " },
             gap(["penserete", "Penserete"]),
-            { kind: "text", text: " voi di questa " },
+            { kind: "text", text: " (pensare) voi di questa " },
             gap(["mia", "Mia"]),
             { kind: "text", text: " idea?\nTu: Boh, la " },
             gap(["accetteranno", "Accetteranno"]),
-            { kind: "text", text: " tutti i tuoi amici, non credi?\nDario: E tu? Sai già cosa " },
+            { kind: "text", text: " (accettare) tutti i tuoi amici, non credi?\nDario: E tu? Sai già cosa " },
             gap(["farai", "Farai"]),
-            { kind: "text", text: " dopo " },
+            { kind: "text", text: " (fare) dopo " },
             gap(["la", "La"]),
             { kind: "text", text: " maturità?\nTu: Sì, ho già una mezza idea " },
             gap(["sul mio", "Sul mio"]),
@@ -832,7 +834,7 @@ writeJson(
     "quest-04",
     10,
     q4bg,
-    "Completa la lettera di motivazione con le formule giuste. Trovi la lettera con le relative lacune sotto \"Documento\".",
+    "Completa la lettera di motivazione con le formule giuste. Trascina le espressioni dalla lista nelle lacune. (Trovi la lettera di motivazione sotto „Documento“.)",
   ),
 );
 
@@ -879,7 +881,7 @@ writeJson("quests/quest-04/scenes/11.json", {
   background: q4task,
   content: {
     title: "Lettera di motivazione",
-    instruction: "Trascina la formula giusta in ogni lacuna della lettera.",
+    instruction: "Trascina la formula giusta in ogni spazio vuoto della lettera.",
     referenceDocument: {
       title: "Bozza della lettera",
       body: `___ (1)
@@ -893,7 +895,8 @@ ___ (5) sono una persona puntuale, gentile e motivata. ___ (6)
 ___ (7)`,
     },
     task: {
-      prompt: "Completa la lettera di motivazione con le formule giuste.",
+      prompt:
+        "Trascina la formula giusta in ogni spazio vuoto della lettera. Completa la lettera di motivazione con le formule giuste. (Trovi la lettera di motivazione con le relative lacune sotto „Documento“.) Tocca una carta e trascinala nell'area della categoria corretta. Puoi spostarle di nuovo se sbagli.",
       presentation: { targetMode: "blocks" },
       shuffleItemOrder: true,
       items: letterFormulas,

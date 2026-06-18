@@ -33,6 +33,7 @@
         "evaluationCriteria": [
           "Use at least one relative pronoun (che, cui, or dove) correctly",
           "Describe the menu category le pizze plausibly (position in an Italian meal and typical dishes)",
+          "Require pizza as the category, with dough/toppings or pizza as a main dish; do not accept descriptions of small starters or dishes eaten only at the beginning of the meal.",
           "Do not accept examples that belong mainly to another menu category"
         ],
         "targetStructures": [
