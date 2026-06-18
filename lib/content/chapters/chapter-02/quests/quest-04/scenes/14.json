@@ -33,6 +33,7 @@
         "evaluationCriteria": [
           "Use at least one relative pronoun (che, cui, or dove) correctly",
           "Describe the menu category gli antipasti plausibly (position in an Italian meal and typical dishes)",
+          "Require a starter eaten at the beginning of the meal; do not accept pizza, pasta, rice, main courses or desserts as the main example.",
           "Do not accept examples that belong mainly to another menu category"
         ],
         "targetStructures": [

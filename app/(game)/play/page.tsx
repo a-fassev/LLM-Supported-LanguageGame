@@ -62,7 +62,11 @@ import {
 } from "@/lib/game/tasks/error-spotting/normalize-error-spotting-content";
 import type { ErrorSpottingDraft } from "@/lib/game/tasks/error-spotting/error-spotting-types";
 import { buildClozeAttempt } from "@/lib/game/tasks/cloze/build-cloze-attempt";
-import { countClozeGaps, createEmptyClozeAnswers } from "@/lib/game/tasks/cloze/cloze-gap-order";
+import {
+  collectOptionalClozeGapIndexes,
+  countClozeGaps,
+  createEmptyClozeAnswers,
+} from "@/lib/game/tasks/cloze/cloze-gap-order";
 import {
   CLOZE_CONTENT_MISMATCH_MESSAGE,
   normalizeClozeContentResult,
@@ -787,8 +791,9 @@ export default function PlayPage() {
         return;
       }
       const gapCount = countClozeGaps(normalized.content.lines);
+      const optionalGapIndexes = collectOptionalClozeGapIndexes(normalized.content.lines);
       const draft = clozeAnswers ?? createEmptyClozeAnswers(gapCount);
-      const validation = validateClozeDraft(draft, gapCount);
+      const validation = validateClozeDraft(draft, gapCount, optionalGapIndexes);
       if (!validation.ok) {
         setClozeValidationError(validation.message);
         setTaskPending(false);

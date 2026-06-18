@@ -78,7 +78,7 @@ function gap(answers, maxLength = 80) {
 }
 
 function optionalGap(maxLength = 32) {
-  return { kind: "gap", maxLength, optional: true, correctAnswers: [""] };
+  return { kind: "gap", placeholder: "lascia vuoto", maxLength, optional: true, correctAnswers: [""] };
 }
 
 function quoteItalianDialogue(text) {
@@ -155,7 +155,7 @@ Cordiali saluti, Anna-Viviana Bardelli.
 P.S.: Non mi piace per niente la tua idea di pubblicare tutto in internet! Pensa prima alle possibili conseguenze!`;
 
 const FORMAL_MAIL_FORMULA_BANK =
-  "ci risponda; Le; Distinti saluti; pensi; Egregio Dirigente scolastico, Gentile Professor Sallusti; ci; La ringraziamo molto; legga; ci proibisca; Si ricordi";
+  "ci risponda; Le; Distinti saluti; pensi; Egregio Dirigente scolastico, Gentile Professoressa Bardelli; ci; La ringraziamo molto; legga; ci proibisca; Si ricordi";
 
 const bonusPoolPairs = [
   ["la tattica", "tactics"],
@@ -588,10 +588,10 @@ writeJson("quests/quest-03/scenes/05.json", {
   content: {
     title: "Posizione dell'aggettivo",
     instruction:
-      "Completa ogni frase riempiendo una sola delle due posizioni-lacuna. Lacuna A (prima del nome) = articolo + aggettivo. Lacuna B (dopo il nome) = solo aggettivo. Usa sempre l'articolo indeterminativo quando completi la Lacuna A. L'aggettivo è indicato tra parentesi alla fine della frase.",
+      "Completa ogni frase riempiendo una sola delle due posizioni-lacuna. Se la risposta va nella Lacuna A, lascia vuota la Lacuna B; se va nella Lacuna B, lascia vuota la Lacuna A. Lacuna A (prima del nome) = articolo + aggettivo. Lacuna B (dopo il nome) = solo aggettivo. Usa sempre l'articolo indeterminativo quando completi la Lacuna A. L'aggettivo è indicato tra parentesi alla fine della frase.",
     task: {
       prompt:
-        "Riempi solo la lacuna corretta in ogni frase. Lascia vuota l'altra lacuna.",
+        "Riempi solo la lacuna corretta in ogni frase. Lascia vuota l'altra lacuna: non scrivere un punto o altri segni nella lacuna vuota.",
       caseSensitive: false,
       lines: [
         {
@@ -729,7 +729,7 @@ writeJson("quests/quest-04/scenes/04.json", {
       lines: [
         {
           segments: [
-            gap(["Egregio Dirigente scolastico, Gentile Professor Sallusti"], 128),
+            gap(["Egregio Dirigente scolastico, Gentile Professoressa Bardelli"], 128),
             { kind: "text", text: ",\n\n" },
             gap(["Le"]),
             { kind: "text", text: " scriviamo questa lettera per presentar" },

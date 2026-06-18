@@ -2,7 +2,6 @@
 
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { LeaderboardDto, LeaderboardTeamDto, TeamColor } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 
@@ -17,18 +16,6 @@ function teamLabel(team: TeamColor) {
   return team === "blue" ? "Squadra Blu" : "Squadra Rossa";
 }
 
-function TeamColorDot({ team }: { team: TeamColor }) {
-  return (
-    <span
-      className={cn(
-        "size-2.5 shrink-0 rounded-full ring-1 ring-border/60",
-        team === "blue" ? "bg-(--team-blue)" : "bg-(--team-red)",
-      )}
-      aria-hidden
-    />
-  );
-}
-
 function TeamColorBar({ team }: { team: TeamColor }) {
   const label = team === "blue" ? "Squadra Blu" : "Squadra Rossa";
   return (
@@ -40,21 +27,6 @@ function TeamColorBar({ team }: { team: TeamColor }) {
       role="img"
       aria-label={label}
     />
-  );
-}
-
-function LeaderboardRank({ rank }: { rank: number }) {
-  return (
-    <span className="w-10 shrink-0 text-left text-xl font-bold tabular-nums leading-none">
-      #{rank}
-    </span>
-  );
-}
-
-function leaderboardRowClassName(isSelf?: boolean) {
-  return cn(
-    "flex min-h-14 items-center gap-4 rounded-xl border border-border bg-background/80 px-4 py-4 text-lg",
-    isSelf && "border-primary/40 bg-primary/5",
   );
 }
 
@@ -132,16 +104,9 @@ function TeamLeaderboardColumn({
 
 export function LeaderboardView({ data, onRefresh, refreshing, className }: LeaderboardViewProps) {
   return (
-    <Tabs defaultValue="overall" className={cn("flex min-h-0 flex-1 flex-col gap-5", className)}>
+    <section className={cn("flex min-h-0 flex-1 flex-col gap-5", className)}>
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-3">
-        <TabsList className="!h-12 gap-1 p-1">
-          <TabsTrigger value="overall" className="!h-10 px-4 text-base">
-            Individuale
-          </TabsTrigger>
-          <TabsTrigger value="teams" className="!h-10 px-4 text-base">
-            Squadre
-          </TabsTrigger>
-        </TabsList>
+        <h2 className="text-xl font-semibold">Squadre</h2>
         {onRefresh ? (
           <Button
             type="button"
@@ -158,28 +123,7 @@ export function LeaderboardView({ data, onRefresh, refreshing, className }: Lead
           </Button>
         ) : null}
       </div>
-      <TabsContent value="overall" className="min-h-0 flex-1 space-y-3 overflow-y-auto text-base">
-        {data.overall.map((row) => (
-          <div key={`${row.rank}:${row.username}`} className={leaderboardRowClassName(row.isSelf)}>
-            <div className="flex min-w-0 flex-1 items-center gap-2">
-              <div className="flex shrink-0 items-center gap-0">
-                <LeaderboardRank rank={row.rank} />
-                <TeamColorDot team={row.team} />
-              </div>
-              <span className="min-w-0 truncate font-medium">
-                {row.username}
-                {row.isSelf ? (
-                  <span className="font-normal text-muted-foreground"> (Tu)</span>
-                ) : null}
-              </span>
-            </div>
-            <span className="shrink-0 text-right text-base text-muted-foreground tabular-nums">
-              🍕 {row.totalSlices} · 🎒 {row.backpackProgressPercent}%
-            </span>
-          </div>
-        ))}
-      </TabsContent>
-      <TabsContent value="teams" className="min-h-0 flex-1 overflow-y-auto text-base">
+      <div className="min-h-0 flex-1 overflow-y-auto text-base">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <TeamLeaderboardColumn
             teamRow={findTeamRow(data.teams, "blue")}
@@ -190,7 +134,7 @@ export function LeaderboardView({ data, onRefresh, refreshing, className }: Lead
             highlightSelf={data.self.team === "red"}
           />
         </div>
-      </TabsContent>
-    </Tabs>
+      </div>
+    </section>
   );
 }

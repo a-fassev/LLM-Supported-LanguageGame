@@ -8,6 +8,7 @@ export type ValidateClozeDraftResult = { ok: true } | { ok: false; message: stri
 export function validateClozeDraft(
   answers: readonly string[],
   expectedGapCount: number,
+  optionalGapIndexes: ReadonlySet<number> = new Set<number>(),
 ): ValidateClozeDraftResult {
   if (expectedGapCount < 1) {
     return { ok: false, message: CLOZE_DRAFT_LENGTH_MISMATCH_MESSAGE };
@@ -15,7 +16,8 @@ export function validateClozeDraft(
   if (answers.length !== expectedGapCount) {
     return { ok: false, message: CLOZE_DRAFT_LENGTH_MISMATCH_MESSAGE };
   }
-  for (const raw of answers) {
+  for (const [index, raw] of answers.entries()) {
+    if (optionalGapIndexes.has(index)) continue;
     if ((typeof raw === "string" ? raw : "").trim().length === 0) {
       return { ok: false, message: CLOZE_INCOMPLETE_MESSAGE };
     }

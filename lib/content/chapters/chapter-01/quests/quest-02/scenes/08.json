@@ -16,7 +16,7 @@
       "segments": [
         {
           "id": "a1",
-          "text": "Come comportarsi in Italia: consigli per turisti\n\nIn Italia, se vuoi risparmiare al bar,",
+          "text": "In Italia, se vuoi risparmiare al bar,",
           "isError": false
         },
         {
@@ -32,7 +32,12 @@
         },
         {
           "id": "a4",
-          "text": " : il prezzo è lo stesso che al banco. Per quanto riguarda il caffè,",
+          "text": " : il prezzo è lo stesso che al banco.",
+          "isError": false
+        },
+        {
+          "id": "a4b",
+          "text": " Per quanto riguarda il caffè,",
           "isError": false
         },
         {
@@ -47,7 +52,22 @@
         },
         {
           "id": "a6",
-          "text": " , anche dopo pranzo e dopo cena. Al ristorante, quando arrivi, aspetti che il personale ti assegni un tavolo. Un pasto italiano normale è composto da",
+          "text": " , anche dopo pranzo e dopo cena.",
+          "isError": false
+        },
+        {
+          "id": "a6b",
+          "text": " Al ristorante, quando arrivi,",
+          "isError": false
+        },
+        {
+          "id": "a6c",
+          "text": " aspetti che il personale ti assegni un tavolo.",
+          "isError": false
+        },
+        {
+          "id": "a6d",
+          "text": " Un pasto italiano normale è composto da",
           "isError": false
         },
         {
@@ -79,7 +99,17 @@
         },
         {
           "id": "a12",
-          "text": " . La mancia non è obbligatoria, ma sulla ricevuta si trova spesso il \"coperto\", una piccola somma per il pane e il servizio.",
+          "text": " . La mancia non è obbligatoria,",
+          "isError": false
+        },
+        {
+          "id": "a12b",
+          "text": " ma sulla ricevuta si trova spesso il \"coperto\",",
+          "isError": false
+        },
+        {
+          "id": "a12c",
+          "text": " una piccola somma per il pane e il servizio.",
           "isError": false
         }
       ]

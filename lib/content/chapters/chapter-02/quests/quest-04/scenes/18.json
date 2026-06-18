@@ -33,6 +33,7 @@
         "evaluationCriteria": [
           "Use at least one relative pronoun (che, cui, or dove) correctly",
           "Describe the menu category i dolci plausibly (position in an Italian meal and typical dishes)",
+          "Require sweet desserts served at or near the end of the meal; do not accept savory courses as the main example.",
           "Do not accept examples that belong mainly to another menu category"
         ],
         "targetStructures": [

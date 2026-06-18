@@ -1,6 +1,7 @@
 import type { BootstrapChapterDto, BootstrapQuestDto } from "@/lib/api-client";
 import { getPreviousProgressionChapter, isReferenceChapter } from "@/lib/game/chapter-progression";
 import { toQuestProgressId } from "@/lib/game/quest-progress-id";
+import { ENABLE_TEST_UNLOCK_ALL } from "@/lib/game/testing-flags";
 
 function requiredQuestIds(chapter: BootstrapChapterDto): string[] {
   return chapter.quests.filter((quest) => quest.kind !== "bonus").map((quest) => quest.id);
@@ -17,6 +18,7 @@ export function isChapterLocked(
   orderedChapters: BootstrapChapterDto[],
   completedQuestIds: Set<string>,
 ): boolean {
+  if (ENABLE_TEST_UNLOCK_ALL) return false;
   if (chapter.locked) return true;
   if (isReferenceChapter(chapter)) return false;
   const previousChapter = getPreviousProgressionChapter(orderedChapters, chapter.id);
@@ -48,6 +50,7 @@ export function isQuestLocked(
   quest: BootstrapQuestDto,
   completedQuestIds: Set<string>,
 ): boolean {
+  if (ENABLE_TEST_UNLOCK_ALL) return false;
   if (!quest.requiresQuestId) return false;
   return !completedQuestIds.has(toQuestProgressId(chapterId, quest.requiresQuestId));
 }
