@@ -4,8 +4,10 @@ import {
 } from "@/lib/game/content/catalog-loader";
 import { getPreviousProgressionChapter } from "@/lib/game/chapter-progression";
 import { toQuestProgressId } from "@/lib/game/quest-progress-id";
+import { ENABLE_TEST_UNLOCK_ALL } from "@/lib/game/testing-flags";
 
 export function isChapterManuallyLocked(catalog: ContentCatalog, chapterId: string): boolean {
+  if (ENABLE_TEST_UNLOCK_ALL) return false;
   const chapter = catalog.chapters?.find((item) => item.id === chapterId);
   return chapter?.locked === true;
 }
@@ -16,6 +18,7 @@ export function isQuestProgressionLockedForAccount(
   questId: string,
   completedQuestIds: Set<string>,
 ): boolean {
+  if (ENABLE_TEST_UNLOCK_ALL) return false;
   const chapters = catalog.chapters ?? [];
   const chapterIndex = chapters.findIndex((chapter) => chapter.id === chapterId);
   if (chapterIndex < 0) return true;

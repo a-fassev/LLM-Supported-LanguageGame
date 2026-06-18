@@ -1,8 +1,6 @@
 import { ROOM_ITEMS, getRoomItem } from "@/lib/game/room-catalog";
 import {
-  deletePurchasedRoomItems,
   getPurchasedRoomItemIds,
-  incrementWalletTotals,
   purchaseRoomItem,
   type PurchaseRoomItemResult,
 } from "@/lib/game/repositories/game-progress-repository";
@@ -55,24 +53,6 @@ export async function buyRoomItem(accountId: string, itemId: string): Promise<Ro
   const purchase = await purchaseRoomItem(accountId, item.id, item.cost);
   if (!purchase.ok) {
     return roomPurchaseError(purchase);
-  }
-
-  return getRoomState(accountId);
-}
-
-export async function addRoomTestSlices(accountId: string): Promise<RoomPurchaseResult> {
-  const updated = await incrementWalletTotals(accountId, 100, 0);
-  if (!updated) {
-    return { ok: false, status: 500, error: "Pizza di test non aggiunta.", code: "room_test_wallet_failed" };
-  }
-
-  return getRoomState(accountId);
-}
-
-export async function resetRoomTestPurchases(accountId: string): Promise<RoomPurchaseResult> {
-  const deleted = await deletePurchasedRoomItems(accountId);
-  if (!deleted) {
-    return { ok: false, status: 500, error: "Reset della stanza non riuscito.", code: "room_reset_failed" };
   }
 
   return getRoomState(accountId);
