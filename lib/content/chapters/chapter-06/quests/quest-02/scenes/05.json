@@ -5,10 +5,10 @@
   "background": "chapters/06/quests/02/bg-ristorante",
   "content": {
     "title": "Discorso indiretto",
-    "instruction": "Trascina ogni risposta nella posizione corretta del testo.",
+    "instruction": "Leggi le cinque coppie di risposte nel documento: sono nello stesso ordine delle lacune. Trascina ogni risposta nella lacuna corretta mantenendo questa sequenza.",
     "referenceDocument": {
       "title": "Pratica A – intervista",
-      "body": "Cari amici tedeschi, grazie per le vostre domande! Mi fa molto piacere sapere che leggete i miei libri. Ecco le mie risposte:\n\n1) Questa non è una domanda difficile, proprio ieri ho finito nuovamente di leggere l'Odissea di Omero.\n2) Una domanda facile, perché vita e morte sono gli unici temi che non mi annoiano.\n3) Non veramente, comunque c'è sempre un po' dello scrittore in ogni personaggio.\n4) Entrambi in modo eccitante, sia l'inizio sia la fine.\n5) Insegno naturalmente!\n6) Non so se oggi scriverò. Da una settimana sono piuttosto pigro.\n7) I miei consigli? Scrivere, scrivere, scrivere – non avere mai paura! E soprattutto leggere moltissimo.\n8) Sì, ma questo è ancora un segreto. Forse ne sentirete parlare a breve. A presto, Alessandro D'Avenia"
+      "body": "Pratica A – intervista\n\n1) Ultimo libro letto\nDomanda: Può dirci il titolo dell'ultimo libro che ha letto?\nRisposta: Ho appena finito di rileggere l'Odissea di Omero.\n\n2) Tema del libro\nDomanda: Perché ha scelto un tema così difficile?\nRisposta: Vita e morte sono gli unici temi che non mi annoiano.\n\n3) Personaggio del professore\nDomanda: Si identifica con il personaggio del professore?\nRisposta: Non veramente, comunque in ogni personaggio c'è sempre un po' dello scrittore.\n\n4) Inizio e fine di un libro\nDomanda: Come vive l'inizio e la fine di ogni libro?\nRisposta: Vivo sempre in modo eccitante sia l'inizio sia la fine.\n\n5) Consigli e nuovo progetto\nDomanda: Che cosa consiglia ai giovani scrittori? Ha un nuovo progetto?\nRisposta: Consiglio di scrivere tanto, di non avere mai paura e di leggere moltissimo. Il mio nuovo progetto è ancora un segreto."
     },
     "task": {
       "prompt": "Completa il discorso indiretto con le risposte esatte dell'intervista.",

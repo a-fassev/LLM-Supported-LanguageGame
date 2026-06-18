@@ -7,7 +7,7 @@
     "title": "Imperativi di cortesia",
     "instruction": "Abbina ogni infinito alla forma corretta dell'imperativo di cortesia (Lei).",
     "task": {
-      "prompt": "Abbina ogni infinito alla forma corretta dell'imperativo di cortesia (Lei).",
+      "prompt": "",
       "leftItems": [
         {
           "id": "inf-essere",
