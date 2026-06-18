@@ -8,7 +8,7 @@
     "instruction": "Completa cinque frasi con la messa in rilievo (è ... che / non sono ... che ...).",
     "referenceDocument": {
       "title": "Luoghi in Sicilia",
-      "body": "Guarda le immagini e usa i nomi dei luoghi indicati sotto ogni foto.\n\nParole utili:\nTrapani: la città barocca; le saline\nMonreale: la Cattedrale di Santa Maria Nuova\nPiazza Armerina: i mosaici\nPalermo: il Palazzo della Giustizia",
+      "body": "Guarda le immagini e usa i nomi dei luoghi indicati sotto ogni foto.",
       "figures": [
         {
           "image": "chapters/06/quests/03/ref-sicilia-01",
@@ -17,8 +17,8 @@
         },
         {
           "image": "chapters/06/quests/03/ref-sicilia-02",
-          "caption": "Palermo — mercati (Ballarò, Vucciria, Capo)",
-          "alt": "Mercati di Palermo"
+          "caption": "Palermo — Palazzo della Giustizia",
+          "alt": "Palazzo della Giustizia"
         },
         {
           "image": "chapters/06/quests/03/ref-sicilia-03",
@@ -32,8 +32,8 @@
         },
         {
           "image": "chapters/06/quests/03/ref-sicilia-05",
-          "caption": "Piazza Armerina — Villa Romana del Casale",
-          "alt": "Villa Romana del Casale"
+          "caption": "Piazza Armerina — mosaici",
+          "alt": "Mosaici"
         },
         {
           "image": "chapters/06/quests/03/ref-sicilia-06",

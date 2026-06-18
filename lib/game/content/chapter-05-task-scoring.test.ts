@@ -93,7 +93,7 @@ describe("chapter-05 task answer keys (server scoring)", () => {
       lines: { segments: { kind?: string; correctAnswers?: string[]; optional?: boolean }[] }[];
     };
     const answers = clozeAnswersFromLines(task.lines);
-    expect(answers).toHaveLength(12);
+    expect(answers).toHaveLength(6);
     const r = evaluateCloze(task, {
       taskType: "ClozeText",
       clozeText: { answers },
@@ -107,11 +107,10 @@ describe("chapter-05 task answer keys (server scoring)", () => {
       lines: { segments: { kind?: string; correctAnswers?: string[]; optional?: boolean }[] }[];
     };
     const gaps = gapSegmentsFromLines(task.lines);
-    expect(gaps).toHaveLength(12);
-    expect(gaps.filter((gap) => !gap.optional)).toHaveLength(6);
+    expect(gaps).toHaveLength(6);
+    expect(gaps.filter((gap) => gap.optional)).toHaveLength(0);
 
     for (let gapIndex = 0; gapIndex < gaps.length; gapIndex += 1) {
-      if (gaps[gapIndex].optional) continue;
       const variants = gaps[gapIndex].correctAnswers ?? [];
       expect(variants.length).toBeGreaterThan(0);
 
