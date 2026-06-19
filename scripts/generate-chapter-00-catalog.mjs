@@ -150,9 +150,8 @@ const scenes = [
           segments: [
             { kind: "text", text: "Mi chiamo " },
             { kind: "gap", maxLength: 12, correctAnswers: ["Toni", "toni"] },
-            { kind: "text", text: ". Vengo dalla " },
+            { kind: "text", text: ", vengo dalla " },
             { kind: "gap", maxLength: 16, correctAnswers: ["Germania", "germania"] },
-            { kind: "text", text: "." },
           ],
         },
       ],

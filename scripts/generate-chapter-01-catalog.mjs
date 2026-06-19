@@ -227,6 +227,13 @@ function gap(answers, maxLength = 24) {
   return { kind: "gap", maxLength, correctAnswers: answers };
 }
 
+/** Noun from brochure text: accept with definite article or bare form (e.g. la visita / visita). */
+function gapNoun(withArticle, maxLength = 24) {
+  const bare = withArticle.replace(/^(l'|la |il |lo |i |le |gli )/i, "");
+  const answers = bare === withArticle ? [withArticle] : [withArticle, bare];
+  return gap(answers, maxLength);
+}
+
 writeJson("quests/quest-02/scenes/05.json", {
   id: "chapter-01-quest-02-scene-05",
   scene_type: "task",
@@ -625,21 +632,21 @@ writeJson("quests/quest-04/scenes/08.json", {
   content: {
     title: "Famiglie di parole",
     instruction:
-      "Per ogni parola, trova la parola della stessa famiglia nel testo della brochure. Scrivi i sostantivi sempre con l'articolo, gli aggettivi senza articolo.",
+      "Per ogni parola, trova la parola della stessa famiglia nel testo della brochure. Per i sostantivi va bene con o senza articolo (es. visita o la visita); per gli aggettivi scrivi la forma senza articolo.",
     referenceDocument: refDoc,
     task: {
       prompt:
-        "Per ogni verbo, aggettivo o sostantivo, trova la parola della stessa famiglia che trovi nel testo. Scrivi i sostantivi sempre con l'articolo, gli aggettivi senza articolo.",
+        "Per ogni verbo, aggettivo o sostantivo, trova la parola della stessa famiglia che trovi nel testo. Per i sostantivi va bene con o senza articolo; per gli aggettivi scrivi la forma senza articolo.",
       caseSensitive: false,
       lines: [
-        { segments: [{ kind: "text", text: "visitare → " }, gap(["la visita"]) ] },
+        { segments: [{ kind: "text", text: "visitare → " }, gapNoun("la visita") ] },
         { segments: [{ kind: "text", text: "aprire → " }, gap(["aperte"]) ] },
-        { segments: [{ kind: "text", text: "profondo → " }, gap(["la profondità"]) ] },
-        { segments: [{ kind: "text", text: "largo → " }, gap(["la larghezza"]) ] },
-        { segments: [{ kind: "text", text: "umido → " }, gap(["l'umidità"]) ] },
-        { segments: [{ kind: "text", text: "durante → " }, gap(["la durata"]) ] },
+        { segments: [{ kind: "text", text: "profondo → " }, gapNoun("la profondità") ] },
+        { segments: [{ kind: "text", text: "largo → " }, gapNoun("la larghezza") ] },
+        { segments: [{ kind: "text", text: "umido → " }, gapNoun("l'umidità") ] },
+        { segments: [{ kind: "text", text: "durante → " }, gapNoun("la durata") ] },
         { segments: [{ kind: "text", text: "parzialità → " }, gap(["parziale"]) ] },
-        { segments: [{ kind: "text", text: "lungo → " }, gap(["la lunghezza"]) ] },
+        { segments: [{ kind: "text", text: "lungo → " }, gapNoun("la lunghezza") ] },
       ],
     },
   },

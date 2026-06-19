@@ -588,64 +588,52 @@ writeJson("quests/quest-03/scenes/05.json", {
   content: {
     title: "Posizione dell'aggettivo",
     instruction:
-      "Completa ogni frase riempiendo una sola delle due posizioni-lacuna. Se la risposta va nella Lacuna A, lascia vuota la Lacuna B; se va nella Lacuna B, lascia vuota la Lacuna A. Lacuna A (prima del nome) = articolo + aggettivo. Lacuna B (dopo il nome) = solo aggettivo. Usa sempre l'articolo indeterminativo quando completi la Lacuna A. L'aggettivo è indicato tra parentesi alla fine della frase.",
+      "Completa ogni frase con l'intero gruppo nominale. Usa le parole tra parentesi, scegli la posizione dell'aggettivo in base al significato e usa sempre l'articolo indeterminativo.",
     task: {
       prompt:
-        "Riempi solo la lacuna corretta in ogni frase. Lascia vuota l'altra lacuna: non scrivere un punto o altri segni nella lacuna vuota.",
+        "Scrivi in ogni lacuna l'espressione completa con articolo indeterminativo, nome e aggettivo nella posizione corretta.",
       caseSensitive: false,
       lines: [
         {
           segments: [
             { kind: "text", text: "1. Giulio è " },
-            gap(["un solo"], 32),
-            { kind: "text", text: " studente " },
-            optionalGap(32),
-            { kind: "text", text: " in classe. (solo - tedesco: \"einzig\")" },
+            gap(["un solo studente"], 48),
+            { kind: "text", text: " in classe. (studente + solo = unico)" },
           ],
         },
         {
           segments: [
             { kind: "text", text: "2. Sofia è " },
-            gap(["una povera"], 32),
-            { kind: "text", text: " ragazza " },
-            optionalGap(32),
-            { kind: "text", text: ". (povero - tedesco: \"bemitleidenswert\")" },
+            gap(["una povera ragazza"], 48),
+            { kind: "text", text: " (ragazza + povero = da compatire)." },
           ],
         },
         {
           segments: [
             { kind: "text", text: "3. Rita e Franco sono " },
-            gap(["dei vecchi"], 32),
-            { kind: "text", text: " amici " },
-            optionalGap(32),
-            { kind: "text", text: ". (vecchio - tedesco: \"langjährig\")" },
+            gap(["dei vecchi amici"], 48),
+            { kind: "text", text: " (amici + vecchio = di lunga data)." },
           ],
         },
         {
           segments: [
             { kind: "text", text: "4. Nando è " },
-            optionalGap(32),
-            { kind: "text", text: " ragazzo " },
-            gap(["solo"], 32),
-            { kind: "text", text: ". (solo - tedesco: \"einsam\")" },
+            gap(["un ragazzo solo"], 48),
+            { kind: "text", text: " (ragazzo + solo = senza compagnia)." },
           ],
         },
         {
           segments: [
             { kind: "text", text: "5. È " },
-            optionalGap(32),
-            { kind: "text", text: " evento " },
-            gap(["caro"], 32),
-            { kind: "text", text: ". (caro - tedesco: \"teuer\")" },
+            gap(["un evento caro"], 48),
+            { kind: "text", text: " (evento + caro = costoso)." },
           ],
         },
         {
           segments: [
             { kind: "text", text: "6. Parla di " },
-            optionalGap(32),
-            { kind: "text", text: " amico " },
-            gap(["vecchio"], 32),
-            { kind: "text", text: ". (vecchio - tedesco: \"alt\")" },
+            gap(["un amico vecchio"], 48),
+            { kind: "text", text: " (amico + vecchio = anziano / non giovane)." },
           ],
         },
       ],

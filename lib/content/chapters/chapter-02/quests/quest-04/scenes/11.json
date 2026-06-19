@@ -11,7 +11,7 @@
       "body": "___ (1)\n\n___ (2) per un posto come aiuto in sala nel vostro ristorante.\n\n___ (3) ho sedici anni e frequento la decima classe di un liceo linguistico a Monaco di Baviera. Studio l'italiano da tre anni e quest'estate vorrei migliorare la mia lingua lavorando in Italia. ___ (4) ho già lavorato come babysitter per due estati e ho fatto il tirocinio nella mensa della mia scuola, quindi ho un po' di esperienza con il pubblico e con il servizio.\n\n___ (5) sono una persona puntuale, gentile e motivata. ___ (6)\n\n___ (7)"
     },
     "task": {
-      "prompt": "Trascina la formula giusta in ogni spazio vuoto della lettera. Completa la lettera di motivazione con le formule giuste. (Trovi la lettera di motivazione con le relative lacune sotto „Documento“.) Tocca una carta e trascinala nell'area della categoria corretta. Puoi spostarle di nuovo se sbagli.",
+      "prompt": "Completa la lettera di motivazione con le formule giuste. (Trovi la lettera di motivazione con le relative lacune sotto „Documento“.)",
       "presentation": {
         "targetMode": "blocks"
       },

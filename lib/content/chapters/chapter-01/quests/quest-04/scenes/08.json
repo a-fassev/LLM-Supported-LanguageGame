@@ -5,13 +5,13 @@
   "background": "chapters/01/quests/04/bg-bar-task",
   "content": {
     "title": "Famiglie di parole",
-    "instruction": "Per ogni parola, trova la parola della stessa famiglia nel testo della brochure. Scrivi i sostantivi sempre con l'articolo, gli aggettivi senza articolo.",
+    "instruction": "Per ogni parola, trova la parola della stessa famiglia nel testo della brochure. Per i sostantivi va bene con o senza articolo (es. visita o la visita); per gli aggettivi scrivi la forma senza articolo.",
     "referenceDocument": {
       "title": "Le Grotte di Castellana",
       "body": "La visita alle Grotte di Castellana — aperte tutto l'anno — è possibile con guide turistiche.\n\nCi sono due itinerari: l'itinerario parziale della lunghezza di un chilometro e della durata di 50 minuti, l'itinerario completo della lunghezza di tre chilometri e della durata di quasi due ore.\n\nLa temperatura, costante tutto l'anno, è di circa 18 °C, mentre il tasso di umidità è superiore al 90%.\n\nLa Grave, prima e più grande caverna del sistema sotterraneo, è l'unico ambiente naturalmente collegato con l'esterno: 100 metri di lunghezza, per 50 di larghezza, per 60 di profondità.\n\nLa parte delle grotte aperta al pubblico è costituita da ambienti molto vari per forma e dimensioni. Stalattiti, stalagmiti, colonne, preziosi cristalli occhieggiano ovunque.\n\nInfine, l'ultima e più bella caverna del sistema sotterraneo, la Grotta Bianca, definita per la ricchezza e il biancore dell'alabastro, è la più splendente del mondo."
     },
     "task": {
-      "prompt": "Per ogni verbo, aggettivo o sostantivo, trova la parola della stessa famiglia che trovi nel testo. Scrivi i sostantivi sempre con l'articolo, gli aggettivi senza articolo.",
+      "prompt": "Per ogni verbo, aggettivo o sostantivo, trova la parola della stessa famiglia che trovi nel testo. Per i sostantivi va bene con o senza articolo; per gli aggettivi scrivi la forma senza articolo.",
       "caseSensitive": false,
       "lines": [
         {
@@ -24,7 +24,8 @@
               "kind": "gap",
               "maxLength": 24,
               "correctAnswers": [
-                "la visita"
+                "la visita",
+                "visita"
               ]
             }
           ]
@@ -54,7 +55,8 @@
               "kind": "gap",
               "maxLength": 24,
               "correctAnswers": [
-                "la profondità"
+                "la profondità",
+                "profondità"
               ]
             }
           ]
@@ -69,7 +71,8 @@
               "kind": "gap",
               "maxLength": 24,
               "correctAnswers": [
-                "la larghezza"
+                "la larghezza",
+                "larghezza"
               ]
             }
           ]
@@ -84,7 +87,8 @@
               "kind": "gap",
               "maxLength": 24,
               "correctAnswers": [
-                "l'umidità"
+                "l'umidità",
+                "umidità"
               ]
             }
           ]
@@ -99,7 +103,8 @@
               "kind": "gap",
               "maxLength": 24,
               "correctAnswers": [
-                "la durata"
+                "la durata",
+                "durata"
               ]
             }
           ]
@@ -129,7 +134,8 @@
               "kind": "gap",
               "maxLength": 24,
               "correctAnswers": [
-                "la lunghezza"
+                "la lunghezza",
+                "lunghezza"
               ]
             }
           ]

@@ -25,7 +25,7 @@
             },
             {
               "kind": "text",
-              "text": ". Vengo dalla "
+              "text": ", vengo dalla "
             },
             {
               "kind": "gap",
@@ -34,10 +34,6 @@
                 "Germania",
                 "germania"
               ]
-            },
-            {
-              "kind": "text",
-              "text": "."
             }
           ]
         }
