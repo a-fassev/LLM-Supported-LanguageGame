@@ -64,12 +64,26 @@ export function getChapterUnlocksAtIso(chapterId: string, now: Date = new Date()
   return releaseAt.toISOString();
 }
 
-export function isChapterScheduleLockedForBootstrap(
-  chapterId: string,
-  now: Date = new Date(),
-): boolean {
-  return isChapterScheduleLocked(chapterId, now);
+export type ChapterUnlockScheduleRef = {
+  unlocksAt: string | null;
+};
+
+/** Earliest future `unlocksAt` among bootstrap chapters, for client refresh scheduling. */
+export function getEarliestFutureUnlockMs(
+  chapters: ReadonlyArray<ChapterUnlockScheduleRef>,
+  nowMs: number = Date.now(),
+): number | null {
+  let earliest: number | null = null;
+  for (const chapter of chapters) {
+    if (!chapter.unlocksAt) continue;
+    const unlockMs = Date.parse(chapter.unlocksAt);
+    if (Number.isNaN(unlockMs) || unlockMs <= nowMs) continue;
+    if (earliest === null || unlockMs < earliest) earliest = unlockMs;
+  }
+  return earliest;
 }
+
+const SCHEDULE_UNLOCK_REFRESH_BUFFER_MS = 1_000;
 
 const RELEASE_LABEL_LOCALE = "it-IT";
 
@@ -102,4 +116,13 @@ export function chapterNotReleasedMessageFromUnlocksAt(unlocksAtIso: string): st
     return "Questo capitolo non e ancora disponibile.";
   }
   return `Questo capitolo si apre il ${formatChapterReleaseLabel(releaseAt)}.`;
+}
+
+export function msUntilScheduledBootstrapRefresh(
+  chapters: ReadonlyArray<ChapterUnlockScheduleRef>,
+  nowMs: number = Date.now(),
+): number | null {
+  const nextUnlockMs = getEarliestFutureUnlockMs(chapters, nowMs);
+  if (nextUnlockMs === null) return null;
+  return Math.max(0, nextUnlockMs - nowMs) + SCHEDULE_UNLOCK_REFRESH_BUFFER_MS;
 }

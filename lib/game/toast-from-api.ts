@@ -13,6 +13,7 @@ const BLOCKING_CODES = new Set<string>([
   "quest_locked",
   "quest_already_completed",
   "chapter_locked",
+  "chapter_not_released",
   "invalid_session",
   "missing_token",
 ]);

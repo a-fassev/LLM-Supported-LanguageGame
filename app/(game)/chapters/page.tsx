@@ -8,6 +8,8 @@ import { ChapterGrid } from "@/components/game/screens/ChapterGrid";
 import { hubBackgroundKeys } from "@/lib/game/content/hub-background-keys";
 import { useBootstrap } from "@/lib/game/use-bootstrap";
 import {
+  getChapterLockReason,
+  getChapterScheduleLockLabel,
   isChapterFullyComplete,
   isChapterLocked,
   isChapterMainProgressComplete,
@@ -26,6 +28,8 @@ export default function ChaptersPage() {
       .map((chapter, _, ordered) => ({
         chapter,
         locked: isChapterLocked(chapter, ordered, completedSet),
+        lockReason: getChapterLockReason(chapter, ordered, completedSet),
+        scheduleLockLabel: getChapterScheduleLockLabel(chapter),
         mainComplete: isChapterMainProgressComplete(chapter, completedSet),
         fullyComplete: isChapterFullyComplete(chapter, completedSet),
       }));

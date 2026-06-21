@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  getChapterLockReason,
+  getChapterScheduleLockLabel,
   isChapterFullyComplete,
   isChapterLocked,
   isChapterMainProgressComplete,
@@ -7,13 +9,21 @@ import {
   isQuestLocked,
 } from "@/lib/game/unlock-display";
 
+const chapterScheduleFields = {
+  unlocksAt: null,
+  scheduleLocked: false,
+  background: "chapters/00/chapter/bg",
+  reference: false,
+  gameFinale: false,
+};
+
 const chapter00 = {
   id: "chapter-00",
   title: "La valigia — Prima del viaggio",
   order: 0,
   locked: false,
-  reference: false,
-  quests: [{ id: "quest-01", title: "Come si gioca", order: 1, kind: "main" as const, requiresQuestId: null }],
+  ...chapterScheduleFields,
+  quests: [{ id: "quest-01", title: "Come si gioca", order: 1, kind: "main" as const, requiresQuestId: null, background: "bg" }],
 };
 
 const chapter01 = {
@@ -21,10 +31,10 @@ const chapter01 = {
   title: "Bologna",
   order: 1,
   locked: false,
-  reference: false,
+  ...chapterScheduleFields,
   quests: [
-    { id: "quest-01", title: "Q1", order: 1, kind: "main" as const, requiresQuestId: null },
-    { id: "quest-02", title: "Q2", order: 2, kind: "main" as const, requiresQuestId: "quest-01" },
+    { id: "quest-01", title: "Q1", order: 1, kind: "main" as const, requiresQuestId: null, background: "bg" },
+    { id: "quest-02", title: "Q2", order: 2, kind: "main" as const, requiresQuestId: "quest-01", background: "bg" },
   ],
 };
 
@@ -33,9 +43,9 @@ const chapter02 = {
   title: "Firenze",
   order: 2,
   locked: false,
-  reference: false,
+  ...chapterScheduleFields,
   quests: [
-    { id: "quest-01", title: "Q1", order: 1, kind: "main" as const, requiresQuestId: null },
+    { id: "quest-01", title: "Q1", order: 1, kind: "main" as const, requiresQuestId: null, background: "bg" },
   ],
 };
 
@@ -100,5 +110,26 @@ describe("unlock-display", () => {
     expect(isChapterFullyComplete(chapterWithBonus, mainOnly)).toBe(false);
     const allDone = new Set([...mainOnly, "chapter-01:quest-bonus"]);
     expect(isChapterFullyComplete(chapterWithBonus, allDone)).toBe(true);
+  });
+
+  it("locks chapter when bootstrap reports scheduleLocked", () => {
+    const scheduledChapter01 = {
+      ...chapter01,
+      scheduleLocked: true,
+      unlocksAt: "2026-06-29T06:30:00.000Z",
+    };
+    const tutorialDone = new Set<string>(["chapter-00:quest-01"]);
+    expect(getChapterLockReason(scheduledChapter01, progressionOrder, tutorialDone)).toBe("schedule");
+    expect(isChapterLocked(scheduledChapter01, progressionOrder, tutorialDone)).toBe(true);
+    expect(getChapterScheduleLockLabel(scheduledChapter01)).toMatch(/29 giugno, ore 08:30/);
+  });
+
+  it("prefers schedule lock over progression when bootstrap reports scheduleLocked", () => {
+    const scheduledChapter01 = {
+      ...chapter01,
+      scheduleLocked: true,
+      unlocksAt: "2026-06-29T06:30:00.000Z",
+    };
+    expect(getChapterLockReason(scheduledChapter01, progressionOrder, new Set())).toBe("schedule");
   });
 });

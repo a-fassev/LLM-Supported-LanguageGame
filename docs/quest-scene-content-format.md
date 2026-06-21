@@ -59,7 +59,7 @@ Scene order is the **numeric prefix** on filenames (`01`, `02`, …). When mappi
 | `title` | Hub title. |
 | `order` | Sort order on the chapter map (**0-based**, contiguous `0 … n−1` across all chapters). |
 | `background` | **Required.** Asset key for the chapter mission list hub (`/chapters/[chapterId]`). Resolved via `resolveAssetUrl` → `public/content-assets/`. |
-| `locked` | Optional, default `false`. When `true`, the chapter is **not playable** (hub shows locked; server rejects start, resume, snapshot (in-progress run), advance, attempt, and retreat with API code `chapter_locked`). Use for classroom pilots—change in git and deploy; independent of learner progress. |
+| `locked` | Optional, default `false`. When `true`, the chapter is **not playable** (hub shows locked; server rejects start, resume, snapshot (in-progress run), advance, attempt, and retreat with API code `chapter_locked`). Use for emergency classroom withhold—change in git and deploy; independent of learner progress. **Also see** scheduled release below. |
 | `reference` | Optional, default `false`. When `true`, the chapter is a **team sandbox** (task-type fixtures): always playable when not `locked`, and **does not gate** the next progression chapter. At most one chapter in the catalog may set `reference: true`. |
 | `gameFinale` | Optional, default `false`. When `true`, completing the chapter’s **last** quest in `quests[]` (usually the bonus) ends the learner journey: snapshot sets `run.isGameFinaleQuest`; `/play` shows «Percorso completato!» and primary **«Torna al menu»** (not the chapter mission list). Author **story scenes after the bonus task** for narrative closure; overlay is the mechanical game end. Logic: `lib/game/game-finale.ts`. At most one progression chapter should set this until a post-game hub exists. |
 | `quests` | Ordered quest folder ids for this chapter. **Last id** is the finale quest when `gameFinale` is `true`. |
@@ -67,6 +67,8 @@ Scene order is the **numeric prefix** on filenames (`01`, `02`, …). When mappi
 **Tutorial chapter** (`chapter-00`, `order: 0`) introduces all six task types in Italian (A1). It does **not** set `reference: true` — completing its main quest gates `chapter-01`. Task scenes use **`pizza.mode: "scored"`** with **`maxSlices: 0`** (and `backpack.pieces: 0`) so attempts are evaluated but no wallet rewards are granted. Do **not** use `pizza.mode: "flat"` for learner tutorial tasks: flat skips server-side evaluation for deterministic task types.
 
 **Progression chapters** (`chapter-01` …) use `order: 1` and up without `reference`.
+
+**Scheduled release (pilot):** In addition to `locked` and quest/chapter progression, chapters on the pilot schedule in `lib/game/chapter-release-schedule.ts` unlock at fixed **Europe/Berlin** times (deploy-versioned; no env vars). Hub shows the release date when schedule-locked; server returns **`chapter_not_released`**. `chapter-00` is always time-released. Changing dates: edit `PILOT_CHAPTER_RELEASE_WAVES` and deploy.
 
 ### `quest.json`
 
@@ -98,6 +100,7 @@ Reading text for tasks lives on **each task scene**, not on the quest (see §5.2
 - **Next chapter** unlocks when every **main** quest in the current chapter is complete. Bonus quests are optional and do not block the next chapter.
 - **Hub unlock is linear:** each quest has at most one `requiresQuestId`. Raw “parallel branches” or “complete A and B before C” are approximated with **fixed quest order** in `chapter.json` → `quests`; parallel intent may appear in **story copy only** (see chapter-content-authoring skill).
 - Optional **`locked: true`** on a chapter (see table above) manually withholds that chapter until authors remove the flag and deploy.
+- **Scheduled release:** `lib/game/chapter-release-schedule.ts` may withhold chapters until classroom release times (in addition to `locked` and progression). Hub badge shows the date («29 giugno, ore 8:30») when schedule-locked; progression-only locks stay **Bloccato**.
 - Progression otherwise uses catalog order and completed runs only (§12).
 
 ---

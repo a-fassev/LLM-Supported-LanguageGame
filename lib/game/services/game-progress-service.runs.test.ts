@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const repoMocks = vi.hoisted(() => ({
   abandonQuestRun: vi.fn(),
@@ -137,9 +137,14 @@ import {
 } from "@/lib/game/services/game-progress-service";
 
 describe("game-progress-service run flows", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.unstubAllEnvs();
+    vi.stubEnv("NODE_ENV", "development");
     repoMocks.ensureWalletRow.mockResolvedValue(true);
     repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 0, totalBackpackPieces: 0 });
     repoMocks.getCompletedQuestIds.mockResolvedValue([]);
@@ -1097,5 +1102,86 @@ describe("game-progress-service run flows", () => {
       expect(result.run.canRetreat).toBe(false);
       expect(result.run.nextSceneBackground).toBe(scene2.background);
     }
+  });
+});
+
+describe("game-progress-service chapter release schedule", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.stubEnv("NODE_ENV", "development");
+  });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.stubEnv("NODE_ENV", "production");
+    repoMocks.ensureWalletRow.mockResolvedValue(true);
+    repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 0, totalBackpackPieces: 0 });
+    repoMocks.getCompletedQuestIds.mockResolvedValue(["chapter-00:quest-01"]);
+    repoMocks.getActiveQuestRun.mockResolvedValue(null);
+    catalogMocks.loadContentCatalog.mockResolvedValue({
+      chapters: [
+        {
+          id: "chapter-00",
+          locked: false,
+          questsExpanded: [{ id: "quest-01", kind: "main", requiresQuestId: null, scenes: [] }],
+        },
+        {
+          id: "chapter-01",
+          locked: false,
+          questsExpanded: [
+            {
+              id: "quest-01",
+              kind: "main",
+              requiresQuestId: null,
+              scenes: [{ id: "chapter-01-quest-01-scene-01" }],
+            },
+          ],
+        },
+      ],
+    });
+    catalogMocks.findCatalogQuest.mockReturnValue({
+      id: "quest-01",
+      requiresQuestId: null,
+      scenes: [{ id: "chapter-01-quest-01-scene-01" }],
+    });
+  });
+
+  it("rejects quest start before schedule release", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-20T12:00:00+02:00"));
+
+    const result = await startOrResumeRun("acc-1", "chapter-01", "quest-01");
+
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("expected error");
+    expect(result.code).toBe("chapter_not_released");
+    expect(result.error).toMatch(/29 giugno, ore 08:30/);
+  });
+
+  it("allows quest start after schedule release when progression is satisfied", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-06-29T10:00:00+02:00"));
+    repoMocks.createQuestRun.mockResolvedValue({
+      runId: "run-1",
+      accountId: "acc-1",
+      chapterId: "chapter-01",
+      questId: "quest-01",
+      currentSceneId: "chapter-01-quest-01-scene-01",
+      status: "in_progress" as const,
+    });
+    catalogMocks.findCatalogScene.mockReturnValue({
+      id: "chapter-01-quest-01-scene-01",
+      sceneNumber: 1,
+      scene_type: "story",
+      screen_type: "info",
+      background: "bg",
+      content: { text: "Ciao" },
+    });
+    repoMocks.getCompletedSceneIds.mockResolvedValue([]);
+
+    const result = await startOrResumeRun("acc-1", "chapter-01", "quest-01");
+
+    expect(result.ok).toBe(true);
+    expect(repoMocks.createQuestRun).toHaveBeenCalled();
   });
 });

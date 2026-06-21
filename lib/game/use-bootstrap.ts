@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getBootstrap, type BootstrapDto } from "@/lib/api-client";
+import { msUntilScheduledBootstrapRefresh } from "@/lib/game/chapter-release-schedule";
 import { useGameSession } from "@/lib/game/session-context";
 import { useMountedRef } from "@/lib/game/use-mounted-ref";
 import { toastBlockingApiError } from "@/lib/game/toast-from-api";
@@ -93,6 +94,16 @@ export function useBootstrap(options?: { refreshOnFocus?: boolean }): UseBootstr
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, [options?.refreshOnFocus, reload]);
+
+  useEffect(() => {
+    if (!data?.chapters.length) return;
+    const delayMs = msUntilScheduledBootstrapRefresh(data.chapters);
+    if (delayMs === null) return;
+    const timeoutId = window.setTimeout(() => {
+      void reload();
+    }, delayMs);
+    return () => window.clearTimeout(timeoutId);
+  }, [data, reload]);
 
   return { loading, refreshing, error, data, reload };
 }

@@ -549,11 +549,15 @@ export default function PlayPage() {
         return;
       }
       if (
-        (result.code === "chapter_locked" || result.code === "quest_locked") &&
+        (result.code === "chapter_locked" ||
+          result.code === "chapter_not_released" ||
+          result.code === "quest_locked") &&
         chapterId
       ) {
         toastBlockingApiError(result);
-        router.replace(`/chapters/${chapterId}`);
+        router.replace(
+          result.code === "chapter_not_released" ? "/chapters" : `/chapters/${chapterId}`,
+        );
         setLoading(false);
         return;
       }

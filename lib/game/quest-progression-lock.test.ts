@@ -1,6 +1,11 @@
-import { describe, expect, it } from "vitest";
-import { isQuestLockedForAccount } from "@/lib/game/quest-progression-lock";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  getChapterAccessBlockReason,
+  isQuestLockedForAccount,
+} from "@/lib/game/quest-progression-lock";
 import type { ContentCatalog } from "@/lib/game/content/catalog-loader";
+
+const afterPilot = new Date("2026-07-10T12:00:00+02:00");
 
 function catalogFixture(): ContentCatalog {
   return {
@@ -44,6 +49,19 @@ function catalogFixture(): ContentCatalog {
 }
 
 describe("isQuestLockedForAccount", () => {
+  const originalNodeEnv = process.env.NODE_ENV;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.stubEnv("NODE_ENV", "production");
+    vi.setSystemTime(afterPilot);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.stubEnv("NODE_ENV", originalNodeEnv ?? "test");
+  });
+
   it("requires completing chapter-00 tutorial before chapter-01", () => {
     const catalog: ContentCatalog = {
       chapters: [
@@ -110,6 +128,15 @@ describe("isQuestLockedForAccount", () => {
         },
       ],
     };
+    expect(isQuestLockedForAccount(catalog, "chapter-01", "quest-01", new Set())).toBe(true);
+  });
+
+  it("returns true when chapter is schedule-locked in production", () => {
+    vi.setSystemTime(new Date("2026-06-20T12:00:00+02:00"));
+    const catalog: ContentCatalog = {
+      chapters: [catalogFixture().chapters[0]],
+    };
+    expect(getChapterAccessBlockReason(catalog, "chapter-01")).toBe("schedule");
     expect(isQuestLockedForAccount(catalog, "chapter-01", "quest-01", new Set())).toBe(true);
   });
 });

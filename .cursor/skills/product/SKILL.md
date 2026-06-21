@@ -26,7 +26,7 @@ Canonical **technical** contracts live in `AGENTS.md`. The **browser shell** (lo
 Play is **strictly sequential**:
 
 - **Chapters** unlock one after another; a player must **finish a chapter** before the next opens.
-- **Classroom withhold:** authors can mark a whole chapter **unavailable** in content (`locked` in `chapter.json`)—children still see the city on the map as **Bloccato**, even if they already finished earlier chapters. That is intentional pacing for lessons (e.g. only Bologna and Firenze open this week), not “you have not finished the previous city yet.”
+- **Classroom withhold:** authors can mark a whole chapter **unavailable** in content (`locked` in `chapter.json`)—children still see the city on the map as **Bloccato**, even if they already finished earlier chapters. That is intentional pacing for lessons (e.g. only Bologna and Firenze open this week), not “you have not finished the previous city yet.” **Scheduled release** (`lib/game/chapter-release-schedule.ts`) adds the same hub withhold until a fixed date/time (badge shows the date); combined with progression, not a replacement for it.
 - Within a chapter, **quests** unlock in order; quest **N+1** stays locked until quest **N** is complete.
 - A **chapter** is an ordered list of **quests**. At the end of a chapter there may be **optional bonus quests**—extra **pizza slices**, but **not required** to unlock the next chapter.
 

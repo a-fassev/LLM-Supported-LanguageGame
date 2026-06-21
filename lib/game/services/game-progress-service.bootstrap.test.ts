@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   ensureWalletRow: vi.fn(),
@@ -20,8 +20,14 @@ vi.mock("@/lib/game/content/catalog-loader", () => ({
 import { bootstrapGameState } from "@/lib/game/services/game-progress-service";
 
 describe("bootstrapGameState", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.stubEnv("NODE_ENV", "development");
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("NODE_ENV", "development");
     mocks.ensureWalletRow.mockResolvedValue(true);
     mocks.getWalletTotals.mockResolvedValue({ totalSlices: 3, totalBackpackPieces: 1 });
     mocks.getCompletedQuestIds.mockResolvedValue([]);
@@ -71,6 +77,8 @@ describe("bootstrapGameState", () => {
           reference: false,
           gameFinale: false,
           background: "chapters/01/chapter/bg-missions",
+          unlocksAt: null,
+          scheduleLocked: false,
           quests: [
             {
               id: "quest-01",
@@ -106,5 +114,20 @@ describe("bootstrapGameState", () => {
     if (!result.ok) {
       expect(result.code).toBe("catalog_unavailable");
     }
+  });
+
+  it("includes schedule fields in bootstrap chapters", async () => {
+    vi.useFakeTimers();
+    vi.stubEnv("NODE_ENV", "production");
+    vi.setSystemTime(new Date("2026-06-20T12:00:00+02:00"));
+
+    const result = await bootstrapGameState("account-1");
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error("expected ok");
+    expect(result.chapters[0]?.scheduleLocked).toBe(true);
+    expect(result.chapters[0]?.unlocksAt).toBe("2026-06-29T06:30:00.000Z");
+    vi.useRealTimers();
+    vi.stubEnv("NODE_ENV", "development");
   });
 });

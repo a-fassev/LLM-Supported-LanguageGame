@@ -8,6 +8,7 @@ import {
   isChapterReleasedBySchedule,
   isChapterReleaseScheduleEnforced,
   isChapterScheduleLocked,
+  msUntilScheduledBootstrapRefresh,
 } from "@/lib/game/chapter-release-schedule";
 
 describe("chapter-release-schedule", () => {
@@ -74,6 +75,20 @@ describe("chapter-release-schedule", () => {
     expect(chapterNotReleasedMessageFromUnlocksAt("2026-06-29T06:30:00.000Z")).toMatch(
       /Questo capitolo si apre il 29 giugno, ore 08:30/,
     );
+  });
+
+  it("returns ms until the earliest future chapter unlock", () => {
+    const nowMs = Date.parse("2026-06-20T12:00:00+02:00");
+    expect(
+      msUntilScheduledBootstrapRefresh(
+        [
+          { unlocksAt: "2026-06-29T06:30:00.000Z" },
+          { unlocksAt: "2026-06-30T07:30:00.000Z" },
+        ],
+        nowMs,
+      ),
+    ).toBe(Date.parse("2026-06-29T06:30:00.000Z") - nowMs + 1_000);
+    expect(msUntilScheduledBootstrapRefresh([{ unlocksAt: null }], nowMs)).toBeNull();
   });
 
   it("does not enforce schedule in development", () => {

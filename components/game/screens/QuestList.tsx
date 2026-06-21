@@ -8,6 +8,7 @@ type QuestListItem = {
   quest: BootstrapQuestDto;
   locked: boolean;
   completed: boolean;
+  lockedBadgeLabel?: string;
 };
 
 type QuestListProps = {
@@ -18,7 +19,7 @@ type QuestListProps = {
 export function QuestList({ items, onStartQuest }: QuestListProps) {
   return (
     <div className="space-y-5">
-      {items.map(({ quest, locked, completed }) => {
+      {items.map(({ quest, locked, completed, lockedBadgeLabel = "Bloccata" }) => {
         const playable = !locked && !completed;
 
         return (
@@ -46,7 +47,7 @@ export function QuestList({ items, onStartQuest }: QuestListProps) {
             </h2>
             <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
               {completed ? <Badge variant="secondary">Completata</Badge> : null}
-              {locked && !completed ? <Badge variant="outline">Bloccata</Badge> : null}
+              {locked && !completed ? <Badge variant="outline">{lockedBadgeLabel}</Badge> : null}
             </div>
           </button>
         );

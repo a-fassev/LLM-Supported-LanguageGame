@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const repoMocks = vi.hoisted(() => ({
   ensureWalletRow: vi.fn(),
@@ -56,8 +56,14 @@ const matchingScene = {
 };
 
 describe("getRunSnapshot", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.stubEnv("NODE_ENV", "development");
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("NODE_ENV", "development");
     repoMocks.ensureWalletRow.mockResolvedValue(true);
     repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 0, totalBackpackPieces: 0 });
     repoMocks.getActiveQuestRun.mockResolvedValue(null);
@@ -93,6 +99,30 @@ describe("getRunSnapshot", () => {
     expect(result.ok).toBe(false);
     if (result.ok) throw new Error("expected error");
     expect(result.code).toBe("chapter_locked");
+  });
+
+  it("rejects snapshot for in-progress run in schedule-locked chapter", async () => {
+    vi.useFakeTimers();
+    vi.stubEnv("NODE_ENV", "production");
+    vi.setSystemTime(new Date("2026-06-20T12:00:00+02:00"));
+    repoMocks.getActiveQuestRun.mockResolvedValue({
+      runId: "run-1",
+      accountId: "acc-1",
+      chapterId: "chapter-03",
+      questId: "quest-01",
+      currentSceneId: "chapter-03-quest-01-scene-01",
+      status: "in_progress" as const,
+    });
+    catalogMocks.loadContentCatalog.mockResolvedValue({
+      chapters: [{ id: "chapter-03", locked: false, questsExpanded: [] }],
+    });
+
+    const result = await getRunSnapshot("acc-1");
+    expect(result.ok).toBe(false);
+    if (result.ok) throw new Error("expected error");
+    expect(result.code).toBe("chapter_not_released");
+    vi.useRealTimers();
+    vi.stubEnv("NODE_ENV", "development");
   });
 
   it("returns materialization_failed when matching pool cannot be resolved", async () => {

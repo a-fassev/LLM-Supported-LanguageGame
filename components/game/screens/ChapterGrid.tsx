@@ -3,10 +3,13 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { BootstrapChapterDto } from "@/lib/api-client";
+import type { ChapterLockReason } from "@/lib/game/unlock-display";
 
 type ChapterGridItem = {
   chapter: BootstrapChapterDto;
   locked: boolean;
+  lockReason: ChapterLockReason;
+  scheduleLockLabel: string | null;
   mainComplete: boolean;
   fullyComplete: boolean;
 };
@@ -20,8 +23,10 @@ type ChapterGridProps = {
 export function ChapterGrid({ items, onOpenChapter, className }: ChapterGridProps) {
   return (
     <div className={cn("space-y-5", className)}>
-      {items.map(({ chapter, locked, mainComplete, fullyComplete }) => {
+      {items.map(({ chapter, locked, lockReason, scheduleLockLabel, mainComplete, fullyComplete }) => {
         const playable = !locked && !fullyComplete;
+        const lockedBadgeLabel =
+          lockReason === "schedule" ? (scheduleLockLabel ?? "Presto disponibile") : "Bloccato";
 
         return (
           <button
@@ -50,7 +55,7 @@ export function ChapterGrid({ items, onOpenChapter, className }: ChapterGridProp
             </h2>
             <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
               {fullyComplete ? <Badge variant="secondary">Completato</Badge> : null}
-              {locked && !fullyComplete ? <Badge variant="outline">Bloccato</Badge> : null}
+              {locked && !fullyComplete ? <Badge variant="outline">{lockedBadgeLabel}</Badge> : null}
             </div>
           </button>
         );

@@ -49,6 +49,8 @@ export type BootstrapChapterDto = {
   reference: boolean;
   gameFinale: boolean;
   background: string;
+  unlocksAt: string | null;
+  scheduleLocked: boolean;
   quests: BootstrapQuestDto[];
 };
 

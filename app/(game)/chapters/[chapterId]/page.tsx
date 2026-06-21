@@ -8,6 +8,8 @@ import { QuestList } from "@/components/game/screens/QuestList";
 import type { BootstrapChapterDto } from "@/lib/api-client";
 import { useBootstrap } from "@/lib/game/use-bootstrap";
 import {
+  getChapterLockReason,
+  getChapterScheduleLockLabel,
   isChapterFullyComplete,
   isChapterLocked,
   isQuestCompleted,
@@ -25,11 +27,33 @@ export default function ChapterDetailPage() {
     return data.chapters.find((item) => item.id === chapterId) ?? null;
   }, [chapterId, data]);
 
+  const chapterMeta = useMemo(() => {
+    if (!chapter || !data) {
+      return {
+        lockReason: null as ReturnType<typeof getChapterLockReason>,
+        scheduleLockLabel: null as string | null,
+        chapterLocked: false,
+      };
+    }
+    const completedSet = new Set(data.completedQuestIds);
+    const orderedChapters = data.chapters.slice().sort((a, b) => a.order - b.order);
+    const lockReason = getChapterLockReason(chapter, orderedChapters, completedSet);
+    return {
+      lockReason,
+      scheduleLockLabel: getChapterScheduleLockLabel(chapter),
+      chapterLocked: lockReason !== null,
+    };
+  }, [chapter, data]);
+
   const items = useMemo(() => {
     if (!chapter || !data) return [];
     const completedSet = new Set(data.completedQuestIds);
     const orderedChapters = data.chapters.slice().sort((a, b) => a.order - b.order);
     const chapterLocked = isChapterLocked(chapter, orderedChapters, completedSet);
+    const scheduleBadge =
+      chapterMeta.lockReason === "schedule"
+        ? (chapterMeta.scheduleLockLabel ?? "Presto disponibile")
+        : "Bloccata";
     return chapter.quests
       .slice()
       .sort((a, b) => a.order - b.order)
@@ -37,8 +61,9 @@ export default function ChapterDetailPage() {
         quest,
         locked: chapterLocked || isQuestLocked(chapter.id, quest, completedSet),
         completed: isQuestCompleted(chapter.id, quest, completedSet),
+        lockedBadgeLabel: chapterLocked ? scheduleBadge : "Bloccata",
       }));
-  }, [chapter, data]);
+  }, [chapter, chapterMeta.lockReason, chapterMeta.scheduleLockLabel, data]);
 
   const chapterFullyComplete = useMemo(() => {
     if (!chapter || !data) return false;
@@ -47,12 +72,10 @@ export default function ChapterDetailPage() {
 
   useEffect(() => {
     if (!chapter || !data) return;
-    const completedSet = new Set(data.completedQuestIds);
-    const orderedChapters = data.chapters.slice().sort((a, b) => a.order - b.order);
-    if (isChapterLocked(chapter, orderedChapters, completedSet)) {
+    if (chapterMeta.chapterLocked) {
       router.replace("/chapters");
     }
-  }, [chapter, data, router]);
+  }, [chapter, chapterMeta.chapterLocked, data, router]);
 
   const headerRight = data ? (
     <QuestHud totalSlices={data.totalSlices} backpackProgressPercent={data.backpackProgressPercent} />
