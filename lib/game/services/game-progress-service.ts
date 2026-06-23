@@ -1,4 +1,5 @@
 import {
+  abandonQuestRun,
   completeQuestRun,
   completeSceneOnce,
   createQuestRun,
@@ -12,6 +13,7 @@ import {
   updateQuestRunPosition,
   type QuestRunRow,
 } from "@/lib/game/repositories/game-progress-repository";
+import { isGameTestingReplayMode } from "@/lib/game/game-testing-replay-mode";
 import {
   isChapterAccessBlocked,
   getChapterAccessBlockReason,
@@ -228,6 +230,15 @@ type BuildSnapshotOptions = {
   catalog?: ContentCatalog;
 };
 
+function shouldBlockRunChapterAccess(
+  catalog: ContentCatalog,
+  chapterId: string,
+  now: Date = new Date(),
+): boolean {
+  if (isGameTestingReplayMode()) return false;
+  return isChapterAccessBlocked(catalog, chapterId, now);
+}
+
 function runBlockedByChapterAccess(
   catalog: ContentCatalog,
   chapterId: string,
@@ -306,7 +317,7 @@ async function buildSnapshotFromRun(
     (await loadCatalogForRun());
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
 
-  if (run.status === "in_progress" && isChapterAccessBlocked(catalog, run.chapterId)) {
+  if (run.status === "in_progress" && shouldBlockRunChapterAccess(catalog, run.chapterId)) {
     return runBlockedByChapterAccess(catalog, run.chapterId, run.questId);
   }
 
@@ -366,6 +377,62 @@ export async function getRunSnapshot(accountId: string): Promise<RunSnapshotResu
   return buildSnapshotFromRun(accountId, run);
 }
 
+async function startOrResumeRunTestingReplay(
+  accountId: string,
+  chapterId: string,
+  questId: string,
+): Promise<RunSnapshotResult> {
+  const catalog = await loadCatalogForRun();
+  if (!catalog) {
+    return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
+  }
+
+  const quest = findCatalogQuest(catalog, chapterId, questId);
+  if (!quest) {
+    return {
+      ok: false,
+      status: 404,
+      error: msg.runNotFound,
+      code: "quest_not_found",
+      details: { chapterId, questId },
+    };
+  }
+
+  const completedQuestIds = await getCompletedQuestIds(accountId);
+  if (completedQuestIds === null) {
+    return { ok: false, status: 500, error: msg.couldNotLoadRun };
+  }
+  const questAlreadyCompleted = isQuestCompleted(chapterId, quest, new Set(completedQuestIds));
+
+  const existingRun = await getActiveQuestRun(accountId);
+  if (existingRun) {
+    const sameQuest = existingRun.chapterId === chapterId && existingRun.questId === questId;
+    if (sameQuest && !questAlreadyCompleted) {
+      return buildSnapshotFromRun(accountId, existingRun, { catalog });
+    }
+    const abandoned = await abandonQuestRun(existingRun.runId);
+    if (!abandoned) return { ok: false, status: 500, error: msg.couldNotStartRun };
+  }
+
+  const firstScene = quest.scenes[0];
+  const created = await createQuestRun(accountId, chapterId, questId, firstScene.id);
+  if (!created) {
+    const racedRun = await getActiveQuestRun(accountId);
+    if (racedRun?.chapterId === chapterId && racedRun.questId === questId) {
+      return buildSnapshotFromRun(accountId, racedRun, { catalog });
+    }
+    if (racedRun) {
+      const abandoned = await abandonQuestRun(racedRun.runId);
+      if (!abandoned) return { ok: false, status: 500, error: msg.couldNotStartRun };
+      const retried = await createQuestRun(accountId, chapterId, questId, firstScene.id);
+      if (!retried) return { ok: false, status: 500, error: msg.couldNotStartRun };
+      return buildSnapshotFromRun(accountId, retried, { catalog });
+    }
+    return { ok: false, status: 500, error: msg.couldNotStartRun };
+  }
+  return buildSnapshotFromRun(accountId, created, { catalog });
+}
+
 export async function startOrResumeRun(
   accountId: string,
   chapterId: string,
@@ -373,6 +440,10 @@ export async function startOrResumeRun(
 ): Promise<RunSnapshotResult> {
   const ensured = await ensureWalletRow(accountId);
   if (!ensured) return { ok: false, status: 500, error: msg.couldNotStartRun };
+
+  if (isGameTestingReplayMode()) {
+    return startOrResumeRunTestingReplay(accountId, chapterId, questId);
+  }
 
   const existingRun = await getActiveQuestRun(accountId);
   if (existingRun) {
@@ -521,7 +592,7 @@ export async function retreatRunScene(
   const catalog = await loadContentCatalog().catch(() => null);
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
 
-  if (isChapterAccessBlocked(catalog, run.chapterId)) {
+  if (shouldBlockRunChapterAccess(catalog, run.chapterId)) {
     return runBlockedByChapterAccess(catalog, run.chapterId, run.questId);
   }
 
@@ -576,7 +647,7 @@ export async function advanceStoryScene(
   const catalog = await loadContentCatalog().catch(() => null);
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
 
-  if (isChapterAccessBlocked(catalog, run.chapterId)) {
+  if (shouldBlockRunChapterAccess(catalog, run.chapterId)) {
     return runBlockedByChapterAccess(catalog, run.chapterId, run.questId);
   }
 
@@ -623,7 +694,7 @@ export async function completeTaskScene(
   const catalog = await loadContentCatalog().catch(() => null);
   if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
 
-  if (isChapterAccessBlocked(catalog, run.chapterId)) {
+  if (shouldBlockRunChapterAccess(catalog, run.chapterId)) {
     return runBlockedByChapterAccess(catalog, run.chapterId, run.questId);
   }
 

@@ -18,6 +18,7 @@ import {
   type TaskReviewDto,
 } from "@/lib/api-client";
 import { gameClientMessages } from "@/lib/game/clientMessages";
+import { isGameTestingReplayMode } from "@/lib/game/game-testing-replay-mode";
 import { useGameSession } from "@/lib/game/session-context";
 import {
   buildActiveRunResumePath,
@@ -542,13 +543,14 @@ export default function PlayPage() {
         setLoading(false);
         return;
       }
-      if (result.code === "quest_already_completed" && chapterId) {
+      if (result.code === "quest_already_completed" && chapterId && !isGameTestingReplayMode()) {
         toastBlockingApiError(result);
         router.replace(`/chapters/${chapterId}`);
         setLoading(false);
         return;
       }
       if (
+        !isGameTestingReplayMode() &&
         (result.code === "chapter_locked" ||
           result.code === "chapter_not_released" ||
           result.code === "quest_locked") &&

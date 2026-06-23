@@ -25,6 +25,14 @@ const catalogMocks = vi.hoisted(() => ({
 
 const evaluateFreitextLlmSceneMock = vi.hoisted(() => vi.fn());
 
+const testingReplayMock = vi.hoisted(() => ({
+  isGameTestingReplayMode: vi.fn(() => false),
+}));
+
+vi.mock("@/lib/game/game-testing-replay-mode", () => ({
+  GAME_TESTING_REPLAY_MODE: false,
+  isGameTestingReplayMode: testingReplayMock.isGameTestingReplayMode,
+}));
 vi.mock("@/lib/game/repositories/game-progress-repository", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/game/repositories/game-progress-repository")>();
   return {
@@ -145,6 +153,7 @@ describe("game-progress-service run flows", () => {
     vi.clearAllMocks();
     vi.unstubAllEnvs();
     vi.stubEnv("NODE_ENV", "development");
+    testingReplayMock.isGameTestingReplayMode.mockReturnValue(false);
     repoMocks.ensureWalletRow.mockResolvedValue(true);
     repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 0, totalBackpackPieces: 0 });
     repoMocks.getCompletedQuestIds.mockResolvedValue([]);
@@ -388,6 +397,159 @@ describe("game-progress-service run flows", () => {
     if (!result.ok) {
       expect(result.code).toBe("quest_already_completed");
     }
+  });
+
+  describe("GAME_TESTING_REPLAY_MODE", () => {
+    function mockSnapshotScene(sceneId: string) {
+      catalogMocks.findCatalogScene.mockReturnValue({
+        id: sceneId,
+        sceneNumber: 1,
+        filename: "01.json",
+        scene_type: "story",
+        screen_type: "info",
+        background: "bg",
+        content: {},
+      });
+      repoMocks.getCompletedSceneIds.mockResolvedValue([]);
+    }
+
+    beforeEach(() => {
+      testingReplayMock.isGameTestingReplayMode.mockReturnValue(true);
+    });
+
+    it("starts a fresh run for an already completed quest", async () => {
+      repoMocks.getActiveQuestRun.mockResolvedValue(null);
+      catalogMocks.loadContentCatalog.mockResolvedValue({
+        chapters: [{ id: "chapter-01", questsExpanded: [{ id: "quest-01", kind: "main" }] }],
+      });
+      catalogMocks.findCatalogQuest.mockReturnValue({
+        id: "quest-01",
+        requiresQuestId: null,
+        scenes: [{ id: "chapter-01-quest-01-scene-01" }],
+      });
+      repoMocks.getCompletedQuestIds.mockResolvedValue(["chapter-01:quest-01"]);
+      repoMocks.createQuestRun.mockResolvedValue({
+        runId: "run-replay",
+        accountId: "acc-1",
+        chapterId: "chapter-01",
+        questId: "quest-01",
+        currentSceneId: "chapter-01-quest-01-scene-01",
+        status: "in_progress",
+      });
+      mockSnapshotScene("chapter-01-quest-01-scene-01");
+
+      const result = await startOrResumeRun("acc-1", "chapter-01", "quest-01");
+      expect(result.ok).toBe(true);
+      expect(repoMocks.createQuestRun).toHaveBeenCalledTimes(1);
+    });
+
+    it("allows starting a progression-locked quest", async () => {
+      repoMocks.getActiveQuestRun.mockResolvedValue(null);
+      catalogMocks.loadContentCatalog.mockResolvedValue({
+        chapters: [
+          {
+            id: "chapter-01",
+            questsExpanded: [
+              { id: "quest-01", kind: "main" },
+              { id: "quest-02", kind: "main" },
+            ],
+          },
+        ],
+      });
+      catalogMocks.findCatalogQuest.mockReturnValue({
+        id: "quest-02",
+        requiresQuestId: "quest-01",
+        scenes: [{ id: "chapter-01-quest-02-scene-01" }],
+      });
+      repoMocks.getCompletedQuestIds.mockResolvedValue([]);
+      repoMocks.createQuestRun.mockResolvedValue({
+        runId: "run-2",
+        accountId: "acc-1",
+        chapterId: "chapter-01",
+        questId: "quest-02",
+        currentSceneId: "chapter-01-quest-02-scene-01",
+        status: "in_progress",
+      });
+      mockSnapshotScene("chapter-01-quest-02-scene-01");
+
+      const result = await startOrResumeRun("acc-1", "chapter-01", "quest-02");
+      expect(result.ok).toBe(true);
+      expect(repoMocks.createQuestRun).toHaveBeenCalledTimes(1);
+    });
+
+    it("abandons an active run when starting a different quest", async () => {
+      repoMocks.getActiveQuestRun.mockResolvedValue({
+        runId: "run-1",
+        accountId: "acc-1",
+        chapterId: "chapter-01",
+        questId: "quest-01",
+        currentSceneId: "chapter-01-quest-01-scene-01",
+        status: "in_progress",
+      });
+      catalogMocks.loadContentCatalog.mockResolvedValue({
+        chapters: [
+          {
+            id: "chapter-01",
+            questsExpanded: [
+              { id: "quest-01", kind: "main" },
+              { id: "quest-02", kind: "main" },
+            ],
+          },
+        ],
+      });
+      catalogMocks.findCatalogQuest.mockReturnValue({
+        id: "quest-02",
+        requiresQuestId: "quest-01",
+        scenes: [{ id: "chapter-01-quest-02-scene-01" }],
+      });
+      repoMocks.getCompletedQuestIds.mockResolvedValue([]);
+      repoMocks.createQuestRun.mockResolvedValue({
+        runId: "run-2",
+        accountId: "acc-1",
+        chapterId: "chapter-01",
+        questId: "quest-02",
+        currentSceneId: "chapter-01-quest-02-scene-01",
+        status: "in_progress",
+      });
+      mockSnapshotScene("chapter-01-quest-02-scene-01");
+
+      const result = await startOrResumeRun("acc-1", "chapter-01", "quest-02");
+      expect(result.ok).toBe(true);
+      expect(repoMocks.abandonQuestRun).toHaveBeenCalledWith("run-1");
+      expect(repoMocks.createQuestRun).toHaveBeenCalledTimes(1);
+    });
+
+    it("allows starting a schedule-locked chapter in production", async () => {
+      vi.useFakeTimers();
+      vi.stubEnv("NODE_ENV", "production");
+      vi.setSystemTime(new Date("2026-06-20T12:00:00+02:00"));
+      repoMocks.getActiveQuestRun.mockResolvedValue(null);
+      catalogMocks.loadContentCatalog.mockResolvedValue({
+        chapters: [{ id: "chapter-03", locked: false, questsExpanded: [{ id: "quest-01", kind: "main" }] }],
+      });
+      catalogMocks.findCatalogQuest.mockReturnValue({
+        id: "quest-01",
+        requiresQuestId: null,
+        scenes: [{ id: "chapter-03-quest-01-scene-01" }],
+      });
+      repoMocks.getCompletedQuestIds.mockResolvedValue([]);
+      repoMocks.createQuestRun.mockResolvedValue({
+        runId: "run-schedule",
+        accountId: "acc-1",
+        chapterId: "chapter-03",
+        questId: "quest-01",
+        currentSceneId: "chapter-03-quest-01-scene-01",
+        status: "in_progress",
+      });
+      mockSnapshotScene("chapter-03-quest-01-scene-01");
+
+      const result = await startOrResumeRun("acc-1", "chapter-03", "quest-01");
+      expect(result.ok).toBe(true);
+      expect(repoMocks.createQuestRun).toHaveBeenCalledTimes(1);
+
+      vi.useRealTimers();
+      vi.stubEnv("NODE_ENV", "development");
+    });
   });
 
   it("does not credit wallet again when task scene was already completed in this run", async () => {

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { BootstrapChapterDto } from "@/lib/api-client";
 import type { ChapterLockReason } from "@/lib/game/unlock-display";
+import { isGameTestingReplayMode } from "@/lib/game/game-testing-replay-mode";
 
 type ChapterGridItem = {
   chapter: BootstrapChapterDto;
@@ -24,7 +25,7 @@ export function ChapterGrid({ items, onOpenChapter, className }: ChapterGridProp
   return (
     <div className={cn("space-y-5", className)}>
       {items.map(({ chapter, locked, lockReason, scheduleLockLabel, mainComplete, fullyComplete }) => {
-        const playable = !locked && !fullyComplete;
+        const playable = isGameTestingReplayMode() || (!locked && !fullyComplete);
         const lockedBadgeLabel =
           lockReason === "schedule" ? (scheduleLockLabel ?? "Presto disponibile") : "Bloccato";
 

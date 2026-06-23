@@ -16,6 +16,15 @@ const catalogMocks = vi.hoisted(() => ({
   findCatalogScene: vi.fn(),
 }));
 
+const testingReplayMock = vi.hoisted(() => ({
+  isGameTestingReplayMode: vi.fn(() => false),
+}));
+
+vi.mock("@/lib/game/game-testing-replay-mode", () => ({
+  GAME_TESTING_REPLAY_MODE: false,
+  isGameTestingReplayMode: testingReplayMock.isGameTestingReplayMode,
+}));
+
 vi.mock("@/lib/game/repositories/game-progress-repository", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/game/repositories/game-progress-repository")>();
   return {
@@ -64,6 +73,7 @@ describe("getRunSnapshot", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubEnv("NODE_ENV", "development");
+    testingReplayMock.isGameTestingReplayMode.mockReturnValue(false);
     repoMocks.ensureWalletRow.mockResolvedValue(true);
     repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 0, totalBackpackPieces: 0 });
     repoMocks.getActiveQuestRun.mockResolvedValue(null);
@@ -121,6 +131,55 @@ describe("getRunSnapshot", () => {
     expect(result.ok).toBe(false);
     if (result.ok) throw new Error("expected error");
     expect(result.code).toBe("chapter_not_released");
+    vi.useRealTimers();
+    vi.stubEnv("NODE_ENV", "development");
+  });
+
+  it("returns snapshot for schedule-locked chapter when testing replay mode is on", async () => {
+    vi.useFakeTimers();
+    vi.stubEnv("NODE_ENV", "production");
+    vi.setSystemTime(new Date("2026-06-20T12:00:00+02:00"));
+    testingReplayMock.isGameTestingReplayMode.mockReturnValue(true);
+    repoMocks.getActiveQuestRun.mockResolvedValue({
+      runId: "run-1",
+      accountId: "acc-1",
+      chapterId: "chapter-03",
+      questId: "quest-01",
+      currentSceneId: "chapter-03-quest-01-scene-01",
+      status: "in_progress" as const,
+    });
+    catalogMocks.loadContentCatalog.mockResolvedValue({
+      chapters: [{ id: "chapter-03", locked: false, questsExpanded: [{ id: "quest-01", kind: "main" }] }],
+    });
+    catalogMocks.findCatalogQuest.mockReturnValue({
+      id: "quest-01",
+      scenes: [
+        {
+          id: "chapter-03-quest-01-scene-01",
+          sceneNumber: 1,
+          filename: "01.json",
+          scene_type: "story",
+          screen_type: "info",
+          background: "bg",
+          content: { text: "Ciao" },
+        },
+      ],
+    });
+    catalogMocks.findCatalogScene.mockReturnValue({
+      id: "chapter-03-quest-01-scene-01",
+      sceneNumber: 1,
+      filename: "01.json",
+      scene_type: "story",
+      screen_type: "info",
+      background: "bg",
+      content: { text: "Ciao" },
+    });
+
+    const result = await getRunSnapshot("acc-1");
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error("expected ok");
+    expect(result.run?.chapterId).toBe("chapter-03");
+
     vi.useRealTimers();
     vi.stubEnv("NODE_ENV", "development");
   });
