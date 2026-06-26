@@ -126,7 +126,7 @@ describe("bootstrapGameState", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) throw new Error("expected ok");
     expect(result.chapters[0]?.scheduleLocked).toBe(true);
-    expect(result.chapters[0]?.unlocksAt).toBe("2026-06-29T06:30:00.000Z");
+    expect(result.chapters[0]?.unlocksAt).toBe("2026-07-06T06:30:00.000Z");
     vi.useRealTimers();
     vi.stubEnv("NODE_ENV", "development");
   });

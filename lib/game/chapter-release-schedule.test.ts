@@ -28,8 +28,8 @@ describe("chapter-release-schedule", () => {
   });
 
   it("locks chapter-01 until wave 1", () => {
-    const before = new Date("2026-06-29T06:29:59+02:00");
-    const at = new Date("2026-06-29T08:30:00+02:00");
+    const before = new Date("2026-07-06T06:29:59+02:00");
+    const at = new Date("2026-07-06T08:30:00+02:00");
     expect(isChapterReleasedBySchedule("chapter-01", before)).toBe(false);
     expect(isChapterReleasedBySchedule("chapter-01", at)).toBe(true);
     expect(isChapterScheduleLocked("chapter-01", before)).toBe(true);
@@ -37,23 +37,23 @@ describe("chapter-release-schedule", () => {
   });
 
   it("releases chapter-03 and chapter-04 on wave 2", () => {
-    const before = new Date("2026-06-30T09:29:59+02:00");
-    const at = new Date("2026-06-30T09:30:00+02:00");
+    const before = new Date("2026-07-07T09:29:59+02:00");
+    const at = new Date("2026-07-07T09:30:00+02:00");
     expect(isChapterReleasedBySchedule("chapter-03", before)).toBe(false);
     expect(isChapterReleasedBySchedule("chapter-04", at)).toBe(true);
   });
 
   it("releases chapter-05 and chapter-06 on wave 3", () => {
-    const before = new Date("2026-07-02T09:29:59+02:00");
-    const at = new Date("2026-07-02T09:30:00+02:00");
+    const before = new Date("2026-07-09T09:29:59+02:00");
+    const at = new Date("2026-07-09T09:30:00+02:00");
     expect(isChapterReleasedBySchedule("chapter-05", before)).toBe(false);
     expect(isChapterReleasedBySchedule("chapter-06", at)).toBe(true);
   });
 
   it("returns unlocksAt ISO only while schedule-locked", () => {
-    const before = new Date("2026-06-29T06:00:00+02:00");
-    const after = new Date("2026-06-29T09:00:00+02:00");
-    expect(getChapterUnlocksAtIso("chapter-02", before)).toBe("2026-06-29T06:30:00.000Z");
+    const before = new Date("2026-07-06T06:00:00+02:00");
+    const after = new Date("2026-07-06T09:00:00+02:00");
+    expect(getChapterUnlocksAtIso("chapter-02", before)).toBe("2026-07-06T06:30:00.000Z");
     expect(getChapterUnlocksAtIso("chapter-02", after)).toBeNull();
   });
 
@@ -61,19 +61,19 @@ describe("chapter-release-schedule", () => {
     const releaseAt = getChapterReleaseAt("chapter-01");
     expect(releaseAt).not.toBeNull();
     if (!releaseAt) return;
-    expect(formatChapterReleaseLabel(releaseAt)).toMatch(/29 giugno, ore 08:30/);
+    expect(formatChapterReleaseLabel(releaseAt)).toMatch(/6 luglio, ore 08:30/);
   });
 
   it("builds chapter_not_released copy with release date", () => {
-    const before = new Date("2026-06-29T06:00:00+02:00");
+    const before = new Date("2026-07-06T06:00:00+02:00");
     expect(chapterNotReleasedMessage("chapter-01", before)).toMatch(
-      /Questo capitolo si apre il 29 giugno, ore 08:30/,
+      /Questo capitolo si apre il 6 luglio, ore 08:30/,
     );
   });
 
   it("builds chapter_not_released copy from bootstrap unlocksAt ISO", () => {
-    expect(chapterNotReleasedMessageFromUnlocksAt("2026-06-29T06:30:00.000Z")).toMatch(
-      /Questo capitolo si apre il 29 giugno, ore 08:30/,
+    expect(chapterNotReleasedMessageFromUnlocksAt("2026-07-06T06:30:00.000Z")).toMatch(
+      /Questo capitolo si apre il 6 luglio, ore 08:30/,
     );
   });
 
@@ -82,12 +82,12 @@ describe("chapter-release-schedule", () => {
     expect(
       msUntilScheduledBootstrapRefresh(
         [
-          { unlocksAt: "2026-06-29T06:30:00.000Z" },
-          { unlocksAt: "2026-06-30T07:30:00.000Z" },
+          { unlocksAt: "2026-07-06T06:30:00.000Z" },
+          { unlocksAt: "2026-07-07T07:30:00.000Z" },
         ],
         nowMs,
       ),
-    ).toBe(Date.parse("2026-06-29T06:30:00.000Z") - nowMs + 1_000);
+    ).toBe(Date.parse("2026-07-06T06:30:00.000Z") - nowMs + 1_000);
     expect(msUntilScheduledBootstrapRefresh([{ unlocksAt: null }], nowMs)).toBeNull();
   });
 

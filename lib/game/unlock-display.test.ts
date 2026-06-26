@@ -116,19 +116,19 @@ describe("unlock-display", () => {
     const scheduledChapter01 = {
       ...chapter01,
       scheduleLocked: true,
-      unlocksAt: "2026-06-29T06:30:00.000Z",
+      unlocksAt: "2026-07-06T06:30:00.000Z",
     };
     const tutorialDone = new Set<string>(["chapter-00:quest-01"]);
     expect(getChapterLockReason(scheduledChapter01, progressionOrder, tutorialDone)).toBe("schedule");
     expect(isChapterLocked(scheduledChapter01, progressionOrder, tutorialDone)).toBe(true);
-    expect(getChapterScheduleLockLabel(scheduledChapter01)).toMatch(/29 giugno, ore 08:30/);
+    expect(getChapterScheduleLockLabel(scheduledChapter01)).toMatch(/6 luglio, ore 08:30/);
   });
 
   it("prefers schedule lock over progression when bootstrap reports scheduleLocked", () => {
     const scheduledChapter01 = {
       ...chapter01,
       scheduleLocked: true,
-      unlocksAt: "2026-06-29T06:30:00.000Z",
+      unlocksAt: "2026-07-06T06:30:00.000Z",
     };
     expect(getChapterLockReason(scheduledChapter01, progressionOrder, new Set())).toBe("schedule");
   });

@@ -7,9 +7,9 @@ export type ChapterReleaseWave = {
 export const CHAPTER_RELEASE_TIMEZONE = "Europe/Berlin";
 
 export const PILOT_CHAPTER_RELEASE_WAVES: readonly ChapterReleaseWave[] = [
-  { releasesAt: "2026-06-29T08:30:00+02:00", chapterIds: ["chapter-01", "chapter-02"] },
-  { releasesAt: "2026-06-30T09:30:00+02:00", chapterIds: ["chapter-03", "chapter-04"] },
-  { releasesAt: "2026-07-02T09:30:00+02:00", chapterIds: ["chapter-05", "chapter-06"] },
+  { releasesAt: "2026-07-06T08:30:00+02:00", chapterIds: ["chapter-01", "chapter-02"] },
+  { releasesAt: "2026-07-07T09:30:00+02:00", chapterIds: ["chapter-03", "chapter-04"] },
+  { releasesAt: "2026-07-09T09:30:00+02:00", chapterIds: ["chapter-05", "chapter-06"] },
 ];
 
 const releaseAtByChapterId = buildReleaseAtIndex(PILOT_CHAPTER_RELEASE_WAVES);

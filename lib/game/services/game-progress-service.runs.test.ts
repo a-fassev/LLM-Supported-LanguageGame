@@ -1155,12 +1155,12 @@ describe("game-progress-service chapter release schedule", () => {
     expect(result.ok).toBe(false);
     if (result.ok) throw new Error("expected error");
     expect(result.code).toBe("chapter_not_released");
-    expect(result.error).toMatch(/29 giugno, ore 08:30/);
+    expect(result.error).toMatch(/6 luglio, ore 08:30/);
   });
 
   it("allows quest start after schedule release when progression is satisfied", async () => {
     vi.useFakeTimers();
-    vi.setSystemTime(new Date("2026-06-29T10:00:00+02:00"));
+    vi.setSystemTime(new Date("2026-07-06T10:00:00+02:00"));
     repoMocks.createQuestRun.mockResolvedValue({
       runId: "run-1",
       accountId: "acc-1",
