@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { HubPage } from "@/components/game/layout/HubPage";
 import { LeaderboardView } from "@/components/game/screens/LeaderboardView";
+import { LeaderboardUnavailablePanel } from "@/components/game/screens/LeaderboardUnavailablePanel";
 import { getLeaderboard, type LeaderboardDto } from "@/lib/api-client";
 import { hubBackgroundKeys } from "@/lib/game/content/hub-background-keys";
 import { useGameSession } from "@/lib/game/session-context";
@@ -62,12 +63,16 @@ export default function LeaderboardPage() {
         ) : null}
         {error ? <p className="text-base text-destructive">{error}</p> : null}
         {data ? (
-          <LeaderboardView
-            className="min-h-0 flex-1"
-            data={data}
-            onRefresh={() => void load()}
-            refreshing={pending}
-          />
+          data.eligible ? (
+            <LeaderboardView
+              className="min-h-0 flex-1"
+              data={data}
+              onRefresh={() => void load()}
+              refreshing={pending}
+            />
+          ) : (
+            <LeaderboardUnavailablePanel message={data.message} className="min-h-0 flex-1" />
+          )
         ) : null}
       </div>
     </HubPage>

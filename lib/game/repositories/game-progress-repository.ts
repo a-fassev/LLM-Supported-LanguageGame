@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { PILOT_LEADERBOARD_USERNAMES } from "@/lib/game/leaderboard-pilot-whitelist";
 import { compareLeaderboardPlayers } from "@/lib/game/leaderboard-player-sort";
 import { toQuestProgressId } from "@/lib/game/quest-progress-id";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
@@ -601,7 +602,8 @@ export async function listLeaderboardPlayerRows(
   const { data, error } = await admin()
     .from("student_accounts")
     .select("id, username, team, player_wallets(total_slices, total_backpack_pieces)")
-    .in("team", ["blue", "red"]);
+    .in("team", ["blue", "red"])
+    .in("username", [...PILOT_LEADERBOARD_USERNAMES]);
 
   if (error) {
     console.error("[game-repo] listLeaderboardPlayerRows", error);

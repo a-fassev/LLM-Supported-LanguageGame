@@ -2,11 +2,11 @@
 
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { LeaderboardDto, LeaderboardTeamDto, TeamColor } from "@/lib/api-client";
+import type { LeaderboardEligibleDto, LeaderboardTeamDto, TeamColor } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 
 type LeaderboardViewProps = {
-  data: LeaderboardDto;
+  data: LeaderboardEligibleDto;
   onRefresh?: () => void;
   refreshing?: boolean;
   className?: string;

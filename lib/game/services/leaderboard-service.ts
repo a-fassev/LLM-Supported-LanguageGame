@@ -3,6 +3,7 @@ import {
   deriveBackpackProgress,
 } from "@/lib/game/backpack-progress";
 import { loadContentCatalog } from "@/lib/game/content/catalog-loader";
+import { isLeaderboardEligibleUsername } from "@/lib/game/leaderboard-pilot-whitelist";
 import { compareLeaderboardPlayers } from "@/lib/game/leaderboard-player-sort";
 import { gameClientMessages as msg } from "@/lib/game/clientMessages";
 import {
@@ -50,10 +51,12 @@ export type LeaderboardSelfClientDto = {
 export type LeaderboardResult =
   | {
       ok: true;
+      eligible: true;
       self: LeaderboardSelfClientDto;
       overall: LeaderboardPlayerClientDto[];
       teams: LeaderboardTeamClientDto[];
     }
+  | { ok: true; eligible: false; message: string }
   | { ok: false; status: number; error: string; code?: string };
 
 function backpackPercentForPieces(totalBackpackPieces: number, totalTasks: number): number {
@@ -110,8 +113,17 @@ function mapTeamRows(
 }
 
 export async function getLeaderboardState(accountId: string): Promise<LeaderboardResult> {
-  const [selfContext, playerRows, catalog] = await Promise.all([
-    getStudentAccountLeaderboardSelfContext(accountId),
+  const selfContext = await getStudentAccountLeaderboardSelfContext(accountId);
+
+  if (!selfContext) {
+    return { ok: false, status: 500, error: msg.couldNotLoadProfile, code: "profile_load_failed" };
+  }
+
+  if (!isLeaderboardEligibleUsername(selfContext.username)) {
+    return { ok: true, eligible: false, message: msg.leaderboardNotAvailable };
+  }
+
+  const [playerRows, catalog] = await Promise.all([
     listLeaderboardPlayerRows(),
     loadContentCatalog().catch((error) => {
       console.error("[leaderboard-service] catalog load", error);
@@ -124,10 +136,6 @@ export async function getLeaderboardState(accountId: string): Promise<Leaderboar
   }
 
   const backpackTotalTasks = countBackpackProgressTasks(catalog);
-
-  if (!selfContext) {
-    return { ok: false, status: 500, error: msg.couldNotLoadProfile, code: "profile_load_failed" };
-  }
 
   if (!playerRows) {
     return { ok: false, status: 500, error: msg.couldNotLoadLeaderboard, code: "leaderboard_load_failed" };
@@ -146,6 +154,7 @@ export async function getLeaderboardState(accountId: string): Promise<Leaderboar
 
   return {
     ok: true,
+    eligible: true,
     self: {
       username: selfContext.username,
       team: selfContext.team,

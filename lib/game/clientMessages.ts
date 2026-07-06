@@ -3,6 +3,7 @@ export const gameClientMessages = {
   couldNotLoadWallet: "Impossibile caricare il portafoglio.",
   couldNotLoadCatalog: "Impossibile caricare il catalogo di gioco.",
   couldNotLoadLeaderboard: "Impossibile caricare la classifica.",
+  leaderboardNotAvailable: "Classifica non disponibile.",
   couldNotLoadProfile: "Impossibile caricare il profilo.",
   couldNotLoadRun: "Impossibile caricare la partita.",
   couldNotStartRun: "Impossibile avviare la partita.",

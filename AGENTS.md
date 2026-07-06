@@ -280,7 +280,7 @@ Team assignment ownership: `student_accounts.team` is assigned in Postgres (`ass
 | Method | Path                  | Purpose                                      |
 | ------ | --------------------- | -------------------------------------------- |
 | GET    | `/api/game/bootstrap` | Wallet, `chapters`, `completedQuestIds` (`chapterId:questId` each) |
-| GET    | `/api/game/leaderboard` | Overall / team rankings by pizza slices |
+| GET    | `/api/game/leaderboard` | Overall + team rankings (pilot whitelist: `lib/game/leaderboard-pilot-whitelist.ts`; ineligible → `eligible: false`) |
 | POST   | `/api/game/runs/start` | Start/resume quest run (`chapterId`, `questId`) |
 | GET    | `/api/game/runs/snapshot` | Active `in_progress` run + current scene + `canRetreat` (null run if none active) |
 | POST   | `/api/game/runs/[runId]/advance` | Story scene → next |

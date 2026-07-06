@@ -1,5 +1,6 @@
 import { hashToken } from "@/lib/session-token";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isLeaderboardEligibleUsername } from "@/lib/game/leaderboard-pilot-whitelist";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { getClientIp, jsonError, jsonOk } from "@/lib/http";
@@ -64,6 +65,7 @@ export async function GET(request: Request) {
   return jsonOk({
     username: account.username,
     expiresAt: session.expires_at,
+    leaderboardEligible: isLeaderboardEligibleUsername(account.username),
     ...(team ? { team } : {}),
   });
 }

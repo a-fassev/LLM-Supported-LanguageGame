@@ -28,10 +28,13 @@ vi.mock("@/lib/game/repositories/game-progress-repository", async (importOrigina
   };
 });
 
+import { gameClientMessages as msg } from "@/lib/game/clientMessages";
 import { getLeaderboardState } from "./leaderboard-service";
 
 const accountId = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
 const otherId = "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb";
+const eligibleUsername = "lively-fox-2088";
+const ineligibleUsername = "quick-eagle-1813";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -39,21 +42,43 @@ beforeEach(() => {
 });
 
 describe("getLeaderboardState", () => {
-  it("maps overall ranks and self flag by account id with parallel fetches", async () => {
+  it("returns unavailable for non-whitelisted viewers without loading player rows", async () => {
     mocks.getStudentAccountLeaderboardSelfContext.mockResolvedValue({
-      username: "me",
+      username: ineligibleUsername,
+      team: "red",
+      totalSlices: 35,
+      totalBackpackPieces: 6,
+    });
+
+    const result = await getLeaderboardState(accountId);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.eligible).toBe(false);
+    if (result.eligible) return;
+
+    expect(result.message).toBe(msg.leaderboardNotAvailable);
+    expect(mocks.listLeaderboardPlayerRows).not.toHaveBeenCalled();
+    expect(mocks.loadContentCatalog).not.toHaveBeenCalled();
+  });
+
+  it("maps overall ranks and self flag by account id for whitelisted viewers", async () => {
+    mocks.getStudentAccountLeaderboardSelfContext.mockResolvedValue({
+      username: eligibleUsername,
       team: "blue",
       totalSlices: 5,
       totalBackpackPieces: 1,
     });
     mocks.listLeaderboardPlayerRows.mockResolvedValue([
       { accountId: otherId, username: "top", team: "red", totalSlices: 10, totalBackpackPieces: 3 },
-      { accountId, username: "me", team: "blue", totalSlices: 5, totalBackpackPieces: 1 },
+      { accountId, username: eligibleUsername, team: "blue", totalSlices: 5, totalBackpackPieces: 1 },
     ]);
 
     const result = await getLeaderboardState(accountId);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
+    expect(result.eligible).toBe(true);
+    if (!result.eligible) return;
 
     expect(mocks.listLeaderboardPlayerRows).toHaveBeenCalledTimes(1);
     expect(mocks.getStudentAccountLeaderboardSelfContext).toHaveBeenCalledTimes(1);
@@ -66,7 +91,7 @@ describe("getLeaderboardState", () => {
     });
     expect(result.overall[1]).toMatchObject({
       rank: 2,
-      username: "me",
+      username: eligibleUsername,
       isSelf: true,
       totalBackpackPieces: 1,
       backpackProgressPercent: 10,
@@ -82,7 +107,7 @@ describe("getLeaderboardState", () => {
       rank: 2,
       team: "blue",
       memberCount: 1,
-      members: [{ username: "me", isSelf: true }],
+      members: [{ username: eligibleUsername, isSelf: true }],
     });
     expect(result.self).toMatchObject({
       overallRank: 2,
@@ -94,7 +119,7 @@ describe("getLeaderboardState", () => {
 
   it("ranks self below the list when account is not in the capped player rows", async () => {
     mocks.getStudentAccountLeaderboardSelfContext.mockResolvedValue({
-      username: "late",
+      username: eligibleUsername,
       team: "red",
       totalSlices: 0,
       totalBackpackPieces: 0,
@@ -106,6 +131,8 @@ describe("getLeaderboardState", () => {
     const result = await getLeaderboardState(accountId);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
+    expect(result.eligible).toBe(true);
+    if (!result.eligible) return;
 
     expect(result.self.overallRank).toBe(2);
     expect(result.self.totalSlices).toBe(0);

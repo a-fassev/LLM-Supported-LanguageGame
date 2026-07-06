@@ -20,7 +20,12 @@ export async function GET(request: Request) {
     return jsonError(result.status, result.error, result.code);
   }
 
+  if (!result.eligible) {
+    return jsonOk({ eligible: false, message: result.message });
+  }
+
   return jsonOk({
+    eligible: true,
     self: result.self,
     overall: result.overall,
     teams: result.teams,

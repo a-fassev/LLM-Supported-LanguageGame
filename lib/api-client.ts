@@ -19,6 +19,7 @@ export type SessionAccountDto = {
   username: string;
   expiresAt: string;
   team?: TeamColor;
+  leaderboardEligible: boolean;
 };
 
 export type LoginDto = {
@@ -118,11 +119,19 @@ export type LeaderboardTeamDto = {
   members: LeaderboardTeamMemberDto[];
 };
 
-export type LeaderboardDto = {
+export type LeaderboardEligibleDto = {
+  eligible: true;
   self: LeaderboardSelfDto;
   overall: LeaderboardPlayerDto[];
   teams: LeaderboardTeamDto[];
 };
+
+export type LeaderboardUnavailableDto = {
+  eligible: false;
+  message: string;
+};
+
+export type LeaderboardDto = LeaderboardEligibleDto | LeaderboardUnavailableDto;
 
 export type RunSceneDto = {
   id: string;
