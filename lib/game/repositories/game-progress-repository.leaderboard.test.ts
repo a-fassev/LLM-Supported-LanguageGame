@@ -36,14 +36,14 @@ describe("listLeaderboardPlayerRows", () => {
     expect(mocks.usernameIn).toHaveBeenCalledWith("username", [...PILOT_LEADERBOARD_USERNAMES]);
   });
 
-  it("maps wallet totals for whitelisted rows", async () => {
+  it("maps lifetime pizza earned for whitelisted rows", async () => {
     mocks.usernameIn.mockResolvedValue({
       data: [
         {
           id: "account-1",
           username: "lively-fox-2088",
           team: "red",
-          player_wallets: { total_slices: 40, total_backpack_pieces: 7 },
+          player_wallets: { lifetime_slices_earned: 120, total_backpack_pieces: 7 },
         },
       ],
       error: null,
@@ -55,7 +55,7 @@ describe("listLeaderboardPlayerRows", () => {
         accountId: "account-1",
         username: "lively-fox-2088",
         team: "red",
-        totalSlices: 40,
+        totalSlices: 120,
         totalBackpackPieces: 7,
       },
     ]);

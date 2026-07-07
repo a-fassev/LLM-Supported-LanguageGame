@@ -23,6 +23,7 @@ export async function ensureWalletRow(accountId: string): Promise<boolean> {
       account_id: accountId,
       total_slices: 0,
       total_backpack_pieces: 0,
+      lifetime_slices_earned: 0,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "account_id", ignoreDuplicates: true },
@@ -391,15 +392,41 @@ export async function incrementWalletTotals(
   slicesDelta: number,
   backpackDelta: number,
 ): Promise<boolean> {
-  const wallet = await getWalletTotals(accountId);
-  if (!wallet) return false;
-  const nextSlices = Math.max(0, wallet.totalSlices + Math.trunc(slicesDelta));
-  const nextBackpack = Math.max(0, wallet.totalBackpackPieces + Math.trunc(backpackDelta));
+  const walletReady = await ensureWalletRow(accountId);
+  if (!walletReady) return false;
+
+  const { data, error: readError } = await admin()
+    .from("player_wallets")
+    .select("total_slices, total_backpack_pieces, lifetime_slices_earned")
+    .eq("account_id", accountId)
+    .maybeSingle();
+
+  if (readError) {
+    console.error("[game-repo] incrementWalletTotals:read", readError);
+    return false;
+  }
+  if (!data) return false;
+
+  const sliceDelta = Math.trunc(slicesDelta);
+  const backpackDeltaTrunc = Math.trunc(backpackDelta);
+  const totalSlices = coerceNumber((data as { total_slices?: unknown }).total_slices, 0);
+  const totalBackpackPieces = coerceNumber(
+    (data as { total_backpack_pieces?: unknown }).total_backpack_pieces,
+    0,
+  );
+  const lifetimeSlicesEarned = coerceNumber(
+    (data as { lifetime_slices_earned?: unknown }).lifetime_slices_earned,
+    0,
+  );
+  const nextSlices = Math.max(0, totalSlices + sliceDelta);
+  const nextBackpack = Math.max(0, totalBackpackPieces + backpackDeltaTrunc);
+  const nextLifetime = lifetimeSlicesEarned + Math.max(0, sliceDelta);
   const { error } = await admin()
     .from("player_wallets")
     .update({
       total_slices: nextSlices,
       total_backpack_pieces: nextBackpack,
+      lifetime_slices_earned: nextLifetime,
       updated_at: new Date().toISOString(),
     })
     .eq("account_id", accountId);
@@ -507,12 +534,14 @@ export type LeaderboardPlayerRow = {
   accountId: string;
   username: string;
   team: StudentTeamColor;
+  /** Lifetime pizza earned in quests (`lifetime_slices_earned`), not spendable balance. */
   totalSlices: number;
   totalBackpackPieces: number;
 };
 
 export type LeaderboardTeamAggregateRow = {
   team: StudentTeamColor;
+  /** Sum of members' lifetime pizza earned for team ranking. */
   totalSlices: number;
   totalBackpackPieces: number;
   memberCount: number;
@@ -524,17 +553,18 @@ export const LEADERBOARD_MAX_PLAYERS = 100;
 export type LeaderboardAccountSelfContext = {
   username: string;
   team: StudentTeamColor;
+  /** Lifetime pizza earned in quests (`lifetime_slices_earned`), not spendable balance. */
   totalSlices: number;
   totalBackpackPieces: number;
 };
 
-/** Account profile + wallet slices in one query for leaderboard self context. */
+/** Account profile + lifetime pizza earned in one query for leaderboard self context. */
 export async function getStudentAccountLeaderboardSelfContext(
   accountId: string,
 ): Promise<LeaderboardAccountSelfContext | null> {
   const { data: account, error: accountError } = await admin()
     .from("student_accounts")
-    .select("username, team, player_wallets(total_slices, total_backpack_pieces)")
+    .select("username, team, player_wallets(lifetime_slices_earned, total_backpack_pieces)")
     .eq("id", accountId)
     .maybeSingle();
 
@@ -549,17 +579,17 @@ export async function getStudentAccountLeaderboardSelfContext(
 
   const walletRaw = (account as {
     player_wallets?:
-      | { total_slices?: number; total_backpack_pieces?: number }
-      | { total_slices?: number; total_backpack_pieces?: number }[]
+      | { lifetime_slices_earned?: number; total_backpack_pieces?: number }
+      | { lifetime_slices_earned?: number; total_backpack_pieces?: number }[]
       | null;
   }).player_wallets;
   let totalSlices = 0;
   let totalBackpackPieces = 0;
   if (Array.isArray(walletRaw)) {
-    totalSlices = coerceNumber(walletRaw[0]?.total_slices, 0);
+    totalSlices = coerceNumber(walletRaw[0]?.lifetime_slices_earned, 0);
     totalBackpackPieces = coerceNumber(walletRaw[0]?.total_backpack_pieces, 0);
   } else if (walletRaw && typeof walletRaw === "object") {
-    totalSlices = coerceNumber(walletRaw.total_slices, 0);
+    totalSlices = coerceNumber(walletRaw.lifetime_slices_earned, 0);
     totalBackpackPieces = coerceNumber(walletRaw.total_backpack_pieces, 0);
   }
 
@@ -601,7 +631,7 @@ export async function listLeaderboardPlayerRows(
 ): Promise<LeaderboardPlayerRow[] | null> {
   const { data, error } = await admin()
     .from("student_accounts")
-    .select("id, username, team, player_wallets(total_slices, total_backpack_pieces)")
+    .select("id, username, team, player_wallets(lifetime_slices_earned, total_backpack_pieces)")
     .in("team", ["blue", "red"])
     .in("username", [...PILOT_LEADERBOARD_USERNAMES]);
 
@@ -617,8 +647,8 @@ export async function listLeaderboardPlayerRows(
       username?: string;
       team?: string;
       player_wallets?:
-        | { total_slices?: number; total_backpack_pieces?: number }
-        | { total_slices?: number; total_backpack_pieces?: number }[]
+        | { lifetime_slices_earned?: number; total_backpack_pieces?: number }
+        | { lifetime_slices_earned?: number; total_backpack_pieces?: number }[]
         | null;
     };
     if (!row.id || !row.username || (row.team !== "blue" && row.team !== "red")) continue;
@@ -627,10 +657,10 @@ export async function listLeaderboardPlayerRows(
     let backpackPieces = 0;
     const walletRaw = row.player_wallets;
     if (Array.isArray(walletRaw)) {
-      slices = coerceNumber(walletRaw[0]?.total_slices, 0);
+      slices = coerceNumber(walletRaw[0]?.lifetime_slices_earned, 0);
       backpackPieces = coerceNumber(walletRaw[0]?.total_backpack_pieces, 0);
     } else if (walletRaw && typeof walletRaw === "object") {
-      slices = coerceNumber(walletRaw.total_slices, 0);
+      slices = coerceNumber(walletRaw.lifetime_slices_earned, 0);
       backpackPieces = coerceNumber(walletRaw.total_backpack_pieces, 0);
     }
 

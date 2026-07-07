@@ -19,6 +19,7 @@ export type LeaderboardPlayerClientDto = {
   rank: number;
   username: string;
   team: StudentTeamColor;
+  /** Lifetime pizza earned in quests; shop spending does not reduce this value. */
   totalSlices: number;
   totalBackpackPieces: number;
   backpackProgressPercent: number;
@@ -33,6 +34,7 @@ export type LeaderboardTeamMemberClientDto = {
 export type LeaderboardTeamClientDto = {
   rank: number;
   team: StudentTeamColor;
+  /** Sum of team members' lifetime pizza earned. */
   totalSlices: number;
   totalBackpackPieces: number;
   memberCount: number;
@@ -42,6 +44,7 @@ export type LeaderboardTeamClientDto = {
 export type LeaderboardSelfClientDto = {
   username: string;
   team: StudentTeamColor;
+  /** Lifetime pizza earned in quests; shop spending does not reduce this value. */
   totalSlices: number;
   totalBackpackPieces: number;
   backpackProgressPercent: number;
@@ -63,7 +66,7 @@ function backpackPercentForPieces(totalBackpackPieces: number, totalTasks: numbe
   return deriveBackpackProgress(totalBackpackPieces, totalTasks).backpackProgressPercent;
 }
 
-/** Overall rank uses pizza (`totalSlices`); backpack percent is display-only on player rows. */
+/** Overall rank uses lifetime pizza earned (`lifetime_slices_earned`); backpack percent is display-only on player rows. */
 function mapOverallRows(
   rows: LeaderboardPlayerRow[],
   accountId: string,

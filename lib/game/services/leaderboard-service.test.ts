@@ -117,6 +117,38 @@ describe("getLeaderboardState", () => {
     });
   });
 
+  it("ranks by lifetime earned pizza even when spendable balance is lower after shop purchases", async () => {
+    mocks.getStudentAccountLeaderboardSelfContext.mockResolvedValue({
+      username: eligibleUsername,
+      team: "blue",
+      totalSlices: 120,
+      totalBackpackPieces: 1,
+    });
+    mocks.listLeaderboardPlayerRows.mockResolvedValue([
+      { accountId, username: eligibleUsername, team: "blue", totalSlices: 120, totalBackpackPieces: 1 },
+      { accountId: otherId, username: "shopper", team: "red", totalSlices: 80, totalBackpackPieces: 0 },
+    ]);
+
+    const result = await getLeaderboardState(accountId);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.eligible).toBe(true);
+    if (!result.eligible) return;
+
+    expect(result.overall[0]).toMatchObject({
+      rank: 1,
+      username: eligibleUsername,
+      totalSlices: 120,
+      isSelf: true,
+    });
+    expect(result.overall[1]).toMatchObject({
+      rank: 2,
+      username: "shopper",
+      totalSlices: 80,
+    });
+    expect(result.self.totalSlices).toBe(120);
+  });
+
   it("ranks self below the list when account is not in the capped player rows", async () => {
     mocks.getStudentAccountLeaderboardSelfContext.mockResolvedValue({
       username: eligibleUsername,
