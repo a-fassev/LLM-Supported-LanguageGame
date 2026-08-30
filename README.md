@@ -47,7 +47,9 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Register a learner account, pick a team, and start from the main menu.
 
-### Environment variables
+### Environment
+
+- personal-ai-mcp client id: `f7080e7a-098d-4d62-a1ee-6b174a79dc6a` variables
 
 See [`.env.example`](.env.example). Minimum for local play:
 
