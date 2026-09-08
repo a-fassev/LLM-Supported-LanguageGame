@@ -101,7 +101,7 @@ export default function ChapterDetailPage() {
         {data && !chapter ? (
           <p className="text-sm text-muted-foreground">Capitolo non trovato.</p>
         ) : null}
-        {chapter ? (
+        {chapter && data ? (
           <>
             {chapterFullyComplete && data.demoMode !== true ? (
               <p className="text-sm text-muted-foreground">
