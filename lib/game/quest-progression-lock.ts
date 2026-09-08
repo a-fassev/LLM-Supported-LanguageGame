@@ -5,6 +5,7 @@ import {
 import { getPreviousProgressionChapter } from "@/lib/game/chapter-progression";
 import { toQuestProgressId } from "@/lib/game/quest-progress-id";
 import { isChapterScheduleLocked } from "@/lib/game/chapter-release-schedule";
+import { isGameDemoMode } from "@/lib/game/demo-mode";
 
 export function isChapterManuallyLocked(catalog: ContentCatalog, chapterId: string): boolean {
   const chapter = catalog.chapters?.find((item) => item.id === chapterId);
@@ -18,6 +19,7 @@ export function getChapterAccessBlockReason(
   chapterId: string,
   now: Date = new Date(),
 ): ChapterAccessBlockReason {
+  if (isGameDemoMode()) return null;
   if (isChapterManuallyLocked(catalog, chapterId)) return "manual";
   if (isChapterScheduleLocked(chapterId, now)) return "schedule";
   return null;
@@ -37,6 +39,7 @@ export function isQuestProgressionLockedForAccount(
   questId: string,
   completedQuestIds: Set<string>,
 ): boolean {
+  if (isGameDemoMode()) return false;
   const chapters = catalog.chapters ?? [];
   const chapterIndex = chapters.findIndex((chapter) => chapter.id === chapterId);
   if (chapterIndex < 0) return true;

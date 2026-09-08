@@ -69,6 +69,8 @@ export type WalletSnapshotDto = {
 export type BootstrapDto = WalletSnapshotDto & {
   completedQuestIds: string[];
   chapters: BootstrapChapterDto[];
+  /** Server `GAME_DEMO_MODE` — hub replay and free chapter/quest start. */
+  demoMode: boolean;
 };
 
 export type RoomItemDto = {
@@ -143,6 +145,11 @@ export type RunSceneDto = {
   scoring?: Record<string, unknown>;
 };
 
+export type SceneJumpTargetDto = {
+  id: string;
+  label: string;
+};
+
 export type RunDto = {
   runId: string;
   chapterId: string;
@@ -156,6 +163,8 @@ export type RunDto = {
   currentScene: RunSceneDto;
   /** Next scene background key from catalog, when present (client preload). */
   nextSceneBackground: string | null;
+  /** Present when `GAME_DEMO_MODE` is on — pause overlay scene picker. */
+  sceneJumpTargets?: SceneJumpTargetDto[];
 };
 
 export type TaskOutcomeDto = {
@@ -324,6 +333,18 @@ export function advanceRun(token: string, runId: string, input: { sceneId: strin
 
 export function retreatRun(token: string, runId: string, input: { sceneId: string }) {
   return requestJson<RunSnapshotDto>(`/api/game/runs/${runId}/retreat`, {
+    method: "POST",
+    token,
+    body: input,
+  });
+}
+
+export function jumpRun(
+  token: string,
+  runId: string,
+  input: { sceneId: string; targetSceneId: string },
+) {
+  return requestJson<RunSnapshotDto>(`/api/game/runs/${runId}/jump`, {
     method: "POST",
     token,
     body: input,

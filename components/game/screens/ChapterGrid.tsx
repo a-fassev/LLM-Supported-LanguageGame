@@ -18,13 +18,14 @@ type ChapterGridProps = {
   items: ChapterGridItem[];
   onOpenChapter: (chapterId: string) => void;
   className?: string;
+  allowReplay?: boolean;
 };
 
-export function ChapterGrid({ items, onOpenChapter, className }: ChapterGridProps) {
+export function ChapterGrid({ items, onOpenChapter, className, allowReplay = false }: ChapterGridProps) {
   return (
     <div className={cn("space-y-5", className)}>
       {items.map(({ chapter, locked, lockReason, scheduleLockLabel, mainComplete, fullyComplete }) => {
-        const playable = !locked && !fullyComplete;
+        const playable = !locked && (!fullyComplete || allowReplay);
         const lockedBadgeLabel =
           lockReason === "schedule" ? (scheduleLockLabel ?? "Presto disponibile") : "Bloccato";
 

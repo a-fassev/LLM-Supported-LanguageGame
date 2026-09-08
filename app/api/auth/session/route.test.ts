@@ -50,6 +50,7 @@ function sessionRequest() {
 describe("GET /api/auth/session", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.stubEnv("GAME_DEMO_MODE", "false");
     mocks.checkRateLimit.mockReturnValue(true);
     mocks.hashToken.mockReturnValue("hashed-token");
     mocks.sessionMaybeSingle.mockResolvedValue({

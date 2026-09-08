@@ -14,13 +14,14 @@ type QuestListItem = {
 type QuestListProps = {
   items: QuestListItem[];
   onStartQuest: (questId: string) => void;
+  allowReplay?: boolean;
 };
 
-export function QuestList({ items, onStartQuest }: QuestListProps) {
+export function QuestList({ items, onStartQuest, allowReplay = false }: QuestListProps) {
   return (
     <div className="space-y-5">
       {items.map(({ quest, locked, completed, lockedBadgeLabel = "Bloccata" }) => {
-        const playable = !locked && !completed;
+        const playable = !locked && (!completed || allowReplay);
 
         return (
           <button

@@ -64,6 +64,7 @@ describe("getRunSnapshot", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("GAME_DEMO_MODE", "false");
     repoMocks.ensureWalletRow.mockResolvedValue(true);
     repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 0, totalBackpackPieces: 0 });
     repoMocks.getActiveQuestRun.mockResolvedValue(null);

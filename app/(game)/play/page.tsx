@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import {
   advanceRun,
   attemptRun,
-  retreatRun,
   getRunSnapshot,
+  jumpRun,
+  retreatRun,
   startRun,
   type AttemptRunDto,
   type RunDto,
@@ -716,6 +717,59 @@ export default function PlayPage() {
     setSceneNavPending(false);
   }
 
+  async function onJumpScene(targetSceneId: string) {
+    if (!token || !state.run || !currentScene) return;
+    if (sceneNavPending) return;
+    if (!state.run.sceneJumpTargets?.length) return;
+    setSceneNavPending(true);
+    setError(null);
+    const result = await jumpRun(token, state.run.runId, {
+      sceneId: currentScene.id,
+      targetSceneId,
+    });
+    if (!mountedRef.current) return;
+    if (!result.ok) {
+      if (result.status === 401) {
+        clearSession();
+        router.replace("/login");
+        return;
+      }
+      toastBlockingApiError(result);
+      setError(result.error);
+      setSceneNavPending(false);
+      return;
+    }
+    const nextScene = result.data.run?.currentScene ?? null;
+    setState((current) => mergeRunState(current, result.data));
+    syncTaskDraftsForScene(
+      nextScene,
+      {
+        setMcSelections,
+        setMcQuestionIndex,
+        setMcValidationError,
+        setMatchingPairs,
+        setMatchingValidationError,
+        setDragDropAssignments,
+        setDragDropValidationError,
+        setFreetextAnswer,
+        setFreetextValidationError,
+        setErrorSpottingDraft,
+        setErrorSpottingValidationError,
+        setClozeAnswers,
+        setClozeValidationError,
+      },
+      clozePreserveForTransition(nextScene, currentScene.id, clozeAnswers),
+    );
+    setMcValidationError(null);
+    setMatchingValidationError(null);
+    setDragDropValidationError(null);
+    setFreetextValidationError(null);
+    setErrorSpottingValidationError(null);
+    setClozeValidationError(null);
+    setPauseOpen(false);
+    setSceneNavPending(false);
+  }
+
   async function onSubmitTask() {
     if (!token || !state.run || !currentScene || currentScene.scene_type !== "task") return;
     if (successOpen || showSolution) return;
@@ -1064,6 +1118,10 @@ export default function PlayPage() {
         onResume={() => setPauseOpen(false)}
         onBackToQuestList={() => router.push(`/chapters/${state.run?.chapterId ?? ""}`)}
         onBackToMenu={() => router.push("/menu")}
+        sceneJumpTargets={state.run?.sceneJumpTargets}
+        currentSceneId={currentScene?.id}
+        jumpPending={sceneNavPending}
+        onJumpScene={onJumpScene}
       />
 
       <SuccessOverlay

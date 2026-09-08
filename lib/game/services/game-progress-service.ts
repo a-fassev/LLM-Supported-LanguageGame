@@ -10,6 +10,7 @@ import {
   getWalletTotals,
   incrementWalletTotals,
   updateQuestRunPosition,
+  abandonQuestRun,
   type QuestRunRow,
 } from "@/lib/game/repositories/game-progress-repository";
 import {
@@ -26,6 +27,8 @@ import {
 import { isQuestCompleted } from "@/lib/game/unlock-display";
 import { resolveCatalogSceneForRun } from "@/lib/game/tasks/matching/resolve-matching-scene-task";
 import { gameClientMessages as msg } from "@/lib/game/clientMessages";
+import { isGameDemoMode } from "@/lib/game/demo-mode";
+import { sceneJumpTargetsForQuest } from "@/lib/game/demo-scene-jump";
 import {
   findCatalogScene,
   findCatalogQuest,
@@ -63,6 +66,7 @@ export type BootstrapResult =
       ok: true;
       completedQuestIds: string[];
       chapters: BootstrapChapterDto[];
+      demoMode: boolean;
     } & WalletSnapshotFields
   | { ok: false; status: number; error: string; code?: string; details?: Record<string, unknown> };
 
@@ -133,6 +137,7 @@ export async function bootstrapGameState(accountId: string): Promise<BootstrapRe
     ...walletWithBackpackProgress(wallet, catalog),
     completedQuestIds,
     chapters: toBootstrapChapters(catalog),
+    demoMode: isGameDemoMode(),
   };
 }
 
@@ -159,6 +164,7 @@ export type RunSnapshotDto = {
   currentScene: RunSceneDto;
   /** Background key of the next catalog scene, when one exists (for client preload). */
   nextSceneBackground: string | null;
+  sceneJumpTargets?: { id: string; label: string }[];
 };
 
 export type RunSnapshotResult =
@@ -334,6 +340,7 @@ async function buildSnapshotFromRun(
   const completedSceneIds = (await getCompletedSceneIds(run.runId)) ?? [];
   const quest = findCatalogQuest(catalog, run.chapterId, run.questId);
   const canRetreat = quest ? previousSceneIdInQuest(scene, quest.scenes) !== null : false;
+  const sceneJumpTargets = isGameDemoMode() && quest ? sceneJumpTargetsForQuest(quest.scenes) : undefined;
   return {
     ok: true,
     ...walletWithBackpackProgress(
@@ -354,6 +361,7 @@ async function buildSnapshotFromRun(
       isGameFinaleQuest: isGameFinaleCatalogQuest(catalog, run.chapterId, run.questId),
       currentScene: sceneToDto(scene),
       nextSceneBackground: quest ? nextSceneBackgroundInQuest(scene, quest.scenes) : null,
+      ...(sceneJumpTargets ? { sceneJumpTargets } : {}),
     },
   };
 }
@@ -377,47 +385,55 @@ export async function startOrResumeRun(
   const existingRun = await getActiveQuestRun(accountId);
   if (existingRun) {
     if (existingRun.chapterId !== chapterId || existingRun.questId !== questId) {
-      return {
-        ok: false,
-        status: 409,
-        error: msg.activeRunExists,
-        code: "active_run_exists",
-        details: {
-          existingRunId: existingRun.runId,
-          existingChapterId: existingRun.chapterId,
-          existingQuestId: existingRun.questId,
-        },
-      };
+      if (isGameDemoMode()) {
+        await abandonQuestRun(existingRun.runId);
+      } else {
+        return {
+          ok: false,
+          status: 409,
+          error: msg.activeRunExists,
+          code: "active_run_exists",
+          details: {
+            existingRunId: existingRun.runId,
+            existingChapterId: existingRun.chapterId,
+            existingQuestId: existingRun.questId,
+          },
+        };
+      }
     }
-    const resumeCatalog = await loadCatalogForRun();
-    if (!resumeCatalog) {
-      return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
+    const resumedRun = isGameDemoMode() ? await getActiveQuestRun(accountId) : existingRun;
+    if (resumedRun && resumedRun.chapterId === chapterId && resumedRun.questId === questId) {
+      const resumeCatalog = await loadCatalogForRun();
+      if (!resumeCatalog) {
+        return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
+      }
+      if (isChapterAccessBlocked(resumeCatalog, resumedRun.chapterId)) {
+        return runBlockedByChapterAccess(resumeCatalog, resumedRun.chapterId, resumedRun.questId);
+      }
+      const resumeCompletedQuestIds = await getCompletedQuestIds(accountId);
+      if (resumeCompletedQuestIds === null) {
+        return { ok: false, status: 500, error: msg.couldNotLoadRun };
+      }
+      const resumeQuest = findCatalogQuest(
+        resumeCatalog,
+        resumedRun.chapterId,
+        resumedRun.questId,
+      );
+      if (
+        !isGameDemoMode() &&
+        resumeQuest &&
+        isQuestCompleted(resumedRun.chapterId, resumeQuest, new Set(resumeCompletedQuestIds))
+      ) {
+        return {
+          ok: false,
+          status: 409,
+          error: msg.questAlreadyCompleted,
+          code: "quest_already_completed",
+          details: { chapterId: resumedRun.chapterId, questId: resumedRun.questId },
+        };
+      }
+      return buildSnapshotFromRun(accountId, resumedRun, { catalog: resumeCatalog });
     }
-    if (isChapterAccessBlocked(resumeCatalog, existingRun.chapterId)) {
-      return runBlockedByChapterAccess(resumeCatalog, existingRun.chapterId, existingRun.questId);
-    }
-    const resumeCompletedQuestIds = await getCompletedQuestIds(accountId);
-    if (resumeCompletedQuestIds === null) {
-      return { ok: false, status: 500, error: msg.couldNotLoadRun };
-    }
-    const resumeQuest = findCatalogQuest(
-      resumeCatalog,
-      existingRun.chapterId,
-      existingRun.questId,
-    );
-    if (
-      resumeQuest &&
-      isQuestCompleted(existingRun.chapterId, resumeQuest, new Set(resumeCompletedQuestIds))
-    ) {
-      return {
-        ok: false,
-        status: 409,
-        error: msg.questAlreadyCompleted,
-        code: "quest_already_completed",
-        details: { chapterId: existingRun.chapterId, questId: existingRun.questId },
-      };
-    }
-    return buildSnapshotFromRun(accountId, existingRun, { catalog: resumeCatalog });
   }
 
   const catalog = await loadCatalogForRun();
@@ -453,7 +469,7 @@ export async function startOrResumeRun(
       },
     };
   }
-  if (isQuestCompleted(chapterId, quest, new Set(completedQuestIds))) {
+  if (!isGameDemoMode() && isQuestCompleted(chapterId, quest, new Set(completedQuestIds))) {
     return {
       ok: false,
       status: 409,
@@ -543,6 +559,49 @@ export async function retreatRunScene(
 
   const moved = await updateQuestRunPosition(run.runId, previousSceneId);
   if (!moved) return { ok: false, status: 500, error: msg.couldNotRetreatScene };
+
+  const updatedRun = await getQuestRunById(run.runId);
+  return buildSnapshotFromRun(accountId, updatedRun);
+}
+
+export async function jumpRunScene(
+  accountId: string,
+  runId: string,
+  sceneId: string,
+  targetSceneId: string,
+): Promise<RunSnapshotResult> {
+  if (!isGameDemoMode()) {
+    return { ok: false, status: 409, error: msg.jumpNotAllowed, code: "demo_jump_disabled" };
+  }
+
+  const run = await getQuestRunById(runId);
+  if (!run || run.accountId !== accountId || run.status !== "in_progress") {
+    return { ok: false, status: 404, error: msg.runNotFound, code: "run_not_found" };
+  }
+  if (run.currentSceneId !== sceneId) {
+    return { ok: false, status: 409, error: msg.invalidSceneProgression, code: "scene_out_of_sync" };
+  }
+
+  const catalog = await loadContentCatalog().catch(() => null);
+  if (!catalog) return { ok: false, status: 500, error: msg.couldNotLoadCatalog, code: "catalog_unavailable" };
+
+  if (isChapterAccessBlocked(catalog, run.chapterId)) {
+    return runBlockedByChapterAccess(catalog, run.chapterId, run.questId);
+  }
+
+  const quest = findCatalogQuest(catalog, run.chapterId, run.questId);
+  const currentScene = findCatalogScene(catalog, run.chapterId, run.questId, sceneId);
+  const targetScene = findCatalogScene(catalog, run.chapterId, run.questId, targetSceneId);
+  if (!quest || !currentScene || !targetScene) {
+    return { ok: false, status: 400, error: msg.invalidSceneProgression, code: "scene_missing" };
+  }
+
+  if (targetSceneId === sceneId) {
+    return buildSnapshotFromRun(accountId, run, { catalog });
+  }
+
+  const moved = await updateQuestRunPosition(run.runId, targetSceneId);
+  if (!moved) return { ok: false, status: 500, error: msg.couldNotJumpScene };
 
   const updatedRun = await getQuestRunById(run.runId);
   return buildSnapshotFromRun(accountId, updatedRun);

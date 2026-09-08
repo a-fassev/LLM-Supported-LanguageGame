@@ -37,7 +37,8 @@ export default function ChapterDetailPage() {
     }
     const completedSet = new Set(data.completedQuestIds);
     const orderedChapters = data.chapters.slice().sort((a, b) => a.order - b.order);
-    const lockReason = getChapterLockReason(chapter, orderedChapters, completedSet);
+    const lockReason =
+      data.demoMode === true ? null : getChapterLockReason(chapter, orderedChapters, completedSet);
     return {
       lockReason,
       scheduleLockLabel: getChapterScheduleLockLabel(chapter),
@@ -49,7 +50,8 @@ export default function ChapterDetailPage() {
     if (!chapter || !data) return [];
     const completedSet = new Set(data.completedQuestIds);
     const orderedChapters = data.chapters.slice().sort((a, b) => a.order - b.order);
-    const chapterLocked = isChapterLocked(chapter, orderedChapters, completedSet);
+    const chapterLocked =
+      data.demoMode === true ? false : isChapterLocked(chapter, orderedChapters, completedSet);
     const scheduleBadge =
       chapterMeta.lockReason === "schedule"
         ? (chapterMeta.scheduleLockLabel ?? "Presto disponibile")
@@ -59,7 +61,10 @@ export default function ChapterDetailPage() {
       .sort((a, b) => a.order - b.order)
       .map((quest) => ({
         quest,
-        locked: chapterLocked || isQuestLocked(chapter.id, quest, completedSet),
+        locked:
+          data.demoMode === true
+            ? false
+            : chapterLocked || isQuestLocked(chapter.id, quest, completedSet),
         completed: isQuestCompleted(chapter.id, quest, completedSet),
         lockedBadgeLabel: chapterLocked ? scheduleBadge : "Bloccata",
       }));
@@ -98,7 +103,7 @@ export default function ChapterDetailPage() {
         ) : null}
         {chapter ? (
           <>
-            {chapterFullyComplete ? (
+            {chapterFullyComplete && data.demoMode !== true ? (
               <p className="text-sm text-muted-foreground">
                 Tutte le missioni di questo capitolo sono completate. Puoi rivedere l&apos;elenco,
                 ma non ripetere le missioni.
@@ -106,10 +111,12 @@ export default function ChapterDetailPage() {
             ) : null}
             <QuestList
               items={items}
+              allowReplay={data.demoMode === true}
               onStartQuest={(questId) => {
                 const item = items.find((entry) => entry.quest.id === questId);
                 if (!item) return;
-                if (item.locked || item.completed) return;
+                if (item.locked) return;
+                if (item.completed && data.demoMode !== true) return;
                 router.push(`/play?chapterId=${chapter.id}&questId=${questId}`);
               }}
             />

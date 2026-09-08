@@ -25,5 +25,6 @@ export async function GET(request: Request) {
     ...walletSnapshotJson(result),
     completedQuestIds: result.completedQuestIds,
     chapters: result.chapters,
+    demoMode: result.demoMode,
   });
 }

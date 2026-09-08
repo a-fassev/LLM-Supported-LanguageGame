@@ -1,3 +1,5 @@
+import { isGameDemoMode } from "@/lib/game/demo-mode";
+
 export type ChapterReleaseWave = {
   /** ISO 8601 with fixed offset (Europe/Berlin summer time for pilot dates). */
   releasesAt: string;
@@ -42,6 +44,7 @@ export function getChapterReleaseAt(chapterId: string): Date | null {
 }
 
 export function isChapterReleaseScheduleEnforced(): boolean {
+  if (isGameDemoMode()) return false;
   return process.env.NODE_ENV !== "development";
 }
 

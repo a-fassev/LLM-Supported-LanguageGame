@@ -1,6 +1,10 @@
+import { DEMO_ACCOUNT_USERNAME, isGameDemoMode } from "@/lib/game/demo-mode";
+
 /**
  * Pilot class leaderboard allowlist. Sync with docs/pilot-student-accounts-2026-07-06.md
- * (rows marked Leaderboard: include). Only these usernames appear in Classifica.
+ * (rows marked Leaderboard: include). Only these usernames appear in Classifica,
+ * plus the showcase demo account. Demo mode is hardcoded on, so any signed-in
+ * account can open Classifica until `isGameDemoMode()` is reverted.
  */
 export const PILOT_LEADERBOARD_USERNAMES = [
   "bright-lion-9524",
@@ -20,10 +24,12 @@ export const PILOT_LEADERBOARD_USERNAMES = [
   "swift-shark-4983",
   "witty-fox-2980",
   "witty-shark-4941",
+  DEMO_ACCOUNT_USERNAME,
 ] as const;
 
 const pilotLeaderboardUsernameSet = new Set<string>(PILOT_LEADERBOARD_USERNAMES);
 
 export function isLeaderboardEligibleUsername(username: string): boolean {
+  if (isGameDemoMode()) return true;
   return pilotLeaderboardUsernameSet.has(username);
 }
