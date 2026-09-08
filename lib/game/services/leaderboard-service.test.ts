@@ -38,7 +38,7 @@ const ineligibleUsername = "quick-eagle-1813";
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.stubEnv("GAME_DEMO_MODE", "");
+  vi.stubEnv("GAME_DEMO_MODE", "false");
   mocks.loadContentCatalog.mockResolvedValue(mockBackpackCatalog);
 });
 

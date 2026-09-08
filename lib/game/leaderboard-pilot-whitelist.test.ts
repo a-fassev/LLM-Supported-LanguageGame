@@ -6,7 +6,7 @@ import {
 
 describe("leaderboard-pilot-whitelist", () => {
   beforeEach(() => {
-    vi.stubEnv("GAME_DEMO_MODE", "");
+    vi.stubEnv("GAME_DEMO_MODE", "false");
   });
 
   afterEach(() => {

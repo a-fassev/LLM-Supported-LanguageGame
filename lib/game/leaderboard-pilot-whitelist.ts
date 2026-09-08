@@ -3,8 +3,8 @@ import { DEMO_ACCOUNT_USERNAME, isGameDemoMode } from "@/lib/game/demo-mode";
 /**
  * Pilot class leaderboard allowlist. Sync with docs/pilot-student-accounts-2026-07-06.md
  * (rows marked Leaderboard: include). Only these usernames appear in Classifica,
- * plus the showcase demo account. `GAME_DEMO_MODE=true` also lets any signed-in
- * account open Classifica.
+ * plus the showcase demo account. Demo mode is hardcoded on, so any signed-in
+ * account can open Classifica until `isGameDemoMode()` is reverted.
  */
 export const PILOT_LEADERBOARD_USERNAMES = [
   "bright-lion-9524",

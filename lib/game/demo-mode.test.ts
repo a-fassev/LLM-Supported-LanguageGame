@@ -6,16 +6,14 @@ describe("demo-mode", () => {
     vi.unstubAllEnvs();
   });
 
-  it("is off unless GAME_DEMO_MODE is true", () => {
+  it("is hardcoded on", () => {
     vi.stubEnv("GAME_DEMO_MODE", "");
-    expect(isGameDemoMode()).toBe(false);
-    vi.stubEnv("GAME_DEMO_MODE", "false");
-    expect(isGameDemoMode()).toBe(false);
+    expect(isGameDemoMode()).toBe(true);
   });
 
-  it("is on when GAME_DEMO_MODE is true", () => {
-    vi.stubEnv("GAME_DEMO_MODE", "true");
-    expect(isGameDemoMode()).toBe(true);
+  it("can be turned off with GAME_DEMO_MODE=false for tests or a later revert", () => {
+    vi.stubEnv("GAME_DEMO_MODE", "false");
+    expect(isGameDemoMode()).toBe(false);
   });
 
   it("recognizes the showcase username", () => {

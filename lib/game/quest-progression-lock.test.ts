@@ -54,7 +54,7 @@ describe("isQuestLockedForAccount", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.stubEnv("NODE_ENV", "production");
-    vi.stubEnv("GAME_DEMO_MODE", "");
+    vi.stubEnv("GAME_DEMO_MODE", "false");
     vi.setSystemTime(afterPilot);
   });
 

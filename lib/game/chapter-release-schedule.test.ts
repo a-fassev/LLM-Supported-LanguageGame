@@ -16,7 +16,7 @@ describe("chapter-release-schedule", () => {
 
   beforeEach(() => {
     vi.stubEnv("NODE_ENV", "production");
-    vi.stubEnv("GAME_DEMO_MODE", "");
+    vi.stubEnv("GAME_DEMO_MODE", "false");
   });
 
   afterEach(() => {

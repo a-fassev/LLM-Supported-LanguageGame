@@ -28,7 +28,7 @@ describe("bootstrapGameState", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubEnv("NODE_ENV", "development");
-    vi.stubEnv("GAME_DEMO_MODE", "");
+    vi.stubEnv("GAME_DEMO_MODE", "false");
     mocks.ensureWalletRow.mockResolvedValue(true);
     mocks.getWalletTotals.mockResolvedValue({ totalSlices: 3, totalBackpackPieces: 1 });
     mocks.getCompletedQuestIds.mockResolvedValue([]);

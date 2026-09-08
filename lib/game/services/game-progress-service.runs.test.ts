@@ -146,6 +146,7 @@ describe("game-progress-service run flows", () => {
     vi.clearAllMocks();
     vi.unstubAllEnvs();
     vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("GAME_DEMO_MODE", "false");
     repoMocks.ensureWalletRow.mockResolvedValue(true);
     repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 0, totalBackpackPieces: 0 });
     repoMocks.getCompletedQuestIds.mockResolvedValue([]);
@@ -1211,6 +1212,7 @@ describe("game-progress-service chapter release schedule", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("GAME_DEMO_MODE", "false");
     repoMocks.ensureWalletRow.mockResolvedValue(true);
     repoMocks.getWalletTotals.mockResolvedValue({ totalSlices: 0, totalBackpackPieces: 0 });
     repoMocks.getCompletedQuestIds.mockResolvedValue(["chapter-00:quest-01"]);
