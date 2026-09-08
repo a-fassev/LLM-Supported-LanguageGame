@@ -25,6 +25,8 @@ jobs:
         run: npm ci
 
       - name: Build app
+        env:
+          GAME_DEMO_MODE: "true"
         run: npm run build -- --webpack
 
       - name: Prepare deployment package

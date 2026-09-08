@@ -132,6 +132,7 @@ function makeFreetextTaskScene() {
 
 import {
   completeTaskScene,
+  jumpRunScene,
   retreatRunScene,
   startOrResumeRun,
 } from "@/lib/game/services/game-progress-service";
@@ -1102,6 +1103,102 @@ describe("game-progress-service run flows", () => {
       expect(result.run.canRetreat).toBe(false);
       expect(result.run.nextSceneBackground).toBe(scene2.background);
     }
+  });
+
+  it("starts an already completed quest when GAME_DEMO_MODE is true", async () => {
+    vi.stubEnv("GAME_DEMO_MODE", "true");
+    repoMocks.getActiveQuestRun.mockResolvedValue(null);
+    catalogMocks.loadContentCatalog.mockResolvedValue({
+      chapters: [
+        {
+          id: "chapter-01",
+          questsExpanded: [{ id: "quest-01", kind: "main" }],
+        },
+      ],
+    });
+    catalogMocks.findCatalogQuest.mockReturnValue({
+      id: "quest-01",
+      requiresQuestId: null,
+      scenes: [{ id: "chapter-01-quest-01-scene-01" }],
+    });
+    repoMocks.getCompletedQuestIds.mockResolvedValue(["chapter-01:quest-01"]);
+    repoMocks.createQuestRun.mockResolvedValue({
+      runId: "run-2",
+      accountId: "acc-1",
+      chapterId: "chapter-01",
+      questId: "quest-01",
+      currentSceneId: "chapter-01-quest-01-scene-01",
+      status: "in_progress",
+    });
+    catalogMocks.findCatalogScene.mockReturnValue({
+      id: "chapter-01-quest-01-scene-01",
+      sceneNumber: 1,
+      filename: "01.json",
+      scene_type: "story",
+      screen_type: "info",
+      background: "bg",
+      content: { text: "One" },
+    });
+    repoMocks.getCompletedSceneIds.mockResolvedValue([]);
+
+    const result = await startOrResumeRun("acc-1", "chapter-01", "quest-01");
+    expect(result.ok).toBe(true);
+    expect(repoMocks.createQuestRun).toHaveBeenCalled();
+  });
+
+  it("jumps to another scene in the same quest when GAME_DEMO_MODE is true", async () => {
+    vi.stubEnv("GAME_DEMO_MODE", "true");
+    const scene1 = {
+      id: "chapter-01-quest-01-scene-01",
+      sceneNumber: 1,
+      filename: "01.json",
+      scene_type: "story" as const,
+      screen_type: "info",
+      background: "chapters/01/quests/01/bg-scene-01",
+      content: { text: "One" },
+      scoring: { backpack: { pieces: 0 }, pizza: { mode: "flat" as const, slices: 0 } },
+    };
+    const scene2 = {
+      id: "chapter-01-quest-01-scene-02",
+      sceneNumber: 2,
+      filename: "02.json",
+      scene_type: "story" as const,
+      screen_type: "info",
+      background: "chapters/01/quests/01/bg-scene-02",
+      content: { text: "Two" },
+      scoring: { backpack: { pieces: 0 }, pizza: { mode: "flat" as const, slices: 0 } },
+    };
+    const run = {
+      runId: "run-1",
+      accountId: "acc-1",
+      chapterId: "chapter-01",
+      questId: "quest-01",
+      currentSceneId: scene1.id,
+      status: "in_progress" as const,
+    };
+
+    repoMocks.getQuestRunById
+      .mockResolvedValueOnce(run)
+      .mockResolvedValueOnce({ ...run, currentSceneId: scene2.id });
+    catalogMocks.loadContentCatalog.mockResolvedValue({ chapters: [] });
+    catalogMocks.findCatalogQuest.mockReturnValue({ id: "quest-01", scenes: [scene1, scene2] });
+    catalogMocks.findCatalogScene.mockImplementation((_catalog, _chapterId, _questId, sceneId) => {
+      if (sceneId === scene2.id) return scene2;
+      if (sceneId === scene1.id) return scene1;
+      return null;
+    });
+    repoMocks.updateQuestRunPosition.mockResolvedValue(true);
+    repoMocks.getCompletedSceneIds.mockResolvedValue([]);
+
+    const result = await jumpRunScene("acc-1", "run-1", scene1.id, scene2.id);
+    expect(result.ok).toBe(true);
+    expect(repoMocks.updateQuestRunPosition).toHaveBeenCalledWith("run-1", scene2.id);
+  });
+
+  it("refuses scene jump when GAME_DEMO_MODE is off", async () => {
+    const result = await jumpRunScene("acc-1", "run-1", "scene-a", "scene-b");
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.code).toBe("demo_jump_disabled");
   });
 });
 

@@ -22,13 +22,14 @@ export default function ChaptersPage() {
   const chapterItems = useMemo(() => {
     if (!data) return [];
     const completedSet = new Set(data.completedQuestIds);
+    const demoMode = data.demoMode === true;
     return data.chapters
       .slice()
       .sort((a, b) => a.order - b.order)
       .map((chapter, _, ordered) => ({
         chapter,
-        locked: isChapterLocked(chapter, ordered, completedSet),
-        lockReason: getChapterLockReason(chapter, ordered, completedSet),
+        locked: demoMode ? false : isChapterLocked(chapter, ordered, completedSet),
+        lockReason: demoMode ? null : getChapterLockReason(chapter, ordered, completedSet),
         scheduleLockLabel: getChapterScheduleLockLabel(chapter),
         mainComplete: isChapterMainProgressComplete(chapter, completedSet),
         fullyComplete: isChapterFullyComplete(chapter, completedSet),
@@ -57,6 +58,7 @@ export default function ChaptersPage() {
         {data && data.chapters.length > 0 ? (
           <ChapterGrid
             items={chapterItems}
+            allowReplay={data.demoMode === true}
             onOpenChapter={(chapterId) => router.push(`/chapters/${chapterId}`)}
           />
         ) : null}

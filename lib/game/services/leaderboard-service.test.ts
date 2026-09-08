@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   getStudentAccountLeaderboardSelfContext: vi.fn(),
@@ -38,7 +38,12 @@ const ineligibleUsername = "quick-eagle-1813";
 
 beforeEach(() => {
   vi.clearAllMocks();
+  vi.stubEnv("GAME_DEMO_MODE", "");
   mocks.loadContentCatalog.mockResolvedValue(mockBackpackCatalog);
+});
+
+afterEach(() => {
+  vi.unstubAllEnvs();
 });
 
 describe("getLeaderboardState", () => {
@@ -169,5 +174,24 @@ describe("getLeaderboardState", () => {
     expect(result.self.overallRank).toBe(2);
     expect(result.self.totalSlices).toBe(0);
     expect(result.overall.every((row) => !row.isSelf)).toBe(true);
+  });
+
+  it("opens Classifica for non-whitelisted viewers when GAME_DEMO_MODE is true", async () => {
+    vi.stubEnv("GAME_DEMO_MODE", "true");
+    mocks.getStudentAccountLeaderboardSelfContext.mockResolvedValue({
+      username: ineligibleUsername,
+      team: "red",
+      totalSlices: 35,
+      totalBackpackPieces: 6,
+    });
+    mocks.listLeaderboardPlayerRows.mockResolvedValue([
+      { accountId, username: ineligibleUsername, team: "red", totalSlices: 35, totalBackpackPieces: 6 },
+    ]);
+
+    const result = await getLeaderboardState(accountId);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.eligible).toBe(true);
+    expect(mocks.listLeaderboardPlayerRows).toHaveBeenCalled();
   });
 });

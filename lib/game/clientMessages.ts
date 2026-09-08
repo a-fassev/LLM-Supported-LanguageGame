@@ -10,6 +10,8 @@ export const gameClientMessages = {
   couldNotAdvanceScene: "Impossibile avanzare la scena.",
   couldNotRetreatScene: "Impossibile tornare alla scena precedente.",
   retreatNotAllowed: "Non puoi tornare indietro da questa scena.",
+  couldNotJumpScene: "Impossibile saltare a questa scena.",
+  jumpNotAllowed: "In questa partita non puoi saltare tra le scene.",
   couldNotCompleteTask: "Impossibile completare l'attivita.",
   runNotFound: "Partita non trovata.",
   activeRunExists: "Hai gia una partita in corso in un'altra missione.",

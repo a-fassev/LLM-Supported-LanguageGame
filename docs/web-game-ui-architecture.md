@@ -37,6 +37,7 @@
   | GET | `/api/game/runs/snapshot` | Active run + current scene |
   | POST | `/api/game/runs/[runId]/advance` | Story scene → next |
   | POST | `/api/game/runs/[runId]/retreat` | Previous scene (`sceneId` = current); position only — no completion/wallet rollback |
+  | POST | `/api/game/runs/[runId]/jump` | Demo-only: jump to any scene in the current quest (`GAME_DEMO_MODE`) |
   | POST | `/api/game/runs/[runId]/attempt` | Task attempt → score → advance if min ratio met |
 
 - **Auth APIs:** login, register, logout, session, `GET /api/auth/suggest-username`.
@@ -267,6 +268,7 @@ Prefer **Server Components** for hub pages that only display server-fetched prop
 | Start quest | `POST /api/game/runs/start` `{ chapterId, questId }` |
 | Story next | `POST .../advance` `{ sceneId }` |
 | Go back one scene | `POST .../retreat` `{ sceneId }` (current scene id); server moves run pointer only |
+| Demo jump (any scene in quest) | `POST .../jump` `{ sceneId, targetSceneId }` when bootstrap/`GAME_DEMO_MODE` |
 | Task check | `POST .../attempt` `{ sceneId, attemptPayload }` |
 
 ### Client-local state (only)

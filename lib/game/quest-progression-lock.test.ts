@@ -54,6 +54,7 @@ describe("isQuestLockedForAccount", () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("GAME_DEMO_MODE", "");
     vi.setSystemTime(afterPilot);
   });
 
@@ -138,5 +139,19 @@ describe("isQuestLockedForAccount", () => {
     };
     expect(getChapterAccessBlockReason(catalog, "chapter-01")).toBe("schedule");
     expect(isQuestLockedForAccount(catalog, "chapter-01", "quest-01", new Set())).toBe(true);
+  });
+
+  it("unlocks chapters and quests when GAME_DEMO_MODE is true", () => {
+    vi.stubEnv("GAME_DEMO_MODE", "true");
+    const catalog: ContentCatalog = {
+      chapters: [
+        {
+          ...catalogFixture().chapters[0],
+          locked: true,
+        },
+      ],
+    };
+    expect(getChapterAccessBlockReason(catalog, "chapter-01")).toBe(null);
+    expect(isQuestLockedForAccount(catalog, "chapter-01", "quest-02", new Set())).toBe(false);
   });
 });
